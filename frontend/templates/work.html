@@ -129,7 +129,7 @@ jQuery(document).ready(function(){
                         </div>
                         <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_epub_url or work.first_pdf_url %}6{%else%}{{ work.percent_unglued }}{%endif%}.png" /></div>
                         </div>
-                        <div class="btn_wishlist">
+                        <div class="btn_wishlist" id="wishlist_actions">
                             {% if work.first_epub_url or work.first_pdf_url %}
                                 <span class="boolist-ebook">
                                 {% if work.first_epub_url %}

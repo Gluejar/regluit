@@ -157,7 +157,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads {{ profile_form.clear_goodreads }}
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
@@ -177,7 +177,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                         
                                         <div id="loadgr"><span>
                                          <div id="goodreads_shelves"></div>
-                                        <input id="goodreads_input" type="submit" value="Display your GoodReads shelves" />
+                                        <input id="goodreads_input" type="submit" value="Select your GoodReads shelves" />
                                         </span>
                                         </div>
                                     </div>
