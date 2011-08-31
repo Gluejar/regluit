@@ -25,6 +25,6 @@ an Ubuntu system:
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.dev' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate`
-1. `django-admin runserver`
+1. `django-admin testserver`
 1. point your browser at http://localhost:8000/
 
