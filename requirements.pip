@@ -1,0 +1,4 @@
+django
+south
+django-extensions
+django-tastypie
