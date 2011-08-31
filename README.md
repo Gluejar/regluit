@@ -7,7 +7,7 @@ three applications: `frontend`, `api` and `core` that can be deployed and
 configured to as many instances that are needed to support traffic. The key 
 difference with [unglue](http://github.com/gluejar/unglu) is that the 
 `frontend` app is able to access database models from `core` in the same 
-way that the `api` is able to.  Which should simplify some things.
+way that the `api` is able to...which hopefully should simplify some things.
 
 Develop
 -------
