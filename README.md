@@ -2,7 +2,7 @@ regluit
 =======
 
 A 'monolithic' alternative to [unglu](http://github.com/gluejar/unglu) 
-for the unglue.it website. It's essentially on Django project that contains 
+for the unglue.it website. regluit essentially on Django project that contains 
 three applications: `frontend`, `api` and `core` that can be deployed and 
 configured to as many instances that are needed to support traffic. The key 
 difference with [unglue](http://github.com/gluejar/unglu) is that the 
