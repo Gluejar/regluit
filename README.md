@@ -2,8 +2,12 @@ regluit
 =======
 
 A 'monolithic' alternative to [unglu](http://github.com/gluejar/unglu) 
-for the unglue.it website. It's just one code base that can be deployed
-to as many ec2 instances as needed to support traffic.
+for the unglue.it website. It's essentially on Django project that contains 
+three applications: `frontend`, `api` and `core` that can be deployed and 
+configured to as many instances that are needed to support traffic. The key 
+difference with [unglue](http://github.com/gluejar/unglu) is that the 
+`frontend` app is able to access database models from `core` in the same 
+way that the `api` is able to.  Which should simplify some things.
 
 Develop
 -------
