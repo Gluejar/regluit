@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>unglue.it: {% block title %}{% endblock %}</title>
+<link type="text/css" rel="stylesheet" href="/static/css/layout.css"  />
+</head>
+
+<body>
+
+<div id="page-wrap">
+    <div id="header">
+        <div class="main">
+            <div class="logo">
+                <a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
+            </div>
+            <div class="topmenu">
+                <ul class="menu">
+                    {% if user.is_authenticated %}
+                    <li class="first"><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
+                    {% else %}
+                    <li class="first"><a href="{% url auth_login %}"><span>Sign In</span></a></li>
+                    {% endif %}
+                    <li><a href="#"><span>Tour</span></a></li>  
+                    <li><a href="#"><span>FAQ’s</span></a></li>   
+                    <li><a href="#"><span>Help</span></a></li>
+                    {% if not user.is_authenticated %}
+                    <li class="last"><a href="{% url registration_register %}"><span>sign up</span></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    {% block content %}{% endblock %}
+
+</div>
+
+</body>
+</html>
+
+

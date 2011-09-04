@@ -78,6 +78,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    join(PROJECT_DIR, "frontend", "templates", "registration"),
 )
 
 INSTALLED_APPS = (
@@ -92,6 +93,7 @@ INSTALLED_APPS = (
     'regluit.frontend',
     'regluit.api',
     'regluit.core',
+    'registration',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -106,7 +108,12 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join(PROJECT_DIR, 'logs', 'django.log')
+        },
     },
     'loggers': {
         'django.request': {
@@ -116,3 +123,15 @@ LOGGING = {
         },
     }
 }
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'ed.summers@gmail.com'
+EMAIL_HOST_PASSWORD = 'naufxnpnlysskist'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'ehs@pobox.com'
+
+ACCOUNT_ACTIVATION_DAYS = 7
+LOGIN_URL = "/accounts/login/"
+LOGOUT_URL = "/accounts/logout/"
+

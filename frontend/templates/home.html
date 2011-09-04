@@ -1,38 +1,15 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>unglue.it</title>
-<link type="text/css" rel="stylesheet" href="/static/css/layout.css"  />
-</head>
+{% extends "base.html" %}
 
-<body>
+{% block content %}
 
-<div id="js-page-wrap">
-	<div id="js-header">
-    	<div class="js-main">
-        	<div class="js-logo">
-            	<a href="index.html"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
+     <div id="topsection">
+    	<div class="main">
+        	<div class="topnews">
+            	<div class="news-text">With your help we raise money to buy book rights. The unglued books are free to download, here.</div>
+                <div class="news-links"><a class="readon"><span>Learn more</span></a></div>
             </div>
-            <div class="js-topmenu">
-            	<ul class="menu">
-                	<li class="first"><a href="#"><span>Sign In</span></a></li>   
-                    <li><a href="#"><span>Tour</span></a></li>  
-                    <li><a href="#"><span>FAQ’s</span></a></li>   
-                    <li><a href="#"><span>Help</span></a></li>
-                    <li class="last"><a href="#"><span>sign up</span></a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <div id="js-topsection">
-    	<div class="js-main">
-        	<div class="js-topnews">
-            	<div class="js-news-text">With your help we raise money to buy book rights. The unglued books are free to download, here.</div>
-                <div class="js-news-links"><a class="readon"><span>Learn more</span></a></div>
-            </div>
-            <div class="js-search">
-            <div class="js-search-inner">
+            <div class="search">
+            <div class="search-inner">
             	<form action="">
                 	<input type="text" onfocus="if (this.value=='Search for a book...') this.value='';" onblur="if (this.value=='') this.value='Search for a book...';" value="Search for a book..." size="30" class="inputbox" maxlength="200" id="ssearchword" name="searchword">
                     <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
@@ -43,8 +20,8 @@
     </div>
     
     <div id="main-container">
-    <div class="js-main">
-    	<div id="js-leftcol">
+    <div class="main">
+    	<div id="leftcol">
         	<div class="jsmodule">
             	<h3 class="jsmod-title"><span>Explore</span></h3>
                 <div class="jsmod-content">
@@ -75,8 +52,8 @@
                 </div>
             </div>
         </div>
-        <div id="js-maincol-fr">
-        <div class="js-maincol-inner">
+        <div id="maincol-fr">
+        <div class="maincol-inner">
         	<div class="content-block">
             	<div class="content-block-heading">
                     <h2 class="content-heading">Currently being <span>unglued</span></h2>
@@ -335,10 +312,5 @@
         </div>
     </div>
     </div>
-    
-    
-</div>
 
-
-</body>
-</html>
+{% endblock %}
