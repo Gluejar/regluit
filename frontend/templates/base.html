@@ -17,7 +17,8 @@
             <div class="topmenu">
                 <ul class="menu">
                     {% if user.is_authenticated %}
-                    <li class="first"><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
+                    <li class="first"><span id="welcome">Welcome, {{ user.username }}</span></li>
+                    <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}"><span>Sign In</span></a></li>
                     {% endif %}

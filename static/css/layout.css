@@ -23,6 +23,7 @@ body{
 .topmenu{ float:right; padding-top:25px;}
 .topmenu ul li{ float:left; padding:0 10px;}
 .topmenu ul li a{ height:36px; line-height:36px; display:block; color:#fff; text-decoration:none; font-weight:bold; font-size:13px; letter-spacing:1px; text-transform:capitalize;}
+.topmenu ul li span#welcome { height:36px; line-height:36px; display:block; color:yellow; text-decoration:none; font-weight:bold; font-size:13px; letter-spacing:1px; text-transform:capitalize;}
 .topmenu ul li.last a{ background: url(../images/bg.png) right top no-repeat;}
 .topmenu ul li.last a span{ background:url(../images/bg.png) -770px -36px no-repeat; margin-right:29px; display:block; padding:0 5px 0 15px;}
 
