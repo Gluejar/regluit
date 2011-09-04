@@ -64,6 +64,10 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.request',
+)
+
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -124,14 +128,10 @@ LOGGING = {
     }
 }
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'ed.summers@gmail.com'
-EMAIL_HOST_PASSWORD = 'naufxnpnlysskist'
-EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'ehs@pobox.com'
-
+EMAIL_HOST = 'smtp.gluejar.com'
+DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 ACCOUNT_ACTIVATION_DAYS = 7
+
 LOGIN_URL = "/accounts/login/"
 LOGOUT_URL = "/accounts/logout/"
 
