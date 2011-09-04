@@ -3,5 +3,5 @@ south
 django-extensions
 django-tastypie
 requests
-hg+https://edsu@bitbucket.org/ubernostrum/django-registration
+https://bitbucket.org/ubernostrum/django-registration/get/tip.tar.gz
 
