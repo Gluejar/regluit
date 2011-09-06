@@ -4,11 +4,25 @@
 
 {% block content %}
 <div id="registration">
+
+<h3>Sign up for a Unglue It account:</h3>
+
 <table>
     <form method='post' action=''>{% csrf_token %}
         {{ form }}
         <tr><td></td><td><input type="submit" value="Send activation email" /></td>
     </form>
 </table>
+
+<p>
+<br>
+<br>
+<h3>Or use another account:</h3> 
+<a href="/socialauth/login/google"><img src="{{ STATIC_URL }}/images/auth/google_64.png"</a>
+<a href="/socialauth/login/facebook"><img src="{{ STATIC_URL }}/images/auth/facebook_64.png"</a>
+<a href="/socialauth/login/twitter"><img src="{{ STATIC_URL }}/images/auth/twitter_64.png"</a>
+</p>
+
 </div>
+
 {% endblock %}

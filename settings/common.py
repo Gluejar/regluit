@@ -161,7 +161,10 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_ENABLED_BACKENDS = ('google', 'facebook', 'twitter')
+SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
+SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
+FACEBOOK_EXTENDED_PERMISSIONS = ['email']
+TWITTER_EXTENDED_PERMISSIONS = ['email']
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
