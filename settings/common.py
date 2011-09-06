@@ -104,6 +104,7 @@ INSTALLED_APPS = (
     'regluit.api',
     'regluit.core',
     'registration',
+    'social_auth',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -134,10 +135,20 @@ LOGGING = {
     }
 }
 
+# django-registration
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 ACCOUNT_ACTIVATION_DAYS = 7
 
-LOGIN_URL = "/accounts/login/"
-LOGOUT_URL = "/accounts/logout/"
+# django-social-auth
+AUTHENTICATION_BACKENDS = (
+    'social_auth.backends.google.GoogleBackend',
+    'social_auth.backends.facebook.FacebookBackend',
+    'social_auth.backends.twitter.TwitterBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+SOCIAL_AUTH_ENABLED_BACKENDS = ('google', 'facebook', 'twitter')
 
+LOGIN_URL = "/accounts/login/"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_URL = "/accounts/logout/"

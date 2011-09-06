@@ -4,4 +4,5 @@ django-extensions
 django-tastypie
 requests
 https://bitbucket.org/ubernostrum/django-registration/get/tip.tar.gz
-
+https://github.com/uswaretech/Django-Socialauth/zipball/master
+django-social-auth
