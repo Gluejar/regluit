@@ -24,6 +24,7 @@ an Ubuntu system:
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
 1. edit `settings/me.py` and set `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD`  to your gmail username and password, so that registration emails will work properly.
+1. edit `settings/me.py` and look at the facebook, twitter and google auth settings to enable federated logins from those sites
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate`
