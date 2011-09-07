@@ -50,7 +50,10 @@ FACEBOOK_API_SECRET = ''
 # google auth
 # you'll need to create a new Google application to fill in these blanks
 # https://code.google.com/apis/console/
-GOOGLE_OAUTH2_CLIENT_ID = '989608723367.apps.googleusercontent.com'
-GOOGLE_OAUTH2_CLIENT_SECRET = '3UqalKyNynnaaarumUIWh8vS'
+GOOGLE_OAUTH2_CLIENT_ID = ''
+GOOGLE_OAUTH2_CLIENT_SECRET = ''
 GOOGLE_DISPLAY_NAME = 'unglue it!'
 
+# you'll need to register a GoogleBooks API key
+# https://code.google.com/apis/console
+GOOGLE_BOOKS_API_KEY = ''
