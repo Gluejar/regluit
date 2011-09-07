@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from regluit.core import signals
+
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=False)
