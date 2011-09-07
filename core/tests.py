@@ -1,23 +1,24 @@
-"""
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
+from regluit.core import books
 
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
+class TestBooks(TestCase):
 
->>> 1 + 1 == 2
-True
-"""}
+    def test_get_edition(self):
+        edition = books.get_edition(isbn='0441012035')
+        self.assertEqual(edition['title'], 'Neuromancer')
+        self.assertEqual(edition['publication_date'], '2004')
+        self.assertEqual(edition['publisher'], 'Ace Books')
+        self.assertEqual(edition['page_count'], 371)
+        self.assertEqual(edition['authors'], ['William Gibson'])
+        self.assertEqual(edition['isbn_10'], ['0441012035'])
+        self.assertEqual(edition['isbn_13'], ['9780441012039'])
+        self.assertEqual(edition['google_books_id'], '2NyiPwAACAAJ')
+        self.assertTrue('Fiction / Science Fiction / General' in edition['categories'])
+        self.assertTrue('The future blazed into existence with each deliberate word' in edition['description'])
+        self.assertEqual(edition['cover_image_url'], 'http://bks3.books.google.com/books?id=2NyiPwAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api')
+
+    def test_get_work(self):
+        work = books.get_work(isbn='0441012035')
+        self.assertEqual(work['title'], 'Neuromancer')
 
