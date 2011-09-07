@@ -8,4 +8,4 @@ To activate this account, please click the following link within the next
 {{site.domain}}/accounts/activate/{{ activation_key }}
 
 Sincerely,
-{{ site.name }} Management
+The {{ site.name }} Team
