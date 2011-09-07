@@ -18,7 +18,7 @@ an Ubuntu system:
 1. `aptitude install python-setuptools`
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
-1. `cd reglueit`
+1. `cd regluit`
 1. `mkvirtualenv --no-site-packages regluit`
 1. `pip install -r requirements.pip`
 1. `add2virtualenv ..`
@@ -28,6 +28,6 @@ an Ubuntu system:
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate`
-1. `django-admin testserver`
+1. `django-admin.py testserver --addrport 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. point your browser at http://localhost:8000/
 
