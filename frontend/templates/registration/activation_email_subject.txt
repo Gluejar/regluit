@@ -1,1 +1,1 @@
-Account registration for {{ site.name }}
+Your new account at {{ site.name }}
