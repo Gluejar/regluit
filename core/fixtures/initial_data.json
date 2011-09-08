@@ -3,8 +3,8 @@
     "model": "sites.site",
     "pk": 1,
     "fields": {
-      "domain": "ungluit.com",
-      "name": "ungluit"
+      "domain": "unglue.it",
+      "name": "unglue.it"
     }
   }
 ]
