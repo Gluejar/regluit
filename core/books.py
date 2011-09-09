@@ -10,6 +10,7 @@ import requests
 from django.conf import settings
 
 from regluit.core import models
+from regluit.core.isbn import convert_10_to_13
 
 
 def add_book(isbn):
@@ -19,7 +20,10 @@ def add_book(isbn):
     results = get_json(url, params)
     if results.has_key(bibkeys):
         return save_edition(results[bibkeys]['details'])
-    return None
+    elif len(isbn) == 10:
+        return add_book(convert_10_to_13(isbn))
+    else:
+        return None
 
 
 def save_edition(edition_data):

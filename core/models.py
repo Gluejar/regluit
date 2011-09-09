@@ -52,11 +52,15 @@ class Edition(models.Model):
     def isbn_13(self):
         return self._id('isbn_13')
 
+    def __unicode__(self):
+        return self.title
+
     def _id(self, name):
         for i in self.identifiers.all():
             if i.name == name:
                 return i.value
         return None
+
 
 class EditionIdentifier(models.Model):
     created = models.DateTimeField(auto_now_add=True)

@@ -10,4 +10,7 @@ class Command(BaseCommand):
         for isbn in open(filename):
             isbn = isbn.strip()
             edition = books.add_book(isbn)
-            print edition.title
+            if edition:
+                print edition
+            else:
+                print "failed to load book for %s" % isbn
