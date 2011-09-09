@@ -9,4 +9,5 @@ class Command(BaseCommand):
     def handle(self, filename, **options):
         for isbn in open(filename):
             isbn = isbn.strip()
-            print books.get_edition(isbn)
+            edition = books.add_book(isbn)
+            print edition.title

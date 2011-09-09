@@ -168,3 +168,5 @@ FACEBOOK_EXTENDED_PERMISSIONS = ['email']
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
+
+USER_AGENT = "unglue.it bot <http://unglue.it>"
