@@ -17,7 +17,6 @@ class Campaign(models.Model):
         return u"Campaign for %s" % self.work.title
 
 
-
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
