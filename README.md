@@ -13,7 +13,9 @@ Develop
 -------
 
 Here are some instructions for setting up regluit for development on 
-an Ubuntu system:
+an Ubuntu system. If you are on OS X you will probbably need to use 
+[Homebrew](http://mxcl.github.com/homebrew/) or some other package manager
+to install Python and python-setuptools in step 1:
 
 1. `aptitude install python-setuptools`
 1. `sudo easy_install virtualenv virtualenvwrapper`
