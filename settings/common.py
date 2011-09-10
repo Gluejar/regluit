@@ -114,7 +114,12 @@ INSTALLED_APPS = (
 # more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
-    'disable_existing_loggers': False,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'brief': {
+            'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
@@ -123,7 +128,10 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': join(PROJECT_DIR, 'logs', 'django.log')
+            'filename': join(PROJECT_DIR, 'logs', 'unglue.it.log'),
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter': 'brief',
         },
     },
     'loggers': {
@@ -132,6 +140,10 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        '': {
+            'handlers': ['file'],
+            'level': 'INFO',
+        }
     }
 }
 
@@ -142,7 +154,6 @@ ACCOUNT_ACTIVATION_DAYS = 7
 
 # django-social-auth
 AUTHENTICATION_BACKENDS = (
-
     'social_auth.backends.google.GoogleOAuth2Backend',
     'social_auth.backends.facebook.FacebookBackend',
     'social_auth.backends.twitter.TwitterBackend',
@@ -169,4 +180,4 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 
-USER_AGENT = "unglue.it bot <http://unglue.it>"
+USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"

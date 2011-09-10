@@ -12,29 +12,39 @@ class Campaign(models.Model):
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)
     work = models.ForeignKey("Work", related_name="campaign")
- 
+
+    def __unicode__(self):
+        return u"Campaign for %s" % self.work.title
+
+
+
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
+    openlibrary_id = models.CharField(max_length=50, null=True)
 
-class WorkIdentifier(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=10)
-    value = models.CharField(max_length=500)
-    work = models.ForeignKey("Work", related_name="identifiers")
+    def __unicode__(self):
+        return self.title
+
 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
+    openlibrary_id = models.CharField(max_length=50, null=True)
     works = models.ManyToManyField("Work", related_name="authors")
 
     def __unicode__(self):
         return self.name
 
+
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
     works = models.ManyToManyField("Work", related_name="subjects")
+
+    def __unicode__(self):
+        return self.name
+
 
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -42,35 +52,19 @@ class Edition(models.Model):
     description = models.TextField(default='')
     publisher = models.CharField(max_length=255)
     publication_date = models.CharField(max_length=50)
+    isbn_10 = models.CharField(max_length=10, null=True)
+    isbn_13 = models.CharField(max_length=13, null=True)
+    openlibrary_id = models.CharField(max_length=50, null=True)
     work = models.ForeignKey("Work", related_name="editions")
-
-    @property
-    def isbn_10(self):
-        return self._id('isbn_10')
-
-    @property
-    def isbn_13(self):
-        return self._id('isbn_13')
 
     def __unicode__(self):
         return self.title
 
-    def _id(self, name):
-        for i in self.identifiers.all():
-            if i.name == name:
-                return i.value
-        return None
-
-
-class EditionIdentifier(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=10)
-    value = models.CharField(max_length=500)
-    edition = models.ForeignKey("Edition", related_name="identifiers")
 
 class EditionCover(models.Model):
     openlibrary_id = models.IntegerField()
     edition = models.ForeignKey("Edition", related_name="covers")
+
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
