@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from regluit.core import books
+from regluit.core import bookloader
 
 class Command(BaseCommand):
     help = "load books based on a text file of ISBNs"
@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, filename, **options):
         for isbn in open(filename):
             isbn = isbn.strip()
-            edition = books.add_book(isbn)
+            edition = bookloader.add_book(isbn)
             if edition:
                 print edition
             else:
