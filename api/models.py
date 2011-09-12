@@ -26,6 +26,7 @@ class CampaignResource(ModelResource):
     class Meta:
         queryset = models.Campaign.objects.all()
         resource_name = 'campaign'
+        excludes = ['amazon_receiver', 'paypal_receiver']
         
 class AuthorResource(ModelResource):
     works = fields.ToManyField(WorkResource, 'works')
