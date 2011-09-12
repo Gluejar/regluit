@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="book_panel">
+    <div class="book_panel_interior">
+      <img src="/static/images/book-panel/heming_way.jpg" width="120" height="182" />
+      <b>Nineteen Eighty-Four</b>
+      <p>George Orwell</p>
+      <p><b>Genre:</b> Sci-Fi</p>
+      <p class="status"><b>Status:</b> Unglued!</p>
+      <div class="read">
+        <img src="/static/images/book-panel/percent.png" />
+        <p>100%</p>
+        <p class="right_add">
+          <img src="/static/images/book-panel/add_gray.png" border="0" />
+        </p>
+      </div>
+      <span style="display: none;">
+        <div class="book_panel_back">
+          <div class="unglued_white">
+            <b>Unglued!</b>
+            <p>Sept 12 2011</p>
+            <p><b>Raised:</b> $12,000</p>
+          </div>
+          <div class="read_itbutton">
+            <a href="#">Read it Now</a>
+          </div>
+          <div id="add_towish">
+            <a href="#">Add to Wishlist</a>
+          </div>
+          <div id="white_text">
+            <b><a href="#">Nineteen Eighty-Four</a></b>
+            <p><a href="#">George Orwell</a></p>
+            <p><b>Genre:</b> Sci-Fi</p>
+            <p><b>Status:</b> In Progress</p>
+          </div>
+          <div id="moreinfo">
+            <a href="#">More Info</a>
+          </div>
+        </div>
+      </span>
+    </div>
+</div>
+{% endblock %}
