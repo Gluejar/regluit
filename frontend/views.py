@@ -10,9 +10,9 @@ def home(request):
         context_instance=RequestContext(request)
     )
 
-def user(request, username):
-    u = get_object_or_404(User, username=username)
-    return render_to_response('user.html',
-        {"user": u, "wishlist": u.wishlist},
+def supporter(request, supporter_username):
+    supporter = get_object_or_404(User, username=supporter_username)
+    return render_to_response('supporter.html',
+        {"supporter": supporter},
         context_instance=RequestContext(request)
     )
