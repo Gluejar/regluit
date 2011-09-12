@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'regluit.core',
     'registration',
     'social_auth',
+    'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
