@@ -13,6 +13,6 @@ def home(request):
 def user(request, username):
     u = get_object_or_404(User, username=username)
     return render_to_response('user.html',
-        {"user": u, "wishlist": u.wishlist},
+        {"subscriber": u},
         context_instance=RequestContext(request)
     )
