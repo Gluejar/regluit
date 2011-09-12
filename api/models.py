@@ -1,7 +1,15 @@
-from tastypie.resources import ModelResource
-from tastypie import fields
+from django.contrib.auth.models import User
 from regluit.core import models
 
+from tastypie.resources import ModelResource
+from tastypie import fields
+
+class UserResource(ModelResource):
+    class Meta:
+        queryset = User.objects.all()
+        resource_name = 'user'
+        fields = ['username', 'first_name', 'last_name']
+    
 class WorkResource(ModelResource):
     class Meta:
         queryset = models.Work.objects.all()
@@ -30,3 +38,16 @@ class SubjectResource(ModelResource):
     class Meta:
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
+
+class EditionCoverResource(ModelResource):
+    edition = fields.ForeignKey(EditionResource, 'edition')
+    class Meta:
+        queryset = models.EditionCover.objects.all()
+        resource_name = 'editioncover'
+
+class WishlistResource(ModelResource):
+    # add a user 
+    works = fields.ToManyField(WorkResource, 'works')
+    class Meta:
+        queryset = models.Wishlist.objects.all()
+        resource_name = 'wishlist'

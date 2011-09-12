@@ -1,11 +1,18 @@
 from django.conf.urls.defaults import *
 from tastypie.api import Api
-from regluit.api import models
 
-api = Api()
-api.register(models.WorkResource())
+from regluit.api.models import UserResource, WorkResource, EditionResource, CampaignResource, AuthorResource, SubjectResource, EditionCoverResource, WishlistResource
+
+v1_api = Api(api_name='v1')  # how set api_name to None so that we don't get URIs like /api/v1 but more like /api/ Don't think there is a way...
+v1_api.register(UserResource())
+v1_api.register(WorkResource())
+v1_api.register(EditionResource())
+v1_api.register(EditionCoverResource())
+v1_api.register(CampaignResource())
+v1_api.register(AuthorResource())
+v1_api.register(SubjectResource())
+v1_api.register(WishlistResource())
 
 urlpatterns = patterns('',
-    # The normal jazz here...
-    (r'^api/', include(api.urls)),
+    (r'^', include(v1_api.urls)),
 )
