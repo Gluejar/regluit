@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<h1>Wishlist for {{ contributor.username }}</h1>
+<h1>Wishlist for {{ supporter.username }}</h1>
 
-{% for work in contributor.wishlist.works.all %}
+{% for work in supporter.wishlist.works.all %}
 {% include "book_panel.html" %}
 {% endfor %}
 
