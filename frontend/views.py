@@ -1,17 +1,18 @@
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.contrib.auth.models import User
+from django.shortcuts import render_to_response, get_object_or_404
 
 from regluit.core import models
 
 def home(request):
-    campaigns = models.Campaign.objects.all()
     return render_to_response('home.html', 
-        {"campaigns": campaigns},
+        {},
         context_instance=RequestContext(request)
     )
 
-def panel(request):
-    return render_to_response('book-panel.html',
-        {},
+def user(request, username):
+    u = get_object_or_404(User, username=username)
+    return render_to_response('user.html',
+        {"user": u, "wishlist": u.wishlist},
         context_instance=RequestContext(request)
     )

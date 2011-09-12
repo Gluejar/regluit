@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from regluit.core import signals
 
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -69,3 +68,6 @@ class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists')
+
+
+from regluit.core import signals
