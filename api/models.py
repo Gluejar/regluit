@@ -47,7 +47,7 @@ class EditionCoverResource(ModelResource):
         resource_name = 'editioncover'
 
 class WishlistResource(ModelResource):
-    # add a user 
+    user = fields.ToOneField(UserResource, 'user')
     works = fields.ToManyField(WorkResource, 'works')
     class Meta:
         queryset = models.Wishlist.objects.all()
