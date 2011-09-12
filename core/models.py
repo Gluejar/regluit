@@ -11,7 +11,7 @@ class Campaign(models.Model):
     deadline = models.DateTimeField()
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)
-    work = models.ForeignKey("Work", related_name="campaign")
+    work = models.ForeignKey("Work", related_name="campaigns")
 
     def __unicode__(self):
         return u"Campaign for %s" % self.work.title
