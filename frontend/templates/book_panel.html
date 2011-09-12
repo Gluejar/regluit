@@ -1,11 +1,8 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="book_panel">
+<div class="book_panel" style="float: left;">
     <div class="book_panel_interior">
-      <img src="/static/images/book-panel/heming_way.jpg" width="120" height="182" />
-      <b>Nineteen Eighty-Four</b>
-      <p>George Orwell</p>
+      <img src="http://covers.openlibrary.org/b/isbn/{{work.editions.all.0.isbn_10}}-M.jpg" width="120" height="182" />
+      <b>{{ work.title }}</b>
+      <p>{{ work.authors.all.0.name }}</p>
       <p><b>Genre:</b> Sci-Fi</p>
       <p class="status"><b>Status:</b> Unglued!</p>
       <div class="read">
@@ -41,4 +38,3 @@
       </span>
     </div>
 </div>
-{% endblock %}

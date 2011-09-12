@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Wishlists for {{ user.username }}</h1>
+
+{% for work in user.wishlist.works.all %}
+{% include "book_panel.html" %}
+{% endfor %}
+
+{% endblock %}
