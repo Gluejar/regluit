@@ -10,9 +10,9 @@ def home(request):
         context_instance=RequestContext(request)
     )
 
-def user(request, username):
-    u = get_object_or_404(User, username=username)
-    return render_to_response('user.html',
-        {"subscriber": u},
+def contributor(request, contributor_username):
+    contributor = get_object_or_404(User, username=contributor_username)
+    return render_to_response('contributor.html',
+        {"contributor": contributor},
         context_instance=RequestContext(request)
     )
