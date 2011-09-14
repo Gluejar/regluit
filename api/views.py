@@ -14,3 +14,9 @@ def isbn(request,isbn):
         context_instance=RequestContext(request)
     )
 
+def editions(request):
+    editions = models.Edition.objects.all()
+    return render_to_response('editions.html', 
+        {'editions':editions},
+        context_instance=RequestContext(request)
+    )    
