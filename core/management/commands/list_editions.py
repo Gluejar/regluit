@@ -8,4 +8,4 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         editions = models.Edition.objects.all()
         for edition in editions:
-            print edition.id, edition.title
+            print edition.id, edition.title, edition.isbn_10, edition.isbn_13
