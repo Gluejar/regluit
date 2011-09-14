@@ -16,3 +16,9 @@ def supporter(request, supporter_username):
         {"supporter": supporter},
         context_instance=RequestContext(request)
     )
+
+def textpage(request, page):	
+    return render_to_response(page + '.html', 
+        {},
+        context_instance=RequestContext(request)
+    )
