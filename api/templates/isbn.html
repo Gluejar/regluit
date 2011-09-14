@@ -15,6 +15,8 @@
         {% for edition in editions %}
             <li>{{edition.id}} | {{edition.title}}
             
+            <a href="http://openlibrary.org/isbn/{{edition.isbn_10}}"><img src="http://covers.openlibrary.org/b/isbn/{{edition.isbn_10}}-M.jpg"/ width="120" height="182" ></a>
+            
             <!-- editioncovers for given edition -->
             {% if edition.covers.all %}
                 <ul id="id">
@@ -28,16 +30,16 @@
             
             <!-- related work -->
             {% if edition.work %}
-                <p class="classname">Related work: {{edition.work.id}} | {{edition.work.title}} <br/>
-                   {{edition.work.authors.all}} </p>
+                <p class="classname">Related work: {{edition.work.id}} | {{edition.work.title}} | first author: {{edition.work.authors.all.0.name}} <br/>
+                   All authors: {{edition.work.authors.all}} </p>
             {% endif %}
             
             <!-- related campaigns -->
             {% if edition.work.campaigns.all %}
                 <ul id="id">
                     {% for campaign in edition.work.campaigns.all %}
-                        <li>Campaign: {{campaign.id}} | {{campaign.name}} | {{campaign.description}} <br/>
-                            {{campaign.target}} {{campaign.deadline}}</li>
+                        <li>Campaign: id:{{campaign.id}} | name:{{campaign.name}} | desc:{{campaign.description}} <br/>
+                            target:{{campaign.target}} created:{{campaign.created}} deadline:{{campaign.deadline}}</li>
                     {% endfor %}
                 </ul>
             {% else %}
