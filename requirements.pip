@@ -1,7 +1,7 @@
 django
 south
 django-extensions
-django-tastypie
+https://github.com/toastdriven/django-tastypie/tarball/master
 requests
 https://bitbucket.org/ubernostrum/django-registration/get/tip.tar.gz
 django-social-auth
