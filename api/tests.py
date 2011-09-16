@@ -63,3 +63,33 @@ class ApiTests(TestCase):
         j = json.loads(r.content)
         self.assertEqual(len(j['objects']), 1)
         self.assertEqual(j['objects'][0]['name'], 'Neuromancer')
+        self.assertEqual(j['meta']['logged_in_username'], None)
+        self.assertEqual(j['objects'][0]['in_wishlist'], False)
+
+    def test_logged_in_user_info(self):
+        # login and see if adding a work to the users wishlist causes
+        # it to show up as in_wishlist in the campaign info
+        self.client.login(username='test', password='testpass')
+
+        r = self.client.get('/api/v1/campaign/', data={
+            'format': 'json', 
+            'work__editions__isbn_10': '0441012035', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        j = json.loads(r.content)
+        self.assertEqual(j['meta']['logged_in_username'], 'test')
+        self.assertEqual(j['objects'][0]['in_wishlist'], False)
+
+        w = models.Work.objects.get(editions__isbn_10='0441012035') 
+        self.user.wishlist.works.add(w)
+        r = self.client.get('/api/v1/campaign/', data={
+            'format': 'json', 
+            'work__editions__isbn_10': '0441012035', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        j = json.loads(r.content)
+        self.assertEqual(j['meta']['logged_in_username'], 'test')
+        self.assertEqual(j['objects'][0]['in_wishlist'], True)
+
