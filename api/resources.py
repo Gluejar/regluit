@@ -1,6 +1,7 @@
 import logging
 
-from django.contrib.auth.models import User
+from django.contrib import auth
+from django.contrib.auth.models import User, AnonymousUser
 from django.conf.urls.defaults import url
 from django.db.models import Q
 
@@ -42,6 +43,27 @@ class WorkResource(ModelResource):
     
 class CampaignResource(ModelResource):
     work = fields.ToOneField(WorkResource, 'work')
+
+    def alter_list_data_to_serialize(self, request, data):
+        """
+        annotate the list of campaigns with information from the logged in
+        user. note: this isn't the user identified by the api username/api_key 
+        it's the the user that client might be logged into unglue.it as.
+        """
+        u = auth.get_user(request)
+        if isinstance(u, User):
+            data['meta']['logged_in_username'] = u.username
+            wishlist_work_ids = [w.id for w in u.wishlist.works.all()]
+        else:
+            data['meta']['logged_in_username'] = None
+            wishlist_work_ids = []
+
+        for o in data['objects']:
+            o.data['in_wishlist'] = o.obj.id in wishlist_work_ids
+
+        # TODO: add pledging information
+        return data
+
     class Meta:
         authentication = ApiKeyAuthentication()
         queryset = models.Campaign.objects.all()
