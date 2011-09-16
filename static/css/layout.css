@@ -20,6 +20,7 @@ body{
 #header{ height:90px;}
 
 .logo{ float:left; padding-top:20px;}
+.logo a img{border: none;}
 .topmenu{ float:right; padding-top:25px;}
 .topmenu ul li{ float:left; padding:0 10px;}
 .topmenu ul li a{ height:36px; line-height:36px; display:block; color:#fff; text-decoration:none; font-weight:bold; font-size:13px; letter-spacing:1px; text-transform:capitalize;}
@@ -131,4 +132,10 @@ a{ font-weight:bold; font-size:13px; text-decoration:none; cursor:pointer;}
     padding-right: 15px;
     padding-top: 5px;
     padding-bottom: 5px;
+}
+
+#footer{
+	border-top: 7px solid #edf3f4;
+	clear: both;
+	height:90px;
 }
