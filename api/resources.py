@@ -8,6 +8,7 @@ from tastypie import fields
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource, Resource, Bundle
 from tastypie.utils import trailing_slash
+from tastypie.authentication import ApiKeyAuthentication
 
 from regluit.core import models
 
@@ -17,12 +18,14 @@ logger = logging.getLogger(__name__)
 
 class UserResource(ModelResource):
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = User.objects.all()
         resource_name = 'user'
         fields = ['username', 'first_name', 'last_name']
 
 class EditionResource(ModelResource):
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.Edition.objects.all()
         resource_name = 'edition'
         filtering = {
@@ -32,6 +35,7 @@ class EditionResource(ModelResource):
 class WorkResource(ModelResource):
     editions = fields.ToManyField(EditionResource, 'editions')
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.Work.objects.all()
         resource_name = 'work'
         filtering = {'editions': ALL_WITH_RELATIONS, 'id': ALL}
@@ -39,6 +43,7 @@ class WorkResource(ModelResource):
 class CampaignResource(ModelResource):
     work = fields.ToOneField(WorkResource, 'work')
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.Campaign.objects.all()
         resource_name = 'campaign'
         excludes = ['amazon_receiver', 'paypal_receiver']
@@ -49,18 +54,21 @@ class CampaignResource(ModelResource):
 class AuthorResource(ModelResource):
     works = fields.ToManyField(WorkResource, 'works')
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.Author.objects.all()
         resource_name = 'author'
 
 class SubjectResource(ModelResource):
     works = fields.ToManyField(WorkResource, 'works')
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
 
 class EditionCoverResource(ModelResource):
     edition = fields.ToManyField(EditionResource, 'editions')
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.EditionCover.objects.all()
         resource_name = 'editioncover'
 
@@ -68,5 +76,6 @@ class WishlistResource(ModelResource):
     user = fields.ToOneField(UserResource, 'user')
     works = fields.ToManyField(WorkResource, 'works')
     class Meta:
+        authentication = ApiKeyAuthentication()
         queryset = models.Wishlist.objects.all()
         resource_name = 'wishlist'
