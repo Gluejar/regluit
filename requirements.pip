@@ -1,8 +1,7 @@
 django
 south
 django-extensions
-# switch back to https://github.com/toastdriven/django-tastypie/tarball/master when they merge my change to install the management coammands
-https://github.com/edsu/django-tastypie/tarball/master
+https://github.com/toastdriven/django-tastypie/tarball/master
 requests
 https://bitbucket.org/ubernostrum/django-registration/get/tip.tar.gz
 django-social-auth
