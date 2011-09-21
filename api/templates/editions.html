@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>editions</title>
+</head>
+
+<body>
+
+<!--- editions --->
+
+    {% if editions %}
+        <ul>
+        {% for edition in editions %}
+            <li> <img src="http://covers.openlibrary.org/b/isbn/{{edition.isbn_10}}-S.jpg" /> {{edition.id}} | {{edition.title}} |
+            <a href="{% url isbn isbn=edition.isbn_10 %}">{{edition.isbn_10}}</a> |
+            <a href="{% url isbn isbn=edition.isbn_13 %}">{{edition.isbn_13}}</a>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No editions are available.</p>
+    {% endif %}
+
+</body>
+</html>
+
+

@@ -105,6 +105,7 @@ INSTALLED_APPS = (
     'regluit.core',
     'registration',
     'social_auth',
+    'tastypie',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -152,14 +153,7 @@ EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 ACCOUNT_ACTIVATION_DAYS = 7
 
-# django-social-auth
-AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.google.GoogleOAuth2Backend',
-    'social_auth.backends.facebook.FacebookBackend',
-    'social_auth.backends.twitter.TwitterBackend',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
+# django-socialauth
 AUTHENTICATION_BACKENDS = (
     'social_auth.backends.twitter.TwitterBackend',
     'social_auth.backends.facebook.FacebookBackend',
