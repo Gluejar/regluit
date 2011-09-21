@@ -14,5 +14,6 @@ v1_api.register(resources.SubjectResource())
 v1_api.register(resources.WishlistResource())
 
 urlpatterns = patterns('',
+    url(r'^widget/(?P<isbn>\w+)/$','regluit.api.views.widget', name="widget"),
     (r'^', include(v1_api.urls)),
 )
