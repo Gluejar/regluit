@@ -1,7 +1,6 @@
 from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response, get_object_or_404
-
 from regluit.core import models
 
 def home(request):
@@ -12,8 +11,9 @@ def home(request):
 
 def supporter(request, supporter_username):
     supporter = get_object_or_404(User, username=supporter_username)
+    campaigns = models.Campaign.objects.all()
     return render_to_response('supporter.html',
-        {"supporter": supporter},
+        {"supporter": supporter, "campaigns": campaigns},
         context_instance=RequestContext(request)
     )
 
