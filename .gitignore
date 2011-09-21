@@ -1,5 +1,5 @@
 *.db
 *.pyc
 *.log
-settings/me.py
+settings/me.*
 *.dot
