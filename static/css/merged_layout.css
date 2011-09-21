@@ -80,7 +80,7 @@ h2.content-heading{
     font-size:19px;
     font-weight:normal;
     color:#3d4e53;
-    float:left; width:70%;
+    float:left; width:50%;
 }
 h2.content-heading span{ font-style:italic;}
 .content-block-heading a.block-link{ float:right; padding:15px; font-size:11px; color:#3d4e53; text-decoration:underline; font-weight:normal;}
