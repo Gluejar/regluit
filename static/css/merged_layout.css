@@ -40,7 +40,7 @@ img{ border:none;}
     padding:0;
 }
 .js-search-inner{ margin:0 auto;}
-.js-search .inputbox{ padding:0 0 0 15px; margin:0; border:none; background:url(/static/images/bg.png) -645px -180px; height:36px; line-height:36px; float: left; color:#6994a3;}
+.js-search .inputbox{ padding:0 0 0 15px; margin:0; border:none; outline: none; background:url(/static/images/bg.png) -645px -180px; height:36px; line-height:36px; float: left; color:#6994a3;}
 .js-search .button{ background:url(/static/images/bg.png) 100% -144px no-repeat; padding:0; margin:0; width:40px; height:36px; display:block; border:none; text-indent:-10000px; cursor:pointer;}
 
 #js-leftcol{ float:left; width:235px;}
@@ -144,4 +144,10 @@ a{ font-weight:bold; font-size:13px; text-decoration:none; cursor:pointer;}
 	border-top: 7px solid #edf3f4;
 	clear: both;
 	height:90px;
+	text-align: center;
+	padding-top: 5px;
+}
+
+#footer a{
+    color:#3d4e53;
 }
