@@ -15,6 +15,10 @@ class Campaign(models.Model):
     def __unicode__(self):
         return u"Campaign for %s" % self.work.title
 
+    def cover_image_small(self):
+        first_isbn = self.work.editions.all()[0].isbn_10
+        return "http://covers.openlibrary.org/b/isbn/%s-S.jpg" % first_isbn
+
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
