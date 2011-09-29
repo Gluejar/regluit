@@ -54,10 +54,8 @@ def wishlist(request):
     isbn = request.POST.get('isbn', None)
     edition = models.Edition.get_by_isbn(isbn)
     if not edition:
-        print "loading book"
         edition = bookloader.add_book(isbn)
     if edition:
-        print "adding edition"
         request.user.wishlist.works.add(edition.work)
     # TODO: redirect to work page, when it exists
     return HttpResponseRedirect('/')
