@@ -49,17 +49,12 @@ class SearchTests(TestCase):
         self.assertEqual(len(results), 10)
 
         r = results[0]
-        self.assertTrue(r.has_key('name'))
+        self.assertTrue(r.has_key('title'))
         self.assertTrue(r.has_key('author'))
         self.assertTrue(r.has_key('description'))
         self.assertTrue(r.has_key('image'))
         self.assertTrue(r.has_key('publisher'))
-        self.assertTrue(r.has_key('identifier'))
-
-        for r in results:
-            for i in r['identifier']:
-                self.assertTrue(i.has_key('name'))
-                self.assertTrue(i.has_key('value'))
+        self.assertTrue(r.has_key('isbn_10'))
 
     def test_googlebooks_search(self):
         response = search.googlebooks_search('melville')

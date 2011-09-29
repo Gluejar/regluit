@@ -20,6 +20,8 @@ def gluejar_search(q):
             r['author'] = v['authors'][0]
         else:
             r['author'] = ""
+        r['isbn_10'] = None
+        r['isbn_13'] = None
 
         # pull out isbns
         for i in v.get('industryIdentifiers', []):
