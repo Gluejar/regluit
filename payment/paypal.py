@@ -28,7 +28,7 @@ import decimal
 # transaction_type constants
 IPN_TYPE_PAYMENT = 'Adaptive Payment PAY'
 IPN_TYPE_ADJUSTMENT = 'Adjustment'
-IPN_TYPE_PREAPPROVAL = 'Adaptive Payment Preapproval'
+IPN_TYPE_PREAPPROVAL = 'Adaptive Payment PREAPPROVAL'
 
 #status constants
 IPN_STATUS_CREATED = 'CREATED'
@@ -89,16 +89,17 @@ class Pay( object ):
       print "Cancel URL: " + cancel_url
       
       data = {
+              'actionType': 'PAY',
+              'receiverList': { 'receiver': receiver_list },
               'currencyCode': transaction.currency,
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
+              'ipnNotificationUrl': BASE_URL + 'paypalipn'
               } 
-
-      data['actionType'] = 'PAY'
-      data['receiverList'] = { 'receiver': receiver_list }
-
-      data['ipnNotificationUrl'] = BASE_URL + 'paypalipn'
+      
+      if transaction.reference:
+          data['preapprovalKey'] = transaction.reference
 
       self.raw_request = json.dumps(data)
    
@@ -131,6 +132,66 @@ class Pay( object ):
     return '%s?cmd=_ap-payment&paykey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['payKey'] )
 
 
+class Preapproval( object ):
+  def __init__( self, transaction, amount ):
+      
+      headers = {
+                 'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
+                 'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
+                 'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
+                 'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+                 'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                 'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
+                 }
+
+      return_url = BASE_URL + COMPLETE_URL
+      cancel_url = BASE_URL + CANCEL_URL
+      
+      now = datetime.datetime.utcnow()
+      expiry = now + datetime.timedelta( days=PREAPPROVAL_PERIOD )
+      
+      
+      data = {
+              'endingDate': expiry.isoformat(),
+              'startingDate': now.isoformat(),
+              'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
+              'currencyCode': transaction.currency,
+              'returnUrl': return_url,
+              'cancelUrl': cancel_url,
+              'requestEnvelope': { 'errorLanguage': 'en_US' },
+              'ipnNotificationUrl':  BASE_URL + 'paypalipn'
+              } 
+
+      self.raw_request = json.dumps(data)
+      self.raw_response = url_request(PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
+      print "paypal PREAPPROVAL response was: %s" % self.raw_response
+      self.response = json.loads( self.raw_response )
+      print self.response
+      
+  def paykey( self ):
+    if self.response.has_key( 'preapprovalKey' ):
+      return self.response['preapprovalKey']
+    else:
+      return None
+
+  def next_url( self ):
+    return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
+
+  def error( self ):
+      if self.response.has_key('error'):
+          error = self.response['error']
+          print error
+          return error[0]['message']
+      else:
+          return None
+      
+  def status( self ):
+    if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
+      return self.response['responseEnvelope']['ack']
+    else:
+      return None 
+
+
 class IPN( object ):
     
   def __init__( self, request ):
@@ -157,8 +218,8 @@ class IPN( object ):
             return
   
         # check payment status
-        if request.POST['status'] != 'COMPLETED':
-            self.error = 'PayPal status was "%s"' % request.get('status')
+        if request.POST['status'] != 'COMPLETED' and request.POST['status'] != 'ACTIVE':
+            self.error = 'PayPal status was "%s"' % request.POST['status']
             return
 
         # Process the details
@@ -166,6 +227,7 @@ class IPN( object ):
         self.sender_email = request.POST.get('sender_email', None)
         self.action_type = request.POST.get('action_type', None)
         self.key = request.POST.get('pay_key', None)
+        self.preapproval_key = request.POST.get('preapproval_key', None)
         self.transaction_type = request.POST.get('transaction_type', None)
         
         self.process_transactions(request)
