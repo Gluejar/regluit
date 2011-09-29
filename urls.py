@@ -5,4 +5,5 @@ urlpatterns = patterns('',
     (r'^socialauth/', include('social_auth.urls')),
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
+    (r'', include('regluit.payment.urls'))
 )

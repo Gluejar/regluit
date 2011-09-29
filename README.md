@@ -13,9 +13,8 @@ Develop
 -------
 
 Here are some instructions for setting up regluit for development on 
-an Ubuntu system. If you are on OS X you will need to use 
-[Homebrew](http://mxcl.github.com/homebrew/) or some other package manager
-to install Python and python-setuptools in step 1:
+an Ubuntu system. If you are on OS X see notes below 
+to install python-setuptools in step 1:
 
 1. `aptitude install python-setuptools`
 1. `sudo easy_install virtualenv virtualenvwrapper`
@@ -30,6 +29,30 @@ to install Python and python-setuptools in step 1:
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate --noinput`
-1. `django-admin.py testserver --addrport 0.0.0.0:8000` (you can change the port number from the default value of 8000)
+1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. point your browser at http://localhost:8000/
 
+OS X
+-------
+You should have XCode installed
+
+Install virtualenvwrapper according 
+to the process at http://blog.praveengollakota.com/47430655:
+
+1. `sudo easy_install pip`
+1. `sudo pip install virtualenv`
+1. `pip install virtualenvwrapper`
+
+Edit or create .bashrc in ~ to enable virtualenvwrapper commands:
+1. `mkdir ~/.virtualenvs`
+1. Edit .bashrc to include the following lines:
+export WORKON_HOME=$HOME/.virtualenvs
+source <your_path_to_virtualenvwrapper.sh_here>
+
+In the above web site, the path to virtualenvwrapper.sh was
+/Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh
+In Snow Leopard, this may be /usr/local/bin/virtualenvwrapper.sh
+
+Configure Terminal to automatically notice this at startup:
+Terminal –> Preferences –> Settings –> Shell
+Click "run command"; add `source ~/.bashrc`

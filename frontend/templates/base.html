@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>unglue.it: {% block title %}{% endblock %}</title>
-    <link type="text/css" rel="stylesheet" href="/static/css/layout.css" />
+    <title>unglue.it {% block title %}{% endblock %}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/merged_layout.css" />
     <link type="text/css" rel="stylesheet" href="/static/css/book-panel.css"  />
     <link href="/static/css/book-panel.css" rel="stylesheet" type="text/css" />
+	<link type="text/css" rel="stylesheet" href="/static/css/book_list.css"  />
     <script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
     <script type="text/javascript" src="/static/js/book-panel.js"></script>
+    {% block extra_head %}{% endblock %}
 </head>
 
 <body>
 
-<div id="page-wrap">
-    <div id="header">
-        <div class="main">
-            <div class="logo">
-                <a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
+<div id="js-page-wrap">
+	<div id="js-header">
+    	<div class="js-main">
+        	<div class="js-logo">
+            	<a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
-            <div class="topmenu">
-                <ul class="menu">
+            <div class="js-topmenu">
+            	<ul class="menu">
                     {% if user.is_authenticated %}
                     <li class="first"><span id="welcome">Welcome, {{ user.username }}</span></li>
                     <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>

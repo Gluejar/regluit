@@ -1,0 +1,5 @@
+*.db
+*.pyc
+*.log
+settings/me.py
+*.dot

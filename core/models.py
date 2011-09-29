@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import User
 
 
@@ -20,6 +21,16 @@ class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
     openlibrary_id = models.CharField(max_length=50, null=True)
+
+    @classmethod
+    def get_by_isbn(klass, isbn):
+        for w in Work.objects.filter(Q(editions__isbn_10=isbn) | Q(editions__isbn_13=isbn)):
+            return w
+        return None
+
+    def cover_image_small(self):
+        first_isbn = self.editions.all()[0].isbn_10
+        return "http://covers.openlibrary.org/b/isbn/%s-S.jpg" % first_isbn
 
     def __unicode__(self):
         return self.title
@@ -58,6 +69,11 @@ class Edition(models.Model):
     def __unicode__(self):
         return self.title
 
+    @classmethod
+    def get_by_isbn(klass, isbn):
+        for e in Edition.objects.filter(Q(isbn_10=isbn) | Q(isbn_13=isbn)):
+            return e
+        return None
 
 class EditionCover(models.Model):
     openlibrary_id = models.IntegerField()
