@@ -50,7 +50,7 @@ def search(request):
 # TODO: perhaps this functionality belongs in the API?
 @csrf_exempt
 @require_POST
-#@login_required
+@login_required
 def wishlist(request):
     isbn = request.POST.get('isbn', None)
     remove_work_id = request.POST.get('remove_work_id', None)
@@ -67,4 +67,5 @@ def wishlist(request):
     elif remove_work_id:
         work = models.Work.objects.get(id=int(remove_work_id))
         request.user.wishlist.works.remove(work)
+        # TODO: where to redirect?
         return HttpResponseRedirect('/')
