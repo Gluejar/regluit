@@ -2,7 +2,7 @@ from django.template import RequestContext
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 
 from regluit.core import models
 
@@ -29,3 +29,6 @@ def textpage(request, page):
         {},
         context_instance=RequestContext(request)
     )
+
+def search(request):
+    return render(request, 'search.html', {})
