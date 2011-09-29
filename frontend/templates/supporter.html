@@ -10,20 +10,20 @@
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
-        	<div class="content-block">
-            	<div class="content-block-heading">
+            <div class="content-block">
+                <div class="content-block-heading">
                     <h2 class="content-heading">Your Wishlist</span></h2>
-                    	<ul class="book-list-view">
-                        	<li>View As:</li>
+                        <ul class="book-list-view">
+                            <li>View As:</li>
                             <li class="view-list">
-                            	<a href="#view-list">
-                            	<img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" />
-                            	</a>
+                                <a href="#view-list">
+                                <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" />
+                                </a>
                             </li>
                             <li class="view-list">
-                            	<a href="#view-icon">
-                            	<img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" />
-                            	</a>
+                                <a href="#view-icon">
+                                <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" />
+                                </a>
                             </li>
                             <li class="view-list">
                             <a href="#view-icon-small">
@@ -33,12 +33,12 @@
                         </ul>
                 </div>
                 <div class="content-block-content">
-					{% for campaign in campaigns %}
-						{% include "book_list.html" %}
-					{% endfor %}
+                    {% for campaign in campaigns %}
+                        {% include "book_list.html" %}
+                    {% endfor %}
 
                 </div>
-            </div>	
+            </div>    
         </div>
         </div>
     </div>
