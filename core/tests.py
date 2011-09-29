@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from regluit.core import bookloader, models
+from regluit.core import bookloader, models, search
 
 class TestBooks(TestCase):
 
@@ -41,3 +41,21 @@ class TestBooks(TestCase):
         self.assertEqual(models.Work.objects.all().count(), 1)
         self.assertEqual(models.Subject.objects.all().count(), 18)
         
+
+class SearchTests(TestCase):
+
+    def test_basic_search(self):
+        results = search.gluejar_search('melville')
+        self.assertEqual(len(results), 10)
+
+        r = results[0]
+        self.assertTrue(r.has_key('title'))
+        self.assertTrue(r.has_key('author'))
+        self.assertTrue(r.has_key('description'))
+        self.assertTrue(r.has_key('image'))
+        self.assertTrue(r.has_key('publisher'))
+        self.assertTrue(r.has_key('isbn_10'))
+
+    def test_googlebooks_search(self):
+        response = search.googlebooks_search('melville')
+        self.assertEqual(len(response['items']), 10)
