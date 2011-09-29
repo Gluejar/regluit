@@ -2,6 +2,23 @@
 
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 
+{% block extra_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".remove-wishlist").each(function (index, element) {
+        $(element).click(function() {
+            var span = $(element).find("span");
+            var work_id = span.attr('id')
+            $.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
+                var book = $(element).parent();
+                book.fadeOut();
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+
 {% block content %}
     <div id="main-container">
     <div class="js-main">
@@ -43,8 +60,8 @@
                             {{ work.title }}
                         </span>
                         </div>
-                        <div class="add-wishlist">
-                            <span>Add to Wishlist</span>
+                        <div class="remove-wishlist">
+                            <span id="{{ work.id }}">Remove from Wishlist</span>
                         </div>
                         <div class="booklist-status">
                             <span class="booklist-status-text">Status: In Progress</span>
