@@ -10,7 +10,7 @@ $(document).ready(function() {
             if (!isbn) return;
             $.post('/wishlist/', {'isbn': isbn}, function(data) {
                 span.fadeOut();
-                var newSpan = $("<span>On your wishlist!</span>").hide();
+                var newSpan = $("<span>On Your Wishlist!</span>").hide();
                 span.replaceWith(newSpan);
                 newSpan.fadeIn();
                 newSpan.removeAttr("id");
@@ -66,7 +66,7 @@ $(document).ready(function() {
                         </div>
                         <div class="add-wishlist">
                             {% if result.on_wishlist %}
-                            <span>On Wishlist!</span>
+                            <span>On Your Wishlist!</span>
                             {% else %}
                             <span id="{{ result.isbn_10 }}">Add to Wishlist</span>
                             {% endif %}
