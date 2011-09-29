@@ -1,6 +1,27 @@
 {% extends "base.html" %}
 
-{% block title %} &#8212; {{ supporter.username }}{% endblock %}
+{% block extra_head %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $(".add-wishlist").each(function (index, element) {
+        $(element).click(function() {
+            var span = $(element).find("span");
+            var isbn = span.attr('id')
+            if (!isbn) return;
+            $.post('/wishlist/', {'isbn': isbn}, function(data) {
+                span.fadeOut();
+                var newSpan = $("<span>On Your Wishlist!</span>").hide();
+                span.replaceWith(newSpan);
+                newSpan.fadeIn();
+                newSpan.removeAttr("id");
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
+
+{% block title %}Search Results{% endblock %}
 
 {% block content %}
     <div id="main-container">
@@ -12,7 +33,7 @@
         <div class="js-maincol-inner">
             <div class="content-block">
                 <div class="content-block-heading">
-                    <h2 class="content-heading">Your Wishlist</span></h2>
+                    <h2 class="content-heading">Search Results</span></h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -33,18 +54,22 @@
                         </ul>
                 </div>
                 <div class="content-block-content">
-                    {% for work in wishlist.works.all %}
+                    {% for result in results %}
                     <div class="book-list row1">
                         <div class="book-thumb">
-                            <a href="#"><img src="{{ work.cover_image_small }}" alt="Book name" title="book name"  /></a>
+                            <a href="#"><img src="{{ result.image }}" alt="{{ result.title }}" title="{{ result.title }}"  /></a>
                         </div>
                         <div class="book-name">
                         <span>
-                            {{ work.title }}
+                            {{ result.title }}
                         </span>
                         </div>
                         <div class="add-wishlist">
-                            <span>Add to Wishlist</span>
+                            {% if result.on_wishlist %}
+                            <span>On Your Wishlist!</span>
+                            {% else %}
+                            <span id="{{ result.isbn_10 }}">Add to Wishlist</span>
+                            {% endif %}
                         </div>
                         <div class="booklist-status">
                             <span class="booklist-status-text">Status: In Progress</span>
@@ -68,4 +93,3 @@
     </div>
 
 {% endblock %}
-

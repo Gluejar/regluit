@@ -9,12 +9,13 @@ from tastypie import fields
 from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource, Resource, Bundle
 from tastypie.utils import trailing_slash
-from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authentication import ApiKeyAuthentication, Authentication
 
 from regluit.core import models
 
 
 logger = logging.getLogger(__name__)
+
 
 
 class UserResource(ModelResource):
@@ -97,6 +98,7 @@ class EditionCoverResource(ModelResource):
 class WishlistResource(ModelResource):
     user = fields.ToOneField(UserResource, 'user')
     works = fields.ToManyField(WorkResource, 'works')
+
     class Meta:
         authentication = ApiKeyAuthentication()
         queryset = models.Wishlist.objects.all()

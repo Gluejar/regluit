@@ -22,7 +22,7 @@ div.book-list div.book-thumb{ margin-right:5px;}
 div.book-list div.book-name{ width:260px; margin-right:10px; background:url(../images/booklist/booklist-vline.png) right center no-repeat;}
 div.book-list div.book-name span{ display:block; line-height:normal; height:43px; line-height:43px;}
 div.book-list  div.add-wishlist{ margin-right:10px; padding-right:10px;background:url(../images/booklist/booklist-vline.png) right center no-repeat;}
-div.book-list  div.add-wishlist a{ font-weight:normal; color:#3d4e53; text-transform: none; background:url(../images/booklist/add-wishlist.png) left center no-repeat; padding-left:20px;}
+div.book-list  div.add-wishlist span{ font-weight:normal; color:#3d4e53; text-transform: none; background:url(../images/booklist/add-wishlist.png) left center no-repeat; padding-left:20px;}
 
 div.book-list  div.booklist-status{ margin-right:7px;}
 span.booklist-status-text{ float:left; display:block; padding-right:5px;}
@@ -49,3 +49,7 @@ ul.navigation li.arrow-l a{ background:url(../images/booklist/bg.png) 0 -168px n
 ul.navigation li.arrow-r a{ background:url(../images/booklist/bg.png) -1px -185px no-repeat;width:10px; height:15px; display:block; text-indent:-10000px;}
 
 .unglue-button { display: block; border: 0;}
+
+.book-thumb img {
+    height: 50px;
+}

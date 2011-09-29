@@ -29,7 +29,7 @@ to install python-setuptools in step 1:
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate --noinput`
-1. `django-admin.py testserver --addrport 0.0.0.0:8000` (you can change the port number from the default value of 8000)
+1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. point your browser at http://localhost:8000/
 
 OS X
