@@ -91,7 +91,7 @@ div.content-block-content .cols3 .column{ width:33.33%; float:left;}
 .column-left .item{ margin:0  10px 10px 0;}
 .column-center .item{ margin:0  5px 10px 5px;}
 .column-right .item{ margin:0  0 10px 10px;}
-.column .item{ border:7px solid #edf3f4; padding:10px;}
+.column .item{ border:8px solid #edf3f4; padding:10px;}
 .book-image{ padding:0 0 10px 0;}
 .book-info{ padding:0 0 10px 0; line-height:125%; position:relative;}
 .book-info span.book-new{ background:url(/static/images/icon-new.png) 0 0  no-repeat; width:38px; height:36px; display:block; position:absolute;
