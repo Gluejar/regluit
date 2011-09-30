@@ -176,3 +176,5 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 
 USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
+
+SOUTH_TESTS_MIGRATE = False
