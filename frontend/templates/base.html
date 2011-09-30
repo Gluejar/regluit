@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{# raw url references raise test errors in tests for django registration; this is a workaround #}
+{% url privacy as privacyurl %}
 <html>
 <head>
     <title>unglue.it {% block title %}{% endblock %}</title>
@@ -44,7 +46,7 @@
 
 <div id="footer">
 	<ul class="menu">
-    	<li><a href="{% url privacy %}"><span>Privacy</span></a></li>
+    	<li><a href="{{privacyurl}}"><span>Privacy</span></a></li>
     </ul>
 </div>
 
