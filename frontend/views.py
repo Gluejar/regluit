@@ -31,7 +31,7 @@ def search(request):
 
     # flag search result as on wishlist
     # TODO: make this better and faster
-    if request.user:
+    if not request.user.is_anonymous():
         for result in results:
             if not result.has_key('isbn_10'):
                 continue
