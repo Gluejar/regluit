@@ -58,13 +58,13 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    description = models.TextField(default='')
+    description = models.TextField(default='', null=True)
     publisher = models.CharField(max_length=255)
     publication_date = models.CharField(max_length=50)
     isbn_10 = models.CharField(max_length=10, null=True)
     isbn_13 = models.CharField(max_length=13, null=True)
     openlibrary_id = models.CharField(max_length=50, null=True)
-    work = models.ForeignKey("Work", related_name="editions")
+    work = models.ForeignKey("Work", related_name="editions", null=True)
 
     def __unicode__(self):
         return self.title
