@@ -2,7 +2,12 @@
 {% block title %}Activation complete{% endblock %}
 {% block content %}
 <div id="registration">
-Thanks, activation complete!  You may now <a href='{% url auth_login %}'>login</a> using the username and password you set at registration.
+Thanks, your activation is complete!  You may now sign in using the username and password you set at registration:
+
+
+{% include "login_form.html" %}
+
+<a href="{% url auth_password_reset %}">Already forgot</a> your password? 
 </div>
 {% endblock %}
 
