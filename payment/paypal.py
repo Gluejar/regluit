@@ -30,14 +30,28 @@ IPN_TYPE_PAYMENT = 'Adaptive Payment PAY'
 IPN_TYPE_ADJUSTMENT = 'Adjustment'
 IPN_TYPE_PREAPPROVAL = 'Adaptive Payment PREAPPROVAL'
 
-#status constants
-IPN_STATUS_CREATED = 'CREATED'
-IPN_STATUS_COMPLETED = 'COMPLETED'
-IPN_STATUS_INCOMPLETE = 'INCOMPLETE'
-IPN_STATUS_ERROR = 'ERROR'
-IPN_STATUS_REVERSALERROR = 'REVERSALERROR'
-IPN_STATUS_PROCESSING = 'PROCESSING'
-IPN_STATUS_PENDING = 'PENDING'
+#pay API status constants
+IPN_PAY_STATUS_NONE = 'NONE'
+IPN_PAY_STATUS_CREATED = 'CREATED'
+IPN_PAY_STATUS_COMPLETED = 'COMPLETED'
+IPN_PAY_STATUS_INCOMPLETE = 'INCOMPLETE'
+IPN_PAY_STATUS_ERROR = 'ERROR'
+IPN_PAY_STATUS_REVERSALERROR = 'REVERSALERROR'
+IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
+IPN_PAY_STATUS_PENDING = 'PENDING'
+IPN_PAY_STATUS_ACTIVE = "ACTIVE"
+IPN_PAY_STATUS_CANCELED = "CANCELED"
+
+
+IPN_SENDER_STATUS_COMPLETED = 'COMPLETED'
+IPN_SENDER_STATUS_PENDING = 'PENDING'
+IPN_SENDER_STATUS_CREATED = 'CREATED'
+IPN_SENDER_STATUS_PARTIALLY_REFUNDED = 'PARTIALLY_REFUNDED'
+IPN_SENDER_STATUS_DENIED = 'DENIED'
+IPN_SENDER_STATUS_PROCESSING = 'PROCESSING'
+IPN_SENDER_STATUS_REVERSED = 'REVERSED'
+IPN_SENDER_STATUS_REFUNDED = 'REFUNDED'
+IPN_SENDER_STATUS_FAILED = 'FAILED'
 
 # action_type constants
 IPN_ACTION_TYPE_PAY = 'PAY'
@@ -48,11 +62,13 @@ IPN_TXN_STATUS_COMPLETED = 'Completed'
 IPN_TXN_STATUS_PENDING = 'Pending'
 IPN_TXN_STATUS_REFUNDED = 'Refunded'
 
-IPN_REASON_CODE_CHARGEBACK = 'Chargeback'
-IPN_REASON_CODE_SETTLEMENT = 'Settlement'
+# addaptive payment adjusted IPN reason codes
+IPN_REASON_CODE_CHARGEBACK_SETTLEMENT = 'Chargeback Settlement'
 IPN_REASON_CODE_ADMIN_REVERSAL = 'Admin reversal'
 IPN_REASON_CODE_REFUND = 'Refund'
 
+class PaypalError(RuntimeError):
+    pass
 
 class url_request( object ): 
 
@@ -72,7 +88,7 @@ class url_request( object ):
 
 
 class Pay( object ):
-  def __init__( self, transaction, receiver_list):
+  def __init__( self, transaction):
       
       headers = {
             'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
@@ -88,6 +104,25 @@ class Pay( object ):
       print "Return URL: " + return_url
       print "Cancel URL: " + cancel_url
       
+      receiver_list = []
+      receivers = transaction.receiver_set.all()
+      
+      if len(receivers) == 0:
+          raise Exception
+      
+      for r in receivers:
+          if len(receivers) > 1:
+              if r.primary:
+                  primary_string = 'true'
+              else:
+                  primary_string = 'false'
+                  
+              receiver_list.append({'email':r.email,'amount':str(r.amount), 'primary':primary_string})
+          else:
+              receiver_list.append({'email':r.email,'amount':str(r.amount)})
+                  
+      print receiver_list
+        
       data = {
               'actionType': 'PAY',
               'receiverList': { 'receiver': receiver_list },
@@ -120,7 +155,7 @@ class Pay( object ):
           print error
           return error[0]['message']
       else:
-          return None
+          return 'Paypal PAY: Unknown Error'
       
   def amount( self ):
     return decimal.Decimal(self.results[ 'payment_gross' ])
@@ -131,6 +166,51 @@ class Pay( object ):
   def next_url( self ):
     return '%s?cmd=_ap-payment&paykey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['payKey'] )
 
+
+class CancelPreapproval(object):
+    
+    def __init__(self, transaction):
+        
+        headers = {
+                 'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
+                 'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
+                 'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
+                 'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+                 'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                 'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
+                 }
+      
+        data = {
+              'preapprovalKey':transaction.reference,
+              'requestEnvelope': { 'errorLanguage': 'en_US' }
+              } 
+
+        self.raw_request = json.dumps(data)
+        self.raw_response = url_request(PAYPAL_ENDPOINT, "/AdaptivePayments/CancelPreapproval", data=self.raw_request, headers=headers ).content() 
+        print "paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response
+        self.response = json.loads( self.raw_response )
+        print self.response
+        
+    def success(self):
+        if self.status() == 'Success' or self.status() == "SuccessWithWarning":
+            return True
+        else:
+            return False
+        
+    def error(self):
+        if self.response.has_key('error'):
+            error = self.response['error']
+            print error
+            return error[0]['message']
+        else:
+            return 'Paypal Preapproval Cancel: Unknown Error'
+        
+    def status(self):
+        if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
+            return self.response['responseEnvelope']['ack']
+        else:
+            return None 
+        
 
 class Preapproval( object ):
   def __init__( self, transaction, amount ):
@@ -147,14 +227,19 @@ class Preapproval( object ):
       return_url = BASE_URL + COMPLETE_URL
       cancel_url = BASE_URL + CANCEL_URL
       
+      # set the expiration date for the preapproval
       now = datetime.datetime.utcnow()
-      expiry = now + datetime.timedelta( days=PREAPPROVAL_PERIOD )
-      
+      expiry = now + datetime.timedelta( days=PREAPPROVAL_PERIOD )  
+      transaction.date_authorized = now
+      transaction.date_expired = expiry
+      transaction.save()
       
       data = {
               'endingDate': expiry.isoformat(),
               'startingDate': now.isoformat(),
               'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
+              'maxNumberOfPayments':1,
+              'maxAmountPerPayment': '%.2f' % transaction.amount,
               'currencyCode': transaction.currency,
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
@@ -183,7 +268,7 @@ class Preapproval( object ):
           print error
           return error[0]['message']
       else:
-          return None
+          return 'Paypal Preapproval: Unknown Error'
       
   def status( self ):
     if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
@@ -216,19 +301,15 @@ class IPN( object ):
         if raw_response != 'VERIFIED':
             self.error = 'PayPal response was "%s"' % raw_response
             return
-  
-        # check payment status
-        if request.POST['status'] != 'COMPLETED' and request.POST['status'] != 'ACTIVE':
-            self.error = 'PayPal status was "%s"' % request.POST['status']
-            return
 
         # Process the details
         self.status = request.POST.get('status', None)
         self.sender_email = request.POST.get('sender_email', None)
         self.action_type = request.POST.get('action_type', None)
-        self.key = request.POST.get('pay_key', None)
+        self.pay_key = request.POST.get('pay_key', None)
         self.preapproval_key = request.POST.get('preapproval_key', None)
         self.transaction_type = request.POST.get('transaction_type', None)
+        self.reason_code = request.POST.get('reason_code', None)
         
         self.process_transactions(request)
         
@@ -236,9 +317,21 @@ class IPN( object ):
         self.error = "Error: ServerError"
         traceback.print_exc()
 
+  def key(self):
+        # We only keep one reference, either a prapproval key, or a pay key, for the transaction.  This avoids the 
+        # race condition that may result if the IPN for an executed pre-approval(with both a pay key and preapproval key) is received
+        # before we have time to store the pay key
+        if self.preapproval_key:
+            return self.preapproval_key
+        elif self.pay_key:
+            return self.pay_key
+        else:
+            return None
+        
   def success( self ):
     return self.error == None
-  
+
+    
   @classmethod
   def slicedict(cls, d, s):
       return dict((str(k.replace(s, '', 1)), v) for k,v in d.iteritems() if k.startswith(s)) 

@@ -5,6 +5,7 @@ urlpatterns = patterns(
     url(r"^testpledge", "testPledge"),
     url(r"^testauthorize", "testAuthorize"),
     url(r"^testexecute", "testExecute"),
+    url(r"^testcancel", "testCancel"),
     url(r"^querycampaign", "queryCampaign"),
     url(r"^paypalipn", "paypalIPN")
 )
