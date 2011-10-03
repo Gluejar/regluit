@@ -141,8 +141,7 @@ def testPledge(request):
         
     
     # Note, set this to 1-5 different receivers with absolute amounts for each
-    receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':20.00}, 
-                     {'email':'seller_1317463643_biz@gmail.com', 'amount':10.00}]
+    receiver_list = [{'email':'rh1_1317336251_biz@gluejar.com', 'amount':20.00},]
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))

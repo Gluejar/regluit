@@ -7,7 +7,6 @@ TARGET_TYPE_NONE = 0
 TARGET_TYPE_CAMPAIGN = 1
 TARGET_TYPE_LIST = 2
 
-
 PAYPAL_USERNAME = 'jakace_1309677337_biz_api1.gmail.com'
 PAYPAL_PASSWORD =  '1309677386'
 PAYPAL_SIGNATURE = 'A543DNCPfye3PpgUquUAuyfN2wNQAt.h8FJqHIro2U3-Z886XQvIdWSy'
@@ -22,3 +21,8 @@ CANCEL_URL = 'paymentcancel'
 
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PAYPAL_COMMISSION = 0.10
+
+try:
+    from local_parameters import *
+except ImportError:
+    pass
