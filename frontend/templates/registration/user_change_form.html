@@ -1,0 +1,19 @@
+{% extends "registration/registration_base.html" %}
+{% block title %}Change User Data{% endblock %}
+{% block content %}
+<div id="registration">
+<h1>Changing your Username.</h1>
+
+<p> If you change your Username, the web address for your profile page will change as well.</p>
+
+<p> <b>Your current Username:</b> {{ user.username }}</p>
+<form method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="submit" value="Change" id="submit">
+</form>
+<p><a href="/profiles/edit/">Edit Your Profile</a></p>
+</div>
+{% endblock %}
+
+
