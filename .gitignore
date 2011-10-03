@@ -1,9 +1,6 @@
 *.db
 *.pyc
 *.log
-<<<<<<< HEAD
-settings/me.py
-=======
 settings/me.*
->>>>>>> origin/master
+payment/local_parameters.*
 *.dot
