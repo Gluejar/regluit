@@ -9,5 +9,7 @@ urlpatterns = patterns(
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
+    url(r"^rightsholders/$", TemplateView.as_view(template_name="rhtools.html"),
+        name="rightsholders"),
     url(r"^wishlist/$", "wishlist", name="wishlist"),
 )
