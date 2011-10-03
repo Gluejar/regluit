@@ -2,7 +2,7 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, Preapproval
+from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED
 import uuid
 import traceback
 
@@ -27,38 +27,119 @@ class PaymentManager( object ):
     
                 
                 if ipn.transaction_type == IPN_TYPE_PAYMENT:
+                    # payment IPN
                     
-                    if ipn.preapproval_key:
-                        key = ipn.preapproval_key
-                    else:
-                        key = ipn.key
-                        
+                    key = ipn.key()
                     t = Transaction.objects.get(reference=key)
+                    
+                    # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
                     t.status = ipn.status
+                    
                     
                     for item in ipn.transactions:
                         
-                        r = Receiver.objects.get(transaction=t, email=item['receiver'])
-                        r.status = item['status_for_sender_txn']
-                        r.save()
+                        try:
+                            r = Receiver.objects.get(transaction=t, email=item['receiver'])
+                            print item
+                            # one of the IPN_SENDER_STATUS codes defined in paypal.py
+                            r.status = item['status_for_sender_txn']
+                            r.txn_id = item['id_for_sender_txn']
+                            r.save()
+                        except:
+                            # Log an excecption if we have a receiver that is not found
+                            traceback.print_exc()
                         
                     t.save()
+                    
+                elif ipn.transaction_type == IPN_TYPE_ADJUSTMENT:
+                    # a chargeback, reversal or refund for an existng payment
+                    
+                    key = ipn.key()
+                    t = Transaction.objects.get(reference=key)
+                    
+                    # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
+                    t.status = ipn.status
+                    
+                    # Reason code indicates more details of the adjustment type
+                    t.reason = ipn.reason_code
+                    
                         
                 elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
                     
-                    t = Transaction.objects.get(reference=ipn.preapproval_key)
+                   
+                    key = ipn.key()
+                    t = Transaction.objects.get(reference=key)
+                    
+                    # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
                     t.status = ipn.status
                     t.save()
+                    print "IPN: Preapproval transaction: " + str(t.id) + " Status: " + ipn.status
                         
                 else:
                     print "IPN: Unknown Transaction Type: " + ipn.transaction_type
                 
                 
             else:
+                print "ERROR: INVALID IPN"
                 print ipn.error
         
         except:
             traceback.print_exc()
+         
+    '''
+    Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
+    '''
+    def run_query(self, transaction_list, summary, pledged, authorized ):
+        
+        if pledged:
+            pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
+                                                   status="COMPLETED")
+        else:
+            pledged_list = []
+        
+        if authorized:
+            authorized_list = Transaction.objects.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                         status="ACTIVE")
+        else:
+            authorized_list = []
+        
+        if summary:
+            pledged_amount = 0.0
+            authorized_amount = 0.0
+            
+            for t in pledged_list:
+                for r in t.receiver_set.all():
+                    if r.status == IPN_SENDER_STATUS_COMPLETED:
+                        # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
+                        pledged_amount += r.amount
+                
+            for t in authorized_list:
+                authorized_amount += t.amount
+                
+            amount = pledged_amount + authorized_amount
+            return amount
+        
+        else:
+            return pledged_list | authorized_list
+        
+           
+    '''
+    query_user
+    
+    Returns either an amount or list of transactions for a user
+    
+    summary: if true, return a float of the total, if false, return a list of transactions
+    pledged: include amounts pledged
+    authorized: include amounts pre-authorized
+    
+    return value: either a float summary or a list of transactions
+    
+    '''
+    def query_user(self, user, summary=False, pledged=True, authorized=True):
+        
+        transactions = Transaction.objects.filter(user=user)
+        return self.run_query(transactions, summary, pledged, authorized)
+       
         
     '''
     query_campaign
@@ -74,35 +155,25 @@ class PaymentManager( object ):
     '''
     def query_campaign(self, campaign, summary=False, pledged=True, authorized=True):
         
-        if pledged:
-            pledged_list = Transaction.objects.filter(campaign=campaign, 
-                                                      type=PAYMENT_TYPE_INSTANT,
-                                                      status="COMPLETED")
-        else:
-            pledged_list = []
+        transactions = Transaction.objects.filter(campaign=campaign)
+        return self.run_query(transactions, summary, pledged, authorized)
+    
+    '''
+    query_list
+    
+    Returns either an amount or list of transactions for a list
+    
+    summary: if true, return a float of the total, if false, return a list of transactions
+    pledged: include amounts pledged
+    authorized: include amounts pre-authorized
+    
+    return value: either a float summary or a list of transactions
+    
+    '''
+    def query_campaign(self, list, summary=False, pledged=True, authorized=True):
         
-        if authorized:
-            authorized_list = Transaction.objects.filter(campaign=campaign, 
-                                                         type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status="ACTIVE")
-        else:
-            authorized_list = []
-        
-        if summary:
-            pledged_amount = 0.0
-            authorized_amount = 0.0
-            
-            for t in pledged_list:
-                pledged_amount += t.amount
-                
-            for t in authorized_list:
-                authorized_amount += t.amount
-                
-            amount = pledged_amount + authorized_amount
-            return amount
-        
-        else:
-            return pledged_list | authorized_list
+        transactions = Transaction.objects.filter(list=list)
+        return self.run_query(transactions, summary, pledged, authorized)
             
     '''
     execute_campaign
@@ -114,12 +185,14 @@ class PaymentManager( object ):
     '''       
     def execute_campaign(self, campaign):
         
+        # only allow active transactions to go through again, if there is an error, intervention is needed
         transactions = Transaction.objects.filter(campaign=campaign, status="ACTIVE")
         
         for t in transactions:
             
-            receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':t.amount * 0.80}, 
-                            {'email':'boogus@gmail.com', 'amount':t.amount * 0.20}]
+            # BUGBUG: Fill this in with the correct info from the campaign object
+            receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':t.amount}, 
+                            {'email':'seller_1317463643_biz@gmail.com', 'amount':t.amount * 0.20}]
             
             self.execute_transaction(t, receiver_list) 
 
@@ -144,13 +217,17 @@ class PaymentManager( object ):
     '''
     def execute_transaction(self, transaction, receiver_list):
         
-        for r in receiver_list:
-            receiver = Receiver.objects.create(email=r['email'], amount=r['amount'], currency=transaction.currency, status="ACTIVE", transaction=transaction)
+        if len(transaction.receiver_set.all()) > 0:
+            # we are re-submitting a transaction, wipe the old receiver list
+            transaction.receiver_set.all().delete()
+            
+        transaction.create_receivers(receiver_list)
+            
+        p = Pay(transaction)
         
-        p = Pay(transaction, receiver_list)
-        transaction.status = p.status()
+        # We will update our transaction status when we receive the IPN
         
-        if p.status() == 'COMPLETED':
+        if p.status() == IPN_PAY_STATUS_COMPLETED:
             print "Execute Success"
             return True
         
@@ -158,6 +235,27 @@ class PaymentManager( object ):
             transaction.error = p.error()
             print "Execute Error: " + p.error()
             return False
+        
+    '''
+    cancel
+    
+    cancels a pre-approved transaction
+    
+    return value: True if successful, false otherwise
+    '''
+    def cancel(self, transaction):
+        
+        p = CancelPreapproval(transaction)
+        
+        if p.success():
+            print "Cancel Transaction " + str(transaction.id) + " Completed"
+            return True
+        
+        else:
+            print "Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error()
+            transaction.error = p.error()
+            return False
+        
         
     '''
     authorize
@@ -191,14 +289,12 @@ class PaymentManager( object ):
         p = Preapproval(t, amount)
         
         if p.status() == 'Success':
-            t.status = 'CREATED'
             t.reference = p.paykey()
             t.save()
             print "Authorize Success: " + p.next_url()
             return t, p.next_url()
         
         else:
-            t.status = 'ERROR'
             t.error = p.error()
             t.save()
             print "Authorize Error: " + p.error()
@@ -230,8 +326,9 @@ class PaymentManager( object ):
     def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None):
         
         amount = 0.0
-        for r in receiver_list:
-            amount += r['amount']
+        
+        # for chained payments, first amount is the total amount
+        amount = receiver_list[0]['amount']
             
         t = Transaction.objects.create(amount=amount, 
                                        type=PAYMENT_TYPE_INSTANT, 
@@ -244,11 +341,9 @@ class PaymentManager( object ):
                                        user=user
                                        )
     
-        for r in receiver_list:
-            receiver = Receiver.objects.create(email=r['email'], amount=r['amount'], currency=currency, status="None", transaction=t)
+        t.create_receivers(receiver_list)
         
-        p = Pay(t, receiver_list)
-        t.status = p.status()
+        p = Pay(t)
         
         if p.status() == 'CREATED':
             t.reference = p.paykey()
@@ -259,7 +354,7 @@ class PaymentManager( object ):
         else:
             t.error = p.error()
             t.save()
-            print "Pledge Status: " + p.status() +  "Error: " + p.error()
+            print "Pledge Error: " + p.error()
             return t, None
     
     
