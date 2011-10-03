@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+ 
+{% block content %}
+<div id="registration">
+<h1>Edit profile for {{ user }} </h1>
+ 
+<form method="POST" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="submit" value="Update" id="submit">
+</form>
+{{ debug }}
+</div>
+{% endblock content %}

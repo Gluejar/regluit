@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'registration',
     'social_auth',
     'tastypie',
+    'profiles',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -169,6 +170,8 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
 SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/accounts/edit/'
+
 FACEBOOK_EXTENDED_PERMISSIONS = ['email']
 
 LOGIN_URL = "/accounts/login/"
@@ -178,3 +181,5 @@ LOGOUT_URL = "/accounts/logout/"
 USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
 
 SOUTH_TESTS_MIGRATE = False
+
+AUTH_PROFILE_MODULE = "core.userprofile"

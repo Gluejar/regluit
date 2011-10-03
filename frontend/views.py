@@ -1,5 +1,6 @@
 from django.template import RequestContext
 from django.contrib.auth.models import User
+# from django.contrib.auth.forms import UserChangeForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,8 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
+
+from regluit.frontend.forms import UserData
 
 def home(request):
     if request.user.is_authenticated():
@@ -24,6 +27,24 @@ def supporter(request, supporter_username):
         "wishlist": wishlist,
     }
     return render(request, 'supporter.html', context)
+
+
+def edit_user(request):
+    form=UserData()
+    if not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('auth_login'))
+    oldusername=request.user.username
+    if request.method == 'POST': 
+        # surely there's a better way to add data to the POST data?
+        postcopy=request.POST.copy()
+        postcopy['oldusername']=oldusername 
+        form = UserData(postcopy)
+        if form.is_valid(): # All validation rules pass, go and change the username
+            request.user.username=form.cleaned_data['username']
+            request.user.save()
+            return HttpResponseRedirect(reverse('home')) # Redirect after POST
+    return render(request,'registration/user_change_form.html', {'form': form},)  
+
 
 def search(request):
     q = request.GET.get('q', None)
