@@ -57,7 +57,7 @@ def testExecute(request):
             
             # Note, set this to 1-5 different receivers with absolute amounts for each
             receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':t.amount * 0.80}, 
-                            {'email':'boogus@gmail.com', 'amount':t.amount * 0.20}]
+                            {'email':'seller_1317463643_biz@gmail.com', 'amount':t.amount * 0.20}]
     
             p.execute_transaction(t, receiver_list)
             output += str(t)
@@ -88,7 +88,7 @@ def testAuthorize(request):
     
     # Note, set this to 1-5 different receivers with absolute amounts for each
     receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':20.00}, 
-                     {'email':'boogus@gmail.com', 'amount':10.00}]
+                     {'email':'seller_1317463643_biz@gmail.com', 'amount':10.00}]
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
@@ -107,6 +107,25 @@ def testAuthorize(request):
         return HttpResponse(response)
  
 '''
+http://BASE/testcancel?transaction=2
+
+Example that cancels a preapproved transaction
+'''    
+def testCancel(request):
+    
+    if "transaction" not in request.GET.keys():
+        return HttpResponse("No Transaction in Request")
+    
+    t = Transaction.objects.get(id=int(request.GET['transaction']))
+    p = PaymentManager()
+    if p.cancel(t):
+        return HttpResponse("Success")
+    else:
+        message = "Error: " + t.error
+        return HttpResponse(message)
+
+    
+'''
 http://BASE/testpledge?campaign=2
 
 Example that initiates an instant payment for a campaign
@@ -123,7 +142,7 @@ def testPledge(request):
     
     # Note, set this to 1-5 different receivers with absolute amounts for each
     receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':20.00}, 
-                     {'email':'boogus@gmail.com', 'amount':10.00}]
+                     {'email':'seller_1317463643_biz@gmail.com', 'amount':10.00}]
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
