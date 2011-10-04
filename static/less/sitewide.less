@@ -1,0 +1,275 @@
+// For sitewide elements of unglue.it.
+@import "variables.less";
+
+body{
+    background:url(@background-body) 0 0 repeat-x;
+    padding:0 0 20px 0;
+    margin:0;
+    font-size:12px;
+    font-family: Lucida "Lucida Grande", "Lucida Sans Unicode", sans-serif, Helvetica, sans-serif;
+    color:@text-blue;
+}
+
+img {
+	border:none;
+}
+
+// Header section
+
+#js-header {
+	height:90px;
+}
+
+.js-main {
+    width:960px;
+    margin:0 auto;
+    clear:both;
+    padding:0;
+}
+
+.js-logo {
+	float:left;
+	padding-top:20px;
+	
+	a {
+		img { border: none;}
+	}
+}
+
+.js-topmenu {
+	float:right;
+	padding-top:25px;
+
+	ul {
+		li {
+			float:left;
+			padding:0 10px;
+			
+			a {
+				color:#fff;
+				.header-text;
+			}
+			
+			span#welcome {
+				color:yellow;
+				.header-text;
+			}
+			
+			&last {
+				a {
+					background: url(@background-header) right top no-repeat;
+					
+					span {
+						background:url(@background-header) -770px -36px no-repeat;
+						margin-right:29px;
+						display:block;
+						padding:0 5px 0 15px;
+					}
+				}
+			}
+		}
+	}
+}
+
+#js-topsection {
+	padding:15px 0; overflow:hidden;
+}
+
+.js-topnews {
+	float:left; width:60%;
+}
+
+.js-news-text {
+	float:left;
+	width:70%;
+	font-size:16px;
+	color:@text-blue;
+}
+
+.js-news-links {
+	float:right;
+	width:30%;
+}
+
+.js-search {
+	width:960px;
+	margin:0 auto;
+	clear:both;
+	padding:0;
+	
+	.inputbox {
+		padding:0 0 0 15px;
+		margin:0;
+		border:none;
+		outline: none;
+		background:url(@background-header) -645px -180px;
+		height:36px;
+		line-height:36px;
+		float: left;
+		color:@medium-blue;
+	}
+	
+	.button {
+		background:url(@background-header) 100% -144px no-repeat;
+		padding:0;
+		margin:0;
+		width:40px;
+		height:36px;
+		display:block;
+		border:none;
+		text-indent:-10000px;
+		cursor:pointer;
+	}
+}
+
+.js-search-inner { 
+	margin:0 auto;
+}
+
+#js-leftcol {
+	float:left;
+	width:235px;
+	
+	a {
+		font-weight:normal;
+		
+		&:hover{
+			text-decoration:underline;
+		}
+	}
+	
+	.jsmod-content {
+		border:1px solid @pale-blue;
+		margin-left:10px;
+		.border-radius(0, 0, 10px, 10px);
+	}
+
+	ul {
+		&.level1 > li > a {
+			text-transform:uppercase;
+			color:@text-blue;
+			font-size:12px;
+			border-bottom:1px solid @pale-blue;
+			border-top:1px solid @pale-blue; 
+			display:block; 
+			padding:10px;
+		}
+
+		&.level2 li {
+			padding:5px 10px;
+
+			a {
+				color:@medium-blue;
+				line-height: 20px;
+			}
+		}
+	}
+}
+
+#js-maincol-fr {
+	float:left;
+	width:725px;
+}
+
+div.content-block {
+    overflow:hidden;
+    background:url(@background-header) 100% -223px no-repeat;
+    padding:0 0 0 7px;
+}
+
+.content-block-heading a.block-link {
+	float:right;
+	padding:15px;
+	font-size:11px;
+	color:@text-blue;
+	text-decoration:underline;
+	font-weight:normal;
+}
+
+div.content-block-content {
+	width:100%;
+	overflow:hidden;
+	
+	.cols3 .column {
+		width:33.33%;
+		float:left;
+	}
+}
+
+h2 {
+	.content-heading {
+		padding:15px;
+		margin:0;
+		font-size:19px;
+		font-weight:normal;
+		color:@text-blue;
+		float:left;
+		width:50%;
+		
+		span {
+			font-style:italic;
+		}
+	}
+}
+
+h3 {
+	.jsmod-title {
+		background:url(@background-header) 0 0 no-repeat;
+		padding:0;
+		margin:0;
+		height:73px;
+		
+		span {
+			background:url(../images/icon-h3.png) 90% center no-repeat;
+			font-size:17px;
+			color:#fff;
+			padding:26px 40px 27px 20px;
+			display:block;
+		}
+    }
+}
+
+ul.menu{
+    list-style:none;
+    padding:0;
+    margin:0;
+    line-height: 20px;
+}
+
+a.readon {
+	background:url(@background-header) 100% -72px no-repeat;
+	color:#fff;
+	text-transform:capitalize;
+	display:block;
+	float:right;
+	font-size:13px;
+	font-weight:bold;
+
+	span {
+		background:url(@background-header) -770px -108px no-repeat;
+		margin-right:34px;
+		padding:0 5px 0 20px;
+		height:36px;
+		line-height:36px;
+		display:block;
+	}
+}
+
+a {
+	font-weight:bold;
+	font-size:13px; 
+	text-decoration:none;
+	cursor:pointer;
+}
+
+#footer{
+	border-top: 7px solid @pale-blue;
+	clear: both;
+	height:90px;
+	text-align: center;
+	padding-top: 5px;
+}
+
+#footer a{
+    color:@text-blue;
+}
