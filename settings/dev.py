@@ -57,3 +57,19 @@ GOOGLE_DISPLAY_NAME = 'unglue it!'
 # you'll need to register a GoogleBooks API key
 # https://code.google.com/apis/console
 GOOGLE_BOOKS_API_KEY = ''
+
+PAYPAL_USERNAME = ''
+PAYPAL_PASSWORD =  ''
+PAYPAL_SIGNATURE = ''
+PAYPAL_APPID = ''
+
+PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
+PAYPAL_PAYMENT_HOST = 'http://www.sandbox.paypal.com' # sandbox
+
+PAYPAL_SANDBOX_LOGIN = ''
+PAYPAL_SANDBOX_PASSWORD = ''
+
+PAYPAL_BUYER_LOGIN =''
+PAYPAL_BUYER_PASSWORD = ''
+
+BASE_URL = 'http://0.0.0.0/'
