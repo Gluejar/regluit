@@ -6,6 +6,9 @@ from django.contrib.auth.models import User
 from regluit.payment.parameters import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
+from django.test.utils import setup_test_environment
+from unittest import TestResult
+from regluit.payment.tests import PledgeTest, AuthorizeTest
 import traceback
 
 '''
@@ -158,7 +161,34 @@ def testPledge(request):
         response = t.reference
         print "testPledge: Error " + str(t.reference)
         return HttpResponse(response)
+
+def runTests(request):
+
+    try:
+        # Setup the test environement.  We need to run these tests on a live server
+        # so our code can receive IPN notifications from paypal
+        setup_test_environment()
+        result = TestResult()
+        
+        # Run the authorize test
+        test = AuthorizeTest('test_authorize')
+        test.run(result)   
     
+        # Run the pledge test
+        test = PledgeTest('test_pledge_single_receiver')
+        test.run(result)
+        
+        # Run the pledge failure test
+        test = PledgeTest('test_pledge_too_much')
+        test.run(result)
+
+        output = "Tests Run: " + str(result.testsRun) + str(result.errors) + str(result.failures)
+        print output
+    
+        return HttpResponse(output)
+    
+    except:
+        traceback.print_exc()
     
 @csrf_exempt
 def paypalIPN(request):

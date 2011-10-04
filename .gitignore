@@ -2,5 +2,5 @@
 *.pyc
 *.log
 settings/me.*
-payment/local_parameters.*
 *.dot
+reports
