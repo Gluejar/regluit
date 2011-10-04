@@ -7,5 +7,6 @@ urlpatterns = patterns(
     url(r"^testexecute", "testExecute"),
     url(r"^testcancel", "testCancel"),
     url(r"^querycampaign", "queryCampaign"),
-    url(r"^paypalipn", "paypalIPN")
+    url(r"^paypalipn", "paypalIPN"),
+    url(r"^runtests", "runTests")
 )

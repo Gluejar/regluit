@@ -56,3 +56,13 @@ In Snow Leopard, this may be /usr/local/bin/virtualenvwrapper.sh
 Configure Terminal to automatically notice this at startup:
 Terminal –> Preferences –> Settings –> Shell
 Click "run command"; add `source ~/.bashrc`
+
+Selenium Install
+---------------
+
+Download the selenium server:
+http://selenium.googlecode.com/files/selenium-server-standalone-2.5.0.jar
+
+Start the selenium server:
+'java -jar selenium-server-standalone-2.5.0.jar'
+
