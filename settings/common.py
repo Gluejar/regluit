@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'registration',
     'social_auth',
     'tastypie',
+    'django_jenkins',
 )
 
 # A sample logging configuration. The only tangible logging
