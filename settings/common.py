@@ -110,6 +110,14 @@ INSTALLED_APPS = (
     'django_jenkins',
 )
 
+# only generate django-jenkins reports for these
+PROJECT_APPS = (
+    'regluit.api',
+    'regluit.core',
+    'regluit.frontend',
+    'regluit.payment',
+)
+
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
 # the site admins on every HTTP 500 error.
