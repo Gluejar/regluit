@@ -107,15 +107,6 @@ INSTALLED_APPS = (
     'registration',
     'social_auth',
     'tastypie',
-    'django_jenkins',
-)
-
-# only generate django-jenkins reports for these
-PROJECT_APPS = (
-    'regluit.api',
-    'regluit.core',
-    'regluit.frontend',
-    'regluit.payment',
 )
 
 # A sample logging configuration. The only tangible logging
