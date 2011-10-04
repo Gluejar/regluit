@@ -1,0 +1,34 @@
+// variables and mixins go here 
+@text-blue: #3d4e53;
+@medium-blue: #6994a3;
+@pale-blue: #edf3f4;
+@green: #8dc63f;
+@dark-green: #73a334;
+@dark-blue: #37414d;
+@image-base: "/static/images/";
+@background-header: "@{image-base}bg.png";
+@background-body: "@{image-base}bg-body.png";
+@background-booklist: "@{image-base}booklist/bg.png";
+
+.header-text {
+	height:36px;
+	line-height:36px;
+	display:block;
+	text-decoration:none;
+	font-weight:bold;
+	font-size:13px;
+	letter-spacing:1px;
+	text-transform:capitalize;
+}
+
+.border-radius(@topleft, @topright, @bottomright, @bottomleft) {
+  border-radius: @arguments;
+  -moz-border-radius: @arguments;
+  -webkit-border-radius: @arguments;
+}
+
+.panelborders {
+	border-width: 1px 0px;
+	border-style: solid none;
+	border-color: #FFFFFF;
+}
