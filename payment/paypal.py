@@ -1,4 +1,5 @@
 from regluit.payment.parameters import *
+from django.conf import settings
 from regluit.payment.models import Transaction
 from django.contrib.auth.models import User
 from django.utils import simplejson as json
@@ -92,16 +93,16 @@ class Pay( object ):
   def __init__( self, transaction):
       
       headers = {
-            'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
-            'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
-            'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
-            'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+            'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+            'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+            'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+            'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
             'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
             'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
             }
 
-      return_url = BASE_URL + COMPLETE_URL
-      cancel_url = BASE_URL + CANCEL_URL
+      return_url = settings.BASE_URL + COMPLETE_URL
+      cancel_url = settings.BASE_URL + CANCEL_URL
       logger.info("Return URL: " + return_url)
       logger.info("Cancel URL: " + cancel_url)
       
@@ -131,7 +132,7 @@ class Pay( object ):
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl': BASE_URL + 'paypalipn'
+              'ipnNotificationUrl': settings.BASE_URL + 'paypalipn'
               } 
       
       if transaction.reference:
@@ -139,7 +140,7 @@ class Pay( object ):
 
       self.raw_request = json.dumps(data)
    
-      self.raw_response = url_request( PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
+      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
       logger.info("paypal PAY response was: %s" % self.raw_response)
       self.response = json.loads( self.raw_response )
       logger.info(self.response)
@@ -165,7 +166,7 @@ class Pay( object ):
     return self.response['payKey']
 
   def next_url( self ):
-    return '%s?cmd=_ap-payment&paykey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['payKey'] )
+    return '%s?cmd=_ap-payment&paykey=%s' % (settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
 
 
 class CancelPreapproval(object):
@@ -173,10 +174,10 @@ class CancelPreapproval(object):
     def __init__(self, transaction):
         
         headers = {
-                 'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
-                 'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
-                 'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
-                 'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                 'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                 'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                 'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
                  'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
@@ -187,7 +188,7 @@ class CancelPreapproval(object):
               } 
 
         self.raw_request = json.dumps(data)
-        self.raw_response = url_request(PAYPAL_ENDPOINT, "/AdaptivePayments/CancelPreapproval", data=self.raw_request, headers=headers ).content() 
+        self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/CancelPreapproval", data=self.raw_request, headers=headers ).content() 
         logger.info("paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response)
         self.response = json.loads( self.raw_response )
         logger.info(self.response)
@@ -217,10 +218,10 @@ class Preapproval( object ):
   def __init__( self, transaction, amount ):
       
       headers = {
-                 'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
-                 'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
-                 'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
-                 'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                 'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                 'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                 'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
                  'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
@@ -249,7 +250,7 @@ class Preapproval( object ):
               } 
 
       self.raw_request = json.dumps(data)
-      self.raw_response = url_request(PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
+      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
       logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
       self.response = json.loads( self.raw_response )
       logger.info(self.response)
@@ -261,7 +262,7 @@ class Preapproval( object ):
       return None
 
   def next_url( self ):
-    return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
+    return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( settings.PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
 
   def error( self ):
       if self.response.has_key('error'):
@@ -286,7 +287,7 @@ class IPN( object ):
         # verify that the request is paypal's
         self.error = None
     
-        url = "%s?cmd=_notify-validate" % PAYPAL_PAYMENT_HOST
+        url = "%s?cmd=_notify-validate" % settings.PAYPAL_PAYMENT_HOST
         data=urllib.urlencode(request.POST.copy())
         req = urllib2.Request(url, data)
         response = urllib2.urlopen(req)
