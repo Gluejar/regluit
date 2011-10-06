@@ -66,3 +66,5 @@ http://selenium.googlecode.com/files/selenium-server-standalone-2.5.0.jar
 Start the selenium server:
 'java -jar selenium-server-standalone-2.5.0.jar'
 
+Be sure to rerun `pip install -r requirements.pip`.
+
