@@ -1,13 +1,13 @@
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
-
+from decimal import Decimal
 
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=False)
     description = models.CharField(max_length=10000, null=False)
-    target = models.FloatField(null=False)
+    target = models.DecimalField(max_digits=14, decimal_places=2)
     deadline = models.DateTimeField(null=False)
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)

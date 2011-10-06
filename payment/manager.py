@@ -5,6 +5,10 @@ from regluit.payment.parameters import *
 from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED
 import uuid
 import traceback
+import logging
+from decimal import Decimal as D
+
+logger = logging.getLogger(__name__)
 
 class PaymentManager( object ): 
 
@@ -23,7 +27,7 @@ class PaymentManager( object ):
             ipn = IPN(request)
         
             if ipn.success():
-                print "Valid IPN"
+                logger.info("Valid IPN")
     
                 
                 if ipn.transaction_type == IPN_TYPE_PAYMENT:
@@ -40,7 +44,7 @@ class PaymentManager( object ):
                         
                         try:
                             r = Receiver.objects.get(transaction=t, email=item['receiver'])
-                            print item
+                            logger.info(item)
                             # one of the IPN_SENDER_STATUS codes defined in paypal.py
                             r.status = item['status_for_sender_txn']
                             r.txn_id = item['id_for_sender_txn']
@@ -73,15 +77,15 @@ class PaymentManager( object ):
                     # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
                     t.status = ipn.status
                     t.save()
-                    print "IPN: Preapproval transaction: " + str(t.id) + " Status: " + ipn.status
+                    logger.info("IPN: Preapproval transaction: " + str(t.id) + " Status: " + ipn.status)
                         
                 else:
-                    print "IPN: Unknown Transaction Type: " + ipn.transaction_type
+                    logger.info("IPN: Unknown Transaction Type: " + ipn.transaction_type)
                 
                 
             else:
-                print "ERROR: INVALID IPN"
-                print ipn.error
+                logger.info("ERROR: INVALID IPN")
+                logger.info(ipn.error)
         
         except:
             traceback.print_exc()
@@ -228,12 +232,12 @@ class PaymentManager( object ):
         # We will update our transaction status when we receive the IPN
         
         if p.status() == IPN_PAY_STATUS_COMPLETED:
-            print "Execute Success"
+            logger.info("Execute Success")
             return True
         
         else:
             transaction.error = p.error()
-            print "Execute Error: " + p.error()
+            logger.info("Execute Error: " + p.error())
             return False
         
     '''
@@ -248,11 +252,11 @@ class PaymentManager( object ):
         p = CancelPreapproval(transaction)
         
         if p.success():
-            print "Cancel Transaction " + str(transaction.id) + " Completed"
+            logger.info("Cancel Transaction " + str(transaction.id) + " Completed")
             return True
         
         else:
-            print "Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error()
+            logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error())
             transaction.error = p.error()
             return False
         
@@ -291,13 +295,13 @@ class PaymentManager( object ):
         if p.status() == 'Success':
             t.reference = p.paykey()
             t.save()
-            print "Authorize Success: " + p.next_url()
+            logger.info("Authorize Success: " + p.next_url())
             return t, p.next_url()
         
         else:
             t.error = p.error()
             t.save()
-            print "Authorize Error: " + p.error()
+            logger.info("Authorize Error: " + p.error())
             return t, None
         
     
@@ -325,10 +329,10 @@ class PaymentManager( object ):
     '''    
     def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None):
         
-        amount = 0.0
+        amount = D('0.00')
         
         # for chained payments, first amount is the total amount
-        amount = receiver_list[0]['amount']
+        amount = D(receiver_list[0]['amount'])
             
         t = Transaction.objects.create(amount=amount, 
                                        type=PAYMENT_TYPE_INSTANT, 
@@ -348,13 +352,13 @@ class PaymentManager( object ):
         if p.status() == 'CREATED':
             t.reference = p.paykey()
             t.save()
-            print "Pledge Success: " + p.next_url()
+            logger.info("Pledge Success: " + p.next_url())
             return t, p.next_url()
         
         else:
             t.error = p.error()
             t.save()
-            print "Pledge Error: " + p.error()
+            logger.info("Pledge Error: " + p.error())
             return t, None
     
     
