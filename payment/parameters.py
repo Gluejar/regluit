@@ -1,5 +1,3 @@
-from django.conf.settings import *
-
 PAYMENT_TYPE_NONE = 0
 PAYMENT_TYPE_INSTANT = 1
 PAYMENT_TYPE_AUTHORIZATION = 2
@@ -13,4 +11,3 @@ CANCEL_URL = 'paymentcancel'
 
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PAYPAL_COMMISSION = 0.10
-
