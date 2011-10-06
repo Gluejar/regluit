@@ -1,4 +1,4 @@
-from regluit.settings.me import * 
+from django.conf.settings import *
 
 PAYMENT_TYPE_NONE = 0
 PAYMENT_TYPE_INSTANT = 1
