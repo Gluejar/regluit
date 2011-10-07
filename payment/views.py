@@ -11,6 +11,14 @@ from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
 import traceback
 
+import logging
+logger = logging.getLogger(__name__)
+
+# parameterize some test recipients
+#TEST_RECEIVERS = ['jakace_1309677337_biz@gmail.com', 'seller_1317463643_biz@gmail.com']
+TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
+
+
 '''
 http://BASE/querycampaign?id=2
 
@@ -51,7 +59,7 @@ def testExecute(request):
         
         for t in result:
             output += str(t)
-            print str(t)
+            logger.info(str(t))
             
     else:
         transactions = Transaction.objects.filter(status='ACTIVE')
@@ -59,12 +67,12 @@ def testExecute(request):
         for t in transactions:
             
             # Note, set this to 1-5 different receivers with absolute amounts for each
-            receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':t.amount * 0.80}, 
-                            {'email':'seller_1317463643_biz@gmail.com', 'amount':t.amount * 0.20}]
+            receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':t.amount * 0.80}, 
+                            {'email':TEST_RECEIVERS[1], 'amount':t.amount * 0.20}]
     
             p.execute_transaction(t, receiver_list)
             output += str(t)
-            print str(t)
+            logger.info(str(t))
         
     return HttpResponse(output)
         
@@ -90,8 +98,8 @@ def testAuthorize(request):
         
     
     # Note, set this to 1-5 different receivers with absolute amounts for each
-    receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':20.00}, 
-                     {'email':'seller_1317463643_biz@gmail.com', 'amount':10.00}]
+    receiver_list = [{'email': TEST_RECEIVERS[0], 'amount':20.00}, 
+                     {'email': TEST_RECEIVERS[1], 'amount':10.00}]
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
@@ -101,12 +109,12 @@ def testAuthorize(request):
         t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, list=None, user=None)
     
     if url:
-        print "testAuthorize: " + url
+        logger.info("testAuthorize: " + url)
         return HttpResponseRedirect(url)
     
     else:
         response = t.reference
-        print "testAuthorize: Error " + str(t.reference)
+        logger.info("testAuthorize: Error " + str(t.reference))
         return HttpResponse(response)
  
 '''
@@ -144,8 +152,8 @@ def testPledge(request):
         
     
     # Note, set this to 1-5 different receivers with absolute amounts for each
-    receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':20.00}, 
-                     {'email':'seller_1317463643_biz@gmail.com', 'amount':10.00}]
+    #receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':20.00},{'email':TEST_RECEIVERS[1], 'amount':10.00}]
+    receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
@@ -155,12 +163,12 @@ def testPledge(request):
         t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
     
     if url:
-        print "testPledge: " + url
+        logger.info("testPledge: " + url)
         return HttpResponseRedirect(url)
     
     else:
         response = t.reference
-        print "testPledge: Error " + str(t.reference)
+        logger.info("testPledge: Error " + str(t.reference))
         return HttpResponse(response)
 
 def runTests(request):
@@ -184,7 +192,7 @@ def runTests(request):
         test.run(result)
 
         output = "Tests Run: " + str(result.testsRun) + str(result.errors) + str(result.failures)
-        print output
+        logger.info(output)
     
         return HttpResponse(output)
     
@@ -198,6 +206,13 @@ def paypalIPN(request):
     p = PaymentManager()
     p.processIPN(request)
     
-    print str(request.POST)
+    logger.info(str(request.POST))
     return HttpResponse("ipn")
+    
+def paymentcomplete(request):
+    # pick up all get and post parameters and display
+    output = "payment complete"
+    output += request.method + "\n" + str(request.REQUEST.items())
+    return HttpResponse(output)
+    
     

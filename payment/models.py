@@ -2,13 +2,14 @@ from django.db import models
 from django.contrib.auth.models import User
 from regluit.core.models import Campaign, Wishlist
 from regluit.payment.parameters import *
+from decimal import Decimal
 
 class Transaction(models.Model):
     
     type = models.IntegerField(default=PAYMENT_TYPE_NONE, null=False)
     target = models.IntegerField(default=TARGET_TYPE_NONE, null=False)
     status = models.CharField(max_length=32, default='NONE', null=False)
-    amount = models.IntegerField(default=0.0, null=False)
+    amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10, default='USD', null=True)
     secret = models.CharField(max_length=64, null=True)
     reference = models.CharField(max_length=128, null=True)
@@ -38,7 +39,7 @@ class Transaction(models.Model):
 class Receiver(models.Model):
     
     email = models.CharField(max_length=64)
-    amount = models.FloatField()
+    amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10)
     status = models.CharField(max_length=64)
     reason = models.CharField(max_length=64)

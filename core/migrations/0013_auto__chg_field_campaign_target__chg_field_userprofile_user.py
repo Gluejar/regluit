@@ -8,14 +8,20 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Changing field 'Author.edition'
-        db.alter_column('core_author', 'edition_id', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['core.Edition']))
+        # Changing field 'Campaign.target'
+        db.alter_column('core_campaign', 'target', self.gf('django.db.models.fields.DecimalField')(max_digits=14, decimal_places=2))
+
+        # Changing field 'UserProfile.user'
+        db.alter_column('core_userprofile', 'user_id', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True))
 
 
     def backwards(self, orm):
         
-        # Changing field 'Author.edition'
-        db.alter_column('core_author', 'edition_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['core.Edition']))
+        # Changing field 'Campaign.target'
+        db.alter_column('core_campaign', 'target', self.gf('django.db.models.fields.FloatField')())
+
+        # Changing field 'UserProfile.user'
+        db.alter_column('core_userprofile', 'user_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], unique=True))
 
 
     models = {
@@ -58,9 +64,10 @@ class Migration(SchemaMigration):
         'core.author': {
             'Meta': {'object_name': 'Author'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'authors'", 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
+            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
+            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'authors'", 'symmetrical': 'False', 'to': "orm['core.Work']"})
         },
         'core.campaign': {
             'Meta': {'object_name': 'Campaign'},
@@ -71,25 +78,40 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
             'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
-            'target': ('django.db.models.fields.FloatField', [], {}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaign'", 'to': "orm['core.Work']"})
+            'target': ('django.db.models.fields.DecimalField', [], {'max_digits': '14', 'decimal_places': '2'}),
+            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
         },
         'core.edition': {
             'Meta': {'object_name': 'Edition'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'description': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'isbn_10': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True'}),
+            'isbn_13': ('django.db.models.fields.CharField', [], {'max_length': '13', 'null': 'True'}),
+            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
+            'publication_date': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'publisher': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'editions'", 'to': "orm['core.Work']"}),
-            'year': ('django.db.models.fields.CharField', [], {'max_length': '10'})
+            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'editions'", 'null': 'True', 'to': "orm['core.Work']"})
         },
-        'core.identifier': {
-            'Meta': {'object_name': 'Identifier'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'identifiers'", 'to': "orm['core.Edition']"}),
+        'core.editioncover': {
+            'Meta': {'object_name': 'EditionCover'},
+            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'covers'", 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '500'})
+            'openlibrary_id': ('django.db.models.fields.IntegerField', [], {})
+        },
+        'core.subject': {
+            'Meta': {'object_name': 'Subject'},
+            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
+            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'subjects'", 'symmetrical': 'False', 'to': "orm['core.Work']"})
+        },
+        'core.userprofile': {
+            'Meta': {'object_name': 'UserProfile'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'tagline': ('django.db.models.fields.CharField', [], {'max_length': '140', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
         },
         'core.wishlist': {
             'Meta': {'object_name': 'Wishlist'},
@@ -102,6 +124,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Work'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
         }
     }

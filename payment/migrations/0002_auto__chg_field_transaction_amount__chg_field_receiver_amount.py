@@ -8,14 +8,20 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Changing field 'Author.edition'
-        db.alter_column('core_author', 'edition_id', self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['core.Edition']))
+        # Changing field 'Transaction.amount'
+        db.alter_column('payment_transaction', 'amount', self.gf('django.db.models.fields.DecimalField')(max_digits=14, decimal_places=2))
+
+        # Changing field 'Receiver.amount'
+        db.alter_column('payment_receiver', 'amount', self.gf('django.db.models.fields.DecimalField')(max_digits=14, decimal_places=2))
 
 
     def backwards(self, orm):
         
-        # Changing field 'Author.edition'
-        db.alter_column('core_author', 'edition_id', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['core.Edition']))
+        # Changing field 'Transaction.amount'
+        db.alter_column('payment_transaction', 'amount', self.gf('django.db.models.fields.IntegerField')())
+
+        # Changing field 'Receiver.amount'
+        db.alter_column('payment_receiver', 'amount', self.gf('django.db.models.fields.FloatField')())
 
 
     models = {
@@ -55,13 +61,6 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        'core.author': {
-            'Meta': {'object_name': 'Author'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'authors'", 'to': "orm['core.Edition']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'})
-        },
         'core.campaign': {
             'Meta': {'object_name': 'Campaign'},
             'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
@@ -71,25 +70,8 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
             'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
-            'target': ('django.db.models.fields.FloatField', [], {}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaign'", 'to': "orm['core.Work']"})
-        },
-        'core.edition': {
-            'Meta': {'object_name': 'Edition'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'publisher': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'editions'", 'to': "orm['core.Work']"}),
-            'year': ('django.db.models.fields.CharField', [], {'max_length': '10'})
-        },
-        'core.identifier': {
-            'Meta': {'object_name': 'Identifier'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'identifiers'", 'to': "orm['core.Edition']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
-            'value': ('django.db.models.fields.CharField', [], {'max_length': '500'})
+            'target': ('django.db.models.fields.DecimalField', [], {'max_digits': '14', 'decimal_places': '2'}),
+            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
         },
         'core.wishlist': {
             'Meta': {'object_name': 'Wishlist'},
@@ -102,8 +84,43 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'Work'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
+        },
+        'payment.receiver': {
+            'Meta': {'object_name': 'Receiver'},
+            'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
+            'currency': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
+            'email': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'reason': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'status': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'transaction': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['payment.Transaction']"}),
+            'txn_id': ('django.db.models.fields.CharField', [], {'max_length': '64'})
+        },
+        'payment.transaction': {
+            'Meta': {'object_name': 'Transaction'},
+            'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
+            'campaign': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Campaign']", 'null': 'True'}),
+            'currency': ('django.db.models.fields.CharField', [], {'default': "'USD'", 'max_length': '10', 'null': 'True'}),
+            'date_authorized': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'date_expired': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'date_payment': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'error': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'list': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Wishlist']", 'null': 'True'}),
+            'reason': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
+            'receipt': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True'}),
+            'reference': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True'}),
+            'secret': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'NONE'", 'max_length': '32'}),
+            'target': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
         }
     }
 
-    complete_apps = ['core']
+    complete_apps = ['payment']

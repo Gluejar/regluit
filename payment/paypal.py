@@ -1,4 +1,5 @@
 from regluit.payment.parameters import *
+from django.conf import settings
 from regluit.payment.models import Transaction
 from django.contrib.auth.models import User
 from django.utils import simplejson as json
@@ -24,6 +25,7 @@ import smtplib
 import urlparse
 import decimal
 
+logger = logging.getLogger(__name__)
 
 # transaction_type constants
 IPN_TYPE_PAYMENT = 'Adaptive Payment PAY'
@@ -91,18 +93,18 @@ class Pay( object ):
   def __init__( self, transaction):
       
       headers = {
-            'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
-            'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
-            'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
-            'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+            'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+            'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+            'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+            'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
             'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
             'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
             }
 
-      return_url = BASE_URL + COMPLETE_URL
-      cancel_url = BASE_URL + CANCEL_URL
-      print "Return URL: " + return_url
-      print "Cancel URL: " + cancel_url
+      return_url = settings.BASE_URL + COMPLETE_URL
+      cancel_url = settings.BASE_URL + CANCEL_URL
+      logger.info("Return URL: " + return_url)
+      logger.info("Cancel URL: " + cancel_url)
       
       receiver_list = []
       receivers = transaction.receiver_set.all()
@@ -121,7 +123,7 @@ class Pay( object ):
           else:
               receiver_list.append({'email':r.email,'amount':str(r.amount)})
                   
-      print receiver_list
+      logger.info(receiver_list)
         
       data = {
               'actionType': 'PAY',
@@ -130,7 +132,7 @@ class Pay( object ):
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl': BASE_URL + 'paypalipn'
+              'ipnNotificationUrl': settings.BASE_URL + 'paypalipn'
               } 
       
       if transaction.reference:
@@ -138,10 +140,10 @@ class Pay( object ):
 
       self.raw_request = json.dumps(data)
    
-      self.raw_response = url_request( PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
-      print "paypal PAY response was: %s" % self.raw_response
+      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
+      logger.info("paypal PAY response was: %s" % self.raw_response)
       self.response = json.loads( self.raw_response )
-      print self.response
+      logger.info(self.response)
     
   def status( self ):
       if self.response.has_key( 'paymentExecStatus' ):
@@ -152,7 +154,7 @@ class Pay( object ):
   def error( self ):
       if self.response.has_key('error'):
           error = self.response['error']
-          print error
+          logger.info(error)
           return error[0]['message']
       else:
           return 'Paypal PAY: Unknown Error'
@@ -164,7 +166,7 @@ class Pay( object ):
     return self.response['payKey']
 
   def next_url( self ):
-    return '%s?cmd=_ap-payment&paykey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['payKey'] )
+    return '%s?cmd=_ap-payment&paykey=%s' % (settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
 
 
 class CancelPreapproval(object):
@@ -172,10 +174,10 @@ class CancelPreapproval(object):
     def __init__(self, transaction):
         
         headers = {
-                 'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
-                 'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
-                 'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
-                 'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                 'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                 'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                 'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
                  'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
@@ -186,10 +188,10 @@ class CancelPreapproval(object):
               } 
 
         self.raw_request = json.dumps(data)
-        self.raw_response = url_request(PAYPAL_ENDPOINT, "/AdaptivePayments/CancelPreapproval", data=self.raw_request, headers=headers ).content() 
-        print "paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response
+        self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/CancelPreapproval", data=self.raw_request, headers=headers ).content() 
+        logger.info("paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response)
         self.response = json.loads( self.raw_response )
-        print self.response
+        logger.info(self.response)
         
     def success(self):
         if self.status() == 'Success' or self.status() == "SuccessWithWarning":
@@ -200,7 +202,7 @@ class CancelPreapproval(object):
     def error(self):
         if self.response.has_key('error'):
             error = self.response['error']
-            print error
+            logger.info(error)
             return error[0]['message']
         else:
             return 'Paypal Preapproval Cancel: Unknown Error'
@@ -216,10 +218,10 @@ class Preapproval( object ):
   def __init__( self, transaction, amount ):
       
       headers = {
-                 'X-PAYPAL-SECURITY-USERID':PAYPAL_USERNAME, 
-                 'X-PAYPAL-SECURITY-PASSWORD':PAYPAL_PASSWORD, 
-                 'X-PAYPAL-SECURITY-SIGNATURE':PAYPAL_SIGNATURE,
-                 'X-PAYPAL-APPLICATION-ID':PAYPAL_APPID,
+                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                 'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                 'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                 'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
                  'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
@@ -248,10 +250,10 @@ class Preapproval( object ):
               } 
 
       self.raw_request = json.dumps(data)
-      self.raw_response = url_request(PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
-      print "paypal PREAPPROVAL response was: %s" % self.raw_response
+      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
+      logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
       self.response = json.loads( self.raw_response )
-      print self.response
+      logger.info(self.response)
       
   def paykey( self ):
     if self.response.has_key( 'preapprovalKey' ):
@@ -260,12 +262,12 @@ class Preapproval( object ):
       return None
 
   def next_url( self ):
-    return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
+    return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( settings.PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
 
   def error( self ):
       if self.response.has_key('error'):
           error = self.response['error']
-          print error
+          logger.info(error)
           return error[0]['message']
       else:
           return 'Paypal Preapproval: Unknown Error'
@@ -285,7 +287,7 @@ class IPN( object ):
         # verify that the request is paypal's
         self.error = None
     
-        url = "%s?cmd=_notify-validate" % PAYPAL_PAYMENT_HOST
+        url = "%s?cmd=_notify-validate" % settings.PAYPAL_PAYMENT_HOST
         data=urllib.urlencode(request.POST.copy())
         req = urllib2.Request(url, data)
         response = urllib2.urlopen(req)
@@ -345,6 +347,6 @@ class IPN( object ):
           transdict = IPN.slicedict(request.POST, 'transaction[%s].' % transaction_num)
           if len(transdict) > 0:
               self.transactions.append(transdict)
-              print transdict
+              logger.info(transdict)
                 
         
