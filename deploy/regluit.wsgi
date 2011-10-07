@@ -1,10 +1,8 @@
 #!/usr/bin/env python
 
 import os
-import socket
 
 import django.core.handlers.wsgi
 
-hostname = socket.gethostname()
-os.environ['DJANGO_SETTING_MODULE'] = 'regluit.settings_%s' % hostname
-application = django.core.handlers.wsgi.WSGIHander()
+os.environ['DJANGO_SETTINGS_MODULE'] = 'regluit.settings.prod'
+application = django.core.handlers.wsgi.WSGIHandler()
