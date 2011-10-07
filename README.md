@@ -35,6 +35,8 @@ to install python-setuptools in step 1:
 Production Deployment
 ---------------------
 
+Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
+
 1. create an ubuntu natty ec2 instance using ami-1aad5273
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
