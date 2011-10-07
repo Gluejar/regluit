@@ -9,12 +9,31 @@ class Campaign(models.Model):
     description = models.CharField(max_length=10000, null=False)
     target = models.DecimalField(max_digits=14, decimal_places=2)
     deadline = models.DateTimeField(null=False)
+    activated = models.DateTimeField(null=True)
+    suspended = models.DateTimeField(null=True)
+    withdrawn = models.DateTimeField(null=True)
+    supended_reason = models.CharField(max_length=10000, null=True)
+    withdrawn_reason = models.CharField(max_length=10000, null=True)
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)
     work = models.ForeignKey("Work", related_name="campaigns")
 
     def __unicode__(self):
         return u"Campaign for %s" % self.work.title
+    
+    def status(self):
+        """Returns the status of the campaign
+        """
+        if self.activated is None:
+            return 'INITIALIZED'
+        else:
+            if self.suspended is not None:
+                return 'SUSPENDED'
+            elif self.withdrawn is not None:
+                return 'WITHDRAWN'
+            else: # ACTIVE, SUCCESSFUL, or UNSUCCESSFUL
+                return 'ACTIVE or SUCCESSFUL or UNSUCCESSFUL'
+       
 
 
 class Work(models.Model):

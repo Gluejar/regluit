@@ -59,3 +59,10 @@ class SearchTests(TestCase):
     def test_googlebooks_search(self):
         response = search.googlebooks_search('melville')
         self.assertEqual(len(response['items']), 10)
+
+class CampaignTests(TestCase):
+
+    def setUp(self):
+        pass
+    def trivial(self):
+        self.assertTrue(1==1)

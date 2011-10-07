@@ -6,6 +6,7 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.utils import unittest
 from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from noseselenium.cases import SeleniumTestCaseMixin
@@ -18,8 +19,6 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 import time
 from selenium import selenium, webdriver
-
-
 
 def loginSandbox(test, selenium):
     
@@ -214,5 +213,15 @@ class AuthorizeTest(TestCase):
         
         self.assertEqual(t.status, IPN_PAY_STATUS_ACTIVE)
         
+class TransactionTest(TestCase):
+    def testSimple(self):
+        self.assertEqual(1,1)
+
+def suite():
+
+    #testcases = [PledgeTest, AuthorizeTest]
+    testcases = [TransactionTest]
+    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
+    return suites    
         
        

@@ -174,7 +174,7 @@ class PaymentManager( object ):
     return value: either a float summary or a list of transactions
     
     '''
-    def query_campaign(self, list, summary=False, pledged=True, authorized=True):
+    def query_list(self, list, summary=False, pledged=True, authorized=True):
         
         transactions = Transaction.objects.filter(list=list)
         return self.run_query(transactions, summary, pledged, authorized)
