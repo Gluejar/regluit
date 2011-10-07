@@ -226,8 +226,8 @@ class Preapproval( object ):
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
 
-      return_url = BASE_URL + COMPLETE_URL
-      cancel_url = BASE_URL + CANCEL_URL
+      return_url = settings.BASE_URL + COMPLETE_URL
+      cancel_url = settings.BASE_URL + CANCEL_URL
       
       # set the expiration date for the preapproval
       now = datetime.datetime.utcnow()
@@ -246,7 +246,7 @@ class Preapproval( object ):
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl':  BASE_URL + 'paypalipn'
+              'ipnNotificationUrl':  settings.BASE_URL + 'paypalipn'
               } 
 
       self.raw_request = json.dumps(data)
