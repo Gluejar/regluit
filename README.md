@@ -16,7 +16,7 @@ Here are some instructions for setting up regluit for development on
 an Ubuntu system. If you are on OS X see notes below 
 to install python-setuptools in step 1:
 
-1. `aptitude install python-setuptools`
+1. `aptitude install python-setuptools git`
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
