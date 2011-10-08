@@ -1,6 +1,11 @@
 from django.test import TestCase
-
+from django.utils import unittest
+from regluit.core.models import Campaign, Work, UnglueitError
 from regluit.core import bookloader, models, search
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+from decimal import Decimal as D
+import datetime
 
 class TestBooks(TestCase):
 
@@ -62,7 +67,62 @@ class SearchTests(TestCase):
 
 class CampaignTests(TestCase):
 
-    def setUp(self):
-        pass
-    def trivial(self):
-        self.assertTrue(1==1)
+    def test_campaign_status(self):
+        w = Work()
+        w.save()
+        # INITIALIZED
+        c1 = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c1.save()
+        self.assertEqual(c1.status(), 'INITIALIZED')
+        # ACTIVATED
+        c2 = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c2.save()
+        self.assertEqual(c2.status(), 'INITIALIZED')
+        c2.activate()
+        self.assertEqual(c2.status(), 'ACTIVE')
+        # SUSPENDED
+        c2.suspend(reason="for testing")
+        self.assertEqual(c2.status(), 'SUSPENDED')
+        # RESUMING
+        c2.resume()
+        self.assertEqual(c2.suspended, None)
+        self.assertEqual(c2.status(),'ACTIVE')
+        # should not let me suspend a campaign that hasn't been initialized
+        self.assertRaises(UnglueitError, c1.suspend, "for testing")
+        # UNSUCCESSFUL
+        c3 = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() - datetime.timedelta(days=1),work=w)
+        c3.save()
+        c3.activate()
+        self.assertEqual(c3.status(), 'UNSUCCESSFUL')
+        # SUCCESSFUL
+        c4 = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() - datetime.timedelta(days=1),work=w)
+        c4.save()
+        c4.activate()
+        
+        t = Transaction()
+        t.amount = D('1234.00')
+        t.type = PAYMENT_TYPE_AUTHORIZATION
+        t.status = 'ACTIVE'
+        t.campaign = c4
+        t.save()        
+        self.assertEqual(c4.status(), 'SUCCESSFUL')
+        
+        # ACTIVE
+        c4.deadline = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        c4.save()
+        self.assertEqual(c4.status(), 'ACTIVE')
+        
+        # WITHDRAWN
+        c5 = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c5.save()
+        c5.activate().withdraw('testing')
+        self.assertEqual(c5.status(), 'WITHDRAWN')        
+        
+        
+def suite():
+
+    testcases = [TestBooks, SearchTests, CampaignTests]
+    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
+    return suites            
+
+        

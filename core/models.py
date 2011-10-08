@@ -2,6 +2,10 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
 from decimal import Decimal
+import datetime
+
+class UnglueitError(RuntimeError):
+    pass
 
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -19,11 +23,16 @@ class Campaign(models.Model):
     work = models.ForeignKey("Work", related_name="campaigns")
 
     def __unicode__(self):
-        return u"Campaign for %s" % self.work.title
+        try:
+            return u"Campaign for %s" % self.work.title
+        except:
+            return u"Campaign %s (no associated work)" % self.name
     
     def status(self):
         """Returns the status of the campaign
         """
+        now = datetime.datetime.utcnow()
+        
         if self.activated is None:
             return 'INITIALIZED'
         else:
@@ -31,9 +40,64 @@ class Campaign(models.Model):
                 return 'SUSPENDED'
             elif self.withdrawn is not None:
                 return 'WITHDRAWN'
-            else: # ACTIVE, SUCCESSFUL, or UNSUCCESSFUL
-                return 'ACTIVE or SUCCESSFUL or UNSUCCESSFUL'
-       
+            elif self.deadline < now:
+                # calculate the total amount of money pledged/authorized
+                p = PaymentManager()
+                current_total = p.query_campaign(campaign=self,summary=True)
+                if current_total >= self.target:
+                    return 'SUCCESSFUL'
+                else:
+                    return 'UNSUCCESSFUL'
+            else:
+                return 'ACTIVE'
+
+    def activate(self):
+        status = self.status()
+        if status != 'INITIALIZED':
+            raise UnglueitError('Campaign needs to be initialized in order to be activated')
+        else:
+            # should check whether name, description, work in place
+            if (self.name is None) or (self.description is None):
+                raise UnglueitError('Campaign name or description needs to be initialized in order to be activated')
+            try:
+                work = self.work
+            except:
+                raise UnglueitError('Work needs to be associated with campaign before it is activated')
+            self.activated = datetime.datetime.utcnow()
+            self.save()
+            return self   
+
+    def suspend(self, reason):
+        status = self.status()
+        if status != 'ACTIVE':
+            raise UnglueitError('Campaign needs to be active in order to be suspended')
+        else:
+            self.suspended = datetime.datetime.utcnow()
+            self.supended_reason = reason
+            self.save()
+            return self
+        
+    def withdraw(self, reason):
+        status = self.status()
+        if status != 'ACTIVE':
+            raise UnglueitError('Campaign needs to be active in order to be withdrawn')
+        else:
+            self.withdrawn = datetime.datetime.utcnow()
+            self.withdrawn_reason = reason
+            self.save()
+            return self
+
+    def resume(self):
+        """Change campaign status from SUSPENDED to ACTIVE.  We may want to track reason for resuming and track history"""
+        status = self.status()
+        if status != 'SUSPENDED':
+            raise UnglueitError('Campaign needs to be suspended in order to be resumed')
+        else:
+            self.suspended = None
+            self.suspended_reason = None
+            self.save()
+            return self
+
 
 
 class Work(models.Model):
@@ -109,3 +173,4 @@ class UserProfile(models.Model):
     tagline = models.CharField(max_length=140, blank=True)
 
 from regluit.core import signals
+from regluit.payment.manager import PaymentManager
