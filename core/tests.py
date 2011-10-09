@@ -117,8 +117,7 @@ class CampaignTests(TestCase):
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status(), 'WITHDRAWN')        
-        
-        
+
 def suite():
 
     testcases = [TestBooks, SearchTests, CampaignTests]

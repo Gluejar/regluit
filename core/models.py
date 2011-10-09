@@ -20,7 +20,7 @@ class Campaign(models.Model):
     withdrawn_reason = models.CharField(max_length=10000, null=True)
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)
-    work = models.ForeignKey("Work", related_name="campaigns")
+    work = models.ForeignKey("Work", related_name="campaigns", null=False)
 
     def __unicode__(self):
         try:
@@ -35,69 +35,56 @@ class Campaign(models.Model):
         
         if self.activated is None:
             return 'INITIALIZED'
-        else:
-            if self.suspended is not None:
-                return 'SUSPENDED'
-            elif self.withdrawn is not None:
-                return 'WITHDRAWN'
-            elif self.deadline < now:
-                # calculate the total amount of money pledged/authorized
-                p = PaymentManager()
-                current_total = p.query_campaign(campaign=self,summary=True)
-                if current_total >= self.target:
-                    return 'SUCCESSFUL'
-                else:
-                    return 'UNSUCCESSFUL'
+        elif self.suspended is not None:
+            return 'SUSPENDED'
+        elif self.withdrawn is not None:
+            return 'WITHDRAWN'
+        elif self.deadline < now:
+            # calculate the total amount of money pledged/authorized
+            p = PaymentManager()
+            current_total = p.query_campaign(campaign=self,summary=True)
+            if current_total >= self.target:
+                return 'SUCCESSFUL'
             else:
-                return 'ACTIVE'
+                return 'UNSUCCESSFUL'
+        else:
+            return 'ACTIVE'
 
     def activate(self):
         status = self.status()
         if status != 'INITIALIZED':
             raise UnglueitError('Campaign needs to be initialized in order to be activated')
-        else:
-            # should check whether name, description, work in place
-            if (self.name is None) or (self.description is None):
-                raise UnglueitError('Campaign name or description needs to be initialized in order to be activated')
-            try:
-                work = self.work
-            except:
-                raise UnglueitError('Work needs to be associated with campaign before it is activated')
-            self.activated = datetime.datetime.utcnow()
-            self.save()
-            return self   
+        self.activated = datetime.datetime.utcnow()
+        self.save()
+        return self   
 
     def suspend(self, reason):
         status = self.status()
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be suspended')
-        else:
-            self.suspended = datetime.datetime.utcnow()
-            self.supended_reason = reason
-            self.save()
-            return self
+        self.suspended = datetime.datetime.utcnow()
+        self.supended_reason = reason
+        self.save()
+        return self
         
     def withdraw(self, reason):
         status = self.status()
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be withdrawn')
-        else:
-            self.withdrawn = datetime.datetime.utcnow()
-            self.withdrawn_reason = reason
-            self.save()
-            return self
+        self.withdrawn = datetime.datetime.utcnow()
+        self.withdrawn_reason = reason
+        self.save()
+        return self
 
     def resume(self):
         """Change campaign status from SUSPENDED to ACTIVE.  We may want to track reason for resuming and track history"""
         status = self.status()
         if status != 'SUSPENDED':
             raise UnglueitError('Campaign needs to be suspended in order to be resumed')
-        else:
-            self.suspended = None
-            self.suspended_reason = None
-            self.save()
-            return self
-
+        self.suspended = None
+        self.suspended_reason = None
+        self.save()
+        return self
 
 
 class Work(models.Model):
