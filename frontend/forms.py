@@ -1,6 +1,5 @@
 from django import forms
 from django.db import models
-#from django.forms import Form, ModelForm, Textarea, CharField, ValidationError, RegexField
 from regluit.core.models import UserProfile
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
