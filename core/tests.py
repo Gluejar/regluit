@@ -1,11 +1,14 @@
+from decimal import Decimal as D
+from datetime import datetime, timedelta
+
 from django.test import TestCase
 from django.utils import unittest
+from django.db import IntegrityError
+
+from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Work, UnglueitError
 from regluit.core import bookloader, models, search
-from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
-from decimal import Decimal as D
-import datetime
 
 class TestBooks(TestCase):
 
@@ -67,15 +70,33 @@ class SearchTests(TestCase):
 
 class CampaignTests(TestCase):
 
+    def test_required_fields(self):
+        # a campaign must have a target, deadline and a work
+
+        c = Campaign()
+        self.assertRaises(IntegrityError, c.save)
+
+        c = Campaign(target=D('1000.00'))
+        self.assertRaises(IntegrityError, c.save)
+
+        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1))
+        self.assertRaises(IntegrityError, c.save)
+
+        w = Work()
+        w.save()
+        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
+        c.save()
+
+
     def test_campaign_status(self):
         w = Work()
         w.save()
         # INITIALIZED
-        c1 = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c1 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
         c1.save()
         self.assertEqual(c1.status(), 'INITIALIZED')
         # ACTIVATED
-        c2 = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c2 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
         c2.save()
         self.assertEqual(c2.status(), 'INITIALIZED')
         c2.activate()
@@ -90,12 +111,12 @@ class CampaignTests(TestCase):
         # should not let me suspend a campaign that hasn't been initialized
         self.assertRaises(UnglueitError, c1.suspend, "for testing")
         # UNSUCCESSFUL
-        c3 = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() - datetime.timedelta(days=1),work=w)
+        c3 = Campaign(target=D('1000.00'),deadline=datetime.utcnow() - timedelta(days=1),work=w)
         c3.save()
         c3.activate()
         self.assertEqual(c3.status(), 'UNSUCCESSFUL')
         # SUCCESSFUL
-        c4 = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() - datetime.timedelta(days=1),work=w)
+        c4 = Campaign(target=D('1000.00'),deadline=datetime.utcnow() - timedelta(days=1),work=w)
         c4.save()
         c4.activate()
         
@@ -108,12 +129,12 @@ class CampaignTests(TestCase):
         self.assertEqual(c4.status(), 'SUCCESSFUL')
         
         # ACTIVE
-        c4.deadline = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+        c4.deadline = datetime.utcnow() + timedelta(days=1)
         c4.save()
         self.assertEqual(c4.status(), 'ACTIVE')
         
         # WITHDRAWN
-        c5 = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c5 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status(), 'WITHDRAWN')        
