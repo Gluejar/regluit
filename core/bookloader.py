@@ -56,7 +56,10 @@ def add_by_googlebooks_id(googlebooks_id):
 
 
 def _get_json(url, params={}):
-    headers = {'User-Agent': settings.USER_AGENT, 'Accept': 'application/json'}
+    # TODO: should X-Forwarded-For change based on the request from client?
+    headers = {'User-Agent': settings.USER_AGENT, 
+               'Accept': 'application/json',
+               'X-Forwarded-For': '69.174.114.214'}
     params['key'] = settings.GOOGLE_BOOKS_API_KEY
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
