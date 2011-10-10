@@ -50,14 +50,16 @@ def search(request):
     q = request.GET.get('q', None)
     results = gluejar_search(q)
 
-    # flag search result as on wishlist
-    # TODO: make this better and faster
+    # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
+        # get a list of all the googlebooks_ids for works on the user's wishlist
+        wishlist = request.user.wishlist
+        editions = models.Edition.objects.filter(work__wishlists__in=[wishlist])
+        googlebooks_ids = [e['googlebooks_id'] for e in editions.values('googlebooks_id')]
+
+        # if the results is on their wishlist flag it
         for result in results:
-            if not result.has_key('isbn_10'):
-                continue
-            work = models.Work.get_by_isbn(result['isbn_10'])
-            if work and work in request.user.wishlist.works.all():
+            if result['googlebooks_id'] in googlebooks_ids:
                 result['on_wishlist'] = True
             else:
                 result['on_wishlist'] = False

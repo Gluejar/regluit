@@ -97,12 +97,6 @@ class Work(models.Model):
     title = models.CharField(max_length=1000)
     openlibrary_id = models.CharField(max_length=50, null=True)
 
-    @classmethod
-    def get_by_isbn(klass, isbn):
-        for w in Work.objects.filter(Q(editions__isbn_10=isbn) | Q(editions__isbn_13=isbn)):
-            return w
-        return None
-
     def cover_image_small(self):
         server_id = random.randint(0, 9)
         gb_id = self.editions.all()[0].googlebooks_id
