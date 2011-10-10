@@ -13,7 +13,7 @@ def add_by_isbn(isbn):
     url = "https://www.googleapis.com/books/v1/volumes"
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
-    if len(results['items']) == 0:
+    if not results.has_key('items') or len(results['items']) == 0:
         logger.warn("no google hits for %s" % isbn)
         return None
 

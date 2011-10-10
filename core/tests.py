@@ -41,7 +41,10 @@ class TestBooks(TestCase):
         self.assertEqual(models.Author.objects.all().count(), 1)
         self.assertEqual(models.Work.objects.all().count(), 1)
         self.assertEqual(models.Subject.objects.all().count(), 11)
-        
+       
+    def test_missing_isbn(self):
+        e = bookloader.add_by_isbn('0139391401')
+        self.assertEqual(e, None)
 
 class SearchTests(TestCase):
 
@@ -61,6 +64,7 @@ class SearchTests(TestCase):
     def test_googlebooks_search(self):
         response = search.googlebooks_search('melville')
         self.assertEqual(len(response['items']), 10)
+
 
 class CampaignTests(TestCase):
 

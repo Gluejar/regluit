@@ -142,7 +142,7 @@ class Edition(models.Model):
     work = models.ForeignKey("Work", related_name="editions", null=True)
 
     def __unicode__(self):
-        return self.title
+        return "%s (%s)" % (self.title, self.isbn_13)
 
     @classmethod
     def get_by_isbn(klass, isbn):
