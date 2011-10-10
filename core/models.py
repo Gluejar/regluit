@@ -29,7 +29,8 @@ class Campaign(models.Model):
             return u"Campaign for %s" % self.work.title
         except:
             return u"Campaign %s (no associated work)" % self.name
-    
+        
+    @property
     def status(self):
         """Returns the status of the campaign
         """
@@ -53,7 +54,7 @@ class Campaign(models.Model):
             return 'ACTIVE'
 
     def activate(self):
-        status = self.status()
+        status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError('Campaign needs to be initialized in order to be activated')
         self.activated = datetime.datetime.utcnow()
@@ -61,7 +62,7 @@ class Campaign(models.Model):
         return self   
 
     def suspend(self, reason):
-        status = self.status()
+        status = self.status
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be suspended')
         self.suspended = datetime.datetime.utcnow()
@@ -70,7 +71,7 @@ class Campaign(models.Model):
         return self
         
     def withdraw(self, reason):
-        status = self.status()
+        status = self.status
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be withdrawn')
         self.withdrawn = datetime.datetime.utcnow()
@@ -80,7 +81,7 @@ class Campaign(models.Model):
 
     def resume(self):
         """Change campaign status from SUSPENDED to ACTIVE.  We may want to track reason for resuming and track history"""
-        status = self.status()
+        status = self.status
         if status != 'SUSPENDED':
             raise UnglueitError('Campaign needs to be suspended in order to be resumed')
         self.suspended = None
