@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, filename, **options):
         for isbn in open(filename):
             isbn = isbn.strip()
-            edition = bookloader.add_book(isbn)
+            edition = bookloader.add_by_isbn(isbn)
             if edition:
                 print edition
             else:
