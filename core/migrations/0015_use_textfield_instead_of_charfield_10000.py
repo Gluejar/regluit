@@ -8,38 +8,26 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'Campaign.activated'
-        db.add_column('core_campaign', 'activated', self.gf('django.db.models.fields.DateTimeField')(null=True), keep_default=False)
-
-        # Adding field 'Campaign.suspended'
-        db.add_column('core_campaign', 'suspended', self.gf('django.db.models.fields.DateTimeField')(null=True), keep_default=False)
-
-        # Adding field 'Campaign.withdrawn'
-        db.add_column('core_campaign', 'withdrawn', self.gf('django.db.models.fields.DateTimeField')(null=True), keep_default=False)
-
         # Adding field 'Campaign.supended_reason'
-        db.add_column('core_campaign', 'supended_reason', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True), keep_default=False)
+        db.alter_column('core_campaign', 'supended_reason', self.gf('django.db.models.fields.TextField')(null=True))
 
         # Adding field 'Campaign.withdrawn_reason'
-        db.add_column('core_campaign', 'withdrawn_reason', self.gf('django.db.models.fields.CharField')(max_length=1000, null=True), keep_default=False)
+        db.alter_column('core_campaign', 'withdrawn_reason', self.gf('django.db.models.fields.TextField')(null=True))
+
+        # Changing field 'Campaign.description'
+        db.alter_column('core_campaign', 'description', self.gf('django.db.models.fields.TextField')())
 
 
     def backwards(self, orm):
         
-        # Deleting field 'Campaign.activated'
-        db.delete_column('core_campaign', 'activated')
-
-        # Deleting field 'Campaign.suspended'
-        db.delete_column('core_campaign', 'suspended')
-
-        # Deleting field 'Campaign.withdrawn'
-        db.delete_column('core_campaign', 'withdrawn')
-
         # Deleting field 'Campaign.supended_reason'
-        db.delete_column('core_campaign', 'supended_reason')
+        db.alter_column('core_campaign', 'suspended_reason', self.gf('django.db.models.fields.CharField')(max_length=10000))
 
         # Deleting field 'Campaign.withdrawn_reason'
-        db.delete_column('core_campaign', 'withdrawn_reason')
+        db.alter_column('core_campaign', 'withdrawn_reason', self.gf('django.db.models.fields.CharField')(max_length=10000))
+
+        # Changing field 'Campaign.description'
+        db.alter_column('core_campaign', 'description', self.gf('django.db.models.fields.CharField')(max_length=10000))
 
 
     models = {
@@ -82,10 +70,9 @@ class Migration(SchemaMigration):
         'core.author': {
             'Meta': {'object_name': 'Author'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'editions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'authors'", 'symmetrical': 'False', 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
-            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
-            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'authors'", 'symmetrical': 'False', 'to': "orm['core.Work']"})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'})
         },
         'core.campaign': {
             'Meta': {'object_name': 'Campaign'},
@@ -93,42 +80,36 @@ class Migration(SchemaMigration):
             'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'deadline': ('django.db.models.fields.DateTimeField', [], {}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '10000'}),
+            'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
             'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
-            'supended_reason': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True'}),
+            'supended_reason': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'suspended': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'target': ('django.db.models.fields.DecimalField', [], {'max_digits': '14', 'decimal_places': '2'}),
             'withdrawn': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'withdrawn_reason': ('django.db.models.fields.CharField', [], {'max_length': '1000', 'null': 'True'}),
+            'withdrawn_reason': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
         },
         'core.edition': {
             'Meta': {'object_name': 'Edition'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True'}),
+            'googlebooks_id': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'isbn_10': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True'}),
             'isbn_13': ('django.db.models.fields.CharField', [], {'max_length': '13', 'null': 'True'}),
-            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'publication_date': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'publisher': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'editions'", 'null': 'True', 'to': "orm['core.Work']"})
         },
-        'core.editioncover': {
-            'Meta': {'object_name': 'EditionCover'},
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'covers'", 'to': "orm['core.Edition']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'openlibrary_id': ('django.db.models.fields.IntegerField', [], {})
-        },
         'core.subject': {
             'Meta': {'object_name': 'Subject'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'editions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'subjects'", 'symmetrical': 'False', 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
-            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'subjects'", 'symmetrical': 'False', 'to': "orm['core.Work']"})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'})
         },
         'core.userprofile': {
             'Meta': {'object_name': 'UserProfile'},
