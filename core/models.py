@@ -1,7 +1,10 @@
+import random
+from decimal import Decimal
+
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
-from decimal import Decimal
+
 
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -29,8 +32,9 @@ class Work(models.Model):
         return None
 
     def cover_image_small(self):
-        first_isbn = self.editions.all()[0].isbn_10
-        return "http://covers.openlibrary.org/b/isbn/%s-S.jpg" % first_isbn
+        server_id = random.randint(0, 9)
+        gb_id = self.editions.all()[0].googlebooks_id
+        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, gb_id)
 
     def __unicode__(self):
         return self.title
@@ -39,8 +43,7 @@ class Work(models.Model):
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
-    openlibrary_id = models.CharField(max_length=50, null=True)
-    works = models.ManyToManyField("Work", related_name="authors")
+    editions = models.ManyToManyField("Edition", related_name="authors")
 
     def __unicode__(self):
         return self.name
@@ -49,13 +52,14 @@ class Author(models.Model):
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
-    works = models.ManyToManyField("Work", related_name="subjects")
+    editions = models.ManyToManyField("Edition", related_name="subjects")
 
     def __unicode__(self):
         return self.name
 
 
 class Edition(models.Model):
+    googlebooks_id = models.CharField(max_length=50, null=False)
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
     description = models.TextField(default='', null=True)
@@ -63,7 +67,6 @@ class Edition(models.Model):
     publication_date = models.CharField(max_length=50)
     isbn_10 = models.CharField(max_length=10, null=True)
     isbn_13 = models.CharField(max_length=13, null=True)
-    openlibrary_id = models.CharField(max_length=50, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
 
     def __unicode__(self):
@@ -74,11 +77,6 @@ class Edition(models.Model):
         for e in Edition.objects.filter(Q(isbn_10=isbn) | Q(isbn_13=isbn)):
             return e
         return None
-
-class EditionCover(models.Model):
-    openlibrary_id = models.IntegerField()
-    edition = models.ForeignKey("Edition", related_name="covers")
-
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)

@@ -6,40 +6,33 @@ class TestBooks(TestCase):
 
     def test_add_book(self):
         # edition
-        edition = bookloader.add_book(isbn='0441012035')
+        edition = bookloader.add_by_isbn('0441012035')
         self.assertEqual(edition.title, 'Neuromancer')
         self.assertEqual(edition.publication_date, '2004')
         self.assertEqual(edition.publisher, 'Ace Books')
         self.assertEqual(edition.isbn_10, '0441012035')
-        self.assertEqual(edition.isbn_13, None)
-        self.assertEqual(edition.openlibrary_id, "/books/OL3305354M")
-
-        # edition covers
-        covers = edition.covers.all()
-        self.assertEqual(len(covers), 1)
-        self.assertEqual(covers[0].openlibrary_id, 284192)
-
-        # work
-        work = edition.work
-        self.assertTrue(work)
-        self.assertEqual(work.authors.all()[0].name, 'William F. Gibson')
+        self.assertEqual(edition.isbn_13, '9780441012039')
+        self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
 
         # subjects
-        subject_names = [subject.name for subject in work.subjects.all()]
-        self.assertEqual(len(subject_names), 18)
-        self.assertTrue('Fiction' in subject_names)
+        subject_names = [subject.name for subject in edition.subjects.all()]
+        self.assertEqual(len(subject_names), 11)
+        self.assertTrue('Japan' in subject_names)
 
         # authors
-        author_names = [author.name for author in work.authors.all()]
-        self.assertEqual(len(author_names), 1)
-        self.assertEqual(author_names[0], "William F. Gibson")
+        self.assertEqual(edition.authors.all().count(), 1)
+        self.assertEqual(edition.authors.all()[0].name, 'William Gibson')
+
+        # work
+        self.assertTrue(edition.work)
 
     def test_double_add(self):
-        bookloader.add_book(isbn='0441012035')
-        bookloader.add_book(isbn='0441012035')
+        bookloader.add_by_isbn('0441012035')
+        bookloader.add_by_isbn('0441012035')
+        self.assertEqual(models.Edition.objects.all().count(), 1)
         self.assertEqual(models.Author.objects.all().count(), 1)
         self.assertEqual(models.Work.objects.all().count(), 1)
-        self.assertEqual(models.Subject.objects.all().count(), 18)
+        self.assertEqual(models.Subject.objects.all().count(), 11)
         
 
 class SearchTests(TestCase):
@@ -55,6 +48,7 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('image'))
         self.assertTrue(r.has_key('publisher'))
         self.assertTrue(r.has_key('isbn_10'))
+        self.assertTrue(r.has_key('googlebooks_id'))
 
     def test_googlebooks_search(self):
         response = search.googlebooks_search('melville')

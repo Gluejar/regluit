@@ -13,7 +13,7 @@ def gluejar_search(q):
         r = {'title': v.get('title', ""), 
              'description': v.get('description', ""),
              'publisher': v.get('publisher', ""),
-             'google_id': item.get('selfLink')}
+             'googlebooks_id': item.get('id')}
 
         # TODO: allow multiple authors
         if v.has_key('authors') and len(v['authors']) > 0:
