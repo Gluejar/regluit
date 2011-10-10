@@ -9,4 +9,3 @@ selenium
 django-nose-selenium
 nose
 django-profiles
-MySQL-python
