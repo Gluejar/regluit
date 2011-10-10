@@ -43,16 +43,18 @@ class Campaign(models.Model):
         elif self.withdrawn is not None:
             return 'WITHDRAWN'
         elif self.deadline < now:
-            # calculate the total amount of money pledged/authorized
-            p = PaymentManager()
-            current_total = p.query_campaign(campaign=self,summary=True)
-            if current_total >= self.target:
+            if self.current_total >= self.target:
                 return 'SUCCESSFUL'
             else:
                 return 'UNSUCCESSFUL'
         else:
             return 'ACTIVE'
 
+    @property
+    def current_total(self):
+        p = PaymentManager()
+        return p.query_campaign(campaign=self,summary=True)        
+        
     def activate(self):
         status = self.status
         if status != 'INITIALIZED':
