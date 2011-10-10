@@ -10,7 +10,7 @@ from regluit.core import bookloader, models
 class ApiTests(TestCase):
 
     def setUp(self):
-        edition = bookloader.add_book(isbn='0441012035')
+        edition = bookloader.add_by_isbn(isbn='0441012035')
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
             work=edition.work, 

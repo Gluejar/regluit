@@ -6,11 +6,12 @@ Replace this with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+from django.utils import unittest
 from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from noseselenium.cases import SeleniumTestCaseMixin
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Wishlist
+from regluit.core.models import Campaign, Wishlist, Work
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
 import traceback
@@ -19,7 +20,8 @@ from django.core.exceptions import ValidationError
 import time
 from selenium import selenium, webdriver
 
-
+from decimal import Decimal as D
+import datetime
 
 def loginSandbox(test, selenium):
     
@@ -214,5 +216,39 @@ class AuthorizeTest(TestCase):
         
         self.assertEqual(t.status, IPN_PAY_STATUS_ACTIVE)
         
+class TransactionTest(TestCase):
+    def setUp(self):
+        """
+        """
+        pass
+    def testSimple(self):
+        """
+        create a single transaction with PAYMENT_TYPE_INSTANT / COMPLETED with a $12.34 pledge and see whether the payment
+        manager can query and get the right amount.
+        """
+        
+        w = Work()
+        w.save()
+        c = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c.save()
+        
+        t = Transaction()
+        t.amount = D('12.34')
+        t.type = PAYMENT_TYPE_AUTHORIZATION
+        t.status = 'ACTIVE'
+        t.campaign = c
+        t.save()
+        
+        p = PaymentManager()
+        results = p.query_campaign(campaign=c)
+        self.assertEqual(results[0].amount, D('12.34'))
+        
+
+def suite():
+
+    #testcases = [PledgeTest, AuthorizeTest]
+    testcases = [TransactionTest]
+    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
+    return suites    
         
        

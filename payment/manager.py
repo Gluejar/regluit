@@ -108,8 +108,8 @@ class PaymentManager( object ):
             authorized_list = []
         
         if summary:
-            pledged_amount = 0.0
-            authorized_amount = 0.0
+            pledged_amount = D('0.00')
+            authorized_amount = D('0.00')
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
