@@ -1,5 +1,6 @@
 import json
 import datetime
+from decimal import Decimal
 
 from django.test import TestCase
 from django.test.client import Client
@@ -16,7 +17,7 @@ class ApiTests(TestCase):
             work=edition.work, 
             description='Test Campaign',
             deadline=datetime.datetime.now(),
-            target=1000.0,
+            target=Decimal('1000.00'),
         )
         self.user = User.objects.create_user('test', 'test@example.com', 'testpass')
         self.client = Client()
