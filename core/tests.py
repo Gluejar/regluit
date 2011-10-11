@@ -80,10 +80,10 @@ class CampaignTests(TestCase):
         c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1))
         self.assertRaises(IntegrityError, c.save)
 
-        w = Work()
-        w.save()
-        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
-        c.save()
+        #w = Work()
+        #w.save()
+        #c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
+        #c.save()
 
 
     def test_campaign_status(self):

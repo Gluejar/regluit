@@ -179,6 +179,6 @@ LOGOUT_URL = "/accounts/logout/"
 
 USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
 
-SOUTH_TESTS_MIGRATE = False
+SOUTH_TESTS_MIGRATE = True
 
 AUTH_PROFILE_MODULE = "core.userprofile"
