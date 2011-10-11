@@ -108,8 +108,8 @@ class PaymentManager( object ):
             authorized_list = []
         
         if summary:
-            pledged_amount = 0.0
-            authorized_amount = 0.0
+            pledged_amount = D('0.00')
+            authorized_amount = D('0.00')
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
@@ -174,7 +174,7 @@ class PaymentManager( object ):
     return value: either a float summary or a list of transactions
     
     '''
-    def query_campaign(self, list, summary=False, pledged=True, authorized=True):
+    def query_list(self, list, summary=False, pledged=True, authorized=True):
         
         transactions = Transaction.objects.filter(list=list)
         return self.run_query(transactions, summary, pledged, authorized)

@@ -1,5 +1,6 @@
 import json
 import datetime
+from decimal import Decimal
 
 from django.test import TestCase
 from django.test.client import Client
@@ -10,13 +11,13 @@ from regluit.core import bookloader, models
 class ApiTests(TestCase):
 
     def setUp(self):
-        edition = bookloader.add_book(isbn='0441012035')
+        edition = bookloader.add_by_isbn(isbn='0441012035')
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
             work=edition.work, 
             description='Test Campaign',
             deadline=datetime.datetime.now(),
-            target=1000.0,
+            target=Decimal('1000.00'),
         )
         self.user = User.objects.create_user('test', 'test@example.com', 'testpass')
         self.client = Client()

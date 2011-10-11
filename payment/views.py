@@ -2,6 +2,7 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
+from django.conf import settings
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect

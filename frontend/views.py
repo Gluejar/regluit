@@ -50,14 +50,16 @@ def search(request):
     q = request.GET.get('q', None)
     results = gluejar_search(q)
 
-    # flag search result as on wishlist
-    # TODO: make this better and faster
+    # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
+        # get a list of all the googlebooks_ids for works on the user's wishlist
+        wishlist = request.user.wishlist
+        editions = models.Edition.objects.filter(work__wishlists__in=[wishlist])
+        googlebooks_ids = [e['googlebooks_id'] for e in editions.values('googlebooks_id')]
+
+        # if the results is on their wishlist flag it
         for result in results:
-            if not result.has_key('isbn_10'):
-                continue
-            work = models.Work.get_by_isbn(result['isbn_10'])
-            if work and work in request.user.wishlist.works.all():
+            if result['googlebooks_id'] in googlebooks_ids:
                 result['on_wishlist'] = True
             else:
                 result['on_wishlist'] = False
@@ -69,20 +71,15 @@ def search(request):
     return render(request, 'search.html', context)
 
 # TODO: perhaps this functionality belongs in the API?
-@csrf_exempt
 @require_POST
 @login_required
+@csrf_exempt
 def wishlist(request):
-    isbn = request.POST.get('isbn', None)
+    googlebooks_id = request.POST.get('googlebooks_id', None)
     remove_work_id = request.POST.get('remove_work_id', None)
-    if isbn:
-        edition = models.Edition.get_by_isbn(isbn)
-        if not edition:
-            print "loading book"
-            edition = bookloader.add_book(isbn)
-        if edition:
-            print "adding edition"
-            request.user.wishlist.works.add(edition.work)
+    if googlebooks_id:
+        edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+        request.user.wishlist.works.add(edition.work)
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
