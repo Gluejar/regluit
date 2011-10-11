@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% url privacy as privacyurl %}
+
+{% block content %}
+    <h2>Campaign: {{campaign.name}}</h2>
+    <p>Work: {{campaign.work}}</p>
+    <p>Target: {{campaign.target}}</p>
+    <p>Deadline: {{campaign.deadline}}</p>
+    <p>Pledge form:</p>
+    <form method="POST" action="/testpledge?campaign={{campaign.id}}">
+        {% csrf_token %}
+       <input type="text" name="pledge_amount" value="20.00"/>
+       <input type="submit" value="Pledge" />
+    </form>
+{% endblock %}
