@@ -146,22 +146,32 @@ def testPledge(request):
     
     p = PaymentManager()
     
-    if 'campaign' in request.GET.keys():
-        campaign_id = request.GET['campaign']
+    if 'campaign' in request.REQUEST.keys():
+        campaign_id = request.REQUEST['campaign']
     else:
         campaign_id = None
         
+    # see whether there is a user logged in.
+    if request.user.is_authenticated():
+        user = request.user
+    else:
+        user = None
     
     # Note, set this to 1-5 different receivers with absolute amounts for each
     #receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':20.00},{'email':TEST_RECEIVERS[1], 'amount':10.00}]
-    receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
+    
+    if 'pledge_amount' in request.REQUEST.keys():
+        pledge_amount = request.REQUEST['pledge_amount']
+        receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':pledge_amount}]
+    else:
+        receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=None)
+        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user)
     
     else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user)
     
     if url:
         logger.info("testPledge: " + url)

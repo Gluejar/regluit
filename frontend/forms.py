@@ -3,6 +3,7 @@ from django.db import models
 from regluit.core.models import UserProfile
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from decimal import Decimal as D
  
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -35,3 +36,6 @@ class UserData(forms.Form):
                 return username
             raise forms.ValidationError(_("Another user with that username already exists."))
         raise forms.ValidationError(_("Your username is already "+oldusername))
+
+class CampaignPledgeForm(forms.Form):
+    pledge_amount = forms.DecimalField(min_value=D('0.00'), max_value=D('10000.00'), decimal_places=2)

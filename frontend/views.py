@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 
@@ -87,3 +88,10 @@ def wishlist(request):
         request.user.wishlist.works.remove(work)
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
+
+class CampaignDetailView(DetailView):
+    model=models.Campaign
+    template_name="campaign_detail.html"
+    context_object_name = "campaign"
+    name="campaign_by_id"
+

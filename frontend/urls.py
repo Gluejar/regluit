@@ -1,6 +1,10 @@
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from django.views.generic.base import TemplateView
+from django.views.generic import ListView, DetailView
+
+from regluit.core.models import Campaign
+from regluit.frontend.views import CampaignDetailView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -12,4 +16,7 @@ urlpatterns = patterns(
     url(r"^rightsholders/$", TemplateView.as_view(template_name="rhtools.html"),
         name="rightsholders"),
     url(r"^wishlist/$", "wishlist", name="wishlist"),
+    url(r"^campaigns/$", ListView.as_view(
+        model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list")),
+    url(r'^campaigns/(?P<pk>\d+)/$', CampaignDetailView.as_view(), name="campaign_by_id"),
 )
