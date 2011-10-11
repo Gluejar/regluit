@@ -14,21 +14,6 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
-.header-text {
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.panelborders {
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-}
 div.book-list {
   clear: both;
   display: block;
@@ -175,21 +160,6 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .book-thumb img {
   height: 50px;
 }
-.header-text {
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.panelborders {
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-}
 .book_panel {
   margin: 20px  auto;
   padding: 0px 5px 5px 5px;
@@ -255,21 +225,12 @@ ul.navigation li a:hover, ul.navigation li.active a {
   border-radius: 4px 4px 4px 4px;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
   border: 1px solid #81bb38;
 }
 .read_itbutton a {
   line-height: 40px;
   font-size: 11px;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat left center;
   background-position: 10px center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
@@ -289,21 +250,12 @@ ul.navigation li a:hover, ul.navigation li.active a {
 #add_towish a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url(/static/images/book-panel/add_wish_icon.png) no-repeat left center;
+  background-image: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
   padding: 8px 5px 8px 21px;
   font-weight: bold;
   color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
@@ -335,22 +287,13 @@ ul.navigation li a:hover, ul.navigation li.active a {
 #moreinfo a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url(/static/images/book-panel/more_icon.png) no-repeat left center;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat left center;
   padding: 8px 42px 8px 20px;
   font-weight: bold;
   padding-left: 20px;
   color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
@@ -417,21 +360,6 @@ p.right_add {
   z-index: 1000;
   height: auto;
 }
-.header-text {
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.panelborders {
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-}
 body {
   background: url("/static/images/bg-body.png") 0 0 repeat-x;
   padding: 0 0 20px 0;
@@ -442,6 +370,60 @@ body {
 }
 img {
   border: none;
+}
+h2 .content-heading {
+  padding: 15px;
+  margin: 0;
+  font-size: 19px;
+  font-weight: normal;
+  color: #3d4e53;
+  float: left;
+  width: 50%;
+}
+h2 .content-heading span {
+  font-style: italic;
+}
+h3 .jsmod-title {
+  background: url("/static/images/bg.png") 0 0 no-repeat;
+  padding: 0;
+  margin: 0;
+  height: 73px;
+}
+h3 .jsmod-title span {
+  background: url(../images/icon-h3.png) 90% center no-repeat;
+  font-size: 17px;
+  color: #fff;
+  padding: 26px 40px 27px 20px;
+  display: block;
+}
+ul.menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  line-height: 20px;
+}
+a.readon {
+  background: url("/static/images/bg.png") 100% -72px no-repeat;
+  color: #fff;
+  text-transform: capitalize;
+  display: block;
+  float: right;
+  font-size: 13px;
+  font-weight: bold;
+}
+a.readon span {
+  background: url("/static/images/bg.png") -770px -108px no-repeat;
+  margin-right: 34px;
+  padding: 0 5px 0 20px;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+}
+a {
+  font-weight: bold;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
 }
 #js-header {
   height: 90px;
@@ -477,57 +459,9 @@ img {
   font-size: 13px;
   letter-spacing: 1px;
   text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
 }
 .js-topmenu ul li span#welcome {
   color: yellow;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
   height: 36px;
   line-height: 36px;
   display: block;
@@ -611,15 +545,6 @@ img {
   border-radius: 0 0 10px 10px;
   -moz-border-radius: 0 0 10px 10px;
   -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
 }
 #js-leftcol ul.level1 > li > a {
   text-transform: uppercase;
@@ -662,60 +587,6 @@ div.content-block-content .cols3 .column {
   width: 33.33%;
   float: left;
 }
-h2 .content-heading {
-  padding: 15px;
-  margin: 0;
-  font-size: 19px;
-  font-weight: normal;
-  color: #3d4e53;
-  float: left;
-  width: 50%;
-}
-h2 .content-heading span {
-  font-style: italic;
-}
-h3 .jsmod-title {
-  background: url("/static/images/bg.png") 0 0 no-repeat;
-  padding: 0;
-  margin: 0;
-  height: 73px;
-}
-h3 .jsmod-title span {
-  background: url(../images/icon-h3.png) 90% center no-repeat;
-  font-size: 17px;
-  color: #fff;
-  padding: 26px 40px 27px 20px;
-  display: block;
-}
-ul.menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  line-height: 20px;
-}
-a.readon {
-  background: url("/static/images/bg.png") 100% -72px no-repeat;
-  color: #fff;
-  text-transform: capitalize;
-  display: block;
-  float: right;
-  font-size: 13px;
-  font-weight: bold;
-}
-a.readon span {
-  background: url("/static/images/bg.png") -770px -108px no-repeat;
-  margin-right: 34px;
-  padding: 0 5px 0 20px;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-}
-a {
-  font-weight: bold;
-  font-size: 13px;
-  text-decoration: none;
-  cursor: pointer;
-}
 #footer {
   border-top: 7px solid #edf3f4;
   clear: both;
@@ -740,10 +611,3 @@ a {
   margin-right: auto;
   padding: 5px 15px;
 }
-/* What might I need to look at...
-	rulesets that get reused
-	structure of blocks & nesting
-	sitewide content vs. some pages only (break apart into smaller files?)
-	sort css file by section/type
-	how about the compilation errors? do I need to move static into this directory?
-*/

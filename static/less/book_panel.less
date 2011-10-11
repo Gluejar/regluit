@@ -1,8 +1,6 @@
-@import "variables.less";
-
 .book_panel {
     margin: 20px  auto;
-    padding: 0px 5px 5px 5px;
+    padding: 0 5px 5px 5px;
     height: 300px;
     width: 120px;
     line-height:16px;
@@ -26,8 +24,8 @@
 	}
 	
 	img {
-	    padding:5px 0px;
-	    margin:0px;
+	    padding:5px 0;
+	    margin:0;
 	}
 	
 	&:hover {
@@ -41,7 +39,7 @@
 }
 
 .book_panel_back {
-    margin: 0px  auto;
+    margin: 0  auto;
     padding: 10px;
     height: 295px;
     width: 120px;
@@ -57,9 +55,9 @@
 }
 
 .unglued_white {
-    margin: 0px  auto;
+    margin: 0  auto;
     margin-bottom:5px;
-    padding: 10px 0px;
+    padding: 10px 0;
 }
 
 .status {
@@ -70,9 +68,9 @@
 .read_itbutton {
     width:118px;
     height:35px;
-    padding:0px 0px;
+    padding:0 0;
     background:#FFFFFF;
-    margin:0px;
+    margin:0;
     .border-radius(4px, 4px, 4px, 4px);
     border: 1px solid #81bb38;
 }
@@ -80,9 +78,9 @@
 .read_itbutton a {
     line-height:40px;
     font-size:11px;
-    background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+    background: url("@{image-base}book-panel/book_icon.png") no-repeat left center;
     background-position: 10px center;
-    padding:0px 0px 0px 30px;
+    padding:0 0 0 30px;
     color:@dark-green;
     text-decoration:none;
     font-weight:bold;
@@ -96,13 +94,13 @@
 #add_towish {
     width:130px;
     height:30px;
-    padding:0px 0px;
+    padding:0 0;
     margin:10px auto;
 
 	a {
 	    line-height:40px;
 	    font-size:11px;
-	    background-image: url(/static/images/book-panel/add_wish_icon.png) no-repeat left center;
+	    background-image: url("@{image-base}book-panel/add_wish_icon.png") no-repeat left center;
 	    padding:8px 5px 8px 21px;
 	    font-weight:bold;
 	    color:#FFFFFF;
@@ -121,8 +119,8 @@
 #white_text {
     width:130px;
     height:40px;
-    padding:17px 0px;
-    margin:0px;
+    padding:17px 0;
+    margin:0;
 
 	a {
 	    color:#FFFFFF;
@@ -138,13 +136,13 @@
 #moreinfo {
     width:130px;
     height:30px;
-    padding:0px;
+    padding:0;
     margin:15px 0 0;
 
 	a {
 	    line-height:40px;
 	    font-size:11px;
-	    background-image: url(/static/images/book-panel/more_icon.png) no-repeat left center;
+	    background-image: url("@{image-base}book-panel/more_icon.png") no-repeat left center;
 	    padding:8px 42px 8px 20px;
 	    font-weight:bold;
 	    padding-left:20px;
@@ -173,7 +171,7 @@
 
 .read {
     margin: 15px auto;
-    padding: 0px;
+    padding: 0;
     width: 140px;
     color:@green;
     height:40px;
@@ -181,7 +179,7 @@
     float:left;
 
 	p {
-	    margin: 0px;
+	    margin: 0;
 	    padding: 10px 3px;
 	    width: 50px;
 	    font-size:10pt;
@@ -190,14 +188,14 @@
 	
 	img {
 	    padding:5px;
-	    margin:0px;
+	    margin:0;
 	    float:left;
 	}
 }
 
 .right_add {
     padding:10px;
-    margin:0px;
+    margin:0;
     float:right;
 }
 
@@ -212,9 +210,9 @@ p.right_add {
 .book_panel_interior {
     float: left;
     position: relative;
-    margin:0px;
-    padding:0px;
-    left:0px;
+    margin:0;
+    padding:0;
+    left:0;
 }
 
 .book_panel_interior img { 

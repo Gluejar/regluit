@@ -1,12 +1,10 @@
-@import "variables.less";
-
 div.book-list{ 
     clear:both;
     display:block;
     vertical-align: middle;
     height:43px;
     line-height:43px;
-    margin:0 5px  0px 0;
+    margin:0 5px 0 0;
     padding:7px 0;
     overflow:hidden;
 
@@ -146,19 +144,11 @@ ul.navigation {
 		}
 		
 		&.arrow-l a {
-			background:url(@background-booklist) 0 -168px no-repeat;
-			width:10px;
-			height:15px;
-			display:block;
-			text-indent:-10000px;
+			.navigation-arrows(0, -168px);
 		}
 		
 		&.arrow-r a {
-			background:url(@background-booklist) -1px -185px no-repeat;
-			width:10px;
-			height:15px;
-			display:block;
-			text-indent:-10000px;
+			.navigation-arrows(-1px, -185px);
 		}		
 	}
 }

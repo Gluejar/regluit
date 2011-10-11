@@ -1,5 +1,4 @@
 // For sitewide elements of unglue.it.
-@import "variables.less";
 
 body{
     background:url(@background-body) 0 0 repeat-x;
@@ -12,6 +11,72 @@ body{
 
 img {
 	border:none;
+}
+
+h2 {
+	.content-heading {
+		padding:15px;
+		margin:0;
+		font-size:19px;
+		font-weight:normal;
+		color:@text-blue;
+		float:left;
+		width:50%;
+		
+		span {
+			font-style:italic;
+		}
+	}
+}
+
+h3 {
+	.jsmod-title {
+		background:url(@background-header) 0 0 no-repeat;
+		padding:0;
+		margin:0;
+		height:73px;
+		
+		span {
+			background:url(../images/icon-h3.png) 90% center no-repeat;
+			font-size:17px;
+			color:#fff;
+			padding:26px 40px 27px 20px;
+			display:block;
+		}
+    }
+}
+
+ul.menu{
+    list-style:none;
+    padding:0;
+    margin:0;
+    line-height: 20px;
+}
+
+a.readon {
+	background:url(@background-header) 100% -72px no-repeat;
+	color:#fff;
+	text-transform:capitalize;
+	display:block;
+	float:right;
+	font-size:13px;
+	font-weight:bold;
+
+	span {
+		background:url(@background-header) -770px -108px no-repeat;
+		margin-right:34px;
+		padding:0 5px 0 20px;
+		height:36px;
+		line-height:36px;
+		display:block;
+	}
+}
+
+a {
+	font-weight:bold;
+	font-size:13px; 
+	text-decoration:none;
+	cursor:pointer;
 }
 
 // Header section
@@ -126,6 +191,8 @@ img {
 	margin:0 auto;
 }
 
+// Explore column
+
 #js-leftcol {
 	float:left;
 	width:235px;
@@ -166,6 +233,7 @@ img {
 	}
 }
 
+// Main content
 #js-maincol-fr {
 	float:left;
 	width:725px;
@@ -196,72 +264,7 @@ div.content-block-content {
 	}
 }
 
-h2 {
-	.content-heading {
-		padding:15px;
-		margin:0;
-		font-size:19px;
-		font-weight:normal;
-		color:@text-blue;
-		float:left;
-		width:50%;
-		
-		span {
-			font-style:italic;
-		}
-	}
-}
-
-h3 {
-	.jsmod-title {
-		background:url(@background-header) 0 0 no-repeat;
-		padding:0;
-		margin:0;
-		height:73px;
-		
-		span {
-			background:url(../images/icon-h3.png) 90% center no-repeat;
-			font-size:17px;
-			color:#fff;
-			padding:26px 40px 27px 20px;
-			display:block;
-		}
-    }
-}
-
-ul.menu{
-    list-style:none;
-    padding:0;
-    margin:0;
-    line-height: 20px;
-}
-
-a.readon {
-	background:url(@background-header) 100% -72px no-repeat;
-	color:#fff;
-	text-transform:capitalize;
-	display:block;
-	float:right;
-	font-size:13px;
-	font-weight:bold;
-
-	span {
-		background:url(@background-header) -770px -108px no-repeat;
-		margin-right:34px;
-		padding:0 5px 0 20px;
-		height:36px;
-		line-height:36px;
-		display:block;
-	}
-}
-
-a {
-	font-weight:bold;
-	font-size:13px; 
-	text-decoration:none;
-	cursor:pointer;
-}
-
+// Footer
 #footer{
 	border-top: 7px solid @pale-blue;
 	clear: both;

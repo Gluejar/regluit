@@ -83,7 +83,7 @@
 .read_itbutton a {
   line-height: 40px;
   font-size: 11px;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat left center;
   background-position: 10px center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
@@ -103,7 +103,7 @@
 #add_towish a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url(/static/images/book-panel/add_wish_icon.png) no-repeat left center;
+  background-image: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
   padding: 8px 5px 8px 21px;
   font-weight: bold;
   color: #FFFFFF;
@@ -140,7 +140,7 @@
 #moreinfo a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url(/static/images/book-panel/more_icon.png) no-repeat left center;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat left center;
   padding: 8px 42px 8px 20px;
   font-weight: bold;
   padding-left: 20px;

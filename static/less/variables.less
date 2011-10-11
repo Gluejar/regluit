@@ -22,13 +22,21 @@
 }
 
 .border-radius(@topleft, @topright, @bottomright, @bottomleft) {
-  border-radius: @arguments;
   -moz-border-radius: @arguments;
   -webkit-border-radius: @arguments;
+  border-radius: @arguments;
 }
 
 .panelborders {
 	border-width: 1px 0px;
 	border-style: solid none;
 	border-color: #FFFFFF;
+}
+
+.navigation-arrows(@x, @y) {
+	background:url(@background-booklist) @x @y no-repeat;
+	width:10px;
+	height:15px;
+	display:block;
+	text-indent:-10000px;
 }
