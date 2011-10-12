@@ -38,4 +38,4 @@ class UserData(forms.Form):
         raise forms.ValidationError(_("Your username is already "+oldusername))
 
 class CampaignPledgeForm(forms.Form):
-    pledge_amount = forms.DecimalField(min_value=D('0.00'), max_value=D('10000.00'), decimal_places=2)
+    pledge_amount = forms.DecimalField(initial=D('20.00'), min_value=D('0.00'), max_value=D('10000.00'), decimal_places=2)

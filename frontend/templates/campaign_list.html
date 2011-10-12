@@ -7,5 +7,5 @@
             <li><a href="{% url campaign_by_id pk=campaign.id %}">{{ campaign.name }}</a></li>
         {% endfor %}
     </ul>
-
+    <p class="extra">Message:{{campaign_list.message}}</p>
 {% endblock %}

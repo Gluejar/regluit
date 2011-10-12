@@ -3,9 +3,12 @@ from django.contrib.auth.models import User
 # from django.contrib.auth.forms import UserChangeForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView, DetailView
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import FormView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 
@@ -13,6 +16,10 @@ from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
 
 from regluit.frontend.forms import UserData
+from regluit.frontend.forms import CampaignPledgeForm
+
+import logging
+logger = logging.getLogger(__name__)
 
 def home(request):
     if request.user.is_authenticated():
@@ -93,5 +100,85 @@ class CampaignDetailView(DetailView):
     model=models.Campaign
     template_name="campaign_detail.html"
     context_object_name = "campaign"
-    name="campaign_by_id"
+    
+    def get_context_data(self, **kwargs):
+        context = super(CampaignDetailView, self).get_context_data(**kwargs)
+        form = CampaignPledgeForm()
+        context.update({
+            'message': 'hello there from CampaignDetailView',
+            'form': form
+        })
+        return context    
+ 
+def campaign_detail(request, pk):
+    campaign = models.Campaign.objects.get(id=int(pk))
+    
+    if request.method == 'POST':
+        form = CampaignPledgeForm(request.POST)
+        if form.is_valid():
+            pledge_amount = request.POST["pledge_amount"]
+            return HttpResponseRedirect('/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount)))
+    else:
+        form = CampaignPledgeForm()   
 
+    return render(request,'campaign_detail.html', {'campaign':campaign, 'form':form, 'message':'hello little monsters'})
+    
+class CampaignFormView(FormView):
+    template_name="campaign_detail.html"
+    form_class = CampaignPledgeForm
+    
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs["pk"]
+        campaign = models.Campaign.objects.get(id=int(pk))
+        context = super(CampaignFormView, self).get_context_data(**kwargs)
+        context.update({
+            'message': 'hello little monsters',
+            'campaign': campaign
+        })
+        return context
+    def post(self, request, *args, **kwargs):
+        pk = self.kwargs["pk"]
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        if form.is_valid():
+            pledge_amount = request.POST["pledge_amount"]
+            return HttpResponseRedirect('/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount)))
+        else:
+            return self.form_invalid(form)
+      
+
+class CampaignFormView2(FormView):
+
+    template_name="campaign_detail.html"
+    form_class = CampaignPledgeForm
+    
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs["pk"]
+        campaign = models.Campaign.objects.get(id=int(pk))
+        context = super(CampaignFormView2, self).get_context_data(**kwargs)
+        context.update({
+            'message': 'hello little monsters',
+            'campaign': campaign
+        })
+        return context
+    def get_success_url(self):
+        pk = self.kwargs["pk"]
+        pledge_amount = self.request.POST["pledge_amount"]
+        return '/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount))
+  
+    
+def rylearn0(request):
+    #return HttpResponse("hello")
+    # https://docs.djangoproject.com/en/dev/topics/http/shortcuts/#django.shortcuts.render_to_response
+    #return render_to_response("rylearn.html", {'message':'hello there from rylearn0'})
+    return render(request,'rylearn.html', {'message':'hello there from rylearn0'})
+
+class RYLearnView(TemplateView):
+    template_name = "rylearn.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super(RYLearnView, self).get_context_data(**kwargs)
+        context.update({
+            'message': 'hello there from rylearn2'
+        })
+        return context    

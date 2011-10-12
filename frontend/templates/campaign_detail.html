@@ -6,10 +6,11 @@
     <p>Work: {{campaign.work}}</p>
     <p>Target: {{campaign.target}}</p>
     <p>Deadline: {{campaign.deadline}}</p>
-    <p>Pledge form:</p>
-    <form method="POST" action="/testpledge?campaign={{campaign.id}}">
+    <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
         {% csrf_token %}
-       <input type="text" name="pledge_amount" value="20.00"/>
+       <!--<input type="text" name="pledge_amount" value="20.00"/> -->
+       {{form.as_p}}
        <input type="submit" value="Pledge" />
     </form>
+    <p class="extra">Message:{{message}}</p>
 {% endblock %}
