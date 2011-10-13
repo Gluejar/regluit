@@ -14,7 +14,7 @@ img {
 }
 
 h2 {
-	.content-heading {
+	&.content-heading {
 		padding:15px;
 		margin:0;
 		font-size:19px;
@@ -30,14 +30,14 @@ h2 {
 }
 
 h3 {
-	.jsmod-title {
+	&.jsmod-title {
 		background:url(@background-header) 0 0 no-repeat;
 		padding:0;
 		margin:0;
 		height:73px;
 		
 		span {
-			background:url(../images/icon-h3.png) 90% center no-repeat;
+			background:url("@{image-base}icon-h3.png") 90% center no-repeat;
 			font-size:17px;
 			color:#fff;
 			padding:26px 40px 27px 20px;
@@ -50,7 +50,6 @@ ul.menu{
     list-style:none;
     padding:0;
     margin:0;
-    line-height: 20px;
 }
 
 a.readon {
@@ -66,8 +65,7 @@ a.readon {
 		background:url(@background-header) -770px -108px no-repeat;
 		margin-right:34px;
 		padding:0 5px 0 20px;
-		height:36px;
-		line-height:36px;
+		.height(36px);
 		display:block;
 	}
 }
@@ -94,7 +92,7 @@ a {
 
 .js-logo {
 	float:left;
-	padding-top:20px;
+	padding-top:10px;
 	
 	a {
 		img { border: none;}
@@ -111,12 +109,12 @@ a {
 			padding:0 10px;
 			
 			a {
-				color:#fff;
+				color:@text-blue; 
 				.header-text;
 			}
 			
 			span#welcome {
-				color:yellow;
+				color:@green;
 				.header-text;
 			}
 			
@@ -141,26 +139,31 @@ a {
 }
 
 .js-topnews {
-	float:left; width:60%;
-}
-
-.js-news-text {
 	float:left;
-	width:70%;
-	font-size:16px;
-	color:@text-blue;
+	width:100%;
 }
 
-.js-news-links {
-	float:right;
-	width:30%;
+.js-topnews1 {
+	background:url("@{image-base}header/header-m.png") 0 0 repeat-y;
+}
+.js-topnews2 {
+	background:url("@{image-base}header/header-t.png") 0 0 no-repeat;
+}
+.js-topnews3 {
+	background:url("@{image-base}header/header-b.png") 0 100% no-repeat;
+	display:block;
+	overflow:hidden;
+	padding:10px;
 }
 
 .js-search {
-	width:960px;
-	margin:0 auto;
-	clear:both;
-	padding:0;
+	float:right;
+	width:30%;
+	padding-top:25px;
+	
+	input {
+		float: left;
+	}
 	
 	.inputbox {
 		padding:0 0 0 15px;
@@ -168,8 +171,7 @@ a {
 		border:none;
 		outline: none;
 		background:url(@background-header) -645px -180px;
-		height:36px;
-		line-height:36px;
+		.height(36px);
 		float: left;
 		color:@medium-blue;
 	}
@@ -188,7 +190,7 @@ a {
 }
 
 .js-search-inner { 
-	margin:0 auto;
+	float:right;
 }
 
 // Explore column
@@ -227,7 +229,6 @@ a {
 
 			a {
 				color:@medium-blue;
-				line-height: 20px;
 			}
 		}
 	}
@@ -235,7 +236,7 @@ a {
 
 // Main content
 #js-maincol-fr {
-	float:left;
+	float:right;
 	width:725px;
 }
 
