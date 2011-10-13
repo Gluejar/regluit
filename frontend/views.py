@@ -36,12 +36,15 @@ def supporter(request, supporter_username):
 			
 	wished = supporter.wishlist.works.count()
 	
+	date = supporter.date_joined.strftime("%B %d, %Y")
+	
 	context = {
 		"supporter": supporter,
 		"wishlist": wishlist,
 		"backed": backed,
 		"backing": backing,
 		"wished": wished,
+		"date": date,
 	}
 	
 	return render(request, 'supporter.html', context)
