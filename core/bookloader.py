@@ -1,5 +1,6 @@
 import json
 import logging
+from xml.etree import ElementTree
 
 import requests
 from django.conf import settings
@@ -54,6 +55,12 @@ def add_by_googlebooks_id(googlebooks_id):
 
     return e
 
+
+def thingisbn(isbn):
+    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
+    xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
+    doc = ElementTree.fromstring(xml)
+    return [e.text for e in doc.findall('isbn')]
 
 def _get_json(url, params={}):
     # TODO: should X-Forwarded-For change based on the request from client?

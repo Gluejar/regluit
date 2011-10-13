@@ -1,6 +1,7 @@
 from decimal import Decimal
 from random import randint, randrange
 from datetime import datetime, timedelta
+from decimal import Decimal as D
 
 from django.core.management.base import BaseCommand
 
@@ -19,7 +20,7 @@ class Command(BaseCommand):
             campaign.description = "Test Campaign"
 
             # random campaign target between $200 and $10,000
-            campaign.target = Decimal(str(randint(200,10000)))
+            campaign.target = D(randint(200,10000))
 
             # random deadline between 5 days from now and 180 days from now
             now = datetime.now()
