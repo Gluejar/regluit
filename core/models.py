@@ -154,7 +154,7 @@ class Wishlist(models.Model):
     works = models.ManyToManyField('Work', related_name='wishlists')
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
 
 from regluit.core import signals

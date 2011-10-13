@@ -25,7 +25,7 @@
             <div class="js-topmenu">
             	<ul class="menu">
                     {% if user.is_authenticated %}
-                    <li class="first"><span id="welcome">Welcome, {{ user.username }}</span></li>
+                    <li class="first"><a href="/supporter/{{user.username}}"><span id="welcome">Welcome, {{ user.username }}</span></a></li>
                     <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}"><span>Sign In</span></a></li>
@@ -41,6 +41,7 @@
         </div>
     </div>
 
+    {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}
 
 </div>

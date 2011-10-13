@@ -17,9 +17,188 @@ $(document).ready(function() {
     });
 });
 </script>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+	var $j = jQuery.noConflict();
+	$j(document).ready(function(){
+		$j('.user-block-hide').hide();
+		$j('.user-block1 a').click(
+			function() {
+				$j(this).toggleClass("active");
+				$j(".user-block-hide").slideToggle(300);
+			}
+		);
+		$j('.tabs1').click(function(){
+			$j('#tabs').find('.active').removeClass('active');
+			$j(this).addClass('active');
+			$j('.content-block-content').find('.active').removeClass('active');
+			$j('#tabs-1').addClass('active').show(300);
+			$j('#tabs-2').hide(200);
+			$j('#tabs-3').hide(200);
+		});
+		$j('.tabs2').click(function(){
+			$j('#tabs').find('.active').removeClass('active');
+			$j(this).addClass('active');
+			$j('.content-block-content').find('.active').removeClass('active');
+			$j('#tabs-2').addClass('active').show(300);
+			$j('#tabs-1').hide(200);
+			$j('#tabs-3').hide(200);
+		});
+		$j('.tabs3').click(function(){
+			$j('#tabs').find('.active').removeClass('active');
+			$j(this).addClass('active');
+			$j('.content-block-content').find('.active').removeClass('active');
+			$j('#tabs-3').addClass('active').show(300);
+			$j('#tabs-2').hide(200);
+			$j('#tabs-1').hide(200);
+		});
+	});
+
+
+</script>
+
+{% endblock %}
+
+/*
+To do:
+create topsection file for inclusion in multiple contexts, if needed
+figure out how to configure date display 
+	decide if we're even including date joined in profile
+make it possible for users to create taglines
+	I changed UserProfile to be a foreign key relation on user. ok?
+add support for userpics
+	crop/resize? other infrastructure we need?  can we pull from twitter/fb?
+add support for twitter/fb/other links?
+	part of user profile?  can I just add to db model?
+	loosely coupled vs actually integrated with signin
+	canonicalize -- user enters cut/paste link vs username
+Goodreads & Librarything support
+If people lack homepage, etc., do we have greyed-out icons or no icons?
+	if greyed-out, can they add in place by clicking on them?
+make sure profile settings do something
+make sure we have the profile settings we need
+resurrect add/remove functionality
+	be sure words display correctly
+	do I need both add-wishlist and remove-wishlist classes? do they differ?
+better alignment on I am ungluing & badges
+
+make sure backed/backing/wishlist is the order we want the badges to be in
+test code with other campaign statuses -- random_campaigns needs to set a variety of statuses!
+why is there a status in regluit.payment.models.Transaction?  does it duplicate the status in regluit.core.models.Campaign?
+
+
+there's no tab for seeing ALL my books, only the filters! huh.
+	
+Values I need:
+how do I integrate the your wishlist thing with the tabs thing?
+
+*/
+
+/*
+                        <div class="remove-wishlist">
+                            <span id="{{ work.id }}">Remove from Wishlist</span>
+                        </div>
+*/
+
+{% block topsection %}
+
+<div id="js-topsection">
+	<div class="js-main">
+    	<div class="js-topnews">
+        	<div class="js-topnews1">
+            	<div class="js-topnews2">
+                	<div class="js-topnews3">
+                    	<div class="user-block">
+	                        {% ifequal supporter request.user %}
+                            <div class="user-block1">
+                            <div class="block-inner">
+                            <a class="my-setting" href="#">My Settings</a>
+                            </div>
+                            </div>
+	                        {% endifequal %}
+                            <div class="user-block2">
+                            	<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="User avatar" title="User avatar" />
+                                <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
+                                <span class="user-date">{{ date }}</span>
+                                <span class="user-short-info">{{ supporter.profile.tagline }}</span>
+                            </div>
+                            <div class="user-block4">
+								<div class="social">
+                            	<a href="#"><img src="/static/images/header/icon-home.png" alt="Home" title="Home"  /></a>
+                                <a href="#"><img src="/static/images/header/icon-facebook.png" alt="Facebook" title="Facebook"  /></a>
+                                <a href="#"><img src="/static/images/header/icon-tweeter.png" alt="tweeter" title="tweeter"  /></a>
+                                <a href="#"><img src="/static/images/header/icon-google.png" alt="google" title="google"  /></a>
+                                <a href="#"><img src="/static/images/header/icon-group.png" alt="group" title="group"  /></a></div>
+                            </div>
+                            <div class="user-block3">
+								<div class="user-block">
+                                <span class="rounded"><span class="blue">{{ backed }}</span></span>
+                                <span class="rounded"><span class="orange">{{ backing }}</span></span>
+                                <span class="rounded"><span class="grey">{{ wished }}</span></span>
+								</div>
+                            	<span class="user-status-title">I am ungluing</span>
+                            </div>
+                        </div>
+                        <div class="user-block-hide">
+                        	<div class="block block1">
+                            <div class="block-inner">
+                            	<h3><a class="profile-edit" href="#">Profile / edit</a></h3>
+                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
+                                <div class="profile-save">
+                                <a href="#" class="profile-save">Save setting</a>
+                                </div>
+                            </div>
+                            </div>
+                            
+                            <div class="block block2">
+                            	<h3 class="title">Pledges</h3>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                            </div>
+                            <div class="block block3">
+                            	<h3 class="title">Links</h3>
+                            	<div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                            </div>
+                            <div class="block block4">
+                            	<h3 class="title">Privacy</h3>
+                            	<div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                            </div>
+                       		
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
 {% endblock %}
 
 {% block content %}
+
     <div id="main-container">
     <div class="js-main">
 
@@ -28,14 +207,13 @@ $(document).ready(function() {
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div class="content-block">
-                <div class="content-block-heading">
-                    <h2 class="content-heading">
-                        {% ifequal supporter request.user %}
-                        Your Wishlist
-                        {% else %}
-                        {{ supporter.username }} Wishlist 
-                        {% endifequal %}
-                    </h2>
+                <div class="content-block-heading" id="tabs">
+	                <ul class="tabs">
+                        <li class="tabs1"><a href="#">Unglued</a></li>
+                        <li class="tabs2"><a href="#">Being Unglued</a></li>
+                        <li class="tabs3"><a href="#">Want to Unglue</a></li>
+                    </ul>
+    
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -57,7 +235,8 @@ $(document).ready(function() {
                 </div>
                 <div class="content-block-content">
                     {% for work in wishlist.works.all %}
-                    <div class="book-list row1">
+               		<div id="tabs-1" class="tabs">
+                	<div class="book-list {% cycle 'row1' 'row2' %}">
                         <div class="book-thumb">
                             <a href="#"><img src="{{ work.cover_image_small }}" alt="Book name" title="book name"  /></a>
                         </div>
@@ -66,11 +245,11 @@ $(document).ready(function() {
                             {{ work.title }}
                         </span>
                         </div>
-                        <div class="remove-wishlist">
-                            <span id="{{ work.id }}">Remove from Wishlist</span>
+                        <div class="add-wishlist">
+                            <a href="#">Add to Wishlist</a>
                         </div>
                         <div class="booklist-status">
-                            <span class="booklist-status-text">Status: In Progress</span>
+                            <span class="booklist-status-text">{{ work.campaign_set.all.count }}</span>
                             <span class="booklist-status-img">
                                 <img src="/static/images/booklist/icon1.png" title="book list status" alt="book list status" />
                             </span>
@@ -82,7 +261,9 @@ $(document).ready(function() {
                             </div>
                         </div>
                     </div>
+                    </div>
                     {% endfor %}
+
                 </div>
             </div>    
         </div>

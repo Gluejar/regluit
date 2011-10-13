@@ -24,6 +24,8 @@ from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 import logging
 logger = logging.getLogger(__name__)
 
+from regluit.payment.models import Transaction
+
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
@@ -31,14 +33,32 @@ def home(request):
     return render(request, 'home.html')
 
 def supporter(request, supporter_username):
-    supporter = get_object_or_404(User, username=supporter_username)
-    wishlist = supporter.wishlist
-    context = {
-        "supporter": supporter,
-        "wishlist": wishlist,
-    }
-    return render(request, 'supporter.html', context)
-
+	supporter = get_object_or_404(User, username=supporter_username)
+	wishlist = supporter.wishlist
+	backed = 0
+	backing = 0
+	transet = Transaction.objects.all().filter(user = supporter)
+	
+	for transaction in transet:
+		if(transaction.campaign.status == 'SUCCESSFUL'):
+			backed += 1
+		elif(transaction.campaign.status == 'ACTIVE'):
+			backing += 1
+			
+	wished = supporter.wishlist.works.count()
+	
+	date = supporter.date_joined.strftime("%B %d, %Y")
+	
+	context = {
+		"supporter": supporter,
+		"wishlist": wishlist,
+		"backed": backed,
+		"backing": backing,
+		"wished": wished,
+		"date": date,
+	}
+	
+	return render(request, 'supporter.html', context)
 
 def edit_user(request):
     form=UserData()

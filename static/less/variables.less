@@ -17,7 +17,7 @@
 	text-decoration:none;
 	font-weight:bold;
 	font-size:13px;
-	letter-spacing:1px;
+	letter-spacing: -.05em;
 	text-transform:capitalize;
 }
 
@@ -39,4 +39,14 @@
 	height:15px;
 	display:block;
 	text-indent:-10000px;
+}
+
+.supporter-color-span(@hex, @color) {
+	@url: %("%sheader-button-%s.png", @image-base, @color);
+	background:@hex url(@url) left bottom repeat-x;	
+}
+
+.height(@x) {
+	height:@x; 
+	line-height:@x; 
 }

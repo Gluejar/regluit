@@ -1,3 +1,4 @@
+from decimal import Decimal
 from random import randint, randrange
 from datetime import datetime, timedelta
 from decimal import Decimal as D
