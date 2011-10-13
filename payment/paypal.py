@@ -90,7 +90,7 @@ class url_request( object ):
 
 
 class Pay( object ):
-  def __init__( self, transaction):
+  def __init__( self, transaction, return_url=None, cancel_url=None):
       
       headers = {
             'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -101,8 +101,11 @@ class Pay( object ):
             'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
             }
 
-      return_url = settings.BASE_URL + COMPLETE_URL
-      cancel_url = settings.BASE_URL + CANCEL_URL
+      if return_url is None:
+        return_url = settings.BASE_URL + COMPLETE_URL
+      if cancel_url is None:
+        cancel_url = settings.BASE_URL + CANCEL_URL
+        
       logger.info("Return URL: " + return_url)
       logger.info("Cancel URL: " + cancel_url)
       

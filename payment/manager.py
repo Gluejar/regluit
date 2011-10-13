@@ -305,7 +305,7 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error())
             return t, None
         
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None):
         '''
         pledge
         
@@ -347,7 +347,7 @@ class PaymentManager( object ):
     
         t.create_receivers(receiver_list)
         
-        p = Pay(t)
+        p = Pay(t,return_url=return_url, cancel_url=cancel_url)
         
         if p.status() == 'CREATED':
             t.reference = p.paykey()

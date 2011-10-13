@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DetailView
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignDetailView, RYLearnView, CampaignFormView, CampaignFormView2
+from regluit.frontend.views import CampaignDetailView, RYLearnView, CampaignFormView, CampaignFormView3
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -21,7 +21,7 @@ urlpatterns = patterns(
     url(r"^rylearn2/$", RYLearnView.as_view(),name="rylearn2"),
     url(r"^campaigns/$", ListView.as_view(
         model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list")),
-    url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView2.as_view(), name="campaign_by_id")
+    url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView3.as_view(), name="campaign_by_id")
 )
 
 # url(r'^campaigns/(?P<pk>\d+)/$', CampaignDetailView.as_view(), name="campaign_by_id"),

@@ -18,6 +18,9 @@ from regluit.core.search import gluejar_search
 from regluit.frontend.forms import UserData
 from regluit.frontend.forms import CampaignPledgeForm
 
+from regluit.payment.manager import PaymentManager
+from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -166,6 +169,46 @@ class CampaignFormView2(FormView):
         pledge_amount = self.request.POST["pledge_amount"]
         return '/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount))
   
+class CampaignFormView3(FormView):
+    template_name="campaign_detail.html"
+    form_class = CampaignPledgeForm
+    
+    def get_context_data(self, **kwargs):
+        pk = self.kwargs["pk"]
+        campaign = models.Campaign.objects.get(id=int(pk))
+        context = super(CampaignFormView3, self).get_context_data(**kwargs)
+        context.update({
+            'message': 'hello little monsters',
+            'campaign': campaign
+        })
+        return context
+    def form_valid(self,form):
+        pk = self.kwargs["pk"]
+        pledge_amount = self.request.POST["pledge_amount"]
+        campaign = models.Campaign.objects.get(id=int(pk))
+        
+        p = PaymentManager()
+                    
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+ 
+        receiver_list = [{'email':'glueja_1317336101_biz@gluejar.com', 'amount':pledge_amount}]
+        
+        # redirect the page back to campaign page on success
+        #return_url = self.request.build_absolute_uri("/campaigns/%s" %(str(pk)))
+        return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
+        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
+                          return_url=return_url)
+        
+        if url:
+            logger.info("CampaignFormView3 paypal: " + url)
+            return HttpResponseRedirect(url)
+        else:
+            response = t.reference
+            logger.info("CampaignFormView3 paypal: Error " + str(t.reference))
+            return HttpResponse(response)
     
 def rylearn0(request):
     #return HttpResponse("hello")
