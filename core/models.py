@@ -55,6 +55,10 @@ class Campaign(models.Model):
         p = PaymentManager()
         return p.query_campaign(campaign=self,summary=True)        
         
+    def transactions(self, pledged=True, authorized=True):
+        p = PaymentManager()
+        return p.query_campaign(campaign=self, summary=False, pledged=pledged, authorized=authorized)
+        
     def activate(self):
         status = self.status
         if status != 'INITIALIZED':

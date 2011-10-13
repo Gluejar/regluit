@@ -6,11 +6,21 @@
     <p>Work: {{campaign.work}}</p>
     <p>Target: {{campaign.target}}</p>
     <p>Deadline: {{campaign.deadline}}</p>
+    <p class="classname">Status: {{campaign.status}}</p>
     <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
         {% csrf_token %}
-       <!--<input type="text" name="pledge_amount" value="20.00"/> -->
        {{form.as_p}}
        <input type="submit" value="Pledge" />
     </form>
+    <!-- All associated transactions -->
+    {% if campaign.transactions %}
+      <p>Associated transactions:</p>
+      <ul>
+      {% for transaction in campaign.transactions %}
+        <li>{{transaction.id}} | {{transaction.name}} | {{transaction.user}} | {{transaction.amount}}</li>
+      {% endfor %}   
+      </ul>
+    {% else %}
+    {% endif %}
     <p class="extra">Message:{{message}}</p>
 {% endblock %}
