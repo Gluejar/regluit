@@ -2,7 +2,7 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED
+from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
 import logging
@@ -113,7 +113,8 @@ class PaymentManager( object ):
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
-                    if r.status == IPN_SENDER_STATUS_COMPLETED:
+                    if r.status == IPN_TXN_STATUS_COMPLETED:
+                        # or IPN_SENDER_STATUS_COMPLETED
                         # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
                         pledged_amount += r.amount
                 
