@@ -6,7 +6,8 @@
     <p>Work: {{campaign.work}}</p>
     <p>Target: {{campaign.target}}</p>
     <p>Deadline: {{campaign.deadline}}</p>
-    <p class="classname">Status: {{campaign.status}}</p>
+    <p>Status: {{campaign.status}}</p>
+    <p>Current total (pledged/authorized): {{campaign.current_total}}</p>
     <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
         {% csrf_token %}
        {{form.as_p}}
