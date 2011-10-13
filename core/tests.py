@@ -10,7 +10,7 @@ from regluit.core.models import Campaign, Work, UnglueitError
 from regluit.core import bookloader, models, search
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 
-class TestBooks(TestCase):
+class TestBookLoader(TestCase):
 
     def test_add_book(self):
         # edition
@@ -45,6 +45,12 @@ class TestBooks(TestCase):
     def test_missing_isbn(self):
         e = bookloader.add_by_isbn('0139391401')
         self.assertEqual(e, None)
+
+    def test_thingisbn(self):
+        isbns = bookloader.thingisbn('0441012035')
+        self.assertTrue(len(isbns) > 20)
+        self.assertTrue('0441012035' in isbns)
+        self.assertTrue('3453313895' in isbns)
 
 class SearchTests(TestCase):
 
@@ -136,11 +142,3 @@ class CampaignTests(TestCase):
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')        
-
-def suite():
-
-    testcases = [TestBooks, SearchTests, CampaignTests]
-    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    return suites            
-
-        
