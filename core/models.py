@@ -18,7 +18,7 @@ class Campaign(models.Model):
     activated = models.DateTimeField(null=True)
     suspended = models.DateTimeField(null=True)
     withdrawn = models.DateTimeField(null=True)
-    supended_reason = models.TextField(null=True)
+    suspended_reason = models.TextField(null=True)
     withdrawn_reason = models.TextField(null=True)
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)
@@ -68,7 +68,7 @@ class Campaign(models.Model):
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be suspended')
         self.suspended = datetime.datetime.utcnow()
-        self.supended_reason = reason
+        self.suspended_reason = reason
         self.save()
         return self
         
