@@ -28,7 +28,8 @@ class Command(BaseCommand):
                                             now + timedelta(days=180))
 
             campaign.save()
-            print "created %s" % campaign
+            campaign.activate()
+            print "activated campaign %s" % campaign
 
 
 def random_date(start, end):
