@@ -4,6 +4,25 @@
 
 {% block extra_head %}
 <script type="text/javascript">
+$$(document).ready(function() {
+    $(".add-wishlist").each(function (index, element) {
+        $(element).click(function() {
+            var span = $(element).find("span");
+            var gb_id = span.attr('id')
+            if (!gb_id) return;
+            $.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
+                span.fadeOut();
+                var newSpan = $("<span>On Your Wishlist!</span>").hide();
+                span.replaceWith(newSpan);
+                newSpan.fadeIn();
+                newSpan.removeAttr("id");
+            });
+        });
+    });
+});
+</script>
+
+<script type="text/javascript">
 $(document).ready(function() {
     $(".remove-wishlist").each(function (index, element) {
         $(element).click(function() {
@@ -64,13 +83,10 @@ $(document).ready(function() {
 /*
 To do:
 create topsection file for inclusion in multiple contexts, if needed
-figure out how to configure date display 
-	decide if we're even including date joined in profile
-make it possible for users to create taglines
-	I changed UserProfile to be a foreign key relation on user. ok?
-add support for userpics
+do we really want to display date joined in profile? if so, with any text? "supporter since (date) is too long"
+add support for userpics/avatars/something
 	crop/resize? other infrastructure we need?  can we pull from twitter/fb?
-add support for twitter/fb/other links?
+add support for twitter/fb/other links
 	part of user profile?  can I just add to db model?
 	loosely coupled vs actually integrated with signin
 	canonicalize -- user enters cut/paste link vs username
@@ -81,8 +97,10 @@ make sure profile settings do something
 make sure we have the profile settings we need
 resurrect add/remove functionality
 	be sure words display correctly
-	do I need both add-wishlist and remove-wishlist classes? do they differ?
 better alignment on I am ungluing & badges
+progress indicators
+change status text to something more user-friendly
+js is not DRY right now -- need to put into scripts folder and reference
 
 make sure backed/backing/wishlist is the order we want the badges to be in
 test code with other campaign statuses -- random_campaigns needs to set a variety of statuses!
@@ -97,9 +115,6 @@ how do I integrate the your wishlist thing with the tabs thing?
 */
 
 /*
-                        <div class="remove-wishlist">
-                            <span id="{{ work.id }}">Remove from Wishlist</span>
-                        </div>
 */
 
 {% block topsection %}
@@ -245,13 +260,19 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {{ work.title }}
                         </span>
                         </div>
-                        <div class="add-wishlist">
-                            <a href="#">Add to Wishlist</a>
+						{% if work in request.user.wishlist.works.all %}
+                        <div class="remove-wishlist">
+                            <a href="#"><span id="{{ work.id }}">Remove from Wishlist</span></a>
                         </div>
+						{% else %}
+                        <div class="add-wishlist">
+	                         <a href="#"><span id="{{ work.id }}">Add to Wishlist</span></a>
+                        </div>
+						{% endif %}
                         <div class="booklist-status">
-                            <span class="booklist-status-text">{{ work.campaign_set.all.count }}</span>
+                            <span class="booklist-status-text">{{ work.last_campaign_status }}</span>
                             <span class="booklist-status-img">
-                                <img src="/static/images/booklist/icon1.png" title="book list status" alt="book list status" />
+                                <img src="/static/images/icon-book{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
                             </span>
                         </div>
                         <div class="unglue-this none">
