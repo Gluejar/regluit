@@ -32,7 +32,7 @@ def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'suppress_search_box': True})
 
 def supporter(request, supporter_username):
 	supporter = get_object_or_404(User, username=supporter_username)
@@ -50,14 +50,25 @@ def supporter(request, supporter_username):
 	wished = supporter.wishlist.works.count()
 	
 	date = supporter.date_joined.strftime("%B %d, %Y")
+
+        # figure out what works the users have in commmon if someone
+        # is looking at someone elses supporter page
+        if request.user != supporter:
+            w1 = request.user.wishlist
+            w2 = supporter.wishlist
+            shared_works = models.Work.objects.filter(wishlists__in=[w1])
+            shared_works = list(shared_works.filter(wishlists__in=[w2]))
+        else: 
+            shared_works = []
 	
 	context = {
-		"supporter": supporter,
-		"wishlist": wishlist,
-		"backed": backed,
-		"backing": backing,
-		"wished": wished,
-		"date": date,
+            "supporter": supporter,
+            "wishlist": wishlist,
+            "backed": backed,
+            "backing": backing,
+            "wished": wished,
+            "date": date,
+            "shared_works": shared_works,
 	}
 	
 	return render(request, 'supporter.html', context)

@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from django.utils import unittest
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Work, UnglueitError
@@ -22,6 +23,7 @@ class TestBookLoader(TestCase):
         self.assertEqual(edition.isbn_10, '0441012035')
         self.assertEqual(edition.isbn_13, '9780441012039')
         self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
+        self.assertEqual(edition.language, "en")
 
         # subjects
         subject_names = [subject.name for subject in edition.subjects.all()]
@@ -52,6 +54,18 @@ class TestBookLoader(TestCase):
         self.assertTrue(len(isbns) > 20)
         self.assertTrue('0441012035' in isbns)
         self.assertTrue('3453313895' in isbns)
+
+    def test_add_related(self):
+        # add one edition
+        edition = bookloader.add_by_isbn('0441012035')
+        self.assertEqual(models.Edition.objects.count(), 1)
+        self.assertEqual(models.Work.objects.count(), 1)
+    
+        # ask for related editions to be added using the work we just created
+        bookloader.add_related('0441012035')
+        self.assertTrue(models.Edition.objects.count() > 20)
+        self.assertEqual(models.Work.objects.count(), 1)
+        self.assertTrue(edition.work.editions.count() > 20)
 
 class SearchTests(TestCase):
 
@@ -87,11 +101,10 @@ class CampaignTests(TestCase):
         c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1))
         self.assertRaises(IntegrityError, c.save)
 
-        #w = Work()
-        #w.save()
-        #c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
-        #c.save()
-
+        w = Work()
+        w.save()
+        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
+        c.save()
 
     def test_campaign_status(self):
         w = Work()
@@ -145,6 +158,30 @@ class CampaignTests(TestCase):
         self.assertEqual(c5.status, 'WITHDRAWN')        
 
 
+<<<<<<< HEAD
+class SettingsTest(TestCase):
+    
+    def test_dev_me_alignment(self):
+        from regluit.settings import me, dev
+        self.assertEqual(set(me.__dict__.keys()) ^ set(dev.__dict__.keys()), set([]))
+        
+    def test_prod_me_alignment(self):
+        from regluit.settings import me, prod
+        self.assertEqual(set(me.__dict__.keys()) ^ set(prod.__dict__.keys()), set([]))
+        
+
+class WishlistTest(TestCase):
+
+    def test_add_remove(self):
+        # add a work to a user's wishlist
+        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        edition = bookloader.add_by_isbn('0441012035')
+        work = edition.work
+        user.wishlist.works.add(work)
+        self.assertEqual(user.wishlist.works.count(), 1)
+        user.wishlist.works.remove(work)
+        self.assertEqual(user.wishlist.works.count(), 0)
+
 class SettingsTest(TestCase):
     
     def test_dev_me_alignment(self):
@@ -157,7 +194,7 @@ class SettingsTest(TestCase):
         
 def suite():
 
-    testcases = [TestBookLoader, SearchTests, CampaignTests]
+    testcases = [TestBookLoader, SearchTests, CampaignTests, WishlistTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     suites.addTest(SettingsTest('test_dev_me_alignment'))  # leave out alignment with prod test right now
     return suites         

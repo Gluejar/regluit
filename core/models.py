@@ -18,7 +18,7 @@ class Campaign(models.Model):
     activated = models.DateTimeField(null=True)
     suspended = models.DateTimeField(null=True)
     withdrawn = models.DateTimeField(null=True)
-    supended_reason = models.TextField(null=True)
+    suspended_reason = models.TextField(null=True)
     withdrawn_reason = models.TextField(null=True)
     paypal_receiver = models.CharField(max_length=100, null=True)
     amazon_receiver = models.CharField(max_length=100, null=True)
@@ -72,7 +72,7 @@ class Campaign(models.Model):
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be suspended')
         self.suspended = datetime.datetime.utcnow()
-        self.supended_reason = reason
+        self.suspended_reason = reason
         self.save()
         return self
         
@@ -138,6 +138,7 @@ class Edition(models.Model):
     isbn_10 = models.CharField(max_length=10, null=True)
     isbn_13 = models.CharField(max_length=13, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
+    language = models.CharField(max_length=2, null=True)
 
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.isbn_13)
@@ -148,10 +149,12 @@ class Edition(models.Model):
             return e
         return None
 
+
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists')
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
