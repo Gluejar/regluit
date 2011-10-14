@@ -12,6 +12,8 @@ from django.views.generic.edit import FormView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 
+from django.conf import settings
+
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
 
@@ -118,34 +120,7 @@ def wishlist(request):
         request.user.wishlist.works.remove(work)
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
-
-class CampaignDetailView(DetailView):
-    model=models.Campaign
-    template_name="campaign_detail.html"
-    context_object_name = "campaign"
-    
-    def get_context_data(self, **kwargs):
-        context = super(CampaignDetailView, self).get_context_data(**kwargs)
-        form = CampaignPledgeForm()
-        context.update({
-            'message': 'hello there from CampaignDetailView',
-            'form': form
-        })
-        return context    
- 
-def campaign_detail(request, pk):
-    campaign = models.Campaign.objects.get(id=int(pk))
-    
-    if request.method == 'POST':
-        form = CampaignPledgeForm(request.POST)
-        if form.is_valid():
-            pledge_amount = request.POST["pledge_amount"]
-            return HttpResponseRedirect('/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount)))
-    else:
-        form = CampaignPledgeForm()   
-
-    return render(request,'campaign_detail.html', {'campaign':campaign, 'form':form, 'message':'hello little monsters'})
-    
+  
 class CampaignFormView(FormView):
     template_name="campaign_detail.html"
     form_class = CampaignPledgeForm
@@ -155,51 +130,7 @@ class CampaignFormView(FormView):
         campaign = models.Campaign.objects.get(id=int(pk))
         context = super(CampaignFormView, self).get_context_data(**kwargs)
         context.update({
-            'message': 'hello little monsters',
-            'campaign': campaign
-        })
-        return context
-    def post(self, request, *args, **kwargs):
-        pk = self.kwargs["pk"]
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        if form.is_valid():
-            pledge_amount = request.POST["pledge_amount"]
-            return HttpResponseRedirect('/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount)))
-        else:
-            return self.form_invalid(form)
-      
-
-class CampaignFormView2(FormView):
-
-    template_name="campaign_detail.html"
-    form_class = CampaignPledgeForm
-    
-    def get_context_data(self, **kwargs):
-        pk = self.kwargs["pk"]
-        campaign = models.Campaign.objects.get(id=int(pk))
-        context = super(CampaignFormView2, self).get_context_data(**kwargs)
-        context.update({
-            'message': 'hello little monsters',
-            'campaign': campaign
-        })
-        return context
-    def get_success_url(self):
-        pk = self.kwargs["pk"]
-        pledge_amount = self.request.POST["pledge_amount"]
-        return '/testpledge?campaign=%s&pledge_amount=%s' % (str(pk),str(pledge_amount))
-  
-class CampaignFormView3(FormView):
-    template_name="campaign_detail.html"
-    form_class = CampaignPledgeForm
-    
-    def get_context_data(self, **kwargs):
-        pk = self.kwargs["pk"]
-        campaign = models.Campaign.objects.get(id=int(pk))
-        context = super(CampaignFormView3, self).get_context_data(**kwargs)
-        context.update({
-            'message': 'hello little monsters',
-            'campaign': campaign
+           'campaign': campaign
         })
         return context
     def form_valid(self,form):
@@ -214,7 +145,7 @@ class CampaignFormView3(FormView):
         else:
             user = None
  
-        receiver_list = [{'email':'glueja_1317336101_biz@gluejar.com', 'amount':pledge_amount}]
+        receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':pledge_amount}]
         
         # redirect the page back to campaign page on success
         #return_url = self.request.build_absolute_uri("/campaigns/%s" %(str(pk)))
@@ -223,25 +154,9 @@ class CampaignFormView3(FormView):
                           return_url=return_url)
         
         if url:
-            logger.info("CampaignFormView3 paypal: " + url)
+            logger.info("CampaignFormView paypal: " + url)
             return HttpResponseRedirect(url)
         else:
             response = t.reference
-            logger.info("CampaignFormView3 paypal: Error " + str(t.reference))
+            logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
-    
-def rylearn0(request):
-    #return HttpResponse("hello")
-    # https://docs.djangoproject.com/en/dev/topics/http/shortcuts/#django.shortcuts.render_to_response
-    #return render_to_response("rylearn.html", {'message':'hello there from rylearn0'})
-    return render(request,'rylearn.html', {'message':'hello there from rylearn0'})
-
-class RYLearnView(TemplateView):
-    template_name = "rylearn.html"
-    
-    def get_context_data(self, **kwargs):
-        context = super(RYLearnView, self).get_context_data(**kwargs)
-        context.update({
-            'message': 'hello there from rylearn2'
-        })
-        return context    

@@ -10,6 +10,7 @@ from regluit.core.models import Campaign, Work, UnglueitError
 from regluit.core import bookloader, models, search
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 
+
 class TestBookLoader(TestCase):
 
     def test_add_book(self):
@@ -142,3 +143,22 @@ class CampaignTests(TestCase):
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')        
+
+
+class SettingsTest(TestCase):
+    
+    def test_dev_me_alignment(self):
+        from regluit.settings import me, dev
+        self.assertEqual(set(me.__dict__.keys()) ^ set(dev.__dict__.keys()), set([]))
+        
+    def test_prod_me_alignment(self):
+        from regluit.settings import me, prod
+        self.assertEqual(set(me.__dict__.keys()) ^ set(prod.__dict__.keys()), set([]))
+        
+def suite():
+
+    testcases = [TestBookLoader, SearchTests, CampaignTests]
+    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
+    suites.addTest(SettingsTest('test_dev_me_alignment'))  # leave out alignment with prod test right now
+    return suites         
+        
