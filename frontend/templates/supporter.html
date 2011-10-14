@@ -96,12 +96,6 @@ how do I integrate the your wishlist thing with the tabs thing?
 
 */
 
-/*
-                        <div class="remove-wishlist">
-                            <span id="{{ work.id }}">Remove from Wishlist</span>
-                        </div>
-*/
-
 {% block topsection %}
 
 <div id="js-topsection">
@@ -245,8 +239,8 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {{ work.title }}
                         </span>
                         </div>
-                        <div class="add-wishlist">
-                            <a href="#">Add to Wishlist</a>
+                        <div class="remove-wishlist">
+                            <span id="{{ work.id }}">Remove from Wishlist</span>
                         </div>
                         <div class="booklist-status">
                             <span class="booklist-status-text">{{ work.campaign_set.all.count }}</span>
