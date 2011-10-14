@@ -49,13 +49,13 @@ div.book-list div.book-name span {
   height: 43px;
   line-height: 43px;
 }
-div.book-list div.add-wishlist {
+div.book-list div.add-wishlist, div.book-list div.remove-wishlist {
   margin-right: 10px;
   padding-right: 10px;
   background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
-div.book-list div.add-wishlist a {
+div.book-list div.add-wishlist a, div.book-list div.remove-wishlist a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
@@ -70,6 +70,7 @@ span.booklist-status-text {
   float: left;
   display: block;
   padding-right: 5px;
+  text-transform: capitalize;
 }
 div.unglue-this a {
   text-transform: uppercase;
