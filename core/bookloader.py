@@ -83,7 +83,10 @@ def add_related(isbn):
     for other_isbn in thingisbn(isbn):
         # TODO: if the other book is there already we have some surgery
         # to do on the works, and the wishlists
-        add_by_isbn(other_isbn, work)
+        try:
+            add_by_isbn(other_isbn, work)
+        except Exception, e:
+            logger.exception("failed to add edition for %s", isbn)
 
 
 def thingisbn(isbn):
