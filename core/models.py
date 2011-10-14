@@ -102,6 +102,24 @@ class Work(models.Model):
         gb_id = self.editions.all()[0].googlebooks_id
         return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, gb_id)
 
+    def last_campaign_status(self):
+		try:
+			last = self.campaigns.order_by('-created')[0].status
+		except:
+			last = "No campaign yet"
+		return last
+
+    def percent_unglued(self):
+		if(self.last_campaign_status() == 'SUCCESSFUL'):
+			return 6;
+		elif(self.last_campaign_status() == 'ACTIVE'):
+			target = float(self.campaigns.order_by('-created')[0].target)
+			total = float(self.campaigns.order_by('-created')[0].current_total)
+			percent = round(total/target * 6)
+			return percent;
+		else:
+			return 0;
+
     def __unicode__(self):
         return self.title
 
