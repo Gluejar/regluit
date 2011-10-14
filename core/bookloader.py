@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 def add_by_isbn(isbn, work=None):
+    """add a book to the UnglueIt database based on ISBN. The work parameter
+    is optional, and if not supplied the edition will be associated with
+    a stub work.
+    """
     url = "https://www.googleapis.com/books/v1/volumes"
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
@@ -22,6 +26,10 @@ def add_by_isbn(isbn, work=None):
 
 
 def add_by_googlebooks_id(googlebooks_id, work=None):
+    """add a book to the UnglueIt database based on the GoogleBooks ID. The
+    work parameter is optional, and if not supplied the edition will be 
+    associated with a stub work.
+    """
     # don't ping google again if we already know about the edition
     e, created = models.Edition.objects.get_or_create(googlebooks_id=googlebooks_id)
     if not created:
@@ -62,7 +70,10 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     return e
 
 
-def add_related(isbn, work=None):
+def add_related(isbn):
+    """add all books related to a particular ISBN to the UnglueIt database.
+    The initial seed ISBN will be added if it's not already there.
+    """
     # make sure the seed edition is there
     edition = add_by_isbn(isbn)
 
@@ -74,11 +85,16 @@ def add_related(isbn, work=None):
         # to do on the works, and the wishlists
         add_by_isbn(other_isbn, work)
 
+
 def thingisbn(isbn):
+    """given an ISBN return a list of related edition ISBNs, according to 
+    Library Thing.
+    """
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
+
 
 def _get_json(url, params={}):
     # TODO: should X-Forwarded-For change based on the request from client?
