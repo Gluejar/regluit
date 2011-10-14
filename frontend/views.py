@@ -35,7 +35,6 @@ def supporter(request, supporter_username):
 			backing += 1
 			
 	wished = supporter.wishlist.works.count()
-	
 	date = supporter.date_joined.strftime("%B %d, %Y")
 	
 	context = {
