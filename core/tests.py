@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.test import TestCase
 from django.utils import unittest
 from django.db import IntegrityError
+from django.contrib.auth.models import User
 
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Work, UnglueitError
@@ -104,7 +105,6 @@ class CampaignTests(TestCase):
         c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
         c.save()
 
-
     def test_campaign_status(self):
         w = Work()
         w.save()
@@ -155,3 +155,17 @@ class CampaignTests(TestCase):
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')        
+
+
+class WishlistTest(TestCase):
+
+    def test_add_remove(self):
+        # add a work to a user's wishlist
+        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        edition = bookloader.add_by_isbn('0441012035')
+        work = edition.work
+        user.wishlist.works.add(work)
+        self.assertEqual(user.wishlist.works.count(), 1)
+        user.wishlist.works.remove(work)
+        self.assertEqual(user.wishlist.works.count(), 0)
+

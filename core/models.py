@@ -145,10 +145,12 @@ class Edition(models.Model):
             return e
         return None
 
+
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists')
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
