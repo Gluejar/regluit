@@ -22,6 +22,16 @@
             <div class="js-logo">
                 <a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
+            {% if not suppress_search_box %}
+            <div class="js-search" style="float: left; margin-left: 50px;">
+            <div class="js-search-inner">
+                <form action="{% url search %}" method="get">
+                    <input type="text" placeholder="Search for a book..." size="30" class="inputbox" name="q" value="{{ q }}">
+                    <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
+                </form>
+            </div>
+            </div>
+            {% endif %}
             <div class="js-topmenu">
                 <ul class="menu">
                     {% if user.is_authenticated %}
