@@ -352,6 +352,7 @@ class PaymentManager( object ):
         
         if p.status() == 'CREATED':
             t.reference = p.paykey()
+            t.status = 'CREATED'
             t.save()
             logger.info("Pledge Success: " + p.next_url())
             return t, p.next_url()

@@ -158,7 +158,6 @@ class CampaignTests(TestCase):
         self.assertEqual(c5.status, 'WITHDRAWN')        
 
 
-<<<<<<< HEAD
 class SettingsTest(TestCase):
     
     def test_dev_me_alignment(self):
