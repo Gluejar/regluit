@@ -3,20 +3,7 @@
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 
 {% block extra_head %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $(".remove-wishlist").each(function (index, element) {
-        $(element).click(function() {
-            var span = $(element).find("span");
-            var work_id = span.attr('id')
-            $.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
-                var book = $(element).parent();
-                book.fadeOut();
-            });
-        });
-    });
-});
-</script>
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
 
@@ -239,9 +226,15 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {{ work.title }}
                         </span>
                         </div>
+			{% ifequal supporter request.user %}
                         <div class="remove-wishlist">
                             <span id="{{ work.id }}">Remove from Wishlist</span>
                         </div>
+			{% else %}
+                        <div class="add-wishlist">
+                            <span id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</span>
+                        </div>
+			{% endifequal %}
                         <div class="booklist-status">
                             <span class="booklist-status-text">{{ work.campaign_set.all.count }}</span>
                             <span class="booklist-status-img">
