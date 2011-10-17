@@ -11,17 +11,17 @@ class UnglueitError(RuntimeError):
 
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=500, null=False)
-    description = models.TextField(null=False)
-    target = models.DecimalField(max_digits=14, decimal_places=2)
-    deadline = models.DateTimeField(null=False)
+    name = models.CharField(max_length=500, null=True, blank=False)
+    description = models.TextField(null=True, blank=False)
+    target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
     suspended = models.DateTimeField(null=True)
     withdrawn = models.DateTimeField(null=True)
-    suspended_reason = models.TextField(null=True)
-    withdrawn_reason = models.TextField(null=True)
-    paypal_receiver = models.CharField(max_length=100, null=True)
-    amazon_receiver = models.CharField(max_length=100, null=True)
+    suspended_reason = models.TextField(null=True, blank=True)
+    withdrawn_reason = models.TextField(null=True, blank=True)
+    paypal_receiver = models.CharField(max_length=100, blank=True)
+    amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
 
     def __unicode__(self):
