@@ -20,3 +20,19 @@ class WishlistTests(TestCase):
         r = self.client.post("/wishlist/", {"remove_work_id": "1"}, 
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(self.user.wishlist.works.all().count(), 0)
+
+class SupporterPage(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test@example.org', 'test')
+        self.client = Client()
+        self.client.login(username='test', password='test')
+
+    def test_view_by_anonymous(self):
+        # logged in
+        r = self.client.get("/supporter/test/")
+        self.assertEqual(r.status_code, 200)
+        # not logged in
+        anon_client = Client()
+        r = self.client.get("/supporter/test/")
+        self.assertEqual(r.status_code, 200)
