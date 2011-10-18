@@ -411,7 +411,6 @@ a {
   outline: none;
   background: url("/static/images/bg.png") -645px -180px;
   height: 36px;
-  line-height: 36px;
   float: left;
   color: #6994a3;
 }
@@ -674,4 +673,26 @@ ul.tabs li a:hover, ul.tabs li.active a {
   width: 75px;
 }
 .book-list span.rounded > span a {
+}
+div.add-bookz {
+    font-size: 40pt;
+    font-weight: bold;
+    width: 250px;
+    text-align: center;
+    background-color: #8ac3d7;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+}
+
+div.empty-wishlist {
+    width: 360px;
+    font-size: 18pt;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10%;
+}
+span.bounce-search {
+    font-weight: bold;
+    border-bottom: 3px solid;
 }
