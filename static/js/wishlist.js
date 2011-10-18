@@ -7,9 +7,9 @@ $(document).ready(function() {
             if (!gb_id) return;
             $.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
                 span.fadeOut();
-                var newSpan = $("<span>On Your Wishlist!</span>").hide();
+                var newSpan = $('<span class="on-wishlist">On Your Wishlist!</span>').hide();
                 span.replaceWith(newSpan);
-                newSpan.fadeIn();
+                newSpan.fadeIn('slow');
                 newSpan.removeAttr("id");
             });
         });
@@ -23,6 +23,12 @@ $(document).ready(function() {
                 var book = $(element).parent();
                 book.fadeOut();
             });
+        });
+    });
+
+    $(".create-account").each(function (index, element) {
+        $(element).click(function() {
+            window.location = "/accounts/login/";
         });
     });
 

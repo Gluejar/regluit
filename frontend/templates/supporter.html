@@ -233,11 +233,15 @@ how do I integrate the your wishlist thing with the tabs thing?
                         <div>
                             <span>On Your Wishlist!</span>
                         </div>
+                        {% else %}{% if request.user.is_anonymous %}
+                        <div class="create-account">
+                            <span>Add to Wishlist</span>
+                        </div>
                         {% else %}
                         <div class="add-wishlist">
                             <span id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</span>
                         </div>
-                        {% endif %}{% endifequal %}
+                        {% endif %}{% endif %}{% endifequal %}
                         <div class="booklist-status">
                             <span class="booklist-status-text">{{ work.campaign_set.all.count }}</span>
                             <span class="booklist-status-img">
