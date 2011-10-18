@@ -456,7 +456,6 @@ a {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
-  text-transform: capitalize;
 }
 .js-topmenu ul li span#welcome {
   color: #8dc63f;
@@ -467,7 +466,6 @@ a {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
-  text-transform: capitalize;
 }
 .js-topmenu ul lilast a {
   background: url("/static/images/bg.png") right top no-repeat;
@@ -776,5 +774,4 @@ ul.tabs li a:hover, ul.tabs li.active a {
   width: 75px;
 }
 .book-list span.rounded > span a {
-  text-transform: capitalize;
 }
