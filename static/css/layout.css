@@ -695,4 +695,5 @@ div.empty-wishlist {
 span.bounce-search {
     font-weight: bold;
     border-bottom: 3px solid;
+    cursor: pointer;
 }
