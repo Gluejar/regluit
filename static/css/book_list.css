@@ -23,7 +23,7 @@ div.book-list div.unglue-this{ float: left;}
 div.book-list div.book-thumb{ margin-right:5px;}
 div.book-list div.book-name{ width:260px; margin-right:10px; background:url(../images/booklist/booklist-vline.png) right center no-repeat;}
 div.book-list div.book-name span{ display:block; line-height:normal; height:43px; line-height:43px;}
-div.book-list div.add-wishlist, div.remove-wishlist, div.create-account span{ font-weight:normal; color:#3d4e53; text-transform: none; background:url(../images/booklist/add-wishlist.png) left center no-repeat; padding-left:20px; cursor: pointer;}
+div.book-list div.add-wishlist, div.remove-wishlist, div.create-account span{ font-weight:normal; color:#3d4e53; text-transform: none; background:url(../images/booklist/add-wishlist.png) left center no-repeat; padding-left:20px; cursor: pointer; margin-right: 10px;}
 
 div.book-list  div.booklist-status{ margin-right:7px;}
 span.booklist-status-text{ float:left; display:block; padding-right:5px;}
