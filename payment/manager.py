@@ -263,7 +263,7 @@ class PaymentManager( object ):
             transaction.error = p.error()
             return False
         
-    def authorize(self, currency, target, amount, campaign=None, list=None, user=None):
+    def authorize(self, currency, target, amount, campaign=None, list=None, user=None, return_url=None, cancel_url=None):
         '''
         authorize
         
@@ -292,7 +292,7 @@ class PaymentManager( object ):
                                        user=user
                                        )
         
-        p = Preapproval(t, amount)
+        p = Preapproval(t, amount, return_url=return_url, cancel_url=cancel_url)
         
         if p.status() == 'Success':
             t.reference = p.paykey()

@@ -35,6 +35,7 @@ IPN_TYPE_PREAPPROVAL = 'Adaptive Payment PREAPPROVAL'
 
 #pay API status constants
 # I think 'NONE' is not something the API produces but is particular to our implementation
+# couldn't we use the Python None?
 IPN_PAY_STATUS_NONE = 'NONE'
 
 # The following 
@@ -46,10 +47,10 @@ IPN_PAY_STATUS_REVERSALERROR = 'REVERSALERROR'
 IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
 IPN_PAY_STATUS_PENDING = 'PENDING'
 
-# particular to preapprovals
+# particular to preapprovals -- may want to rename these constants to IPN_PREAPPROVAL_STATUS_*
 IPN_PAY_STATUS_ACTIVE = "ACTIVE"
 IPN_PAY_STATUS_CANCELED = "CANCELED"
-
+IPN_PAY_STATUS_DEACTIVED = "DEACTIVED"
 
 IPN_SENDER_STATUS_COMPLETED = 'COMPLETED'
 IPN_SENDER_STATUS_PENDING = 'PENDING'
@@ -307,7 +308,7 @@ class CancelPreapproval(object):
         
 
 class Preapproval( object ):
-  def __init__( self, transaction, amount ):
+  def __init__( self, transaction, amount, return_url=None, cancel_url=None):
       
       headers = {
                  'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -318,8 +319,10 @@ class Preapproval( object ):
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
 
-      return_url = settings.BASE_URL + COMPLETE_URL
-      cancel_url = settings.BASE_URL + CANCEL_URL
+      if return_url is None:
+        return_url = settings.BASE_URL + COMPLETE_URL
+      if cancel_url is None:
+        cancel_url = settings.BASE_URL + CANCEL_URL
       
       # set the expiration date for the preapproval
       now = datetime.datetime.utcnow()

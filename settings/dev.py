@@ -74,4 +74,8 @@ PAYPAL_BUYER_PASSWORD = ''
 
 PAYPAL_GLUEJAR_EMAIL = ""
 
+# for test purposes have a single RH paypal email
+PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
+PAYPAL_TEST_NONPROFIT_PARTNER_EMAIL = ""
+
 BASE_URL = 'http://0.0.0.0/'
