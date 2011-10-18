@@ -2,7 +2,7 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED
+from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
 import logging
@@ -10,19 +10,19 @@ from decimal import Decimal as D
 
 logger = logging.getLogger(__name__)
 
+# at this point, there is no internal context and therefore, the methods of PaymentManager can be recast into static methods
 class PaymentManager( object ): 
 
-    '''
-    processIPN
-    
-    Turns a request from Paypal into an IPN, and extracts info.   We support 2 types of IPNs:
-    
-    1) Payment - Used for instant payments and to execute pre-approved payments
-    2) Preapproval - Used for comfirmation of a preapproval
-    
-    '''
     def processIPN(self, request):
+        '''
+        processIPN
         
+        Turns a request from Paypal into an IPN, and extracts info.   We support 2 types of IPNs:
+        
+        1) Payment - Used for instant payments and to execute pre-approved payments
+        2) Preapproval - Used for comfirmation of a preapproval
+        
+        '''        
         try:
             ipn = IPN(request)
         
@@ -90,11 +90,11 @@ class PaymentManager( object ):
         except:
             traceback.print_exc()
          
-    '''
-    Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
-    '''
     def run_query(self, transaction_list, summary, pledged, authorized ):
-        
+        '''
+        Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
+        '''
+
         if pledged:
             pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
                                                    status="COMPLETED")
@@ -108,12 +108,13 @@ class PaymentManager( object ):
             authorized_list = []
         
         if summary:
-            pledged_amount = 0.0
-            authorized_amount = 0.0
+            pledged_amount = D('0.00')
+            authorized_amount = D('0.00')
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
-                    if r.status == IPN_SENDER_STATUS_COMPLETED:
+                    if r.status == IPN_TXN_STATUS_COMPLETED:
+                        # or IPN_SENDER_STATUS_COMPLETED
                         # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
                         pledged_amount += r.amount
                 
@@ -127,67 +128,68 @@ class PaymentManager( object ):
             return pledged_list | authorized_list
         
            
-    '''
-    query_user
-    
-    Returns either an amount or list of transactions for a user
-    
-    summary: if true, return a float of the total, if false, return a list of transactions
-    pledged: include amounts pledged
-    authorized: include amounts pre-authorized
-    
-    return value: either a float summary or a list of transactions
-    
-    '''
+
     def query_user(self, user, summary=False, pledged=True, authorized=True):
+        '''
+        query_user
+        
+        Returns either an amount or list of transactions for a user
+        
+        summary: if true, return a float of the total, if false, return a list of transactions
+        pledged: include amounts pledged
+        authorized: include amounts pre-authorized
+        
+        return value: either a float summary or a list of transactions
+        
+        '''        
         
         transactions = Transaction.objects.filter(user=user)
         return self.run_query(transactions, summary, pledged, authorized)
        
-        
-    '''
-    query_campaign
-    
-    Returns either an amount or list of transactions for a campaign
-    
-    summary: if true, return a float of the total, if false, return a list of transactions
-    pledged: include amounts pledged
-    authorized: include amounts pre-authorized
-    
-    return value: either a float summary or a list of transactions
-    
-    '''
     def query_campaign(self, campaign, summary=False, pledged=True, authorized=True):
+        '''
+        query_campaign
+        
+        Returns either an amount or list of transactions for a campaign
+        
+        summary: if true, return a float of the total, if false, return a list of transactions
+        pledged: include amounts pledged
+        authorized: include amounts pre-authorized
+        
+        return value: either a float summary or a list of transactions
+        
+        '''        
         
         transactions = Transaction.objects.filter(campaign=campaign)
         return self.run_query(transactions, summary, pledged, authorized)
     
-    '''
-    query_list
-    
-    Returns either an amount or list of transactions for a list
-    
-    summary: if true, return a float of the total, if false, return a list of transactions
-    pledged: include amounts pledged
-    authorized: include amounts pre-authorized
-    
-    return value: either a float summary or a list of transactions
-    
-    '''
-    def query_campaign(self, list, summary=False, pledged=True, authorized=True):
+
+    def query_list(self, list, summary=False, pledged=True, authorized=True):
+        '''
+        query_list
+        
+        Returns either an amount or list of transactions for a list
+        
+        summary: if true, return a float of the total, if false, return a list of transactions
+        pledged: include amounts pledged
+        authorized: include amounts pre-authorized
+        
+        return value: either a float summary or a list of transactions
+        
+        '''        
         
         transactions = Transaction.objects.filter(list=list)
         return self.run_query(transactions, summary, pledged, authorized)
             
-    '''
-    execute_campaign
-    
-    attempts to execute all pending transactions for a campaign. 
-    
-    return value: returns a list of transactions with the status of each receiver/transaction updated
-    
-    '''       
     def execute_campaign(self, campaign):
+        '''
+        execute_campaign
+        
+        attempts to execute all pending transactions for a campaign. 
+        
+        return value: returns a list of transactions with the status of each receiver/transaction updated
+        
+        '''               
         
         # only allow active transactions to go through again, if there is an error, intervention is needed
         transactions = Transaction.objects.filter(campaign=campaign, status="ACTIVE")
@@ -202,24 +204,25 @@ class PaymentManager( object ):
 
         return transactions
     
-    '''
-    execute_transaction
-    
-    executes a single pending transaction.
-    
-    transaction: the transaction object to execute
-    receiver_list: a list of receivers for the transaction, in this format:
-    
-            [
-                {'email':'email-1', 'amount':amount1}, 
-                {'email':'email-2', 'amount':amount2}
-            ]
-    
-    return value: a bool indicating the success or failure of the process.  Please check the transaction status
-    after the IPN has completed for full information
-    
-    '''
+
     def execute_transaction(self, transaction, receiver_list):
+        '''
+        execute_transaction
+        
+        executes a single pending transaction.
+        
+        transaction: the transaction object to execute
+        receiver_list: a list of receivers for the transaction, in this format:
+        
+                [
+                    {'email':'email-1', 'amount':amount1}, 
+                    {'email':'email-2', 'amount':amount2}
+                ]
+        
+        return value: a bool indicating the success or failure of the process.  Please check the transaction status
+        after the IPN has completed for full information
+        
+        '''        
         
         if len(transaction.receiver_set.all()) > 0:
             # we are re-submitting a transaction, wipe the old receiver list
@@ -239,15 +242,15 @@ class PaymentManager( object ):
             transaction.error = p.error()
             logger.info("Execute Error: " + p.error())
             return False
-        
-    '''
-    cancel
     
-    cancels a pre-approved transaction
-    
-    return value: True if successful, false otherwise
-    '''
     def cancel(self, transaction):
+        '''
+        cancel
+        
+        cancels a pre-approved transaction
+        
+        return value: True if successful, false otherwise
+        '''        
         
         p = CancelPreapproval(transaction)
         
@@ -260,24 +263,23 @@ class PaymentManager( object ):
             transaction.error = p.error()
             return False
         
+    def authorize(self, currency, target, amount, campaign=None, list=None, user=None, return_url=None, cancel_url=None):
+        '''
+        authorize
         
-    '''
-    authorize
-    
-    authorizes a set amount of money to be collected at a later date
-    
-    currency: a 3-letter paypal currency code, i.e. USD
-    target: a defined target type, i.e. TARGET_TYPE_CAMPAIGN, TARGET_TYPE_LIST, TARGET_TYPE_NONE
-    amount: the amount to authorize
-    campaign: optional campaign object(to be set with TARGET_TYPE_CAMPAIGN)
-    list: optional list object(to be set with TARGET_TYPE_LIST)
-    user: optional user object
-    
-    return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
-                  the redirect url will be None
-                  
-    '''
-    def authorize(self, currency, target, amount, campaign=None, list=None, user=None):
+        authorizes a set amount of money to be collected at a later date
+        
+        currency: a 3-letter paypal currency code, i.e. USD
+        target: a defined target type, i.e. TARGET_TYPE_CAMPAIGN, TARGET_TYPE_LIST, TARGET_TYPE_NONE
+        amount: the amount to authorize
+        campaign: optional campaign object(to be set with TARGET_TYPE_CAMPAIGN)
+        list: optional list object(to be set with TARGET_TYPE_LIST)
+        user: optional user object
+        
+        return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
+                      the redirect url will be None
+                      
+        '''        
             
         t = Transaction.objects.create(amount=amount, 
                                        type=PAYMENT_TYPE_AUTHORIZATION, 
@@ -290,7 +292,7 @@ class PaymentManager( object ):
                                        user=user
                                        )
         
-        p = Preapproval(t, amount)
+        p = Preapproval(t, amount, return_url=return_url, cancel_url=cancel_url)
         
         if p.status() == 'Success':
             t.reference = p.paykey()
@@ -304,30 +306,29 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error())
             return t, None
         
-    
-    '''
-    pledge
-    
-    Performs an instant payment
-    
-    currency: a 3-letter paypal currency code, i.e. USD
-    target: a defined target type, i.e. TARGET_TYPE_CAMPAIGN, TARGET_TYPE_LIST, TARGET_TYPE_NONE
-    receiver_list: a list of receivers for the transaction, in this format:
-    
-            [
-                {'email':'email-1', 'amount':amount1}, 
-                {'email':'email-2', 'amount':amount2}
-            ]
-    
-    campaign: optional campaign object(to be set with TARGET_TYPE_CAMPAIGN)
-    list: optional list object(to be set with TARGET_TYPE_LIST)
-    user: optional user object
-    
-    return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
-                  the redirect url will be None
-                  
-    '''    
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None):
+        '''
+        pledge
+        
+        Performs an instant payment
+        
+        currency: a 3-letter paypal currency code, i.e. USD
+        target: a defined target type, i.e. TARGET_TYPE_CAMPAIGN, TARGET_TYPE_LIST, TARGET_TYPE_NONE
+        receiver_list: a list of receivers for the transaction, in this format:
+        
+                [
+                    {'email':'email-1', 'amount':amount1}, 
+                    {'email':'email-2', 'amount':amount2}
+                ]
+        
+        campaign: optional campaign object(to be set with TARGET_TYPE_CAMPAIGN)
+        list: optional list object(to be set with TARGET_TYPE_LIST)
+        user: optional user object
+        
+        return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
+                      the redirect url will be None
+                      
+        '''            
         
         amount = D('0.00')
         
@@ -347,10 +348,11 @@ class PaymentManager( object ):
     
         t.create_receivers(receiver_list)
         
-        p = Pay(t)
+        p = Pay(t,return_url=return_url, cancel_url=cancel_url)
         
         if p.status() == 'CREATED':
             t.reference = p.paykey()
+            t.status = 'CREATED'
             t.save()
             logger.info("Pledge Success: " + p.next_url())
             return t, p.next_url()

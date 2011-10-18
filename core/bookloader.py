@@ -1,103 +1,110 @@
-"""
-The module handles fetching books from OpenLibrary and adding them 
-to the local database.
-"""
-
 import json
 import logging
+from xml.etree import ElementTree
 
 import requests
 from django.conf import settings
 
 from regluit.core import models
-from regluit.core.isbn import convert_10_to_13
 
 logger = logging.getLogger(__name__)
 
-def add_book(isbn):
-    url = "http://openlibrary.org/api/books"
-    bibkeys = "ISBN:%s" % isbn
-    params = {"bibkeys": bibkeys, "jscmd": "details", "format": "json"}
-    results = _get_json(url, params)
 
-    edition = None
-    if results.has_key(bibkeys):
-        logger.info("saving book info for %s", isbn)
-        edition = _save_edition(results[bibkeys]['details'])
-    elif len(isbn) == 10:
-        isbn_13 = convert_10_to_13(isbn)
-        logger.info("lookup failed for %s trying isbn13 %s", isbn, isbn_13)
-        edition = add_book(isbn_13)
+def add_by_isbn(isbn, work=None):
+    """add a book to the UnglueIt database based on ISBN. The work parameter
+    is optional, and if not supplied the edition will be associated with
+    a stub work.
+    """
+    url = "https://www.googleapis.com/books/v1/volumes"
+    results = _get_json(url, {"q": "isbn:%s" % isbn})
+
+    if not results.has_key('items') or len(results['items']) == 0:
+        logger.warn("no google hits for %s" % isbn)
+        return None
+
+    return add_by_googlebooks_id(results['items'][0]['id'], work)
+
+
+def add_by_googlebooks_id(googlebooks_id, work=None):
+    """add a book to the UnglueIt database based on the GoogleBooks ID. The
+    work parameter is optional, and if not supplied the edition will be 
+    associated with a stub work.
+    """
+    # don't ping google again if we already know about the edition
+    e, created = models.Edition.objects.get_or_create(googlebooks_id=googlebooks_id)
+    if not created:
+        return e
+
+    url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
+    d = _get_json(url)['volumeInfo']
+
+    e.title = d.get('title')
+    e.description = d.get('description')
+    e.publisher = d.get('publisher')
+    e.publication_date = d.get('publishedDate')
+    e.language = d.get('language')
+
+    for i in d.get('industryIdentifiers', []):
+        if i['type'] == 'ISBN_10':
+            e.isbn_10 = i['identifier']
+        elif i['type'] == 'ISBN_13':
+            e.isbn_13 = i['identifier']
+
+    for a in d.get('authors', []):
+        a, created = models.Author.objects.get_or_create(name=a)
+        a.editions.add(e)
+
+    for s in d.get('categories', []):
+        s, created = models.Subject.objects.get_or_create(name=s)
+        s.editions.add(e)
+
+    # if we know what work to add the edition to do it
+    if work:
+        work.editions.add(e)
+
+    # otherwise we need to create a stub work
     else:
-        logger.info("lookup failed for %s", isbn)
+        w = models.Work.objects.create(title=e.title)
+        w.editions.add(e)
 
-    return edition
-
-
-def _save_edition(edition_data):
-    edition_key = edition_data['key']
-    edition, created = models.Edition.objects.get_or_create(openlibrary_id=edition_key)
-    edition.title = edition_data.get('title')
-    edition.description = edition_data.get('description')
-    edition.publisher = _first(edition_data, 'publishers')
-    edition.publication_date = edition_data.get('publish_date')
-
-    # assumption: OL has only one isbn_10 or isbn_13 for an edition
-    edition.isbn_10 = _first(edition_data, 'isbn_10')
-    edition.isbn_13 = _first(edition_data, 'isbn_13')
-
-    edition.save()
-
-    for work_data in edition_data.get('works', []):
-        _save_work(work_data['key'], edition)
-
-    for cover_id in edition_data.get('covers', []):
-        models.EditionCover.objects.get_or_create(openlibrary_id=cover_id, edition=edition)
-
-    return edition
+    return e
 
 
-def _save_work(work_key, edition):
-    url = "http://openlibrary.org" + work_key
-    work_data = _get_json(url)
+def add_related(isbn):
+    """add all books related to a particular ISBN to the UnglueIt database.
+    The initial seed ISBN will be added if it's not already there.
+    """
+    # make sure the seed edition is there
+    edition = add_by_isbn(isbn)
 
-    work, created = models.Work.objects.get_or_create(openlibrary_id=work_key)
-    work.title = work_data.get('title')
-    work.save()
-    
-    for author_data in work_data.get('authors', []):
-        _save_author(author_data['author']['key'], work)
+    # this is the work everything will hang off
+    work = edition.work
 
-    for subject_name in work_data.get('subjects', []):
-        subject, created = models.Subject.objects.get_or_create(name=subject_name)
-        work.subjects.add(subject)
-
-    work.editions.add(edition)
-
-    return work
-
-
-def _save_author(author_key, work):
-    url = "http://openlibrary.org" + author_key
-    author_data = _get_json(url)
-
-    author, created = models.Author.objects.get_or_create(openlibrary_id=author_key)
-    author.name = author_data['name']
-    author.save()
-
-    author.works.add(work)
-
-    return author
+    for other_isbn in thingisbn(isbn):
+        # TODO: if the other book is there already we have some surgery
+        # to do on the works, and the wishlists
+        try:
+            add_by_isbn(other_isbn, work)
+        except Exception, e:
+            logger.exception("failed to add edition for %s", isbn)
 
 
-def _first(dictionary, key):
-    l = dictionary.get(key, [])
-    if len(l) == 0: return None
-    return l[0]
+def thingisbn(isbn):
+    """given an ISBN return a list of related edition ISBNs, according to 
+    Library Thing.
+    """
+    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
+    xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
+    doc = ElementTree.fromstring(xml)
+    return [e.text for e in doc.findall('isbn')]
 
 
 def _get_json(url, params={}):
-    headers = {'User-Agent': settings.USER_AGENT, 'Accept': 'application/json'}
+    # TODO: should X-Forwarded-For change based on the request from client?
+    headers = {'User-Agent': settings.USER_AGENT, 
+               'Accept': 'application/json',
+               'X-Forwarded-For': '69.174.114.214'}
+    params['key'] = settings.GOOGLE_BOOKS_API_KEY
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
         return json.loads(response.content)

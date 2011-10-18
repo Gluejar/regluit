@@ -6,128 +6,12 @@
   text-decoration: none;
   font-weight: bold;
   font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
+  letter-spacing: -0.05em;
 }
 .panelborders {
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
-}
-.header-text {
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.panelborders {
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-}
-div.book-list {
-  clear: both;
-  display: block;
-  vertical-align: middle;
-  height: 43px;
-  line-height: 43px;
-  margin: 0 5px  0px 0;
-  padding: 7px 0;
-  overflow: hidden;
-}
-div.book-list.row1 {
-  background: #f6f9f9;
-}
-div.book-list.row2 {
-  background: #fff;
-}
-div.book-list div.unglue-this {
-  float: left;
-}
-div.book-list div.book-thumb {
-  margin-right: 5px;
-  float: left;
-}
-div.book-list div.book-name {
-  width: 260px;
-  margin-right: 10px;
-  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
-  float: left;
-}
-div.book-list div.book-name span {
-  display: block;
-  line-height: normal;
-  height: 43px;
-  line-height: 43px;
-}
-div.book-list div.add-wishlist, div.book-list div.remove-wishlist {
-  margin-right: 10px;
-  padding-right: 10px;
-  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
-  cursor: pointer;
-  float: left;
-}
-div.book-list div.add-wishlist span, div.book-list div.remove-wishlist span {
-  font-weight: normal;
-  color: #3d4e53;
-  text-transform: none;
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
-  padding-left: 20px;
-}
-div.book-list div.booklist-status {
-  margin-right: 7px;
-  float: left;
-}
-span.booklist-status-text {
-  float: left;
-  display: block;
-  padding-right: 5px;
-}
-div.unglue-this a {
-  text-transform: uppercase;
-  color: #3d4e53;
-  font-size: 11px;
-  font-weight: bold;
-}
-div.unglue-this.complete .unglue-this-inner1 {
-  background: url("/static/images/booklist/bg.png") 0 -84px no-repeat;
-  height: 42px;
-}
-div.unglue-this.complete .unglue-this-inner2 {
-  background: url("/static/images/booklist/bg.png") 100% -126px no-repeat;
-  margin-left: 29px;
-  height: 42px;
-  padding-right: 10px;
-}
-div.unglue-this.complete a {
-  color: #fff;
-}
-div.unglue-this.processing .unglue-this-inner1 {
-  background: url("/static/images/booklist/bg.png") 0 0 no-repeat;
-  height: 42px;
-}
-div.unglue-this.processing .unglue-this-inner2 {
-  background: url("/static/images/booklist/bg.png") 100% -42px no-repeat;
-  margin-left: 25px;
-  height: 42px;
-  padding-right: 10px;
-}
-ul.book-list-view {
-  padding: 0;
-  margin: 15px;
-  float: right;
-  list-style: none;
-}
-ul.book-list-view li {
-  float: left;
-  margin-right: 10px;
-  display: block;
-  vertical-align: middle;
-  line-height: 22px;
 }
 div.navigation {
   float: left;
@@ -175,24 +59,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .book-thumb img {
   height: 50px;
 }
-.header-text {
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.panelborders {
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-}
 .book_panel {
   margin: 20px  auto;
-  padding: 0px 5px 5px 5px;
+  padding: 0 5px 5px 5px;
   height: 300px;
   width: 120px;
   line-height: 16px;
@@ -213,8 +82,8 @@ ul.navigation li a:hover, ul.navigation li.active a {
   margin: 0;
 }
 .book_panel img {
-  padding: 5px 0px;
-  margin: 0px;
+  padding: 5px 0;
+  margin: 0;
 }
 .book_panel:hover {
   color: #3d4e53;
@@ -224,7 +93,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
   text-align: left;
 }
 .book_panel_back {
-  margin: 0px  auto;
+  margin: 0  auto;
   padding: 10px;
   height: 295px;
   width: 120px;
@@ -238,9 +107,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
   font-weight: normal;
 }
 .unglued_white {
-  margin: 0px  auto;
+  margin: 0  auto;
   margin-bottom: 5px;
-  padding: 10px 0px;
+  padding: 10px 0;
 }
 .status {
   color: #8dc63f;
@@ -249,29 +118,20 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .read_itbutton {
   width: 118px;
   height: 35px;
-  padding: 0px 0px;
+  padding: 0 0;
   background: #FFFFFF;
-  margin: 0px;
-  border-radius: 4px 4px 4px 4px;
+  margin: 0;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
   border-radius: 4px 4px 4px 4px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
   border: 1px solid #81bb38;
 }
 .read_itbutton a {
   line-height: 40px;
   font-size: 11px;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat left center;
   background-position: 10px center;
-  padding: 0px 0px 0px 30px;
+  padding: 0 0 0 30px;
   color: #73a334;
   text-decoration: none;
   font-weight: bold;
@@ -283,27 +143,18 @@ ul.navigation li a:hover, ul.navigation li.active a {
 #add_towish {
   width: 130px;
   height: 30px;
-  padding: 0px 0px;
+  padding: 0 0;
   margin: 10px auto;
 }
 #add_towish a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url(/static/images/book-panel/add_wish_icon.png) no-repeat left center;
+  background-image: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
   padding: 8px 5px 8px 21px;
   font-weight: bold;
   color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
@@ -315,8 +166,8 @@ ul.navigation li a:hover, ul.navigation li.active a {
 #white_text {
   width: 130px;
   height: 40px;
-  padding: 17px 0px;
-  margin: 0px;
+  padding: 17px 0;
+  margin: 0;
 }
 #white_text a {
   color: #FFFFFF;
@@ -329,28 +180,19 @@ ul.navigation li a:hover, ul.navigation li.active a {
 #moreinfo {
   width: 130px;
   height: 30px;
-  padding: 0px;
+  padding: 0;
   margin: 15px 0 0;
 }
 #moreinfo a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url(/static/images/book-panel/more_icon.png) no-repeat left center;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat left center;
   padding: 8px 42px 8px 20px;
   font-weight: bold;
   padding-left: 20px;
   color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
@@ -369,7 +211,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 .read {
   margin: 15px auto;
-  padding: 0px;
+  padding: 0;
   width: 140px;
   color: #8dc63f;
   height: 40px;
@@ -377,7 +219,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
   float: left;
 }
 .read p {
-  margin: 0px;
+  margin: 0;
   padding: 10px 3px;
   width: 50px;
   font-size: 10pt;
@@ -385,12 +227,12 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 .read img {
   padding: 5px;
-  margin: 0px;
+  margin: 0;
   float: left;
 }
 .right_add {
   padding: 10px;
-  margin: 0px;
+  margin: 0;
   float: right;
 }
 p.right_add {
@@ -402,9 +244,9 @@ p.right_add {
 .book_panel_interior {
   float: left;
   position: relative;
-  margin: 0px;
-  padding: 0px;
-  left: 0px;
+  margin: 0;
+  padding: 0;
+  left: 0;
 }
 .book_panel_interior img {
   z-index: 100;
@@ -417,21 +259,6 @@ p.right_add {
   z-index: 1000;
   height: auto;
 }
-.header-text {
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.panelborders {
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
-}
 body {
   background: url("/static/images/bg-body.png") 0 0 repeat-x;
   padding: 0 0 20px 0;
@@ -443,226 +270,7 @@ body {
 img {
   border: none;
 }
-#js-header {
-  height: 90px;
-}
-.js-main {
-  width: 960px;
-  margin: 0 auto;
-  clear: both;
-  padding: 0;
-}
-.js-logo {
-  float: left;
-  padding-top: 20px;
-}
-.js-logo a img {
-  border: none;
-}
-.js-topmenu {
-  float: right;
-  padding-top: 25px;
-}
-.js-topmenu ul li {
-  float: left;
-  padding: 0 10px;
-}
-.js-topmenu ul li a {
-  color: #fff;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.js-topmenu ul li span#welcome {
-  color: yellow;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
-}
-.js-topmenu ul lilast a {
-  background: url("/static/images/bg.png") right top no-repeat;
-}
-.js-topmenu ul lilast a span {
-  background: url("/static/images/bg.png") -770px -36px no-repeat;
-  margin-right: 29px;
-  display: block;
-  padding: 0 5px 0 15px;
-}
-#js-topsection {
-  padding: 15px 0;
-  overflow: hidden;
-}
-.js-topnews {
-  float: left;
-  width: 60%;
-}
-.js-news-text {
-  float: left;
-  width: 70%;
-  font-size: 16px;
-  color: #3d4e53;
-}
-.js-news-links {
-  float: right;
-  width: 30%;
-}
-.js-search {
-  width: 960px;
-  margin: 0 auto;
-  clear: both;
-  padding: 0;
-}
-.js-search .inputbox {
-  padding: 0 0 0 15px;
-  margin: 0;
-  border: none;
-  outline: none;
-  background: url("/static/images/bg.png") -645px -180px;
-  height: 36px;
-  line-height: 36px;
-  float: left;
-  color: #6994a3;
-}
-.js-search .button {
-  background: url("/static/images/bg.png") 100% -144px no-repeat;
-  padding: 0;
-  margin: 0;
-  width: 40px;
-  height: 36px;
-  display: block;
-  border: none;
-  text-indent: -10000px;
-  cursor: pointer;
-}
-.js-search-inner {
-  margin: 0 auto;
-}
-#js-leftcol {
-  float: left;
-  width: 235px;
-}
-#js-leftcol a {
-  font-weight: normal;
-}
-#js-leftcol a:hover {
-  text-decoration: underline;
-}
-#js-leftcol .jsmod-content {
-  border: 1px solid #edf3f4;
-  margin-left: 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-  border-radius: 0 0 10px 10px;
-  -moz-border-radius: 0 0 10px 10px;
-  -webkit-border-radius: 0 0 10px 10px;
-}
-#js-leftcol ul.level1 > li > a {
-  text-transform: uppercase;
-  color: #3d4e53;
-  font-size: 12px;
-  border-bottom: 1px solid #edf3f4;
-  border-top: 1px solid #edf3f4;
-  display: block;
-  padding: 10px;
-}
-#js-leftcol ul.level2 li {
-  padding: 5px 10px;
-}
-#js-leftcol ul.level2 li a {
-  color: #6994a3;
-  line-height: 20px;
-}
-#js-maincol-fr {
-  float: left;
-  width: 725px;
-}
-div.content-block {
-  overflow: hidden;
-  background: url("/static/images/bg.png") 100% -223px no-repeat;
-  padding: 0 0 0 7px;
-}
-.content-block-heading a.block-link {
-  float: right;
-  padding: 15px;
-  font-size: 11px;
-  color: #3d4e53;
-  text-decoration: underline;
-  font-weight: normal;
-}
-div.content-block-content {
-  width: 100%;
-  overflow: hidden;
-}
-div.content-block-content .cols3 .column {
-  width: 33.33%;
-  float: left;
-}
-h2 .content-heading {
+h2.content-heading {
   padding: 15px;
   margin: 0;
   font-size: 19px;
@@ -671,17 +279,17 @@ h2 .content-heading {
   float: left;
   width: 50%;
 }
-h2 .content-heading span {
+h2.content-heading span {
   font-style: italic;
 }
-h3 .jsmod-title {
+h3.jsmod-title {
   background: url("/static/images/bg.png") 0 0 no-repeat;
   padding: 0;
   margin: 0;
   height: 73px;
 }
-h3 .jsmod-title span {
-  background: url(../images/icon-h3.png) 90% center no-repeat;
+h3.jsmod-title span {
+  background: url("/static/images/icon-h3.png") 90% center no-repeat;
   font-size: 17px;
   color: #fff;
   padding: 26px 40px 27px 20px;
@@ -691,7 +299,6 @@ ul.menu {
   list-style: none;
   padding: 0;
   margin: 0;
-  line-height: 20px;
 }
 a.readon {
   background: url("/static/images/bg.png") 100% -72px no-repeat;
@@ -715,6 +322,168 @@ a {
   font-size: 13px;
   text-decoration: none;
   cursor: pointer;
+}
+#js-header {
+  height: 90px;
+}
+.js-main {
+  width: 960px;
+  margin: 0 auto;
+  clear: both;
+  padding: 0;
+}
+.js-logo {
+  float: left;
+  padding-top: 10px;
+}
+.js-logo a img {
+  border: none;
+}
+.js-topmenu {
+  float: right;
+  padding-top: 25px;
+}
+.js-topmenu ul li {
+  float: left;
+  padding: 0 10px;
+}
+.js-topmenu ul li a {
+  color: #3d4e53;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.js-topmenu ul li span#welcome {
+  color: #8dc63f;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.js-topmenu ul lilast a {
+  background: url("/static/images/bg.png") right top no-repeat;
+}
+.js-topmenu ul lilast a span {
+  background: url("/static/images/bg.png") -770px -36px no-repeat;
+  margin-right: 29px;
+  display: block;
+  padding: 0 5px 0 15px;
+}
+#js-topsection {
+  padding: 15px 0;
+  overflow: hidden;
+}
+.js-topnews {
+  float: left;
+  width: 100%;
+}
+.js-topnews1 {
+  background: url("/static/images/header/header-m.png") 0 0 repeat-y;
+}
+.js-topnews2 {
+  background: url("/static/images/header/header-t.png") 0 0 no-repeat;
+}
+.js-topnews3 {
+  background: url("/static/images/header/header-b.png") 0 100% no-repeat;
+  display: block;
+  overflow: hidden;
+  padding: 10px;
+}
+.js-search {
+  float: right;
+  width: 30%;
+  padding-top: 25px;
+}
+.js-search input {
+  float: left;
+}
+.js-search .inputbox {
+  padding: 0 0 0 15px;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: url("/static/images/bg.png") -645px -180px;
+  height: 36px;
+  float: left;
+  color: #6994a3;
+}
+.js-search .button {
+  background: url("/static/images/bg.png") 100% -144px no-repeat;
+  padding: 0;
+  margin: 0;
+  width: 40px;
+  height: 36px;
+  display: block;
+  border: none;
+  text-indent: -10000px;
+  cursor: pointer;
+}
+.js-search-inner {
+  float: right;
+}
+#js-leftcol {
+  float: left;
+  width: 235px;
+}
+#js-leftcol a {
+  font-weight: normal;
+}
+#js-leftcol a:hover {
+  text-decoration: underline;
+}
+#js-leftcol .jsmod-content {
+  border: 1px solid #edf3f4;
+  margin-left: 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+}
+#js-leftcol ul.level1 > li > a {
+  text-transform: uppercase;
+  color: #3d4e53;
+  font-size: 12px;
+  border-bottom: 1px solid #edf3f4;
+  border-top: 1px solid #edf3f4;
+  display: block;
+  padding: 10px;
+}
+#js-leftcol ul.level2 li {
+  padding: 5px 10px;
+}
+#js-leftcol ul.level2 li a {
+  color: #6994a3;
+}
+#js-maincol-fr {
+  float: right;
+  width: 725px;
+}
+div.content-block {
+  overflow: hidden;
+  background: url("/static/images/bg.png") 100% -223px no-repeat;
+  padding: 0 0 0 7px;
+}
+.content-block-heading a.block-link {
+  float: right;
+  padding: 15px;
+  font-size: 11px;
+  color: #3d4e53;
+  text-decoration: underline;
+  font-weight: normal;
+}
+div.content-block-content {
+  width: 100%;
+  overflow: hidden;
+}
+div.content-block-content .cols3 .column {
+  width: 33.33%;
+  float: left;
 }
 #footer {
   border-top: 7px solid #edf3f4;
@@ -740,10 +509,191 @@ a {
   margin-right: auto;
   padding: 5px 15px;
 }
-/* What might I need to look at...
-	rulesets that get reused
-	structure of blocks & nesting
-	sitewide content vs. some pages only (break apart into smaller files?)
-	sort css file by section/type
-	how about the compilation errors? do I need to move static into this directory?
-*/
+.block-inner {
+  padding-right: 10px;
+}
+.user-block {
+  width: 100%;
+  clear: both;
+}
+.user-block-hide {
+  float: left;
+  width: 100%;
+  clear: both;
+}
+.user-block-hide .block {
+  float: left;
+  width: 25%;
+}
+.user-block-hide input {
+  float: left;
+  margin: 3px 10px 0 0;
+}
+.user-block-hide label {
+  float: left;
+  width: 90%;
+}
+.user-block1 {
+  float: left;
+  width: 25%;
+}
+.user-block2 {
+  color: #6994a3;
+  font-size: 11px;
+  line-height: normal;
+  float: left;
+  width: 25%;
+}
+.user-block3, .user-block4 {
+  float: right;
+  width: 25%;
+  margin-top: 10px;
+}
+img.user-avatar {
+  float: left;
+  margin-right: 10px;
+}
+.social {
+  width: 100%;
+  padding-left: 35px;
+}
+span.user-name, span.user-date, span.user-short-info {
+  display: block;
+}
+span.user-name, span.user-name a, a {
+  font-size: 12px;
+  color: #3d4e53;
+}
+span.user-status-title {
+  float: left;
+  margin-right: 8px;
+  padding-top: 5px;
+}
+span.rounded {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+span.rounded > span {
+  padding: 7px 10px;
+  min-width: 15px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  text-align: center;
+  display: inline-block;
+}
+span.blue {
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+}
+span.orange {
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+}
+span.grey {
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+}
+div.check-list {
+  float: left;
+  width: 100%;
+  padding-bottom: 7px;
+}
+a.profile-edit {
+  display: block;
+  background: url("/static/images/header/icon-edit.png") right top no-repeat;
+}
+div.profile-save {
+  padding-top: 15px;
+}
+a.profile-save {
+  background: url("/static/images/header/save-setting.png") 0 0 no-repeat;
+  width: 116px;
+  height: 42px;
+  display: block;
+  text-indent: -100000px;
+}
+a.my-setting {
+  background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;
+  border-radius: 7px;
+  height: 50px;
+  line-height: 50px;
+  display: block;
+  padding: 0 0 0 10px;
+  font-size: 20px;
+}
+a.my-setting.active {
+  background: #d6dde0 url("/static/images/header/collspane.png") 90% center no-repeat;
+}
+#tabs {
+  border-bottom: 4px solid #8DC63F;
+  clear: both;
+  float: left;
+  margin-left: 10px;
+  margin-top: 10px;
+  width: 100%;
+}
+#tabs ul.book-list-view {
+  margin-bottom: 4px !important;
+}
+#tabs-1, #tabs-2, #tabs-3 {
+  margin-left: 10px;
+}
+ul.tabs {
+  float: left;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+ul.tabs li {
+  float: left;
+  height: 46px;
+  line-height: 46px;
+  margin-right: 10px;
+}
+ul.tabs li a {
+  height: 46px;
+  line-height: 46px;
+  display: block;
+  text-align: center;
+  padding: 0 10px;
+  min-width: 80px;
+  border-radius: 7px 7px 0 0;
+  background: url("/static/images/header/bg-tabs1.png") left bottom repeat-x;
+}
+ul.tabs li a:hover, ul.tabs li.active a {
+  background: url("/static/images/header/bg-tabs.png") left bottom repeat-x;
+  color: #fff;
+}
+.book-list span.rounded > span {
+  line-height: normal;
+  width: 75px;
+}
+.book-list span.rounded > span a {
+}
+div.add-bookz {
+    font-size: 40pt;
+    font-weight: bold;
+    width: 250px;
+    text-align: center;
+    background-color: #8ac3d7;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+}
+
+div.empty-wishlist {
+    width: 360px;
+    font-size: 18pt;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 10%;
+}
+span.bounce-search {
+    font-weight: bold;
+    border-bottom: 3px solid;
+    cursor: pointer;
+}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% url privacy as privacyurl %}
+
+{% block content %}
+    <h2>Campaign: {{campaign.name}}</h2>
+    <p>Work: {{campaign.work}}</p>
+    <p>Target: {{campaign.target}}</p>
+    <p>Deadline: {{campaign.deadline}}</p>
+    <p>Status: {{campaign.status}}</p>
+    <p>PayPal receiver: {{campaign.paypal_receiver}}</p>
+    <p>Current total (pledged/authorized): {{campaign.current_total}}</p>
+    <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
+        {% csrf_token %}
+       {{form.as_p}}
+       <input type="submit" value="Pledge" />
+    </form>
+    <!-- All associated transactions -->
+    {% if campaign.transactions %}
+      <p>Associated transactions:</p>
+      <ul>
+      {% for transaction in campaign.transactions %}
+        <li>{{transaction.id}} | {{transaction.name}} | {{transaction.user}} | {{transaction.amount}}</li>
+      {% endfor %}   
+      </ul>
+    {% else %}
+      <p>No associated transactions</p>
+    {% endif %}
+{% endblock %}

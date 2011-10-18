@@ -88,13 +88,6 @@ class SubjectResource(ModelResource):
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
 
-class EditionCoverResource(ModelResource):
-    edition = fields.ToManyField(EditionResource, 'editions')
-    class Meta:
-        authentication = ApiKeyAuthentication()
-        queryset = models.EditionCover.objects.all()
-        resource_name = 'editioncover'
-
 class WishlistResource(ModelResource):
     user = fields.ToOneField(UserResource, 'user')
     works = fields.ToManyField(WorkResource, 'works')

@@ -5,3 +5,4 @@ settings/me.*
 *.dot
 reports
 ENV
+.DS_Store

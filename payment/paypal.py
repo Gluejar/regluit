@@ -1,4 +1,5 @@
 from regluit.payment.parameters import *
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.models import Transaction
 from django.contrib.auth.models import User
@@ -33,7 +34,11 @@ IPN_TYPE_ADJUSTMENT = 'Adjustment'
 IPN_TYPE_PREAPPROVAL = 'Adaptive Payment PREAPPROVAL'
 
 #pay API status constants
+# I think 'NONE' is not something the API produces but is particular to our implementation
+# couldn't we use the Python None?
 IPN_PAY_STATUS_NONE = 'NONE'
+
+# The following 
 IPN_PAY_STATUS_CREATED = 'CREATED'
 IPN_PAY_STATUS_COMPLETED = 'COMPLETED'
 IPN_PAY_STATUS_INCOMPLETE = 'INCOMPLETE'
@@ -41,9 +46,11 @@ IPN_PAY_STATUS_ERROR = 'ERROR'
 IPN_PAY_STATUS_REVERSALERROR = 'REVERSALERROR'
 IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
 IPN_PAY_STATUS_PENDING = 'PENDING'
+
+# particular to preapprovals -- may want to rename these constants to IPN_PREAPPROVAL_STATUS_*
 IPN_PAY_STATUS_ACTIVE = "ACTIVE"
 IPN_PAY_STATUS_CANCELED = "CANCELED"
-
+IPN_PAY_STATUS_DEACTIVED = "DEACTIVED"
 
 IPN_SENDER_STATUS_COMPLETED = 'COMPLETED'
 IPN_SENDER_STATUS_PENDING = 'PENDING'
@@ -90,7 +97,7 @@ class url_request( object ):
 
 
 class Pay( object ):
-  def __init__( self, transaction):
+  def __init__( self, transaction, return_url=None, cancel_url=None):
       
       headers = {
             'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -101,8 +108,11 @@ class Pay( object ):
             'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
             }
 
-      return_url = settings.BASE_URL + COMPLETE_URL
-      cancel_url = settings.BASE_URL + CANCEL_URL
+      if return_url is None:
+        return_url = settings.BASE_URL + COMPLETE_URL
+      if cancel_url is None:
+        cancel_url = settings.BASE_URL + CANCEL_URL
+        
       logger.info("Return URL: " + return_url)
       logger.info("Cancel URL: " + cancel_url)
       
@@ -112,6 +122,7 @@ class Pay( object ):
       if len(receivers) == 0:
           raise Exception
       
+      # by setting primary_string of the first receiver to 'true', we are doing a Chained payment
       for r in receivers:
           if len(receivers) > 1:
               if r.primary:
@@ -125,6 +136,17 @@ class Pay( object ):
                   
       logger.info(receiver_list)
         
+      # actionType can be 'PAY', 'CREATE', or 'PAY_PRIMARY'
+      # PAY_PRIMARY': "For chained payments only, specify this value to delay payments to the secondary receivers; only the payment to the primary receiver is processed"
+      
+      # feesPayer: SENDER, PRIMARYRECEIVER, EACHRECEIVER, SECONDARYONLY
+      # if only one receiver, set to EACHRECEIVER, otherwise set to SECONDARYONLY
+      
+      if len(receivers) == 1:
+        feesPayer = 'EACHRECEIVER'
+      else:
+        feesPayer = 'SECONDARYONLY'
+      
       data = {
               'actionType': 'PAY',
               'receiverList': { 'receiver': receiver_list },
@@ -132,9 +154,12 @@ class Pay( object ):
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl': settings.BASE_URL + 'paypalipn'
+              'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
+              'feesPayer': feesPayer
               } 
       
+      # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
+      # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
       if transaction.reference:
           data['preapprovalKey'] = transaction.reference
 
@@ -168,6 +193,74 @@ class Pay( object ):
   def next_url( self ):
     return '%s?cmd=_ap-payment&paykey=%s' % (settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
 
+class PaymentDetails(object):
+  def __init__(self, transaction=None):
+ 
+      self.transaction = transaction
+      
+      headers = {
+            'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+            'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+            'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+            'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+            'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+            'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
+            }
+      
+      # we can feed any of payKey, transactionId, and trackingId to identify transaction in question
+      # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
+      data = {
+              'requestEnvelope': { 'errorLanguage': 'en_US' },
+              'payKey':transaction.reference
+              }       
+
+      self.raw_request = json.dumps(data)
+   
+      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/PaymentDetails", data=self.raw_request, headers=headers ).content() 
+      logger.info("paypal PaymentDetails response was: %s" % self.raw_response)
+      self.response = json.loads( self.raw_response )
+      logger.info(self.response)
+      
+  def error(self):
+      if self.response.has_key('error'):
+          error = self.response['error']
+          logger.info(error)
+          return error[0]['message']
+      else:
+          return None
+  
+  def status(self):
+    return self.response.get("status")
+    
+  def compare(self):
+    """compare current status information from what's in the current transaction object"""
+    # I don't think we do anything with fundingtypeList, memo
+    # status can be: 
+    # transaction.type should be PAYMENT_TYPE_INSTANT
+    # actionType can be: 'PAY', 'CREATE', 'PAY_PRIMARY' -- I think we are doing only 'PAY' right now
+
+    comp = [(self.transaction.status, self.response.get('status')),
+            (self.transaction.type, self.response.get('actionType')),
+            (self.transaction.currency, self.response.get('currencyCode')),
+            ('EACHRECEIVER' if len(self.transaction.receiver_set.all()) == 1 else 'SECONDARYONLY',self.response.get('feesPayer')),
+            (self.transaction.reference, self.response.get('payKey')),  # payKey supposedly expires after 3 hours
+            ('false', self.response.get('reverseAllParallelPaymentsOnError')),
+            (None, self.response.get('sender'))
+            ]
+    
+    # loop through recipients
+    
+    return comp
+    
+    # also getting sender / senderEmail info too here that we don't currently hold in transaction.  Want to save?  Does that info come in IPN?
+    # responseEnvelope
+    
+    # reverseAllParallelPaymentsOnError
+    # self.response.get('responseEnvelope')['ack'] should be 'Success' Can also be 'Failure', 'Warning', 'SuccessWithWarning', 'FailureWithWarning'
+    # can possibly use self.response.get('responseEnvelope')['timestamp'] to update self.transaction.date_modified
+    # preapprovalKey -- self.transaction doesn't hold that info right now
+    # paymentInfoList -- holds info for each recipient
+    
 
 class CancelPreapproval(object):
     
@@ -215,7 +308,7 @@ class CancelPreapproval(object):
         
 
 class Preapproval( object ):
-  def __init__( self, transaction, amount ):
+  def __init__( self, transaction, amount, return_url=None, cancel_url=None):
       
       headers = {
                  'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -226,8 +319,10 @@ class Preapproval( object ):
                  'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
                  }
 
-      return_url = BASE_URL + COMPLETE_URL
-      cancel_url = BASE_URL + CANCEL_URL
+      if return_url is None:
+        return_url = settings.BASE_URL + COMPLETE_URL
+      if cancel_url is None:
+        cancel_url = settings.BASE_URL + CANCEL_URL
       
       # set the expiration date for the preapproval
       now = datetime.datetime.utcnow()
@@ -246,7 +341,7 @@ class Preapproval( object ):
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl':  BASE_URL + 'paypalipn'
+              'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
               } 
 
       self.raw_request = json.dumps(data)
@@ -278,6 +373,10 @@ class Preapproval( object ):
     else:
       return None 
 
+
+
+class PreapprovalDetails(object):
+  pass
 
 class IPN( object ):
     

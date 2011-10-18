@@ -6,8 +6,8 @@ TARGET_TYPE_NONE = 0
 TARGET_TYPE_CAMPAIGN = 1
 TARGET_TYPE_LIST = 2
 
-COMPLETE_URL = 'paymentcomplete'
-CANCEL_URL = 'paymentcancel'
+COMPLETE_URL = '/paymentcomplete'
+CANCEL_URL = '/paymentcancel'
 
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PAYPAL_COMMISSION = 0.10

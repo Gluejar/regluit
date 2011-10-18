@@ -1,10 +1,11 @@
 from regluit.settings.common import *
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),
+    ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
 )
 
 MANAGERS = ADMINS
@@ -30,6 +31,9 @@ EMAIL_HOST_USER = 'ed.summers@gmail.com'
 EMAIL_HOST_PASSWORD = 'hvkhjwujmwzvraag'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
+
+# googlebooks 
+GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
 
 # twitter auth
 TWITTER_CONSUMER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'

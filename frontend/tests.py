@@ -1,23 +1,38 @@
-"""
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
+from django.test.client import Client
+from django.contrib.auth.models import User
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.failUnlessEqual(1 + 1, 2)
+class WishlistTests(TestCase):
 
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test@example.org', 'test')
+        self.client = Client()
+        self.client.login(username='test', password='test')
 
->>> 1 + 1 == 2
-True
-"""}
+    def test_add_remove(self):
+        # add a book to the wishlist
+        r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(self.user.wishlist.works.all().count(), 1)
 
+        # remove the book
+        r = self.client.post("/wishlist/", {"remove_work_id": "1"}, 
+                HTTP_X_REQUESTED_WITH="XMLHttpRequest")
+        self.assertEqual(self.user.wishlist.works.all().count(), 0)
+
+class SupporterPage(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test@example.org', 'test')
+        self.client = Client()
+        self.client.login(username='test', password='test')
+
+    def test_view_by_anonymous(self):
+        # logged in
+        r = self.client.get("/supporter/test/")
+        self.assertEqual(r.status_code, 200)
+        # not logged in
+        anon_client = Client()
+        r = self.client.get("/supporter/test/")
+        self.assertEqual(r.status_code, 200)

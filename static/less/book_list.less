@@ -1,12 +1,9 @@
-@import "variables.less";
-
 div.book-list{ 
     clear:both;
     display:block;
     vertical-align: middle;
-    height:43px;
-    line-height:43px;
-    margin:0 5px  0px 0;
+    .height(43px);
+    margin:0 5px 0 0;
     padding:7px 0;
     overflow:hidden;
 
@@ -35,18 +32,16 @@ div.book-list{
 			span { 
 				display:block;
 				line-height:normal;
-				height:43px;
-				line-height:43px;
+				.height(43px);
 			}			
 		}
-		&.add-wishlist, &.remove-wishlist {
+		&.add-wishlist {
 			margin-right: 10px;
 			padding-right: 10px;
 			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
-			cursor: pointer;
 			float: left;
 			
-			span {
+			a {
 				font-weight:normal;
 				color:@text-blue;
 				text-transform: none;
@@ -89,6 +84,7 @@ div.unglue-this {
 		}
 		a {
 			color:#fff;
+			display: block;
 		}
 	}
 
@@ -146,25 +142,17 @@ ul.navigation {
 		}
 		
 		&.arrow-l a {
-			background:url(@background-booklist) 0 -168px no-repeat;
-			width:10px;
-			height:15px;
-			display:block;
-			text-indent:-10000px;
+			.navigation-arrows(0, -168px);
 		}
 		
 		&.arrow-r a {
-			background:url(@background-booklist) -1px -185px no-repeat;
-			width:10px;
-			height:15px;
-			display:block;
-			text-indent:-10000px;
+			.navigation-arrows(-1px, -185px);
 		}		
 	}
 }
 
 ul.navigation li a:hover, ul.navigation li.active a {
-	color:#8ac3d7;
+	color: #8ac3d7;
 	text-decoration:underline;
 }
 

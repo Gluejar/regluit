@@ -17,18 +17,36 @@
 	text-decoration:none;
 	font-weight:bold;
 	font-size:13px;
-	letter-spacing:1px;
+	letter-spacing: -.05em;
 	text-transform:capitalize;
 }
 
 .border-radius(@topleft, @topright, @bottomright, @bottomleft) {
-  border-radius: @arguments;
   -moz-border-radius: @arguments;
   -webkit-border-radius: @arguments;
+  border-radius: @arguments;
 }
 
 .panelborders {
 	border-width: 1px 0px;
 	border-style: solid none;
 	border-color: #FFFFFF;
+}
+
+.navigation-arrows(@x, @y) {
+	background:url(@background-booklist) @x @y no-repeat;
+	width:10px;
+	height:15px;
+	display:block;
+	text-indent:-10000px;
+}
+
+.supporter-color-span(@hex, @color) {
+	@url: %("%sheader-button-%s.png", @image-base, @color);
+	background:@hex url(@url) left bottom repeat-x;	
+}
+
+.height(@x) {
+	height:@x; 
+	line-height:@x; 
 }
