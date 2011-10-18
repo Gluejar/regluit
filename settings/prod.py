@@ -5,6 +5,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),
+    ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
 )
 
 MANAGERS = ADMINS

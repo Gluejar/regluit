@@ -53,7 +53,7 @@ def supporter(request, supporter_username):
 
         # figure out what works the users have in commmon if someone
         # is looking at someone elses supporter page
-        if request.user != supporter:
+        if not request.user.is_anonymous and request.user != supporter:
             w1 = request.user.wishlist
             w2 = supporter.wishlist
             shared_works = models.Work.objects.filter(wishlists__in=[w1])
