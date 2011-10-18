@@ -34,7 +34,10 @@ IPN_TYPE_ADJUSTMENT = 'Adjustment'
 IPN_TYPE_PREAPPROVAL = 'Adaptive Payment PREAPPROVAL'
 
 #pay API status constants
+# I think 'NONE' is not something the API produces but is particular to our implementation
 IPN_PAY_STATUS_NONE = 'NONE'
+
+# The following 
 IPN_PAY_STATUS_CREATED = 'CREATED'
 IPN_PAY_STATUS_COMPLETED = 'COMPLETED'
 IPN_PAY_STATUS_INCOMPLETE = 'INCOMPLETE'
@@ -42,8 +45,11 @@ IPN_PAY_STATUS_ERROR = 'ERROR'
 IPN_PAY_STATUS_REVERSALERROR = 'REVERSALERROR'
 IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
 IPN_PAY_STATUS_PENDING = 'PENDING'
+
+# particular to preapprovals
 IPN_PAY_STATUS_ACTIVE = "ACTIVE"
 IPN_PAY_STATUS_CANCELED = "CANCELED"
+
 
 IPN_SENDER_STATUS_COMPLETED = 'COMPLETED'
 IPN_SENDER_STATUS_PENDING = 'PENDING'
@@ -129,6 +135,17 @@ class Pay( object ):
                   
       logger.info(receiver_list)
         
+      # actionType can be 'PAY', 'CREATE', or 'PAY_PRIMARY'
+      # PAY_PRIMARY': "For chained payments only, specify this value to delay payments to the secondary receivers; only the payment to the primary receiver is processed"
+      
+      # feesPayer: SENDER, PRIMARYRECEIVER, EACHRECEIVER, SECONDARYONLY
+      # if only one receiver, set to EACHRECEIVER, otherwise set to SECONDARYONLY
+      
+      if len(receivers) == 1:
+        feesPayer = 'EACHRECEIVER'
+      else:
+        feesPayer = 'SECONDARYONLY'
+      
       data = {
               'actionType': 'PAY',
               'receiverList': { 'receiver': receiver_list },
@@ -136,7 +153,8 @@ class Pay( object ):
               'returnUrl': return_url,
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
+              'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
+              'feesPayer': feesPayer
               } 
       
       # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
@@ -176,8 +194,8 @@ class Pay( object ):
 
 class PaymentDetails(object):
   def __init__(self, transaction=None):
-      # can feed any of payKey, transactionId, and trackingId to identify transaction in question
-      # I think we've been tracking the payKey.  We might want to use our own trackingId (what's Transaction.secret for?)
+ 
+      self.transaction = transaction
       
       headers = {
             'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -188,6 +206,8 @@ class PaymentDetails(object):
             'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
             }
       
+      # we can feed any of payKey, transactionId, and trackingId to identify transaction in question
+      # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
       data = {
               'requestEnvelope': { 'errorLanguage': 'en_US' },
               'payKey':transaction.reference
@@ -206,11 +226,40 @@ class PaymentDetails(object):
           logger.info(error)
           return error[0]['message']
       else:
-          return 'Paypal PAYMENTDETAILS: Unknown Error'
+          return None
   
   def status(self):
     return self.response.get("status")
-      
+    
+  def compare(self):
+    """compare current status information from what's in the current transaction object"""
+    # I don't think we do anything with fundingtypeList, memo
+    # status can be: 
+    # transaction.type should be PAYMENT_TYPE_INSTANT
+    # actionType can be: 'PAY', 'CREATE', 'PAY_PRIMARY' -- I think we are doing only 'PAY' right now
+
+    comp = [(self.transaction.status, self.response.get('status')),
+            (self.transaction.type, self.response.get('actionType')),
+            (self.transaction.currency, self.response.get('currencyCode')),
+            ('EACHRECEIVER' if len(self.transaction.receiver_set.all()) == 1 else 'SECONDARYONLY',self.response.get('feesPayer')),
+            (self.transaction.reference, self.response.get('payKey')),  # payKey supposedly expires after 3 hours
+            ('false', self.response.get('reverseAllParallelPaymentsOnError')),
+            (None, self.response.get('sender'))
+            ]
+    
+    # loop through recipients
+    
+    return comp
+    
+    # also getting sender / senderEmail info too here that we don't currently hold in transaction.  Want to save?  Does that info come in IPN?
+    # responseEnvelope
+    
+    # reverseAllParallelPaymentsOnError
+    # self.response.get('responseEnvelope')['ack'] should be 'Success' Can also be 'Failure', 'Warning', 'SuccessWithWarning', 'FailureWithWarning'
+    # can possibly use self.response.get('responseEnvelope')['timestamp'] to update self.transaction.date_modified
+    # preapprovalKey -- self.transaction doesn't hold that info right now
+    # paymentInfoList -- holds info for each recipient
+    
 
 class CancelPreapproval(object):
     
