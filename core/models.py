@@ -106,6 +106,29 @@ class Work(models.Model):
         gb_id = self.editions.all()[0].googlebooks_id
         return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, gb_id)
 
+    @property
+    def status(self):
+        """status based on associated campaigns if any."""
+        
+        campaigns = self.campaigns.all()
+        unglued = False
+        active = False        
+        
+        for c in campaigns:
+            status = c.status
+            if status == 'ACTIVE':
+                active = True
+            elif status == 'SUCCESSFUL':
+                unglued = True
+                
+        if unglued: 
+            return 'UNGLUED'
+        elif active:
+            return 'ACTIVE CAMPAIGN'
+        else:
+            return 'NO ACTIVE CAMPAIGN'
+                
+    
     def __unicode__(self):
         return self.title
 
