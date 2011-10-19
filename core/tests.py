@@ -78,7 +78,7 @@ class TestBookLoader(TestCase):
         user.wishlist.works.add(e1.work)
         user.wishlist.works.add(e2.work)
 
-        # create campaigns for the works 
+        # create campaigns for the stub works 
         c1 = models.Campaign.objects.create(
             name=e1.work.title,
             work=e2.work, 
