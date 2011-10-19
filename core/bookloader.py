@@ -1,20 +1,28 @@
 import json
 import logging
-from xml.etree import ElementTree
 
+from xml.etree import ElementTree
 import requests
+
 from django.conf import settings
+from django.db.models import Q
+from django.db import IntegrityError
 
 from regluit.core import models
 
 logger = logging.getLogger(__name__)
 
 
-def add_by_isbn(isbn, work=None):
+def add_by_isbn(isbn, work=None, add_related=True):
     """add a book to the UnglueIt database based on ISBN. The work parameter
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
+    # save a lookup to google if we already have this isbn
+    has_isbn = Q(isbn_10=isbn) | Q(isbn_13=isbn)
+    for edition in models.Edition.objects.filter(has_isbn):
+        return edition
+
     url = "https://www.googleapis.com/books/v1/volumes"
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
@@ -22,7 +30,13 @@ def add_by_isbn(isbn, work=None):
         logger.warn("no google hits for %s" % isbn)
         return None
 
-    return add_by_googlebooks_id(results['items'][0]['id'], work)
+    try:
+        return add_by_googlebooks_id(results['items'][0]['id'], work)
+    except LookupFailure, e:
+        logger.exception("failed to add edition for %s", isbn)
+    except IntegrityError, e:
+        logger.exception("edition data for %s does not match db schema", isbn)
+    return None
 
 
 def add_by_googlebooks_id(googlebooks_id, work=None):
@@ -81,12 +95,9 @@ def add_related(isbn):
     work = edition.work
 
     for other_isbn in thingisbn(isbn):
-        # TODO: if the other book is there already we have some surgery
-        # to do on the works, and the wishlists
-        try:
-            add_by_isbn(other_isbn, work)
-        except Exception, e:
-            logger.exception("failed to add edition for %s", isbn)
+        related_edition = add_by_isbn(other_isbn, work)
+        if related_edition and related_edition.work != edition.work:
+            merge_works(edition.work, related_edition.work)
 
 
 def thingisbn(isbn):
@@ -97,6 +108,21 @@ def thingisbn(isbn):
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
+
+
+def merge_works(w1, w2):
+    """will merge the second work (w2) into the first (w1)
+    """
+    for edition in w2.editions.all():
+        edition.work = w1
+        edition.save()
+    for campaign in w2.campaigns.all():
+        campaign.work = w1
+        campaign.save()
+    for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
+        wishlist.works.remove(w2)
+        wishlist.works.add(w1)
+    w2.delete()
 
 
 def _get_json(url, params={}):
