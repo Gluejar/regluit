@@ -1,20 +1,27 @@
 import json
 import logging
-from xml.etree import ElementTree
 
+from xml.etree import ElementTree
 import requests
+
 from django.conf import settings
+from django.db.models import Q
 
 from regluit.core import models
 
 logger = logging.getLogger(__name__)
 
 
-def add_by_isbn(isbn, work=None):
+def add_by_isbn(isbn, work=None, add_related=True):
     """add a book to the UnglueIt database based on ISBN. The work parameter
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
+    # return an isbn match
+    has_isbn = Q(isbn_10=isbn) | Q(isbn_13=isbn)
+    for edition in models.Edition.objects.filter(has_isbn):
+        return edition
+
     url = "https://www.googleapis.com/books/v1/volumes"
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
@@ -84,10 +91,12 @@ def add_related(isbn):
         # TODO: if the other book is there already we have some surgery
         # to do on the works, and the wishlists
         try:
-            add_by_isbn(other_isbn, work)
-        except Exception, e:
-            logger.exception("failed to add edition for %s", isbn)
+            related_edition = add_by_isbn(other_isbn, work)
+            if related_edition.work != edition.work:
+                merge_works(edition.work, related_edition.work)
 
+        except LookupFailure, e:
+            logger.exception("failed to add edition for %s", isbn)
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
@@ -98,6 +107,19 @@ def thingisbn(isbn):
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
 
+def merge_works(w1, w2):
+    """will merge the second work (w2) into the first (w1)
+    """
+    for edition in w2.editions.all():
+        edition.work = w1
+        edition.save()
+    for campaign in w2.campaigns.all():
+        campaign.work = w1
+        campaign.save()
+    for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
+        wishlist.works.remove(w2)
+        wishlist.works.add(w1)
+    w2.delete()
 
 def _get_json(url, params={}):
     # TODO: should X-Forwarded-For change based on the request from client?

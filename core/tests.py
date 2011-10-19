@@ -14,7 +14,7 @@ from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 
 class TestBookLoader(TestCase):
 
-    def test_add_book(self):
+    def test_add_by_isbn(self):
         # edition
         edition = bookloader.add_by_isbn('0441012035')
         self.assertEqual(edition.title, 'Neuromancer')
@@ -66,6 +66,42 @@ class TestBookLoader(TestCase):
         self.assertTrue(models.Edition.objects.count() > 20)
         self.assertEqual(models.Work.objects.count(), 1)
         self.assertTrue(edition.work.editions.count() > 20)
+
+    def test_merge_works(self):
+        # add two editions and see that there are two stub works
+        e1 = bookloader.add_by_isbn('0465019358')
+        e2 = bookloader.add_by_isbn('1458776204')
+        self.assertEqual(models.Work.objects.count(), 2)
+
+        # add the stub works to a wishlist
+        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user.wishlist.works.add(e1.work)
+        user.wishlist.works.add(e2.work)
+
+        # create campaigns for the works 
+        c1 = models.Campaign.objects.create(
+            name=e1.work.title,
+            work=e2.work, 
+            description='Test Campaign 1',
+            deadline=datetime.now(),
+            target=D('1000.00'),
+        )
+        c2 = models.Campaign.objects.create(
+            name=e2.work.title,
+            work=e2.work, 
+            description='Test Campaign 2',
+            deadline=datetime.now(),
+            target=D('1000.00'),
+        )
+
+        # now add related edition to make sure Works get merged
+        bookloader.add_related('1458776204')
+        self.assertEqual(models.Work.objects.count(), 1)
+        
+        # and that relevant Campaigns and Wishlists are updated
+        self.assertEqual(c1.work, c2.work)
+        self.assertEqual(user.wishlist.works.all().count(), 1)
+         
 
 class SearchTests(TestCase):
 
