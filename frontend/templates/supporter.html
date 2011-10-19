@@ -131,25 +131,16 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="block block1">
                             <div class="block-inner">
                                 <h3><a class="profile-edit" href="#">Profile / edit</a></h3>
-                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-                                <div class="profile-save">
-                                <a href="#" class="profile-save">Save setting</a>
-                                </div>
+                                <form method="POST" action="">
+									{% csrf_token %}
+									{{ profile_form.as_p }}
+
+ 									<input class="profile-save" type="submit" name="submit" value="Update" id="submit">
+								</form>
                             </div>
                             </div>
                             
-                            <div class="block block2">
-                                <h3 class="title">Pledges</h3>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                            </div>
-                            <div class="block block3">
+                             <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
                                     <input type="checkbox" />
@@ -160,7 +151,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
                                 </div>
                             </div>
-                            <div class="block block4">
+                            <div class="block block3">
                                 <h3 class="title">Privacy</h3>
                                 <div class="check-list">
                                     <input type="checkbox" />

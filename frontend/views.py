@@ -17,7 +17,7 @@ from django.conf import settings
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
 
-from regluit.frontend.forms import UserData
+from regluit.frontend.forms import UserData,ProfileForm
 from regluit.frontend.forms import CampaignPledgeForm
 
 from regluit.payment.manager import PaymentManager
@@ -37,33 +37,42 @@ def home(request):
     return render(request, 'home.html', {'suppress_search_box': True})
 
 def supporter(request, supporter_username):
-	supporter = get_object_or_404(User, username=supporter_username)
-	wishlist = supporter.wishlist
-	backed = 0
-	backing = 0
-	transet = Transaction.objects.all().filter(user = supporter)
-	
-	for transaction in transet:
-		if(transaction.campaign.status == 'SUCCESSFUL'):
-			backed += 1
-		elif(transaction.campaign.status == 'ACTIVE'):
-			backing += 1
-			
-	wished = supporter.wishlist.works.count()
-	
-	date = supporter.date_joined.strftime("%B %d, %Y")
+    supporter = get_object_or_404(User, username=supporter_username)
+    wishlist = supporter.wishlist
+    backed = 0
+    backing = 0
+    transet = Transaction.objects.all().filter(user = supporter)
+    
+    for transaction in transet:
+        if(transaction.campaign.status == 'SUCCESSFUL'):
+            backed += 1
+        elif(transaction.campaign.status == 'ACTIVE'):
+            backing += 1
+            
+    wished = supporter.wishlist.works.count()
+    
+    date = supporter.date_joined.strftime("%B %d, %Y")
 
-        # figure out what works the users have in commmon if someone
-        # is looking at someone elses supporter page
-        if not request.user.is_anonymous and request.user != supporter:
-            w1 = request.user.wishlist
-            w2 = supporter.wishlist
-            shared_works = models.Work.objects.filter(wishlists__in=[w1])
-            shared_works = list(shared_works.filter(wishlists__in=[w2]))
-        else: 
-            shared_works = []
-	
-	context = {
+    # figure out what works the users have in commmon if someone
+    # is looking at someone elses supporter page
+    if not request.user.is_anonymous and request.user != supporter:
+        w1 = request.user.wishlist
+        w2 = supporter.wishlist
+        shared_works = models.Work.objects.filter(wishlists__in=[w1])
+        shared_works = list(shared_works.filter(wishlists__in=[w2]))
+    else: 
+        shared_works = []
+
+    # added following blok to support profile admin form in supporter page
+    if request.user.is_authenticated() and request.user.username == supporter_username:
+        if  request.method == 'POST': 
+            profile_form = ProfileForm(data=request.POST,instance=request.user.get_profile())
+            if profile_form.is_valid():
+                profile_form.save()
+        else:
+            profile_form = ProfileForm()
+            
+    context = {
             "supporter": supporter,
             "wishlist": wishlist,
             "backed": backed,
@@ -71,9 +80,10 @@ def supporter(request, supporter_username):
             "wished": wished,
             "date": date,
             "shared_works": shared_works,
-	}
-	
-	return render(request, 'supporter.html', context)
+            "profile_form": profile_form,
+    }
+    
+    return render(request, 'supporter.html', context)
 
 def edit_user(request):
     form=UserData()

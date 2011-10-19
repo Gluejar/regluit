@@ -10,7 +10,7 @@ class ProfileForm(forms.ModelForm):
         model = UserProfile
         exclude = 'user'
         widgets = {
-            'tagline': forms.Textarea(attrs={'cols': 70, 'rows': 2}),
+            'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
         }
 
 class UserData(forms.Form):
