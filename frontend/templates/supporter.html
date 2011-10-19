@@ -58,8 +58,6 @@ To do:
 create topsection file for inclusion in multiple contexts, if needed
 figure out how to configure date display 
     decide if we're even including date joined in profile
-make it possible for users to create taglines
-    I changed UserProfile to be a foreign key relation on user. ok?
 add support for userpics
     crop/resize? other infrastructure we need?  can we pull from twitter/fb?
 add support for twitter/fb/other links?
@@ -69,7 +67,6 @@ add support for twitter/fb/other links?
 Goodreads & Librarything support
 If people lack homepage, etc., do we have greyed-out icons or no icons?
     if greyed-out, can they add in place by clicking on them?
-make sure profile settings do something
 make sure we have the profile settings we need
 resurrect add/remove functionality
     be sure words display correctly
@@ -127,6 +124,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <span class="user-status-title">I am ungluing</span>
                             </div>
                         </div>
+						{% ifequal supporter request.user %}
                         <div class="user-block-hide">
                             <div class="block block1">
                             <div class="block-inner">
@@ -164,6 +162,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                                
                         </div>
+                       {% endifequal %}
                     </div>
                 </div>
             </div>

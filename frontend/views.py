@@ -71,6 +71,8 @@ def supporter(request, supporter_username):
                 profile_form.save()
         else:
             profile_form = ProfileForm()
+    else:
+        profile_form = ''
             
     context = {
             "supporter": supporter,
