@@ -523,7 +523,7 @@ div.content-block-content .cols3 .column {
 }
 .user-block-hide .block {
   float: left;
-  width: 25%;
+  width: 33%;
 }
 .user-block-hide input {
   float: left;
@@ -609,7 +609,7 @@ a.profile-edit {
 div.profile-save {
   padding-top: 15px;
 }
-a.profile-save {
+input.profile-save {
   background: url("/static/images/header/save-setting.png") 0 0 no-repeat;
   width: 116px;
   height: 42px;
