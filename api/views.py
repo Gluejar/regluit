@@ -64,8 +64,17 @@ def widget(request,isbn):
     else:
         logged_in_username = None
              
+    # for now pass in first campaign -- but should loop through to prioritize any active campaigns
+    if len(campaigns):
+        campaign = campaigns[0]
+        progress = int(100*campaign.current_total/campaign.target)
+    else:
+        campaign = None
+        progress = None
+    
     return render_to_response('widget.html', 
-         {'isbn':isbn,'edition':edition, 'work':work, 'campaigns':campaigns, 'logged_in_username':logged_in_username}, 
+         {'isbn':isbn,'edition':edition, 'work':work, 'campaign':campaign, 'progress': progress,
+          'logged_in_username':logged_in_username}, 
          context_instance=RequestContext(request)
      )
     

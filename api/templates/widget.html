@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
 <html>
 <head>
     <title>unglue.it: {% block title %}{% endblock %}</title>
@@ -24,10 +23,10 @@
       <b>{{ work.title }}</b>
       <p>{{ work.authors.all.0.name }}</p>
       <p><b>Genre:</b>{{work.subjects.all.0.name}}</p>
-      <p class="status, undefined"><b>Status:</b> Unglued!</p>
+      <p class="status"><b>Status:</b>{{campaign.status}}</p>
       <div class="read">
         <img src="/static/images/book-panel/percent.png" />
-        <p class="undefined">100%</p>
+        <p>{{progress}}%</p>
         <p class="right_add">
           <img src="/static/images/book-panel/add_gray.png" border="0" />
         </p>
@@ -35,9 +34,9 @@
       <span style="display: none;">
         <div class="book_panel_back">
           <div class="unglued_white">
-            <b class="undefined">Unglued?</b>
-            <p>{{campaigns.0.deadline.date}}</p>
-            <p class="undefined"><b>Raised:</b> $12,000</p>
+            <b>Unglued?</b>
+            <p>{{campaign.deadline.date}}</p>
+            <p class="undefined"><b>Raised:</b>${{campaign.current_total}}</p>
           </div>
           <div class="read_itbutton">
             <a href="#">Read it Now</a>
@@ -49,7 +48,7 @@
             <b><a href="#">{{ work.title }}</a></b>
             <p><a href="#">{{ work.authors.all.0.name }}</a></p>
             <p><b>Genre:</b>{{work.subjects.all.0.name}}</p>
-            <p class="undefined"><b>Status:</b> In Progress</p>
+            <p><b>Status:</b>{{campaign.status}}</p>
           </div>
           <div id="moreinfo">
             <a href="#">More Info</a>
