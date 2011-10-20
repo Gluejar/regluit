@@ -13,10 +13,7 @@ from tastypie.authentication import ApiKeyAuthentication, Authentication
 
 from regluit.core import models
 
-
 logger = logging.getLogger(__name__)
-
-
 
 class UserResource(ModelResource):
     class Meta:
@@ -61,9 +58,19 @@ class CampaignResource(ModelResource):
 
         for o in data['objects']:
             o.data['in_wishlist'] = o.obj.id in wishlist_work_ids
+            # there's probably a better place up the chain (where the Campaign objects are directly available) to grab the status
+            c = models.Campaign.objects.get(id=o.data["id"])
+            o.data['status'] = c.status
+            o.data['current_total'] = c.current_total
 
         # TODO: add pledging information
         return data
+    
+    def alter_detail_data_to_serialize(self, request, obj):
+        c = models.Campaign.objects.get(id=obj.data["id"])
+        obj.data['status'] = c.status
+        obj.data['current_total'] = c.current_total
+        return obj
 
     class Meta:
         authentication = ApiKeyAuthentication()

@@ -3,8 +3,10 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.db.models import Q
+from django.views.generic.base import TemplateView
 
 from regluit.core import models
+from tastypie.models import ApiKey
 
 def isbn(request,isbn):
     
@@ -77,4 +79,31 @@ def widget(request,isbn):
           'logged_in_username':logged_in_username}, 
          context_instance=RequestContext(request)
      )
-    
+
+class ApiHelpView(TemplateView):
+    template_name = "api_help.html"
+    def get_context_data(self, **kwargs):
+        context = super(ApiHelpView, self).get_context_data(**kwargs)
+        
+        # base_url passed in to allow us to write absolute URLs for this site
+        base_url = self.request.build_absolute_uri("/")[:-1]
+        context["base_url"] = base_url
+        
+        # if user is logged in, pass in the user's API key
+        u = auth.get_user(self.request)
+        if u.is_authenticated():
+            api_key = ApiKey.objects.filter(user=u)[0].key
+            context['api_key'] = api_key
+        
+        # pass in a sample Campaign whose widget can be displayed
+        campaigns = models.Campaign.objects.all()
+        if len(campaigns):
+            c = campaigns[0]
+            if c.work.editions.all()[0].isbn_10 is not None:
+                isbn = c.work.editions.all()[0].isbn_10
+            else:
+                isbn = c.work.editions.all()[0].isbn_13
+            context["campaign"] = campaigns[0]
+            context["campaign_isbn"] = isbn
+
+        return context    
