@@ -102,10 +102,8 @@ class Work(models.Model):
     openlibrary_id = models.CharField(max_length=50, null=True)
 
     def cover_image_small(self):
-        server_id = random.randint(0, 9)
-        gb_id = self.editions.all()[0].googlebooks_id
-        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, gb_id)                
-    
+        return self.editions.all()[0].cover_image_small()
+
     def __unicode__(self):
         return self.title
 
@@ -142,6 +140,14 @@ class Edition(models.Model):
 
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.isbn_13)
+
+    def cover_image_small(self):
+        server_id = random.randint(0, 9)
+        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+
+    def cover_image_thumbnail(self):
+        server_id = random.randint(0, 9)
+        return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
 
     @classmethod
     def get_by_isbn(klass, isbn):

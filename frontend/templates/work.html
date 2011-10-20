@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="main-container">
+<div class="js-main">
+{% include "explore.html" %}
+<div id="js-maincol-fr">
+<div class="js-maincol-inner">
+<div class="content-block">
+<h1>{{ work.title }}</h1>
+
+<h2>{{ editions.all.count }} Editions:</h2>
+
+<ul class="edition-list">
+    {% for edition in editions %}
+    <li class="edition">
+    <div style="float: left; margin-right: 10px;">
+        <img class="cover" src="{{ edition.cover_image_small }}" />
+    </div>
+    <div>
+    <span class="publisher">{{ edition.publisher }}</span>,
+    <span class="publication-date">{{ edition.publication_date }}</span><br>
+    <span class="language">{{ edition.language }}</span><br>
+    ISBN-10: 
+    <span class="isbn_10">{{ edition.isbn_10 }}</span><br>
+    ISBN-13:
+    <span class="isbn_13">{{ edition.isbn_13 }}</span>
+    </div>
+    </li>
+    {% endfor %}
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+{% endblock %}

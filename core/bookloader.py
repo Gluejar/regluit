@@ -18,6 +18,7 @@ def add_by_isbn(isbn, work=None, add_related=True):
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
+    logger.info("adding book for %s", isbn)
     # save a lookup to google if we already have this isbn
     has_isbn = Q(isbn_10=isbn) | Q(isbn_13=isbn)
     for edition in models.Edition.objects.filter(has_isbn):
@@ -49,6 +50,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     if not created:
         return e
 
+    logger.info("loading metadata from google for %s", googlebooks_id)
     url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
     d = _get_json(url)['volumeInfo']
 
@@ -89,21 +91,28 @@ def add_related(isbn):
     The initial seed ISBN will be added if it's not already there.
     """
     # make sure the seed edition is there
+    logger.info("adding related editions for %s", isbn)
     edition = add_by_isbn(isbn)
 
     # this is the work everything will hang off
     work = edition.work
 
+    new_editions = []
     for other_isbn in thingisbn(isbn):
         related_edition = add_by_isbn(other_isbn, work)
         if related_edition and related_edition.work != edition.work:
             merge_works(edition.work, related_edition.work)
+        if related_edition:
+            new_editions.append(related_edition)
+
+    return new_editions
 
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
     Library Thing.
     """
+    logger.info("looking up %s at ThingISBN" % isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
@@ -113,6 +122,7 @@ def thingisbn(isbn):
 def merge_works(w1, w2):
     """will merge the second work (w2) into the first (w1)
     """
+    logger.info("merging work %s into %s", w1, w2)
     for edition in w2.editions.all():
         edition.work = w1
         edition.save()

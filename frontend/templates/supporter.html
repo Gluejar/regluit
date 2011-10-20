@@ -233,7 +233,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         <div class="book-name">
                         <span>
-                            {{ work.title }}
+                            <a href="{% url work work.id %}">{{ work.title }}</a>
                         </span>
                         </div>
                         {% ifequal supporter request.user %}

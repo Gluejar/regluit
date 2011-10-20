@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'registration',
     'social_auth',
     'tastypie',
+    'djcelery',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -182,3 +183,6 @@ USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
 SOUTH_TESTS_MIGRATE = True
 
 AUTH_PROFILE_MODULE = "core.userprofile"
+
+import djcelery
+djcelery.setup_loader()
