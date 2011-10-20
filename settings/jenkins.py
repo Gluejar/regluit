@@ -73,3 +73,7 @@ PAYPAL_BUYER_LOGIN =''
 PAYPAL_BUYER_PASSWORD = ''
 
 BASE_URL = 'http://0.0.0.0/'
+
+# use database as queuing service in development
+BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"
+INSTALLED_APPS += ("djkombu",)
