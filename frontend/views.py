@@ -1,31 +1,25 @@
-from django.template import RequestContext
+import logging
+from decimal import Decimal as D
+
+from django.conf import settings
 from django.contrib.auth.models import User
-# from django.contrib.auth.forms import UserChangeForm
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.generic import ListView, DetailView
-from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 
-from django.conf import settings
-
+from regluit.core import tasks
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
-
-from regluit.frontend.forms import UserData,ProfileForm
+from regluit.frontend.forms import UserData, ProfileForm
 from regluit.frontend.forms import CampaignPledgeForm
-
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
-from decimal import Decimal as D
-
-import logging
 logger = logging.getLogger(__name__)
 
 from regluit.payment.models import Transaction
@@ -35,6 +29,10 @@ def home(request):
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
     return render(request, 'home.html', {'suppress_search_box': True})
+
+def work(request, work_id):
+    work = get_object_or_404(models.Work, id=work_id)
+    return render(request, 'work.html', {'work': work})
 
 def supporter(request, supporter_username):
     supporter = get_object_or_404(User, username=supporter_username)
@@ -137,6 +135,8 @@ def wishlist(request):
     remove_work_id = request.POST.get('remove_work_id', None)
     if googlebooks_id:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+        # add related editions asynchronously
+        tasks.add_related.delay(edition.isbn_10)
         request.user.wishlist.works.add(edition.work)
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
@@ -158,6 +158,7 @@ class CampaignFormView(FormView):
            'campaign': campaign
         })
         return context
+
     def form_valid(self,form):
         pk = self.kwargs["pk"]
         pledge_amount = form.cleaned_data["pledge_amount"]

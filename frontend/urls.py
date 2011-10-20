@@ -9,6 +9,7 @@ from regluit.frontend.views import CampaignFormView
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
+    url(r"work/(?P<work_id>.+)/$", "work", name="work"),
     url(r"^supporter/(?P<supporter_username>.+)/$", "supporter", name="supporter"),
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
