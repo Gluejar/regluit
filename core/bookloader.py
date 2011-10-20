@@ -13,7 +13,7 @@ from regluit.core import models
 logger = logging.getLogger(__name__)
 
 
-def add_by_isbn(isbn, work=None, add_related_editions=True):
+def add_by_isbn(isbn, work=None):
     """add a book to the UnglueIt database based on ISBN. The work parameter
     is optional, and if not supplied the edition will be associated with
     a stub work.
@@ -32,10 +32,7 @@ def add_by_isbn(isbn, work=None, add_related_editions=True):
         return None
 
     try:
-        e = add_by_googlebooks_id(results['items'][0]['id'], work)
-        if add_related_editions:
-            add_related(e.isbn_10)
-        return e
+        return add_by_googlebooks_id(results['items'][0]['id'], work)
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", isbn)
     except IntegrityError, e:
