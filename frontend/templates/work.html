@@ -10,6 +10,13 @@
 <div class="content-block">
 <h1>{{ work.title }}</h1>
 
+{% if supporters.count > 0 %}
+Supporters:
+{% for supporter in supporters %}
+<a href="{% url supporter supporter.username %}">{{ supporter.username }}</a>{% if forloop.last %}{% else %}, {% endif %}
+{% endfor %}
+{% endif %}
+
 <h2>{{ editions.all.count }} Editions:</h2>
 
 <ul class="edition-list">

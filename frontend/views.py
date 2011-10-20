@@ -33,7 +33,14 @@ def home(request):
 def work(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
-    return render(request, 'work.html', {'work': work, 'editions': editions})
+    supporters = User.objects.filter(wishlist__works__in=[work])
+    if not request.user.is_anonymous:
+        supporters.remove(request.user)
+    return render(request, 'work.html', {
+        'work': work, 
+        'editions': editions, 
+        'supporters': supporters
+    })
 
 def supporter(request, supporter_username):
     supporter = get_object_or_404(User, username=supporter_username)
