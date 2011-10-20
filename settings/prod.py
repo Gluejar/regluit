@@ -70,6 +70,8 @@ PAYPAL_TEST_NONPROFIT_PARTNER_EMAIL = ""
 
 BASE_URL = 'http://0.0.0.0/'
 
-# use database as queuing service in development
-BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"
-INSTALLED_APPS += ("djkombu",)
+# use redis for production queue
+BROKER_TRANSPORT = "redis"
+BROKER_HOST = "localhost"
+BROKER_PORT = 6379
+BROKER_VHOST = "0"

@@ -8,4 +8,4 @@ def add_related(isbn):
 
 @task
 def add_by_isbn(isbn):
-    bookloader.add_isbn(isbn)
+    bookloader.add_by_isbn(isbn)
