@@ -10,10 +10,10 @@
 <div class="content-block">
 <h1>{{ work.title }}</h1>
 
-<h2>{{ work.editions.all.count }} Editions:</h2>
+<h2>{{ editions.all.count }} Editions:</h2>
 
 <ul class="edition-list">
-    {% for edition in work.editions.all %}
+    {% for edition in editions %}
     <li class="edition">
     <div style="float: left; margin-right: 10px;">
         <img class="cover" src="{{ edition.cover_image_small }}" />
