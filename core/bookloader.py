@@ -97,10 +97,15 @@ def add_related(isbn):
     # this is the work everything will hang off
     work = edition.work
 
+    new_editions = []
     for other_isbn in thingisbn(isbn):
         related_edition = add_by_isbn(other_isbn, work)
         if related_edition and related_edition.work != edition.work:
             merge_works(edition.work, related_edition.work)
+        if related_edition:
+            new_editions.append(related_edition)
+
+    return new_editions
 
 
 def thingisbn(isbn):
