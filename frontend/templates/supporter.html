@@ -3,77 +3,45 @@
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 
 {% block extra_head %}
-<script type="text/javascript">
-$$(document).ready(function() {
-    $(".add-wishlist").each(function (index, element) {
-        $(element).click(function() {
-            var span = $(element).find("span");
-            var gb_id = span.attr('id')
-            if (!gb_id) return;
-            $.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
-                span.fadeOut();
-                var newSpan = $("<span>On Your Wishlist!</span>").hide();
-                span.replaceWith(newSpan);
-                newSpan.fadeIn();
-                newSpan.removeAttr("id");
-            });
-        });
-    });
-});
-</script>
-
-<script type="text/javascript">
-$(document).ready(function() {
-    $(".remove-wishlist").each(function (index, element) {
-        $(element).click(function() {
-            var span = $(element).find("span");
-            var work_id = span.attr('id')
-            $.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
-                var book = $(element).parent();
-                book.fadeOut();
-            });
-        });
-    });
-});
-</script>
-
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 
 <script type="text/javascript">
-	var $j = jQuery.noConflict();
-	$j(document).ready(function(){
-		$j('.user-block-hide').hide();
-		$j('.user-block1 a').click(
-			function() {
-				$j(this).toggleClass("active");
-				$j(".user-block-hide").slideToggle(300);
-			}
-		);
-		$j('.tabs1').click(function(){
-			$j('#tabs').find('.active').removeClass('active');
-			$j(this).addClass('active');
-			$j('.content-block-content').find('.active').removeClass('active');
-			$j('#tabs-1').addClass('active').show(300);
-			$j('#tabs-2').hide(200);
-			$j('#tabs-3').hide(200);
-		});
-		$j('.tabs2').click(function(){
-			$j('#tabs').find('.active').removeClass('active');
-			$j(this).addClass('active');
-			$j('.content-block-content').find('.active').removeClass('active');
-			$j('#tabs-2').addClass('active').show(300);
-			$j('#tabs-1').hide(200);
-			$j('#tabs-3').hide(200);
-		});
-		$j('.tabs3').click(function(){
-			$j('#tabs').find('.active').removeClass('active');
-			$j(this).addClass('active');
-			$j('.content-block-content').find('.active').removeClass('active');
-			$j('#tabs-3').addClass('active').show(300);
-			$j('#tabs-2').hide(200);
-			$j('#tabs-1').hide(200);
-		});
-	});
+    var $j = jQuery.noConflict();
+    $j(document).ready(function(){
+        $j('.user-block-hide').hide();
+        $j('.user-block1 a').click(
+            function() {
+                $j(this).toggleClass("active");
+                $j(".user-block-hide").slideToggle(300);
+            }
+        );
+        $j('.tabs1').click(function(){
+            $j('#tabs').find('.active').removeClass('active');
+            $j(this).addClass('active');
+            $j('.content-block-content').find('.active').removeClass('active');
+            $j('#tabs-1').addClass('active').show(300);
+            $j('#tabs-2').hide(200);
+            $j('#tabs-3').hide(200);
+        });
+        $j('.tabs2').click(function(){
+            $j('#tabs').find('.active').removeClass('active');
+            $j(this).addClass('active');
+            $j('.content-block-content').find('.active').removeClass('active');
+            $j('#tabs-2').addClass('active').show(300);
+            $j('#tabs-1').hide(200);
+            $j('#tabs-3').hide(200);
+        });
+        $j('.tabs3').click(function(){
+            $j('#tabs').find('.active').removeClass('active');
+            $j(this).addClass('active');
+            $j('.content-block-content').find('.active').removeClass('active');
+            $j('#tabs-3').addClass('active').show(300);
+            $j('#tabs-2').hide(200);
+            $j('#tabs-1').hide(200);
+        });
+    });
 
 
 </script>
@@ -83,24 +51,22 @@ $(document).ready(function() {
 /*
 To do:
 create topsection file for inclusion in multiple contexts, if needed
-do we really want to display date joined in profile? if so, with any text? "supporter since (date) is too long"
-add support for userpics/avatars/something
-	crop/resize? other infrastructure we need?  can we pull from twitter/fb?
-add support for twitter/fb/other links
-	part of user profile?  can I just add to db model?
-	loosely coupled vs actually integrated with signin
-	canonicalize -- user enters cut/paste link vs username
+figure out how to configure date display 
+    decide if we're even including date joined in profile
+add support for userpics
+    crop/resize? other infrastructure we need?  can we pull from twitter/fb?
+add support for twitter/fb/other links?
+    part of user profile?  can I just add to db model?
+    loosely coupled vs actually integrated with signin
+    canonicalize -- user enters cut/paste link vs username
 Goodreads & Librarything support
 If people lack homepage, etc., do we have greyed-out icons or no icons?
-	if greyed-out, can they add in place by clicking on them?
-make sure profile settings do something
+    if greyed-out, can they add in place by clicking on them?
 make sure we have the profile settings we need
 resurrect add/remove functionality
-	be sure words display correctly
+    be sure words display correctly
+    do I need both add-wishlist and remove-wishlist classes? do they differ?
 better alignment on I am ungluing & badges
-progress indicators
-change status text to something more user-friendly
-js is not DRY right now -- need to put into scripts folder and reference
 
 make sure backed/backing/wishlist is the order we want the badges to be in
 test code with other campaign statuses -- random_campaigns needs to set a variety of statuses!
@@ -108,101 +74,91 @@ why is there a status in regluit.payment.models.Transaction?  does it duplicate 
 
 
 there's no tab for seeing ALL my books, only the filters! huh.
-	
+    
 Values I need:
 how do I integrate the your wishlist thing with the tabs thing?
 
 */
 
-/*
-*/
-
 {% block topsection %}
 
 <div id="js-topsection">
-	<div class="js-main">
-    	<div class="js-topnews">
-        	<div class="js-topnews1">
-            	<div class="js-topnews2">
-                	<div class="js-topnews3">
-                    	<div class="user-block">
-	                        {% ifequal supporter request.user %}
+    <div class="js-main">
+        <div class="js-topnews">
+            <div class="js-topnews1">
+                <div class="js-topnews2">
+                    <div class="js-topnews3">
+                        <div class="user-block">
+                            {% ifequal supporter request.user %}
                             <div class="user-block1">
                             <div class="block-inner">
                             <a class="my-setting" href="#">My Settings</a>
                             </div>
                             </div>
-	                        {% endifequal %}
+                            {% endifequal %}
                             <div class="user-block2">
-                            	<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="User avatar" title="User avatar" />
+                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="User avatar" title="User avatar" />
                                 <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
                                 <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
                             <div class="user-block4">
-								<div class="social">
-                            	<a href="#"><img src="/static/images/header/icon-home.png" alt="Home" title="Home"  /></a>
+                                <div class="social">
+                                <a href="#"><img src="/static/images/header/icon-home.png" alt="Home" title="Home"  /></a>
                                 <a href="#"><img src="/static/images/header/icon-facebook.png" alt="Facebook" title="Facebook"  /></a>
-                                <a href="#"><img src="/static/images/header/icon-tweeter.png" alt="tweeter" title="tweeter"  /></a>
+                                <a href="#"><img src="/static/images/header/icon-twitter.png" alt="twitter" title="twitter"  /></a>
                                 <a href="#"><img src="/static/images/header/icon-google.png" alt="google" title="google"  /></a>
                                 <a href="#"><img src="/static/images/header/icon-group.png" alt="group" title="group"  /></a></div>
                             </div>
                             <div class="user-block3">
-								<div class="user-block">
+                                <div class="user-block">
                                 <span class="rounded"><span class="blue">{{ backed }}</span></span>
                                 <span class="rounded"><span class="orange">{{ backing }}</span></span>
                                 <span class="rounded"><span class="grey">{{ wished }}</span></span>
-								</div>
-                            	<span class="user-status-title">I am ungluing</span>
+                                </div>
+                                <span class="user-status-title">I am ungluing</span>
                             </div>
                         </div>
+						{% ifequal supporter request.user %}
                         <div class="user-block-hide">
-                        	<div class="block block1">
+                            <div class="block block1">
                             <div class="block-inner">
-                            	<h3><a class="profile-edit" href="#">Profile / edit</a></h3>
-                                Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-                                <div class="profile-save">
-                                <a href="#" class="profile-save">Save setting</a>
-                                </div>
-                            </div>
-                            </div>
-                            
-                            <div class="block block2">
-                            	<h3 class="title">Pledges</h3>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                            </div>
-                            <div class="block block3">
-                            	<h3 class="title">Links</h3>
-                            	<div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                            </div>
-                            <div class="block block4">
-                            	<h3 class="title">Privacy</h3>
-                            	<div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                            </div>
-                       		
-                        </div>
-                    </div>
+                                <h3><a class="profile-edit" href="#">Profile / edit</a></h3>
+		                                <form method="POST" action="">
+											{% csrf_token %}
+											{{ profile_form.as_p }}
+
+		 									<input class="profile-save" type="submit" name="submit" value="Update" id="submit">
+										</form>
+		                            </div>
+		                            </div>
+
+		                             <div class="block block2">
+		                                <h3 class="title">Links</h3>
+		                                <div class="check-list">
+		                                    <input type="checkbox" />
+		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+		                                </div>
+		                                <div class="check-list">
+		                                    <input type="checkbox" />
+		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+		                                </div>
+		                            </div>
+		                            <div class="block block3">
+		                                <h3 class="title">Privacy</h3>
+		                                <div class="check-list">
+		                                    <input type="checkbox" />
+		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+		                                </div>
+		                                <div class="check-list">
+		                                    <input type="checkbox" />
+		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+		                                </div>
+		                            </div>
+
+		                        </div>
+		                       {% endifequal %}
+		                    </div>
                 </div>
             </div>
         </div>
@@ -223,7 +179,7 @@ how do I integrate the your wishlist thing with the tabs thing?
         <div class="js-maincol-inner">
             <div class="content-block">
                 <div class="content-block-heading" id="tabs">
-	                <ul class="tabs">
+                    <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
                         <li class="tabs2"><a href="#">Being Unglued</a></li>
                         <li class="tabs3"><a href="#">Want to Unglue</a></li>
@@ -249,26 +205,49 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </ul>
                 </div>
                 <div class="content-block-content">
+                    {% ifequal wishlist.works.all.count 0 %}
+                    {% ifequal request.user supporter %}
+                    <div class="empty-wishlist">
+                        Your wishlist is currently empty.<br><br>
+                        Go ahead and <span class="bounce-search">find</span> some books to give to the world, and add them to your Wishlist!<br><br>
+                        We double dog dare you...
+                    </div>
+                    {% else %}
+                    <div class="empty-wishlist">
+                        It looks like {{ supporter.username }} is just
+                        getting started, and hasn't added anything to their
+                        wishlist just yet.<br><br>
+                        Nudge, nudge, say no more. 
+                    {% endifequal %}
+                    {% else %}
                     {% for work in wishlist.works.all %}
-               		<div id="tabs-1" class="tabs">
-                	<div class="book-list {% cycle 'row1' 'row2' %}">
+                       <div id="tabs-1" class="tabs">
+                    <div class="book-list {% cycle 'row1' 'row2' %}">
                         <div class="book-thumb">
                             <a href="#"><img src="{{ work.cover_image_small }}" alt="Book name" title="book name"  /></a>
                         </div>
                         <div class="book-name">
                         <span>
-                            {{ work.title }}
+                            <a href="{% url work work.id %}">{{ work.title }}</a>
                         </span>
                         </div>
-						{% if work in request.user.wishlist.works.all %}
+                        {% ifequal supporter request.user %}
                         <div class="remove-wishlist">
-                            <a href="#"><span id="{{ work.id }}">Remove from Wishlist</span></a>
+                            <span id="{{ work.id }}">Remove from Wishlist</span>
                         </div>
-						{% else %}
+                        {% else %}{% if work in shared_works %}
+                        <div>
+                            <span>On Your Wishlist!</span>
+                        </div>
+                        {% else %}{% if request.user.is_anonymous %}
+                        <div class="create-account">
+                            <span>Add to Wishlist</span>
+                        </div>
+                        {% else %}
                         <div class="add-wishlist">
-	                         <a href="#"><span id="{{ work.id }}">Add to Wishlist</span></a>
+                            <span id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</span>
                         </div>
-						{% endif %}
+                        {% endif %}{% endif %}{% endifequal %}
                         <div class="booklist-status">
                             <span class="booklist-status-text">{{ work.last_campaign_status }}</span>
                             <span class="booklist-status-img">
@@ -284,6 +263,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     </div>
                     </div>
                     {% endfor %}
+                    {% endifequal %}
 
                 </div>
             </div>    

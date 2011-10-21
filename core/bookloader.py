@@ -10,7 +10,11 @@ from regluit.core import models
 logger = logging.getLogger(__name__)
 
 
-def add_by_isbn(isbn):
+def add_by_isbn(isbn, work=None):
+    """add a book to the UnglueIt database based on ISBN. The work parameter
+    is optional, and if not supplied the edition will be associated with
+    a stub work.
+    """
     url = "https://www.googleapis.com/books/v1/volumes"
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
@@ -18,21 +22,27 @@ def add_by_isbn(isbn):
         logger.warn("no google hits for %s" % isbn)
         return None
 
-    return add_by_googlebooks_id(results['items'][0]['id'])
+    return add_by_googlebooks_id(results['items'][0]['id'], work)
 
 
-def add_by_googlebooks_id(googlebooks_id):
-    url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
-    d = _get_json(url)['volumeInfo']
-
+def add_by_googlebooks_id(googlebooks_id, work=None):
+    """add a book to the UnglueIt database based on the GoogleBooks ID. The
+    work parameter is optional, and if not supplied the edition will be 
+    associated with a stub work.
+    """
+    # don't ping google again if we already know about the edition
     e, created = models.Edition.objects.get_or_create(googlebooks_id=googlebooks_id)
     if not created:
         return e
+
+    url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
+    d = _get_json(url)['volumeInfo']
 
     e.title = d.get('title')
     e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate')
+    e.language = d.get('language')
 
     for i in d.get('industryIdentifiers', []):
         if i['type'] == 'ISBN_10':
@@ -48,19 +58,43 @@ def add_by_googlebooks_id(googlebooks_id):
         s, created = models.Subject.objects.get_or_create(name=s)
         s.editions.add(e)
 
-    # add a stub Work for the edition 
-    if e.work == None:
+    # if we know what work to add the edition to do it
+    if work:
+        work.editions.add(e)
+
+    # otherwise we need to create a stub work
+    else:
         w = models.Work.objects.create(title=e.title)
         w.editions.add(e)
 
     return e
 
 
+def add_related(isbn):
+    """add all books related to a particular ISBN to the UnglueIt database.
+    The initial seed ISBN will be added if it's not already there.
+    """
+    # make sure the seed edition is there
+    edition = add_by_isbn(isbn)
+
+    # this is the work everything will hang off
+    work = edition.work
+
+    for other_isbn in thingisbn(isbn):
+        # TODO: if the other book is there already we have some surgery
+        # to do on the works, and the wishlists
+        add_by_isbn(other_isbn, work)
+
+
 def thingisbn(isbn):
+    """given an ISBN return a list of related edition ISBNs, according to 
+    Library Thing.
+    """
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
+
 
 def _get_json(url, params={}):
     # TODO: should X-Forwarded-For change based on the request from client?

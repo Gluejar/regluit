@@ -19,7 +19,7 @@ def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
-    return render(request, 'home.html')
+    return render(request, 'home.html', {'suppress_search_box': True})
 
 def supporter(request, supporter_username):
 	supporter = get_object_or_404(User, username=supporter_username)

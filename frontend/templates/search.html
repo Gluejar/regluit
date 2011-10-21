@@ -1,24 +1,7 @@
 {% extends "base.html" %}
 
 {% block extra_head %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $(".add-wishlist").each(function (index, element) {
-        $(element).click(function() {
-            var span = $(element).find("span");
-            var gb_id = span.attr('id')
-            if (!gb_id) return;
-            $.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
-                span.fadeOut();
-                var newSpan = $("<span>On Your Wishlist!</span>").hide();
-                span.replaceWith(newSpan);
-                newSpan.fadeIn();
-                newSpan.removeAttr("id");
-            });
-        });
-    });
-});
-</script>
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
 {% endblock %}
 
 {% block title %}Search Results{% endblock %}

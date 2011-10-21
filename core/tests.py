@@ -21,6 +21,7 @@ class TestBookLoader(TestCase):
         self.assertEqual(edition.isbn_10, '0441012035')
         self.assertEqual(edition.isbn_13, '9780441012039')
         self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
+        self.assertEqual(edition.language, "en")
 
         # subjects
         subject_names = [subject.name for subject in edition.subjects.all()]
@@ -51,6 +52,18 @@ class TestBookLoader(TestCase):
         self.assertTrue(len(isbns) > 20)
         self.assertTrue('0441012035' in isbns)
         self.assertTrue('3453313895' in isbns)
+
+    def test_add_related(self):
+        # add one edition
+        edition = bookloader.add_by_isbn('0441012035')
+        self.assertEqual(models.Edition.objects.count(), 1)
+        self.assertEqual(models.Work.objects.count(), 1)
+    
+        # ask for related editions to be added using the work we just created
+        bookloader.add_related('0441012035')
+        self.assertTrue(models.Edition.objects.count() > 20)
+        self.assertEqual(models.Work.objects.count(), 1)
+        self.assertTrue(edition.work.editions.count() > 20)
 
 class SearchTests(TestCase):
 
@@ -86,10 +99,10 @@ class CampaignTests(TestCase):
         c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1))
         self.assertRaises(IntegrityError, c.save)
 
-        #w = Work()
-        #w.save()
-        #c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
-        #c.save()
+        w = Work()
+        w.save()
+        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
+        c.save()
 
 
     def test_campaign_status(self):

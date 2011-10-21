@@ -152,6 +152,7 @@ class Edition(models.Model):
     isbn_10 = models.CharField(max_length=10, null=True)
     isbn_13 = models.CharField(max_length=13, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
+    language = models.CharField(max_length=2, null=True)
 
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.isbn_13)
