@@ -114,9 +114,15 @@ class Work(models.Model):
 			return 6;
 		elif(self.last_campaign_status() == 'ACTIVE'):
 			target = float(self.campaigns.order_by('-created')[0].target)
-			total = float(self.campaigns.order_by('-created')[0].current_total)
-			percent = round(total/target * 6)
-			return percent;
+			if target <= 0:
+				return 6
+			else:
+				total = float(self.campaigns.order_by('-created')[0].current_total)
+				percent = int(total*6/target)
+				if percent >= 6:
+					return 6
+				else:
+					return percent;
 		else:
 			return 0;
 
