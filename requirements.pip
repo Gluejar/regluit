@@ -9,3 +9,6 @@ selenium
 django-nose-selenium
 nose
 django-profiles
+django-kombu
+django-celery
+redis

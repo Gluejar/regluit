@@ -1,0 +1,19 @@
+Metadata-Version: 1.0
+Name: django-profiles
+Version: 0.2
+Summary: User-profile application for Django
+Home-page: http://www.bitbucket.org/ubernostrum/django-profiles/wiki/
+Author: James Bennett
+Author-email: james@b-list.org
+License: UNKNOWN
+Download-URL: http://www.bitbucket.org/ubernostrum/django-profiles/get/v0.2.gz
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Framework :: Django
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Utilities

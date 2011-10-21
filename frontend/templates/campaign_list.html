@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Campaigns</h2>
+    <ul>
+        {% for campaign in campaign_list %}
+            <li><a href="{% url campaign_by_id pk=campaign.id %}">{{ campaign.name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}

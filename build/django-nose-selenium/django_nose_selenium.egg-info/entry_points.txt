@@ -1,0 +1,6 @@
+[nose.plugins.0.10]
+selenium_fixtures = noseselenium.plugins:SeleniumFixturesPlugin
+djangoliveserver = noseselenium.plugins:DjangoLiveServerPlugin
+cherrypyliveserver = noseselenium.plugins:CherryPyLiveServerPlugin
+selenium = noseselenium.plugins:SeleniumPlugin
+

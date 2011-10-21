@@ -1,9 +1,12 @@
 import json
 import logging
-from xml.etree import ElementTree
 
+from xml.etree import ElementTree
 import requests
+
 from django.conf import settings
+from django.db.models import Q
+from django.db import IntegrityError
 
 from regluit.core import models
 
@@ -15,6 +18,12 @@ def add_by_isbn(isbn, work=None):
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
+    logger.info("adding book for %s", isbn)
+    # save a lookup to google if we already have this isbn
+    has_isbn = Q(isbn_10=isbn) | Q(isbn_13=isbn)
+    for edition in models.Edition.objects.filter(has_isbn):
+        return edition
+
     url = "https://www.googleapis.com/books/v1/volumes"
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
@@ -22,7 +31,13 @@ def add_by_isbn(isbn, work=None):
         logger.warn("no google hits for %s" % isbn)
         return None
 
-    return add_by_googlebooks_id(results['items'][0]['id'], work)
+    try:
+        return add_by_googlebooks_id(results['items'][0]['id'], work)
+    except LookupFailure, e:
+        logger.exception("failed to add edition for %s", isbn)
+    except IntegrityError, e:
+        logger.exception("edition data for %s does not match db schema", isbn)
+    return None
 
 
 def add_by_googlebooks_id(googlebooks_id, work=None):
@@ -35,6 +50,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     if not created:
         return e
 
+    logger.info("loading metadata from google for %s", googlebooks_id)
     url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
     d = _get_json(url)['volumeInfo']
 
@@ -75,25 +91,48 @@ def add_related(isbn):
     The initial seed ISBN will be added if it's not already there.
     """
     # make sure the seed edition is there
+    logger.info("adding related editions for %s", isbn)
     edition = add_by_isbn(isbn)
 
     # this is the work everything will hang off
     work = edition.work
 
+    new_editions = []
     for other_isbn in thingisbn(isbn):
-        # TODO: if the other book is there already we have some surgery
-        # to do on the works, and the wishlists
-        add_by_isbn(other_isbn, work)
+        related_edition = add_by_isbn(other_isbn, work)
+        if related_edition and related_edition.work != edition.work:
+            merge_works(edition.work, related_edition.work)
+        if related_edition:
+            new_editions.append(related_edition)
+
+    return new_editions
 
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
     Library Thing.
     """
+    logger.info("looking up %s at ThingISBN" % isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
+
+
+def merge_works(w1, w2):
+    """will merge the second work (w2) into the first (w1)
+    """
+    logger.info("merging work %s into %s", w1, w2)
+    for edition in w2.editions.all():
+        edition.work = w1
+        edition.save()
+    for campaign in w2.campaigns.all():
+        campaign.work = w1
+        campaign.save()
+    for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
+        wishlist.works.remove(w2)
+        wishlist.works.add(w1)
+    w2.delete()
 
 
 def _get_json(url, params={}):

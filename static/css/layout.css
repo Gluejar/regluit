@@ -1,3 +1,8 @@
+/*
+DO NOT MAKE CHANGES DIRECTLY TO layout.css.
+Make changes to the appropriate file in /static/less/ and compile with the less app or similar (lesscss.org).
+Changes made directly to layout.css will be overwritten.
+*/
 @charset "utf-8";
 .header-text {
   height: 36px;
@@ -7,7 +12,6 @@
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
-  text-transform: capitalize;
 }
 .panelborders {
   border-width: 1px 0px;
@@ -458,7 +462,6 @@ a {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
-  text-transform: capitalize;
 }
 .js-topmenu ul li span#welcome {
   color: #8dc63f;
@@ -469,12 +472,11 @@ a {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
-  text-transform: capitalize;
 }
-.js-topmenu ul lilast a {
+.js-topmenu ul li.last a {
   background: url("/static/images/bg.png") right top no-repeat;
 }
-.js-topmenu ul lilast a span {
+.js-topmenu ul li.last a span {
   background: url("/static/images/bg.png") -770px -36px no-repeat;
   margin-right: 29px;
   display: block;
@@ -628,7 +630,7 @@ div.content-block-content .cols3 .column {
 }
 .user-block-hide .block {
   float: left;
-  width: 25%;
+  width: 33%;
 }
 .user-block-hide input {
   float: left;
@@ -713,13 +715,15 @@ a.profile-edit {
 }
 div.profile-save {
   padding-top: 15px;
+  border: none;
 }
-a.profile-save {
+input.profile-save {
   background: url("/static/images/header/save-setting.png") 0 0 no-repeat;
   width: 116px;
   height: 42px;
   display: block;
   text-indent: -100000px;
+  border: none;
 }
 a.my-setting {
   background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;

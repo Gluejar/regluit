@@ -29,6 +29,7 @@ to install python-setuptools in step 1:
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate --noinput`
+1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.`
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. point your browser at http://localhost:8000/
 
@@ -40,7 +41,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. create an ubuntu natty ec2 instance using ami-1aad5273
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb`
+1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
@@ -64,6 +65,15 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
 1. `sudo /etc/init.d/apache2 restart`
+1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
+1. `sudo cp celeryd /etc/init.d/celeryd`
+1. `sudo chmod 755 /etc/init.d/celeryd`
+1. `sudo cp celeryd.conf /etc/default/celeryd`
+1. `sudo mkdir /var/log/celery`
+1. `sudo chown celery:celery /var/log/celery`
+1. `sudo mkdir /var/run/celery`
+1. `sudo chown celery:celery /var/run/celery`
+1. `sudo /etc/init.d/celeryd start`
 
 
 OS X Develper Notes

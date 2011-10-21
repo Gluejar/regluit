@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from tastypie.api import Api
+from regluit.api.views import ApiHelpView
 
 from regluit.api import resources
 
@@ -13,5 +14,7 @@ v1_api.register(resources.SubjectResource())
 v1_api.register(resources.WishlistResource())
 
 urlpatterns = patterns('',
+    url(r'^help$', ApiHelpView.as_view(), name="api_help"),
+    url(r'^widget/(?P<isbn>\w+)/$','regluit.api.views.widget', name="widget"),
     (r'^', include(v1_api.urls)),
 )

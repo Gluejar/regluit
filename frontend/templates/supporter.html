@@ -40,11 +40,15 @@
             $j('#tabs-3').addClass('active').show(300);
             $j('#tabs-2').hide(200);
             $j('#tabs-1').hide(200);
+            });
+        $j('.empty-wishlist span.bounce-search').click(function(){
+            $j('div.js-search-inner').effect("bounce", 500, function() {
+                $j('div.js-search-inner input[type="text"]').focus();
+            });
         });
     });
-
-
 </script>
+<link rel="stylesheet" href="/static/css/book_list.css">
 
 {% endblock %}
 
@@ -124,41 +128,41 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="block block1">
                             <div class="block-inner">
                                 <h3><a class="profile-edit" href="#">Profile / edit</a></h3>
-		                                <form method="POST" action="">
-											{% csrf_token %}
-											{{ profile_form.as_p }}
+                                <form method="POST" action="">
+									{% csrf_token %}
+									{{ profile_form.as_p }}
 
-		 									<input class="profile-save" type="submit" name="submit" value="Update" id="submit">
-										</form>
-		                            </div>
-		                            </div>
-
-		                             <div class="block block2">
-		                                <h3 class="title">Links</h3>
-		                                <div class="check-list">
-		                                    <input type="checkbox" />
-		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-		                                </div>
-		                                <div class="check-list">
-		                                    <input type="checkbox" />
-		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-		                                </div>
-		                            </div>
-		                            <div class="block block3">
-		                                <h3 class="title">Privacy</h3>
-		                                <div class="check-list">
-		                                    <input type="checkbox" />
-		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-		                                </div>
-		                                <div class="check-list">
-		                                    <input type="checkbox" />
-		                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-		                                </div>
-		                            </div>
-
-		                        </div>
-		                       {% endifequal %}
-		                    </div>
+ 									<input class="profile-save" type="submit" name="submit" value="Update" id="submit">
+								</form>
+                            </div>
+                            </div>
+                            
+                             <div class="block block2">
+                                <h3 class="title">Links</h3>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                            </div>
+                            <div class="block block3">
+                                <h3 class="title">Privacy</h3>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                                <div class="check-list">
+                                    <input type="checkbox" />
+                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                </div>
+                            </div>
+                               
+                        </div>
+                       {% endifequal %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,7 +268,6 @@ how do I integrate the your wishlist thing with the tabs thing?
                     </div>
                     {% endfor %}
                     {% endifequal %}
-
                 </div>
             </div>    
         </div>

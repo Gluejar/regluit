@@ -11,12 +11,16 @@
             <div class="js-search">
         	<h2>What book would you give to the world?</h2>
             <div class="js-search-inner">
-                <form action="{% url search %}" method="get"> <input type="text" onfocus="if (this.value=='Search for a book...') this.value='';" onblur="if (this.value=='') this.value='Search for a book...';" value="Search for a book..." size="30" class="inputbox" maxlength="200" id="ssearchword" name="q">
+                <form action="{% url search %}" method="get"> 
+                    <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q">
                     <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
                 </form>
             </div>
             </div>
         </div>
+    </div>
+
+    <div style="margin-top: 20%;">
     </div>
     
 {% endblock %}

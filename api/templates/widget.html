@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>unglue.it: {% block title %}{% endblock %}</title>
+    <link type="text/css" rel="stylesheet" href="/static/css/layout.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/book-panel.css"  />
+    <link href="/static/css/book-panel.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
+    <script type="text/javascript" src="/static/js/book-panel.js"></script>
+    <style type="text/css">
+        .undefined {text-decoration:underline;}
+    </style>
+</head>
+
+<body>
+
+<!--- editions --->
+
+{% if work %}
+<div class="book_panel" style="float: left;">
+    <div class="book_panel_interior">
+      <img src="http://covers.openlibrary.org/b/isbn/{{work.editions.all.0.isbn_10}}-M.jpg" width="120" height="182" />
+      <b>{{ work.title }}</b>
+      <p>{{ work.authors.all.0.name }}</p>
+      <p><b>Genre:</b>{{work.subjects.all.0.name}}</p>
+      <p class="status"><b>Status:</b>{{campaign.status}}</p>
+      <div class="read">
+        <img src="/static/images/book-panel/percent.png" />
+        <p>{{progress}}%</p>
+        <p class="right_add">
+          <img src="/static/images/book-panel/add_gray.png" border="0" />
+        </p>
+      </div>
+      <span style="display: none;">
+        <div class="book_panel_back">
+          <div class="unglued_white">
+            <b>Unglued?</b>
+            <p>{{campaign.deadline.date}}</p>
+            <p><b>Raised:</b>${{campaign.current_total}}</p>
+          </div>
+          <div class="read_itbutton">
+            <a href="#">Read it Now</a>
+          </div>
+          <div id="add_towish">
+            <a href="#">Add to Wishlist</a>
+          </div>
+          <div id="white_text">
+            <b><a href="#">{{ work.title }}</a></b>
+            <p><a href="#">{{ work.authors.all.0.name }}</a></p>
+            <p><b>Genre:</b>{{work.subjects.all.0.name}}</p>
+            <p><b>Status:</b>{{campaign.status}}</p>
+          </div>
+          <div id="moreinfo">
+            <a href="#">More Info</a>
+          </div>
+        </div>
+      </span>
+    </div>
+</div>
+{% else %}
+        <p class="classname">No work corresponding to ISBN {{isbn}} available</p>
+{% endif %}
+
+</body>
+</html>
+
+

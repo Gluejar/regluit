@@ -6,6 +6,7 @@ from decimal import Decimal as D
 from django.core.management.base import BaseCommand
 
 from regluit.core.models import Work, Campaign
+from django.conf import settings
 
 class Command(BaseCommand):
     help = "creates random campaigns for any works that lack one for testing"
@@ -21,6 +22,9 @@ class Command(BaseCommand):
 
             # random campaign target between $200 and $10,000
             campaign.target = D(randint(200,10000))
+            
+            # add a test rightsholder recipient right now
+            campaign.paypal_receiver = settings.PAYPAL_TEST_RH_EMAIL
 
             # random deadline between 5 days from now and 180 days from now
             now = datetime.now()
@@ -33,7 +37,8 @@ class Command(BaseCommand):
 	            campaign.activated = now
 
             campaign.save()
-            print "created %s" % campaign
+            campaign.activate()
+            print "activated campaign %s" % campaign
 
 
 def random_date(start, end):

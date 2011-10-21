@@ -11,17 +11,17 @@ class UnglueitError(RuntimeError):
 
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=500, null=False)
-    description = models.TextField(null=False)
-    target = models.DecimalField(max_digits=14, decimal_places=2)
-    deadline = models.DateTimeField(null=False)
+    name = models.CharField(max_length=500, null=True, blank=False)
+    description = models.TextField(null=True, blank=False)
+    target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
     suspended = models.DateTimeField(null=True)
     withdrawn = models.DateTimeField(null=True)
-    supended_reason = models.TextField(null=True)
-    withdrawn_reason = models.TextField(null=True)
-    paypal_receiver = models.CharField(max_length=100, null=True)
-    amazon_receiver = models.CharField(max_length=100, null=True)
+    suspended_reason = models.TextField(null=True, blank=True)
+    withdrawn_reason = models.TextField(null=True, blank=True)
+    paypal_receiver = models.CharField(max_length=100, blank=True)
+    amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
 
     def __unicode__(self):
@@ -55,6 +55,10 @@ class Campaign(models.Model):
         p = PaymentManager()
         return p.query_campaign(campaign=self,summary=True)        
         
+    def transactions(self, pledged=True, authorized=True):
+        p = PaymentManager()
+        return p.query_campaign(campaign=self, summary=False, pledged=pledged, authorized=authorized)
+        
     def activate(self):
         status = self.status
         if status != 'INITIALIZED':
@@ -68,7 +72,7 @@ class Campaign(models.Model):
         if status != 'ACTIVE':
             raise UnglueitError('Campaign needs to be active in order to be suspended')
         self.suspended = datetime.datetime.utcnow()
-        self.supended_reason = reason
+        self.suspended_reason = reason
         self.save()
         return self
         
@@ -98,9 +102,7 @@ class Work(models.Model):
     openlibrary_id = models.CharField(max_length=50, null=True)
 
     def cover_image_small(self):
-        server_id = random.randint(0, 9)
-        gb_id = self.editions.all()[0].googlebooks_id
-        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, gb_id)
+        return self.editions.all()[0].cover_image_small()
 
     def last_campaign_status(self):
 		try:
@@ -163,16 +165,26 @@ class Edition(models.Model):
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.isbn_13)
 
+    def cover_image_small(self):
+        server_id = random.randint(0, 9)
+        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+
+    def cover_image_thumbnail(self):
+        server_id = random.randint(0, 9)
+        return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+
     @classmethod
     def get_by_isbn(klass, isbn):
         for e in Edition.objects.filter(Q(isbn_10=isbn) | Q(isbn_13=isbn)):
             return e
         return None
 
+
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists')
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')

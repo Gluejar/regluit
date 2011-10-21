@@ -12,17 +12,17 @@ class Migration(SchemaMigration):
         db.create_table('core_campaign', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=500)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('target', self.gf('django.db.models.fields.DecimalField')(max_digits=14, decimal_places=2)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=500, null=True)),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True)),
+            ('target', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=14, decimal_places=2)),
             ('deadline', self.gf('django.db.models.fields.DateTimeField')()),
             ('activated', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('suspended', self.gf('django.db.models.fields.DateTimeField')(null=True)),
             ('withdrawn', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('supended_reason', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('withdrawn_reason', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('paypal_receiver', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
-            ('amazon_receiver', self.gf('django.db.models.fields.CharField')(max_length=100, null=True)),
+            ('suspended_reason', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('withdrawn_reason', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('paypal_receiver', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
+            ('amazon_receiver', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
             ('work', self.gf('django.db.models.fields.related.ForeignKey')(related_name='campaigns', to=orm['core.Work'])),
         ))
         db.send_create_signal('core', ['Campaign'])
@@ -80,6 +80,7 @@ class Migration(SchemaMigration):
             ('isbn_10', self.gf('django.db.models.fields.CharField')(max_length=10, null=True)),
             ('isbn_13', self.gf('django.db.models.fields.CharField')(max_length=13, null=True)),
             ('work', self.gf('django.db.models.fields.related.ForeignKey')(related_name='editions', null=True, to=orm['core.Work'])),
+            ('language', self.gf('django.db.models.fields.CharField')(max_length=2, null=True)),
         ))
         db.send_create_signal('core', ['Edition'])
 
@@ -102,7 +103,7 @@ class Migration(SchemaMigration):
         # Adding model 'UserProfile'
         db.create_table('core_userprofile', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['auth.User'], unique=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='profile', unique=True, to=orm['auth.User'])),
             ('tagline', self.gf('django.db.models.fields.CharField')(max_length=140, blank=True)),
         ))
         db.send_create_signal('core', ['UserProfile'])
@@ -188,18 +189,18 @@ class Migration(SchemaMigration):
         'core.campaign': {
             'Meta': {'object_name': 'Campaign'},
             'activated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
+            'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'deadline': ('django.db.models.fields.DateTimeField', [], {}),
-            'description': ('django.db.models.fields.TextField', [], {}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'}),
-            'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True'}),
-            'supended_reason': ('django.db.models.fields.TextField', [], {'null': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '500', 'null': 'True'}),
+            'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'suspended': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'target': ('django.db.models.fields.DecimalField', [], {'max_digits': '14', 'decimal_places': '2'}),
+            'suspended_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'target': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '14', 'decimal_places': '2'}),
             'withdrawn': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'withdrawn_reason': ('django.db.models.fields.TextField', [], {'null': 'True'}),
+            'withdrawn_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
         },
         'core.edition': {
@@ -210,6 +211,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'isbn_10': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True'}),
             'isbn_13': ('django.db.models.fields.CharField', [], {'max_length': '13', 'null': 'True'}),
+            'language': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True'}),
             'publication_date': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
             'publisher': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
@@ -226,7 +228,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'UserProfile'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'tagline': ('django.db.models.fields.CharField', [], {'max_length': '140', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['auth.User']", 'unique': 'True'})
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'profile'", 'unique': 'True', 'to': "orm['auth.User']"})
         },
         'core.wishlist': {
             'Meta': {'object_name': 'Wishlist'},

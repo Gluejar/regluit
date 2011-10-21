@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block extra_head %}
+    <style type="text/css">
+        .undefined {text-decoration:underline;}
+    </style>
+{% endblock %}
+
+{% block title %}API Help{% endblock %}
+
+{% block content %}
+<div id="main-container">
+<div class="js-main">
+<div id="js-maincol-fr">
+<div class="js-maincol-inner">
+<div class="content-block">
+    
+    <h1>API Help</h1>
+    <p>Some of the data from Unglue It is avaiable via a JSON API. You will need a key and username to be able to use the API.
+    </p>
+    {% if user.is_authenticated %}
+       <p> Welcome {{user.username}}. Your API key is <span style="font-weight:bold">{{api_key}}</span>.</p>
+    {% else %}
+       <p> Please <a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>sign in</span></a> first.</p>
+    {% endif %}
+    
+    <h2>Basic API info</h2>
+    
+    <a href="/api/v1/?format=json">Available Resources (JSON)</a>
+    
+    {% if user.is_authenticated %}
+    <h2>Campaign info</h2>
+    <p>JSON to get data on all campaigns</p>
+    <a href="/api/v1/campaign/?format=json&api_key={{api_key}}&username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&api_key={api_key}&username={username}</a>
+    {% endif %}
+    
+    <h2>Campaign Widgets</h2>
+    <p>You don't need a key to embed campaign (HTML) widgets. </p>
+    {% if campaign %}
+       Here's a sample widget for the book <span style="font-style: italic">{{campaign.name}}</span> with ISBN {{campaign_isbn}}: <a href="{% url widget campaign_isbn %}">{{base_url}}{% url widget campaign_isbn %}</a>
+    {% else %}
+       <p>Since there are currently no campaigns, there are no corresponding widgets.</p>
+    {% endif %}
+
+</div>
+</div>
+</div>
+</div>
+</div>    
+{% endblock %}
+
+
