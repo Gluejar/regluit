@@ -1,0 +1,15 @@
+AUTHORS
+LICENSE
+MANIFEST.in
+README.rst
+setup.py
+django_nose_selenium.egg-info/PKG-INFO
+django_nose_selenium.egg-info/SOURCES.txt
+django_nose_selenium.egg-info/dependency_links.txt
+django_nose_selenium.egg-info/entry_points.txt
+django_nose_selenium.egg-info/top_level.txt
+noseselenium/__init__.py
+noseselenium/cases.py
+noseselenium/plugins.py
+noseselenium/thirdparty/__init__.py
+noseselenium/thirdparty/selenium.py

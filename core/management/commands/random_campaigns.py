@@ -31,6 +31,11 @@ class Command(BaseCommand):
             campaign.deadline = random_date(now + timedelta(days=5),
                                             now + timedelta(days=180))
 
+            # randomly activate some of the campaigns
+            coinflip = D(randint(0,10))
+            if coinflip > 5:
+	            campaign.activated = now
+
             campaign.save()
             campaign.activate()
             print "activated campaign %s" % campaign

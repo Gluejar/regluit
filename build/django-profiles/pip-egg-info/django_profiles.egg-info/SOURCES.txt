@@ -1,0 +1,14 @@
+INSTALL.txt
+LICENSE.txt
+MANIFEST.in
+README.txt
+docs/overview.txt
+docs/views.txt
+pip-egg-info/django_profiles.egg-info/PKG-INFO
+pip-egg-info/django_profiles.egg-info/SOURCES.txt
+pip-egg-info/django_profiles.egg-info/dependency_links.txt
+pip-egg-info/django_profiles.egg-info/top_level.txt
+profiles/__init__.py
+profiles/urls.py
+profiles/utils.py
+profiles/views.py

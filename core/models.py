@@ -104,6 +104,30 @@ class Work(models.Model):
     def cover_image_small(self):
         return self.editions.all()[0].cover_image_small()
 
+    def last_campaign_status(self):
+		try:
+			last = self.campaigns.order_by('-created')[0].status
+		except:
+			last = "No campaign yet"
+		return last
+
+    def percent_unglued(self):
+		if(self.last_campaign_status() == 'SUCCESSFUL'):
+			return 6;
+		elif(self.last_campaign_status() == 'ACTIVE'):
+			target = float(self.campaigns.order_by('-created')[0].target)
+			if target <= 0:
+				return 6
+			else:
+				total = float(self.campaigns.order_by('-created')[0].current_total)
+				percent = int(total*6/target)
+				if percent >= 6:
+					return 6
+				else:
+					return percent;
+		else:
+			return 0;
+
     def __unicode__(self):
         return self.title
 

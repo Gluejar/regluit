@@ -7,7 +7,6 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 
-
 <script type="text/javascript">
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
@@ -254,9 +253,9 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         {% endif %}{% endif %}{% endifequal %}
                         <div class="booklist-status">
-                            <span class="booklist-status-text">{{ work.campaign_set.all.count }}</span>
+                            <span class="booklist-status-text">{{ work.last_campaign_status }}</span>
                             <span class="booklist-status-img">
-                                <img src="/static/images/booklist/icon1.png" title="book list status" alt="book list status" />
+                                <img src="/static/images/icon-book{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
                             </span>
                         </div>
                         <div class="unglue-this none">
