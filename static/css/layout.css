@@ -784,3 +784,21 @@ ul.tabs li a:hover, ul.tabs li.active a {
 .book-list span.rounded > span a {
   text-transform: capitalize;
 }
+
+/* work page */
+
+ul.edition-list {
+    list-style: none;
+}
+ul.edition-list li {
+    clear: both;
+    padding: 10px;
+    height: 80px;
+    border-bottom: thin gray solid;
+}
+li.edition img.cover {
+    vertical-align: top;
+}
+li.edition span.publisher {
+    font-weight: bold;
+}

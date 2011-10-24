@@ -4,6 +4,7 @@ from decimal import Decimal as D
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -69,10 +70,15 @@ def supporter(request, supporter_username):
     else: 
         shared_works = []
 
-    # added following blok to support profile admin form in supporter page
+    # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
         if  request.method == 'POST': 
-            profile_form = ProfileForm(data=request.POST,instance=request.user.get_profile())
+            try:
+                profile_obj=request.user.get_profile()
+            except ObjectDoesNotExist:
+                profile_obj= models.UserProfile()
+                profile_obj.user=request.user
+            profile_form = ProfileForm(data=request.POST,instance=profile_obj)
             if profile_form.is_valid():
                 profile_form.save()
         else:

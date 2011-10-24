@@ -6,3 +6,4 @@ settings/me.*
 reports
 ENV
 .DS_Store
+build
