@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block extra_head %}
+   
+{% endblock %}
+
+{% block title %}Goodreads{% endblock %}
+
+{% block content %}
+<div id="main-container">
+<div class="js-main">
+<div id="js-maincol-fr">
+<div class="js-maincol-inner">
+<div class="content-block">
+    
+    <h1>Goodreads</h1>
+    {% if goodreads_userid %}
+        <p>Welcome, Goodreads user id# {{goodreads_userid}}. Your GR username is {{goodreads_username}}. Want to see <a href="{{goodreads_userlink}}">your Goodreads profile</a>?</p>
+    {% else %}
+         <p>We don't currently know your Goodreads user information.</p>
+         <p><a href="{{goodreads_auth_url}}">Enable us to link to your Goodreads account.</a></p>
+    {% endif %}
+    {% if shelves_info %}
+        <p>You have {{shelves_info.total}} shelves. </p>
+        {% for shelf in shelves_info.user_shelves %}
+            <p>{{shelf.name}}: {{shelf.book_count}} book(s)</p>
+        {% endfor %}
+    {% endif %}
+    <p>Clear the association with your Goodreads account by <a href="{% url goodreads_flush_session %}">flushing your session.</a></p>
+    <p>Revoke access for Unglue.it at <a href="http://www.goodreads.com/user/edit?format=html">Goodreads</a>: Go to the API panel.</p>
+   
+</div>
+</div>
+</div>
+</div>
+</div>    
+{% endblock %}
+
+
