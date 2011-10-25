@@ -118,6 +118,16 @@ class GoodreadsClient(object):
       else:
           return True
         
+    def review_list(self,id,shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
+        """have to account for situation in which we might need authorized access
+        sort: available_for_swap, position, num_pages, votes, recommender, rating, shelves, format,
+        avg_rating, date_pub, isbn, comments, author, title, notes, cover, isbn13, review, date_pub_edition,
+        condition, asin, date_started, owned, random, date_read, year_pub, read_count, date_added,
+        date_purchased, num_ratings, purchase_location, date_updated (optional)
+        """
+        # TO FINISH
+        path="/review/list/"
+        
     def shelves_list(self,user_id,page=1):
         path = "/shelf/list.xml"
         params = {'user_id':user_id, 'page':page}
@@ -135,7 +145,8 @@ class GoodreadsClient(object):
             doc = ET.fromstring(r.content)
             shelves = doc.find('shelves')
             # do a simple parsing to a dictionary
-            d = {k:int(shelves.attrib[k]) for k in shelves.attrib }
+            
+            d = dict(  [ (k,int(shelves.attrib[k])) for k in shelves.attrib ]  )
             d["user_shelves"] = [{'name':shelf.find('name').text,
                                   'book_count':int(shelf.find('book_count').text),
                                   'description':shelf.find('description').text if shelf.find('description').attrib['nil'] != 'true' else None } \
