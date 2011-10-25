@@ -189,6 +189,8 @@ class Wishlist(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
+    home_url =  models.URLField(blank=True)
+    twitter_id =  models.CharField(max_length=15, blank=True)
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager

@@ -11,7 +11,12 @@ class ProfileForm(forms.ModelForm):
         exclude = 'user'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
+            'twitter_id': forms.TextInput(attrs={'label': 'Twitter Handle', 'maxlength': 16}),
         }
+        
+    def clean_twitter_id(self):
+        twitter_id=self.cleaned_data['twitter_id']
+        return twitter_id.lstrip('@')
 
 class UserData(forms.Form):
     username = forms.RegexField(
@@ -23,7 +28,6 @@ class UserData(forms.Form):
             'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
         }
     )
-   # oldusername = forms.CharField(max_length=30)
 
 
     def clean_username(self):

@@ -15,7 +15,6 @@ def facebook_extra_values(sender, user, response, details, **kwargs):
 
 pre_update.connect(facebook_extra_values, sender=FacebookBackend)
 
-
 def create_user_objects(sender, created, instance, **kwargs):
     # use get_model to avoid circular import problem with models
     try:
@@ -28,7 +27,6 @@ def create_user_objects(sender, created, instance, **kwargs):
         # this can happen when creating superuser during syncdb since the
         # core_wishlist table doesn't exist yet
         return
-    
 
 post_save.connect(create_user_objects, sender=User)
 post_save.connect(create_api_key, sender=User)
