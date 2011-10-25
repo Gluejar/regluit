@@ -142,27 +142,38 @@ class GoodreadsClient(object):
         
         request_url = urljoin(GoodreadsClient.url, path)
         
-        r = request(method,request_url,params=params)
+        # loop through all the pages starting with page
         
-        if r.status_code != httplib.OK:
-             logger.info('headers, content: %s | %s ' % (r.headers,r.content))
-             raise GoodreadsException('Error in review_list: %s %s ' % (r.headers, r.content))
-        else:
-            logger.info('headers, content: %s | %s ' % (r.headers,r.content))
-            doc = ET.fromstring(r.content)
-            # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
-            reviews = doc.findall('reviews/review')
-            for review in reviews:
-                yield ({'id':review.find('id').text,
-                        'book': {'id': review.find('book/id').text,
-                                 'isbn13':review.find('book/isbn13').text,
-                                 'title':review.find('book/title').text,
-                                 'text_reviews_count':review.find('book/text_reviews_count').text,
-                                 'link':review.find('book/link').text,
-                                 'small_image_url':review.find('book/small_image_url').text,
-                                 'ratings_count':review.find('book/ratings_count').text,
-                                 'description':review.find('book/description').text}
-                        })
+        more_pages = True
+        
+        while (more_pages):
+        
+            r = request(method,request_url,params=params)
+            
+            if r.status_code != httplib.OK:
+                 #logger.info('headers, content: %s | %s ' % (r.headers,r.content))
+                 raise GoodreadsException('Error in review_list: %s %s ' % (r.headers, r.content))
+            else:
+                #logger.info('headers, content: %s | %s ' % (r.headers,r.content))
+                doc = ET.fromstring(r.content)
+                # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
+                reviews = doc.findall('reviews/review')
+                for review in reviews:
+                    yield ({'id':review.find('id').text,
+                            'book': {'id': review.find('book/id').text.strip(),
+                                     'isbn13':review.find('book/isbn13').text,
+                                     'title':review.find('book/title').text.strip(),
+                                     'text_reviews_count':review.find('book/text_reviews_count').text.strip(),
+                                     'link':review.find('book/link').text.strip(),
+                                     'small_image_url':review.find('book/small_image_url').text.strip(),
+                                     'ratings_count':review.find('book/ratings_count').text.strip(),
+                                     'description':review.find('book/description').text.strip()}
+                            })
+                if len(reviews) == 0:
+                    more_pages = False
+                else:
+                    params["page"] += 1
+
         
     def shelves_list(self,user_id,page=1):
         path = "/shelf/list.xml"

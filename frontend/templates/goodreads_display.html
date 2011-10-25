@@ -21,15 +21,20 @@
     {% endif %}
     {% if shelves_info %}
         <p>You have {{shelves_info.total}} shelves. </p>
-        {% for shelf in shelves_info.user_shelves %}
-            <p>{{shelf.name}}: {{shelf.book_count}} book(s)</p>
-        {% endfor %}
+        {% if shelves_info.user_shelves %}
+          <ul>
+          {% for shelf in shelves_info.user_shelves %}
+            <li>{{shelf.name}}: {{shelf.book_count}} book(s)</li>
+          {% endfor %}
+          </ul>
+        {% endif %}
     {% endif %}
     <!-- list user's books -->
     {% if reviews %}
+        <p>Here are some of your books that you've put on your Goodreads shelves:</p>
         <ul id="id">
-        {% for review in reviews %}
-            <li>{{review.book.title}}</li>
+        {% for review in reviews|slice:":50" %}
+            <li><img src="{{review.book.small_image_url}}"/><a href="{{review.book.link}}">{{review.book.title}}</a></li>
         {% endfor %}
         </ul>
     {% endif %}

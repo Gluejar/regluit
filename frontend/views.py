@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 
 import oauth2 as oauth
+from itertools import islice
 
 from regluit.core import tasks
 from regluit.core import models, bookloader
@@ -251,7 +252,7 @@ class GoodreadsDisplayView(TemplateView):
         # if we have a userid, grab info about the book shelves and books
         if session.get("goodreads_userid") is not None:
             context["shelves_info"] = gr_client.shelves_list(user_id=session["goodreads_userid"])
-            context["reviews"] = gr_client.review_list(user_id=session["goodreads_userid"],per_page=10)
+            context["reviews"] = list(islice(gr_client.review_list(user_id=session["goodreads_userid"],per_page=50),50))
             
         # also, now grab the books on the user's shelves
   
