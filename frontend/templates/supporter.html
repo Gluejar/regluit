@@ -108,9 +108,17 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             <div class="user-block4">
                                 <div class="social">
-                                <a href="#"><img src="/static/images/header/icon-home.png" alt="Home" title="Home"  /></a>
-                                <a href="#"><img src="/static/images/header/icon-facebook.png" alt="Facebook" title="Facebook"  /></a>
-                                <a href="#"><img src="/static/images/header/icon-twitter.png" alt="twitter" title="twitter"  /></a>
+                                {% if supporter.profile.home_url %}
+                               	<a href="{{ supporter.profile.home_url }}">
+                               		<img src="/static/images/header/icon-home.png" alt="{{ supporter }}'s Homepage" title="{{ supporter }}'s Homepage"  />
+                               	</a>
+                                {% endif %}
+                                <a href="#"><img src="/static/images/header/icon-facebook.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  /></a>
+                                {% if supporter.profile.twitter_id %}
+                                <a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}">
+                                	<img src="/static/images/header/icon-twitter.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
+                                </a>
+                                {% endif %}
                                 <a href="#"><img src="/static/images/header/icon-google.png" alt="google" title="google"  /></a>
                                 <a href="#"><img src="/static/images/header/icon-group.png" alt="group" title="group"  /></a></div>
                             </div>
@@ -125,33 +133,31 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
 						{% ifequal supporter request.user %}
                         <div class="user-block-hide">
+						<form method="POST" action="">
+							{% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
-                                <h3><a class="profile-edit" href="#">Profile / edit</a></h3>
-                                <form method="POST" action="">
-									{% csrf_token %}
-									{{ profile_form.as_p }}
+                                <h3><a class="profile-edit" href="#">Your Tagline</a></h3>
+									{{ profile_form.tagline }}
 
  									<input class="profile-save" type="submit" name="submit" value="Update" id="submit">
-								</form>
                             </div>
                             </div>
                             
                              <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                    <label>Your homepage URL:</label>
+                                    {{ profile_form.home_url }}
                                 </div>
                                 <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
+                                    <label>Your Twitter handle:</label>
+                                    {{ profile_form.twitter_id }}
                                 </div>
                             </div>
                             <div class="block block3">
-                                <h3 class="title">Privacy</h3>
+                                <h3 class="title">Other Stuff</h3>
                                 <div class="check-list">
-                                    <input type="checkbox" />
                                     <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
                                 </div>
                                 <div class="check-list">
@@ -160,8 +166,9 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                             </div>
                                
+ 						</form>
                         </div>
-                       {% endifequal %}
+                      {% endifequal %}
                     </div>
                 </div>
             </div>
