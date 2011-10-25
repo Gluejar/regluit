@@ -83,3 +83,7 @@ BASE_URL = 'http://0.0.0.0/'
 # use database as queuing service in development
 BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"
 INSTALLED_APPS += ("djkombu",)
+
+# Goodreads API
+GOODREADS_API_KEY = ''
+GOODREADS_API_SECRET = ''

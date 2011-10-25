@@ -10,16 +10,22 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
+
+import oauth2 as oauth
 
 from regluit.core import tasks
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
+from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm
 from regluit.frontend.forms import CampaignPledgeForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
+
+from regluit.core import goodreads
 
 logger = logging.getLogger(__name__)
 
@@ -213,3 +219,76 @@ class CampaignFormView(FormView):
             response = t.reference
             logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
+
+
+class GoodreadsDisplayView(TemplateView):
+    template_name = "goodreads_display.html"
+    def get_context_data(self, **kwargs):
+        context = super(GoodreadsDisplayView, self).get_context_data(**kwargs)
+        
+        goodreads_attribs = ["goodreads_userid", "goodreads_username", "goodreads_isauthorized", "goodreads_userlink"]
+        # for this round, I will use the Session to hold the Goodreads profile info
+        session = self.request.session
+        
+        # load up context with this info even though the template can directly access the session.
+        # down the road, we won't store the goodreads user info in the session.
+        
+        for attrib in goodreads_attribs:
+            context[attrib] = session.get(attrib, None)
+        
+        # a Goodreads user shouldn't have to authorize us to get certain functionality   
+        # if we don't know the Goodreads identity of user, offer to authenticate user to Goodreads and grab identity
+        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+
+        if session.get("goodreads_isauthorized") is None:   
+            # calculate the Goodreads authorization URL
+            (context["goodreads_auth_url"], request_token) = gr_client.begin_authorization(self.request.build_absolute_uri(reverse('goodreads_cb')))
+            
+            # store request token in session so that we can redeem it for auth_token if authorization works
+            session['goodreads_request_token'] = request_token['oauth_token']
+            session['goodreads_request_secret'] = request_token['oauth_token_secret']
+            
+        # if we have a userid, grab info about the book shelves
+        if session.get("goodreads_userid") is not None:
+            context["shelves_info"] = gr_client.shelves_list(user_id=session["goodreads_userid"])
+  
+        return context
+    
+def goodreads_cb(request):
+    # handle callback from Goodreads
+    # how to check that Goodreads is saying it's a go?
+    session = request.session
+    authorized_flag = request.GET['authorize']  # is it '1'?
+    request_oauth_token = request.GET['oauth_token']
+
+    # compare what Goodreads sends back in terms of a request_token vs what is stored in session
+    if authorized_flag == '1':
+        request_token = {'oauth_token': session.get('goodreads_request_token'),
+                         'oauth_token_secret': session.get('goodreads_request_secret')}
+        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        
+        access_token = gr_client.complete_authorization(request_token)
+        
+        # store the access token in the session
+        session["goodreads_access_token"]  = access_token["oauth_token"]
+        session["goodreads_access_secret"] = access_token["oauth_token_secret"]
+        session["goodreads_isauthorized"] = True
+        
+        # delete old request tokens in the session
+        del session['goodreads_request_token']
+        del session['goodreads_request_secret']
+    
+        # let's get the userid, username
+        user = gr_client.auth_user()
+        session["goodreads_userid"] = user["userid"]
+        session["goodreads_username"] = user["name"]
+        session["goodreads_userlink"] = user["link"]
+
+    # redirect to the Goodreads display page -- should observe some next later
+    return HttpResponseRedirect(reverse('goodreads_display'))
+    
+def goodreads_flush_session(request):
+    request.session.flush()
+    return HttpResponse("Your session has been flushed. Go back to <a href='%s'>goodreads display</a>"
+                        % (reverse('goodreads_display')))
+      

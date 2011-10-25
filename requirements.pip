@@ -12,3 +12,4 @@ django-profiles
 django-kombu
 django-celery
 redis
+oauth2

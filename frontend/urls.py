@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DetailView
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -19,5 +19,8 @@ urlpatterns = patterns(
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/$", ListView.as_view(
         model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list")),
-    url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id")
+    url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
+    url(r"^goodreads/$", GoodreadsDisplayView.as_view(), name="goodreads_display"),
+    url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
+    url(r"^goodreads/flush/$","goodreads_flush_session", name="goodreads_flush_session")
 )
