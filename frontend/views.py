@@ -248,9 +248,12 @@ class GoodreadsDisplayView(TemplateView):
             session['goodreads_request_token'] = request_token['oauth_token']
             session['goodreads_request_secret'] = request_token['oauth_token_secret']
             
-        # if we have a userid, grab info about the book shelves
+        # if we have a userid, grab info about the book shelves and books
         if session.get("goodreads_userid") is not None:
             context["shelves_info"] = gr_client.shelves_list(user_id=session["goodreads_userid"])
+            context["reviews"] = gr_client.review_list(user_id=session["goodreads_userid"],per_page=10)
+            
+        # also, now grab the books on the user's shelves
   
         return context
     

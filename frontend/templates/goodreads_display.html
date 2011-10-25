@@ -25,6 +25,14 @@
             <p>{{shelf.name}}: {{shelf.book_count}} book(s)</p>
         {% endfor %}
     {% endif %}
+    <!-- list user's books -->
+    {% if reviews %}
+        <ul id="id">
+        {% for review in reviews %}
+            <li>{{review.book.title}}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
     <p>Clear the association with your Goodreads account by <a href="{% url goodreads_flush_session %}">flushing your session.</a></p>
     <p>Revoke access for Unglue.it at <a href="http://www.goodreads.com/user/edit?tab=apps">Goodreads user apps panel</a>.</p>
    

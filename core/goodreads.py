@@ -25,6 +25,13 @@ class GoodreadsException(Exception):
 class GoodreadsAuthorizationRequired(GoodreadsException):
     pass
 
+def filter_none(d):
+    d2 = {}
+    for (k,v) in d.iteritems():
+        if v is not None:
+            d2[k] = v
+    return d2
+
 class GoodreadsClient(object):
     
     url = 'http://www.goodreads.com'
@@ -118,15 +125,44 @@ class GoodreadsClient(object):
       else:
           return True
         
-    def review_list(self,id,shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
+    def review_list(self, user_id, shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
         """have to account for situation in which we might need authorized access
+        for now:  assume no need for auth
         sort: available_for_swap, position, num_pages, votes, recommender, rating, shelves, format,
         avg_rating, date_pub, isbn, comments, author, title, notes, cover, isbn13, review, date_pub_edition,
         condition, asin, date_started, owned, random, date_read, year_pub, read_count, date_added,
         date_purchased, num_ratings, purchase_location, date_updated (optional)
         """
-        # TO FINISH
+        
         path="/review/list/"
+        params = filter_none({'id':user_id,'shelf':shelf,'page':page,'sort':sort,'per_page':per_page,'order':order,
+                  'search':search, 'v':2})
+        params["key"] = self.key
+        method = "GET"
+        
+        request_url = urljoin(GoodreadsClient.url, path)
+        
+        r = request(method,request_url,params=params)
+        
+        if r.status_code != httplib.OK:
+             logger.info('headers, content: %s | %s ' % (r.headers,r.content))
+             raise GoodreadsException('Error in review_list: %s %s ' % (r.headers, r.content))
+        else:
+            logger.info('headers, content: %s | %s ' % (r.headers,r.content))
+            doc = ET.fromstring(r.content)
+            # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
+            reviews = doc.findall('reviews/review')
+            for review in reviews:
+                yield ({'id':review.find('id').text,
+                        'book': {'id': review.find('book/id').text,
+                                 'isbn13':review.find('book/isbn13').text,
+                                 'title':review.find('book/title').text,
+                                 'text_reviews_count':review.find('book/text_reviews_count').text,
+                                 'link':review.find('book/link').text,
+                                 'small_image_url':review.find('book/small_image_url').text,
+                                 'ratings_count':review.find('book/ratings_count').text,
+                                 'description':review.find('book/description').text}
+                        })
         
     def shelves_list(self,user_id,page=1):
         path = "/shelf/list.xml"
