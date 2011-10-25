@@ -34,11 +34,10 @@ class Command(BaseCommand):
             # randomly activate some of the campaigns
             coinflip = D(randint(0,10))
             if coinflip > 5:
-	            campaign.activated = now
+                    campaign.activate()
 
             campaign.save()
-            campaign.activate()
-            print "activated campaign %s" % campaign
+            print "campaign %s...status: %s" % (campaign, campaign.status)
 
 
 def random_date(start, end):
