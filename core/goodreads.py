@@ -161,6 +161,7 @@ class GoodreadsClient(object):
                 for review in reviews:
                     yield ({'id':review.find('id').text,
                             'book': {'id': review.find('book/id').text.strip(),
+                                     'isbn10':review.find('book/isbn').text,
                                      'isbn13':review.find('book/isbn13').text,
                                      'title':review.find('book/title').text.strip(),
                                      'text_reviews_count':review.find('book/text_reviews_count').text.strip(),
