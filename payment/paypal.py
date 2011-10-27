@@ -165,7 +165,7 @@ class Pay( object ):
       # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
       if transaction.reference:
           data['preapprovalKey'] = transaction.reference
-
+      
       self.raw_request = json.dumps(data)
    
       self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
@@ -214,7 +214,7 @@ class PaymentDetails(object):
       # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
       data = {
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'payKey':transaction.reference
+              'trackingId':transaction.secret
               }       
 
       self.raw_request = json.dumps(data)
@@ -224,6 +224,25 @@ class PaymentDetails(object):
       self.response = json.loads( self.raw_response )
       logger.info(self.response)
       
+      self.status = self.response.get("status", None)
+      self.trackingId = self.response.get("trackingId", None)
+      self.feesPayer = self.response.get("feesPayer", None)
+      payment_info_list = self.response.get("paymentInfoList", None)
+      payment_info = payment_info_list.get("paymentInfo", None)
+      
+      self.transactions = []
+      for payment in payment_info:
+          receiver = {}
+          receiver['status'] = payment.get("transactionStatus", None)
+          receiver['txn_id'] = payment.get("transactionId")
+          
+          r = payment.get("receiver", None)
+          if r:
+              receiver['email'] = r.get('email')
+
+              
+          self.transactions.append(receiver)
+      
   def error(self):
       if self.response.has_key('error'):
           error = self.response['error']
@@ -231,10 +250,7 @@ class PaymentDetails(object):
           return error[0]['message']
       else:
           return None
-  
-  def status(self):
-    return self.response.get("status")
-    
+              
   def compare(self):
     """compare current status information from what's in the current transaction object"""
     # I don't think we do anything with fundingtypeList, memo

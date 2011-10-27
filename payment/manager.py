@@ -2,17 +2,85 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 import logging
 from decimal import Decimal as D
+from xml.dom import minidom
 
 logger = logging.getLogger(__name__)
+
+def append_element(doc, parent, name, text):
+    
+    element = doc.createElement(name)
+    parent.appendChild(element)
+    text_node = doc.createTextNode(text)
+    element.appendChild(text_node)
+    
+    return element
 
 # at this point, there is no internal context and therefore, the methods of PaymentManager can be recast into static methods
 class PaymentManager( object ): 
 
+    def checkStatus(self):
+        
+        '''
+        Run through all pay transactions and verify that their current status is as we think.
+        For now this only checks things submitted to the PAY api using the PaymentDetails.  We
+        Should also implement PreapprovalDetails for more info
+        '''
+        
+        doc = minidom.Document()
+        head = doc.createElement('transactions')
+        doc.appendChild(head)
+        
+        # look at all transacitons in the last 3 days
+        ref_date = datetime.now() - relativedelta(days=3)
+        transactions = Transaction.objects.filter(date_payment__gte=ref_date)
+        
+        for t in transactions:
+        
+            p = PaymentDetails(t)
+            
+            if p.error():
+                logger.info("Error retrieving payment details for transaction %d" % t.id)
+                
+            else:
+                
+                tran = doc.createElement('transaction')
+                tran.setAttribute("id", str(t.id))
+                head.appendChild(tran)
+                
+                # Check the transaction satus
+                if t.status != p.status:
+                    append_element(doc, tran, "status_ours", t.status)
+                    append_element(doc, tran, "status_theirs", p.status)
+                    t.status = p.status
+                    t.save()
+                
+                for r in p.transactions:
+                    
+                    try:
+                        receiver = Receiver.objects.get(transaction=t, email=r['email'])
+                    
+                        # Check for updates on each receiver's status
+                        if receiver.status != r['status']:
+                            append_element(doc, tran, "receiver_status_ours", receiver.status)
+                            append_element(doc, tran, "receiver_status_theirs", r['status'])
+                            receiver.status = r['status']
+                            receiver.txn_id = r['txn_id']
+                            
+                            receiver.save()
+                    except:
+                        traceback.print_exc()
+                    
+
+        return doc.toxml()
+    
+        
     def processIPN(self, request):
         '''
         processIPN
@@ -53,7 +121,7 @@ class PaymentManager( object ):
                         except:
                             # Log an excecption if we have a receiver that is not found
                             traceback.print_exc()
-                        
+                    
                     t.save()
                     
                     logger.info("Final transaction status: %s" % t.status)
@@ -236,7 +304,11 @@ class PaymentManager( object ):
             transaction.receiver_set.all().delete()
             
         transaction.create_receivers(receiver_list)
-            
+        
+        # Mark as payment attempted so we will poll this periodically for status changes
+        transaction.date_payment = datetime.now()
+        transaction.save()
+        
         p = Pay(transaction)
         
         # We will update our transaction status when we receive the IPN
@@ -348,7 +420,8 @@ class PaymentManager( object ):
                                        status='NONE',
                                        campaign=campaign,
                                        list=list,
-                                       user=user
+                                       user=user,
+                                       date_payment=datetime.now()
                                        )
     
         t.create_receivers(receiver_list)

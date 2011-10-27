@@ -68,8 +68,8 @@ def testExecute(request):
         for t in transactions:
             
             # Note, set this to 1-5 different receivers with absolute amounts for each
-            receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':t.amount * 0.80}, 
-                            {'email':TEST_RECEIVERS[1], 'amount':t.amount * 0.20}]
+            receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':float(t.amount) * 0.80}, 
+                            {'email':TEST_RECEIVERS[1], 'amount':float(t.amount) * 0.20}]
     
             p.execute_transaction(t, receiver_list)
             output += str(t)
@@ -225,5 +225,15 @@ def paymentcomplete(request):
     output = "payment complete"
     output += request.method + "\n" + str(request.REQUEST.items())
     return HttpResponse(output)
+
+def checkStatus(request):
+    # Check the status of all PAY transactions and flag any errors
+    p = PaymentManager()
+    error_data = p.checkStatus()
+        
+    return HttpResponse(error_data, mimetype="text/xml")
+
+
+    
     
     
