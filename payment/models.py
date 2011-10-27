@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from regluit.core.models import Campaign, Wishlist
 from regluit.payment.parameters import *
 from decimal import Decimal
+import uuid
 
 class Transaction(models.Model):
     
@@ -11,7 +12,7 @@ class Transaction(models.Model):
     status = models.CharField(max_length=32, default='NONE', null=False)
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10, default='USD', null=True)
-    secret = models.CharField(max_length=64, null=True)
+    secret = models.CharField(max_length=64)
     reference = models.CharField(max_length=128, null=True)
     receipt = models.CharField(max_length=256, null=True)
     error = models.CharField(max_length=256, null=True)
@@ -24,6 +25,11 @@ class Transaction(models.Model):
     user = models.ForeignKey(User, null=True)
     campaign = models.ForeignKey(Campaign, null=True)
     list = models.ForeignKey(Wishlist, null=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.secret:
+            self.secret = str(uuid.uuid1())
+        super(Transaction, self).save(*args, **kwargs) # Call the "real" save() method.
     
     def __unicode__(self):
         return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \treference: %s\n \terror: %s\n" % (self.status, str(self.amount), self.reference, self.error)

@@ -155,8 +155,11 @@ class Pay( object ):
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
               'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
-              'feesPayer': feesPayer
+              'feesPayer': feesPayer,
+              'trackingId': transaction.secret
               } 
+      
+      logging.info("paypal PAY data: %s" % data)
       
       # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
       # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
@@ -411,6 +414,7 @@ class IPN( object ):
         self.preapproval_key = request.POST.get('preapproval_key', None)
         self.transaction_type = request.POST.get('transaction_type', None)
         self.reason_code = request.POST.get('reason_code', None)
+        self.trackingId = request.POST.get('tracking_id', None)
         
         self.process_transactions(request)
         
@@ -418,6 +422,13 @@ class IPN( object ):
         self.error = "Error: ServerError"
         traceback.print_exc()
 
+  def uniqueID(self):
+      
+      if self.trackingId:
+          return self.trackingId
+      else:
+          return None
+      
   def key(self):
         # We only keep one reference, either a prapproval key, or a pay key, for the transaction.  This avoids the 
         # race condition that may result if the IPN for an executed pre-approval(with both a pay key and preapproval key) is received

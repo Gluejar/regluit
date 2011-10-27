@@ -28,13 +28,14 @@ class PaymentManager( object ):
         
             if ipn.success():
                 logger.info("Valid IPN")
-    
+                logger.info("IPN Transaction Type: %s" % ipn.transaction_type)
                 
                 if ipn.transaction_type == IPN_TYPE_PAYMENT:
-                    # payment IPN
+                    # payment IPN. we use our unique reference for the transaction as the key
+                    # is only valid for 3 hours
                     
-                    key = ipn.key()
-                    t = Transaction.objects.get(reference=key)
+                    uniqueID = ipn.uniqueID()
+                    t = Transaction.objects.get(secret=uniqueID)
                     
                     # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
                     t.status = ipn.status
@@ -55,11 +56,17 @@ class PaymentManager( object ):
                         
                     t.save()
                     
+                    logger.info("Final transaction status: %s" % t.status)
+                    
                 elif ipn.transaction_type == IPN_TYPE_ADJUSTMENT:
                     # a chargeback, reversal or refund for an existng payment
                     
-                    key = ipn.key()
-                    t = Transaction.objects.get(reference=key)
+                    uniqueID = ipn.uniqueID()
+                    if uniqueID:
+                        t = Transaction.objects.get(secret=uniqueID)
+                    else:
+                        key = ipn.key()
+                        t = Transaction.objects.get(reference=key)
                     
                     # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
                     t.status = ipn.status
@@ -70,7 +77,7 @@ class PaymentManager( object ):
                         
                 elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
                     
-                   
+                    # IPN for preapproval always uses the key to ref the transaction as this is always valid
                     key = ipn.key()
                     t = Transaction.objects.get(reference=key)
                     
@@ -285,7 +292,6 @@ class PaymentManager( object ):
                                        type=PAYMENT_TYPE_AUTHORIZATION, 
                                        target=target,
                                        currency=currency,
-                                       secret = str(uuid.uuid1()),
                                        status='NONE',
                                        campaign=campaign,
                                        list=list,
@@ -339,7 +345,6 @@ class PaymentManager( object ):
                                        type=PAYMENT_TYPE_INSTANT, 
                                        target=target,
                                        currency=currency,
-                                       secret = str(uuid.uuid1()),
                                        status='NONE',
                                        campaign=campaign,
                                        list=list,
