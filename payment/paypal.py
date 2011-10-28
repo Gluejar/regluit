@@ -155,14 +155,17 @@ class Pay( object ):
               'cancelUrl': cancel_url,
               'requestEnvelope': { 'errorLanguage': 'en_US' },
               'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
-              'feesPayer': feesPayer
+              'feesPayer': feesPayer,
+              'trackingId': transaction.secret
               } 
+      
+      logging.info("paypal PAY data: %s" % data)
       
       # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
       # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
       if transaction.reference:
           data['preapprovalKey'] = transaction.reference
-
+      
       self.raw_request = json.dumps(data)
    
       self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
@@ -211,7 +214,7 @@ class PaymentDetails(object):
       # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
       data = {
               'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'payKey':transaction.reference
+              'trackingId':transaction.secret
               }       
 
       self.raw_request = json.dumps(data)
@@ -221,6 +224,25 @@ class PaymentDetails(object):
       self.response = json.loads( self.raw_response )
       logger.info(self.response)
       
+      self.status = self.response.get("status", None)
+      self.trackingId = self.response.get("trackingId", None)
+      self.feesPayer = self.response.get("feesPayer", None)
+      payment_info_list = self.response.get("paymentInfoList", None)
+      payment_info = payment_info_list.get("paymentInfo", None)
+      
+      self.transactions = []
+      for payment in payment_info:
+          receiver = {}
+          receiver['status'] = payment.get("transactionStatus", None)
+          receiver['txn_id'] = payment.get("transactionId")
+          
+          r = payment.get("receiver", None)
+          if r:
+              receiver['email'] = r.get('email')
+
+              
+          self.transactions.append(receiver)
+      
   def error(self):
       if self.response.has_key('error'):
           error = self.response['error']
@@ -228,10 +250,7 @@ class PaymentDetails(object):
           return error[0]['message']
       else:
           return None
-  
-  def status(self):
-    return self.response.get("status")
-    
+              
   def compare(self):
     """compare current status information from what's in the current transaction object"""
     # I don't think we do anything with fundingtypeList, memo
@@ -411,6 +430,7 @@ class IPN( object ):
         self.preapproval_key = request.POST.get('preapproval_key', None)
         self.transaction_type = request.POST.get('transaction_type', None)
         self.reason_code = request.POST.get('reason_code', None)
+        self.trackingId = request.POST.get('tracking_id', None)
         
         self.process_transactions(request)
         
@@ -418,6 +438,13 @@ class IPN( object ):
         self.error = "Error: ServerError"
         traceback.print_exc()
 
+  def uniqueID(self):
+      
+      if self.trackingId:
+          return self.trackingId
+      else:
+          return None
+      
   def key(self):
         # We only keep one reference, either a prapproval key, or a pay key, for the transaction.  This avoids the 
         # race condition that may result if the IPN for an executed pre-approval(with both a pay key and preapproval key) is received

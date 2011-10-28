@@ -18,28 +18,28 @@
             }
         );
         $j('.tabs1').click(function(){
-            $j('#tabs').find('.active').removeClass('active');
+            $j('.tabs').find('.active').removeClass('active');
             $j(this).addClass('active');
             $j('.content-block-content').find('.active').removeClass('active');
-            $j('#tabs-1').addClass('active').show(300);
-            $j('#tabs-2').hide(200);
-            $j('#tabs-3').hide(200);
+            $j('.tabs-1').addClass('active').show(300);
+            $j('.tabs-2').hide(200);
+            $j('.tabs-3').hide(200);
         });
         $j('.tabs2').click(function(){
-            $j('#tabs').find('.active').removeClass('active');
+            $j('.tabs').find('.active').removeClass('active');
             $j(this).addClass('active');
             $j('.content-block-content').find('.active').removeClass('active');
-            $j('#tabs-2').addClass('active').show(300);
-            $j('#tabs-1').hide(200);
-            $j('#tabs-3').hide(200);
+            $j('.tabs-2').addClass('active').show(300);
+            $j('.tabs-1').hide(200);
+            $j('.tabs-3').hide(200);
         });
         $j('.tabs3').click(function(){
-            $j('#tabs').find('.active').removeClass('active');
+            $j('.tabs').find('.active').removeClass('active');
             $j(this).addClass('active');
             $j('.content-block-content').find('.active').removeClass('active');
-            $j('#tabs-3').addClass('active').show(300);
-            $j('#tabs-2').hide(200);
-            $j('#tabs-1').hide(200);
+            $j('.tabs-3').addClass('active').show(300);
+            $j('.tabs-2').hide(200);
+            $j('.tabs-1').hide(200);
             });
         $j('.empty-wishlist span.bounce-search').click(function(){
             $j('div.js-search-inner').effect("bounce", 500, function() {
@@ -193,7 +193,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
                         <li class="tabs2"><a href="#">Being Unglued</a></li>
-                        <li class="tabs3"><a href="#">Want to Unglue</a></li>
+                        <li class="tabs3 active"><a href="#">Want to Unglue</a></li>
                     </ul>
     
                         <ul class="book-list-view">
@@ -232,7 +232,14 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endifequal %}
                     {% else %}
                     {% for work in wishlist.works.all %}
-                       <div id="tabs-1" class="tabs">
+                       <!-- classify which tab depending on work.last_campaign_status -->
+                       {% if work.last_campaign_status == 'SUCCESSFUL' %}
+                            <div class="tabs tabs-1">
+                       {% else %}{% if work.last_campaign_status == 'ACTIVE' %}
+                            <div class="tabs tabs-2">
+                       {% else %}
+                            <div class="tabs tabs-3">
+                       {% endif %}{% endif %}
                     <div class="book-list {% cycle 'row1' 'row2' %}">
                         <div class="book-thumb">
                             <a href="#"><img src="{{ work.cover_image_small }}" alt="Book name" title="book name"  /></a>
