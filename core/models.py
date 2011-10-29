@@ -185,18 +185,18 @@ class Wishlist(models.Model):
     user = models.OneToOneField(User, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists')
 
-
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
     home_url =  models.URLField(blank=True)
     twitter_id =  models.CharField(max_length=15, blank=True)
+    
+    goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
+    goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
+    goodreads_auth_token = models.TextField(null=True, blank=True)
+    goodreads_auth_secret = models.TextField(null=True, blank=True)
+    goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
 
-#class GoodreadsProfile(models.Model):
-#    user_id = models.CharField(max_length=32)
-#    username = models.CharField(max_length=200, blank=True)
-#    auth_token = models.TextField(null=True, blank=True)
-#    auth_secret = models.TextField(null=True, blank=True)
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager

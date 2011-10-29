@@ -13,8 +13,8 @@
 <div class="content-block">
     
     <h1>Goodreads</h1>
-    {% if goodreads_userid %}
-        <p>Welcome, Goodreads user id# {{goodreads_userid}}. Your GR username is {{goodreads_username}}. Want to see <a href="{{goodreads_userlink}}">your Goodreads profile</a>?</p>
+    {% if user.profile.goodreads_user_id %}
+        <p>Welcome, Goodreads user id# {{user.profile.goodreads_user_id}}. Your GR username is {{user.profile.goodreads_user_name}}. Want to see <a href="{{user.profile.goodreads_user_link}}">your Goodreads profile</a>?</p>
     {% else %}
          <p>We don't currently know your Goodreads user information.</p>
          <p><a href="{{goodreads_auth_url}}">Enable us to link to your Goodreads account.</a></p>
