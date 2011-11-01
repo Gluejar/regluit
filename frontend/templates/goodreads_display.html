@@ -21,14 +21,15 @@
                        username: '{{user.username}}'},
                 success: function(json) {
                     
-                    $('#gr_status').html('<p>Number of books on your wishlist at ' + d.toUTCString() +
-                                         " " + json["works"].length + ' </p>');
+                    $('#gr_status').html('<p>Number of books on your wishlist: '  +
+                                         json["works"].length + " (" + d.toUTCString() + ') </p>');
                     },
                 error: function(jqXHR, textStatus, errorThrown) {
                     alert('error')
                 }
                 })
     })
+
     
   });
 </script>   
@@ -44,7 +45,10 @@
 <div class="content-block">
     
     <h1>Goodreads</h1>
-    <p><a href="#" id="test_click">Click here for a test!</a></p>
+    <p><a href="#" id="test_click">Click here to see how many books on your wishlist.</a></p>
+    <form method="post" action="{% url clear_wishlist %}">
+        <input type="submit" value="Empty your wishlist" />
+    </form>
     <div id="gr_status"></div>
     {% if user.profile.goodreads_user_id %}
         <p>Welcome, Goodreads user id# {{user.profile.goodreads_user_id}}. Your GR username is {{user.profile.goodreads_user_name}} and here is <a href="{{user.profile.goodreads_user_link}}">your Goodreads profile</a>.</p>
@@ -59,9 +63,7 @@
             {{gr_shelf_load_form.as_p}}
             <input type="submit" value="Load your Goodreads books to your wishlist" />
         </form>
-        <form method="post" action="#">
-            
-        </form>
+ 
     {% else %}
          <p>We don't currently know your Goodreads user information.</p>
          <p><a href="{{goodreads_auth_url}}">Enable us to link to your Goodreads account.</a></p>

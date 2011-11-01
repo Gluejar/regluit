@@ -322,7 +322,12 @@ def goodreads_load_shelf(request):
 
 @require_POST
 @login_required      
-@csrf_exempt        
+@csrf_exempt
 def clear_wishlist(request):
-    request.user.wishlist.clear()   
+    try:
+        request.user.wishlist.works.clear()
+        return HttpResponse('wishlist cleared')
+    except Exception, e:
+        return HttpResponse("Error in clearing wishlist: %s " % (e))
+        logger.info("Error in clearing wishlist: %s ", e)
     
