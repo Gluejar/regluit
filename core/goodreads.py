@@ -6,6 +6,10 @@ import oauth2 as oauth
 from urlparse import urlparse, urlunparse, urljoin
 from urllib import urlencode
 import httplib
+from itertools import islice
+from regluit.core import bookloader
+import regluit.core
+
 # import parse_qsl from cgi if it doesn't exist in urlparse
 try:
   from urlparse import parse_qsl
@@ -148,10 +152,10 @@ class GoodreadsClient(object):
         
         while (more_pages):
         
+            logger.info('request to review_list: %s %s', request_url, params)
             r = request(method,request_url,params=params)
             
             if r.status_code != httplib.OK:
-                 #logger.info('headers, content: %s | %s ' % (r.headers,r.content))
                  raise GoodreadsException('Error in review_list: %s %s ' % (r.headers, r.content))
             else:
                 #logger.info('headers, content: %s | %s ' % (r.headers,r.content))
@@ -197,9 +201,37 @@ class GoodreadsClient(object):
             d = dict(  [ (k,int(shelves.attrib[k])) for k in shelves.attrib ]  )
             d["user_shelves"] = [{'name':shelf.find('name').text,
                                   'book_count':int(shelf.find('book_count').text),
-                                  'description':shelf.find('description').text if shelf.find('description').attrib['nil'] != 'true' else None } \
+                                  'description':shelf.find('description').text if shelf.find('description').attrib['nil'] != 'true' else None,
+                                  'exclusive_flag':shelf.find('exclusive_flag').text} \
                 for shelf in shelves.findall('user_shelf')]
+  
+            d["total_book_count"] = sum([shelf['book_count'] if shelf['exclusive_flag'] == 'true' else 0 for shelf in d["user_shelves"]])
             return d
         
         
+def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id=None, max_books=None):
+    """
+    Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
+    """
     
+    gc = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        
+    if goodreads_user_id is None:
+      if user.profile.goodreads_user_id is not None:
+        goodreads_user_id = user.profile.goodreads_user_id
+      else:
+        raise Exception("No Goodreads user_id is associated with user.")
+        
+    for (i, review) in enumerate(islice(gc.review_list(goodreads_user_id,shelf=shelf_name),max_books)):
+        isbn = review["book"]["isbn10"] if review["book"]["isbn10"] is not None else review["book"]["isbn13"]
+        logger.info("%d %s %s %s ", i, review["book"]["title"], isbn, review["book"]["small_image_url"])
+        try:
+            edition = bookloader.add_by_isbn(isbn)
+            # let's not trigger too much traffic to Google books for now
+            # regluit.core.tasks.add_related.delay(isbn)
+            user.wishlist.works.add(edition.work)
+            logger.info("Work with isbn %s added to wishlist.", isbn)
+        except Exception, e:
+            logger.info ("error adding ISBN %s: %s", isbn, e) 
+
+

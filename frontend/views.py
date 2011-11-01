@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms import Select
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -21,8 +22,7 @@ from regluit.core import tasks
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm
-from regluit.frontend.forms import CampaignPledgeForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -239,8 +239,15 @@ class GoodreadsDisplayView(TemplateView):
             session['goodreads_request_token'] = request_token['oauth_token']
             session['goodreads_request_secret'] = request_token['oauth_token_secret']
         else:
-            context["shelves_info"] = gr_client.shelves_list(user_id=user.profile.goodreads_user_id)
-            context["reviews"] = list(islice(gr_client.review_list(user_id=user.profile.goodreads_user_id, per_page=50),50))
+            gr_shelves = gr_client.shelves_list(user_id=user.profile.goodreads_user_id)
+            context["shelves_info"] = gr_shelves
+            gr_shelf_load_form = GoodreadsShelfLoadingForm()
+            # load the shelves into the form
+            choices = [('all','all (%d)' % (gr_shelves["total_book_count"]))] + [(s["name"],"%s (%d)" % (s["name"],s["book_count"])) for s in gr_shelves["user_shelves"]]
+            gr_shelf_load_form.fields['goodreads_shelf_name'].widget = Select(choices=tuple(choices))
+            
+            context["gr_shelf_load_form"] = gr_shelf_load_form
+            #context["reviews"] = list(islice(gr_client.review_list(user_id=user.profile.goodreads_user_id, per_page=50),50))
   
         return context
 
@@ -275,8 +282,11 @@ def goodreads_cb(request):
 
     # redirect to the Goodreads display page -- should observe some next later
     return HttpResponseRedirect(reverse('goodreads_display'))
-    
-def goodreads_flush_session(request):
+
+@require_POST
+@login_required
+@csrf_exempt    
+def goodreads_flush_assoc(request):
     user = request.user
     if user.is_authenticated():
         profile = user.profile
@@ -286,7 +296,29 @@ def goodreads_flush_session(request):
         profile.goodreads_auth_token = None
         profile.goodreads_auth_secret = None
         profile.save()
-    request.session.flush()
-    return HttpResponse("Your session and goodreads identity have been flushed. Go back to <a href='%s'>goodreads display</a>"
-                        % (reverse('goodreads_display')))
+    return HttpResponseRedirect(reverse('goodreads_display'))
       
+@require_POST
+@login_required      
+@csrf_exempt
+def goodreads_load_shelf(request):
+    """
+    a view to allow user load goodreads shelf into her wishlist
+    """
+    # Should be moved to the API
+    goodreads_shelf_name = request.POST.get('goodreads_shelf_name', 'all')
+    user = request.user
+    try:
+        logger.info('Adding task to load shelf %s to user %s', goodreads_shelf_name, user)
+        tasks.load_goodreads_shelf_into_wishlist.delay(user, goodreads_shelf_name)
+        return HttpResponse("Shelf loading placed on task queue.")
+    except Exception,e:
+        return HttpResponse("Error in loading shelf: %s " % (e))
+        logger.info("Error in loading shelf: %s ", e)
+
+@require_POST
+@login_required      
+@csrf_exempt        
+def clear_wishlist(request):
+    request.user.wishlist.clear()   
+    

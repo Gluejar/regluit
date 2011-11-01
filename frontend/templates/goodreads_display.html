@@ -1,6 +1,37 @@
 {% extends "base.html" %}
+
 {% block extra_head %}
-   
+<script type="application/x-javascript">
+  
+  jQuery(document).ready(function($) {
+    
+    $('#test_click').click(function() {
+        var d = new Date();
+        
+         // $('<p>hello</p>').appendTo('#gr_status');
+          
+        
+        // alert('hello');
+        // call http://127.0.0.1:8082/api/v1/wishlist/1/?format=json&api_key=71728c0a4f78fba45da3acb6833bf2f5fec4fbed&username=RaymondYee and
+        // retrieve the works on the wishlist
+        
+        $.ajax({url:'/api/v1/wishlist/1/',
+                data: {format:'json',
+                       api_key:'71728c0a4f78fba45da3acb6833bf2f5fec4fbed',
+                       username: 'RaymondYee'},
+                success: function(json) {
+                    
+                    $('#gr_status').html('<p>Number of books on your wishlist at ' + d.toUTCString() +
+                                         " " + json["works"].length + ' </p>');
+                    },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('error')
+                }
+                })
+    })
+    
+  });
+</script>   
 {% endblock %}
 
 {% block title %}Goodreads{% endblock %}
@@ -13,8 +44,17 @@
 <div class="content-block">
     
     <h1>Goodreads</h1>
+    <p><a href="#" id="test_click">Click here for a test!</a></p>
+    <div id="gr_status"></div>
     {% if user.profile.goodreads_user_id %}
         <p>Welcome, Goodreads user id# {{user.profile.goodreads_user_id}}. Your GR username is {{user.profile.goodreads_user_name}}. Want to see <a href="{{user.profile.goodreads_user_link}}">your Goodreads profile</a>?</p>
+        <form method="post" action="{% url goodreads_load_shelf%}">
+            {{gr_shelf_load_form.as_p}}
+            <input type="submit" value="Load your Goodreads books to your wishlist" />
+        </form>
+        <form method="post" action="#">
+            
+        </form>
     {% else %}
          <p>We don't currently know your Goodreads user information.</p>
          <p><a href="{{goodreads_auth_url}}">Enable us to link to your Goodreads account.</a></p>
@@ -38,7 +78,9 @@
         {% endfor %}
         </ul>
     {% endif %}
-    <p>Clear the association with your Goodreads account by <a href="{% url goodreads_flush_session %}">flushing your session.</a></p>
+    <form method="post" action="{% url goodreads_flush_assoc %}">
+        <p><input type="submit" value="Clear the association with your Goodreads account" /></p>
+    </form>
     <p>Revoke access for Unglue.it at <a href="http://www.goodreads.com/user/edit?tab=apps">Goodreads user apps panel</a>.</p>
    
 </div>
