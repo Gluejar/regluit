@@ -342,7 +342,7 @@ class PaymentManager( object ):
             transaction.error = p.error()
             return False
         
-    def authorize(self, currency, target, amount, campaign=None, list=None, user=None, return_url=None, cancel_url=None):
+    def authorize(self, currency, target, amount, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
         '''
         authorize
         
@@ -367,7 +367,8 @@ class PaymentManager( object ):
                                        status='NONE',
                                        campaign=campaign,
                                        list=list,
-                                       user=user
+                                       user=user,
+                                       anonymous=anonymous
                                        )
         
         p = Preapproval(t, amount, return_url=return_url, cancel_url=cancel_url)
@@ -384,7 +385,7 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error())
             return t, None
         
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
         '''
         pledge
         
@@ -421,7 +422,8 @@ class PaymentManager( object ):
                                        campaign=campaign,
                                        list=list,
                                        user=user,
-                                       date_payment=datetime.now()
+                                       date_payment=datetime.now(),
+                                       anonymous=anonymous
                                        )
     
         t.create_receivers(receiver_list)

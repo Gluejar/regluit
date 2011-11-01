@@ -1,19 +1,8 @@
-{% extends "base.html" %}
-{% block extra_head %}
-    <style type="text/css">
-        .undefined {text-decoration:underline;}
-    </style>
-{% endblock %}
+{% extends "basedocumentation.html" %}
 
 {% block title %}API Help{% endblock %}
 
-{% block content %}
-<div id="main-container">
-<div class="js-main">
-<div id="js-maincol-fr">
-<div class="js-maincol-inner">
-<div class="content-block">
-    
+{% block doccontent %}
     <h1>API Help</h1>
     <p>Some of the data from Unglue It is avaiable via a JSON API. You will need a key and username to be able to use the API.
     </p>
@@ -40,12 +29,6 @@
     {% else %}
        <p>Since there are currently no campaigns, there are no corresponding widgets.</p>
     {% endif %}
-
-</div>
-</div>
-</div>
-</div>
-</div>    
 {% endblock %}
 
 

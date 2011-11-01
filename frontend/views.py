@@ -59,10 +59,13 @@ def supporter(request, supporter_username):
     transet = Transaction.objects.all().filter(user = supporter)
     
     for transaction in transet:
-        if(transaction.campaign.status == 'SUCCESSFUL'):
-            backed += 1
-        elif(transaction.campaign.status == 'ACTIVE'):
-            backing += 1
+    	try:
+    		if(transaction.campaign.status == 'SUCCESSFUL'):
+    			backed += 1
+    		elif(transaction.campaign.status == 'ACTIVE'):
+    			backing += 1
+    	except:
+    		continue
             
     wished = supporter.wishlist.works.count()
     
@@ -185,6 +188,7 @@ class CampaignFormView(FormView):
         pk = self.kwargs["pk"]
         pledge_amount = form.cleaned_data["pledge_amount"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
+        anonymous = form.cleaned_data["anonymous"]
         
         # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
         campaign = models.Campaign.objects.get(id=int(pk))
@@ -202,7 +206,7 @@ class CampaignFormView(FormView):
             
             return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, campaign=campaign, list=None, user=user,
-                                 return_url=return_url)    
+                                 return_url=return_url, anonymous=anonymous)    
         else:
             # instant payment:  send to the partnering RH
             # right now, all money going to Gluejar.  
@@ -212,7 +216,7 @@ class CampaignFormView(FormView):
             #return_url = self.request.build_absolute_uri("/campaigns/%s" %(str(pk)))
             return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url)
+                              return_url=return_url, anonymous=anonymous)
         
         if url:
             logger.info("CampaignFormView paypal: " + url)
