@@ -12,7 +12,7 @@ class Transaction(models.Model):
     status = models.CharField(max_length=32, default='NONE', null=False)
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10, default='USD', null=True)
-    secret = models.CharField(max_length=64)
+    secret = models.CharField(max_length=64, null=True)
     reference = models.CharField(max_length=128, null=True)
     receipt = models.CharField(max_length=256, null=True)
     error = models.CharField(max_length=256, null=True)
