@@ -27,6 +27,7 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
 from regluit.core import goodreads
+from tastypie.models import ApiKey
 
 logger = logging.getLogger(__name__)
 
@@ -230,6 +231,9 @@ class GoodreadsDisplayView(TemplateView):
         gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
         
         user = self.request.user
+        if user.is_authenticated():
+            api_key = ApiKey.objects.filter(user=user)[0].key
+            context['api_key'] = api_key
 
         if user.profile.goodreads_user_id is None:   
             # calculate the Goodreads authorization URL
