@@ -25,6 +25,7 @@ class Transaction(models.Model):
     user = models.ForeignKey(User, null=True)
     campaign = models.ForeignKey(Campaign, null=True)
     list = models.ForeignKey(Wishlist, null=True)
+    anonymous = models.BooleanField(null=False)
     
     def save(self, *args, **kwargs):
         if not self.secret:
