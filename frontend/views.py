@@ -58,10 +58,13 @@ def supporter(request, supporter_username):
     transet = Transaction.objects.all().filter(user = supporter)
     
     for transaction in transet:
-        if(transaction.campaign.status == 'SUCCESSFUL'):
-            backed += 1
-        elif(transaction.campaign.status == 'ACTIVE'):
-            backing += 1
+    	try:
+    		if(transaction.campaign.status == 'SUCCESSFUL'):
+    			backed += 1
+    		elif(transaction.campaign.status == 'ACTIVE'):
+    			backing += 1
+    	except:
+    		continue
             
     wished = supporter.wishlist.works.count()
     
