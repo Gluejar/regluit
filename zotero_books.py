@@ -4,6 +4,8 @@ from itertools import islice
 from functools import partial
 
 from pyzotero.zotero import Zotero
+import logging
+logger = logging.getLogger(__name__)
 
 class Zotero2(Zotero):
     def __init__(self, user_id = None, user_key = None):
@@ -80,21 +82,38 @@ class MyZotero(Zotero2):
         return item_set
     def get_all_items(self):
         print len(self.item_keys(5000,99))
-    def get_all_books(self,max):
+    def get_books(self,max=10000):
         self.set_parameters(sort="type")
         items = self.items()
-        book_set = set()
         for (i, item) in enumerate(islice(items,max)):
             if item.get("itemType") == 'book':
-                print i, (item["group_id"], item["key"], item["title"], item.get("itemType"), item.get("ISBN", None))
-                book_set.add((item["group_id"], item["key"], item["title"]))
-        print len(book_set)        
-        return book_set
+                yield {'group_id':item["group_id"], 'key':item["key"], 'title':item["title"],
+                       'itemType':item.get("itemType"), 'isbn':item.get("ISBN", None)}      
+    def upload_to_unglue_it(self,unglueit_user_name, max):
+        from regluit.core import bookloader
+        from django.contrib.auth.models import User
         
-
+        user = User.objects.get(username=unglueit_user_name)
+        books = self.get_books(max=max)
+        for book in books:
+            try:
+                isbn = book['isbn']
+                if isbn:
+                    edition = bookloader.add_by_isbn(isbn)
+                    # let's not trigger too much traffic to Google books for now
+                    # regluit.core.tasks.add_related.delay(isbn)
+                    user.wishlist.works.add(edition.work)
+                    logger.info("Work with isbn %s added to wishlist.", isbn)
+            except Exception, e:
+                logger.info ("error adding ISBN %s: %s", isbn, e)            
+        
+        
+        
 zot = MyZotero()
 #zot.compare_keys(24,7,3)
 to_unglue = list(zot.items_in_unglue_it_collection())
 print len(to_unglue), [item["title"] for item in to_unglue]
-zot.get_all_books(50)
+for b in zot.get_books(50):
+    print b
+zot.upload_to_unglue_it('RaymondYee',5000)
 #print zot.get_all_items()
