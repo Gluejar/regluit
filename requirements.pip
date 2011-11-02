@@ -13,3 +13,4 @@ django-kombu
 django-celery
 redis
 oauth2
+mechanize
