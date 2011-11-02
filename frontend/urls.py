@@ -26,4 +26,5 @@ urlpatterns = patterns(
     url(r"^goodreads/flush/$","goodreads_flush_assoc", name="goodreads_flush_assoc"),
     url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
     url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
+    url(r"^stub/", "stub", name="stub")
 )

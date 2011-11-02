@@ -40,9 +40,9 @@
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
-                    <li><a href="#"><span>Tour</span></a></li>  
-                    <li><a href="#"><span>FAQs</span></a></li>   
-                    <li><a href="#"><span>Help</span></a></li>
+                    <li><a href="/stub/tour"><span>Tour</span></a></li>  
+                    <li><a href="/stub/FAQ"><span>FAQs</span></a></li>   
+                    <li><a href="/stub/Help"><span>Help</span></a></li>
                     {% if not user.is_authenticated %}
                     <li class="last"><a href="{% url registration_register %}"><span>sign up</span></a></li>
                     {% endif %}
@@ -64,6 +64,10 @@
         {% if user.is_authenticated %}
         <a href="{{editurl}}"><span>Settings</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
         {% endif %}
+        <a href="/stub/terms_and_conditions"<span>Terms and Conditions</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="/stub/about"><span>About</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
+        <a href="/stub/contact"><span>Contact</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
+		<a href="http://www.gluejar.com/Blog"><span>Blog</span>&nbsp;&nbsp;&nbsp;&nbsp;
     </p>
 </div>
 
