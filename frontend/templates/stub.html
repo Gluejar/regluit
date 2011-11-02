@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}stub{% endblock %}
+
+{% block content %}
+<p>This page is a stub. It gazes at you forlornly, dreaming of content.</p>
+
+{% if path %}
+<p>You got here by looking for {{ path }}.  You should create the page that's meant to be here and edit urls.py, views.py, links to this page, etc. accordingly.</p>
+{% endif %}
+{% endblock %}

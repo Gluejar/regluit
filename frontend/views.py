@@ -38,6 +38,10 @@ def home(request):
             args=[request.user.username]))
     return render(request, 'home.html', {'suppress_search_box': True})
 
+def stub(request):
+	path = request.path[6:]
+	return render(request,'stub.html', {'path': path})
+
 def work(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')

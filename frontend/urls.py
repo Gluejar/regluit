@@ -22,5 +22,6 @@ urlpatterns = patterns(
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
     url(r"^goodreads/$", GoodreadsDisplayView.as_view(), name="goodreads_display"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
-    url(r"^goodreads/flush/$","goodreads_flush_session", name="goodreads_flush_session")
+    url(r"^goodreads/flush/$","goodreads_flush_session", name="goodreads_flush_session"),
+    url(r"^stub/", "stub", name="stub")
 )
