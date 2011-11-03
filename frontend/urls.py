@@ -2,6 +2,7 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DetailView
+from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
 from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView
@@ -21,8 +22,10 @@ urlpatterns = patterns(
     url(r"^campaigns/$", ListView.as_view(
         model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list")),
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
-    url(r"^goodreads/$", GoodreadsDisplayView.as_view(), name="goodreads_display"),
+    url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
-    url(r"^goodreads/flush/$","goodreads_flush_session", name="goodreads_flush_session"),
+    url(r"^goodreads/flush/$","goodreads_flush_assoc", name="goodreads_flush_assoc"),
+    url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
+    url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
     url(r"^stub/", "stub", name="stub")
 )

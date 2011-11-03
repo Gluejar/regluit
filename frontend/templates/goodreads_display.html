@@ -1,6 +1,61 @@
 {% extends "base.html" %}
+
 {% block extra_head %}
-   
+<script type="application/x-javascript">
+  
+  jQuery(document).ready(function($) {
+    
+    // post to form_loc and alert with response
+    var post_and_alert = function (form_loc){
+        
+        return function(bubble,params) {
+            $.post(form_loc, params, function (data) {
+                    alert(data);
+                });
+            
+            return bubble;
+            }
+    };
+  
+    
+    var update_number_of_books = function (){
+        
+        $.ajax({url:'/api/v1/wishlist/1/',
+                data: {format:'json',
+                       api_key:'{{api_key}}',
+                       username: '{{user.username}}'},
+                success: function(json) {
+                    $('#number_of_books_on_wishlist').html(json["works"].length);
+                       var d = new Date();
+                       $('#num_books_update_time').html(d.toUTCString());
+                    },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('error')
+                }
+                })        
+        
+    }
+    
+    // add a current date time to the display of current number of books on wishlist
+    var d = new Date()
+    $('#num_books_update_time').html(d.toUTCString());
+    
+    $('#test_click').click(update_number_of_books);
+
+    $('#clear_wishlist_form').submit(function (){
+        post_and_alert('{% url clear_wishlist %}')(true,{});
+        update_number_of_books();
+        return false;
+    });
+                                     
+    $('#load_shelf_form').submit(function(){
+        post_and_alert('{% url goodreads_load_shelf%}')(false,$('#load_shelf_form').serialize());
+        return false;
+    });                     
+    
+    
+  });
+</script>   
 {% endblock %}
 
 {% block title %}Goodreads{% endblock %}
@@ -13,22 +68,34 @@
 <div class="content-block">
     
     <h1>Goodreads</h1>
-    {% if goodreads_userid %}
-        <p>Welcome, Goodreads user id# {{goodreads_userid}}. Your GR username is {{goodreads_username}}. Want to see <a href="{{goodreads_userlink}}">your Goodreads profile</a>?</p>
+
+    {% if user.profile.goodreads_user_id %}
+        <p>Welcome, Goodreads user id# {{user.profile.goodreads_user_id}}. Your GR username is {{user.profile.goodreads_user_name}} and here is <a href="{{user.profile.goodreads_user_link}}">your Goodreads profile</a>.</p>
+        <form id="clear_goodreads_id" method="post" action="{% url goodreads_flush_assoc %}">
+            <p><input type="submit" value="Unlink your Goodreads account from Unglue.it" /></p>
+        </form>
+        <p>You can also revoke access for Unglue.it at <a href="http://www.goodreads.com/user/edit?tab=apps">Goodreads user apps panel</a>.</p>
+ 
+     <hr />    
+ 
+        <form id="load_shelf_form" method="post" action="#">
+            {{gr_shelf_load_form.as_p}}
+            <input type="submit" value="Load the books from your Goodreads shelf to your wishlist" />
+        </form>
+ 
     {% else %}
          <p>We don't currently know your Goodreads user information.</p>
-         <p><a href="{{goodreads_auth_url}}">Enable us to link to your Goodreads account.</a></p>
+         <p><a href="{{goodreads_auth_url}}">Enable Unglue.it to link to your Goodreads account</a></p>
     {% endif %}
-    {% if shelves_info %}
-        <p>You have {{shelves_info.total}} shelves. </p>
-        {% if shelves_info.user_shelves %}
-          <ul>
-          {% for shelf in shelves_info.user_shelves %}
-            <li>{{shelf.name}}: {{shelf.book_count}} book(s)</li>
-          {% endfor %}
-          </ul>
-        {% endif %}
-    {% endif %}
+    
+    <hr />
+    
+    <p><a href="#" id="test_click">Click here to update the number of books on your wishlist:</a></p>
+    <div id="gr_status"><p>Number of books on your wishlist: <span id="number_of_books_on_wishlist">{{user.wishlist.books.all|length}}</span> (as of <span id="num_books_update_time"></span>)</p></div>
+    <form id="clear_wishlist_form" method="post" action="#">
+        <input type="submit" value="Empty your wishlist" />
+    </form>
+    
     <!-- list user's books -->
     {% if reviews %}
         <p>Here are some of your books that you've put on your Goodreads shelves:</p>
@@ -38,8 +105,6 @@
         {% endfor %}
         </ul>
     {% endif %}
-    <p>Clear the association with your Goodreads account by <a href="{% url goodreads_flush_session %}">flushing your session.</a></p>
-    <p>Revoke access for Unglue.it at <a href="http://www.goodreads.com/user/edit?tab=apps">Goodreads user apps panel</a>.</p>
    
 </div>
 </div>

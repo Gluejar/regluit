@@ -54,3 +54,8 @@ class CampaignPledgeForm(forms.Form):
             raise forms.ValidationError("Only one of pledge_amount and pre_approval can be non-zero.")
 
         return cleaned_data
+    
+class GoodreadsShelfLoadingForm(forms.Form):
+    goodreads_shelf_name = forms.CharField(widget=forms.Select(choices=(
+                ('all','all'),
+                )))

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms import Select
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -21,12 +22,12 @@ from regluit.core import tasks
 from regluit.core import models, bookloader
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm
-from regluit.frontend.forms import CampaignPledgeForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
 from regluit.core import goodreads
+from tastypie.models import ApiKey
 
 logger = logging.getLogger(__name__)
 
@@ -234,46 +235,42 @@ class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
     def get_context_data(self, **kwargs):
         context = super(GoodreadsDisplayView, self).get_context_data(**kwargs)
-        
-        goodreads_attribs = ["goodreads_userid", "goodreads_username", "goodreads_isauthorized", "goodreads_userlink"]
-        # for this round, I will use the Session to hold the Goodreads profile info
         session = self.request.session
-        
-        # load up context with this info even though the template can directly access the session.
-        # down the road, we won't store the goodreads user info in the session.
-        
-        for attrib in goodreads_attribs:
-            context[attrib] = session.get(attrib, None)
-        
-        # a Goodreads user shouldn't have to authorize us to get certain functionality   
-        # if we don't know the Goodreads identity of user, offer to authenticate user to Goodreads and grab identity
         gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        
+        user = self.request.user
+        if user.is_authenticated():
+            api_key = ApiKey.objects.filter(user=user)[0].key
+            context['api_key'] = api_key
 
-        if session.get("goodreads_isauthorized") is None:   
+        if user.profile.goodreads_user_id is None:   
             # calculate the Goodreads authorization URL
             (context["goodreads_auth_url"], request_token) = gr_client.begin_authorization(self.request.build_absolute_uri(reverse('goodreads_cb')))
-            
+            logger.info("goodreads_auth_url: %s" %(context["goodreads_auth_url"]))
             # store request token in session so that we can redeem it for auth_token if authorization works
             session['goodreads_request_token'] = request_token['oauth_token']
             session['goodreads_request_secret'] = request_token['oauth_token_secret']
+        else:
+            gr_shelves = gr_client.shelves_list(user_id=user.profile.goodreads_user_id)
+            context["shelves_info"] = gr_shelves
+            gr_shelf_load_form = GoodreadsShelfLoadingForm()
+            # load the shelves into the form
+            choices = [('all','all (%d)' % (gr_shelves["total_book_count"]))] + [(s["name"],"%s (%d)" % (s["name"],s["book_count"])) for s in gr_shelves["user_shelves"]]
+            gr_shelf_load_form.fields['goodreads_shelf_name'].widget = Select(choices=tuple(choices))
             
-        # if we have a userid, grab info about the book shelves and books
-        if session.get("goodreads_userid") is not None:
-            context["shelves_info"] = gr_client.shelves_list(user_id=session["goodreads_userid"])
-            context["reviews"] = list(islice(gr_client.review_list(user_id=session["goodreads_userid"],per_page=50),50))
-            
-        # also, now grab the books on the user's shelves
+            context["gr_shelf_load_form"] = gr_shelf_load_form
+            #context["reviews"] = list(islice(gr_client.review_list(user_id=user.profile.goodreads_user_id, per_page=50),50))
   
         return context
-    
+
+@login_required    
 def goodreads_cb(request):
-    # handle callback from Goodreads
-    # how to check that Goodreads is saying it's a go?
+    """handle callback from Goodreads"""
+    
     session = request.session
     authorized_flag = request.GET['authorize']  # is it '1'?
     request_oauth_token = request.GET['oauth_token']
 
-    # compare what Goodreads sends back in terms of a request_token vs what is stored in session
     if authorized_flag == '1':
         request_token = {'oauth_token': session.get('goodreads_request_token'),
                          'oauth_token_secret': session.get('goodreads_request_secret')}
@@ -281,26 +278,64 @@ def goodreads_cb(request):
         
         access_token = gr_client.complete_authorization(request_token)
         
-        # store the access token in the session
-        session["goodreads_access_token"]  = access_token["oauth_token"]
-        session["goodreads_access_secret"] = access_token["oauth_token_secret"]
-        session["goodreads_isauthorized"] = True
-        
-        # delete old request tokens in the session
-        del session['goodreads_request_token']
-        del session['goodreads_request_secret']
+        # store the access token in the user profile
+        profile = request.user.profile
+        profile.goodreads_auth_token = access_token["oauth_token"]
+        profile.goodreads_auth_secret = access_token["oauth_token_secret"]
     
         # let's get the userid, username
         user = gr_client.auth_user()
-        session["goodreads_userid"] = user["userid"]
-        session["goodreads_username"] = user["name"]
-        session["goodreads_userlink"] = user["link"]
+        
+        profile.goodreads_user_id = user["userid"]
+        profile.goodreads_user_name = user["name"]
+        profile.goodreads_user_link = user["link"]
+        
+        profile.save()  # is this needed?
 
     # redirect to the Goodreads display page -- should observe some next later
     return HttpResponseRedirect(reverse('goodreads_display'))
-    
-def goodreads_flush_session(request):
-    request.session.flush()
-    return HttpResponse("Your session has been flushed. Go back to <a href='%s'>goodreads display</a>"
-                        % (reverse('goodreads_display')))
+
+@require_POST
+@login_required
+@csrf_exempt    
+def goodreads_flush_assoc(request):
+    user = request.user
+    if user.is_authenticated():
+        profile = user.profile
+        profile.goodreads_user_id = None
+        profile.goodreads_user_name = None
+        profile.goodreads_user_link = None
+        profile.goodreads_auth_token = None
+        profile.goodreads_auth_secret = None
+        profile.save()
+    return HttpResponseRedirect(reverse('goodreads_display'))
       
+@require_POST
+@login_required      
+@csrf_exempt
+def goodreads_load_shelf(request):
+    """
+    a view to allow user load goodreads shelf into her wishlist
+    """
+    # Should be moved to the API
+    goodreads_shelf_name = request.POST.get('goodreads_shelf_name', 'all')
+    user = request.user
+    try:
+        logger.info('Adding task to load shelf %s to user %s', goodreads_shelf_name, user)
+        tasks.load_goodreads_shelf_into_wishlist.delay(user, goodreads_shelf_name)
+        return HttpResponse("Shelf loading placed on task queue.")
+    except Exception,e:
+        return HttpResponse("Error in loading shelf: %s " % (e))
+        logger.info("Error in loading shelf: %s ", e)
+
+@require_POST
+@login_required      
+@csrf_exempt
+def clear_wishlist(request):
+    try:
+        request.user.wishlist.works.clear()
+        return HttpResponse('wishlist cleared')
+    except Exception, e:
+        return HttpResponse("Error in clearing wishlist: %s " % (e))
+        logger.info("Error in clearing wishlist: %s ", e)
+    
