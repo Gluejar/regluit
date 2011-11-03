@@ -104,6 +104,19 @@ class Work(models.Model):
     def cover_image_small(self):
         return self.editions.all()[0].cover_image_small()
 
+    def cover_image_thumbnail(self):
+        return self.editions.all()[0].cover_image_thumbnail()
+        
+    def author(self):
+    	authorlist = self.editions.all()[0].authors.all()
+    	if authorlist.count() == 1:
+    		myauthor = authorlist[0].name
+    	elif authorlist.count() > 1:
+    		myauthor = authorlist[0].name + ' et al.'
+    	else:
+    		myauthor = ''
+    	return myauthor
+    		
     def last_campaign_status(self):
         try:
             last = self.campaigns.order_by('-created')[0].status

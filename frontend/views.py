@@ -54,7 +54,7 @@ def work(request, work_id):
         'supporters': supporters
     })
 
-def supporter(request, supporter_username):
+def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
     backed = 0
@@ -75,7 +75,7 @@ def supporter(request, supporter_username):
     date = supporter.date_joined.strftime("%B %d, %Y")
 
     # figure out what works the users have in commmon if someone
-    # is looking at someone elses supporter page
+    # is looking at someone else's supporter page
     if not request.user.is_anonymous and request.user != supporter:
         w1 = request.user.wishlist
         w2 = supporter.wishlist
@@ -111,7 +111,7 @@ def supporter(request, supporter_username):
             "profile_form": profile_form,
     }
     
-    return render(request, 'supporter.html', context)
+    return render(request, template_name, context)
 
 def edit_user(request):
     form=UserData()
