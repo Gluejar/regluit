@@ -43,7 +43,7 @@ class GoodreadsClient(object):
     authorize_url = urljoin(url, '/oauth/authorize/')
     access_token_url = urljoin(url,'/oauth/access_token/')  
   
-    def __init__(self,key,secret,access_token=None):
+    def __init__(self,key,secret,user=None, access_token=None):
         self.key = key
         self.secret = secret
         self.consumer = oauth.Consumer(key=self.key,
@@ -56,6 +56,9 @@ class GoodreadsClient(object):
           self.__load_access_token(access_token)
         else:
           self.access_token = None
+          
+        if user is not None:
+          self.load_user_access_token(user)
           
     @property     
     def is_authorized(self):
@@ -88,6 +91,11 @@ class GoodreadsClient(object):
       access_token_raw = dict(parse_qsl(content))
       self.__load_access_token(access_token_raw)
       return access_token_raw
+    
+    def load_user_access_token(self,user):
+      access_token = {'oauth_token':user.profile.goodreads_auth_token,
+                      'oauth_token_secret':user.profile.goodreads_auth_secret}
+      self.__load_access_token(access_token)
       
     def __load_access_token(self, access_token):
         token = oauth.Token(access_token['oauth_token'],
@@ -129,6 +137,46 @@ class GoodreadsClient(object):
       else:
           return True
         
+    def review_list_auth(self, user_id, shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
+  
+        path="/review/list.xml"
+        method = "GET"
+        params = filter_none({'id':user_id,'shelf':shelf,'page':page,'sort':sort,'per_page':per_page,'order':order,
+                'search':search, 'v':2})
+        
+        request_url = urljoin(GoodreadsClient.url, path)
+        
+        more_pages = True
+        
+        while (more_pages):
+        
+          response, content = self.client.request('%s?%s' % (request_url, urlencode(params)),
+                            method)
+          logger.info("response / content: %s | %s ", response, content)
+          if int(response['status']) != httplib.OK:
+              raise GoodreadsException('Error in review_list_auth: %s ' % response)
+          else:
+              doc = ET.fromstring(content)
+              # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
+              reviews = doc.findall('reviews/review')
+              for review in reviews:
+                  yield ({'id':review.find('id').text,
+                          'book': {'id': review.find('book/id').text.strip(),
+                                   'isbn10':review.find('book/isbn').text,
+                                   'isbn13':review.find('book/isbn13').text,
+                                   'title':review.find('book/title').text.strip(),
+                                   'text_reviews_count':review.find('book/text_reviews_count').text.strip(),
+                                   'link':review.find('book/link').text.strip(),
+                                   'small_image_url':review.find('book/small_image_url').text.strip(),
+                                   'ratings_count':review.find('book/ratings_count').text.strip(),
+                                   'description':review.find('book/description').text.strip()}
+                          })
+              if len(reviews) == 0:
+                  more_pages = False
+              else:
+                  params["page"] += 1 
+              
+
     def review_list(self, user_id, shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
         """have to account for situation in which we might need authorized access
         for now:  assume no need for auth
@@ -138,7 +186,7 @@ class GoodreadsClient(object):
         date_purchased, num_ratings, purchase_location, date_updated (optional)
         """
         
-        path="/review/list/"
+        path="/review/list.xml"
         params = filter_none({'id':user_id,'shelf':shelf,'page':page,'sort':sort,'per_page':per_page,'order':order,
                   'search':search, 'v':2})
         params["key"] = self.key
@@ -153,6 +201,7 @@ class GoodreadsClient(object):
         while (more_pages):
         
             logger.info('request to review_list: %s %s', request_url, params)
+            logger.info('net url of request: %s?%s', request_url, urlencode(params))
             r = request(method,request_url,params=params)
             
             if r.status_code != httplib.OK:
@@ -234,4 +283,20 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
         except Exception, e:
             logger.info ("error adding ISBN %s: %s", isbn, e) 
 
+def test_signed_review_list():
+  from django.contrib.auth.models import User
+  
+  gr = GoodreadsClient(settings.GOODREADS_API_KEY, settings.GOODREADS_API_SECRET, user=User.objects.all()[0])
+  
+  # RY books
+  books = gr.review_list_auth(user_id=User.objects.all()[0].profile.goodreads_user_id)
+  for (i,book) in enumerate(books):
+    print i, book
+    
+  # EH books: 4744781
+  books = gr.review_list_auth(user_id='4744781')
+  for (i,book) in enumerate(books):
+    print i, book  
+  
+  
 
