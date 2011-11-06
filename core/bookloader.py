@@ -1,16 +1,39 @@
 import json
 import logging
 
-from xml.etree import ElementTree
 import requests
+from xml.etree import ElementTree
 
-from django.conf import settings
 from django.db.models import Q
+from django.conf import settings
 from django.db import IntegrityError
 
 from regluit.core import models
 
 logger = logging.getLogger(__name__)
+
+def add_by_oclc(oclc):
+    logger.info("adding book by oclc %s", oclc)
+    for edition in models.Edition.objects.filter(oclc=oclc):
+        return edition
+
+    url = "https://www.googleapis.com/books/v1/volumes"
+    results = _get_json(url, {"q": '"OCLC%s"' % oclc})
+
+    if not results.has_key('items') or len(results['items']) == 0:
+        logger.warn("no google hits for %s" % oclc)
+        return None
+
+    try:
+        e = add_by_googlebooks_id(results['items'][0]['id'])
+        e.oclc = oclc
+        e.save()
+        return e
+    except LookupFailure, e:
+        logger.exception("failed to add edition for %s", oclc)
+    except IntegrityError, e:
+        logger.exception("google books data for %s didn't fit our db", oclc)
+    return None
 
 
 def add_by_isbn(isbn, work=None):
@@ -18,7 +41,7 @@ def add_by_isbn(isbn, work=None):
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
-    logger.info("adding book for %s", isbn)
+    logger.info("adding book by isbn %s", isbn)
     # save a lookup to google if we already have this isbn
     has_isbn = Q(isbn_10=isbn) | Q(isbn_13=isbn)
     for edition in models.Edition.objects.filter(has_isbn):
@@ -36,7 +59,7 @@ def add_by_isbn(isbn, work=None):
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", isbn)
     except IntegrityError, e:
-        logger.exception("edition data for %s does not match db schema", isbn)
+        logger.exception("google books data for %s didn't fit our db", isbn)
     return None
 
 
@@ -52,7 +75,8 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
 
     logger.info("loading metadata from google for %s", googlebooks_id)
     url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
-    d = _get_json(url)['volumeInfo']
+    item  = _get_json(url)
+    d = item['volumeInfo']
 
     e.title = d.get('title')
     e.description = d.get('description')
@@ -73,6 +97,23 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     for s in d.get('categories', []):
         s, created = models.Subject.objects.get_or_create(name=s)
         s.editions.add(e)
+
+    access_info = item.get('accessInfo')
+    if access_info:
+        e.public_domain = item.get('public_domain', None)
+        epub = access_info.get('epub')
+        if epub and epub.get('downloadLink'):
+            ebook = models.Ebook(edition=e, format='epub',
+                                 url=epub.get('downloadLink'),
+                                 provider='google')
+            ebook.save()
+            
+        pdf = access_info.get('pdf')
+        if pdf and pdf.get('downloadLink'):
+            ebook = models.Ebook(edition=e, format='pdf',
+                                 url=pdf.get('downloadLink', None),
+                                 provider='google')
+            ebook.save()            
 
     # if we know what work to add the edition to do it
     if work:

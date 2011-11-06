@@ -42,18 +42,15 @@ def home(request):
 def stub(request):
 	path = request.path[6:]
 	return render(request,'stub.html', {'path': path})
-	
+
 def work(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    editions = work.editions.all().order_by('-publication_date')
-    supporters = User.objects.filter(wishlist__works__in=[work])
-    if not request.user.is_anonymous:
-        supporters.remove(request.user)
-    return render(request, 'work.html', {
-        'work': work, 
-        'editions': editions, 
-        'supporters': supporters
-    })
+    campaign = work.last_campaign()
+    if campaign:
+        premiums = campaign.premiums.all()
+        if premiums.count() == 0:
+            premiums = models.Premium.objects.filter(campaign__isnull=True)
+    return render(request, 'work.html', {'work': work, 'premiums': premiums})
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
@@ -339,7 +336,4 @@ def clear_wishlist(request):
         return HttpResponse("Error in clearing wishlist: %s " % (e))
         logger.info("Error in clearing wishlist: %s ", e)
     
-def campaign(request, isbn):
-	isbn = int(isbn)
-	work = models.Edition.get_by_isbn(isbn).work
-	return render(request, 'campaign.html', {'work': work})
+
