@@ -87,3 +87,7 @@ INSTALLED_APPS += ("djkombu",)
 # Goodreads API
 GOODREADS_API_KEY = ''
 GOODREADS_API_SECRET = ''
+
+# Freebase credentials
+FREEBASE_USERNAME = ''
+FREEBASE_PASSWORD = ''
