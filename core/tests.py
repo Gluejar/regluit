@@ -71,6 +71,8 @@ class TestBookLoader(TestCase):
         # add two editions and see that there are two stub works
         e1 = bookloader.add_by_isbn('0465019358')
         e2 = bookloader.add_by_isbn('1458776204')
+        self.assertTrue(e1)
+        self.assertTrue(e2)
         self.assertEqual(models.Work.objects.count(), 2)
 
         # add the stub works to a wishlist
@@ -112,6 +114,11 @@ class TestBookLoader(TestCase):
         ebook = edition.ebooks.all()[0]
         self.assertEqual(ebook.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
         self.assertEqual(ebook.provider, 'google')
+
+    def test_add_no_ebook(self):
+        # this edition lacks an ebook, but we should still be able to load it
+        e = bookloader.add_by_isbn('0465019358')
+        self.assertTrue(e)
 
 class SearchTests(TestCase):
 

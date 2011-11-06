@@ -1,11 +1,11 @@
 import json
 import logging
 
-from xml.etree import ElementTree
 import requests
+from xml.etree import ElementTree
 
-from django.conf import settings
 from django.db.models import Q
+from django.conf import settings
 from django.db import IntegrityError
 
 from regluit.core import models
@@ -31,7 +31,10 @@ def add_by_oclc(oclc):
         return e
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", oclc)
+    except IntegrityError, e:
+        logger.exception("google books data for %s didn't fit our db", oclc)
     return None
+
 
 def add_by_isbn(isbn, work=None):
     """add a book to the UnglueIt database based on ISBN. The work parameter
@@ -55,6 +58,8 @@ def add_by_isbn(isbn, work=None):
         return add_by_googlebooks_id(results['items'][0]['id'], work)
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", isbn)
+    except IntegrityError, e:
+        logger.exception("google books data for %s didn't fit our db", isbn)
     return None
 
 
@@ -97,9 +102,9 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     if access_info:
         e.public_domain = item.get('public_domain', None)
         epub = access_info.get('epub')
-        if epub:
+        if epub and epub.get('downloadLink'):
             ebook = models.Ebook(edition=e, 
-                                 url=epub.get('downloadLink', None),
+                                 url=epub.get('downloadLink'),
                                  provider='google')
             ebook.save()
 
