@@ -18,63 +18,102 @@ Changes made directly to layout.css will be overwritten.
   border-style: solid none;
   border-color: #FFFFFF;
 }
-div.book-list {
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+div.book-list.listview {
   clear: both;
   display: block;
   vertical-align: middle;
   height: 43px;
   line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
   margin: 0 5px 0 0;
   padding: 7px 0;
-  overflow: hidden;
 }
-div.book-list.row1 {
+div.book-list.listview.row1 {
   background: #f6f9f9;
 }
-div.book-list.row2 {
+div.book-list.listview.row2 {
   background: #fff;
 }
-div.book-list div.unglue-this {
+div.book-list.listview div.unglue-this {
   float: left;
 }
-div.book-list div.book-thumb {
+div.book-list.listview div.book-thumb {
   margin-right: 5px;
   float: left;
 }
-div.book-list div.book-name {
+div.book-list.listview div.book-name {
   width: 260px;
   margin-right: 10px;
-  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
+  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
-div.book-list div.book-name span {
+div.book-list.listview div.book-name span {
   display: block;
   line-height: normal;
   height: 43px;
   line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
+  height: 43px;
+  line-height: 43px;
 }
-div.book-list div.add-wishlist, div.book-list div.remove-wishlist {
+div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist {
   margin-right: 10px;
   padding-right: 10px;
-  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
+  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
-div.book-list div.add-wishlist a, div.book-list div.remove-wishlist a {
+div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
+  background: url("../images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
 }
-div.book-list div.booklist-status {
+div.book-list.listview div.booklist-status {
   margin-right: 7px;
   float: left;
 }
-span.booklist-status-text {
+.booklist-status.listview span.booklist-status-label {
+  display: none;
+}
+.booklist-status.listview span.booklist-status-text {
   float: left;
   display: block;
   padding-right: 5px;
   text-transform: capitalize;
+}
+.booklist-status.listview .booklist-status-img p {
+  display: none;
 }
 div.unglue-this a {
   text-transform: uppercase;
@@ -146,8 +185,58 @@ ul.navigation li.arrow-l a {
   height: 15px;
   display: block;
   text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") 0 -168px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") 0 -168px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") 0 -168px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") 0 -168px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") 0 -168px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
 }
 ul.navigation li.arrow-r a {
+  background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+  background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
   background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
   width: 10px;
   height: 15px;
@@ -162,71 +251,178 @@ ul.navigation li a:hover, ul.navigation li.active a {
   display: block;
   border: 0;
 }
-.book-thumb img {
+.book-thumb.listview a {
+  display: block;
   height: 50px;
+  width: 32px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
 }
-.book_panel {
-  margin: 20px  auto;
-  padding: 0 5px 5px 5px;
-  height: 300px;
+.book-thumb.listview a:hover {
+  overflow: visible;
+  z-index: 1000;
+  border: none;
+}
+.book-thumb.listview a img {
+  position: absolute;
+  top: -20px;
+  left: -50px;
+}
+.listview.author {
+  display: none;
+}
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.greenpanelstuff {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
   width: 120px;
   line-height: 16px;
+}
+.greenpanelactionborders {
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+.panelhoverlink {
+  text-decoration: none;
+  color: #3d4e53;
+}
+@charset "utf-8";
+* {
+  padding: 0px;
+  margin: 0px;
+}
+/*main_Css*/
+#main-wrapper {
+  height: 100%;
+  width: 725px;
+  margin: 0px;
+  padding: 0px 0px;
+}
+.panelview.tabs {
+  padding: 5px 0px;
+  margin: 0px;
+  width: 142px;
+  float: left;
+}
+.panelview.tabs span.active {
+  padding: 15px;
+  margin: 15px 0px;
+  font-weight: bold;
+}
+.panelview.book-list {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  width: 120px;
+  line-height: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  width: 120px;
+  line-height: 16px;
+  margin: auto;
+  padding: 0px 5px 5px 5px;
+  height: 300px;
   background-color: #ffffff;
   color: #3d4e53;
   border: 5px solid #edf3f4;
+  /*	might need this for panel hover state; don't want it for nonhover. hm.
+	a {
+    	color: @dark-green;
+    	text-decoration: none;
+    	
+    	&:hover {
+    		color: @green;
+	    	text-decoration: none;
+		}
+	}
+*/
+
 }
-.book_panel a {
-  font-size: 12pt;
-  color: #73a334;
-  text-decoration: none;
-}
-.book_panel a:hover {
-  color: #8dc63f;
-  text-decoration: none;
-}
-.book_panel p {
-  margin: 0;
-}
-.book_panel img {
-  padding: 5px 0;
-  margin: 0;
-}
-.book_panel:hover {
+.panelview.book-list:hover {
   color: #3d4e53;
 }
-.green {
+.panelview.book-list img {
+  padding: 5px 0px;
+  margin: 0px;
+}
+div.remove-wishlist.panelview {
+  display: none;
+}
+.panelview.book-name, .panelview.author {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: #3d4e53;
+}
+.panelview.booklist-status {
   color: #8dc63f;
   text-align: left;
 }
-.book_panel_back {
-  margin: 0  auto;
-  padding: 10px;
-  height: 295px;
+.panelview.booklist-status .booklist-status-label {
+  float: left;
+  font-weight: bold;
+}
+/*2 start*/
+.greenpanel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
   width: 120px;
   line-height: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  width: 120px;
+  line-height: 16px;
+  margin: 0px auto;
+  padding: 10px;
+  height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
   position: relative;
 }
-.book_panel_back a {
-  font-size: 12px;
-  font-weight: normal;
-}
 .unglued_white {
-  margin: 0  auto;
+  font-size: 12px;
+  margin: 0px  auto;
   margin-bottom: 5px;
-  padding: 10px 0;
-}
-.status {
-  color: #8dc63f;
-  text-align: left;
+  padding: 10px 0px;
 }
 .read_itbutton {
   width: 118px;
   height: 35px;
-  padding: 0 0;
+  padding: 0px 0px;
   background: #FFFFFF;
-  margin: 0;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
   border-radius: 4px 4px 4px 4px;
@@ -235,110 +431,333 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .read_itbutton a {
   line-height: 40px;
   font-size: 11px;
-  background: url("/static/images/book-panel/book_icon.png") no-repeat left center;
+  background-repeat: no-repeat;
   background-position: 10px center;
-  padding: 0 0 0 30px;
-  color: #73a334;
-  text-decoration: none;
   font-weight: bold;
+  text-decoration: none;
   text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  padding: 0px 0px 0px 30px;
+  color: #73a334;
 }
 .read_itbutton a:hover {
   text-decoration: none;
 }
-#add_towish {
-  width: 130px;
+.add_towish {
+  width: 125px;
   height: 30px;
-  padding: 0 0;
-  margin: 10px auto;
+  padding: 0px 0px;
+  margin: 15px auto;
 }
-#add_towish a {
+.add_towish a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
-  padding: 8px 5px 8px 21px;
+  background-repeat: no-repeat;
+  background-position: left center;
   font-weight: bold;
-  color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/add_wish_icon.png);
+  padding: 8px 5px 8px 21px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
 }
-#add_towish a:hover {
+.add_towish a:hover {
+  text-decoration: none;
+  color: #3d4e53;
   text-decoration: none;
   color: #3d4e53;
 }
-#white_text {
+.white_text {
   width: 130px;
   height: 40px;
-  padding: 17px 0;
-  margin: 0;
+  padding: 17px 0px;
+  margin: 0px;
 }
-#white_text a {
+.white_text a {
   color: #FFFFFF;
   text-decoration: none;
 }
-#white_text a:hover {
+.white_text a:hover {
+  text-decoration: none;
   color: #3d4e53;
   text-decoration: none;
+  color: #3d4e53;
 }
-#moreinfo {
+/*more info*/
+.moreinfo {
   width: 130px;
   height: 30px;
-  padding: 0;
+  padding: 0px;
   margin: 15px 0 0;
 }
-#moreinfo a {
+.moreinfo a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url("/static/images/book-panel/more_icon.png") no-repeat left center;
-  padding: 8px 42px 8px 20px;
+  background-repeat: no-repeat;
+  background-position: left center;
   font-weight: bold;
-  padding-left: 20px;
-  color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/more_icon.png);
+  padding: 8px 42px 8px 20px;
+  padding-left: 20px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
 }
-#moreinfo a:hover {
+.moreinfo a:hover {
   text-decoration: none;
   color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+/*end of the more info/*
+/*end the 2greenpanel*/
+/*2 start*/
+.graypanel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  margin: 20px  auto;
+  padding: 4px 5px;
+  height: 300px;
+  width: 130px;
+  line-height: 16px;
+  background-color: #edf3f4;
+  color: #3d4e53;
+  border: 5px solid #edf3f4;
+}
+.unglued_white2 {
+  font-size: 12px;
+  margin: 3px  auto;
+  padding: 5px 0px;
 }
 .green {
   color: #8dc63f;
   text-align: left;
 }
-#graypanel a {
+.graypanel a {
+  text-decoration: none;
   color: #3d4e53;
   text-decoration: none;
+  color: #3d4e53;
 }
-.read {
+.graypanel a:hover {
+  color: #8dc63f;
+  text-decoration: none;
+}
+.Unglue_itbutton {
+  width: 110px;
+  height: 40px;
+  padding: 0px 9px;
+  background: #FFFFFF;
+  margin: 0px auto;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #d4dcdd;
+}
+.Unglue_itbutton a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 2px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 2px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/unglue_icon.png);
+  padding: 5px 0px 0px 20px;
+  color: #3d4e53;
+  text-align: right;
+  font-family: "LucidaGrandeBold";
+}
+.Unglue_itbutton a:hover {
+  text-decoration: none;
+}
+.add_towish2 {
+  width: 130px;
+  height: 30px;
+  padding: 0px 0px;
   margin: 15px auto;
-  padding: 0;
+}
+.add_towish2 a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/add_gray.png);
+  padding: 8px 0px;
+  padding-left: 20px;
+  color: #3d4e53;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  font-family: "LucidaGrandeBold";
+}
+.add_towish2 a:hover {
+  text-decoration: none;
+}
+.white_text2 {
+  width: 130px;
+  height: 40px;
+  padding: 13px 0px;
+  margin: 0px;
+}
+.white_text2 a, a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+/*more info*/
+.moreinfo2 {
+  width: 130px;
+  height: 30px;
+  padding: 0px 20px 0px 0px;
+  margin: 15px auto;
+}
+.moreinfo2 a {
+  line-height: 40px;
+  font-size: 12px;
+  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding: 8px 35px;
+  font-weight: bold;
+  padding-left: 20px;
+  color: #3d4e53;
+  text-decoration: none;
+  text-transform: uppercase;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  font-family: "LucidaGrandeBold";
+}
+.moreinfo2 a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+/*end the 2greenpanel*/
+.read {
+  margin: 15px auto 5px auto;
+  padding: 0px;
   width: 140px;
   color: #8dc63f;
   height: 40px;
   line-height: 25px;
   float: left;
+  position: absolute;
+  bottom: -15px;
 }
 .read p {
-  margin: 0;
+  margin: 0px;
   padding: 10px 3px;
   width: 50px;
   font-size: 10pt;
   float: left;
 }
 .read img {
-  padding: 5px;
-  margin: 0;
+  padding: 5px 0px;
+  margin: 0px;
   float: left;
 }
 .right_add {
   padding: 10px;
-  margin: 0;
+  margin: 0px;
   float: right;
 }
 p.right_add {
@@ -346,24 +765,66 @@ p.right_add {
   padding: 10px 10px 0 0;
   width: 24px;
 }
-/* slideout hover state */
-.book_panel_interior {
+/**/
+.read2 {
+  margin: 15px auto;
+  padding: 0px;
+  width: 130px;
+  color: #8dc63f;
+  height: 40px;
+  line-height: 25px;
+}
+.read2 p {
+  margin: 0px;
+  padding: 10px 3px;
+  width: 50px;
+  font-size: 10pt;
+  float: left;
+}
+.read2 img {
+  padding: 0px;
+  margin: 0px;
+  float: left;
+}
+.right_add {
+  padding: 10px;
+  margin: 0px;
+  float: right;
+}
+/* --------------- ( slideout hover state ) --------------------------------------------- */
+.panelview.book-thumb {
   float: left;
   position: relative;
-  margin: 0;
-  padding: 0;
-  left: 0;
+  margin: 0px;
+  padding: 0px;
+  left: 0px;
 }
-.book_panel_interior img {
+.panelview.book-thumb img {
   z-index: 100;
+  width: 120px;
+  height: 182px;
 }
-.book_panel_interior span {
+.panelview.book-thumb span {
   position: absolute;
   bottom: 0;
   left: -10px;
   top: -5px;
   z-index: 1000;
   height: auto;
+}
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
 }
 body {
   background: url("/static/images/bg-body.png") 0 0 repeat-x;
@@ -421,6 +882,16 @@ a.readon span {
   padding: 0 5px 0 20px;
   height: 36px;
   line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
   display: block;
 }
 a {
@@ -462,9 +933,79 @@ a {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
 }
 .js-topmenu ul li span#welcome {
   color: #8dc63f;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
   height: 36px;
   line-height: 36px;
   display: block;
@@ -518,6 +1059,16 @@ a {
   background: url("/static/images/bg.png") -645px -180px;
   height: 36px;
   line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
   float: left;
   color: #6994a3;
 }
@@ -548,6 +1099,21 @@ a {
 #js-leftcol .jsmod-content {
   border: 1px solid #edf3f4;
   margin-left: 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
+  -moz-border-radius: 0 0 10px 10px;
+  -webkit-border-radius: 0 0 10px 10px;
+  border-radius: 0 0 10px 10px;
   -moz-border-radius: 0 0 10px 10px;
   -webkit-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
@@ -617,6 +1183,20 @@ div.content-block-content .cols3 .column {
   margin-right: auto;
   padding: 5px 15px;
 }
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
 .block-inner {
   padding-right: 10px;
 }
@@ -682,6 +1262,21 @@ span.rounded {
   -moz-border-radius: 7px 7px 7px 7px;
   -webkit-border-radius: 7px 7px 7px 7px;
   border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
   padding: 1px;
   color: #fff;
   margin: 0 8px 0 0;
@@ -693,16 +1288,46 @@ span.rounded > span {
   -moz-border-radius: 5px 5px 5px 5px;
   -webkit-border-radius: 5px 5px 5px 5px;
   border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
   text-align: center;
   display: inline-block;
 }
 span.blue {
   background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
 }
 span.orange {
   background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
 }
 span.grey {
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
   background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
 }
 div.check-list {
@@ -731,6 +1356,16 @@ a.my-setting {
   border-radius: 7px;
   height: 50px;
   line-height: 50px;
+  height: 50px;
+  line-height: 50px;
+  height: 50px;
+  line-height: 50px;
+  height: 50px;
+  line-height: 50px;
+  height: 50px;
+  line-height: 50px;
+  height: 50px;
+  line-height: 50px;
   display: block;
   padding: 0 0 0 10px;
   font-size: 20px;
@@ -739,7 +1374,7 @@ a.my-setting.active {
   background: #d6dde0 url("/static/images/header/collspane.png") 90% center no-repeat;
 }
 #tabs {
-  border-bottom: 4px solid #8DC63F;
+  border-bottom: 4px solid #8dc63f;
   clear: both;
   float: left;
   margin-left: 10px;
@@ -762,9 +1397,29 @@ ul.tabs li {
   float: left;
   height: 46px;
   line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
   margin-right: 10px;
 }
 ul.tabs li a {
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
+  height: 46px;
+  line-height: 46px;
   height: 46px;
   line-height: 46px;
   display: block;
@@ -785,68 +1440,232 @@ ul.tabs li a:hover, ul.tabs li.active a {
 .book-list span.rounded > span a {
   text-transform: capitalize;
 }
-.book_panel {
-  margin: 20px  auto;
-  padding: 0 5px 5px 5px;
-  height: 300px;
+div.content-block-content {
+  padding-left: 10px;
+}
+.js-news-text {
+  float: left;
+  width: 70%;
+  font-size: 16px;
+  color: #3d4e53;
+  font-family: lucida grande;
+}
+.js-news-links {
+  float: right;
+  width: 30%;
+}
+.column-left .item {
+  margin: 0 10px 10px 0;
+}
+.column-center .item {
+  margin: 0 5px 10px 5px;
+}
+.column-right .item {
+  margin: 0 0 10px 10px;
+}
+.column .item {
+  border: 7px solid #edf3f4;
+  padding: 10px;
+}
+.book-image {
+  padding: 0 0 10px 0;
+}
+.book-info {
+  padding: 0 0 10px 0;
+  line-height: 125%;
+  position: relative;
+}
+.book-info span.book-new {
+  background: url(/static/images/images/icon-new.png) 0 0 no-repeat;
+  width: 38px;
+  height: 36px;
+  display: block;
+  position: absolute;
+  right: 10px;
+  top: 0;
+}
+.book-name {
+  color: #3d4e53;
+  font-weight: bold;
+}
+.book-author {
+  color: #6994a3;
+}
+.book-status {
+  margin: 0 -10px;
+  border-top: 1px solid #edf3f4;
+  padding: 15px 10px 0 10px;
+  position: relative;
+}
+.book-status span.unglue {
+  font-style: italic;
+}
+.book-status span.status {
+  position: absolute;
+  right: 10px;
+  bottom: -5px;
+  width: 37px;
+  height: 25px;
+  display: block;
+}
+/* Do I even still need this?
+.book-status span.percent99{ background:url(../images/images/icon-book1.png) 0 0 no-repeat;}
+.book-status span.percent60{ background:url(../images/images/icon-book2.png) 0 0 no-repeat;}
+.book-status span.percent22{ background:url(../images/images/icon-book3.png) 0 0 no-repeat;}
+.book-status span.percent7{ background:url(../images/images/icon-book4.png) 0 0 no-repeat;}
+.book-status span.percent62{ background:url(../images/images/icon-book5.png) 0 0 no-repeat;}
+.book-status span.percent21{ background:url(../images/images/icon-book6.png) 0 0 no-repeat;}
+*/.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.greenpanelstuff {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
   width: 120px;
   line-height: 16px;
+}
+.greenpanelactionborders {
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+.panelhoverlink {
+  text-decoration: none;
+  color: #3d4e53;
+}
+@charset "utf-8";
+* {
+  padding: 0px;
+  margin: 0px;
+}
+/*main_Css*/
+#main-wrapper {
+  height: 100%;
+  width: 725px;
+  margin: 0px;
+  padding: 0px 0px;
+}
+.panelview.tabs {
+  padding: 5px 0px;
+  margin: 0px;
+  width: 142px;
+  float: left;
+}
+.panelview.tabs span.active {
+  padding: 15px;
+  margin: 15px 0px;
+  font-weight: bold;
+}
+.panelview.book-list {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  width: 120px;
+  line-height: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  width: 120px;
+  line-height: 16px;
+  margin: auto;
+  padding: 0px 5px 5px 5px;
+  height: 300px;
   background-color: #ffffff;
   color: #3d4e53;
   border: 5px solid #edf3f4;
+  /*	might need this for panel hover state; don't want it for nonhover. hm.
+	a {
+    	color: @dark-green;
+    	text-decoration: none;
+    	
+    	&:hover {
+    		color: @green;
+	    	text-decoration: none;
+		}
+	}
+*/
+
 }
-.book_panel a {
-  font-size: 12pt;
-  color: #73a334;
-  text-decoration: none;
-}
-.book_panel a:hover {
-  color: #8dc63f;
-  text-decoration: none;
-}
-.book_panel p {
-  margin: 0;
-}
-.book_panel img {
-  padding: 5px 0;
-  margin: 0;
-}
-.book_panel:hover {
+.panelview.book-list:hover {
   color: #3d4e53;
 }
-.green {
+.panelview.book-list img {
+  padding: 5px 0px;
+  margin: 0px;
+}
+div.remove-wishlist.panelview {
+  display: none;
+}
+.panelview.book-name, .panelview.author {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  color: #3d4e53;
+}
+.panelview.booklist-status {
   color: #8dc63f;
   text-align: left;
 }
-.book_panel_back {
-  margin: 0  auto;
-  padding: 10px;
-  height: 295px;
+.panelview.booklist-status .booklist-status-label {
+  float: left;
+  font-weight: bold;
+}
+/*2 start*/
+.greenpanel2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
   width: 120px;
   line-height: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  width: 120px;
+  line-height: 16px;
+  margin: 0px auto;
+  padding: 10px;
+  height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
   position: relative;
 }
-.book_panel_back a {
-  font-size: 12px;
-  font-weight: normal;
-}
 .unglued_white {
-  margin: 0  auto;
+  font-size: 12px;
+  margin: 0px  auto;
   margin-bottom: 5px;
-  padding: 10px 0;
-}
-.status {
-  color: #8dc63f;
-  text-align: left;
+  padding: 10px 0px;
 }
 .read_itbutton {
   width: 118px;
   height: 35px;
-  padding: 0 0;
+  padding: 0px 0px;
   background: #FFFFFF;
-  margin: 0;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
   border-radius: 4px 4px 4px 4px;
@@ -855,110 +1674,333 @@ ul.tabs li a:hover, ul.tabs li.active a {
 .read_itbutton a {
   line-height: 40px;
   font-size: 11px;
-  background: url("/static/images/book-panel/book_icon.png") no-repeat left center;
+  background-repeat: no-repeat;
   background-position: 10px center;
-  padding: 0 0 0 30px;
-  color: #73a334;
-  text-decoration: none;
   font-weight: bold;
+  text-decoration: none;
   text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  padding: 0px 0px 0px 30px;
+  color: #73a334;
 }
 .read_itbutton a:hover {
   text-decoration: none;
 }
-#add_towish {
-  width: 130px;
+.add_towish {
+  width: 125px;
   height: 30px;
-  padding: 0 0;
-  margin: 10px auto;
+  padding: 0px 0px;
+  margin: 15px auto;
 }
-#add_towish a {
+.add_towish a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
-  padding: 8px 5px 8px 21px;
+  background-repeat: no-repeat;
+  background-position: left center;
   font-weight: bold;
-  color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/add_wish_icon.png);
+  padding: 8px 5px 8px 21px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
 }
-#add_towish a:hover {
+.add_towish a:hover {
+  text-decoration: none;
+  color: #3d4e53;
   text-decoration: none;
   color: #3d4e53;
 }
-#white_text {
+.white_text {
   width: 130px;
   height: 40px;
-  padding: 17px 0;
-  margin: 0;
+  padding: 17px 0px;
+  margin: 0px;
 }
-#white_text a {
+.white_text a {
   color: #FFFFFF;
   text-decoration: none;
 }
-#white_text a:hover {
+.white_text a:hover {
+  text-decoration: none;
   color: #3d4e53;
   text-decoration: none;
+  color: #3d4e53;
 }
-#moreinfo {
+/*more info*/
+.moreinfo {
   width: 130px;
   height: 30px;
-  padding: 0;
+  padding: 0px;
   margin: 15px 0 0;
 }
-#moreinfo a {
+.moreinfo a {
   line-height: 40px;
   font-size: 11px;
-  background-image: url("/static/images/book-panel/more_icon.png") no-repeat left center;
-  padding: 8px 42px 8px 20px;
+  background-repeat: no-repeat;
+  background-position: left center;
   font-weight: bold;
-  padding-left: 20px;
-  color: #FFFFFF;
   text-decoration: none;
   text-transform: uppercase;
-  border-width: 1px 0px;
-  border-style: solid none;
-  border-color: #FFFFFF;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/more_icon.png);
+  padding: 8px 42px 8px 20px;
+  padding-left: 20px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
 }
-#moreinfo a:hover {
+.moreinfo a:hover {
   text-decoration: none;
   color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+/*end of the more info/*
+/*end the 2greenpanel*/
+/*2 start*/
+.graypanel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  margin: 20px  auto;
+  padding: 4px 5px;
+  height: 300px;
+  width: 130px;
+  line-height: 16px;
+  background-color: #edf3f4;
+  color: #3d4e53;
+  border: 5px solid #edf3f4;
+}
+.unglued_white2 {
+  font-size: 12px;
+  margin: 3px  auto;
+  padding: 5px 0px;
 }
 .green {
   color: #8dc63f;
   text-align: left;
 }
-#graypanel a {
+.graypanel a {
+  text-decoration: none;
   color: #3d4e53;
   text-decoration: none;
+  color: #3d4e53;
 }
-.read {
+.graypanel a:hover {
+  color: #8dc63f;
+  text-decoration: none;
+}
+.Unglue_itbutton {
+  width: 110px;
+  height: 40px;
+  padding: 0px 9px;
+  background: #FFFFFF;
+  margin: 0px auto;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #d4dcdd;
+}
+.Unglue_itbutton a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 2px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 2px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/unglue_icon.png);
+  padding: 5px 0px 0px 20px;
+  color: #3d4e53;
+  text-align: right;
+  font-family: "LucidaGrandeBold";
+}
+.Unglue_itbutton a:hover {
+  text-decoration: none;
+}
+.add_towish2 {
+  width: 130px;
+  height: 30px;
+  padding: 0px 0px;
   margin: 15px auto;
-  padding: 0;
+}
+.add_towish2 a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background-image: url(/static/images/book-panel/add_gray.png);
+  padding: 8px 0px;
+  padding-left: 20px;
+  color: #3d4e53;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  font-family: "LucidaGrandeBold";
+}
+.add_towish2 a:hover {
+  text-decoration: none;
+}
+.white_text2 {
+  width: 130px;
+  height: 40px;
+  padding: 13px 0px;
+  margin: 0px;
+}
+.white_text2 a, a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+/*more info*/
+.moreinfo2 {
+  width: 130px;
+  height: 30px;
+  padding: 0px 20px 0px 0px;
+  margin: 15px auto;
+}
+.moreinfo2 a {
+  line-height: 40px;
+  font-size: 12px;
+  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-repeat: no-repeat;
+  background-position: left center;
+  padding: 8px 35px;
+  font-weight: bold;
+  padding-left: 20px;
+  color: #3d4e53;
+  text-decoration: none;
+  text-transform: uppercase;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  font-family: "LucidaGrandeBold";
+}
+.moreinfo2 a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+/*end the 2greenpanel*/
+.read {
+  margin: 15px auto 5px auto;
+  padding: 0px;
   width: 140px;
   color: #8dc63f;
   height: 40px;
   line-height: 25px;
   float: left;
+  position: absolute;
+  bottom: -15px;
 }
 .read p {
-  margin: 0;
+  margin: 0px;
   padding: 10px 3px;
   width: 50px;
   font-size: 10pt;
   float: left;
 }
 .read img {
-  padding: 5px;
-  margin: 0;
+  padding: 5px 0px;
+  margin: 0px;
   float: left;
 }
 .right_add {
   padding: 10px;
-  margin: 0;
+  margin: 0px;
   float: right;
 }
 p.right_add {
@@ -966,18 +2008,46 @@ p.right_add {
   padding: 10px 10px 0 0;
   width: 24px;
 }
-/* slideout hover state */
-.book_panel_interior {
+/**/
+.read2 {
+  margin: 15px auto;
+  padding: 0px;
+  width: 130px;
+  color: #8dc63f;
+  height: 40px;
+  line-height: 25px;
+}
+.read2 p {
+  margin: 0px;
+  padding: 10px 3px;
+  width: 50px;
+  font-size: 10pt;
+  float: left;
+}
+.read2 img {
+  padding: 0px;
+  margin: 0px;
+  float: left;
+}
+.right_add {
+  padding: 10px;
+  margin: 0px;
+  float: right;
+}
+/* --------------- ( slideout hover state ) --------------------------------------------- */
+.panelview.book-thumb {
   float: left;
   position: relative;
-  margin: 0;
-  padding: 0;
-  left: 0;
+  margin: 0px;
+  padding: 0px;
+  left: 0px;
 }
-.book_panel_interior img {
+.panelview.book-thumb img {
   z-index: 100;
+  width: 120px;
+  height: 182px;
 }
-.book_panel_interior span {
+.panelview.book-thumb span {
   position: absolute;
   bottom: 0;
   left: -10px;

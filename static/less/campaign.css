@@ -50,8 +50,6 @@
 }
 .book-detail-info {
   float: left;
-  /* if we want to nix the explore bar, width should be 544ish */
-
   width: 309px;
 }
 .book-detail-info h2.book-name, .book-detail-info h3.book-author, .book-detail-info h3.book-year {
@@ -190,8 +188,6 @@ ul.tabs li a:hover, ul.tabs li.active a {
 }
 #js-maincol {
   float: left;
-  /* If we want to nuke the explore column, width should be 705ish */
-
   width: 470px;
   margin: 0 10px;
 }

@@ -1,11 +1,13 @@
-div.book-list{ 
+@import "variables.less";
+
+div.book-list.listview{ 
     clear:both;
     display:block;
     vertical-align: middle;
     .height(43px);
     margin:0 5px 0 0;
     padding:7px 0;
-    overflow:hidden;
+    // overflow:hidden;
 
 	&.row1 {
 		background:#f6f9f9;
@@ -26,7 +28,7 @@ div.book-list{
 		&.book-name {
 			width:260px;
 			margin-right:10px;
-			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
+			background:url("../images/booklist/booklist-vline.png") right center no-repeat;
 			float: left;
 			
 			span { 
@@ -38,14 +40,14 @@ div.book-list{
 		&.add-wishlist, &.remove-wishlist {
 			margin-right: 10px;
 			padding-right: 10px;
-			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
+			background:url("../images/booklist/booklist-vline.png") right center no-repeat;
 			float: left;
 			
 			a {
 				font-weight:normal;
 				color:@text-blue;
 				text-transform: none;
-				background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
+				background:url("../images/booklist/add-wishlist.png") left center no-repeat;
 				padding-left:20px;
 			}
 			
@@ -57,11 +59,21 @@ div.book-list{
 	}
 }
 
-span.booklist-status-text {
-	float:left;
-	display:block;
-	padding-right:5px;
-	text-transform:capitalize;
+.booklist-status.listview {
+	span.booklist-status-label {
+		display: none;
+	}
+
+	span.booklist-status-text {
+		float:left;
+		display:block;
+		padding-right:5px;
+		text-transform:capitalize;
+	}
+	
+	.booklist-status-img p {
+		display: none;
+	}
 }
 
 div.unglue-this {
@@ -162,6 +174,27 @@ ul.navigation li a:hover, ul.navigation li.active a {
 	border: 0;
 }
 
-.book-thumb img {
+.book-thumb.listview a {
+	display:block;
     height: 50px;
+    width: 32px;
+    overflow:hidden;
+    position:relative;
+    z-index:1;
+    
+    &:hover {
+		overflow:visible;
+		z-index:1000;
+		border:none;		
+	}
+    
+    img {
+    	position:absolute;
+    	top:-20px;
+		left:-50px;
+    }
+}
+
+.listview.author {
+	display: none;
 }

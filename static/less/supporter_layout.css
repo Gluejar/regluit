@@ -1,64 +1,187 @@
-@charset "utf-8";
-/* CSS Document */
-body {
-  background: url(../images/bg-body.png) 0 0 repeat-x;
-  padding: 0 0 20px 0;
-  margin: 0;
-  font-size: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-  color: #3d4e53;
-}
-img {
-  border: none;
-}
-.js-main {
-  width: 960px;
-  margin: 0 auto;
-  clear: both;
-  padding: 0;
-}
-#js-header {
-  height: 90px;
-}
-.js-logo {
-  float: left;
-  padding-top: 20px;
-}
-.js-topmenu {
-  float: right;
-  padding-top: 25px;
-}
-.js-topmenu ul li {
-  float: left;
-  padding: 0 10px;
-}
-.js-topmenu ul li a {
+.header-text {
   height: 36px;
   line-height: 36px;
   display: block;
-  color: #fff;
   text-decoration: none;
   font-weight: bold;
   font-size: 13px;
-  letter-spacing: 1px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.block-inner {
+  padding-right: 10px;
+}
+.user-block {
+  width: 100%;
+  clear: both;
+}
+.user-block-hide {
+  float: left;
+  width: 100%;
+  clear: both;
+}
+.user-block-hide .block {
+  float: left;
+  width: 33%;
+}
+.user-block-hide input {
+  float: left;
+  margin: 3px 10px 0 0;
+}
+.user-block-hide label {
+  float: left;
+  width: 90%;
+}
+.user-block1 {
+  float: left;
+  width: 25%;
+}
+.user-block2 {
+  color: #6994a3;
+  font-size: 11px;
+  line-height: normal;
+  float: left;
+  width: 25%;
+}
+.user-block3, .user-block4 {
+  float: right;
+  width: 25%;
+  margin-top: 10px;
+}
+img.user-avatar {
+  float: left;
+  margin-right: 10px;
+}
+.social {
+  width: 100%;
+  padding-left: 35px;
+}
+span.user-name, span.user-date, span.user-short-info {
+  display: block;
+}
+span.user-name, span.user-name a, a {
+  font-size: 12px;
+  color: #3d4e53;
+}
+span.user-status-title {
+  float: left;
+  margin-right: 8px;
+  padding-top: 5px;
+}
+span.rounded {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+span.rounded > span {
+  padding: 7px 10px;
+  min-width: 15px;
+  -moz-border-radius: 5px 5px 5px 5px;
+  -webkit-border-radius: 5px 5px 5px 5px;
+  border-radius: 5px 5px 5px 5px;
+  text-align: center;
+  display: inline-block;
+}
+span.blue {
+  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+}
+span.orange {
+  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+}
+span.grey {
+  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+}
+div.check-list {
+  float: left;
+  width: 100%;
+  padding-bottom: 7px;
+}
+a.profile-edit {
+  display: block;
+  background: url("/static/images/header/icon-edit.png") right top no-repeat;
+}
+div.profile-save {
+  padding-top: 15px;
+  border: none;
+}
+input.profile-save {
+  background: url("/static/images/header/save-setting.png") 0 0 no-repeat;
+  width: 116px;
+  height: 42px;
+  display: block;
+  text-indent: -100000px;
+  border: none;
+}
+a.my-setting {
+  background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;
+  border-radius: 7px;
+  height: 50px;
+  line-height: 50px;
+  display: block;
+  padding: 0 0 0 10px;
+  font-size: 20px;
+}
+a.my-setting.active {
+  background: #d6dde0 url("/static/images/header/collspane.png") 90% center no-repeat;
+}
+#tabs {
+  border-bottom: 4px solid #8dc63f;
+  clear: both;
+  float: left;
+  margin-left: 10px;
+  margin-top: 10px;
+  width: 100%;
+}
+#tabs ul.book-list-view {
+  margin-bottom: 4px !important;
+}
+#tabs-1, #tabs-2, #tabs-3 {
+  margin-left: 10px;
+}
+ul.tabs {
+  float: left;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+ul.tabs li {
+  float: left;
+  height: 46px;
+  line-height: 46px;
+  margin-right: 10px;
+}
+ul.tabs li a {
+  height: 46px;
+  line-height: 46px;
+  display: block;
+  text-align: center;
+  padding: 0 10px;
+  min-width: 80px;
+  border-radius: 7px 7px 0 0;
+  background: url("/static/images/header/bg-tabs1.png") left bottom repeat-x;
+}
+ul.tabs li a:hover, ul.tabs li.active a {
+  background: url("/static/images/header/bg-tabs.png") left bottom repeat-x;
+  color: #fff;
+}
+.book-list span.rounded > span {
+  line-height: normal;
+  width: 75px;
+}
+.book-list span.rounded > span a {
   text-transform: capitalize;
 }
-.js-topmenu ul li.last a {
-  background: url(../images/bg.png) right top no-repeat;
-}
-.js-topmenu ul li.last a span {
-  background: url(../images/bg.png) -770px -36px no-repeat;
-  margin-right: 29px;
-  display: block;
-  padding: 0 5px 0 15px;
-}
-#js-topsection {
-  padding: 15px 0;
-  overflow: hidden;
-}
-.js-topnews {
-  float: left;
-  width: 60%;
+div.content-block-content {
+  padding-left: 10px;
 }
 .js-news-text {
   float: left;
@@ -71,122 +194,14 @@ img {
   float: right;
   width: 30%;
 }
-.js-search {
-  float: right;
-  width: 30%;
-}
-.js-search-inner {
-  float: right;
-}
-.js-search .inputbox {
-  padding: 0 0 0 15px;
-  margin: 0;
-  border: none;
-  background: url(../images/bg.png) -645px -180px;
-  height: 36px;
-  line-height: 36px;
-  float: left;
-  color: #6994a3;
-}
-.js-search .button {
-  background: url(../images/bg.png) 100% -144px no-repeat;
-  padding: 0;
-  margin: 0;
-  width: 40px;
-  height: 36px;
-  display: block;
-  border: none;
-  text-indent: -10000px;
-  cursor: pointer;
-}
-#js-leftcol {
-  float: left;
-  width: 235px;
-}
-h3.jsmod-title {
-  background: url(../images/bg.png) 0 0 no-repeat;
-  padding: 0;
-  margin: 0;
-  height: 73px;
-}
-h3.jsmod-title span {
-  background: url(../images/icon-h3.png) 90% center no-repeat;
-  font-size: 17px;
-  color: #fff;
-  padding: 26px 40px 27px 20px;
-  display: block;
-}
-#js-leftcol .jsmod-content {
-  border: 1px solid #edf3f4;
-  margin-left: 10px;
-  border-radius: 0 0 10px 10px ;
-}
-#js-leftcol ul.level1 > li > a {
-  text-transform: uppercase;
-  color: #3d4e53;
-  font-size: 12px;
-  border-bottom: 1px solid #edf3f4;
-  border-top: 1px solid #edf3f4;
-  display: block;
-  padding: 10px;
-}
-#js-leftcol ul.level2 li {
-  padding: 5px 10px;
-}
-#js-leftcol ul.level2 li a {
-  color: #6994a3;
-}
-#js-leftcol a {
-  font-weight: normal;
-}
-#js-leftcol a:hover {
-  text-decoration: underline;
-}
-#js-maincol-fr {
-  float: right;
-  width: 725px;
-}
-div.content-block {
-  overflow: hidden;
-  background: url(../images/bg.png) 100% -223px no-repeat;
-  padding: 0 0 0 7px;
-}
-h2.content-heading {
-  padding: 15px;
-  margin: 0;
-  font-size: 19px;
-  font-weight: normal;
-  color: #3d4e53;
-  float: left;
-  width: 70%;
-}
-h2.content-heading span {
-  font-style: italic;
-}
-.content-block-heading a.block-link {
-  float: right;
-  padding: 15px;
-  font-size: 11px;
-  color: #3d4e53;
-  text-decoration: underline;
-  font-weight: normal;
-}
-div.content-block-content {
-  width: 100%;
-  overflow: hidden;
-}
-div.content-block-content .cols3 .column {
-  width: 33.33%;
-  float: left;
-}
 .column-left .item {
-  margin: 0  10px 10px 0;
+  margin: 0 10px 10px 0;
 }
 .column-center .item {
-  margin: 0  5px 10px 5px;
+  margin: 0 5px 10px 5px;
 }
 .column-right .item {
-  margin: 0  0 10px 10px;
+  margin: 0 0 10px 10px;
 }
 .column .item {
   border: 7px solid #edf3f4;
@@ -201,7 +216,7 @@ div.content-block-content .cols3 .column {
   position: relative;
 }
 .book-info span.book-new {
-  background: url(../images/images/icon-new.png) 0 0 no-repeat;
+  background: url(/static/images/images/icon-new.png) 0 0 no-repeat;
   width: 38px;
   height: 36px;
   display: block;
@@ -233,49 +248,11 @@ div.content-block-content .cols3 .column {
   height: 25px;
   display: block;
 }
-.book-status span.percent99 {
-  background: url(../images/images/icon-book1.png) 0 0 no-repeat;
-}
-.book-status span.percent60 {
-  background: url(../images/images/icon-book2.png) 0 0 no-repeat;
-}
-.book-status span.percent22 {
-  background: url(../images/images/icon-book3.png) 0 0 no-repeat;
-}
-.book-status span.percent7 {
-  background: url(../images/images/icon-book4.png) 0 0 no-repeat;
-}
-.book-status span.percent62 {
-  background: url(../images/images/icon-book5.png) 0 0 no-repeat;
-}
-.book-status span.percent21 {
-  background: url(../images/images/icon-book6.png) 0 0 no-repeat;
-}
-ul.menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-a.readon {
-  background: url(../images/bg.png) 100% -72px no-repeat;
-  color: #fff;
-  text-transform: capitalize;
-  display: block;
-  float: right;
-  font-size: 13px;
-  font-weight: bold;
-}
-a.readon span {
-  background: url(../images/bg.png) -770px -108px no-repeat;
-  margin-right: 34px;
-  padding: 0 5px 0 20px;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-}
-a {
-  font-weight: bold;
-  font-size: 13px;
-  text-decoration: none;
-  cursor: pointer;
-}
+/* Do I even still need this?
+.book-status span.percent99{ background:url(../images/images/icon-book1.png) 0 0 no-repeat;}
+.book-status span.percent60{ background:url(../images/images/icon-book2.png) 0 0 no-repeat;}
+.book-status span.percent22{ background:url(../images/images/icon-book3.png) 0 0 no-repeat;}
+.book-status span.percent7{ background:url(../images/images/icon-book4.png) 0 0 no-repeat;}
+.book-status span.percent62{ background:url(../images/images/icon-book5.png) 0 0 no-repeat;}
+.book-status span.percent21{ background:url(../images/images/icon-book6.png) 0 0 no-repeat;}
+*/

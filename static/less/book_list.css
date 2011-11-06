@@ -5,71 +5,75 @@
   text-decoration: none;
   font-weight: bold;
   font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: capitalize;
+  letter-spacing: -0.05em;
 }
 .panelborders {
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
 }
-div.book-list {
+div.book-list.listview {
   clear: both;
   display: block;
   vertical-align: middle;
   height: 43px;
   line-height: 43px;
-  margin: 0 5px  0px 0;
+  margin: 0 5px 0 0;
   padding: 7px 0;
-  overflow: hidden;
 }
-div.book-list.row1 {
+div.book-list.listview.row1 {
   background: #f6f9f9;
 }
-div.book-list.row2 {
+div.book-list.listview.row2 {
   background: #fff;
 }
-div.book-list div.unglue-this {
+div.book-list.listview div.unglue-this {
   float: left;
 }
-div.book-list div.book-thumb {
+div.book-list.listview div.book-thumb {
   margin-right: 5px;
   float: left;
 }
-div.book-list div.book-name {
+div.book-list.listview div.book-name {
   width: 260px;
   margin-right: 10px;
-  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
+  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
-div.book-list div.book-name span {
+div.book-list.listview div.book-name span {
   display: block;
   line-height: normal;
   height: 43px;
   line-height: 43px;
 }
-div.book-list div.add-wishlist, div.book-list div.remove-wishlist {
+div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist {
   margin-right: 10px;
   padding-right: 10px;
-  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
-  cursor: pointer;
+  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
-div.book-list div.add-wishlist span, div.book-list div.remove-wishlist span {
+div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
+  background: url("../images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
 }
-div.book-list div.booklist-status {
+div.book-list.listview div.booklist-status {
   margin-right: 7px;
   float: left;
 }
-span.booklist-status-text {
+.booklist-status.listview span.booklist-status-label {
+  display: none;
+}
+.booklist-status.listview span.booklist-status-text {
   float: left;
   display: block;
   padding-right: 5px;
+  text-transform: capitalize;
+}
+.booklist-status.listview .booklist-status-img p {
+  display: none;
 }
 div.unglue-this a {
   text-transform: uppercase;
@@ -89,6 +93,7 @@ div.unglue-this.complete .unglue-this-inner2 {
 }
 div.unglue-this.complete a {
   color: #fff;
+  display: block;
 }
 div.unglue-this.processing .unglue-this-inner1 {
   background: url("/static/images/booklist/bg.png") 0 0 no-repeat;
@@ -156,6 +161,24 @@ ul.navigation li a:hover, ul.navigation li.active a {
   display: block;
   border: 0;
 }
-.book-thumb img {
+.book-thumb.listview a {
+  display: block;
   height: 50px;
+  width: 32px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.book-thumb.listview a:hover {
+  overflow: visible;
+  z-index: 1000;
+  border: none;
+}
+.book-thumb.listview a img {
+  position: absolute;
+  top: -20px;
+  left: -50px;
+}
+.listview.author {
+  display: none;
 }
