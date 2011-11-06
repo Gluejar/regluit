@@ -1,3 +1,5 @@
+@import "variables.less";
+
 .block-inner { 
 	padding-right:10px;
 }
@@ -128,7 +130,7 @@ div.profile-save {
 }
 
 input.profile-save {
-	background: url("/static/images/header/save-setting.png") 0 0 no-repeat;
+	background: url("@{image-base}header/save-setting.png") 0 0 no-repeat;
 	width: 116px;
 	height: 42px;
 	display: block;
@@ -150,7 +152,7 @@ a.my-setting.active {
 }
 
 #tabs{ 
-	border-bottom: 4px solid #8DC63F;
+	border-bottom: 4px solid @green;
     clear: both;
     float: left;
     margin-left: 10px;
@@ -210,6 +212,91 @@ div.content-block-content {
   padding-left: 10px;
 }
 
-#tabs {
-  margin-left: 10px;
+.js-news-text {
+	float:left;
+	width:70%;
+	font-size:16px;
+	color:@text-blue;
+	font-family:lucida grande;
 }
+
+.js-news-links {
+	float:right;
+	width:30%;
+}
+
+.column-left .item {
+	margin:0 10px 10px 0;
+}
+
+.column-center .item {
+	margin:0 5px 10px 5px;
+}
+
+.column-right .item {
+	margin:0 0 10px 10px;
+}
+
+.column .item {
+	border:7px solid @pale-blue;
+	padding:10px;
+}
+
+.book-image { 
+	padding:0 0 10px 0;
+}
+
+.book-info {
+	padding:0 0 10px 0;
+	line-height:125%;
+	position:relative;
+
+	span.book-new {
+		background:url(/static/images/images/icon-new.png) 0 0  no-repeat;
+		width:38px;
+		height:36px;
+		display:block;
+		position:absolute;
+		right:10px;
+		top:0;
+	}
+}
+
+.book-name {
+	color:@text-blue;
+	font-weight:bold;
+}
+
+.book-author {
+	color:@medium-blue;
+}
+
+.book-status {
+	margin:0 -10px;
+	border-top:1px solid @pale-blue;
+	padding:15px 10px 0 10px;
+	position:relative;
+
+	span.unglue {
+		font-style:italic;
+	}
+
+	span.status {
+		position:absolute;
+		right:10px;
+		bottom:-5px;
+		width:37px;
+		height:25px;
+		display:block;
+	}
+
+}
+
+/* Do I even still need this?
+.book-status span.percent99{ background:url(../images/images/icon-book1.png) 0 0 no-repeat;}
+.book-status span.percent60{ background:url(../images/images/icon-book2.png) 0 0 no-repeat;}
+.book-status span.percent22{ background:url(../images/images/icon-book3.png) 0 0 no-repeat;}
+.book-status span.percent7{ background:url(../images/images/icon-book4.png) 0 0 no-repeat;}
+.book-status span.percent62{ background:url(../images/images/icon-book5.png) 0 0 no-repeat;}
+.book-status span.percent21{ background:url(../images/images/icon-book6.png) 0 0 no-repeat;}
+*/
