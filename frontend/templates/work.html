@@ -150,7 +150,7 @@ Campaign for WORK TITLE GOES HERE
                 <div class="jsmod-content">
                     <ul class="support menu">
                     	{% for premium in premiums %}
-                        <li class="{% if forloop.first %}first{% endif %}"><a href="">
+                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}"><a href="">
                         	<span class="menu-item-price">${{ premium.amount }}</span>
                             <span class="menu-item-desc">${{ premium.description }}</span>
                         </a></li>

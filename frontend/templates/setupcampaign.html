@@ -1,12 +1,16 @@
-<html>
-<body>
+{% extends "basedocumentation.html" %}
+
+{% block title %}Campaign Setup{% endblock %}
+
+{% block doccontent %}  
+
 <h2> Set up campaign </h2>
-<pre>title: Love Like Gumbo
-Author: Nancy Rawles
-published: 1997
-language: English
-ISBNs
-</pre>
+                    <div class="book-detail-info">
+                    	<h2 class="book-name">Title: {{ work.title }}</h2>
+                        <h3 class="book-author">Authors: {{ work.author }}</h3>
+                        <h3 class="book-year">Published: {{ work.editions.all.0.publication_date }}</h3>
+                        <h3 class="book-author">Language: {{ work.editions.all.0.language }}</h3>
+                    </div>
 <form action="#">
 
 <h3>Description of the work to be offered</h3>
@@ -15,14 +19,17 @@ This should include
 <li> a synopsis of the work.
 <li> hyperlinks for the author(s), publisher making the offer, or for the work itself.
 </ul>
-<textarea cols="80">
+<textarea cols="80" rows="20" name="description">
 </textarea>
 <h3>Offer details</h3>
 This should include 
 <ul>
 <li> Details about the edition being offered.
 <li> hyperlinks for the author(s), publisher making the offer, or for the work itself.
+</uL>
+<textarea cols="80" rows="20" name="details">
+</textarea>
 </ul>
 </form>
-</body>
-</html>
+
+{% endblock %}
