@@ -70,10 +70,6 @@ div.book-list.listview{
 		padding-right:5px;
 		text-transform:capitalize;
 	}
-	
-	.booklist-status-img p {
-		display: none;
-	}
 }
 
 div.unglue-this {
@@ -190,11 +186,32 @@ ul.navigation li a:hover, ul.navigation li.active a {
     
     img {
     	position:absolute;
+    	/* the excerpt you get looks cooler if you select from the middle, but 
+    	the popup version doesn't extend past the containing div's boundaries,
+    	so the positioned part is cut off.
     	top:-20px;
 		left:-50px;
+		*/
     }
 }
 
 .listview.author {
 	display: none;
+}
+
+.listview.icons {
+	float: left;
+	.booklist-status-img {
+		.border-radius(4px, 4px, 4px, 4px);
+		background-color: #fff;
+		margin-top: 4px;
+		height: 37px;
+
+		img {
+			padding: 5px;
+		}
+	}
+	.booklist-status-label, .right_add {
+		display: none;
+	}
 }

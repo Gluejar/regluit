@@ -4,10 +4,10 @@
 <!-- there's stuff we need from here and stuff that's incompatible:
 <link href="css/layout.css" rel="stylesheet" type="text/css" />  -->
 
-<link type="text/css" rel="stylesheet" href="/static/css/sitewide.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
+<link type="text/css" rel="stylesheet" href="css/sitewide.css" />
+<link type="text/css" rel="stylesheet" href="css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="css/book_list.css" />
+<link type="text/css" rel="stylesheet" href="css/book_panel.css" />
 
 <script type="text/javascript" src="js/jquery-1.6.3.min.js"></script>
 
@@ -51,13 +51,13 @@ $(document).ready(function(){
     	</div>
 		<div class="listview booklist-status">
         	<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Active</span>
-			<!-- images differ for list and panel; need to deal. maybe can use smaller version in rounded-corner pale-background div? -->
-			<!-- also this span is not nested in the panel view but is in list. how to deal? -->
-            <span class="booklist-status-img">
+		</div>
+		<div class="listview icons">
+            <div class="booklist-status-img">
             	<img src="images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
-            	<p>100%</p>
-            	<p class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></p>
-            </span>
+            </div>
+            <div class="booklist-status-label">100%</div>
+            <div class="right_add"><img src="images/book-panel/add_gray.png" border="0" /></div>
         </div>
         <div class="listview unglue-this none">
         	<div class="listview unglue-this-inner1">

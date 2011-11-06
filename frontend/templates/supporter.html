@@ -52,7 +52,19 @@
         });
     });
 </script>
-<link rel="stylesheet" href="/static/css/book_list.css">
+
+<!-- Beware of fadeIn/fadeOut jQuery animations; they add an inline "display: block"
+which overrides display: none in the stylesheet.  Sneaky! -->
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#toggle-list').click(function(){
+    	$('div.panelview').addClass("listview").removeClass("panelview");
+	});
+	$('#toggle-panel').click(function(){
+    	$('div.listview').addClass("panelview").removeClass("listview");
+	});
+});
+</script>
 
 {% endblock %}
 
@@ -204,19 +216,14 @@ how do I integrate the your wishlist thing with the tabs thing?
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
-                                <a href="#view-list">
+                                <a href="#" id="toggle-list">
                                 <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" />
                                 </a>
                             </li>
                             <li class="view-list">
-                                <a href="#view-icon">
+                                <a href="#" id="toggle-panel">
                                 <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" />
                                 </a>
-                            </li>
-                            <li class="view-list">
-                            <a href="#view-icon-small">
-                            <img src="/static/images/booklist/view-small-icon.png" align="view icon small" title="view icon small" height="22" width="22" />
-                            </a>
                             </li>
                         </ul>
                 </div>
@@ -239,44 +246,51 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% for work in wishlist.works.all %}
                        <!-- classify which tab depending on work.last_campaign_status -->
                        {% if work.last_campaign_status == 'SUCCESSFUL' %}
-                            <div class="tabs tabs-1">
+                            <div class="listview tabs tabs-1">
                        {% else %}{% if work.last_campaign_status == 'ACTIVE' %}
-                            <div class="tabs tabs-2">
+                            <div class="listview tabs tabs-2">
                        {% else %}
-                            <div class="tabs tabs-3">
+                            <div class="listview tabs tabs-3">
                        {% endif %}{% endif %}
-                    <div class="book-list {% cycle 'row1' 'row2' %}">
-                        <div class="book-thumb">
-                            <a href="#"><img src="{{ work.cover_image_small }}" alt="Book name" title="book name"  /></a>
+                    <div class="listview book-list {% cycle 'row1' 'row2' %}">
+                        <div class="listview book-thumb">
+                            <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
                         </div>
-                        <div class="book-name">
-                        <span>
-                            <a href="{% url work work.id %}">{{ work.title }}</a>
-                        </span>
+                        <div class="listview book-name">
+                        	<span>
+                            	<a href="{% url work work.id %}">{{ work.title }}</a>
+                        	</span>
                         </div>
+                        <div class="listview author">
+    						<span id="{{ work.author }}">James K. Polk</span>
+				    	</div>
                         {% ifequal supporter request.user %}
-                        <div class="remove-wishlist">
+                        <div class="listview remove-wishlist">
                             <span id="{{ work.id }}">Remove from Wishlist</span>
                         </div>
                         {% else %}{% if work in shared_works %}
-                        <div>
+                        <div class="listview on-wishlist">
                             <span>On Your Wishlist!</span>
                         </div>
                         {% else %}{% if request.user.is_anonymous %}
-                        <div class="create-account">
+                        <div class="listview create-account">
                             <span>Add to Wishlist</span>
                         </div>
                         {% else %}
-                        <div class="add-wishlist">
+                        <div class="listview add-wishlist">
                             <span id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</span>
                         </div>
                         {% endif %}{% endif %}{% endifequal %}
-                        <div class="booklist-status">
-                            <span class="booklist-status-text">{{ work.last_campaign_status }}</span>
-                            <span class="booklist-status-img">
-                                <img src="/static/images/icon-book{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
-                            </span>
-                        </div>
+                        <div class="listview booklist-status">
+                        	<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ work.last_campaign_status }}</span>
+						</div>
+						<div class="listview icons">
+        				    <div class="booklist-status-img">
+            					<img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
+				            </div>
+            				<div class="booklist-status-label">100%</div>
+				            <div class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></div>
+					    </div>
                         <div class="unglue-this none">
                             <div class="unglue-this-inner1">
                                 <div class="unglue-this-inner2">

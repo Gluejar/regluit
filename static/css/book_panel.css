@@ -64,6 +64,7 @@
   background-color: #ffffff;
   color: #3d4e53;
   border: 5px solid #edf3f4;
+  position: relative;
   /*	might need this for panel hover state; don't want it for nonhover. hm.
 	a {
     	color: @dark-green;
@@ -84,7 +85,10 @@
   padding: 5px 0px;
   margin: 0px;
 }
-div.remove-wishlist.panelview {
+.panelview.remove-wishlist,
+.panelview.on-wishlist,
+.panelview.create-account,
+.panelview.add-wishlist {
   display: none;
 }
 .panelview.book-name, .panelview.author {
@@ -100,6 +104,26 @@ div.remove-wishlist.panelview {
 .panelview.booklist-status .booklist-status-label {
   float: left;
   font-weight: bold;
+}
+.panelview.icons {
+  position: absolute;
+  bottom: 0px;
+  width: 140px;
+}
+.panelview.icons .booklist-status-img {
+  float: left;
+}
+.panelview.icons .booklist-status-label {
+  position: absolute;
+  color: #8dc63f;
+  padding-left: 5px;
+  left: 40px;
+  bottom: 5px;
+}
+.panelview.icons .right_add {
+  float: right;
+  padding: 10px 10px 0 0;
+  width: 24px;
 }
 /*2 start*/
 .greenpanel2 {
