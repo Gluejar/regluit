@@ -133,6 +133,14 @@ class Work(models.Model):
         except:
             last = None
         return last
+        
+    def last_campaign_status(self):
+        campaign = self.last_campaign
+        if campaign:
+            status = campaign.status
+        else:
+            status = "No campaign yet"
+        return status
 
     def percent_unglued(self):
         status = 0
