@@ -144,32 +144,21 @@ Campaign for WORK TITLE GOES HERE
                     </ul>
                 </div>
             </div>
+            {% if work.last_campaign %}
             <div class="jsmodule">
             	<h3 class="jsmod-title"><span>Support</span></h3>
                 <div class="jsmod-content">
                     <ul class="support menu">
-                        <li class="first"><a href="#">
-                        	<span class="menu-item-price">$1</span>
-                            <span class="menu-item-desc">The ebook delivered to your inbox.</span>
+                    	{% for premium in premiums %}
+                        <li class="{% if forloop.first %}first{% endif %}"><a href="">
+                        	<span class="menu-item-price">${{ premium.amount }}</span>
+                            <span class="menu-item-desc">${{ premium.description }}</span>
                         </a></li>
-                        <li class=""><a href="#">
-                        	<span class="menu-item-price">$25</span>
-                            <span class="menu-item-desc">The ebook your name in the credits section under "supporters".</span>
-                        </a></li>
-                        <li class=""><a href="#">
-                        	<span class="menu-item-price">$50</span>
-                            <span class="menu-item-desc">The ebook your name & a link of your choice in the credits under "benefactors".</span>
-                        </a></li>
-                        <li class="last"><a href="#">
-                        	<span class="menu-item-price">$100</span>
-                            <span class="menu-item-desc">The ebook your name & a link of your choice in the credits under "benefactors".</span>
-                        </a></li>
-                        
-                        
-                    </ul>
+                        {% end %}
+                     </ul>
                 </div>
             </div>
-            
+            {% endif %}
         </div>
         </div>
     </div>
