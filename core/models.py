@@ -135,21 +135,22 @@ class Work(models.Model):
         return last
 
     def percent_unglued(self):
-        if(self.last_campaign().status == 'SUCCESSFUL'):
-            return 6;
-        elif(self.last_campaign().status == 'ACTIVE'):
-            target = float(self.campaigns.order_by('-created')[0].target)
-            if target <= 0:
-                return 6
-            else:
-                total = float(self.campaigns.order_by('-created')[0].current_total)
-                percent = int(total*6/target)
-                if percent >= 6:
-                    return 6
+        status = 0
+        if last_campaign is not None:
+            if(self.last_campaign().status == 'SUCCESSFUL'):
+                status = 6;
+            elif(self.last_campaign().status == 'ACTIVE'):
+                target = float(self.campaigns.order_by('-created')[0].target)
+                if target <= 0:
+                    status = 6
                 else:
-                    return percent;
-        else:
-            return 0;
+                    total = float(self.campaigns.order_by('-created')[0].current_total)
+                    percent = int(total*6/target)
+                    if percent >= 6:
+                        status = 6
+                    else:
+                        status = percent;
+        return status;
 
     def __unicode__(self):
         return self.title
