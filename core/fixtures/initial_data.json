@@ -39,7 +39,7 @@
   }, 
   {
     "pk": 4, 
-    "model": "core.premiums", 
+    "model": "core.premium", 
     "fields": {
       "campaign": null, 
       "amount": 100, 
