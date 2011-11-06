@@ -112,9 +112,6 @@ div.book-list.listview div.booklist-status {
   padding-right: 5px;
   text-transform: capitalize;
 }
-.booklist-status.listview .booklist-status-img p {
-  display: none;
-}
 div.unglue-this a {
   text-transform: uppercase;
   color: #3d4e53;
@@ -266,10 +263,47 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 .book-thumb.listview a img {
   position: absolute;
-  top: -20px;
-  left: -50px;
+  /* the excerpt you get looks cooler if you select from the middle, but 
+    	the popup version doesn't extend past the containing div's boundaries,
+    	so the positioned part is cut off.
+    	top:-20px;
+		left:-50px;
+		*/
+
 }
 .listview.author {
+  display: none;
+}
+.listview.icons {
+  float: left;
+}
+.listview.icons .booklist-status-img {
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  background-color: #fff;
+  margin-top: 4px;
+  height: 37px;
+}
+.listview.icons .booklist-status-img img {
+  padding: 5px;
+}
+.listview.icons .booklist-status-label, .listview.icons .right_add {
   display: none;
 }
 .header-text {
@@ -342,6 +376,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
   background-color: #ffffff;
   color: #3d4e53;
   border: 5px solid #edf3f4;
+  position: relative;
   /*	might need this for panel hover state; don't want it for nonhover. hm.
 	a {
     	color: @dark-green;
@@ -362,7 +397,10 @@ ul.navigation li a:hover, ul.navigation li.active a {
   padding: 5px 0px;
   margin: 0px;
 }
-div.remove-wishlist.panelview {
+.panelview.remove-wishlist,
+.panelview.on-wishlist,
+.panelview.create-account,
+.panelview.add-wishlist {
   display: none;
 }
 .panelview.book-name, .panelview.author {
@@ -378,6 +416,26 @@ div.remove-wishlist.panelview {
 .panelview.booklist-status .booklist-status-label {
   float: left;
   font-weight: bold;
+}
+.panelview.icons {
+  position: absolute;
+  bottom: 0px;
+  width: 140px;
+}
+.panelview.icons .booklist-status-img {
+  float: left;
+}
+.panelview.icons .booklist-status-label {
+  position: absolute;
+  color: #8dc63f;
+  padding-left: 5px;
+  left: 40px;
+  bottom: 5px;
+}
+.panelview.icons .right_add {
+  float: right;
+  padding: 10px 10px 0 0;
+  width: 24px;
 }
 /*2 start*/
 .greenpanel2 {
@@ -1585,6 +1643,7 @@ div.content-block-content {
   background-color: #ffffff;
   color: #3d4e53;
   border: 5px solid #edf3f4;
+  position: relative;
   /*	might need this for panel hover state; don't want it for nonhover. hm.
 	a {
     	color: @dark-green;
@@ -1605,7 +1664,10 @@ div.content-block-content {
   padding: 5px 0px;
   margin: 0px;
 }
-div.remove-wishlist.panelview {
+.panelview.remove-wishlist,
+.panelview.on-wishlist,
+.panelview.create-account,
+.panelview.add-wishlist {
   display: none;
 }
 .panelview.book-name, .panelview.author {
@@ -1621,6 +1683,26 @@ div.remove-wishlist.panelview {
 .panelview.booklist-status .booklist-status-label {
   float: left;
   font-weight: bold;
+}
+.panelview.icons {
+  position: absolute;
+  bottom: 0px;
+  width: 140px;
+}
+.panelview.icons .booklist-status-img {
+  float: left;
+}
+.panelview.icons .booklist-status-label {
+  position: absolute;
+  color: #8dc63f;
+  padding-left: 5px;
+  left: 40px;
+  bottom: 5px;
+}
+.panelview.icons .right_add {
+  float: right;
+  padding: 10px 10px 0 0;
+  width: 24px;
 }
 /*2 start*/
 .greenpanel2 {

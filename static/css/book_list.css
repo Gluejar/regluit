@@ -72,9 +72,6 @@ div.book-list.listview div.booklist-status {
   padding-right: 5px;
   text-transform: capitalize;
 }
-.booklist-status.listview .booklist-status-img p {
-  display: none;
-}
 div.unglue-this a {
   text-transform: uppercase;
   color: #3d4e53;
@@ -176,9 +173,31 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 .book-thumb.listview a img {
   position: absolute;
-  top: -20px;
-  left: -50px;
+  /* the excerpt you get looks cooler if you select from the middle, but 
+    	the popup version doesn't extend past the containing div's boundaries,
+    	so the positioned part is cut off.
+    	top:-20px;
+		left:-50px;
+		*/
+
 }
 .listview.author {
+  display: none;
+}
+.listview.icons {
+  float: left;
+}
+.listview.icons .booklist-status-img {
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  background-color: #fff;
+  margin-top: 4px;
+  height: 37px;
+}
+.listview.icons .booklist-status-img img {
+  padding: 5px;
+}
+.listview.icons .booklist-status-label, .listview.icons .right_add {
   display: none;
 }
