@@ -91,3 +91,9 @@ GOODREADS_API_SECRET = ''
 # Freebase credentials
 FREEBASE_USERNAME = ''
 FREEBASE_PASSWORD = ''
+
+# send celery log to Python logging
+# http://stackoverflow.com/questions/6940987/django-celery-use-python-standard-logging-in-celery
+# http://ask.github.com/celery/configuration.html#std:setting-CELERYD_HIJACK_ROOT_LOGGER
+CELERYD_HIJACK_ROOT_LOGGER = False
+
