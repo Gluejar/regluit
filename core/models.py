@@ -53,7 +53,7 @@ class Campaign(models.Model):
     @property
     def current_total(self):
         p = PaymentManager()
-        return p.query_campaign(campaign=self,summary=True)        
+        return p.query_campaign(campaign=self,summary=True)
         
     def transactions(self, pledged=True, authorized=True):
         p = PaymentManager()
@@ -94,7 +94,10 @@ class Campaign(models.Model):
         self.suspended_reason = None
         self.save()
         return self
-
+       
+    def supporters(self):
+    	translist = self.transactions().values_list('user', flat=True).distinct()
+    	return translist
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -104,17 +107,30 @@ class Work(models.Model):
     def cover_image_small(self):
         return self.editions.all()[0].cover_image_small()
 
-    def last_campaign_status(self):
+    def cover_image_thumbnail(self):
+        return self.editions.all()[0].cover_image_thumbnail()
+        
+    def author(self):
+    	authorlist = self.editions.all()[0].authors.all()
+    	if authorlist.count() == 1:
+    		myauthor = authorlist[0].name
+    	elif authorlist.count() > 1:
+    		myauthor = authorlist[0].name + ' et al.'
+    	else:
+    		myauthor = ''
+    	return myauthor
+    	
+    def last_campaign(self):
         try:
-            last = self.campaigns.order_by('-created')[0].status
+            last = self.campaigns.order_by('-created')[0]
         except:
             last = "No campaign yet"
         return last
 
     def percent_unglued(self):
-        if(self.last_campaign_status() == 'SUCCESSFUL'):
+        if(self.last_campaign().status == 'SUCCESSFUL'):
             return 6;
-        elif(self.last_campaign_status() == 'ACTIVE'):
+        elif(self.last_campaign().status == 'ACTIVE'):
             target = float(self.campaigns.order_by('-created')[0].target)
             if target <= 0:
                 return 6

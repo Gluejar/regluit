@@ -48,40 +48,43 @@
         });
     });
 </script>
-<link rel="stylesheet" href="/static/css/book_list.css">
+<script type="text/javascript" src="static/js/jquery-1.6.3.min.js"></script>
+<script type="text/javascript">
+	        $(document).ready(function(){
+			      $('.image span').hide().css("opacity", 0);
+				  
+				  $('.image').bind("mouseenter", (function()
+				  {
+						$(this).children('span').animate({height: "300px", opacity: 1},300);
+				  }));
+				  
+				  $('.image').bind("mouseleave", (function()
+				  {
+						$(this).children('span').animate({height: "0px", opacity: 0},200);
+				  }));
+				  
+			});
+</script>
+
+<link rel="stylesheet" href="/static/css/book-panel-unimported.css">
 
 {% endblock %}
 
 /*
 To do:
-create topsection file for inclusion in multiple contexts, if needed
-figure out how to configure date display 
-    decide if we're even including date joined in profile
-add support for userpics
-    crop/resize? other infrastructure we need?  can we pull from twitter/fb?
-add support for twitter/fb/other links?
-    part of user profile?  can I just add to db model?
-    loosely coupled vs actually integrated with signin
-    canonicalize -- user enters cut/paste link vs username
-Goodreads & Librarything support
-If people lack homepage, etc., do we have greyed-out icons or no icons?
-    if greyed-out, can they add in place by clicking on them?
-make sure we have the profile settings we need
-resurrect add/remove functionality
-    be sure words display correctly
-    do I need both add-wishlist and remove-wishlist classes? do they differ?
-better alignment on I am ungluing & badges
+tidy: remove unnecessary divs copy-pasted over from standalone version
+decide how many panels go in a row & space appropriately (do we have guidance from stefan?)
+	I did 5 across by shaving one pixel off each (143-142) but don't like what it's done to white space
+incorporate book panel css into other css & clean up
 
-make sure backed/backing/wishlist is the order we want the badges to be in
-test code with other campaign statuses -- random_campaigns needs to set a variety of statuses!
-why is there a status in regluit.payment.models.Transaction?  does it duplicate the status in regluit.core.models.Campaign?
+make this part of supporter page; figure out swap logic
+remove unneeded view icon
 
+make js work
 
-there's no tab for seeing ALL my books, only the filters! huh.
-    
-Values I need:
-how do I integrate the your wishlist thing with the tabs thing?
-
+how to handle overlong author/titles? Am using truncatewords; truncatechars is better but not available in my version of Django
+	really want to limit the number of lines. but css with hidden overflow might be weird. show on hover?
+	need these boxes to have fixed height anyway because it looks weird with status at different heights
 */
 
 {% block topsection %}
@@ -156,7 +159,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                             </div>
                             <div class="block block3">
-                                <h3 class="title">Other Stuff (to use?)</h3>
+                                <h3 class="title">Other Stuff</h3>
                                 <div class="check-list">
                                     <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
                                 </div>
@@ -183,9 +186,8 @@ how do I integrate the your wishlist thing with the tabs thing?
 
     <div id="main-container">
     <div class="js-main">
-        <div id="js-leftcol">
-			{% include "explore.html" %}
-		</div>
+
+{% include "explore.html" %}
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
@@ -232,6 +234,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         Nudge, nudge, say no more. 
                     {% endifequal %}
                     {% else %}
+<div id="main-wrapper">
                     {% for work in wishlist.works.all %}
                        <!-- classify which tab depending on work.last_campaign.status -->
                        {% if work.last_campaign.status == 'SUCCESSFUL' %}
@@ -241,15 +244,25 @@ how do I integrate the your wishlist thing with the tabs thing?
                        {% else %}
                             <div class="tabs tabs-3">
                        {% endif %}{% endif %}
-                    <div class="book-list {% cycle 'row1' 'row2' %}">
-                        <div class="book-thumb">
-                            <a href="#"><img src="{{ work.cover_image_small }}" alt="Book name" title="book name"  /></a>
-                        </div>
-                        <div class="book-name">
-                        <span>
-                            <a href="{% url work work.id %}">{{ work.title }}</a>
-                        </span>
-                        </div>
+  <div class="item_wrapper">
+    <div class="panel_item">
+      <div class="greenpanel">
+        <div class="image">
+          <img src="{{ work.cover_image_thumbnail }}" width="120" height="182"/> <b>{{ work.title|truncatewords:5 }}</b>
+          <p>{{ work.author|truncatewords:3 }}</p>
+          <p class="green"><b>Status:</b> {{ work.last_campaign.status }}</p>
+          <div class="read">
+            <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
+            <p>100%</p>
+            <p class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></p>
+          </div>
+          <span style="display: none; opacity: 0;">
+		    <div class="greenpanel2">
+				<div class="unglued_white"> <b>Unglued!</b>
+				  <p>Sept 12 2011</p>
+				  <p><b>Raised:</b> $12,000</p>
+				</div> 
+				<div class="read_itbutton"> <a href="#">Read it Now</a> </div>
                         {% ifequal supporter request.user %}
                         <div class="remove-wishlist">
                             <span id="{{ work.id }}">Remove from Wishlist</span>
@@ -267,20 +280,19 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <span id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</span>
                         </div>
                         {% endif %}{% endif %}{% endifequal %}
-                        <div class="booklist-status">
-                            <span class="booklist-status-text">{{ work.last_campaign.status }}</span>
-                            <span class="booklist-status-img">
-                                <img src="/static/images/icon-book{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
-                            </span>
-                        </div>
-                        <div class="unglue-this none">
-                            <div class="unglue-this-inner1">
-                                <div class="unglue-this-inner2">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </div>
+
+       			<div class="add_towish"> <a href="#">Add to Wishlist</a> </div>
+				<div class="white_text"> <b><a href="#">{{ work.title }}</a></b>
+				  <p><a href="#">{{ work.author }}</a></p>
+				  <p><b>Status:</b> {{ work.last_campaign.status }}</p>
+				</div>
+				<div class="moreinfo"> <a href="#">More Info</a> </div>
+		  </div>
+          </span> </div>
+      </div>
+    </div>
+  </div>
+</div>
                     {% endfor %}
                     {% endifequal %}
                 </div>

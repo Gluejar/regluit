@@ -1,0 +1,69 @@
+<html>
+<head>
+
+<!-- there's stuff we need from here and stuff that's incompatible:
+<link href="css/layout.css" rel="stylesheet" type="text/css" />  -->
+
+<link href="less/book_list-test.css" rel="stylesheet" type="text/css" />
+<link href="less/book_panel_unimported_test.css" rel="stylesheet" type="text/css" />
+
+<script type="text/javascript" src="js/jquery-1.6.3.min.js"></script>
+
+<!-- Beware of fadeIn/fadeOut jQuery animations; they add an inline "display: block"
+which overrides display: none in the stylesheet.  Sneaky! -->
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#toggle-list').click(function(){
+    	$('div.panelview').addClass("listview").removeClass("panelview");
+	});
+	$('#toggle-panel').click(function(){
+    	$('div.listview').addClass("panelview").removeClass("listview");
+	});
+});
+</script>
+
+</head>
+
+<body>
+
+<a href="#" id="toggle-list">List view</a>
+<a href="#" id="toggle-panel">Panel view</a>
+<br />
+
+<div class="listview tabs tabs-3">
+	<div class="listview book-list row1">
+    	<div class="listview book-thumb">
+        	<a href="#"><img src="http://bks0.books.google.com/books?id=v6iZL5n5cLwC&printsec=frontcover&img=1&zoom=1" alt="Book name" title="book name"  /></a>
+        </div>
+        <div class="listview book-name">
+        	<span>
+        		<a href="{% url work work.id %}">Title</a>
+            </span>
+        </div>
+		<div class="listview author">
+    		<span id="{{ work.author }}">James K. Polk</span>
+    	</div>
+		<div class="listview remove-wishlist">
+    		<span id="{{ work.id }}">Remove from Wishlist</span>
+    	</div>
+		<div class="listview booklist-status">
+        	<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Active</span>
+			<!-- images differ for list and panel; need to deal. maybe can use smaller version in rounded-corner pale-background div? -->
+			<!-- also this span is not nested in the panel view but is in list. how to deal? -->
+            <span class="booklist-status-img">
+            	<img src="images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
+            	<p>100%</p>
+            	<p class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></p>
+            </span>
+        </div>
+        <div class="listview unglue-this none">
+        	<div class="listview unglue-this-inner1">
+            	<div class="listview unglue-this-inner2">
+                </div>
+            </div>
+        </div>
+     </div>
+</div>
+                    
+</body>

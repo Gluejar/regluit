@@ -587,6 +587,7 @@ div.content-block {
 div.content-block-content {
   width: 100%;
   overflow: hidden;
+  padding-left: 10px;
 }
 div.content-block-content .cols3 .column {
   width: 33.33%;
@@ -741,6 +742,7 @@ a.my-setting.active {
   border-bottom: 4px solid #8DC63F;
   clear: both;
   float: left;
+  margin-left: 10px;
   margin-top: 10px;
   width: 100%;
 }
