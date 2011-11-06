@@ -101,7 +101,17 @@ class TestBookLoader(TestCase):
         # and that relevant Campaigns and Wishlists are updated
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
-         
+    
+    def test_oclc(self):
+        edition = bookloader.add_by_oclc('1246014')
+        self.assertEqual(edition.title, 'The Latin language')
+
+    def test_ebook(self):
+        edition = bookloader.add_by_oclc('1246014')
+        self.assertEqual(edition.ebooks.count(), 1)
+        ebook = edition.ebooks.all()[0]
+        self.assertEqual(ebook.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+        self.assertEqual(ebook.provider, 'google')
 
 class SearchTests(TestCase):
 
