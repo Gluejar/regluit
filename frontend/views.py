@@ -50,7 +50,7 @@ def work(request, work_id):
         premiums = campaign.premiums.all()
         if premiums.count() == 0:
             premiums = models.Premium.objects.filter(campaign__isnull=True)
-    return render(request, 'work.html', {'work': work})
+    return render(request, 'work.html', {'work': work, 'premiums': premiums})
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
