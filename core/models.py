@@ -131,7 +131,7 @@ class Work(models.Model):
         try:
             last = self.campaigns.order_by('-created')[0]
         except:
-            last = "No campaign yet"
+            last = None
         return last
 
     def percent_unglued(self):
