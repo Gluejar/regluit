@@ -9,19 +9,19 @@
   }, 
   {
     "pk": 1, 
-    "model": "core.premiums", 
+    "model": "core.premium", 
     "fields": {
-      "campign": "", 
-      "amount": 1, 
+      "campaign": null, 
+      "amount": 1
       "type": "00", 
       "description": "The unglued ebook delivered to your inbox."
     }
   }, 
   {
     "pk": 2, 
-    "model": "core.premiums", 
+    "model": "core.premium", 
     "fields": {
-      "campign": "", 
+      "campaign": null, 
       "amount": 25, 
       "type": "00", 
       "description": "Your name under \"supporters\" in the acknowledgements section."
@@ -29,9 +29,9 @@
   }, 
   {
     "pk": 3, 
-    "model": "core.premiums", 
+    "model": "core.premium", 
     "fields": {
-      "campign": "", 
+      "campaign": null, 
       "amount": 50, 
       "type": "00", 
       "description": "Your name and link of your choice under \"benefactors\""
@@ -41,7 +41,7 @@
     "pk": 4, 
     "model": "core.premiums", 
     "fields": {
-      "campign": "", 
+      "campaign": null, 
       "amount": 100, 
       "type": "00", 
       "description": "Your name, link of your choice, and a brief message (140 characters max) under \"bibliophiles\""

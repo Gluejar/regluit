@@ -184,5 +184,8 @@ SOUTH_TESTS_MIGRATE = True
 
 AUTH_PROFILE_MODULE = "core.userprofile"
 
+GOODREADS_API_KEY = ""
+GOODREADS_API_SECRET = ""
+
 import djcelery
 djcelery.setup_loader()
