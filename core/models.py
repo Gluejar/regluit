@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 class UnglueitError(RuntimeError):
     pass
 
-class Premium(models.Model)
+class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
     type =  = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", blank=True)
