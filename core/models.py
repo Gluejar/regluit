@@ -135,7 +135,7 @@ class Work(models.Model):
         return last
         
     def last_campaign_status(self):
-        campaign = self.last_campaign
+        campaign = self.last_campaign()
         if campaign:
             status = campaign.status
         else:
@@ -144,10 +144,10 @@ class Work(models.Model):
 
     def percent_unglued(self):
         status = 0
-        if last_campaign is not None:
-            if(self.last_campaign().status == 'SUCCESSFUL'):
+        if self.last_campaign() is not None:
+            if(self.last_campaign_status() == 'SUCCESSFUL'):
                 status = 6;
-            elif(self.last_campaign().status == 'ACTIVE'):
+            elif(self.last_campaign_status() == 'ACTIVE'):
                 target = float(self.campaigns.order_by('-created')[0].target)
                 if target <= 0:
                     status = 6
