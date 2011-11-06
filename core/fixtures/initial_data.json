@@ -12,7 +12,7 @@
     "model": "core.premium", 
     "fields": {
       "campaign": null, 
-      "amount": 1
+      "amount": 1,
       "type": "00", 
       "description": "The unglued ebook delivered to your inbox."
     }
