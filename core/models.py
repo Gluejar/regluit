@@ -9,6 +9,13 @@ from django.contrib.auth.models import User
 class UnglueitError(RuntimeError):
     pass
 
+class Premium(models.Model)
+    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    type =  = models.CharField(max_length=2, choices=PREMIUM_TYPES)
+    campaign = models.ForeignKey("Campaign", related_name="premiums", blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
+    description =  models.TextField(null=True, blank=False)
+
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
