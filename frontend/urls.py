@@ -10,7 +10,6 @@ from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
-    url(r"works/(?P<work_id>.+)/$", "work", name="work"),
     url(r"^supporter/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
     url(r"^supporter2/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter_panel.html'}, name="supporter2"),
     url(r"^search/$", "search", name="search"),
@@ -28,5 +27,5 @@ urlpatterns = patterns(
     url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
     url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
     url(r"^stub/", "stub", name="stub"),
-    url(r"^work/(?P<isbn>\d+)/$", "campaign", name="campaign")
+    url(r"^work/(?P<work_id>\d+)/$", "work", name="work")
 )
