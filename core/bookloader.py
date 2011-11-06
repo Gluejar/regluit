@@ -103,10 +103,17 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
         e.public_domain = item.get('public_domain', None)
         epub = access_info.get('epub')
         if epub and epub.get('downloadLink'):
-            ebook = models.Ebook(edition=e, 
+            ebook = models.Ebook(edition=e, format='epub',
                                  url=epub.get('downloadLink'),
                                  provider='google')
             ebook.save()
+            
+        pdf = access_info.get('pdf')
+        if pdf and pdf.get('downloadLink'):
+            ebook = models.Ebook(edition=e, format='pdf',
+                                 url=pdf.get('downloadLink', None),
+                                 provider='google')
+            ebook.save()            
 
     # if we know what work to add the edition to do it
     if work:

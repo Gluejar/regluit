@@ -110,10 +110,16 @@ class TestBookLoader(TestCase):
 
     def test_ebook(self):
         edition = bookloader.add_by_oclc('1246014')
-        self.assertEqual(edition.ebooks.count(), 1)
-        ebook = edition.ebooks.all()[0]
-        self.assertEqual(ebook.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
-        self.assertEqual(ebook.provider, 'google')
+        self.assertEqual(edition.ebooks.count(), 2)
+        #ebook_epub = edition.ebooks.all()[0]
+        ebook_epub = edition.ebooks.filter(format='epub')[0]
+        self.assertEqual(ebook_epub.format, 'epub')
+        self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+        self.assertEqual(ebook_epub.provider, 'google')
+        ebook_pdf = edition.ebooks.filter(format='pdf')[0]
+        self.assertEqual(ebook_pdf.format, 'pdf')
+        self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
+        self.assertEqual(ebook_pdf.provider, 'google')        
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
