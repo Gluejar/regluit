@@ -1,54 +1,50 @@
 [
   {
-    "model": "sites.site",
-    "pk": 1,
+    "pk": 1, 
+    "model": "sites.site", 
     "fields": {
-      "domain": "unglue.it",
+      "domain": "unglue.it", 
       "name": "unglue.it"
     }
-  },
+  }, 
   {
-    "model": "core.premiums",
-    "pk": 1,
-    "fields": 
-		{
-		  "type": "00",
-		  "campign": "",
-		  "amount": 1,
-		  "description": "The unglued ebook delivered to your inbox."
-		}
-  },
+    "pk": 1, 
+    "model": "core.premiums", 
+    "fields": {
+      "campign": "", 
+      "amount": 1, 
+      "type": "00", 
+      "description": "The unglued ebook delivered to your inbox."
+    }
+  }, 
   {
-    "model": "core.premiums",
-    "pk": 2,
-    "fields": 
-		{
-		  "type": "00",
-		  "campign": "",
-		  "amount": 25,
-		  "description": 'Your name under "supporters" in the acknowledgements section.'
-		}
-  },
+    "pk": 2, 
+    "model": "core.premiums", 
+    "fields": {
+      "campign": "", 
+      "amount": 25, 
+      "type": "00", 
+      "description": "Your name under \"supporters\" in the acknowledgements section."
+    }
+  }, 
   {
-    "model": "core.premiums",
-    "pk": 3,
-    "fields": 
-		{
-		  "type": "00",
-		  "campign": "",
-		  "amount": 50,
-		  "description": 'Your name & link of your choice under "benefactors"'
-		}
-  },
+    "pk": 3, 
+    "model": "core.premiums", 
+    "fields": {
+      "campign": "", 
+      "amount": 50, 
+      "type": "00", 
+      "description": "Your name and link of your choice under \"benefactors\""
+    }
+  }, 
   {
-    "model": "core.premiums",
-    "pk": 4,
-    "fields": 
-		{
-		  "type": "00",
-		  "campign": "",
-		  "amount": 100,
-		  "description": 'Your name, link of your choice, & a brief message (140 characters max) under "bibliophiles"'
-		}
-  },
+    "pk": 4, 
+    "model": "core.premiums", 
+    "fields": {
+      "campign": "", 
+      "amount": 100, 
+      "type": "00", 
+      "description": "Your name, link of your choice, and a brief message (140 characters max) under \"bibliophiles\""
+    }
+  }
 ]
