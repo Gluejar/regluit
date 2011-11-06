@@ -1,3 +1,5 @@
+@import "variables.less";
+
 // Local variables
 .greenpanelstuff {
     font-family: Arial, Helvetica, sans-serif;
@@ -97,7 +99,7 @@
 
 .greenpanel2 {
 	.greenpanelstuff;
-    margin: 0px  auto;
+    margin: 0px auto;
     padding: 10px;
     height: 295px;
     background-color: @green;
@@ -117,12 +119,12 @@
     padding:0px 0px;
     background:#FFFFFF;
     margin:0px;
-    .border-radius(4px);
+    .border-radius(4px, 4px, 4px, 4px);
     border: 1px solid #81bb38;
     
     a {
     	.greenpanelactionitems(10px);
-    	background: url(""@{image-base}book-panel/book_icon.png") no-repeat left center;
+    	background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
     	padding:0px 0px 0px 30px;
     	color:@dark-green;
     	
@@ -141,10 +143,10 @@
     
     a {
     	.greenpanelactionitems(left);
-    	background-image: url("@{image-base}book-panel/add_wish_icon.png");
+    	background-image: url(/static/images/book-panel/add_wish_icon.png);
     	padding:8px 5px 8px 21px;
     	color:#FFFFFF;
-		.greenpanelactionborders()
+		.greenpanelactionborders();
 		
     	&:hover{ .panelhoverlink;}
 	}
@@ -173,7 +175,7 @@
     
     a {
     	.greenpanelactionitems(left);
-    	background-image: url("@{image-base}book-panel/more_icon.png");
+    	background-image: url(/static/images/book-panel/more_icon.png);
     	padding:8px 42px 8px 20px;
     	padding-left:20px;
     	color:#FFFFFF;
@@ -225,12 +227,12 @@
     padding:0px 9px;
     background:#FFFFFF;
     margin:0px auto;
-    .border-radius(4px);
+    .border-radius(4px, 4px, 4px, 4px);
     border: 1px solid #d4dcdd;
 }
 .Unglue_itbutton a{
     .greenpanelactionitems(2px);
-    background-image: url("@{image-base}book-panel/unglue_icon.png");
+    background-image: url(/static/images/book-panel/unglue_icon.png);
     padding:5px 0px 0px 20px;
     color:@text-blue;
     text-align:right;
@@ -248,7 +250,7 @@ text-decoration:none;
 }
 .add_towish2 a{
 	.greenpanelactionitems(left);
-    background-image: url("@{image-base}book-panel/add_gray.png");
+    background-image: url(/static/images/book-panel/add_gray.png);
     padding:8px 0px;
     padding-left:20px;
     color:@text-blue;
@@ -279,7 +281,7 @@ text-decoration:none;
 .moreinfo2 a{
     line-height:40px;
     font-size:12px;
-    background-image: url("@{image-base}book-panel/gray_more_info.png");
+    background-image: url(/static/images/book-panel/gray_more_info.png);
     background-repeat: no-repeat;
     background-position: left center;
     padding:8px 35px;

@@ -42,7 +42,7 @@ def home(request):
 def stub(request):
 	path = request.path[6:]
 	return render(request,'stub.html', {'path': path})
-
+	
 def work(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
@@ -339,3 +339,7 @@ def clear_wishlist(request):
         return HttpResponse("Error in clearing wishlist: %s " % (e))
         logger.info("Error in clearing wishlist: %s ", e)
     
+def campaign(request, isbn):
+	isbn = int(isbn)
+	work = models.Edition.get_by_isbn(isbn).work
+	return render(request, 'campaign.html', {'work': work})

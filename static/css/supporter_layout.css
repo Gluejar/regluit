@@ -105,3 +105,11 @@ a.readon{ background:url(../images/bg.png) 100% -72px no-repeat; color:#fff; tex
 a.readon span{ background:url(../images/bg.png) -770px -108px no-repeat; margin-right:34px; padding:0 5px 0 20px; height:36px; line-height:36px; display:block;}
 
 a{ font-weight:bold; font-size:13px; text-decoration:none; cursor:pointer;}
+
+div.content-block-content {
+  padding-left: 10px;
+}
+
+#tabs {
+  margin-left: 10px;
+}

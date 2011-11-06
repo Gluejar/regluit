@@ -1,0 +1,184 @@
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+div.book-list.listview {
+  clear: both;
+  display: block;
+  vertical-align: middle;
+  height: 43px;
+  line-height: 43px;
+  margin: 0 5px 0 0;
+  padding: 7px 0;
+}
+div.book-list.listview.row1 {
+  background: #f6f9f9;
+}
+div.book-list.listview.row2 {
+  background: #fff;
+}
+div.book-list.listview div.unglue-this {
+  float: left;
+}
+div.book-list.listview div.book-thumb {
+  margin-right: 5px;
+  float: left;
+}
+div.book-list.listview div.book-name {
+  width: 260px;
+  margin-right: 10px;
+  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
+  float: left;
+}
+div.book-list.listview div.book-name span {
+  display: block;
+  line-height: normal;
+  height: 43px;
+  line-height: 43px;
+}
+div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist {
+  margin-right: 10px;
+  padding-right: 10px;
+  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
+  float: left;
+}
+div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a {
+  font-weight: normal;
+  color: #3d4e53;
+  text-transform: none;
+  background: url("../images/booklist/add-wishlist.png") left center no-repeat;
+  padding-left: 20px;
+}
+div.book-list.listview div.booklist-status {
+  margin-right: 7px;
+  float: left;
+}
+.booklist-status.listview span.booklist-status-label {
+  display: none;
+}
+.booklist-status.listview span.booklist-status-text {
+  float: left;
+  display: block;
+  padding-right: 5px;
+  text-transform: capitalize;
+}
+.booklist-status.listview .booklist-status-img p {
+  display: none;
+}
+div.unglue-this a {
+  text-transform: uppercase;
+  color: #3d4e53;
+  font-size: 11px;
+  font-weight: bold;
+}
+div.unglue-this.complete .unglue-this-inner1 {
+  background: url("/static/images/booklist/bg.png") 0 -84px no-repeat;
+  height: 42px;
+}
+div.unglue-this.complete .unglue-this-inner2 {
+  background: url("/static/images/booklist/bg.png") 100% -126px no-repeat;
+  margin-left: 29px;
+  height: 42px;
+  padding-right: 10px;
+}
+div.unglue-this.complete a {
+  color: #fff;
+  display: block;
+}
+div.unglue-this.processing .unglue-this-inner1 {
+  background: url("/static/images/booklist/bg.png") 0 0 no-repeat;
+  height: 42px;
+}
+div.unglue-this.processing .unglue-this-inner2 {
+  background: url("/static/images/booklist/bg.png") 100% -42px no-repeat;
+  margin-left: 25px;
+  height: 42px;
+  padding-right: 10px;
+}
+ul.book-list-view {
+  padding: 0;
+  margin: 15px;
+  float: right;
+  list-style: none;
+}
+ul.book-list-view li {
+  float: left;
+  margin-right: 10px;
+  display: block;
+  vertical-align: middle;
+  line-height: 22px;
+}
+div.navigation {
+  float: left;
+  clear: both;
+  width: 100%;
+  color: #37414d;
+}
+ul.navigation {
+  float: right;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+ul.navigation li {
+  float: left;
+  line-height: normal;
+  margin-right: 5px;
+}
+ul.navigation li a {
+  color: #37414d;
+  font-weight: normal;
+}
+ul.navigation li.arrow-l a {
+  background: url("/static/images/booklist/bg.png") 0 -168px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+}
+ul.navigation li.arrow-r a {
+  background: url("/static/images/booklist/bg.png") -1px -185px no-repeat;
+  width: 10px;
+  height: 15px;
+  display: block;
+  text-indent: -10000px;
+}
+ul.navigation li a:hover, ul.navigation li.active a {
+  color: #8ac3d7;
+  text-decoration: underline;
+}
+.unglue-button {
+  display: block;
+  border: 0;
+}
+.book-thumb.listview a {
+  display: block;
+  height: 50px;
+  width: 32px;
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+.book-thumb.listview a:hover {
+  overflow: visible;
+  z-index: 1000;
+  border: none;
+}
+.book-thumb.listview a img {
+  position: absolute;
+  top: -20px;
+  left: -50px;
+}
+.listview.author {
+  display: none;
+}

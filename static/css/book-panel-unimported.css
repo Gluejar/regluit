@@ -9,9 +9,11 @@
 #main-wrapper{
     height: 100%;
     width: 725px;
-    margin: 0px auto 0px 10px;
+    margin: 0px;
     padding: 0px 0px;
 }
+
+/*
 .item_wrapper{
     margin: 0px;
     padding: 0px 0px;
@@ -19,10 +21,12 @@
     width: 142px;
     float: left;
 }
+*/
 .panel_item{
     padding:5px 0px;
-    margin:0px auto;
+    margin:0px;
     width:142px;
+    float: left;
 }
 
 .panel_item span.active{

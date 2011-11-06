@@ -236,10 +236,10 @@ how to handle overlong author/titles? Am using truncatewords; truncatechars is b
                     {% else %}
 <div id="main-wrapper">
                     {% for work in wishlist.works.all %}
-                       <!-- classify which tab depending on work.last_campaign_status -->
-                       {% if work.last_campaign_status == 'SUCCESSFUL' %}
+                       <!-- classify which tab depending on work.last_campaign.status -->
+                       {% if work.last_campaign.status == 'SUCCESSFUL' %}
                             <div class="tabs tabs-1">
-                       {% else %}{% if work.last_campaign_status == 'ACTIVE' %}
+                       {% else %}{% if work.last_campaign.status == 'ACTIVE' %}
                             <div class="tabs tabs-2">
                        {% else %}
                             <div class="tabs tabs-3">
@@ -250,7 +250,7 @@ how to handle overlong author/titles? Am using truncatewords; truncatechars is b
         <div class="image">
           <img src="{{ work.cover_image_thumbnail }}" width="120" height="182"/> <b>{{ work.title|truncatewords:5 }}</b>
           <p>{{ work.author|truncatewords:3 }}</p>
-          <p class="green"><b>Status:</b> {{ work.last_campaign_status }}</p>
+          <p class="green"><b>Status:</b> {{ work.last_campaign.status }}</p>
           <div class="read">
             <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
             <p>100%</p>
@@ -284,7 +284,7 @@ how to handle overlong author/titles? Am using truncatewords; truncatechars is b
        			<div class="add_towish"> <a href="#">Add to Wishlist</a> </div>
 				<div class="white_text"> <b><a href="#">{{ work.title }}</a></b>
 				  <p><a href="#">{{ work.author }}</a></p>
-				  <p><b>Status:</b> {{ work.last_campaign_status }}</p>
+				  <p><b>Status:</b> {{ work.last_campaign.status }}</p>
 				</div>
 				<div class="moreinfo"> <a href="#">More Info</a> </div>
 		  </div>
