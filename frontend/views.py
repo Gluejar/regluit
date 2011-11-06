@@ -45,6 +45,11 @@ def stub(request):
 
 def work(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
+    campaign = work.last_campaign()
+    if campaign:
+        premiums = campaign.premiums.all()
+        if premiums.count() == 0:
+            premiums = models.Premium.objects.filter(campaign__isnull=True)
     return render(request, 'work.html', {'work': work})
 
 def supporter(request, supporter_username, template_name):
