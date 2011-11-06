@@ -9,6 +9,13 @@ from django.contrib.auth.models import User
 class UnglueitError(RuntimeError):
     pass
 
+class Premium(models.Model):
+    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
+    campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
+    description =  models.TextField(null=True, blank=False)
+
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
@@ -124,25 +131,34 @@ class Work(models.Model):
         try:
             last = self.campaigns.order_by('-created')[0]
         except:
-            last = "No campaign yet"
+            last = None
         return last
+        
+    def last_campaign_status(self):
+        campaign = self.last_campaign
+        if campaign:
+            status = campaign.status
+        else:
+            status = "No campaign yet"
+        return status
 
     def percent_unglued(self):
-        if(self.last_campaign().status == 'SUCCESSFUL'):
-            return 6;
-        elif(self.last_campaign().status == 'ACTIVE'):
-            target = float(self.campaigns.order_by('-created')[0].target)
-            if target <= 0:
-                return 6
-            else:
-                total = float(self.campaigns.order_by('-created')[0].current_total)
-                percent = int(total*6/target)
-                if percent >= 6:
-                    return 6
+        status = 0
+        if last_campaign is not None:
+            if(self.last_campaign().status == 'SUCCESSFUL'):
+                status = 6;
+            elif(self.last_campaign().status == 'ACTIVE'):
+                target = float(self.campaigns.order_by('-created')[0].target)
+                if target <= 0:
+                    status = 6
                 else:
-                    return percent;
-        else:
-            return 0;
+                    total = float(self.campaigns.order_by('-created')[0].current_total)
+                    percent = int(total*6/target)
+                    if percent >= 6:
+                        status = 6
+                    else:
+                        status = percent;
+        return status;
 
     def __unicode__(self):
         return self.title

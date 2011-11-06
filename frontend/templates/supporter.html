@@ -233,10 +233,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endifequal %}
                     {% else %}
                     {% for work in wishlist.works.all %}
-                       <!-- classify which tab depending on work.last_campaign.status -->
-                       {% if work.last_campaign.status == 'SUCCESSFUL' %}
+                       <!-- classify which tab depending on work.last_campaign_status -->
+                       {% if work.last_campaign_status == 'SUCCESSFUL' %}
                             <div class="tabs tabs-1">
-                       {% else %}{% if work.last_campaign.status == 'ACTIVE' %}
+                       {% else %}{% if work.last_campaign_status == 'ACTIVE' %}
                             <div class="tabs tabs-2">
                        {% else %}
                             <div class="tabs tabs-3">
@@ -268,7 +268,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         {% endif %}{% endif %}{% endifequal %}
                         <div class="booklist-status">
-                            <span class="booklist-status-text">{{ work.last_campaign.status }}</span>
+                            <span class="booklist-status-text">{{ work.last_campaign_status }}</span>
                             <span class="booklist-status-img">
                                 <img src="/static/images/icon-book{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
                             </span>
