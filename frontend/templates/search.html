@@ -50,6 +50,7 @@ $(document).ready(function(){
                 </div>
                 <div class="content-block-content">
                     {% for result in results %}
+                    <div class="listview tabs tabs-1">
                     <div class="listview book-list {% cycle 'row1' 'row2' %}">
                         <div class="listview book-thumb">
                             <a href="#"><img src="{{ result.image }}" alt="{{ result.title }}" title="{{ result.title }}"  /></a>
@@ -98,6 +99,7 @@ $(document).ready(function(){
                                 </div>
                             </div>
                         </div>
+                    </div>
                     </div>
                     {% endfor %}
                 </div>
