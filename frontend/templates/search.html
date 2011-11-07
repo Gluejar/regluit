@@ -1,8 +1,23 @@
 {% extends "base.html" %}
 
 {% block extra_head %}
-<script type="text/javascript" src="/static/js/wishlist.js"></script>
 <link rel="stylesheet" href="/static/css/book_list.css">
+<link rel="stylesheet" href="/static/css/book_panel.css">
+
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+
+<!-- Beware of fadeIn/fadeOut jQuery animations; they add an inline "display: block"
+which overrides display: none in the stylesheet.  Sneaky! -->
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#toggle-list').click(function(){
+    	$('div.panelview').addClass("listview").removeClass("panelview");
+	});
+	$('#toggle-panel').click(function(){
+    	$('div.listview').addClass("panelview").removeClass("listview");
+	});
+});
+</script>
 {% endblock %}
 
 {% block title %}Search Results{% endblock %}
@@ -62,7 +77,7 @@
                         </div>
                         <div class="listview icons">
                             <span class="booklist-status-img">
-                                <img src="/static/images/booklist/icon1.png" title="book list status" alt="book list status" />
+                                <img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
                             </span>
                         </div>
                         <div class="unglue-this none">
