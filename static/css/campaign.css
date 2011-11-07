@@ -28,5 +28,5 @@ ul.tabs li a:hover,ul.tabs li.active a{background:#6994a3;color:#fff;}
 ul.social li{padding:5px 0 5px 30px;height:28px;line-height:28px;}ul.social li.facebook{background:url("/static/images/icons/facebook.png") left center no-repeat;}
 ul.social li.twitter{background:url("/static/images/icons/twitter.png") left center no-repeat;}
 ul.social li.email{background:url("/static/images/icons/email.png") left center no-repeat;}
-ul.support li{border-bottom:1px solid #d6dde0;padding:10px 15px 10px 0;background:url("/static/images/icons/r-arrow.png") right center no-repeat;}ul.support li span{display:block;}ul.support li span.menu-item-price{font-size:18px;}
+ul.support li{border-bottom:1px solid #d6dde0;padding:10px 15px 10px 0;}ul.support li span{display:block;}ul.support li span.menu-item-price{font-size:18px;}
 a{color:#3d4e53;font-size:12px;}

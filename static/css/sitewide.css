@@ -3,7 +3,7 @@
 body{background:url("/static/images/bg-body.png") 0 0 repeat-x;padding:0 0 20px 0;margin:0;font-size:12px;font-family:Lucida "Lucida Grande","Lucida Sans Unicode",sans-serif,Helvetica,sans-serif;color:#3d4e53;}
 img{border:none;}
 h2.content-heading{padding:15px;margin:0;font-size:19px;font-weight:normal;color:#3d4e53;float:left;width:50%;}h2.content-heading span{font-style:italic;}
-h3.jsmod-title{background:url("/static/images/bg.png") 0 0 no-repeat;padding:0;margin:0;height:73px;}h3.jsmod-title span{background:url("/static/images/icon-h3.png") 90% center no-repeat;font-size:17px;color:#fff;padding:26px 40px 27px 20px;display:block;}
+h3.jsmod-title{background:url("/static/images/bg.png") 0 0 no-repeat;padding:0;margin:0;height:73px;}h3.jsmod-title span{font-size:17px;color:#fff;padding:26px 40px 27px 20px;display:block;}
 ul.menu{list-style:none;padding:0;margin:0;}
 a.readon{background:url("/static/images/bg.png") 100% -72px no-repeat;color:#fff;text-transform:capitalize;display:block;float:right;font-size:13px;font-weight:bold;}a.readon span{background:url("/static/images/bg.png") -770px -108px no-repeat;margin-right:34px;padding:0 5px 0 20px;height:36px;line-height:36px;display:block;}
 a{font-weight:bold;font-size:13px;text-decoration:none;cursor:pointer;}
