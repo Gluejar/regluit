@@ -29,7 +29,7 @@ a.my-setting.active{background:#d6dde0 url("/static/images/header/collspane.png"
 ul.tabs{float:left;padding:0;margin:0;list-style:none;}ul.tabs li{float:left;height:46px;line-height:46px;margin-right:10px;}ul.tabs li a{height:46px;line-height:46px;display:block;text-align:center;padding:0 10px;min-width:80px;border-radius:7px 7px 0 0;background:url("/static/images/header/bg-tabs1.png") left bottom repeat-x;}
 ul.tabs li a:hover,ul.tabs li.active a{background:url("/static/images/header/bg-tabs.png") left bottom repeat-x;color:#fff;}
 .book-list span.rounded>span{line-height:normal;width:75px;}.book-list span.rounded>span a{text-transform:capitalize;}
-div.content-block-content{padding-left:10px;padding-bottom:200px;}
+div.content-block-content{padding-left:10px;}
 .js-news-text{float:left;width:70%;font-size:16px;color:#3d4e53;font-family:lucida grande;}
 .js-news-links{float:right;width:30%;}
 .column-left .item{margin:0 10px 10px 0;}

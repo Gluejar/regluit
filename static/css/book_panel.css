@@ -10,9 +10,9 @@
 .panelview.book-list{font-family:Arial,Helvetica,sans-serif;font-size:12px;width:120px;line-height:16px;margin:auto;padding:0px 5px 5px 5px;height:300px;background-color:#ffffff;color:#3d4e53;border:5px solid #edf3f4;position:relative;}.panelview.book-list:hover{color:#3d4e53;}
 .panelview.book-list img{padding:5px 0px;margin:0px;}
 .panelview.remove-wishlist,.panelview.on-wishlist,.panelview.create-account,.panelview.add-wishlist{display:none;}
-.panelview.book-name,.panelview.author{font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:16px;color:#3d4e53;}
+.panelview.book-name,.panelview.author{font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:16px;max-height:32px;color:#3d4e53;overflow:hidden;}
 .panelview.booklist-status{color:#8dc63f;text-align:left;}.panelview.booklist-status .booklist-status-label{float:left;font-weight:bold;}
-.panelview.icons{position:absolute;bottom:0px;width:140px;}.panelview.icons .booklist-status-img{float:left;}
+.panelview.icons{position:absolute;bottom:-3px;width:140px;}.panelview.icons .booklist-status-img{float:left;}
 .panelview.icons .booklist-status-label{position:absolute;color:#8dc63f;padding-left:5px;left:40px;bottom:5px;}
 .panelview.icons .right_add{float:right;padding:10px 10px 0 0;width:24px;}
 .greenpanel2{font-family:Arial,Helvetica,sans-serif;font-size:12px;width:120px;line-height:16px;margin:0px auto;padding:10px;height:295px;background-color:#8dc63f;color:#ffffff;position:relative;}
