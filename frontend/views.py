@@ -53,7 +53,7 @@ def work(request, work_id, action='display'):
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
-        return render(request, 'work.html', {'work': work})
+        return render(request, 'work.html', {'work': work, 'premiums': premiums})
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
