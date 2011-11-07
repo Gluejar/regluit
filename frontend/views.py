@@ -1,6 +1,7 @@
 import logging
 from decimal import Decimal as D
 
+from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -47,9 +48,8 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
     if campaign:
-        premiums = campaign.premiums.all()
-        if premiums.count() == 0:
-            premiums = models.Premium.objects.filter(campaign__isnull=True)
+        q = Q(campaign=campaign) | Q(campaign__isnull=True)
+        premiums = models.Premium.objects.filter(q)
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
