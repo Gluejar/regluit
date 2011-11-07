@@ -221,7 +221,7 @@ ul.support li {
 ul.support li span {
   display: block;
 }
-ul.support li span .menu-item-price {
+ul.support li span.menu-item-price {
   font-size: 18px;
 }
 /* differs from sitewide.css. should it? */
