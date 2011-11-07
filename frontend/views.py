@@ -43,14 +43,17 @@ def stub(request):
 	path = request.path[6:]
 	return render(request,'stub.html', {'path': path})
 
-def work(request, work_id):
+def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
     if campaign:
         premiums = campaign.premiums.all()
         if premiums.count() == 0:
             premiums = models.Premium.objects.filter(campaign__isnull=True)
-    return render(request, 'work.html', {'work': work, 'premiums': premiums})
+    if action == 'setup_campaign':
+        return render(request, 'setup_campaign.html', {'work': work})
+    else:
+        return render(request, 'work.html', {'work': work})
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)

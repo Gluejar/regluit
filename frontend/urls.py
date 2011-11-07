@@ -27,5 +27,6 @@ urlpatterns = patterns(
     url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
     url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
     url(r"^stub/", "stub", name="stub"),
-    url(r"^work/(?P<work_id>\d+)/$", "work", name="work")
+    url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
+    url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
 )
