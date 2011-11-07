@@ -914,7 +914,8 @@ h3.jsmod-title {
   height: 73px;
 }
 h3.jsmod-title span {
-  background: url("/static/images/icon-h3.png") 90% center no-repeat;
+  /*			background:url("@{image-base}icon-h3.png") 90% center no-repeat; */
+
   font-size: 17px;
   color: #fff;
   padding: 26px 40px 27px 20px;
@@ -1500,6 +1501,7 @@ ul.tabs li a:hover, ul.tabs li.active a {
 }
 div.content-block-content {
   padding-left: 10px;
+  padding-bottom: 200px;
 }
 .js-news-text {
   float: left;

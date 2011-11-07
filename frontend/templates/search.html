@@ -1,8 +1,23 @@
 {% extends "base.html" %}
 
 {% block extra_head %}
-<script type="text/javascript" src="/static/js/wishlist.js"></script>
 <link rel="stylesheet" href="/static/css/book_list.css">
+<link rel="stylesheet" href="/static/css/book_panel.css">
+
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+
+<!-- Beware of fadeIn/fadeOut jQuery animations; they add an inline "display: block"
+which overrides display: none in the stylesheet.  Sneaky! -->
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#toggle-list').click(function(){
+    	$('div.panelview').addClass("listview").removeClass("panelview");
+	});
+	$('#toggle-panel').click(function(){
+    	$('div.listview').addClass("panelview").removeClass("listview");
+	});
+});
+</script>
 {% endblock %}
 
 {% block title %}Search Results{% endblock %}
@@ -22,39 +37,34 @@
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
-                                <a href="#view-list">
+                                <a href="#" id="toggle-list">
                                 <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" />
                                 </a>
                             </li>
                             <li class="view-list">
-                                <a href="#view-icon">
+                                <a href="#" id="toggle-panel">
                                 <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" />
                                 </a>
-                            </li>
-                            <li class="view-list">
-                            <a href="#view-icon-small">
-                            <img src="/static/images/booklist/view-small-icon.png" align="view icon small" title="view icon small" height="22" width="22" />
-                            </a>
                             </li>
                         </ul>
                 </div>
                 <div class="content-block-content">
                     {% for result in results %}
-                    <div class="book-list {% cycle 'row1' 'row2' %}">
-                        <div class="book-thumb">
+                    <div class="listview book-list {% cycle 'row1' 'row2' %}">
+                        <div class="listview book-thumb">
                             <a href="#"><img src="{{ result.image }}" alt="{{ result.title }}" title="{{ result.title }}"  /></a>
                         </div>
-                        <div class="book-name">
+                        <div class="listview book-name">
                         <span>
                             {{ result.title }}
                         </span>
                         </div>
                         {% if request.user.is_anonymous %}
-                        <div class="create-account">
+                        <div class="listview create-account">
                             <span>Add to Wishlist</span>
                         </div>
                         {% else %}
-                        <div class="add-wishlist">
+                        <div class="listview add-wishlist">
                             {% if result.on_wishlist %}
                             <span class="on-wishlist">On Your Wishlist!</span>
                             {% else %}
@@ -62,10 +72,12 @@
                             {% endif %}
                         </div>
                         {% endif %}
-                        <div class="booklist-status">
+                        <div class="listview booklist-status">
                             <span class="booklist-status-text">Status: In Progress</span>
+                        </div>
+                        <div class="listview icons">
                             <span class="booklist-status-img">
-                                <img src="/static/images/booklist/icon1.png" title="book list status" alt="book list status" />
+                                <img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
                             </span>
                         </div>
                         <div class="unglue-this none">

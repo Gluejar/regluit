@@ -32,7 +32,7 @@ def gluejar_search(q):
 
         # cover image
         if v.has_key('imageLinks'):
-            r['image'] = v['imageLinks'].get('smallThumbnail', "")
+            r['image'] = v['imageLinks'].get('thumbnail', "")
         else:
             r['image'] = ""
 
