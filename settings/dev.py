@@ -87,3 +87,10 @@ INSTALLED_APPS += ("djkombu",)
 # Goodreads API
 GOODREADS_API_KEY = ''
 GOODREADS_API_SECRET = ''
+
+# Freebase credentials
+FREEBASE_USERNAME = ''
+FREEBASE_PASSWORD = ''
+
+# send celery log to Python logging
+CELERYD_HIJACK_ROOT_LOGGER = False

@@ -1,0 +1,63 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %}Pledge{% endblock %}
+
+{% block extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+{% endblock %}
+
+{% block doccontent %}
+    <h1>Pledge Page</h1>
+        <h2>Campaign: {{campaign.name}}</h2>
+    <p>Wonderful:  We're glad that you would like to support this campaign.</p>
+            	
+            	<div class="book-detail">
+                	<div class="book-detail-img"><a href="#">
+                    	<img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+                    </div>
+                    <div class="book-detail-info">
+                    	<h2 class="book-name">{{ work.title }}</h2>
+                        <h3 class="book-author">{{ work.author }}</h3>
+                        <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
+                        <div class="find-book">
+                        	<label>Find it here</label>
+                        	<!-- todo: these should be a real thing -->
+                            <div class="find-link">
+                            	<a class="find-google" href="#"><img src="/static/images/icons/google.png" align="" title="" /></a>
+                                <a class="find-group" href="#"><img src="/static/images/icons/group.png" align="" title="" /></a>
+                            </div>
+                        </div>
+                        <div class="pledged-info"><div class="pledged-group">{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                    </div>
+                </div>
+    
+            	<div class="jsmodule rounded">
+            	<div class="jsmod-content">
+                	Campaign in Progress: ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
+                </div>
+
+    <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
+        {% csrf_token %}
+       {{form.as_p}}
+       <input type="submit" value="Pledge" />
+    </form>
+    
+    <b>{{request.GET.premium_id}}</b>
+    
+    <div class="jsmod-content">
+    <form action="#">    
+        <ul class="support menu">
+            {% for premium in premiums %}
+            <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                <input type="radio" name="premium_radio" value="{{premium.id}}" {% ifequal request.GET.premium_id premium.id  %}checked="checked"{% endifequal %}" />
+                    <span class="menu-item-price">${{ premium.amount }}</span>
+                <span class="menu-item-desc">{{ premium.description }}</span>
+            </a></li>
+            {% endfor %}
+         </ul>
+    </form>
+    </div>
+
+{% endblock %}
+
+
