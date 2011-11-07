@@ -20,7 +20,7 @@
     
     var update_number_of_books = function (){
         
-        $.ajax({url:'/api/v1/wishlist/1/',
+        $.ajax({url:'/api/v1/wishlist/{{user.wishlist.id}}/',
                 data: {format:'json',
                        api_key:'{{api_key}}',
                        username: '{{user.username}}'},
