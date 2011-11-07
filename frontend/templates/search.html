@@ -10,12 +10,12 @@
 which overrides display: none in the stylesheet.  Sneaky! -->
 <script type="text/javascript">
 $(document).ready(function(){
-	$('#toggle-list').click(function(){
-    	$('div.panelview').addClass("listview").removeClass("panelview");
-	});
-	$('#toggle-panel').click(function(){
-    	$('div.listview').addClass("panelview").removeClass("listview");
-	});
+    $('#toggle-list').click(function(){
+        $('div.panelview').addClass("listview").removeClass("panelview");
+    });
+    $('#toggle-panel').click(function(){
+        $('div.listview').addClass("panelview").removeClass("listview");
+    });
 });
 </script>
 {% endblock %}
@@ -26,8 +26,8 @@ $(document).ready(function(){
     <div id="main-container">
     <div class="js-main">
         <div id="js-leftcol">
-			{% include "explore.html" %}
-		</div>
+            {% include "explore.html" %}
+        </div>
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
@@ -83,6 +83,18 @@ $(document).ready(function(){
                             <span class="booklist-status-img">
                                 <img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
                             </span>
+                        </div>
+                        <div class="listview ebooks">
+                            {% if result.epub %}
+                            <span class="boolist-ebook">
+                                <a href="{{ result.epub }}">epub</a>
+                            </span>
+                            {% endif %}
+                            {% if result.pdf %}
+                            <span class="boolist-ebook">
+                                <a href="{{ result.pdf }}">pdf</a>
+                            </span>
+                            {% endif %}
                         </div>
                         <div class="unglue-this none">
                             <div class="unglue-this-inner1">

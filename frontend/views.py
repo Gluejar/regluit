@@ -41,7 +41,7 @@ def home(request):
     return render(request, 'home.html', {'suppress_search_box': True})
 
 def stub(request):
-	path = request.path[6:]
+	path = request.path[6:] # get rid of /stub/
 	return render(request,'stub.html', {'path': path})
 
 def work(request, work_id, action='display'):
@@ -50,10 +50,23 @@ def work(request, work_id, action='display'):
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
+    else:
+        premiums = None
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
         return render(request, 'work.html', {'work': work, 'premiums': premiums})
+
+
+def pledge(request,work_id):
+    work = get_object_or_404(models.Work, id=work_id)
+    campaign = work.last_campaign()
+    if campaign:
+        premiums = campaign.premiums.all()
+        if premiums.count() == 0:
+            premiums = models.Premium.objects.filter(campaign__isnull=True)    
+    form = CampaignPledgeForm()
+    return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
@@ -190,7 +203,6 @@ class CampaignFormView(FormView):
 
     def form_valid(self,form):
         pk = self.kwargs["pk"]
-        pledge_amount = form.cleaned_data["pledge_amount"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
         
