@@ -57,12 +57,12 @@
 which overrides display: none in the stylesheet.  Sneaky! -->
 <script type="text/javascript">
 $(document).ready(function(){
-	$('#toggle-list').click(function(){
-    	$('div.panelview').addClass("listview").removeClass("panelview");
-	});
-	$('#toggle-panel').click(function(){
-    	$('div.listview').addClass("panelview").removeClass("listview");
-	});
+    $('#toggle-list').click(function(){
+        $('div.panelview').addClass("listview").removeClass("panelview");
+    });
+    $('#toggle-panel').click(function(){
+        $('div.listview').addClass("panelview").removeClass("listview");
+    });
 });
 </script>
 
@@ -125,14 +125,14 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="user-block4">
                                 <div class="social">
                                 {% if supporter.profile.home_url %}
-                               	<a href="{{ supporter.profile.home_url }}">
-                               		<img src="/static/images/header/icon-home.png" alt="{{ supporter }}'s Homepage" title="{{ supporter }}'s Homepage"  />
-                               	</a>
+                                   <a href="{{ supporter.profile.home_url }}">
+                                       <img src="/static/images/header/icon-home.png" alt="{{ supporter }}'s Homepage" title="{{ supporter }}'s Homepage"  />
+                                   </a>
                                 {% endif %}
                                 <a href="#"><img src="/static/images/header/icon-facebook.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  /></a>
                                 {% if supporter.profile.twitter_id %}
                                 <a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}">
-                                	<img src="/static/images/header/icon-twitter.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
+                                    <img src="/static/images/header/icon-twitter.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
                                 </a>
                                 {% endif %}
                                 <a href="#"><img src="/static/images/header/icon-google.png" alt="google" title="google"  /></a>
@@ -147,16 +147,16 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <span class="user-status-title">I am ungluing</span>
                             </div>
                         </div>
-						{% ifequal supporter request.user %}
+                        {% ifequal supporter request.user %}
                         <div class="user-block-hide">
-						<form method="POST" action="">
-							{% csrf_token %}
+                        <form method="POST" action="">
+                            {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
                                 <h3><a class="profile-edit" href="#">Your Tagline</a></h3>
-									{{ profile_form.tagline }}
+                                    {{ profile_form.tagline }}
 
- 									<input class="profile-save" type="submit" name="submit" value="Update" id="submit">
+                                     <input class="profile-save" type="submit" name="submit" value="Update" id="submit">
                             </div>
                             </div>
                             
@@ -182,7 +182,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                             </div>
                                
- 						</form>
+                         </form>
                         </div>
                       {% endifequal %}
                     </div>
@@ -200,8 +200,8 @@ how do I integrate the your wishlist thing with the tabs thing?
     <div id="main-container">
     <div class="js-main">
         <div id="js-leftcol">
-			{% include "explore.html" %}
-		</div>
+            {% include "explore.html" %}
+        </div>
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
@@ -257,13 +257,13 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
                         </div>
                         <div class="listview book-name">
-                        	<span>
-                            	<a href="{% url work work.id %}">{{ work.title }}</a>
-                        	</span>
+                            <span>
+                                <a href="{% url work work.id %}">{{ work.title }}</a>
+                            </span>
                         </div>
                         <div class="listview author">
-    						<span id="{{ work.author }}">{{ work.author }}</span>
-				    	</div>
+                            <span id="{{ work.author }}">{{ work.author }}</span>
+                        </div>
                         {% ifequal supporter request.user %}
                         <div class="listview remove-wishlist">
                             <span id="{{ work.id }}">Remove from Wishlist</span>
@@ -282,15 +282,27 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         {% endif %}{% endif %}{% endifequal %}
                         <div class="listview booklist-status">
-                        	<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ work.last_campaign_status }}</span>
-						</div>
-						<div class="listview icons">
-        				    <div class="booklist-status-img">
-            					<img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
-				            </div>
-            				<div class="booklist-status-label">100%</div>
-				            <div class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></div>
-					    </div>
+                            <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ work.last_campaign_status }}</span>
+                        </div>
+                        <div class="listview icons">
+                            <div class="booklist-status-img">
+                                <img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
+                            </div>
+                            <div class="booklist-status-label">100%</div>
+                            <div class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></div>
+                        </div>
+                        <div class="listview ebooks">
+                            {% if work.first_epub %}
+                            <span class="boolist-ebook">
+                                <a href="{{ work.first_epub.url }}">epub</a>
+                            </span>
+                            {% endif %}
+                            {% if work.first_pdf %}
+                            <span class="boolist-ebook">
+                                <a href="{{ work.first_pdf.url }}">pdf</a>
+                            </span>
+                            {% endif %}
+                        </div>
                         <div class="unglue-this none">
                             <div class="unglue-this-inner1">
                                 <div class="unglue-this-inner2">

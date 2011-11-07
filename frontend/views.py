@@ -50,6 +50,9 @@ def work(request, work_id, action='display'):
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
+    else:
+        premiums = None
+
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
