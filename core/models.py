@@ -9,6 +9,17 @@ from django.contrib.auth.models import User
 class UnglueitError(RuntimeError):
     pass
 
+class Claim(models.Model):
+    rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
+    work =  models.ForeignKey("Work", related_name="claim", null=False )    
+    user =  models.ForeignKey(User, related_name="user", null=False ) 
+    created =  models.DateTimeField(auto_now_add=True)  
+   
+class RightsHolder(models.Model):
+    email = models.CharField(max_length=100, blank=True)
+    rights_holder_name = models.CharField(max_length=100, blank=True)
+    owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
@@ -249,7 +260,6 @@ class UserProfile(models.Model):
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager
