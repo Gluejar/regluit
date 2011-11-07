@@ -262,7 +262,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         	</span>
                         </div>
                         <div class="listview author">
-    						<span id="{{ work.author }}">James K. Polk</span>
+    						<span id="{{ work.author }}">{{ work.author }}</span>
 				    	</div>
                         {% ifequal supporter request.user %}
                         <div class="listview remove-wishlist">
