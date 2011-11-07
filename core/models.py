@@ -160,6 +160,24 @@ class Work(models.Model):
                         status = percent;
         return status;
 
+    def percent_unglued_number(self):
+        status = 0
+        if self.last_campaign() is not None:
+            if(self.last_campaign_status() == 'SUCCESSFUL'):
+                status = 100;
+            elif(self.last_campaign_status() == 'ACTIVE'):
+                target = float(self.campaigns.order_by('-created')[0].target)
+                if target <= 0:
+                    status = 100
+                else:
+                    total = float(self.campaigns.order_by('-created')[0].current_total)
+                    percent = int(total/target)
+                    if percent >= 100:
+                        status = 100
+                    else:
+                        status = percent;
+        return status;
+
     def __unicode__(self):
         return self.title
 

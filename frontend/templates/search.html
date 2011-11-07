@@ -60,6 +60,9 @@ $(document).ready(function(){
                             {{ result.title }}
                         </span>
                         </div>
+                        <div class="listview author">
+    						<span id="{{ result.author }}">{{ result.author }}</span>
+				    	</div>
                         {% if request.user.is_anonymous %}
                         <div class="listview create-account">
                             <span>Add to Wishlist</span>

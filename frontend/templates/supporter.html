@@ -12,6 +12,24 @@
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 
 <script type="text/javascript">
+	        $(document).ready(function(){
+			      $('.image span').hide().css("opacity", 0);
+				  
+				  $('.image').bind("mouseenter", (function()
+				  {
+						$(this).children('span').animate({height: "300px", opacity: 1},300);
+				  }));
+				  
+				  $('.image').bind("mouseleave", (function()
+				  {
+						$(this).children('span').animate({height: "0px", opacity: 0},200);
+				  }));
+				  
+			});
+</script>
+
+
+<script type="text/javascript">
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
         $j('.user-block-hide').hide();
@@ -286,9 +304,9 @@ how do I integrate the your wishlist thing with the tabs thing?
 						</div>
 						<div class="listview icons">
         				    <div class="booklist-status-img">
-            					<img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
+            					<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
 				            </div>
-            				<div class="booklist-status-label">100%</div>
+            				<div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
 				            <div class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></div>
 					    </div>
                         <div class="unglue-this none">

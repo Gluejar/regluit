@@ -4,8 +4,7 @@ div.book-list.listview{clear:both;display:block;vertical-align:middle;height:43p
 div.book-list.listview.row2{background:#fff;}
 div.book-list.listview div.unglue-this{float:left;}
 div.book-list.listview div.book-thumb{margin-right:5px;float:left;}
-div.book-list.listview div.book-name{width:260px;margin-right:10px;background:url("../images/booklist/booklist-vline.png") right center no-repeat;float:left;overflow:hidden;}div.book-list.listview div.book-name:hover{z-index:1000;overflow:visible;}
-div.book-list.listview div.book-name span{display:block;line-height:normal;height:43px;line-height:43px;}
+div.book-list.listview div.book-name{width:260px;margin-right:10px;background:url("../images/booklist/booklist-vline.png") right center no-repeat;float:left;overflow:hidden;}div.book-list.listview div.book-name span{display:block;line-height:normal;height:43px;line-height:43px;}
 div.book-list.listview div.add-wishlist,div.book-list.listview div.remove-wishlist{margin-right:10px;padding-right:10px;background:url("../images/booklist/booklist-vline.png") right center no-repeat;float:left;}div.book-list.listview div.add-wishlist a,div.book-list.listview div.remove-wishlist a{font-weight:normal;color:#3d4e53;text-transform:none;background:url("../images/booklist/add-wishlist.png") left center no-repeat;padding-left:20px;}
 div.book-list.listview div.booklist-status{margin-right:7px;float:left;}
 .booklist-status.listview span.booklist-status-label{display:none;}
