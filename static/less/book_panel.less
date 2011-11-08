@@ -69,6 +69,7 @@
     color: @text-blue;
     border: 5px solid @pale-blue;
     position: relative;
+//    float: left;
     
     &:hover {
     	color: @text-blue;
@@ -102,7 +103,9 @@
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     line-height:16px;
+    max-height:32px;
     color: #3d4e53;
+    overflow: hidden;    
 }
 
 
@@ -118,7 +121,7 @@
 
 .panelview.icons {
 	position: absolute;
-	bottom: 0px;
+	bottom: -3px;
 	width: 140px;
 	
 	.booklist-status-img {
@@ -409,13 +412,14 @@ p.right_add { float:right; padding:10px 10px 0 0; width:24px; }
     margin:0px;
     padding:0px;
     left:0px;
-}
-    .panelview.book-thumb img { 
+    
+    img { 
         z-index: 100;
         width: 120px;
         height: 182px; 
     }
-    .panelview.book-thumb span {
+
+	span {
         position:absolute;
         bottom: 0;
         left:-10px;
@@ -423,3 +427,5 @@ p.right_add { float:right; padding:10px 10px 0 0; width:24px; }
         z-index: 1000;
         height:auto;
     }
+   
+}

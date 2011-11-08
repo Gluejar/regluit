@@ -7,8 +7,6 @@ def gluejar_search(q):
     results = []
 
     for item in googlebooks_search(q)['items']:
-        # TODO: better to think in terms of editions with titles 
-        # instead of titles with names?
         v = item['volumeInfo']
         r = {'title': v.get('title', ""), 
              'description': v.get('description', ""),
@@ -32,10 +30,18 @@ def gluejar_search(q):
 
         # cover image
         if v.has_key('imageLinks'):
-            r['image'] = v['imageLinks'].get('smallThumbnail', "")
+            r['image'] = v['imageLinks'].get('thumbnail', "")
         else:
             r['image'] = ""
 
+        access_info = item.get('accessInfo')
+        if access_info:
+            epub = access_info.get('epub')
+            if epub and epub.get('downloadLink'):
+                r['epub'] = epub['downloadLink']
+            pdf = access_info.get('pdf')
+            if pdf and pdf.get('downloadLink'):
+                r['pdf'] = pdf['downloadLink']
         results.append(r)
 
     return results 

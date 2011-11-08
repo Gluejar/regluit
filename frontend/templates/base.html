@@ -23,7 +23,7 @@
                 <a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
             {% if not suppress_search_box %}
-            <div class="js-search" style="float: left; margin-left: 50px;">
+            <div class="js-search">
             <div class="js-search-inner">
                 <form action="{% url search %}" method="get">
                     <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q" value="{{ q }}">

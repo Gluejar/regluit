@@ -9,6 +9,17 @@ from django.contrib.auth.models import User
 class UnglueitError(RuntimeError):
     pass
 
+class Claim(models.Model):
+    rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
+    work =  models.ForeignKey("Work", related_name="claim", null=False )    
+    user =  models.ForeignKey(User, related_name="user", null=False ) 
+    created =  models.DateTimeField(auto_now_add=True)  
+   
+class RightsHolder(models.Model):
+    email = models.CharField(max_length=100, blank=True)
+    rights_holder_name = models.CharField(max_length=100, blank=True)
+    owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
@@ -103,8 +114,8 @@ class Campaign(models.Model):
         return self
        
     def supporters(self):
-    	translist = self.transactions().values_list('user', flat=True).distinct()
-    	return translist
+        translist = self.transactions().values_list('user', flat=True).distinct()
+        return translist
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -118,15 +129,15 @@ class Work(models.Model):
         return self.editions.all()[0].cover_image_thumbnail()
         
     def author(self):
-    	authorlist = self.editions.all()[0].authors.all()
-    	if authorlist.count() == 1:
-    		myauthor = authorlist[0].name
-    	elif authorlist.count() > 1:
-    		myauthor = authorlist[0].name + ' et al.'
-    	else:
-    		myauthor = ''
-    	return myauthor
-    	
+        authorlist = self.editions.all()[0].authors.all()
+        if authorlist.count() == 1:
+            myauthor = authorlist[0].name
+        elif authorlist.count() > 1:
+            myauthor = authorlist[0].name + ' et al.'
+        else:
+            myauthor = ''
+        return myauthor
+        
     def last_campaign(self):
         try:
             last = self.campaigns.order_by('-created')[0]
@@ -159,6 +170,19 @@ class Work(models.Model):
                     else:
                         status = percent;
         return status;
+
+    def first_pdf(self):
+        return self.first_ebook('pdf')
+
+    def first_epub(self):
+        return self.first_ebook('epub')
+
+    def first_ebook(self, ebook_format=None):
+        for edition in self.editions.all():
+            for ebook in edition.ebooks.all():
+                if ebook_format == None or ebook.format == ebook_format:
+                    return ebook
+        return None
 
     def __unicode__(self):
         return self.title
@@ -236,7 +260,6 @@ class UserProfile(models.Model):
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager
