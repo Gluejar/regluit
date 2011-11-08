@@ -33,11 +33,6 @@ div.book-list.listview{
 			float: left;
 			overflow: hidden;
 			
-			&:hover {
-				z-index: 1000;
-				overflow: visible;
-			}
-			
 			span { 
 				display:block;
 				line-height:normal;
@@ -227,4 +222,8 @@ ul.navigation li a:hover, ul.navigation li.active a {
 
 div.content-block-content {
   padding-bottom: 200px;
+}
+
+.listview.panelback, .listview.panelback div {
+	display: none;
 }
