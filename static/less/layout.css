@@ -312,6 +312,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
 div.content-block-content {
   padding-bottom: 200px;
 }
+.listview.panelback, .listview.panelback div {
+  display: none;
+}
 .header-text {
   height: 36px;
   line-height: 36px;
@@ -446,6 +449,21 @@ div.content-block-content {
   width: 24px;
 }
 /*2 start*/
+.panelback {
+  position: relative;
+}
+span.panelview.panelback.side1, span.panelview.panelback.side1 div {
+  display: visible;
+}
+span.panelview.panelback.side2, span.panelview.panelback.side2 div {
+  display: none;
+}
+div.panelview.side1 > div {
+  display: visible;
+}
+div.panelview.side2 > div {
+  display: none;
+}
 .greenpanel2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -460,7 +478,9 @@ div.content-block-content {
   height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
-  position: relative;
+  position: absolute;
+  top: -5px;
+  left: -10px;
 }
 .unglued_white {
   font-size: 12px;
@@ -509,7 +529,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  background: url(/static/images/book-panel/book_icon.png) no-repeat 10% center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
 }
@@ -859,7 +879,6 @@ p.right_add {
 }
 /* --------------- ( slideout hover state ) --------------------------------------------- */
 .panelview.book-thumb {
-  float: left;
   position: relative;
   margin: 0px;
   padding: 0px;
@@ -1716,6 +1735,21 @@ div.content-block-content {
   width: 24px;
 }
 /*2 start*/
+.panelback {
+  position: relative;
+}
+span.panelview.panelback.side1, span.panelview.panelback.side1 div {
+  display: visible;
+}
+span.panelview.panelback.side2, span.panelview.panelback.side2 div {
+  display: none;
+}
+div.panelview.side1 > div {
+  display: visible;
+}
+div.panelview.side2 > div {
+  display: none;
+}
 .greenpanel2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -1730,7 +1764,9 @@ div.content-block-content {
   height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
-  position: relative;
+  position: absolute;
+  top: -5px;
+  left: -10px;
 }
 .unglued_white {
   font-size: 12px;
@@ -1779,7 +1815,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+  background: url(/static/images/book-panel/book_icon.png) no-repeat 10% center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
 }
@@ -2129,7 +2165,6 @@ p.right_add {
 }
 /* --------------- ( slideout hover state ) --------------------------------------------- */
 .panelview.book-thumb {
-  float: left;
   position: relative;
   margin: 0px;
   padding: 0px;

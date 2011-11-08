@@ -146,6 +146,26 @@
 
 /*2 start*/
 
+.panelback {
+	position: relative;
+}
+
+span.panelview.panelback.side1, span.panelview.panelback.side1 div {
+	display:visible;
+}
+
+span.panelview.panelback.side2, span.panelview.panelback.side2 div {
+	display:none;
+}
+
+div.panelview.side1 > div {
+	display: visible;
+}
+
+div.panelview.side2 > div {
+	display: none;
+}
+
 .greenpanel2 {
 	.greenpanelstuff;
     margin: 0px auto;
@@ -153,7 +173,9 @@
     height: 295px;
     background-color: @green;
     color: #ffffff;
-    position:relative;
+    position:absolute;
+    top:-5px;
+    left:-10px;
 }
 .unglued_white {
     font-size: 12px;
@@ -173,7 +195,7 @@
     
     a {
     	.greenpanelactionitems(10px);
-    	background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
+    	background: url(/static/images/book-panel/book_icon.png) no-repeat 10% center;
     	padding:0px 0px 0px 30px;
     	color:@dark-green;
     	
@@ -407,7 +429,6 @@ p.right_add { float:right; padding:10px 10px 0 0; width:24px; }
 }
 /* --------------- ( slideout hover state ) --------------------------------------------- */
 .panelview.book-thumb {
-    float: left;
     position: relative;
     margin:0px;
     padding:0px;

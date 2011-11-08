@@ -8,26 +8,26 @@
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
 
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script> -->
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
 
 <script type="text/javascript">
 	        $(document).ready(function(){
-			      $('.image span').hide().css("opacity", 0);
-				  
-				  $('.image').bind("mouseenter", (function()
+				  $('.book-list').bind("mouseenter", (function()
 				  {
-						$(this).children('span').animate({height: "300px", opacity: 1},300);
+				  		$(this).removeClass('side1').addClass('side2');
+						$(this).children('.panelback').removeClass('side2').addClass('side1');
 				  }));
 				  
-				  $('.image').bind("mouseleave", (function()
+				  $('.book-list').bind("mouseleave", (function()
 				  {
-						$(this).children('span').animate({height: "0px", opacity: 0},200);
+						$(this).children('.panelback').removeClass('side1').addClass('side2');
+				  		$(this).removeClass('side2').addClass('side1');
 				  }));
 				  
 			});
 </script>
-
 
 <script type="text/javascript">
     var $j = jQuery.noConflict();
@@ -76,10 +76,10 @@ which overrides display: none in the stylesheet.  Sneaky! -->
 <script type="text/javascript">
 $(document).ready(function(){
     $('#toggle-list').click(function(){
-        $('div.panelview').addClass("listview").removeClass("panelview");
+        $('.panelview').addClass("listview").removeClass("panelview");
     });
     $('#toggle-panel').click(function(){
-        $('div.listview').addClass("panelview").removeClass("listview");
+        $('.listview').addClass("panelview").removeClass("listview");
     });
 });
 </script>
@@ -270,7 +270,25 @@ how do I integrate the your wishlist thing with the tabs thing?
                        {% else %}
                             <div class="listview tabs tabs-3">
                        {% endif %}{% endif %}
-                    <div class="listview book-list {% cycle 'row1' 'row2' %}">
+                    <div class="listview book-list {% cycle 'row1' 'row2' %} side1">
+                        	<span class="listview panelback side2">
+		    					<div class="greenpanel2">
+									<div class="unglued_white"> <b>Unglued!</b>
+										<p>Sept 12 2011</p>
+				  						<p><b>Raised:</b> $12,000</p>
+									</div> 
+									<div class="read_itbutton"> <a href="#">Read it Now</a> </div>
+       								<div class="add_towish"> <a href="#">Add to Wishlist</a> </div>
+									<div class="white_text"> <b><a href="#">Nineteen Eighty-Four</a></b>
+				  						<p><a href="#">George Orwell</a></p>
+				  						<p><b>Genre:</b> Sci-Fi</p>
+				  						<p><b>Status:</b> In Progress</p>
+									</div>
+									<div class="moreinfo">
+										<a href="#">More Info</a>
+									</div>
+		  						</div>
+          					</span>
                         <div class="listview book-thumb">
                             <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
                         </div>
@@ -280,7 +298,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </span>
                         </div>
                         <div class="listview author">
-                            <span id="{{ work.author }}">{{ work.author }}</span>
+                            <span class="{{ work.author }}">{{ work.author }}</span>
                         </div>
                         {% ifequal supporter request.user %}
                         <div class="listview remove-wishlist">
