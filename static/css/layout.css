@@ -72,10 +72,6 @@ div.book-list.listview div.book-name {
   float: left;
   overflow: hidden;
 }
-div.book-list.listview div.book-name:hover {
-  z-index: 1000;
-  overflow: visible;
-}
 div.book-list.listview div.book-name span {
   display: block;
   line-height: normal;
