@@ -1,6 +1,6 @@
 @import "variables.less";
 
-// Local variables
+/* Local variables */
 .greenpanelstuff {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
@@ -53,33 +53,30 @@
 	}
 }
 
-.banners (@image, @right) {
+.banners (@image, @right, @bottom) {
     width:130px;
     height:30px;
     padding:0px;
-    margin:15px 0 0;
+    margin:15px 0 @bottom 0;
+    vertical-align: baseline;
     
-    div {
+    a {
     	.greenpanelactionitems(left);
     	background-image: url(@image);
-    	padding:0px @right 12px 20px;
+    	padding:8px @right 8px 21px;
     	color:#FFFFFF;
     	.greenpanelactionborders;
-    	overflow: visible;
-    	width: 75px;
-    	height: 24px;
     	
    		&:hover { .panelhoverlink;}
 	}
 }
 
+/* background */
 @charset "utf-8";
 *{
     padding:0px;
     margin:0px;
 }
-
-/*main_Css*/
 
 #main-wrapper{
     height: 100%;
@@ -101,6 +98,7 @@
     }
 }
 
+/* styling of front side elements */
 .panelview.book-list {
 	.greenpanelstuff;
     margin: auto;
@@ -158,7 +156,6 @@
 	
 	.booklist-status-label {
 		position: absolute;
-//		float: left;
 		color: @green;
 		padding-left: 5px;
 		left: 40px;
@@ -172,11 +169,7 @@
 	}
 }
 
-/*2 start*/
-
-.panelback {
-	position: relative;
-}
+/* switch to/from hover state when jquery swaps class names */
 
 span.panelview.panelback.side1, span.panelview.panelback.side1 div {
 	display:visible;
@@ -192,6 +185,11 @@ div.panelview.side1 > div {
 
 div.panelview.side2 > div {
 	display: none;
+}
+
+/* styling of hover state */
+.panelback {
+	position: relative;
 }
 
 .greenpanel2 {
@@ -230,7 +228,7 @@ div.panelview.side2 > div {
 
 
 .add_towish {
-	.banners("/static/images/book-panel/add_wish_icon.png", 5px);
+	.banners("/static/images/book-panel/add_wish_icon.png", 5px, 15px);
 }
 
 .white_text {
@@ -253,53 +251,19 @@ div.panelview.side2 > div {
 	}
 }
 
-/*more info*/
 .moreinfo {
-	.banners("/static/images/book-panel/more_icon.png", 42px);
+	.banners("/static/images/book-panel/more_icon.png", 42px, 0px);
 }
 
 
-/*end of the more info/*
-/*end the 2greenpanel*/
-
-/*2 start*/
-
-.graypanel {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    margin: 20px  auto;
-    padding: 4px 5px;
-    height: 300px;
-    width: 130px;
-    line-height:16px;
-    background-color: @pale-blue;
-    color: @text-blue;
-    border: 5px solid @pale-blue;
-}
-.unglued_white2{
-    font-size: 12px;
-    margin: 3px  auto;
-    padding: 5px 0px;
-}
-.green{
-    color: @green;
-    text-align: left;
-}
-.graypanel a {
-	.panelhoverlink;
-}
-
-.graypanel a:hover{
-    color: @green;
-    text-decoration: none;
-}
+/* styling of hover state when book has not been unglued, and a bunch of stuff I haven't figured out yet */
 
 .Unglue_itbutton{
     width:110px;
     height:40px;
     padding:0px 9px;
     background:#FFFFFF;
-    margin:0px auto;
+    margin:0px 15px 0px -5px;
     .border-radius(4px, 4px, 4px, 4px);
     border: 1px solid #d4dcdd;
 }
