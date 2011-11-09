@@ -32,6 +32,47 @@
 	color:@text-blue;
 }
 
+.readit {
+    width:118px;
+    height:35px;
+    padding:0px 0px;
+    background:#FFFFFF;
+    margin:0px;
+    .border-radius(4px, 4px, 4px, 4px);
+    border: 1px solid #81bb38;
+}
+
+.readit_inner (@image, @padding) {
+    .greenpanelactionitems(10px);
+    background: @image;
+    padding:0px 0px 0px @padding;
+    color:@dark-green;
+    	
+    &:hover {
+		text-decoration:none;
+	}
+}
+
+.banners (@image, @right) {
+    width:130px;
+    height:30px;
+    padding:0px;
+    margin:15px 0 0;
+    
+    div {
+    	.greenpanelactionitems(left);
+    	background-image: url(@image);
+    	padding:0px @right 12px 20px;
+    	color:#FFFFFF;
+    	.greenpanelactionborders;
+    	overflow: visible;
+    	width: 75px;
+    	height: 24px;
+    	
+   		&:hover { .panelhoverlink;}
+	}
+}
+
 @charset "utf-8";
 *{
     padding:0px;
@@ -69,7 +110,6 @@
     color: @text-blue;
     border: 5px solid @pale-blue;
     position: relative;
-//    float: left;
     
     &:hover {
     	color: @text-blue;
@@ -79,18 +119,6 @@
 	    padding:5px 0px;
     	margin:0px;
 	}
-	
-/*	might need this for panel hover state; don't want it for nonhover. hm.
-	a {
-    	color: @dark-green;
-    	text-decoration: none;
-    	
-    	&:hover {
-    		color: @green;
-	    	text-decoration: none;
-		}
-	}
-*/
 }
 
 .panelview {
@@ -182,45 +210,27 @@ div.panelview.side2 > div {
     margin: 0px  auto;
     margin-bottom:5px;
     padding: 10px 0px;
+    height:48px;
 }
 
 .read_itbutton {
-    width:118px;
-    height:35px;
-    padding:0px 0px;
-    background:#FFFFFF;
-    margin:0px;
-    .border-radius(4px, 4px, 4px, 4px);
-    border: 1px solid #81bb38;
-    
-    a {
-    	.greenpanelactionitems(10px);
-    	background: url(/static/images/book-panel/book_icon.png) no-repeat 10% center;
-    	padding:0px 0px 0px 30px;
-    	color:@dark-green;
-    	
-    	&:hover {
-			text-decoration:none;
-		}
-    }
+	.readit;
+	a {
+		.readit_inner("/static/images/book-panel/book_icon.png) no-repeat 10% center", 30px);
+	}
+}
+
+.read_itbutton_fail {
+	.readit;
+	
+	span {
+		.readit_inner(none, 15px);
+	}
 }
 
 
 .add_towish {
-    width:125px;
-    height:30px;
-    padding:0px 0px;
-    margin:15px auto;
-    
-    a {
-    	.greenpanelactionitems(left);
-    	background-image: url(/static/images/book-panel/add_wish_icon.png);
-    	padding:8px 5px 8px 21px;
-    	color:#FFFFFF;
-		.greenpanelactionborders();
-		
-    	&:hover{ .panelhoverlink;}
-	}
+	.banners("/static/images/book-panel/add_wish_icon.png", 5px);
 }
 
 .white_text {
@@ -235,25 +245,17 @@ div.panelview.side2 > div {
     	
     	&:hover { .panelhoverlink;}
 	}
+	
+	p {
+    	line-height:16px;
+    	max-height:32px;
+    	overflow: hidden;
+	}
 }
 
 /*more info*/
 .moreinfo {
-    width:130px;
-    height:30px;
-    padding:0px;
-    margin:15px 0 0;
-    
-    a {
-    	.greenpanelactionitems(left);
-    	background-image: url(/static/images/book-panel/more_icon.png);
-    	padding:8px 42px 8px 20px;
-    	padding-left:20px;
-    	color:#FFFFFF;
-    	.greenpanelactionborders;
-    	
-   		&:hover { .panelhoverlink;}
-	}
+	.banners("/static/images/book-panel/more_icon.png", 42px);
 }
 
 

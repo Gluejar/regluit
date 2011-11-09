@@ -30,6 +30,17 @@
   text-decoration: none;
   color: #3d4e53;
 }
+.readit {
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+}
 @charset "utf-8";
 * {
   padding: 0px;
@@ -65,18 +76,6 @@
   color: #3d4e53;
   border: 5px solid #edf3f4;
   position: relative;
-  /*	might need this for panel hover state; don't want it for nonhover. hm.
-	a {
-    	color: @dark-green;
-    	text-decoration: none;
-    	
-    	&:hover {
-    		color: @green;
-	    	text-decoration: none;
-		}
-	}
-*/
-
 }
 .panelview.book-list:hover {
   color: #3d4e53;
@@ -162,6 +161,7 @@ div.panelview.side2 > div {
   margin: 0px  auto;
   margin-bottom: 5px;
   padding: 10px 0px;
+  height: 48px;
 }
 .read_itbutton {
   width: 118px;
@@ -182,20 +182,46 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat 10% center;
+  background: "/static/images/book-panel/book_icon.png) no-repeat 10% center";
   padding: 0px 0px 0px 30px;
   color: #73a334;
 }
 .read_itbutton a:hover {
   text-decoration: none;
 }
-.add_towish {
-  width: 125px;
-  height: 30px;
+.read_itbutton_fail {
+  width: 118px;
+  height: 35px;
   padding: 0px 0px;
-  margin: 15px auto;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
 }
-.add_towish a {
+.read_itbutton_fail span {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  background: none;
+  padding: 0px 0px 0px 15px;
+  color: #73a334;
+}
+.read_itbutton_fail span:hover {
+  text-decoration: none;
+}
+.add_towish {
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 0;
+}
+.add_towish div {
   line-height: 40px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -203,8 +229,8 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_wish_icon.png);
-  padding: 8px 5px 8px 21px;
+  background-image: url("/static/images/book-panel/add_wish_icon.png");
+  padding: 0px 5px 12px 20px;
   color: #FFFFFF;
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -212,8 +238,11 @@ div.panelview.side2 > div {
   border-bottom-style: solid;
   border-top-color: #FFFFFF;
   border-bottom-color: #FFFFFF;
+  overflow: visible;
+  width: 75px;
+  height: 24px;
 }
-.add_towish a:hover {
+.add_towish div:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -231,6 +260,11 @@ div.panelview.side2 > div {
   text-decoration: none;
   color: #3d4e53;
 }
+.white_text p {
+  line-height: 16px;
+  max-height: 32px;
+  overflow: hidden;
+}
 /*more info*/
 .moreinfo {
   width: 130px;
@@ -238,7 +272,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 0;
 }
-.moreinfo a {
+.moreinfo div {
   line-height: 40px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -246,9 +280,8 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/more_icon.png);
-  padding: 8px 42px 8px 20px;
-  padding-left: 20px;
+  background-image: url("/static/images/book-panel/more_icon.png");
+  padding: 0px 42px 12px 20px;
   color: #FFFFFF;
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -256,8 +289,11 @@ div.panelview.side2 > div {
   border-bottom-style: solid;
   border-top-color: #FFFFFF;
   border-bottom-color: #FFFFFF;
+  overflow: visible;
+  width: 75px;
+  height: 24px;
 }
-.moreinfo a:hover {
+.moreinfo div:hover {
   text-decoration: none;
   color: #3d4e53;
 }
