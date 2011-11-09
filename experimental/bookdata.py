@@ -5,6 +5,15 @@ from regluit.experimental.zotero_books import Zotero2, MyZotero
 import json
 from pprint import pprint
 from itertools import islice
+
+try:
+    import unittest
+    from unittest import TestCase    
+except:
+    from django.test import TestCase
+    from django.utils import unittest
+
+
 import re
 
 import freebase
@@ -18,6 +27,9 @@ RY_OLID = 'OL4264806A'
 
 SURFACING_WORK_OLID = 'OL675829W'
 SURFACING_EDITION_OLID = 'OL8075248M'
+
+class FreebaseException(Exception):
+    pass
 
 class OpenLibraryException(Exception):
     pass
@@ -171,32 +183,6 @@ class OpenLibrary(object):
         except Exception, e:
             raise OpenLibraryException("problem in works: %s " % e)
 
-def parse_project_gutenberg_catalog(fname='/Users/raymondyee/D/Document/Gluejar/gutenberg/catalog.rdf'):
-    #URL = http://www.gutenberg.org/feeds/catalog.rdf.zip
-    import re
-    
-    def text(node):
-        node.normalize()
-        return node.childNodes[0].data
-        
-    RDF_NS = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-    DC_NS = 'http://purl.org/dc/elements/1.1/'
-    
-    from xml.dom.pulldom import START_ELEMENT, parse
-    doc = parse(fname)
-    for event, node in doc:
-        if event == START_ELEMENT and node.localName == "etext":
-            doc.expandNode(node)
-            id = node.getAttributeNS(RDF_NS,'ID')
-            try:
-                title = text(node.getElementsByTagNameNS(DC_NS,'title')[0])
-                title = title.replace("\n"," ").replace("\r"," ")
-            except:
-                title = None
-            yield id, title
-    
-# what books in Freebase have Wikipedia pages?
-
 class FreebaseBooks(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
         if main_or_sandbox == 'main':
@@ -225,6 +211,7 @@ class FreebaseBooks(object):
         MQL = u"""[{
   "type":        "/book/book_edition",
   "id":          null,
+  "isbn":        [{}],
   "ISBN":        [{}],
   "LCCN":        [{}],
   "OCLC_number": [{}],
@@ -237,6 +224,33 @@ class FreebaseBooks(object):
         resp = self.freebase.mqlreaditer(query)
         for r in resp:
             yield r
+            
+    def book_edition_by_id(self,id,id_type):
+        MQL = u"""[{
+  "type":        "/book/book_edition",
+  "id":          null,
+  "isbn":        [{}],
+  "ISBN":        [{}],
+  "LCCN":        [{}],
+  "OCLC_number": [{}],
+  "book": {
+    "id":   null,
+    "name": null
+  }
+}]""".replace("\n"," ")
+        query = json.loads(MQL)
+        if id_type == 'isbn':
+            query[0][id_type][0].setdefault('name', id)
+        elif id_type in ['LCCN', 'OCLC_number']:
+            query[0][id_type][0].setdefault('value', id)
+            
+        if id_type in ['isbn', 'LCCN', 'OCLC_number']:
+            resp = self.freebase.mqlreaditer(query)
+            for r in resp:
+                yield r           
+        else:
+            raise FreebaseException('id_type must be one of ISBN, LCCN, or OCLC_number, not %s' % (id_type))
+            
 
 def look_up_my_zotero_books_in_hathi():
     zot = MyZotero()
@@ -266,19 +280,40 @@ def ol_practice():
     # let's get the Work ID for one of the editions
     pprint(OpenLibrary.works(SURFACING_EDITION_OLID,id_type='olid'))
 
-def freebase_test():
-    
-    fb = FreebaseBooks()
-    for (i,book) in enumerate(islice(fb.books(),200)):
-        print i, book
-    for (i,edition) in enumerate(islice(fb.book_editions(),200)):
-        print i, edition
+        
+class FreebaseBooksTest(TestCase):
+    def test_books_iter(self):
+        fb = FreebaseBooks()
+        books = list(islice(fb.books(),4))
+        self.assertEqual(len(books),4)
+        for book in books[0:1]:
+            self.assertTrue(book["type"], "/book/book")
+    def test_book_editions_iter(self):
+        fb = FreebaseBooks()
+        editions = list(islice(fb.book_editions(),4))
+        self.assertEqual(len(editions),4)
+        for edition in editions[0:1]:
+            self.assertTrue(edition["type"], "/book/book_edition")
+    def test_book_edition_by_id(self):
+        fb = FreebaseBooks()
+        # http://www.amazon.com/New-Collected-Poems-Czeslaw-Milosz/dp/006019667X
+        edition = list(fb.book_edition_by_id('9780060196677','isbn'))
+        self.assertEqual(edition[0]['type'],'/book/book_edition')
+        self.assertEqual(edition[0]['book']['id'],'/m/0c1t1yk')
+        self.assertEqual(edition[0]['book']['name'],'New and collected poems 1931-2001')
+        
+        edition = list(fb.book_edition_by_id('76074298', 'OCLC_number'))
+        self.assertEqual(edition[0]['type'],'/book/book_edition')
+        self.assertEqual(edition[0]['book']['id'],'/m/021yncj')
+        self.assertEqual(edition[0]['book']['name'],'Brave New Words: The Oxford Dictionary of Science Fiction')        
+        
+                
 
 if __name__ == '__main__':
     #look_up_my_zotero_books_in_hathi()
     #ol_practice()
     #print len(list(islice(parse_project_gutenberg_catalog(),100000)))
-    freebase_test()
+    unittest.main()
     
     
 
