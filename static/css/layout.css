@@ -50,6 +50,7 @@ div.book-list.listview {
   line-height: 43px;
   margin: 0 5px 0 0;
   padding: 7px 0;
+  position: relative;
 }
 div.book-list.listview.row1 {
   background: #f6f9f9;
@@ -69,6 +70,7 @@ div.book-list.listview div.book-name {
   margin-right: 10px;
   background: url("../images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
+  overflow: hidden;
 }
 div.book-list.listview div.book-name span {
   display: block;
@@ -275,7 +277,8 @@ ul.navigation li a:hover, ul.navigation li.active a {
   display: none;
 }
 .listview.icons {
-  float: left;
+  position: absolute;
+  right: 31px;
 }
 .listview.icons .booklist-status-img {
   -moz-border-radius: 4px 4px 4px 4px;
@@ -305,6 +308,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 .listview.icons .booklist-status-label, .listview.icons .right_add {
   display: none;
+}
+div.content-block-content {
+  padding-bottom: 200px;
 }
 .header-text {
   height: 36px;
@@ -407,7 +413,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
+  max-height: 32px;
   color: #3d4e53;
+  overflow: hidden;
 }
 .panelview.booklist-status {
   color: #8dc63f;
@@ -419,7 +427,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 .panelview.icons {
   position: absolute;
-  bottom: 0px;
+  bottom: -3px;
   width: 140px;
 }
 .panelview.icons .booklist-status-img {
@@ -914,7 +922,8 @@ h3.jsmod-title {
   height: 73px;
 }
 h3.jsmod-title span {
-  background: url("/static/images/icon-h3.png") 90% center no-repeat;
+  /*			background:url("@{image-base}icon-h3.png") 90% center no-repeat; */
+
   font-size: 17px;
   color: #fff;
   padding: 26px 40px 27px 20px;
@@ -1102,9 +1111,9 @@ a {
   padding: 10px;
 }
 .js-search {
-  float: right;
-  width: 30%;
+  float: left;
   padding-top: 25px;
+  margin-left: 81px;
 }
 .js-search input {
   float: left;
@@ -1674,7 +1683,9 @@ div.content-block-content {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
+  max-height: 32px;
   color: #3d4e53;
+  overflow: hidden;
 }
 .panelview.booklist-status {
   color: #8dc63f;
@@ -1686,7 +1697,7 @@ div.content-block-content {
 }
 .panelview.icons {
   position: absolute;
-  bottom: 0px;
+  bottom: -3px;
   width: 140px;
 }
 .panelview.icons .booklist-status-img {

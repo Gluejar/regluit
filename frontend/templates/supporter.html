@@ -11,60 +11,9 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 
-<script type="text/javascript">
-    var $j = jQuery.noConflict();
-    $j(document).ready(function(){
-        $j('.user-block-hide').hide();
-        $j('.user-block1 a').click(
-            function() {
-                $j(this).toggleClass("active");
-                $j(".user-block-hide").slideToggle(300);
-            }
-        );
-        $j('.tabs1').click(function(){
-            $j('.tabs').find('.active').removeClass('active');
-            $j(this).addClass('active');
-            $j('.content-block-content').find('.active').removeClass('active');
-            $j('.tabs-1').addClass('active').show(300);
-            $j('.tabs-2').hide(200);
-            $j('.tabs-3').hide(200);
-        });
-        $j('.tabs2').click(function(){
-            $j('.tabs').find('.active').removeClass('active');
-            $j(this).addClass('active');
-            $j('.content-block-content').find('.active').removeClass('active');
-            $j('.tabs-2').addClass('active').show(300);
-            $j('.tabs-1').hide(200);
-            $j('.tabs-3').hide(200);
-        });
-        $j('.tabs3').click(function(){
-            $j('.tabs').find('.active').removeClass('active');
-            $j(this).addClass('active');
-            $j('.content-block-content').find('.active').removeClass('active');
-            $j('.tabs-3').addClass('active').show(300);
-            $j('.tabs-2').hide(200);
-            $j('.tabs-1').hide(200);
-            });
-        $j('.empty-wishlist span.bounce-search').click(function(){
-            $j('div.js-search-inner').effect("bounce", 500, function() {
-                $j('div.js-search-inner input[type="text"]').focus();
-            });
-        });
-    });
-</script>
-
-<!-- Beware of fadeIn/fadeOut jQuery animations; they add an inline "display: block"
-which overrides display: none in the stylesheet.  Sneaky! -->
-<script type="text/javascript">
-$(document).ready(function(){
-    $('#toggle-list').click(function(){
-        $('div.panelview').addClass("listview").removeClass("panelview");
-    });
-    $('#toggle-panel').click(function(){
-        $('div.listview').addClass("panelview").removeClass("listview");
-    });
-});
-</script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/toggle.js"></script>
+<script type="text/javascript" src="/static/js/tabs.js"></script>
 
 {% endblock %}
 
@@ -154,6 +103,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="block block1">
                             <div class="block-inner">
                                 <h3><a class="profile-edit" href="#">Your Tagline</a></h3>
+                                    {{ profile_form.tagline.errors }}
                                     {{ profile_form.tagline }}
 
                                      <input class="profile-save" type="submit" name="submit" value="Update" id="submit">
@@ -163,12 +113,12 @@ how do I integrate the your wishlist thing with the tabs thing?
                              <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
-                                    <label>Your homepage URL:</label>
-                                    {{ profile_form.home_url }}
+                                   <label>Your homepage URL:</label>
+                                    {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
                                 </div>
                                 <div class="check-list">
                                     <label>Your Twitter handle:</label>
-                                    {{ profile_form.twitter_id }}
+                                    {{ profile_form.twitter_id }}{{ profile_form.twitter_id.errors }}
                                 </div>
                             </div>
                             <div class="block block3">
@@ -252,7 +202,59 @@ how do I integrate the your wishlist thing with the tabs thing?
                        {% else %}
                             <div class="listview tabs tabs-3">
                        {% endif %}{% endif %}
-                    <div class="listview book-list {% cycle 'row1' 'row2' %}">
+                    <div class="listview book-list {% cycle 'row1' 'row2' %} side1">
+                        	<span class="listview panelback side2">
+		    					<div class="greenpanel2">
+									<div class="unglued_white">
+										{% if work.first_ebook %}
+										<b>AVAILABLE!</b>
+										{% else %}
+										<b>{{ work.last_campaign_status }}</b>
+										{% if work.last_campaign_status == 'SUCCESSFUL' %} 
+										<p><b>On:</b> {{ work.last_campaign.deadline|date:"M d, Y" }}</p>
+				  						<p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
+				  						{% else %}{% if work.last_campaign_status == 'ACTIVE' %}
+										<p><b>Until:</b> {{ work.last_campaign.deadline|date:"M d, Y" }}</p>
+				  						<p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
+				                        {% else %}{% if work.last_campaign_status == 'INITIALIZED' %}
+				                        <p>Campaign coming soon!</p>
+				                        {% else %}{% if work.last_campaign_status == 'SUSPENDED' %}
+										<p>This campaign was suspended on {{ work.last_campaign.suspended }}.</p>
+				                        {% else %}{% if work.last_campaign_status == 'WITHDRAWN' %}
+										<p>This campaign was withdrawn on {{ work.last_campaign.withdrawn }}.</p>
+				                        {% else %}{% if work.last_campaign_status == 'UNSUCCESSFUL' %}
+										<p>{{ work.last_campaign.deadline }}</p>
+										<p>Watch for a new campaign.</p>
+										{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+									</div> 
+									{% if work.first_ebook %}
+									<div class="read_itbutton"><a href="{{ work.first_ebook.url }}">Read it Now</a> </div>
+									{% else %}
+									<div class="Unglue_itbutton"><a href="#">Unglue it!</a> </div>
+									{% endif %}
+									{% ifequal supporter request.user %}
+       								<div class="moreinfo remove-wishlist"><a id="{{ work.id }}">Remove</a></div>
+			                        {% else %}{% if work in shared_works %}
+            			            <div class="moreinfo on-wishlist">
+		                            <a href="#">On Your Wishlist!</a>
+        			                </div>
+                    			    {% else %}{% if request.user.is_anonymous %}
+                        			<div class="moreinfo create-account">
+                           			<a href="#">Add to Wishlist</a>
+                       				</div>
+                       			 	{% else %}
+                        			<div class="moreinfo add-wishlist">
+                           			<a href="#" id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</a>
+                        			</div>
+                        			{% endif %}{% endif %}{% endifequal %}
+                        			<div class="white_text"> <p><a href="{% url work work.id %}">{{ work.title }}</a></p>
+				  						<p>{{ work.author }}</p>
+									</div>
+									<div class="moreinfo">
+										<a href="{% url work work.id %}">More Info</a> 
+									</div>
+		  						</div>
+          					</span>
                         <div class="listview book-thumb">
                             <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
                         </div>
@@ -262,7 +264,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </span>
                         </div>
                         <div class="listview author">
-                            <span id="{{ work.author }}">{{ work.author }}</span>
+                            <span class="{{ work.author }}">{{ work.author }}</span>
                         </div>
                         {% ifequal supporter request.user %}
                         <div class="listview remove-wishlist">
@@ -286,9 +288,9 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         <div class="listview icons">
                             <div class="booklist-status-img">
-                                <img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
+            					<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
                             </div>
-                            <div class="booklist-status-label">100%</div>
+            				<div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
                             <div class="right_add"><img src="/static/images/book-panel/add_gray.png" border="0" /></div>
                         </div>
                         <div class="listview ebooks">

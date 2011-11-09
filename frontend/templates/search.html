@@ -5,19 +5,8 @@
 <link rel="stylesheet" href="/static/css/book_panel.css">
 
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-
-<!-- Beware of fadeIn/fadeOut jQuery animations; they add an inline "display: block"
-which overrides display: none in the stylesheet.  Sneaky! -->
-<script type="text/javascript">
-$(document).ready(function(){
-    $('#toggle-list').click(function(){
-        $('div.panelview').addClass("listview").removeClass("panelview");
-    });
-    $('#toggle-panel').click(function(){
-        $('div.listview').addClass("panelview").removeClass("listview");
-    });
-});
-</script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/toggle.js"></script>
 {% endblock %}
 
 {% block title %}Search Results{% endblock %}
@@ -60,6 +49,9 @@ $(document).ready(function(){
                             {{ result.title }}
                         </span>
                         </div>
+                        <div class="listview author">
+    						<span id="{{ result.author }}">{{ result.author }}</span>
+				    	</div>
                         {% if request.user.is_anonymous %}
                         <div class="listview create-account">
                             <span>Add to Wishlist</span>
