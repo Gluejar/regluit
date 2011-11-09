@@ -103,6 +103,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="block block1">
                             <div class="block-inner">
                                 <h3><a class="profile-edit" href="#">Your Tagline</a></h3>
+                                    {{ profile_form.tagline.errors }}
                                     {{ profile_form.tagline }}
 
                                      <input class="profile-save" type="submit" name="submit" value="Update" id="submit">
@@ -112,12 +113,12 @@ how do I integrate the your wishlist thing with the tabs thing?
                              <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
-                                    <label>Your homepage URL:</label>
-                                    {{ profile_form.home_url }}
+                                   <label>Your homepage URL:</label>
+                                    {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
                                 </div>
                                 <div class="check-list">
                                     <label>Your Twitter handle:</label>
-                                    {{ profile_form.twitter_id }}
+                                    {{ profile_form.twitter_id }}{{ profile_form.twitter_id.errors }}
                                 </div>
                             </div>
                             <div class="block block3">

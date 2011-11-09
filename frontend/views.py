@@ -41,8 +41,8 @@ def home(request):
     return render(request, 'home.html', {'suppress_search_box': True})
 
 def stub(request):
-	path = request.path[6:] # get rid of /stub/
-	return render(request,'stub.html', {'path': path})
+    path = request.path[6:] # get rid of /stub/
+    return render(request,'stub.html', {'path': path})
 
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
@@ -76,13 +76,13 @@ def supporter(request, supporter_username, template_name):
     transet = Transaction.objects.all().filter(user = supporter)
     
     for transaction in transet:
-    	try:
-    		if(transaction.campaign.status == 'SUCCESSFUL'):
-    			backed += 1
-    		elif(transaction.campaign.status == 'ACTIVE'):
-    			backing += 1
-    	except:
-    		continue
+        try:
+            if(transaction.campaign.status == 'SUCCESSFUL'):
+                backed += 1
+            elif(transaction.campaign.status == 'ACTIVE'):
+                backing += 1
+        except:
+            continue
             
     wished = supporter.wishlist.works.count()
     
@@ -100,17 +100,17 @@ def supporter(request, supporter_username, template_name):
 
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
+        try:
+            profile_obj=request.user.get_profile()
+        except ObjectDoesNotExist:
+            profile_obj= models.UserProfile()
+            profile_obj.user=request.user
         if  request.method == 'POST': 
-            try:
-                profile_obj=request.user.get_profile()
-            except ObjectDoesNotExist:
-                profile_obj= models.UserProfile()
-                profile_obj.user=request.user
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)
             if profile_form.is_valid():
                 profile_form.save()
         else:
-            profile_form = ProfileForm()
+            profile_form= ProfileForm(instance=profile_obj)
     else:
         profile_form = ''
             
