@@ -216,6 +216,9 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
     Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
     """
     
+    logger.info('Entering load_goodreads_shelf_into_wishlist.  user: %s, shelf_name: %s, goodreads_user_id: %s, max_books: %s',
+                user, shelf_name, goodreads_user_id, max_books)
+    
     gc = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET, user=user)
         
     if goodreads_user_id is None:
@@ -224,6 +227,8 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
       else:
         raise Exception("No Goodreads user_id is associated with user.")
         
+    logger.info('computed goodreads_user_id: %s ', goodreads_user_id)
+    
     for (i, review) in enumerate(islice(gc.review_list(goodreads_user_id,shelf=shelf_name),max_books)):
         isbn = review["book"]["isbn10"] if review["book"]["isbn10"] is not None else review["book"]["isbn13"]
         logger.info("%d %s %s %s ", i, review["book"]["title"], isbn, review["book"]["small_image_url"])
@@ -234,5 +239,6 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             user.wishlist.works.add(edition.work)
             logger.info("Work with isbn %s added to wishlist.", isbn)
         except Exception, e:
-            logger.info ("error adding ISBN %s: %s", isbn, e) 
+            logger.info ("Exception adding ISBN %s: %s", isbn, e) 
 
+    logger.info('Leaving load_goodreads_shelf_into_wishlist.  Length of wishlist for user %s is %s', user, len(user.wishlist.works.all()))

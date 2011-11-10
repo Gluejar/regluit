@@ -327,6 +327,7 @@ def goodreads_flush_assoc(request):
         profile.goodreads_auth_token = None
         profile.goodreads_auth_secret = None
         profile.save()
+        logger.info('Goodreads association flushed for user %s', user)
     return HttpResponseRedirect(reverse('goodreads_display'))
       
 @require_POST
@@ -345,7 +346,7 @@ def goodreads_load_shelf(request):
         return HttpResponse("Shelf loading placed on task queue.")
     except Exception,e:
         return HttpResponse("Error in loading shelf: %s " % (e))
-        logger.info("Error in loading shelf: %s ", e)
+        logger.info("Error in loading shelf for user %s: %s ", user, e)
 
 @require_POST
 @login_required      
@@ -353,10 +354,11 @@ def goodreads_load_shelf(request):
 def clear_wishlist(request):
     try:
         request.user.wishlist.works.clear()
+        logger.info("Wishlist for user %s cleared", request.user)
         return HttpResponse('wishlist cleared')
     except Exception, e:
         return HttpResponse("Error in clearing wishlist: %s " % (e))
-        logger.info("Error in clearing wishlist: %s ", e)
+        logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
     
 
 def celery_test(request):
