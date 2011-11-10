@@ -359,3 +359,5 @@ def clear_wishlist(request):
         logger.info("Error in clearing wishlist: %s ", e)
     
 
+def celery_test(request):
+    return HttpResponse("celery_test")

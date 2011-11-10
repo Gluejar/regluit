@@ -9,6 +9,22 @@ from django.contrib.auth.models import User
 class UnglueitError(RuntimeError):
     pass
 
+class CeleryTask(models.Model):
+    task_id = models.CharField(max_length=255)
+    function_name = models.CharField(max_length=1024)
+    function_args = models.IntegerField()  # not full generalized here -- takes only a single arg for now.
+    state = models.CharField(max_length=255, null=True)
+
+    def __unicode__(self):
+        return "Task %s arg:%d ID# %s: State %s " % (self.function_name, self.function_args, self.task_id, self.state)
+    
+    @property
+    def done(self):
+        if self.state in ['SUCCESS', 'FAILURE']:
+            return True
+        else:
+            return False
+    
 class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    

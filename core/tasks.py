@@ -1,6 +1,7 @@
 from celery.decorators import task
 from regluit.core import bookloader
 from regluit.core import goodreads, librarything
+from time import sleep
 
 @task
 def add_related(isbn):
@@ -22,4 +23,19 @@ def load_librarything_into_wishlist(user, lt_username, lt_password, max_books=No
 def add(x,y):
     return x+y
 
-    
+@task
+def fac(n):
+    if not(isinstance(n,int) and n >= 0):
+        raise Exception("You can't calculate a factorial of %s " % (str(n)))
+    if n <= 1:
+        return 1
+    else:
+        res = 1
+        for i in xrange(2,n+1):
+            res = res*i
+            fac.update_state(state="PROGRESS!", meta={"current": i, "total": n})
+            sleep(0.01)
+        return res
+        
+
+
