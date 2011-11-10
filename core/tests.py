@@ -11,6 +11,13 @@ from regluit.core.models import Campaign, Work, UnglueitError
 from regluit.core import bookloader, models, search
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 
+from regluit.core import tasks
+from celery.task.sets import TaskSet
+from celery.task import chord
+
+from time import sleep
+from math import factorial
+
 
 class TestBookLoader(TestCase):
 
@@ -258,10 +265,27 @@ class SettingsTest(TestCase):
     def test_prod_me_alignment(self):
         from regluit.settings import me, prod
         self.assertEqual(set(me.__dict__.keys()) ^ set(prod.__dict__.keys()), set([]))
+
+class CeleryTaskTest(TestCase):
+    def test_single_fac(self):
+        n = 10
+        task = tasks.fac.delay(n)
+        result = task.get(timeout=10)
+        self.assertEqual(result,factorial(n))
+    def test_subtask(self):
+        n = 30
+        subtasks = [tasks.fac.subtask(args=(x,)) for x in range(n)]
+        job = TaskSet(tasks=subtasks)
+        result = job.apply_async()
+        while not result.ready():
+            sleep(0.2)
+        self.assertEqual(result.join(),[factorial(x) for x in range(n)])
+    
+        
         
 def suite():
 
-    testcases = [TestBookLoader, SearchTests, CampaignTests, WishlistTest]
+    testcases = [TestBookLoader, SearchTests, CampaignTests, WishlistTest, CeleryTaskTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     suites.addTest(SettingsTest('test_dev_me_alignment'))  # leave out alignment with prod test right now
     return suites         

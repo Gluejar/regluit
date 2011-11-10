@@ -211,13 +211,14 @@ class GoodreadsClient(object):
             return d
         
         
-def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id=None, max_books=None):
+def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id=None, max_books=None,
+                                       expected_number_of_books=None):
     """
     Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
     """
     
-    logger.info('Entering load_goodreads_shelf_into_wishlist.  user: %s, shelf_name: %s, goodreads_user_id: %s, max_books: %s',
-                user, shelf_name, goodreads_user_id, max_books)
+    logger.info('Entering load_goodreads_shelf_into_wishlist.  user: %s, shelf_name: %s, goodreads_user_id: %s, max_books: %s, expected_number_of_books: %s',
+                user, shelf_name, goodreads_user_id, max_books, expected_number_of_books)
     
     gc = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET, user=user)
         
