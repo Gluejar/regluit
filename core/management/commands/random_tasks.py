@@ -20,25 +20,24 @@ class Command(BaseCommand):
                 ct.task_id = task_id
                 ct.function_name = 'fac'
                 ct.function_args = n
+                ct.description = "Factorial of %d" % (n)
                 ct.save()      
         elif action == 's':
             for (i, ct) in enumerate(CeleryTask.objects.all()):
-                f = getattr(tasks,ct.function_name)
-                state = f.AsyncResult(ct.task_id).state
-                result = f.AsyncResult(ct.task_id).result
-                print i, ct.function_args, state
+                print i, ct.function_args, ct.state, ct.info
         elif action == 'd':
             CeleryTask.objects.all().delete()
         else:
             try:
                 action = int(action)
                 print 'action: %d' % (int(action))
-                task_id = tasks.fac.delay(int(action))
+                task_id = tasks.fac.delay(int(action),sleep_interval=0.001)
                 
                 ct = CeleryTask()
                 ct.task_id = task_id
                 ct.function_name = 'fac'
                 ct.function_args = action
+                ct.description = "Factorial of %d" % (action)
                 ct.save()
             except Exception, e:
                 print e

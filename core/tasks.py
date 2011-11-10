@@ -24,7 +24,7 @@ def add(x,y):
     return x+y
 
 @task
-def fac(n):
+def fac(n, sleep_interval=None):
     if not(isinstance(n,int) and n >= 0):
         raise Exception("You can't calculate a factorial of %s " % (str(n)))
     if n <= 1:
@@ -33,8 +33,9 @@ def fac(n):
         res = 1
         for i in xrange(2,n+1):
             res = res*i
-            fac.update_state(state="PROGRESS!", meta={"current": i, "total": n})
-            sleep(0.01)
+            fac.update_state(state="PROGRESS", meta={"current": i, "total": n})
+            if sleep_interval is not None:
+                sleep(sleep_interval)
         return res
         
 
