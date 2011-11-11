@@ -42,9 +42,8 @@
     border: 1px solid #81bb38;
 }
 
-.readit_inner (@image, @padding) {
+.readit_inner (@padding) {
     .greenpanelactionitems(10px);
-    background: @image;
     padding:0px 0px 0px @padding;
     color:@dark-green;
     	
@@ -53,7 +52,7 @@
 	}
 }
 
-.banners (@image, @right, @bottom) {
+.banners (@right, @bottom) {
     width:130px;
     height:30px;
     padding:0px;
@@ -62,7 +61,6 @@
     
     a {
     	.greenpanelactionitems(left);
-    	background-image: url(@image);
     	padding:8px @right 8px 21px;
     	color:#FFFFFF;
     	.greenpanelactionborders;
@@ -125,7 +123,7 @@
 	}
 }
 
-.panelview.book-name, .panelview.author {
+.panelview.book-name div {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     line-height:16px;
@@ -167,6 +165,10 @@
 		padding:10px 10px 0 0;
 		width:24px;
 	}
+}
+
+.panelview.boolist-ebook a {
+	display: none;
 }
 
 /* switch to/from hover state when jquery swaps class names */
@@ -214,7 +216,8 @@ div.panelview.side2 > div {
 .read_itbutton {
 	.readit;
 	a {
-		.readit_inner("/static/images/book-panel/book_icon.png) no-repeat 10% center", 30px);
+		.readit_inner(30px);
+		background: url("@{image-base}book-panel/book_icon.png") no-repeat 10% center;
 	}
 }
 
@@ -222,13 +225,16 @@ div.panelview.side2 > div {
 	.readit;
 	
 	span {
-		.readit_inner(none, 15px);
+		.readit_inner(15px);
+		background: none;
 	}
 }
 
 
 .add_towish {
-	.banners("/static/images/book-panel/add_wish_icon.png", 5px, 15px);
+	.banners(5px, 15px);
+	background-image: url("@{image-base}book-panel/add_wish_icon.png");
+
 }
 
 .white_text {
@@ -252,7 +258,8 @@ div.panelview.side2 > div {
 }
 
 .moreinfo {
-	.banners("/static/images/book-panel/more_icon.png", 42px, 0px);
+	.banners(42px, 0px);
+	background-image: url("@{image-base}book-panel/more_icon.png") no-repeat 10% center;
 }
 
 
@@ -269,7 +276,7 @@ div.panelview.side2 > div {
 }
 .Unglue_itbutton a{
     .greenpanelactionitems(2px);
-    background-image: url(/static/images/book-panel/unglue_icon.png);
+    background-image: url("@{image-base}book-panel/unglue_icon.png");
     padding:5px 0px 0px 20px;
     color:@text-blue;
     text-align:right;
@@ -287,7 +294,7 @@ text-decoration:none;
 }
 .add_towish2 a{
 	.greenpanelactionitems(left);
-    background-image: url(/static/images/book-panel/add_gray.png);
+    background-image: url("@{image-base}book-panel/add_gray.png");
     padding:8px 0px;
     padding-left:20px;
     color:@text-blue;
@@ -318,7 +325,7 @@ text-decoration:none;
 .moreinfo2 a{
     line-height:40px;
     font-size:12px;
-    background-image: url(/static/images/book-panel/gray_more_info.png);
+    background-image: url("@{image-base}book-panel/gray_more_info.png");
     background-repeat: no-repeat;
     background-position: left center;
     padding:8px 35px;
