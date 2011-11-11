@@ -201,6 +201,9 @@ class Work(models.Model):
                 if ebook_format == None or ebook.format == ebook_format:
                     return ebook
         return None
+
+    def wished_by(self):
+        return User.objects.filter(wishlist__works__in=[self])
         
     def __unicode__(self):
         return self.title
