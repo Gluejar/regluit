@@ -92,7 +92,7 @@
 .panelview.add-wishlist {
   display: none;
 }
-.panelview.book-name, .panelview.author {
+.panelview.book-name div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
@@ -127,6 +127,9 @@
   float: right;
   padding: 10px 10px 0 0;
   width: 24px;
+}
+.panelview.boolist-ebook a {
+  display: none;
 }
 /* switch to/from hover state when jquery swaps class names */
 span.panelview.panelback.side1, span.panelview.panelback.side1 div {
@@ -185,9 +188,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: "/static/images/book-panel/book_icon.png) no-repeat 10% center";
   padding: 0px 0px 0px 30px;
   color: #73a334;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
   text-decoration: none;
@@ -211,9 +214,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: none;
   padding: 0px 0px 0px 15px;
   color: #73a334;
+  background: none;
 }
 .read_itbutton_fail span:hover {
   text-decoration: none;
@@ -224,6 +227,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 15px 0;
   vertical-align: baseline;
+  background-image: url("/static/images/book-panel/add_wish_icon.png");
 }
 .add_towish a {
   line-height: 40px;
@@ -233,7 +237,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -272,6 +275,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 0px 0;
   vertical-align: baseline;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
 }
 .moreinfo a {
   line-height: 40px;
@@ -281,7 +285,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/more_icon.png");
   padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -315,7 +318,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/unglue_icon.png);
+  background-image: url("/static/images/book-panel/unglue_icon.png");
   padding: 5px 0px 0px 20px;
   color: #3d4e53;
   text-align: right;
@@ -338,7 +341,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_gray.png);
+  background-image: url("/static/images/book-panel/add_gray.png");
   padding: 8px 0px;
   padding-left: 20px;
   color: #3d4e53;
@@ -373,7 +376,7 @@ div.panelview.side2 > div {
 .moreinfo2 a {
   line-height: 40px;
   font-size: 12px;
-  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-image: url("/static/images/book-panel/gray_more_info.png");
   background-repeat: no-repeat;
   background-position: left center;
   padding: 8px 35px;
