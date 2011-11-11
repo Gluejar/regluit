@@ -45,13 +45,11 @@
                             <a href="#"><img src="{{ result.image }}" alt="{{ result.title }}" title="{{ result.title }}"  /></a>
                         </div>
                         <div class="listview book-name">
-                        <span>
-                            {{ result.title }}
-                        </span>
+                            <div class="title">
+                                {{ result.title }}
+                            </div>
+                            <div class="listview author {{ result.author }}">{{ result.author }}</div>
                         </div>
-                        <div class="listview author">
-    						<span id="{{ result.author }}">{{ result.author }}</span>
-				    	</div>
                         {% if request.user.is_anonymous %}
                         <div class="listview create-account">
                             <span>Add to Wishlist</span>
@@ -66,7 +64,7 @@
                         </div>
                         {% endif %}
                         <div class="listview booklist-status">
-                            <span class="booklist-status-text">Status: In Progress</span>
+                            <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ result.last_campaign_status }}</span>
                         </div>
                         <div class="listview icons">
                             <span class="booklist-status-img">
@@ -75,12 +73,12 @@
                         </div>
                         <div class="listview ebooks">
                             {% if result.epub %}
-                            <span class="boolist-ebook">
+                            <span class="listview boolist-ebook">
                                 <a href="{{ result.epub }}">epub</a>
                             </span>
                             {% endif %}
                             {% if result.pdf %}
-                            <span class="boolist-ebook">
+                            <span class="listview boolist-ebook">
                                 <a href="{{ result.pdf }}">pdf</a>
                             </span>
                             {% endif %}

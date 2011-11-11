@@ -259,12 +259,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
                         </div>
                         <div class="listview book-name">
-                            <span>
+                            <div class="title">
                                 <a href="{% url work work.id %}">{{ work.title }}</a>
-                            </span>
-                        </div>
-                        <div class="listview author">
-                            <span class="{{ work.author }}">{{ work.author }}</span>
+                            </div>
+                            <div class="listview author {{ work.author }}">{{ work.author }}</div>
                         </div>
                         {% ifequal supporter request.user %}
                         <div class="listview remove-wishlist">
@@ -295,12 +293,12 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         <div class="listview ebooks">
                             {% if work.first_epub %}
-                            <span class="boolist-ebook">
+                            <span class="listview boolist-ebook">
                                 <a href="{{ work.first_epub.url }}">epub</a>
                             </span>
                             {% endif %}
                             {% if work.first_pdf %}
-                            <span class="boolist-ebook">
+                            <span class="listview boolist-ebook">
                                 <a href="{{ work.first_pdf.url }}">pdf</a>
                             </span>
                             {% endif %}
