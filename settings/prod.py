@@ -54,7 +54,7 @@ PAYPAL_SIGNATURE = ''
 PAYPAL_APPID = ''
 
 PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
-PAYPAL_PAYMENT_HOST = 'http://www.sandbox.paypal.com' # sandbox
+PAYPAL_PAYMENT_HOST = 'https://www.sandbox.paypal.com' # sandbox
 
 PAYPAL_SANDBOX_LOGIN = ''
 PAYPAL_SANDBOX_PASSWORD = ''

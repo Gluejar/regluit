@@ -42,7 +42,7 @@ class UserData(forms.Form):
         raise forms.ValidationError(_("Your username is already "+oldusername))
 
 class CampaignPledgeForm(forms.Form):
-    preapproval_amount = forms.DecimalField(initial=D('20.00'), min_value=D('0.00'), max_value=D('10000.00'), decimal_places=2)
+    preapproval_amount = forms.DecimalField(initial=None, required=True, min_value=D('0.00'), max_value=D('10000.00'), decimal_places=2, label="Pledge Amount")
     anonymous = forms.BooleanField(required=False, label="Don't display my username in the supporters list")
     
 class GoodreadsShelfLoadingForm(forms.Form):

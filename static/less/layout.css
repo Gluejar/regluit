@@ -66,42 +66,63 @@ div.book-list.listview div.book-thumb {
   float: left;
 }
 div.book-list.listview div.book-name {
-  width: 260px;
+  width: 235px;
   margin-right: 10px;
-  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
+  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
-  overflow: hidden;
 }
-div.book-list.listview div.book-name span {
+div.book-list.listview div.book-name .title {
   display: block;
   line-height: normal;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
+  overflow: hidden;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  padding-bottom: 5px;
+  font-weight: bold;
+}
+div.book-list.listview div.book-name .listview.author {
+  overflow: hidden;
+  display: block;
+  line-height: normal;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
 }
 div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist {
   margin-right: 10px;
   padding-right: 10px;
-  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
+  width: 136px;
+  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
 div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
-  background: url("../images/booklist/add-wishlist.png") left center no-repeat;
+  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
 }
 div.book-list.listview div.booklist-status {
+  width: 110px;
   margin-right: 7px;
   float: left;
 }
@@ -273,9 +294,6 @@ ul.navigation li a:hover, ul.navigation li.active a {
 		*/
 
 }
-.listview.author {
-  display: none;
-}
 .listview.icons {
   position: absolute;
   right: 31px;
@@ -312,6 +330,12 @@ ul.navigation li a:hover, ul.navigation li.active a {
 div.content-block-content {
   padding-bottom: 200px;
 }
+.listview.panelback, .listview.panelback div {
+  display: none;
+}
+.listview.boolist-ebook a {
+  color: #3d4e53;
+}
 .header-text {
   height: 36px;
   line-height: 36px;
@@ -326,6 +350,7 @@ div.content-block-content {
   border-style: solid none;
   border-color: #FFFFFF;
 }
+/* Local variables */
 .greenpanelstuff {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -344,12 +369,38 @@ div.content-block-content {
   text-decoration: none;
   color: #3d4e53;
 }
+.readit {
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+}
+/* background */
 @charset "utf-8";
 * {
   padding: 0px;
   margin: 0px;
 }
-/*main_Css*/
 #main-wrapper {
   height: 100%;
   width: 725px;
@@ -367,6 +418,7 @@ div.content-block-content {
   margin: 15px 0px;
   font-weight: bold;
 }
+/* styling of front side elements */
 .panelview.book-list {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -383,18 +435,6 @@ div.content-block-content {
   color: #3d4e53;
   border: 5px solid #edf3f4;
   position: relative;
-  /*	might need this for panel hover state; don't want it for nonhover. hm.
-	a {
-    	color: @dark-green;
-    	text-decoration: none;
-    	
-    	&:hover {
-    		color: @green;
-	    	text-decoration: none;
-		}
-	}
-*/
-
 }
 .panelview.book-list:hover {
   color: #3d4e53;
@@ -409,7 +449,7 @@ div.content-block-content {
 .panelview.add-wishlist {
   display: none;
 }
-.panelview.book-name, .panelview.author {
+.panelview.book-name div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
@@ -445,7 +485,26 @@ div.content-block-content {
   padding: 10px 10px 0 0;
   width: 24px;
 }
-/*2 start*/
+.panelview.boolist-ebook a {
+  display: none;
+}
+/* switch to/from hover state when jquery swaps class names */
+span.panelview.panelback.side1, span.panelview.panelback.side1 div {
+  display: visible;
+}
+span.panelview.panelback.side2, span.panelview.panelback.side2 div {
+  display: none;
+}
+div.panelview.side1 > div {
+  display: visible;
+}
+div.panelview.side2 > div {
+  display: none;
+}
+/* styling of hover state */
+.panelback {
+  position: relative;
+}
 .greenpanel2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -460,15 +519,42 @@ div.content-block-content {
   height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
-  position: relative;
+  position: absolute;
+  top: -5px;
+  left: -10px;
 }
 .unglued_white {
   font-size: 12px;
   margin: 0px  auto;
   margin-bottom: 5px;
   padding: 10px 0px;
+  height: 48px;
 }
 .read_itbutton {
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
   width: 118px;
   height: 35px;
   padding: 0px 0px;
@@ -509,18 +595,135 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 30px;
+  color: #73a334;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
   text-decoration: none;
 }
-.add_towish {
-  width: 125px;
-  height: 30px;
+.read_itbutton a:hover {
+  text-decoration: none;
+}
+.read_itbutton_fail {
+  width: 118px;
+  height: 35px;
   padding: 0px 0px;
-  margin: 15px auto;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+}
+.read_itbutton_fail span {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 15px;
+  color: #73a334;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 15px;
+  color: #73a334;
+  background: none;
+}
+.read_itbutton_fail span:hover {
+  text-decoration: none;
+}
+.read_itbutton_fail span:hover {
+  text-decoration: none;
+}
+.add_towish {
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 15px 0;
+  vertical-align: baseline;
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 15px 0;
+  vertical-align: baseline;
+  background-image: url("/static/images/book-panel/add_wish_icon.png");
 }
 .add_towish a {
   line-height: 40px;
@@ -537,7 +740,42 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_wish_icon.png);
+  padding: 8px 5px 8px 21px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+.add_towish a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+.add_towish a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -575,12 +813,23 @@ div.content-block-content {
   text-decoration: none;
   color: #3d4e53;
 }
-/*more info*/
+.white_text p {
+  line-height: 16px;
+  max-height: 32px;
+  overflow: hidden;
+}
 .moreinfo {
   width: 130px;
   height: 30px;
   padding: 0px;
-  margin: 15px 0 0;
+  margin: 15px 0 0px 0;
+  vertical-align: baseline;
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 0px 0;
+  vertical-align: baseline;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
 }
 .moreinfo a {
   line-height: 40px;
@@ -597,9 +846,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/more_icon.png);
-  padding: 8px 42px 8px 20px;
-  padding-left: 20px;
+  padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -620,46 +867,49 @@ div.content-block-content {
   text-decoration: none;
   color: #3d4e53;
 }
-/*end of the more info/*
-/*end the 2greenpanel*/
-/*2 start*/
-.graypanel {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  margin: 20px  auto;
-  padding: 4px 5px;
-  height: 300px;
-  width: 130px;
-  line-height: 16px;
-  background-color: #edf3f4;
-  color: #3d4e53;
-  border: 5px solid #edf3f4;
+.moreinfo a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 8px 42px 8px 21px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
 }
-.unglued_white2 {
-  font-size: 12px;
-  margin: 3px  auto;
-  padding: 5px 0px;
-}
-.green {
-  color: #8dc63f;
-  text-align: left;
-}
-.graypanel a {
+.moreinfo a:hover {
   text-decoration: none;
   color: #3d4e53;
   text-decoration: none;
   color: #3d4e53;
 }
-.graypanel a:hover {
-  color: #8dc63f;
-  text-decoration: none;
-}
+/* styling of hover state when book has not been unglued, and a bunch of stuff I haven't figured out yet */
 .Unglue_itbutton {
   width: 110px;
   height: 40px;
   padding: 0px 9px;
   background: #FFFFFF;
-  margin: 0px auto;
+  margin: 0px 15px 0px -5px;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
   border-radius: 4px 4px 4px 4px;
@@ -695,7 +945,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/unglue_icon.png);
+  background-image: url("/static/images/book-panel/unglue_icon.png");
   padding: 5px 0px 0px 20px;
   color: #3d4e53;
   text-align: right;
@@ -725,7 +975,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_gray.png);
+  background-image: url("/static/images/book-panel/add_gray.png");
   padding: 8px 0px;
   padding-left: 20px;
   color: #3d4e53;
@@ -768,7 +1018,7 @@ div.content-block-content {
 .moreinfo2 a {
   line-height: 40px;
   font-size: 12px;
-  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-image: url("/static/images/book-panel/gray_more_info.png");
   background-repeat: no-repeat;
   background-position: left center;
   padding: 8px 35px;
@@ -859,7 +1109,6 @@ p.right_add {
 }
 /* --------------- ( slideout hover state ) --------------------------------------------- */
 .panelview.book-thumb {
-  float: left;
   position: relative;
   margin: 0px;
   padding: 0px;
@@ -1553,7 +1802,6 @@ div.content-block-content {
 }
 .book-name {
   color: #3d4e53;
-  font-weight: bold;
 }
 .book-author {
   color: #6994a3;
@@ -1596,6 +1844,7 @@ div.content-block-content {
   border-style: solid none;
   border-color: #FFFFFF;
 }
+/* Local variables */
 .greenpanelstuff {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -1614,12 +1863,38 @@ div.content-block-content {
   text-decoration: none;
   color: #3d4e53;
 }
+.readit {
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+}
+/* background */
 @charset "utf-8";
 * {
   padding: 0px;
   margin: 0px;
 }
-/*main_Css*/
 #main-wrapper {
   height: 100%;
   width: 725px;
@@ -1637,6 +1912,7 @@ div.content-block-content {
   margin: 15px 0px;
   font-weight: bold;
 }
+/* styling of front side elements */
 .panelview.book-list {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -1653,18 +1929,6 @@ div.content-block-content {
   color: #3d4e53;
   border: 5px solid #edf3f4;
   position: relative;
-  /*	might need this for panel hover state; don't want it for nonhover. hm.
-	a {
-    	color: @dark-green;
-    	text-decoration: none;
-    	
-    	&:hover {
-    		color: @green;
-	    	text-decoration: none;
-		}
-	}
-*/
-
 }
 .panelview.book-list:hover {
   color: #3d4e53;
@@ -1679,7 +1943,7 @@ div.content-block-content {
 .panelview.add-wishlist {
   display: none;
 }
-.panelview.book-name, .panelview.author {
+.panelview.book-name div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
@@ -1715,7 +1979,26 @@ div.content-block-content {
   padding: 10px 10px 0 0;
   width: 24px;
 }
-/*2 start*/
+.panelview.boolist-ebook a {
+  display: none;
+}
+/* switch to/from hover state when jquery swaps class names */
+span.panelview.panelback.side1, span.panelview.panelback.side1 div {
+  display: visible;
+}
+span.panelview.panelback.side2, span.panelview.panelback.side2 div {
+  display: none;
+}
+div.panelview.side1 > div {
+  display: visible;
+}
+div.panelview.side2 > div {
+  display: none;
+}
+/* styling of hover state */
+.panelback {
+  position: relative;
+}
 .greenpanel2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -1730,15 +2013,42 @@ div.content-block-content {
   height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
-  position: relative;
+  position: absolute;
+  top: -5px;
+  left: -10px;
 }
 .unglued_white {
   font-size: 12px;
   margin: 0px  auto;
   margin-bottom: 5px;
   padding: 10px 0px;
+  height: 48px;
 }
 .read_itbutton {
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
   width: 118px;
   height: 35px;
   padding: 0px 0px;
@@ -1779,18 +2089,135 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 30px;
+  color: #73a334;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
   text-decoration: none;
 }
-.add_towish {
-  width: 125px;
-  height: 30px;
+.read_itbutton a:hover {
+  text-decoration: none;
+}
+.read_itbutton_fail {
+  width: 118px;
+  height: 35px;
   padding: 0px 0px;
-  margin: 15px auto;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+  width: 118px;
+  height: 35px;
+  padding: 0px 0px;
+  background: #FFFFFF;
+  margin: 0px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px 4px 4px 4px;
+  -webkit-border-radius: 4px 4px 4px 4px;
+  border-radius: 4px 4px 4px 4px;
+  border: 1px solid #81bb38;
+}
+.read_itbutton_fail span {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 15px;
+  color: #73a334;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 15px;
+  color: #73a334;
+  background: none;
+}
+.read_itbutton_fail span:hover {
+  text-decoration: none;
+}
+.read_itbutton_fail span:hover {
+  text-decoration: none;
+}
+.add_towish {
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 15px 0;
+  vertical-align: baseline;
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 15px 0;
+  vertical-align: baseline;
+  background-image: url("/static/images/book-panel/add_wish_icon.png");
 }
 .add_towish a {
   line-height: 40px;
@@ -1807,7 +2234,42 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_wish_icon.png);
+  padding: 8px 5px 8px 21px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+}
+.add_towish a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+  text-decoration: none;
+  color: #3d4e53;
+}
+.add_towish a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -1845,12 +2307,23 @@ div.content-block-content {
   text-decoration: none;
   color: #3d4e53;
 }
-/*more info*/
+.white_text p {
+  line-height: 16px;
+  max-height: 32px;
+  overflow: hidden;
+}
 .moreinfo {
   width: 130px;
   height: 30px;
   padding: 0px;
-  margin: 15px 0 0;
+  margin: 15px 0 0px 0;
+  vertical-align: baseline;
+  width: 130px;
+  height: 30px;
+  padding: 0px;
+  margin: 15px 0 0px 0;
+  vertical-align: baseline;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
 }
 .moreinfo a {
   line-height: 40px;
@@ -1867,9 +2340,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/more_icon.png);
-  padding: 8px 42px 8px 20px;
-  padding-left: 20px;
+  padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -1890,46 +2361,49 @@ div.content-block-content {
   text-decoration: none;
   color: #3d4e53;
 }
-/*end of the more info/*
-/*end the 2greenpanel*/
-/*2 start*/
-.graypanel {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  margin: 20px  auto;
-  padding: 4px 5px;
-  height: 300px;
-  width: 130px;
-  line-height: 16px;
-  background-color: #edf3f4;
-  color: #3d4e53;
-  border: 5px solid #edf3f4;
+.moreinfo a {
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  line-height: 40px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 8px 42px 8px 21px;
+  color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
 }
-.unglued_white2 {
-  font-size: 12px;
-  margin: 3px  auto;
-  padding: 5px 0px;
-}
-.green {
-  color: #8dc63f;
-  text-align: left;
-}
-.graypanel a {
+.moreinfo a:hover {
   text-decoration: none;
   color: #3d4e53;
   text-decoration: none;
   color: #3d4e53;
 }
-.graypanel a:hover {
-  color: #8dc63f;
-  text-decoration: none;
-}
+/* styling of hover state when book has not been unglued, and a bunch of stuff I haven't figured out yet */
 .Unglue_itbutton {
   width: 110px;
   height: 40px;
   padding: 0px 9px;
   background: #FFFFFF;
-  margin: 0px auto;
+  margin: 0px 15px 0px -5px;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
   border-radius: 4px 4px 4px 4px;
@@ -1965,7 +2439,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/unglue_icon.png);
+  background-image: url("/static/images/book-panel/unglue_icon.png");
   padding: 5px 0px 0px 20px;
   color: #3d4e53;
   text-align: right;
@@ -1995,7 +2469,7 @@ div.content-block-content {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_gray.png);
+  background-image: url("/static/images/book-panel/add_gray.png");
   padding: 8px 0px;
   padding-left: 20px;
   color: #3d4e53;
@@ -2038,7 +2512,7 @@ div.content-block-content {
 .moreinfo2 a {
   line-height: 40px;
   font-size: 12px;
-  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-image: url("/static/images/book-panel/gray_more_info.png");
   background-repeat: no-repeat;
   background-position: left center;
   padding: 8px 35px;
@@ -2129,7 +2603,6 @@ p.right_add {
 }
 /* --------------- ( slideout hover state ) --------------------------------------------- */
 .panelview.book-thumb {
-  float: left;
   position: relative;
   margin: 0px;
   padding: 0px;

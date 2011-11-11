@@ -27,34 +27,45 @@ div.book-list.listview{
 			float: left;
 		}
 		&.book-name {
-			width:260px;
+			width:235px;
 			margin-right:10px;
-			background:url("../images/booklist/booklist-vline.png") right center no-repeat;
+			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
 			float: left;
-			overflow: hidden;
 			
-			span { 
+			.title { 
 				display:block;
 				line-height:normal;
-				.height(43px);
-			}			
+				overflow: hidden;
+				.height(19px);
+				padding-bottom: 5px;
+				font-weight:bold;
+			}
+			
+			.listview.author {
+				overflow: hidden;
+				display:block;
+				line-height:normal;
+				.height(19px);
+			}
 		}
 		&.add-wishlist, &.remove-wishlist {
 			margin-right: 10px;
 			padding-right: 10px;
-			background:url("../images/booklist/booklist-vline.png") right center no-repeat;
+			width: 136px;
+			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
 			float: left;
 			
 			a {
 				font-weight:normal;
 				color:@text-blue;
 				text-transform: none;
-				background:url("../images/booklist/add-wishlist.png") left center no-repeat;
+				background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
 				padding-left:20px;
 			}
 			
 		}
 		&.booklist-status {
+			width: 110px;
 			margin-right:7px;
 			float: left;
 		}
@@ -197,10 +208,6 @@ ul.navigation li a:hover, ul.navigation li.active a {
     }
 }
 
-.listview.author {
-	display: none;
-}
-
 .listview.icons {
 	position: absolute;
 	right: 31px;
@@ -222,4 +229,12 @@ ul.navigation li a:hover, ul.navigation li.active a {
 
 div.content-block-content {
   padding-bottom: 200px;
+}
+
+.listview.panelback, .listview.panelback div {
+	display: none;
+}
+
+.listview.boolist-ebook a {
+	color: @text-blue;
 }
