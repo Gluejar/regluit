@@ -8,3 +8,4 @@ source ENV/bin/activate
 django-admin.py syncdb --migrate --settings regluit.settings.prod
 sudo /etc/init.d/apache2 restart
 sudo /etc/init.d/celeryd restart
+touch /opt/regluit/deploy/last-update
