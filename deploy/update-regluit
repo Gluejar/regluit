@@ -1,9 +1,13 @@
 #!/bin/bash
 
-# put this in one of root's crontabs and it'll refresh and restart regluit
+# this script is used by jenkins to remotely update a regluit instance
+# for it to work the jenkins user's public ssh key needs to be in the
+# authorized key for the machine running the regluit instance
+# you can then put something like this in a post build configuration
+# ssh ubuntu@please.unglueit.com "/opt/regluit/deploy/update-regluit"
 
 cd /opt/regluit
-sudo -u ubuntu -c "git pull"
+sudo -u ubuntu /usr/bin/git pull
 source ENV/bin/activate
 django-admin.py syncdb --migrate --settings regluit.settings.prod
 sudo /etc/init.d/apache2 restart
