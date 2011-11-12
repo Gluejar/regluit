@@ -286,3 +286,13 @@ class UserProfile(models.Model):
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager
+
+from social_auth.signals import pre_update
+from social_auth.backends.facebook import FacebookBackend
+
+def facebook_extra_values(sender, user, response, details, **kwargs):
+    user.profile.facebook_id = response.get('id')
+    user.profile.save()
+    return True
+
+pre_update.connect(facebook_extra_values, sender=FacebookBackend)

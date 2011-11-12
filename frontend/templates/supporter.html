@@ -79,7 +79,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                    </a>
                                 {% endif %}
                                 {% if supporter.profile.facebook_id %}
-									<a href="#">
+									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}">
 										<img src="/static/images/header/icon-facebook.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
 									</a>
                                 {% endif %}
@@ -132,6 +132,14 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <div class="check-list">
                                     <label>Your Twitter handle:</label>
                                     {{ profile_form.twitter_id }}{{ profile_form.twitter_id.errors }}
+                                </div>
+                                <div class="check-list">
+                                    {% if supporter.profile.facebook_id %}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook Account</a>  
+                                    {% else %}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>                                    
+                                    {% endif %} 
+                                    to Unglue.it                                 
                                 </div>
                                 <div class="check-list">
                                     <label>Your LibraryThing User ID:</label>
