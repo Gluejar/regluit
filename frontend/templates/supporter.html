@@ -66,7 +66,11 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             {% endifequal %}
                             <div class="user-block2">
-                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="User avatar" title="User avatar" />
+                            	{% if supporter.profile.pic_url %}
+                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Pic for Facebook" title="{{ supporter }}" />
+                           		{% else %}
+                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
                                 <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
@@ -135,11 +139,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook Account</a>  
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a>  
                                     {% else %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>                                    
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a> to Unglue.it                                   
                                     {% endif %} 
-                                    to Unglue.it                                 
                                 </div>
                                 <div class="check-list">
                                     <label>Your LibraryThing User ID:</label>

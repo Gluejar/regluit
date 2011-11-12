@@ -273,6 +273,7 @@ class Wishlist(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
+    pic_url =  models.URLField(blank=True) 
     home_url =  models.URLField(blank=True)
     twitter_id =  models.CharField(max_length=15, blank=True)
     facebook_id =  models.PositiveIntegerField(null=True)
@@ -291,7 +292,9 @@ from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 
 def facebook_extra_values(sender, user, response, details, **kwargs):
-    user.profile.facebook_id = response.get('id')
+    facebook_id = response.get('id')
+    user.profile.facebook_id = facebook_id
+    user.profile.pic_url = 'http://graph.facebook.com/' + facebook_id + '/picture'
     user.profile.save()
     return True
 
