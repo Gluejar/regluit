@@ -16,3 +16,4 @@ oauth2
 mechanize
 pyzotero
 freebase
+lxml

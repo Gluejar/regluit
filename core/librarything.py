@@ -1,11 +1,17 @@
 import mechanize
+import requests
 import csv
+import httplib
 import HTMLParser
 import logging
 import re
+from datetime import datetime
+
 
 logger = logging.getLogger(__name__)
 
+class LibraryThingException(Exception):
+    pass
 
 class LibraryThing(object):
     """
@@ -42,7 +48,100 @@ class LibraryThing(object):
             yield {'title':h.unescape(row["'TITLE'"]), 'author':h.unescape(row["'AUTHOR (first, last)'"]),
                    'isbn':isbn, 'comment':row["'COMMENT'"],
                    'tags':row["'TAGS'"], 'collections':row["'COLLECTIONS'"],
-                   'reviews':h.unescape(row["'REVIEWS'"])}
+                    'reviews':h.unescape(row["'REVIEWS'"])}
+    def viewstyle_1(self, rows):
+        
+        for (i,row) in enumerate(rows):
+            book_data = {}
+            cols = row.xpath('td')
+            # cover
+            book_data["cover"] = {"cover_id":cols[0].attrib["id"],
+                                  "image": {"width":cols[0].xpath('.//img')[0].attrib['width'],
+                                    "src": cols[0].xpath('.//img')[0].attrib['src']}
+            }
+            # title
+            book_data["title"] = {"href":cols[1].xpath('.//a')[0].attrib['href'],
+                                  "title":cols[1].xpath('.//a')[0].text}
+            # author -- what if there is more than 1?  or none?
+            try:
+                book_data["author"] = {"display_name":cols[2].xpath('.//a')[0].text,
+                                       "href":cols[2].xpath('.//a')[0].attrib['href'],
+                                       "name":cols[2].xpath('div')[0].text}
+            except:
+                book_data["author"] = None
+                
+            # date
+            book_data["date"] = cols[3].xpath('span')[0].text
+            
+            # tags: grab tags that are not empty strings
+            tag_links = cols[4].xpath('.//a')
+            book_data["tags"] = filter(lambda x: x is not None, [a.text for a in tag_links])
+            
+            # rating -- count # of stars
+            book_data["rating"] = len(cols[5].xpath('.//img[@alt="*"]'))
+            
+            # entry date
+            book_data["entry_date"] = datetime.date(datetime.strptime(cols[6].xpath('span')[0].text, "%b %d, %Y"))
+            
+            yield book_data
+            
+    def viewstyle_5(self, rows):
+        raise NotImplementedError()
+        
+    def parse_user_catalog(self, view_style=1):
+        from lxml import html
+        
+        # we can vary viewstyle to get different info
+        
+        IMPLEMENTED_STYLES = [1,5]
+        if view_style not in IMPLEMENTED_STYLES:
+            raise NotImplementedError()
+        style_parser = getattr(self,"viewstyle_%s" % view_style)
+        next_page = True
+        offset = 0
+        cookies = None
+        
+        while next_page:
+            url = "http://www.librarything.com/catalog_bottom.php?view=%s&viewstyle=%d&offset=%d" % (self.username,
+                                        view_style, offset)
+            logger.info("url: %s", url)
+            if cookies is None:
+                r = requests.get(url)
+            else:
+                r = requests.get(url, cookies=cookies)
+                
+            if r.status_code != httplib.OK:
+                raise LibraryThingException("Error accessing %s: %s" % (url, e))
+                logger.info("Error accessing %s: %s", url, e)
+            etree = html.fromstring(r.content)
+            cookies = r.cookies  # retain the cookies
+            
+            # look for a page bar
+            # try to grab the total number of books
+            # 1 - 50 of 82
+            try:
+                count_text = etree.xpath('//td[@class="pbGroup"]')[0].text
+                total = int(re.search(r'(\d+)$',count_text).group(1))
+                logger.info('total: %d', total)
+            except Exception, e:  # assume for now that if we can't grab this text, there is no page bar and no books
+                total = 0
+                
+            # to do paging we can either look for a next link or just increase the offset by the number of rows.
+            # Let's try the latter
+            # possible_next_link = etree.xpath('//a[@class="pageShuttleButton"]')[0]
+                        
+            rows_xpath = '//table[@id="lt_catalog_list"]/tbody/tr'
+        
+            # deal with page 1 first and then working on paging through the collection
+            rows = etree.xpath(rows_xpath)
+        
+            for (i,row) in enumerate(style_parser(rows)):
+                yield row
+                
+            # page size = 50, first page offset = 0, second page offset = 50 -- if total = 50 no need to go
+            offset += i + 1  
+            if offset >= total:
+                next_page = False
 
 def load_librarything_into_wishlist(user, lt_username, lt_password, max_books=None):
     """
