@@ -8,7 +8,7 @@ from decimal import Decimal as D
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        exclude = 'user'
+        exclude = 'user', 'goodreads_user_id', 'goodreads_user_name', 'goodreads_auth_token', 'goodreads_auth_secret', 'goodreads_user_link','facebook_id'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
             'twitter_id': forms.TextInput(attrs={'label': 'Twitter Handle', 'maxlength': 16}),

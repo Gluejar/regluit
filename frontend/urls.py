@@ -17,6 +17,8 @@ urlpatterns = patterns(
         name="privacy"),
     url(r"^rightsholders/$", TemplateView.as_view(template_name="rhtools.html"),
         name="rightsholders"), 
+    url(r"^faq/$", TemplateView.as_view(template_name="faq.html"),
+        name="faq"), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/$", ListView.as_view(
         model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list")),
