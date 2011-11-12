@@ -8,15 +8,10 @@ from decimal import Decimal as D
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        exclude = 'user', 'goodreads_user_id', 'goodreads_user_name', 'goodreads_auth_token', 'goodreads_auth_secret', 'goodreads_user_link','facebook_id'
+        fields = 'tagline', 'librarything_id', 'home_url'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
-            'twitter_id': forms.TextInput(attrs={'label': 'Twitter Handle', 'maxlength': 16}),
         }
-        
-    def clean_twitter_id(self):
-        twitter_id=self.cleaned_data['twitter_id']
-        return twitter_id.lstrip('@')
 
 class UserData(forms.Form):
     username = forms.RegexField(

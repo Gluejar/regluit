@@ -22,17 +22,7 @@ To do:
 create topsection file for inclusion in multiple contexts, if needed
 figure out how to configure date display 
     decide if we're even including date joined in profile
-add support for userpics
-    crop/resize? other infrastructure we need?  can we pull from twitter/fb?
-add support for twitter/fb/other links?
-    part of user profile?  can I just add to db model?
-    loosely coupled vs actually integrated with signin
-    canonicalize -- user enters cut/paste link vs username
-Goodreads & Librarything support
-If people lack homepage, etc., do we have greyed-out icons or no icons?
-    if greyed-out, can they add in place by clicking on them?
-make sure we have the profile settings we need
-resurrect add/remove functionality
+Goodreads 
     be sure words display correctly
     do I need both add-wishlist and remove-wishlist classes? do they differ?
 better alignment on I am ungluing & badges
@@ -130,22 +120,32 @@ how do I integrate the your wishlist thing with the tabs thing?
                              <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
-                                   <label>Your homepage URL:</label>
+                                   <label>Add your homepage URL:</label>
                                     {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
                                 </div>
                                 <div class="check-list">
-                                    <label>Your Twitter handle:</label>
-                                    {{ profile_form.twitter_id }}{{ profile_form.twitter_id.errors }}
-                                </div>
-                                <div class="check-list">
-                                    {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a>  
+                                    {% if supporter.profile.twitter_id %}
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a>                                  
                                     {% else %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a> to Unglue.it                                   
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
-                                    <label>Your LibraryThing User ID:</label>
+                                    {% if supporter.profile.facebook_id %}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  
+                                    {% else %}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
+                                    {% endif %} 
+                                </div>
+                                <div class="check-list">
+                                    {% if user.profile.goodreads_user_id %}
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  
+                                    {% else %}
+                                    <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
+                                    {% endif %} 
+                                </div>
+                                <div class="check-list">
+                                    <label>Add Your LibraryThing User ID:</label>
                                     {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
                                 </div>
                             </div>

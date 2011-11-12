@@ -290,6 +290,7 @@ from regluit.payment.manager import PaymentManager
 
 from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
+from social_auth.backends.twitter import TwitterBackend
 
 def facebook_extra_values(sender, user, response, details, **kwargs):
     facebook_id = response.get('id')
@@ -298,4 +299,12 @@ def facebook_extra_values(sender, user, response, details, **kwargs):
     user.profile.save()
     return True
 
+def twitter_extra_values(sender, user, response, details, **kwargs):
+    twitter_id = response.get('screen_name')
+    user.profile.twitter_id = twitter_id
+    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    user.profile.save()
+    return True
+
 pre_update.connect(facebook_extra_values, sender=FacebookBackend)
+pre_update.connect(twitter_extra_values, sender=TwitterBackend)
