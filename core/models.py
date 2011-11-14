@@ -201,6 +201,9 @@ class Work(models.Model):
                 if ebook_format == None or ebook.format == ebook_format:
                     return ebook
         return None
+
+    def wished_by(self):
+        return User.objects.filter(wishlist__works__in=[self])
         
     def __unicode__(self):
         return self.title
@@ -270,8 +273,11 @@ class Wishlist(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
+    pic_url =  models.URLField(blank=True) 
     home_url =  models.URLField(blank=True)
     twitter_id =  models.CharField(max_length=15, blank=True)
+    facebook_id =  models.PositiveIntegerField(null=True)
+    librarything_id =  models.CharField(max_length=31, blank=True)
     
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
@@ -281,3 +287,24 @@ class UserProfile(models.Model):
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager
+
+from social_auth.signals import pre_update
+from social_auth.backends.facebook import FacebookBackend
+from social_auth.backends.twitter import TwitterBackend
+
+def facebook_extra_values(sender, user, response, details, **kwargs):
+    facebook_id = response.get('id')
+    user.profile.facebook_id = facebook_id
+    user.profile.pic_url = 'http://graph.facebook.com/' + facebook_id + '/picture'
+    user.profile.save()
+    return True
+
+def twitter_extra_values(sender, user, response, details, **kwargs):
+    twitter_id = response.get('screen_name')
+    user.profile.twitter_id = twitter_id
+    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    user.profile.save()
+    return True
+
+pre_update.connect(facebook_extra_values, sender=FacebookBackend)
+pre_update.connect(twitter_extra_values, sender=TwitterBackend)
