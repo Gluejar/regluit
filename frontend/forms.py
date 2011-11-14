@@ -6,9 +6,11 @@ from django.utils.translation import ugettext_lazy as _
 from decimal import Decimal as D
  
 class ProfileForm(forms.ModelForm):
+    clear_facebook=forms.BooleanField(required=False)
+    clear_twitter=forms.BooleanField(required=False)
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
         }
