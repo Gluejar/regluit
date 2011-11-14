@@ -17,7 +17,17 @@
                         <li class="parent">
                             <a href="#"><span>Ungluers</span></a>
                             <ul class="menu level2">
-                                <li class="first"><a href="/stub/list_of_ungluers"><span>List of ungluers</span></a></li>
+                            {% for ungluer in ungluers %}
+                                <li class="first"><a href="{% url supporter supporter_username=ungluer %}">
+									<span class="ungluer-pic">
+									{% if ungluer.profile.pic_url %}
+										<img src="{{ungluer.profile.pic_url}}" height="30" width="30" alt="{{ungluer}}" title="{{ungluer}}"/>
+									{% else %}
+										<img src="/static/images/header/avatar.png" height="30" width="30" alt="Generic Ungluer Avatar" />
+									{% endif %}
+                                	</span><span class="ungluer-name">{{ungluer}}</span>
+                                </a></li>
+                            {% endfor %}
                             </ul>
                         </li>
                     </ul>

@@ -21,6 +21,7 @@ from itertools import islice
 
 from regluit.core import tasks
 from regluit.core import models, bookloader
+from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
@@ -136,6 +137,7 @@ def supporter(request, supporter_username, template_name):
             "date": date,
             "shared_works": shared_works,
             "profile_form": profile_form,
+            "ungluers": userlists.other_users(supporter, 5 )
     }
     
     return render(request, template_name, context)
