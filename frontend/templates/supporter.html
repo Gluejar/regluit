@@ -125,14 +125,14 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.twitter_id %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a>                                  
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br/> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
                                     {% else %}
                                     <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br/> or disconnect Facebook: {{ profile_form.clear_facebook }}
                                     {% else %}
                                     <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 

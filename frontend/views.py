@@ -115,6 +115,12 @@ def supporter(request, supporter_username, template_name):
         if  request.method == 'POST': 
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)
             if profile_form.is_valid():
+                if profile_form.cleaned_data['clear_facebook'] or profile_form.cleaned_data['clear_twitter'] :
+                    if profile_form.cleaned_data['clear_facebook']:
+                        profile_obj.facebook_id=0
+                    if profile_form.cleaned_data['clear_twitter']:
+                        profile_obj.twitter_id=""
+                    profile_obj.save()
                 profile_form.save()
         else:
             profile_form= ProfileForm(instance=profile_obj)
