@@ -61,10 +61,19 @@ Campaign for WORK TITLE GOES HERE
         	<div class="jsmodule rounded">
             	<div class="jsmod-content">
             	{% if work.last_campaign %}
+            	{% if work.last_campaign_status == 'ACTIVE' %}
                 	Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
+                {% else %}{% if work.last_campaign_status == 'SUCCESSFUL' %}
+                	Unglued on {{ work.last_campaign.deadline|date: "M j, Y"}}!
+                {$ else %}{% if work.last_campaign_status == 'INITIALIZED' %}
+                	Campaign starting soon
+                {% else %}{% if work.last_campaign_status == 'SUSPENDED' %}
+                	Campaign suspended. <br />See <a href="/faq">FAQ</a>.
+                {% else %}{% if work.last_campaign_status == 'WITHDRAWN' %}
+                	Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
                 {% else %}
                 	XX Ungluers <br /> are WISHING
-                {% endif %}
+                {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </div>
             </div>
 			{% include "explore.html" %}

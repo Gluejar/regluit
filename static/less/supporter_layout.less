@@ -1,5 +1,12 @@
 @import "variables.less";
 
+.opacity (@op) {
+    filter:alpha(opacity=@op);
+    -moz-opacity:@op/100;
+    -khtml-opacity:@op/100;
+    opacity:@op/100;
+}
+
 .block-inner { 
 	padding-right:10px;
 }
@@ -291,11 +298,10 @@ div.content-block-content {
 
 }
 
-/* Do I even still need this?
-.book-status span.percent99{ background:url(../images/images/icon-book1.png) 0 0 no-repeat;}
-.book-status span.percent60{ background:url(../images/images/icon-book2.png) 0 0 no-repeat;}
-.book-status span.percent22{ background:url(../images/images/icon-book3.png) 0 0 no-repeat;}
-.book-status span.percent7{ background:url(../images/images/icon-book4.png) 0 0 no-repeat;}
-.book-status span.percent62{ background:url(../images/images/icon-book5.png) 0 0 no-repeat;}
-.book-status span.percent21{ background:url(../images/images/icon-book6.png) 0 0 no-repeat;}
-*/
+#toggle-list {
+	.opacity(100);
+}
+
+#toggle-panel {
+	.opacity(20);
+}
