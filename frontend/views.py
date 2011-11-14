@@ -56,7 +56,7 @@ def work(request, work_id, action='display'):
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
-        return render(request, 'work.html', {'work': work, 'premiums': premiums})
+        return render(request, 'work.html', {'work': work, 'premiums': premiums, 'ungluers': userlists.supporting_users(work, 5)})
 
 
 def pledge(request,work_id):
@@ -169,17 +169,19 @@ def search(request):
         wishlist = request.user.wishlist
         editions = models.Edition.objects.filter(work__wishlists__in=[wishlist])
         googlebooks_ids = [e['googlebooks_id'] for e in editions.values('googlebooks_id')]
-
+        ungluers = userlists.other_users(request.user, 5)
         # if the results is on their wishlist flag it
         for result in results:
             if result['googlebooks_id'] in googlebooks_ids:
                 result['on_wishlist'] = True
             else:
                 result['on_wishlist'] = False
-
+    else:
+        ungluers = userlists.other_users(null, 5)
     context = {
         "q": q,
         "results": results,
+        "ungluers": ungluers
     }
     return render(request, 'search.html', context)
 
