@@ -1,10 +1,14 @@
 from django import forms
 from django.db import models
-from regluit.core.models import UserProfile
+from regluit.core.models import UserProfile, RightsHolder
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from decimal import Decimal as D
- 
+
+class RightsHolderForm(forms.ModelForm):
+    class Meta:
+        model = RightsHolder
+
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)

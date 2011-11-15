@@ -1,8 +1,17 @@
 {% extends "basedocumentation.html" %}
-
+{% block title %}Tools for Rightsholders {% endblock %}
 {% block doccontent %}
 
-<h1>unglue.it tools for rightsholders</h1>
+<h1>unglue.it Tools for Rightsholders</h1>
+{% if request.user.rights_holder %}
+<h2>Rights Holders That You Administer</h2>
+	{% for rights_holder in request.user.rights_holder.all %}
+	<h3>Name: {{ rights_holder.rights_holder_name }}</h3>
+	<p>PSA #: {{ rights_holder.id }}<br/>
+	contact email: {{ rights_holder.email }}<br/>
+	</p>
+	{% endfor %}
+{% endif %}
 
 <h2>Rightsholder FAQ/How to launch a campaign</h2>
 

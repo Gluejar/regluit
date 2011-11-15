@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal as D
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -21,9 +21,10 @@ from itertools import islice
 
 from regluit.core import tasks
 from regluit.core import models, bookloader
+from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -58,7 +59,7 @@ def work(request, work_id, action='display'):
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
-        return render(request, 'work.html', {'work': work, 'premiums': premiums})
+        return render(request, 'work.html', {'work': work, 'premiums': premiums, 'ungluers': userlists.supporting_users(work, 5)})
         
 def workstub(request, title, imagebase, image, author, googlebooks_id, action='display'):
 	premiums = None
@@ -66,8 +67,19 @@ def workstub(request, title, imagebase, image, author, googlebooks_id, action='d
 	imagebase = urllib.unquote(imagebase)
 	image = urllib.unquote(image)
 	author = urllib.unquote(author)
-	return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums})
+	return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums, 'ungluers': userlists.other_users(supporter, 5 )})
 
+def subjects(request):
+    order = request.GET.get('order')
+    subjects = models.Subject.objects.all()
+    subjects = subjects.annotate(Count('editions'))
+
+    if request.GET.get('order') == 'count':
+        subjects = subjects.order_by('-editions__count')
+    else:
+        subjects = subjects.order_by('name')
+
+    return render(request, 'subjects.html', {'subjects': subjects})
 
 def pledge(request,work_id):
     work = get_object_or_404(models.Work, id=work_id)
@@ -85,6 +97,25 @@ def pledge(request,work_id):
     form = CampaignPledgeForm(data)
 
     return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+
+def rh_admin(request):
+    if not is_admin(request.user):
+        return render(request, "admins_only.html")
+    if  request.method == 'POST': 
+        form = RightsHolderForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = RightsHolderForm()
+    rights_holders = models.RightsHolder.objects.all()
+    context = { 'request': request, 'rights_holders': rights_holders, 'form': form }
+    return render(request, "rights_holders.html", context)
+
+def is_admin(user):
+    for name,email in settings.ADMINS :
+        if email == user.email :
+            return True 
+    return False    
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
@@ -147,6 +178,7 @@ def supporter(request, supporter_username, template_name):
             "date": date,
             "shared_works": shared_works,
             "profile_form": profile_form,
+            "ungluers": userlists.other_users(supporter, 5 )
     }
     
     return render(request, template_name, context)
@@ -178,13 +210,15 @@ def search(request):
         wishlist = request.user.wishlist
         editions = models.Edition.objects.filter(work__wishlists__in=[wishlist])
         googlebooks_ids = [e['googlebooks_id'] for e in editions.values('googlebooks_id')]
-
+        ungluers = userlists.other_users(request.user, 5)
         # if the results is on their wishlist flag it
         for result in results:
             if result['googlebooks_id'] in googlebooks_ids:
                 result['on_wishlist'] = True
             else:
                 result['on_wishlist'] = False
+    else:
+        ungluers = userlists.other_users(null, 5)
             
     # also urlencode some parameters we'll need to pass to workstub in the title links
     # needs to be done outside the if condition
@@ -196,6 +230,7 @@ def search(request):
     context = {
         "q": q,
         "results": results,
+        "ungluers": ungluers
     }
     return render(request, 'search.html', context)
 

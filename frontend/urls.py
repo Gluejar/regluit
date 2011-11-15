@@ -17,6 +17,7 @@ urlpatterns = patterns(
         name="privacy"),
     url(r"^rightsholders/$", TemplateView.as_view(template_name="rhtools.html"),
         name="rightsholders"), 
+    url(r"^rh_admin/$", "rh_admin", name="rh_admin"), 
     url(r"^faq/$", TemplateView.as_view(template_name="faq.html"),
         name="faq"), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
@@ -32,5 +33,6 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
     url(r"^workstub/(?P<title>.+)/(?P<imagebase>.+)/(?P<image>.+)/(?P<author>.+)/(?P<googlebooks_id>.+)/$", "workstub", name="workstub"),
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
-    url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge")
+    url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
+    url(r"^subjects/$", "subjects", name="subjects"),
 )

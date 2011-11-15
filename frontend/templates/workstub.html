@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}
+ &#8212; {{ title }}
+{% endblock %}
+
+{% block extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+{% endblock %}
+
+{% block content %}    
+    <div id="main-container">
+    <div class="js-main">
+	<div id="js-leftcol">
+        	<div class="jsmodule rounded">
+            	<div class="jsmod-content">
+            	0 Ungluers are WISHING<br />&nbsp;
+                </div>
+            </div>
+			{% include "explore.html" %}
+		</div>
+        <div id="js-maincol">
+        <div class="js-maincol-inner">
+        	<div class="content-block">
+            	<div class="book-detail">
+                	<div class="book-detail-img">
+                		<a href="#"><img src="http://{{ imagebase }}/{{ image }}" alt="{{ title }}" title="{{ title }}" width="131" height="192" /></a>
+                    </div>
+                    <div class="book-detail-info">
+                    	<h2 class="book-name">{{ title }}</h2>
+                        <h3 class="book-author">{{ author }}</h3>
+                        <div class="find-book">
+                        	<label>Find it here</label>
+                        	<!-- todo: these should be a real thing -->
+                            <div class="find-link">
+                            	<a class="find-google" href="#"><img src="/static/images/icons/google.png" align="" title="" /></a>
+                                <a class="find-group" href="#"><img src="/static/images/icons/group.png" align="" title="" /></a>
+                            </div>
+                        </div>
+                        <div class="pledged-info"><div class="pledged-group">0 Ungluers have pledged $0</div><div class="status"><img src="/static/images/images/icon-book-37by25-0.png" /></div></div>
+                    </div>
+                </div>
+                <div id="tabs" class="content-block-heading">
+                </div>
+                <div class="content-block-content">
+               		<div id="tabs-1" class="tabs">
+                    <div class="tabs-content">
+                    	{% if request.user.is_anonymous %}
+                    	<div class="create-account"><p>No one has wishlisted this yet.&nbsp;&nbsp;<b><span>Be the first.</span></b></p>
+                        </div>
+                        {% else %}
+                        <div class="add-wishlist"><p>No one has wishlisted this yet.&nbsp;&nbsp;<b><span id="{{ googlebooks_id }}">Be the first.</span></b></p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    </div>
+                </div>
+            </div>	
+        </div>
+        </div>
+        <div id="js-rightcol">
+        <div class="js-rightcol-pad rounded">
+        	
+        	<div class="jsmodule">
+            	<h3 class="jsmod-title"><span>Share</span></h3>
+                <div class="jsmod-content">
+                    <ul class="social menu">
+                        <li class="facebook first"><a href="#"><span>Facebook</span></a></li>
+                        <li class="twitter"><a href="#"><span>Twitter</span></a></li>
+                        <li class="lasts email"><a href="#"><span>Email</span></a></li>
+                    </ul>
+                </div>
+            </div>
+            {% if work.last_campaign %}
+            <div class="jsmodule">
+            	<h3 class="jsmod-title"><span>Support</span></h3>
+                <div class="jsmod-content">
+                    <ul class="support menu">
+                    	{% for premium in premiums %}
+                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                        <a href="{% url pledge work_id=work.id %}?premium_id={{premium.id}}">
+                        	<span class="menu-item-price">${{ premium.amount }}</span>
+                            <span class="menu-item-desc">{{ premium.description }}</span>
+                            {% ifequal premium.type 'CU' %}<span class="custom-premium">exclusive!</span>{% endifequal %}
+                        </a></li>
+                        {% endfor %}
+                     </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        </div>
+    </div>
+    </div>
+    
+{% endblock %}

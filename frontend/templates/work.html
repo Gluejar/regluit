@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
- &#8212; Campaign for {{ work.title }}
-{% endblock %}
-
+&#8212; Campaign for {{ work.title }}
 {% block extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 
@@ -168,7 +166,8 @@
             	<h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
                     <ul class="social menu">
-                        <li class="facebook first"><a href="#"><span>Facebook</span></a></li>
+                        <li class="facebook first"><a
+                            href="https://www.facebook.com/sharer/sharer.php?src=bm&u=http://{{ request.META.HTTP_HOST }}{{ request.path }}"><span>Facebook</span></a></li>
                         <li class="twitter"><a href="#"><span>Twitter</span></a></li>
                         <li class="lasts email"><a href="#"><span>Email</span></a></li>
                     </ul>
