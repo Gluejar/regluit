@@ -1,0 +1,16 @@
+{% extends "basedocumentation.html" %}
+
+{% block doccontent %}
+
+<h1>Rights Holder Claim Form </h1>
+<form method="POST" action="#">
+    {% csrf_token %}
+<h2> Rightsholder making claim </h2>
+<h2> Work being claimed  </h2>
+<h2> Terms and Conditions  </h2>
+    {{ form.as_p }}
+    <input type="submit" name="submit" value="Confirm Claim" id="submit">
+</form>
+
+
+{% endblock %}

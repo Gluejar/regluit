@@ -110,7 +110,24 @@
                     </div>
                     <div id="tabs-4" class="tabs">
                 	<div class="tabs-content">
-                        Want to Unglue infomation xxx
+                        <h3 class="tabcontent-title">Details for {{ work.title }}</h3>
+                        {% if work.claim.count %}
+                        <h4> Rights Information </h4>
+                        <p> This work has been claimed by:</p>
+                        <ul>
+                        {% for claim in work.claim.all %}
+                        	<li>{{ claim.rights_holder.rights_holder_name }}  </li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if request.user.rights_holder %}
+                        <h4> Claim this work:</h4>
+                        <form method="GET" action="{% url claim %}">
+							{% csrf_token %}
+							{{ claimform.as_p }}
+							<input type="submit" name="submit" value="Claim" id="submit">
+						</form>
+                        {% endif %}
                     </div>
                     </div>
                 </div>

@@ -50,6 +50,8 @@ class RightsHolder(models.Model):
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=True)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    def __unicode__(self):
+        return self.rights_holder_name
     
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
