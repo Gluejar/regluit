@@ -1,0 +1,22 @@
+{% extends "basedocumentation.html" %}
+
+{% block doccontent %}
+
+<h1>Rights Holder Admin</h1>
+
+<h2> Create New Rights Holder </h2>
+<form method="POST" action="#">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="submit" value="Create" id="submit">
+</form>
+</form>
+<h2> Accepted Rights Holders </h2>
+{% for rights_holder in rights_holders %}
+	<h3>{{ rights_holder.rights_holder_name }}</h3>
+	PSA #: {{ rights_holder.id }}<br/>
+	email: {{ rights_holder.email }}<br/>
+	owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a><br/>
+{% endfor %}
+
+{% endblock %}

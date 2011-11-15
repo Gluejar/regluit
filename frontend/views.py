@@ -24,7 +24,7 @@ from regluit.core import models, bookloader
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -86,6 +86,25 @@ def pledge(request,work_id):
     form = CampaignPledgeForm(data)
 
     return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+
+def rh_admin(request):
+    if not is_admin(request.user):
+        return render(request, "admins_only.html")
+    if  request.method == 'POST': 
+        form = RightsHolderForm(data=request.POST)
+        if form.is_valid():
+            form.save()
+    else:
+        form = RightsHolderForm()
+    rights_holders = models.RightsHolder.objects.all()
+    context = { 'request': request, 'rights_holders': rights_holders, 'form': form }
+    return render(request, "rights_holders.html", context)
+
+def is_admin(user):
+    for name,email in settings.ADMINS :
+        if email == user.email :
+            return True 
+    return False    
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
@@ -168,6 +187,8 @@ def edit_user(request):
             request.user.save()
             return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form},)  
+
+
 def search(request):
     q = request.GET.get('q', None)
     results = gluejar_search(q)
