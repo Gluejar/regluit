@@ -63,11 +63,11 @@ def work(request, work_id, action='display'):
         
 def workstub(request, title, imagebase, image, author, googlebooks_id, action='display'):
 	premiums = None
-	title = urllib.unquote(title)
-	imagebase = urllib.unquote(imagebase)
-	image = urllib.unquote(image)
-	author = urllib.unquote(author)
-	return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums, 'ungluers': userlists.other_users(supporter, 5 )})
+	title = urllib.unquote_plus(title)
+	imagebase = urllib.unquote_plus(imagebase)
+	image = urllib.unquote_plus(image)
+	author = urllib.unquote_plus(author)
+	return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums, 'ungluers': userlists.other_users(supporter, 5)})
 
 def subjects(request):
     order = request.GET.get('order')
@@ -218,14 +218,14 @@ def search(request):
             else:
                 result['on_wishlist'] = False
     else:
-        ungluers = userlists.other_users(null, 5)
+        ungluers = userlists.other_users(None, 5)
             
     # also urlencode some parameters we'll need to pass to workstub in the title links
     # needs to be done outside the if condition
     for result in results:
-    	result['urlimage'] = urllib.quote(sub('^https?:\/\/','', result['image']).encode("utf-8"), safe='')
-    	result['urlauthor'] = urllib.quote(result['author'].encode("utf-8"), safe='')
-    	result['urltitle'] = urllib.quote(result['title'].encode("utf-8"), safe='')
+    	result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['image']).encode("utf-8"), safe='')
+    	result['urlauthor'] = urllib.quote_plus(result['author'].encode("utf-8"), safe='')
+    	result['urltitle'] = urllib.quote_plus(result['title'].encode("utf-8"), safe='')
 
     context = {
         "q": q,
