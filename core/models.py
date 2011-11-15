@@ -17,7 +17,7 @@ class CeleryTask(models.Model):
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
-    function_args = models.IntegerField()  # not full generalized here -- takes only a single arg for now.
+    function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
     active = models.NullBooleanField(default=True) 
 
     def __unicode__(self):
