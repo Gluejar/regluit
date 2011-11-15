@@ -337,7 +337,7 @@ class GoodreadsDisplayView(TemplateView):
             # load the shelves into the form
             choices = [('all:%d' % (gr_shelves["total_book_count"]),'all (%d)' % (gr_shelves["total_book_count"]))] +  \
                 [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in gr_shelves["user_shelves"]]
-            gr_shelf_load_form.fields['goodreads_shelf_name'].widget = Select(choices=tuple(choices))
+            gr_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
             
             context["gr_shelf_load_form"] = gr_shelf_load_form
             
@@ -402,16 +402,16 @@ def goodreads_load_shelf(request):
     a view to allow user load goodreads shelf into her wishlist
     """
     # Should be moved to the API
-    goodreads_shelf_name = request.POST.get('goodreads_shelf_name', 'all:0')
+    goodreads_shelf_name_number = request.POST.get('goodreads_shelf_name_number', 'all:0')
     user = request.user
     try:
         # parse out shelf name and expected number of books
-        (shelf_name, expected_number_of_books) = re.match(r'^(.*):(\d+)$', goodreads_shelf_name).groups()
+        (shelf_name, expected_number_of_books) = re.match(r'^(.*):(\d+)$', goodreads_shelf_name_number).groups()
         expected_number_of_books = int(expected_number_of_books)
         logger.info('Adding task to load shelf %s to user %s with %d books', shelf_name, user, expected_number_of_books)
         load_task_name = "load_goodreads_shelf_into_wishlist"
         load_task = getattr(tasks, load_task_name)
-        task_id = load_task.delay(user, goodreads_shelf_name, expected_number_of_books=expected_number_of_books)
+        task_id = load_task.delay(user, shelf_name, expected_number_of_books=expected_number_of_books)
         
         ct = models.CeleryTask()
         ct.task_id = task_id

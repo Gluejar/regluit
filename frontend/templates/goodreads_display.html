@@ -91,7 +91,7 @@
     <hr />
     
     <p><a href="#" id="test_click">Click here to update the number of books on your wishlist:</a></p>
-    <div id="gr_status"><p>Number of books on your wishlist: <span id="number_of_books_on_wishlist">{{user.wishlist.books.all|length}}</span> (as of <span id="num_books_update_time"></span>)</p></div>
+    <div id="gr_status"><p>Number of books on your wishlist: <span id="number_of_books_on_wishlist">{{user.wishlist.works.all|length}}</span> (as of <span id="num_books_update_time"></span>)</p></div>
     <form id="clear_wishlist_form" method="post" action="#">
         <input type="submit" value="Empty your wishlist" />
     </form>
