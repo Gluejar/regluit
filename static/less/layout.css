@@ -66,42 +66,63 @@ div.book-list.listview div.book-thumb {
   float: left;
 }
 div.book-list.listview div.book-name {
-  width: 260px;
+  width: 235px;
   margin-right: 10px;
-  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
+  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
-  overflow: hidden;
 }
-div.book-list.listview div.book-name span {
+div.book-list.listview div.book-name .title {
   display: block;
   line-height: normal;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
-  height: 43px;
-  line-height: 43px;
+  overflow: hidden;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  padding-bottom: 5px;
+  font-weight: bold;
+}
+div.book-list.listview div.book-name .listview.author {
+  overflow: hidden;
+  display: block;
+  line-height: normal;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
+  height: 19px;
+  line-height: 19px;
 }
 div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist {
   margin-right: 10px;
   padding-right: 10px;
-  background: url("../images/booklist/booklist-vline.png") right center no-repeat;
+  width: 136px;
+  background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
 div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
-  background: url("../images/booklist/add-wishlist.png") left center no-repeat;
+  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
 }
 div.book-list.listview div.booklist-status {
+  width: 110px;
   margin-right: 7px;
   float: left;
 }
@@ -273,9 +294,6 @@ ul.navigation li a:hover, ul.navigation li.active a {
 		*/
 
 }
-.listview.author {
-  display: none;
-}
 .listview.icons {
   position: absolute;
   right: 31px;
@@ -314,6 +332,9 @@ div.content-block-content {
 }
 .listview.panelback, .listview.panelback div {
   display: none;
+}
+.listview.boolist-ebook a {
+  color: #3d4e53;
 }
 .header-text {
   height: 36px;
@@ -428,7 +449,7 @@ div.content-block-content {
 .panelview.add-wishlist {
   display: none;
 }
-.panelview.book-name, .panelview.author {
+.panelview.book-name div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
@@ -463,6 +484,9 @@ div.content-block-content {
   float: right;
   padding: 10px 10px 0 0;
   width: 24px;
+}
+.panelview.boolist-ebook a {
+  display: none;
 }
 /* switch to/from hover state when jquery swaps class names */
 span.panelview.panelback.side1, span.panelview.panelback.side1 div {
@@ -571,7 +595,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: "/static/images/book-panel/book_icon.png) no-repeat 10% center";
   padding: 0px 0px 0px 30px;
   color: #73a334;
   line-height: 40px;
@@ -588,9 +611,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: "/static/images/book-panel/book_icon.png) no-repeat 10% center";
   padding: 0px 0px 0px 30px;
   color: #73a334;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
   text-decoration: none;
@@ -663,7 +686,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: none;
   padding: 0px 0px 0px 15px;
   color: #73a334;
   line-height: 40px;
@@ -680,9 +702,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: none;
   padding: 0px 0px 0px 15px;
   color: #73a334;
+  background: none;
 }
 .read_itbutton_fail span:hover {
   text-decoration: none;
@@ -701,6 +723,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 15px 0;
   vertical-align: baseline;
+  background-image: url("/static/images/book-panel/add_wish_icon.png");
 }
 .add_towish a {
   line-height: 40px;
@@ -717,7 +740,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -754,7 +776,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -808,6 +829,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 0px 0;
   vertical-align: baseline;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
 }
 .moreinfo a {
   line-height: 40px;
@@ -824,7 +846,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/more_icon.png");
   padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -861,7 +882,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/more_icon.png");
   padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -925,7 +945,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/unglue_icon.png);
+  background-image: url("/static/images/book-panel/unglue_icon.png");
   padding: 5px 0px 0px 20px;
   color: #3d4e53;
   text-align: right;
@@ -955,7 +975,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_gray.png);
+  background-image: url("/static/images/book-panel/add_gray.png");
   padding: 8px 0px;
   padding-left: 20px;
   color: #3d4e53;
@@ -998,7 +1018,7 @@ div.panelview.side2 > div {
 .moreinfo2 a {
   line-height: 40px;
   font-size: 12px;
-  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-image: url("/static/images/book-panel/gray_more_info.png");
   background-repeat: no-repeat;
   background-position: left center;
   padding: 8px 35px;
@@ -1782,7 +1802,6 @@ div.content-block-content {
 }
 .book-name {
   color: #3d4e53;
-  font-weight: bold;
 }
 .book-author {
   color: #6994a3;
@@ -1804,14 +1823,19 @@ div.content-block-content {
   height: 25px;
   display: block;
 }
-/* Do I even still need this?
-.book-status span.percent99{ background:url(../images/images/icon-book1.png) 0 0 no-repeat;}
-.book-status span.percent60{ background:url(../images/images/icon-book2.png) 0 0 no-repeat;}
-.book-status span.percent22{ background:url(../images/images/icon-book3.png) 0 0 no-repeat;}
-.book-status span.percent7{ background:url(../images/images/icon-book4.png) 0 0 no-repeat;}
-.book-status span.percent62{ background:url(../images/images/icon-book5.png) 0 0 no-repeat;}
-.book-status span.percent21{ background:url(../images/images/icon-book6.png) 0 0 no-repeat;}
-*/.header-text {
+#toggle-list {
+  filter: alpha(opacity=100);
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  opacity: 1;
+}
+#toggle-panel {
+  filter: alpha(opacity=100);
+  -moz-opacity: 0.2;
+  -khtml-opacity: 0.2;
+  opacity: 0.2;
+}
+.header-text {
   height: 36px;
   line-height: 36px;
   display: block;
@@ -1924,7 +1948,7 @@ div.content-block-content {
 .panelview.add-wishlist {
   display: none;
 }
-.panelview.book-name, .panelview.author {
+.panelview.book-name div {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
@@ -1959,6 +1983,9 @@ div.content-block-content {
   float: right;
   padding: 10px 10px 0 0;
   width: 24px;
+}
+.panelview.boolist-ebook a {
+  display: none;
 }
 /* switch to/from hover state when jquery swaps class names */
 span.panelview.panelback.side1, span.panelview.panelback.side1 div {
@@ -2067,7 +2094,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: "/static/images/book-panel/book_icon.png) no-repeat 10% center";
   padding: 0px 0px 0px 30px;
   color: #73a334;
   line-height: 40px;
@@ -2084,9 +2110,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: "/static/images/book-panel/book_icon.png) no-repeat 10% center";
   padding: 0px 0px 0px 30px;
   color: #73a334;
+  background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
   text-decoration: none;
@@ -2159,7 +2185,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: none;
   padding: 0px 0px 0px 15px;
   color: #73a334;
   line-height: 40px;
@@ -2176,9 +2201,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background: none;
   padding: 0px 0px 0px 15px;
   color: #73a334;
+  background: none;
 }
 .read_itbutton_fail span:hover {
   text-decoration: none;
@@ -2197,6 +2222,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 15px 0;
   vertical-align: baseline;
+  background-image: url("/static/images/book-panel/add_wish_icon.png");
 }
 .add_towish a {
   line-height: 40px;
@@ -2213,7 +2239,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -2250,7 +2275,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -2304,6 +2328,7 @@ div.panelview.side2 > div {
   padding: 0px;
   margin: 15px 0 0px 0;
   vertical-align: baseline;
+  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
 }
 .moreinfo a {
   line-height: 40px;
@@ -2320,7 +2345,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/more_icon.png");
   padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -2357,7 +2381,6 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/more_icon.png");
   padding: 8px 42px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -2421,7 +2444,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/unglue_icon.png);
+  background-image: url("/static/images/book-panel/unglue_icon.png");
   padding: 5px 0px 0px 20px;
   color: #3d4e53;
   text-align: right;
@@ -2451,7 +2474,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url(/static/images/book-panel/add_gray.png);
+  background-image: url("/static/images/book-panel/add_gray.png");
   padding: 8px 0px;
   padding-left: 20px;
   color: #3d4e53;
@@ -2494,7 +2517,7 @@ div.panelview.side2 > div {
 .moreinfo2 a {
   line-height: 40px;
   font-size: 12px;
-  background-image: url(/static/images/book-panel/gray_more_info.png);
+  background-image: url("/static/images/book-panel/gray_more_info.png");
   background-repeat: no-repeat;
   background-position: left center;
   padding: 8px 35px;

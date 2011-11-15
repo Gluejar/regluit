@@ -1,22 +1,23 @@
 from django import forms
 from django.db import models
-from regluit.core.models import UserProfile
+from regluit.core.models import UserProfile, RightsHolder
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from decimal import Decimal as D
- 
+
+class RightsHolderForm(forms.ModelForm):
+    class Meta:
+        model = RightsHolder
+
 class ProfileForm(forms.ModelForm):
+    clear_facebook=forms.BooleanField(required=False)
+    clear_twitter=forms.BooleanField(required=False)
     class Meta:
         model = UserProfile
-        exclude = 'user'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
-            'twitter_id': forms.TextInput(attrs={'label': 'Twitter Handle', 'maxlength': 16}),
         }
-        
-    def clean_twitter_id(self):
-        twitter_id=self.cleaned_data['twitter_id']
-        return twitter_id.lstrip('@')
 
 class UserData(forms.Form):
     username = forms.RegexField(

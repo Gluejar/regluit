@@ -6,6 +6,9 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
+    ('Eric Hellman', 'eric@gluejar.com'),
+    ('Andromeda Yelton', 'andromeda@gluejar.com'),
+    ('Rights Admin',  'rights@gluejar.com'),
 )
 
 MANAGERS = ADMINS
@@ -68,6 +71,16 @@ PAYPAL_GLUEJAR_EMAIL = ""
 PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
 PAYPAL_TEST_NONPROFIT_PARTNER_EMAIL = ""
 
+# Goodreads API
+GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
+GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
+
+# Freebase credentials
+FREEBASE_USERNAME = ''
+FREEBASE_PASSWORD = ''
+
+# send celery log to Python logging
+CELERYD_HIJACK_ROOT_LOGGER = False
 BASE_URL = 'http://0.0.0.0/'
 
 # use redis for production queue
@@ -75,3 +88,5 @@ BROKER_TRANSPORT = "redis"
 BROKER_HOST = "localhost"
 BROKER_PORT = 6379
 BROKER_VHOST = "0"
+
+

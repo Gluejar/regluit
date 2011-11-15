@@ -1,8 +1,6 @@
 {% extends "base.html" %}
 {% block title %}
-Campaign for WORK TITLE GOES HERE
-{% endblock %}
-
+&#8212; Campaign for {{ work.title }}
 {% block extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 
@@ -61,10 +59,26 @@ Campaign for WORK TITLE GOES HERE
         	<div class="jsmodule rounded">
             	<div class="jsmod-content">
             	{% if work.last_campaign %}
+            	{% if work.last_campaign_status == 'ACTIVE' %}
                 	Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
+                {% else %}{% if work.last_campaign_status == 'SUCCESSFUL' %}
+                	Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
+                {% else %}{% if work.last_campaign_status == 'INITIALIZED' %}
+                	Campaign starting soon<br />&nbsp;
+                {% else %}{% if work.last_campaign_status == 'SUSPENDED' %}
+                	Campaign suspended. <br />See <a href="/faq">FAQ</a>.
+                {% else %}{% if work.last_campaign_status == 'WITHDRAWN' %}
+                	Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
+                {% else %}{% if work.wished_by.count == 1 %}
+                	{{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
                 {% else %}
-                	XX Ungluers <br /> are WISHING
-                {% endif %}
+                	{{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
+                {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+                {% else %}{% if work.wished_by.count == 1 %}
+                	{{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
+                {% else %}
+                	{{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
+                {% endif %}{% endif %}
                 </div>
             </div>
 			{% include "explore.html" %}
@@ -89,10 +103,15 @@ Campaign for WORK TITLE GOES HERE
                             </div>
                         </div>
                         {% if work.last_campaign %}
-                        <div class="pledged-info"><div class="pledged-group">{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                        <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}{{ work.last_campaign.supporters.count }} 1 Ungluer has{% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
 						{% else %}
-                        <div class="pledged-info"><div class="pledged-group">XX Ungluers have wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                        <div class="pledged-info"><div class="pledged-group">
+                        	{% if work.wished_by.count == 1 %}
+			                	{{ work.wished_by.count }} Ungluer has
+			                {% else %}
+                				{{ work.wished_by.count }} Ungluers have
+                			{% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support">Add/drop from wishlist</div>
 						{% endif %}
                     </div>
@@ -147,7 +166,8 @@ Campaign for WORK TITLE GOES HERE
             	<h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
                     <ul class="social menu">
-                        <li class="facebook first"><a href="#"><span>Facebook</span></a></li>
+                        <li class="facebook first"><a
+                            href="https://www.facebook.com/sharer/sharer.php?src=bm&u=http://{{ request.META.HTTP_HOST }}{{ request.path }}"><span>Facebook</span></a></li>
                         <li class="twitter"><a href="#"><span>Twitter</span></a></li>
                         <li class="lasts email"><a href="#"><span>Email</span></a></li>
                     </ul>

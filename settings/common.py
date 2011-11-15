@@ -172,7 +172,7 @@ SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
 SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/accounts/edit/'
 
-FACEBOOK_EXTENDED_PERMISSIONS = ['email']
+TWITTER_EXTRA_DATA = [('profile_image_url', 'profile_image_url')]
 
 LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"

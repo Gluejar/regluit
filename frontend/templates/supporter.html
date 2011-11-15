@@ -22,17 +22,7 @@ To do:
 create topsection file for inclusion in multiple contexts, if needed
 figure out how to configure date display 
     decide if we're even including date joined in profile
-add support for userpics
-    crop/resize? other infrastructure we need?  can we pull from twitter/fb?
-add support for twitter/fb/other links?
-    part of user profile?  can I just add to db model?
-    loosely coupled vs actually integrated with signin
-    canonicalize -- user enters cut/paste link vs username
-Goodreads & Librarything support
-If people lack homepage, etc., do we have greyed-out icons or no icons?
-    if greyed-out, can they add in place by clicking on them?
-make sure we have the profile settings we need
-resurrect add/remove functionality
+Goodreads 
     be sure words display correctly
     do I need both add-wishlist and remove-wishlist classes? do they differ?
 better alignment on I am ungluing & badges
@@ -66,7 +56,11 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             {% endifequal %}
                             <div class="user-block2">
-                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="User avatar" title="User avatar" />
+                            	{% if supporter.profile.pic_url %}
+                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                           		{% else %}
+                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
                                 <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
@@ -78,20 +72,33 @@ how do I integrate the your wishlist thing with the tabs thing?
                                        <img src="/static/images/header/icon-home.png" alt="{{ supporter }}'s Homepage" title="{{ supporter }}'s Homepage"  />
                                    </a>
                                 {% endif %}
-                                <a href="#"><img src="/static/images/header/icon-facebook.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  /></a>
-                                {% if supporter.profile.twitter_id %}
-                                <a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}">
-                                    <img src="/static/images/header/icon-twitter.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
-                                </a>
+                                {% if supporter.profile.facebook_id %}
+									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}">
+										<img src="/static/images/header/icon-facebook.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
+									</a>
                                 {% endif %}
-                                <a href="#"><img src="/static/images/header/icon-google.png" alt="google" title="google"  /></a>
-                                <a href="#"><img src="/static/images/header/icon-group.png" alt="group" title="group"  /></a></div>
+                                {% if supporter.profile.twitter_id %}
+									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}">
+										<img src="/static/images/header/icon-twitter.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
+									</a>
+                                {% endif %}
+                                {% if supporter.profile.goodreads_user_link %}
+									<a href="{{supporter.profile.goodreads_user_link}}">
+										<img src="/static/images/header/icon-goodreads.png" alt="{{ supporter }}'s page on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
+									</a>
+                                {% endif %}
+                                {% if supporter.profile.librarything_id %}
+									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}">
+										<img src="/static/images/header/icon-librarything.png" alt="{{ supporter }}'s page on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
+									</a>
+                                 {% endif %}
+                               </div>
                             </div>
                             <div class="user-block3">
                                 <div class="user-block">
-                                <span class="rounded"><span class="blue">{{ backed }}</span></span>
-                                <span class="rounded"><span class="orange">{{ backing }}</span></span>
-                                <span class="rounded"><span class="grey">{{ wished }}</span></span>
+                                <span class="rounded"><span class="blue" {% ifequal request.user supporter %}title="I've unglued {{ backed }} books."{% else %}title="{{ supporter }} has unglued {{ backed }} books."{% endifequal %}>{{ backed }}</span></span>
+                                <span class="rounded"><span class="orange" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} books."{% else %}title="{{ supporter }} is supporting {{ backing }} books."{% endifequal %}>{{ backing }}</span></span>
+                                <span class="rounded"><span class="grey" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} books."{% else %}title="{{ supporter }} is wishing for {{ wished }} books."{% endifequal %}>{{ wished }}</span></span>
                                 </div>
                                 <span class="user-status-title">I am ungluing</span>
                             </div>
@@ -113,12 +120,33 @@ how do I integrate the your wishlist thing with the tabs thing?
                              <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
-                                   <label>Your homepage URL:</label>
+                                   <label>Add your homepage URL:</label>
                                     {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
                                 </div>
                                 <div class="check-list">
-                                    <label>Your Twitter handle:</label>
-                                    {{ profile_form.twitter_id }}{{ profile_form.twitter_id.errors }}
+                                    {% if supporter.profile.twitter_id %}
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br/> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
+                                    {% else %}
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
+                                    {% endif %} 
+                                </div>
+                                <div class="check-list">
+                                    {% if supporter.profile.facebook_id %}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br/> or disconnect Facebook: {{ profile_form.clear_facebook }}
+                                    {% else %}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
+                                    {% endif %} 
+                                </div>
+                                <div class="check-list">
+                                    {% if user.profile.goodreads_user_id %}
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  
+                                    {% else %}
+                                    <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
+                                    {% endif %} 
+                                </div>
+                                <div class="check-list">
+                                    <label>Add Your LibraryThing User ID:</label>
+                                    {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
                                 </div>
                             </div>
                             <div class="block block3">
@@ -259,12 +287,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
                         </div>
                         <div class="listview book-name">
-                            <span>
+                            <div class="title">
                                 <a href="{% url work work.id %}">{{ work.title }}</a>
-                            </span>
-                        </div>
-                        <div class="listview author">
-                            <span class="{{ work.author }}">{{ work.author }}</span>
+                            </div>
+                            <div class="listview author {{ work.author }}">{{ work.author }}</div>
                         </div>
                         {% ifequal supporter request.user %}
                         <div class="listview remove-wishlist">
@@ -295,12 +321,12 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         <div class="listview ebooks">
                             {% if work.first_epub %}
-                            <span class="boolist-ebook">
+                            <span class="listview boolist-ebook">
                                 <a href="{{ work.first_epub.url }}">epub</a>
                             </span>
                             {% endif %}
                             {% if work.first_pdf %}
-                            <span class="boolist-ebook">
+                            <span class="listview boolist-ebook">
                                 <a href="{{ work.first_pdf.url }}">pdf</a>
                             </span>
                             {% endif %}
