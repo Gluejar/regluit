@@ -34,5 +34,7 @@ urlpatterns = patterns(
     url(r"^workstub/(?P<title>.+)/(?P<imagebase>.+)/(?P<image>.+)/(?P<author>.+)/(?P<googlebooks_id>.+)/$", "workstub", name="workstub"),
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
-    url(r"^subjects/$", "subjects", name="subjects"),
+    url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
+    url(r"^subjects/$", "subjects", name="subjects")
+
 )

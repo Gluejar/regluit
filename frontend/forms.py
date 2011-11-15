@@ -47,6 +47,6 @@ class CampaignPledgeForm(forms.Form):
     anonymous = forms.BooleanField(required=False, label="Don't display my username in the supporters list")
     
 class GoodreadsShelfLoadingForm(forms.Form):
-    goodreads_shelf_name = forms.CharField(widget=forms.Select(choices=(
+    goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
                 ('all','all'),
                 )))

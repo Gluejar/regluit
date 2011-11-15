@@ -83,7 +83,7 @@ class MyZotero(Zotero2):
     def get_all_items(self):
         print len(self.item_keys(5000,99))
     def get_books(self,max=10000):
-        self.set_parameters(sort="type")
+        self.set_parameters(sort="type", itemType="book")
         items = self.items()
         for (i, item) in enumerate(islice(items,max)):
             if item.get("itemType") == 'book':
@@ -108,12 +108,12 @@ class MyZotero(Zotero2):
                 logger.info ("error adding ISBN %s: %s", isbn, e)            
         
         
-        
-zot = MyZotero()
-#zot.compare_keys(24,7,3)
-to_unglue = list(zot.items_in_unglue_it_collection())
-print len(to_unglue), [item["title"] for item in to_unglue]
-for b in zot.get_books(50):
-    print b
-zot.upload_to_unglue_it('RaymondYee',5000)
-#print zot.get_all_items()
+if __name__ == '__main__':        
+    zot = MyZotero()
+    #zot.compare_keys(24,7,3)
+    to_unglue = list(zot.items_in_unglue_it_collection())
+    print len(to_unglue), [item["title"] for item in to_unglue]
+    for (i,b) in enumerate(zot.get_books(300)):
+        print b
+    #zot.upload_to_unglue_it('RaymondYee',5000)
+    #print zot.get_all_items()

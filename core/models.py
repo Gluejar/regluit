@@ -6,9 +6,40 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
 
+import regluit
+
 class UnglueitError(RuntimeError):
     pass
 
+class CeleryTask(models.Model):
+    task_id = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now())
+    user =  models.ForeignKey(User, related_name="tasks", null=True) 
+    description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
+    function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
+    function_args = models.IntegerField()  # not full generalized here -- takes only a single arg for now.
+    active = models.NullBooleanField(default=True) 
+
+    def __unicode__(self):
+        return "Task %s arg:%d ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
+
+    @property
+    def AsyncResult(self):
+        f = getattr(regluit.core.tasks,self.function_name)
+        return f.AsyncResult(self.task_id)
+    @property
+    def state(self):
+        f = getattr(regluit.core.tasks,self.function_name)
+        return f.AsyncResult(self.task_id).state
+    @property
+    def result(self):
+        f = getattr(regluit.core.tasks,self.function_name)
+        return f.AsyncResult(self.task_id).result
+    @property
+    def info(self):
+        f = getattr(regluit.core.tasks,self.function_name)
+        return f.AsyncResult(self.task_id).info        
+        
 class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
