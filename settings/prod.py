@@ -8,6 +8,7 @@ ADMINS = (
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
     ('Eric Hellman', 'eric@gluejar.com'),
     ('Andromeda Yelton', 'andromeda@gluejar.com'),
+    ('Rights Admin',  'rights@gluejar.com'),
 )
 
 MANAGERS = ADMINS
