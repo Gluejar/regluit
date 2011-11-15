@@ -16,7 +16,7 @@ Here are some instructions for setting up regluit for development on
 an Ubuntu system. If you are on OS X see notes below 
 to install python-setuptools in step 1:
 
-1. `aptitude install python-setuptools git`
+1. `aptitude install python-setuptools git libxml2-dev libxslt-dev`
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
@@ -41,7 +41,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. create an ubuntu natty ec2 instance using ami-1aad5273
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server`
+1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server libxml2-dev libxslt-dev`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
