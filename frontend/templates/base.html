@@ -56,22 +56,46 @@
     {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}
 
-</div>
-
 <div id="footer">
-    <p>
-        <a href="{{privacyurl}}"><span>Privacy</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="{{rhtoolsurl}}"><span>Rightsholder tools</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="{% url api_help %}"<span>API</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        {% if user.is_authenticated %}
-        <a href="{{editurl}}"><span>Settings</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        {% endif %}
-        <a href="/stub/terms_and_conditions"<span>Terms and Conditions</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/stub/about"><span>About</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/stub/contact"><span>Contact</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-        <a href="/stub/page_for_lockss_harvester"><span>LOCKSS</span></a>&nbsp;&nbsp;&nbsp;&nbsp;
-		<a href="http://www.gluejar.com/Blog"><span>Blog</span>&nbsp;&nbsp;&nbsp;&nbsp;
+    <div class="column">
+    <span>About unglue.it</span>
+    <ul>
+    <li><a href="/stub/about">About</a></li>
+    <li><a href="http://www.gluejar.com/Blog">Blog</a></li>
+    <li><a href="/stub/press">Press</a></li>
+    <li><a href="/stub/newsletter">Newsletter</a></li>
+    </ul>
+    </div>
+    <div class="column">
+    <span>Your account</span>
+    <ul>
+    {% if user.is_authenticated %}
+    <li><a href="{{editurl}}">Settings</a></li>
+    {% endif %}
+    <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
+    <li><a href="{{privacyurl}}">Privacy</a></li>
+    <li><a href="/stub/terms_and_conditions">Terms and Conditions</a></li>
+    </ul>
+    </div>
+    <div class="column">
+    <span>Help</span>
+    <ul>
+    <li><a href="/stub/faq">FAQ</a></li>
+    <li><a href="/stub/rhfaq">Rights Holder FAQ</a></li>
+    <li><a href="{% url api_help %}">API</a></li>
+    </ul>
+    </div>
+    <div class="column">
+    <span>Contact</span>
+    <ul>
+    <li>General inquiries</li>
+    <li><a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a></li>
+    <li>Rights Holders</li>
+    <li><a href="mailto:rights@gluejar.com">rights@gluejar.com</a></li>
+    </ul>
+    </div>
     </p>
+</div>
 </div>
 
 </body>

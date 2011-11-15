@@ -1141,6 +1141,15 @@ p.right_add {
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.utilityheaders {
+  text-transform: uppercase;
+  color: #3d4e53;
+  font-size: 12px;
+  display: block;
+}
+html, body {
+  height: 100%;
+}
 body {
   background: url("/static/images/bg-body.png") 0 0 repeat-x;
   padding: 0 0 20px 0;
@@ -1148,6 +1157,10 @@ body {
   font-size: 12px;
   font-family: Lucida "Lucida Grande", "Lucida Sans Unicode", sans-serif, Helvetica, sans-serif;
   color: #3d4e53;
+}
+.js-page-wrap {
+  position: relative;
+  min-height: 100%;
 }
 img {
   border: none;
@@ -1405,6 +1418,7 @@ a {
 #js-leftcol {
   float: left;
   width: 235px;
+  margin-bottom: 20px;
 }
 #js-leftcol a {
   font-weight: normal;
@@ -1435,11 +1449,11 @@ a {
   border-radius: 0 0 10px 10px;
 }
 #js-leftcol ul.level1 > li > a {
+  border-bottom: 1px solid #edf3f4;
+  border-top: 1px solid #edf3f4;
   text-transform: uppercase;
   color: #3d4e53;
   font-size: 12px;
-  border-bottom: 1px solid #edf3f4;
-  border-top: 1px solid #edf3f4;
   display: block;
   padding: 10px;
 }
@@ -1457,6 +1471,7 @@ div.content-block {
   overflow: hidden;
   background: url("/static/images/bg.png") 100% -223px no-repeat;
   padding: 0 0 0 7px;
+  margin-bottom: 20px;
 }
 .content-block-heading a.block-link {
   float: right;
@@ -1476,14 +1491,32 @@ div.content-block-content .cols3 .column {
   float: left;
 }
 #footer {
-  border-top: 7px solid #edf3f4;
+  background-color: #edf3f4;
   clear: both;
-  height: 90px;
-  text-align: center;
+  text-transform: uppercase;
+  color: #3d4e53;
+  font-size: 12px;
+  display: block;
+  padding: 15px 0px 45px 50px;
+  margin-top: 15px;
+  overflow: hidden;
+}
+#footer .column {
+  float: left;
+  width: 25%;
   padding-top: 5px;
 }
-#footer a {
-  color: #3d4e53;
+#footer .column ul {
+  padding-top: 5px;
+}
+#footer .column li {
+  padding: 5px 0;
+  text-transform: none;
+  list-style: none;
+  margin-left: 0;
+}
+#footer .column li a {
+  color: #6994a3;
 }
 .errorlist {
   color: red;

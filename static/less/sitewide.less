@@ -2,6 +2,23 @@
 
 @import "variables.less";
 
+.utilityheaders {
+	text-transform:uppercase;
+	color:@text-blue;
+	font-size:12px;
+	display:block; 
+}
+
+.utilitylinks (@topbottom, @leftright) {
+	padding:@topbottom @leftright;
+	a {
+		color:@medium-blue;
+	}
+}
+
+html, body {
+    height:100%;
+}
 body{
     background:url(@background-body) 0 0 repeat-x;
     padding:0 0 20px 0;
@@ -9,6 +26,11 @@ body{
     font-size:12px;
     font-family: Lucida "Lucida Grande", "Lucida Sans Unicode", sans-serif, Helvetica, sans-serif;
     color:@text-blue;
+}
+
+.js-page-wrap {
+    position: relative;
+    min-height: 100%;
 }
 
 img {
@@ -200,6 +222,7 @@ a {
 #js-leftcol {
 	float:left;
 	width:235px;
+	margin-bottom: 20px;
 	
 	a {
 		font-weight:normal;
@@ -217,21 +240,14 @@ a {
 
 	ul {
 		&.level1 > li > a {
-			text-transform:uppercase;
-			color:@text-blue;
-			font-size:12px;
 			border-bottom:1px solid @pale-blue;
 			border-top:1px solid @pale-blue; 
-			display:block; 
+			.utilityheaders;
 			padding:10px;
 		}
 
 		&.level2 li {
-			padding:5px 10px;
-
-			a {
-				color:@medium-blue;
-			}
+			.utilitylinks(5px, 10px);
 		}
 	}
 }
@@ -246,6 +262,7 @@ div.content-block {
     overflow:hidden;
     background:url(@background-header) 100% -223px no-repeat;
     padding:0 0 0 7px;
+    margin-bottom: 20px;
 }
 
 .content-block-heading a.block-link {
@@ -269,14 +286,28 @@ div.content-block-content {
 }
 
 // Footer
-#footer{
-	border-top: 7px solid @pale-blue;
+#footer {
+	background-color: @pale-blue;
 	clear: both;
-	height:90px;
-	text-align: center;
-	padding-top: 5px;
-}
+	.utilityheaders;
+	padding: 15px 0px 45px 50px;
+	margin-top: 15px;
+	overflow: hidden;
 
-#footer a{
-    color:@text-blue;
+	.column {
+		float:left;
+		width: 25%;
+		padding-top:5px;
+		
+		ul {
+			padding-top:5px;
+		}
+		
+		li {
+			.utilitylinks(5px, 0);
+			text-transform: none;
+			list-style: none;
+			margin-left: 0;
+		}
+	}
 }
