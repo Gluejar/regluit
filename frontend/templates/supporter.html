@@ -96,9 +96,9 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             <div class="user-block3">
                                 <div class="user-block">
-                                <span class="rounded"><span class="blue" {% ifequal request.user supporter %}title="I've unglued {{ backed }} books."{% else %}title="{{ supporter }} has unglued {{ backed }} books."{% endifequal %}>{{ backed }}</span></span>
-                                <span class="rounded"><span class="orange" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} books."{% else %}title="{{ supporter }} is supporting {{ backing }} books."{% endifequal %}>{{ backing }}</span></span>
-                                <span class="rounded"><span class="grey" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} books."{% else %}title="{{ supporter }} is wishing for {{ wished }} books."{% endifequal %}>{{ wished }}</span></span>
+                                <span class="rounded"><span class="blue" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backed }}</span></span>
+                                <span class="rounded"><span class="orange" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backing }}</span></span>
+                                <span class="rounded"><span class="grey" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ wished }}</span></span>
                                 </div>
                                 <span class="user-status-title">I am ungluing</span>
                             </div>
