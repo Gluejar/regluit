@@ -105,6 +105,22 @@
         {% endfor %}
         </ul>
     {% endif %}
+    
+    <hr />
+    <!-- list any Celery tasks and status -->
+    {% if celerytasks %}
+    <p>Book Loading tasks you've initiated</p>
+    <ul>
+    {% for task in celerytasks %}
+        <li>{{task.task_id}} | {{task.description}} | {{task.state}}</li>
+    {% endfor %}    
+    </ul>
+    <form id="clear_celery_tasks" method="post" action="{% url clear_celery_tasks %}">
+            {% csrf_token %}
+            <input type="submit" value="Clear Celery Tasks" />
+    </form>
+    
+    {% endif %}
    
 </div>
 </div>

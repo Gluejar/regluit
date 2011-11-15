@@ -189,3 +189,5 @@ GOODREADS_API_SECRET = ""
 
 import djcelery
 djcelery.setup_loader()
+
+TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'

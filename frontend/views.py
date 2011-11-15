@@ -19,6 +19,8 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 import oauth2 as oauth
 from itertools import islice
 
+import re
+
 from regluit.core import tasks
 from regluit.core import models, bookloader
 from regluit.core import userlists
@@ -333,12 +335,15 @@ class GoodreadsDisplayView(TemplateView):
             context["shelves_info"] = gr_shelves
             gr_shelf_load_form = GoodreadsShelfLoadingForm()
             # load the shelves into the form
-            choices = [('all','all (%d)' % (gr_shelves["total_book_count"]))] + [(s["name"],"%s (%d)" % (s["name"],s["book_count"])) for s in gr_shelves["user_shelves"]]
+            choices = [('all:%d' % (gr_shelves["total_book_count"]),'all (%d)' % (gr_shelves["total_book_count"]))] +  \
+                [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in gr_shelves["user_shelves"]]
             gr_shelf_load_form.fields['goodreads_shelf_name'].widget = Select(choices=tuple(choices))
             
             context["gr_shelf_load_form"] = gr_shelf_load_form
-            #context["reviews"] = list(islice(gr_client.review_list(user_id=user.profile.goodreads_user_id, per_page=50),50))
-  
+            
+# also load any CeleryTasks associated with the user
+            context["celerytasks"] = models.CeleryTask.objects.filter(user=user)
+            
         return context
 
 @login_required    
@@ -386,6 +391,7 @@ def goodreads_flush_assoc(request):
         profile.goodreads_auth_token = None
         profile.goodreads_auth_secret = None
         profile.save()
+        logger.info('Goodreads association flushed for user %s', user)
     return HttpResponseRedirect(reverse('goodreads_display'))
       
 @require_POST
@@ -396,15 +402,28 @@ def goodreads_load_shelf(request):
     a view to allow user load goodreads shelf into her wishlist
     """
     # Should be moved to the API
-    goodreads_shelf_name = request.POST.get('goodreads_shelf_name', 'all')
+    goodreads_shelf_name = request.POST.get('goodreads_shelf_name', 'all:0')
     user = request.user
     try:
-        logger.info('Adding task to load shelf %s to user %s', goodreads_shelf_name, user)
-        tasks.load_goodreads_shelf_into_wishlist.delay(user, goodreads_shelf_name)
+        # parse out shelf name and expected number of books
+        (shelf_name, expected_number_of_books) = re.match(r'^(.*):(\d+)$', goodreads_shelf_name).groups()
+        expected_number_of_books = int(expected_number_of_books)
+        logger.info('Adding task to load shelf %s to user %s with %d books', shelf_name, user, expected_number_of_books)
+        load_task_name = "load_goodreads_shelf_into_wishlist"
+        load_task = getattr(tasks, load_task_name)
+        task_id = load_task.delay(user, goodreads_shelf_name, expected_number_of_books=expected_number_of_books)
+        
+        ct = models.CeleryTask()
+        ct.task_id = task_id
+        ct.function_name = load_task_name
+        ct.user = user
+        ct.description = "Loading Goodread shelf %s to user %s with %s books" % (shelf_name, user, expected_number_of_books)
+        ct.save()
+        
         return HttpResponse("Shelf loading placed on task queue.")
     except Exception,e:
         return HttpResponse("Error in loading shelf: %s " % (e))
-        logger.info("Error in loading shelf: %s ", e)
+        logger.info("Error in loading shelf for user %s: %s ", user, e)
 
 @require_POST
 @login_required      
@@ -412,9 +431,24 @@ def goodreads_load_shelf(request):
 def clear_wishlist(request):
     try:
         request.user.wishlist.works.clear()
+        logger.info("Wishlist for user %s cleared", request.user)
         return HttpResponse('wishlist cleared')
     except Exception, e:
         return HttpResponse("Error in clearing wishlist: %s " % (e))
-        logger.info("Error in clearing wishlist: %s ", e)
+        logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
     
+    
+@require_POST
+@login_required      
+@csrf_exempt
+def clear_celery_tasks(request):
+    try:
+        request.user.tasks.clear()
+        logger.info("Celery tasks for user %s cleared", request.user)
+        return HttpResponse('Celery Tasks List cleared')
+    except Exception, e:
+        return HttpResponse("Error in clearing Celery Tasks: %s " % (e))
+        logger.info("Error in clearing Celery Tasks for user %s: %s ", request.user, e)    
 
+def celery_test(request):
+    return HttpResponse("celery_test")
