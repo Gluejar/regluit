@@ -1,7 +1,7 @@
 import logging
 from decimal import Decimal as D
 
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -58,6 +58,17 @@ def work(request, work_id, action='display'):
     else:
         return render(request, 'work.html', {'work': work, 'premiums': premiums, 'ungluers': userlists.supporting_users(work, 5)})
 
+def subjects(request):
+    order = request.GET.get('order')
+    subjects = models.Subject.objects.all()
+    subjects = subjects.annotate(Count('editions'))
+
+    if request.GET.get('order') == 'count':
+        subjects = subjects.order_by('-editions__count')
+    else:
+        subjects = subjects.order_by('name')
+
+    return render(request, 'subjects.html', {'subjects': subjects})
 
 def pledge(request,work_id):
     work = get_object_or_404(models.Work, id=work_id)
@@ -157,8 +168,6 @@ def edit_user(request):
             request.user.save()
             return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form},)  
-
-
 def search(request):
     q = request.GET.get('q', None)
     results = gluejar_search(q)

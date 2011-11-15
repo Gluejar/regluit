@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="js-topsection">
+    <div class="js-main">
+        <h1>Subjects</h1>
+
+        <p>
+        Below is a list of subjects for books that users have added to 
+        wishlists. It is here primarily to show what subjects are present 
+        in the database to guide further development. You can order by the 
+        <a href="{% url subjects %}">subject name</a> or by the 
+        <a href="{% url subjects %}?order=count">number</a> of editions 
+        with that subject.
+        </p>
+
+        <p>
+        <ul>
+        {% for subject in subjects %}
+            <li>{{ subject.name }} ({{ subject.editions__count }})</li>
+        {% endfor %}
+        </ul>
+        </p>
+
+</div>
+</div>
+
+{% endblock %}
+

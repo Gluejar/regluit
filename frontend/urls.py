@@ -31,5 +31,6 @@ urlpatterns = patterns(
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
-    url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge")
+    url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
+    url(r"^subjects/$", "subjects", name="subjects"),
 )
