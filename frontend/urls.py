@@ -30,6 +30,7 @@ urlpatterns = patterns(
     url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
+    url(r"^workstub/(?P<title>.+)/(?P<imagebase>.+)/(?P<image>.+)/(?P<author>.+)/(?P<googlebooks_id>.+)/$", "workstub", name="workstub"),
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge")
 )

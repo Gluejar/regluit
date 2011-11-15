@@ -34,6 +34,9 @@ logger = logging.getLogger(__name__)
 
 from regluit.payment.models import Transaction
 
+import urllib
+from re import sub
+
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
@@ -56,6 +59,14 @@ def work(request, work_id, action='display'):
         return render(request, 'setup_campaign.html', {'work': work})
     else:
         return render(request, 'work.html', {'work': work, 'premiums': premiums})
+        
+def workstub(request, title, imagebase, image, author, googlebooks_id, action='display'):
+	premiums = None
+	title = urllib.unquote(title)
+	imagebase = urllib.unquote(imagebase)
+	image = urllib.unquote(image)
+	author = urllib.unquote(author)
+	return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums})
 
 
 def pledge(request,work_id):
@@ -174,6 +185,13 @@ def search(request):
                 result['on_wishlist'] = True
             else:
                 result['on_wishlist'] = False
+            
+    # also urlencode some parameters we'll need to pass to workstub in the title links
+    # needs to be done outside the if condition
+    for result in results:
+    	result['urlimage'] = urllib.quote(sub('^https?:\/\/','', result['image']).encode("utf-8"), safe='')
+    	result['urlauthor'] = urllib.quote(result['author'].encode("utf-8"), safe='')
+    	result['urltitle'] = urllib.quote(result['title'].encode("utf-8"), safe='')
 
     context = {
         "q": q,
