@@ -53,6 +53,7 @@ def stub(request):
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
+
     claimform = ClaimForm(data={'work':work_id, 'user':request.user.id })
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
@@ -105,6 +106,22 @@ def pledge(request,work_id):
     form = CampaignPledgeForm(data)
 
     return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+
+def claim(request):
+    if  request.method == 'GET': 
+        data = request.GET
+    else:
+        data =  request.POST
+    form =  ClaimForm(data=data)
+    if form.is_valid():
+        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder']).count():
+            form.save()
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))
+    else:
+        work = models.Work.objects.get(id=data['work'])
+        rights_holder = models.RightsHolder.objects.get(id=data['rights_holder'])
+        context = {'form': form, 'work': work, 'rights_holder':rights_holder }
+        return render(request, "claim.html", context)
 
 def rh_admin(request):
     if not is_admin(request.user):

@@ -124,7 +124,9 @@
                         <h4> Claim this work:</h4>
                         <form method="GET" action="{% url claim %}">
 							{% csrf_token %}
-							{{ claimform.as_p }}
+							{{ claimform.user }}
+							{{ claimform.work }}
+							{{ claimform.rights_holder }}
 							<input type="submit" name="submit" value="Claim" id="submit">
 						</form>
                         {% endif %}
