@@ -124,7 +124,7 @@ def claim(request):
         return render(request, "claim.html", context)
 
 def rh_admin(request):
-    if not is_admin(request.user):
+    if not request.user.profile.is_admin:
         return render(request, "admins_only.html")
     if  request.method == 'POST': 
         form = RightsHolderForm(data=request.POST)
@@ -133,14 +133,15 @@ def rh_admin(request):
     else:
         form = RightsHolderForm()
     rights_holders = models.RightsHolder.objects.all()
-    context = { 'request': request, 'rights_holders': rights_holders, 'form': form }
+    pending = models.Claim.objects.filter(status = 'pending')
+    context = { 
+        'request': request, 
+        'rights_holders': rights_holders, 
+        'form': form,
+        'pending': pending,
+    }
     return render(request, "rights_holders.html", context)
 
-def is_admin(user):
-    for name,email in settings.ADMINS :
-        if email == user.email :
-            return True 
-    return False    
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)

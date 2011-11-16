@@ -5,6 +5,7 @@ from decimal import Decimal
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
+from django.conf import settings
 
 import regluit
 
@@ -41,10 +42,16 @@ class CeleryTask(models.Model):
         return f.AsyncResult(self.task_id).info        
         
 class Claim(models.Model):
+    STATUSES = ((
+        u'Active', u'Claim has been registered and approved.'),
+        (u'Pending', u'Claim is pending approval.'),
+        (u'Released', u'Claim has been released.'),
+    )
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
     created =  models.DateTimeField(auto_now_add=True)  
+    status = models.CharField(max_length=7, choices= STATUSES, default='pending')
    
 class RightsHolder(models.Model):
     email = models.CharField(max_length=100, blank=True)
@@ -317,6 +324,14 @@ class UserProfile(models.Model):
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
+
+    def is_admin(self):
+        if self.user.is_anonymous():
+            return False
+        for name,email in settings.ADMINS :
+            if email == self.user.email :
+                return True 
+        return False    
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager

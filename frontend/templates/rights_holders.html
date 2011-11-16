@@ -19,4 +19,15 @@
 	owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a><br/>
 {% endfor %}
 
+<h2> Pending Claims </h2>
+{% for claim in pending %}
+	<h3>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></h3>
+	<p>Author: {{claim.work.author }}</p>
+	<p>By: {{ claim.user.username }}
+	<p>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</p>
+	<p>PSA #: {{ claim.rights_holder.id }}</p>
+	<p>Date of Claim : {{ claim.created }}</p>
+	<p>Status: {{ claim.status }}</p>
+{% endfor %}
+
 {% endblock %}
