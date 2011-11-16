@@ -74,6 +74,10 @@ PAYPAL_BUYER_PASSWORD = ''
 
 BASE_URL = 'http://0.0.0.0/'
 
+# Goodreads API
+GOODREADS_API_KEY = 'w8nsFplG3HFOeOLQ7rqfQ'
+GOODREADS_API_SECRET = '8Dfl7nQ28VgzJctlVwf8m7zkPaWns4j79t0G9iFxbk'
+
 # use database as queuing service in development
 BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"
 INSTALLED_APPS += ("djkombu",)
