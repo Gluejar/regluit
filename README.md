@@ -41,7 +41,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. create an ubuntu natty ec2 instance using ami-1aad5273
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server libxml2-dev libxslt-dev`
+1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
@@ -51,13 +51,12 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. add `~/.ssh/id_rsa.pub` as a deploy key on github
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd /opt/regluit`
-1. `cp settings/dev.py settings/prod.py`
 1. create an Amazon RDS instance
 1. connect to it, e.g. `mysql -u root -h gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com -p`
 1. `CREATE DATABASE unglueit CHARSET utf8;`
 1. `GRANT ALL ON unglueit.* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL`
 1. update settings/prod.py with database credentials
-1. `virtualenv --no-site-packages ENV`
+1. `virtualenv ENV`
 1. `source ENV/bin/activate`
 1. `pip install -r requirements.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
