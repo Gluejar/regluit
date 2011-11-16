@@ -195,14 +195,7 @@ def supporter(request, supporter_username, template_name):
     else:
         profile_form = ''
     
-    # add a Goodreads authorization link
-    # calculate the Goodreads authorization URL
-    gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-    (goodreads_auth_url, request_token) = gr_client.begin_authorization(request.build_absolute_uri(reverse('goodreads_cb')))
-    logger.info("goodreads_auth_url: %s" %(goodreads_auth_url))
-    # store request token in session so that we can redeem it for auth_token if authorization works
-    request.session['goodreads_request_token'] = request_token['oauth_token']
-    request.session['goodreads_request_secret'] = request_token['oauth_token_secret']
+    goodreads_auth_url = reverse('goodreads_auth')
         
     context = {
             "supporter": supporter,
@@ -379,6 +372,19 @@ class GoodreadsDisplayView(TemplateView):
             context["celerytasks"] = models.CeleryTask.objects.filter(user=user)
             
         return context
+
+@login_required
+def goodreads_auth(request):
+
+    # calculate the Goodreads authorization URL
+    gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+    (goodreads_auth_url, request_token) = gr_client.begin_authorization(request.build_absolute_uri(reverse('goodreads_cb')))
+    logger.info("goodreads_auth_url: %s" %(goodreads_auth_url))
+    # store request token in session so that we can redeem it for auth_token if authorization works
+    request.session['goodreads_request_token'] = request_token['oauth_token']
+    request.session['goodreads_request_secret'] = request_token['oauth_token_secret']
+    
+    return HttpResponseRedirect(goodreads_auth_url)
 
 @login_required    
 def goodreads_cb(request):

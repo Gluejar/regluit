@@ -26,6 +26,7 @@ urlpatterns = patterns(
         model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list")),
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
     url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
+    url(r"^goodreads/auth/$", "goodreads_auth", name="goodreads_auth"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
     url(r"^goodreads/flush/$","goodreads_flush_assoc", name="goodreads_flush_assoc"),
     url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
