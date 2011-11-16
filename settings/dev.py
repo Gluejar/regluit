@@ -98,5 +98,5 @@ FREEBASE_PASSWORD = ''
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
 
-#
-MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES
+# a debug_toolbar setting
+INTERNAL_IPS = ('127.0.0.1',)
