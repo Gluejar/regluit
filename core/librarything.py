@@ -62,6 +62,13 @@ class LibraryThing(object):
             # title
             book_data["title"] = {"href":cols[1].xpath('.//a')[0].attrib['href'],
                                   "title":cols[1].xpath('.//a')[0].text}
+            
+            # extract work_id and book_id from href
+            try:
+                (book_data["work_id"], book_data["book_id"]) = re.match("^/work/(.*)/book/(.*)$",book_data["title"]["href"]).groups()
+            except:
+                (book_data["work_id"], book_data["book_id"]) = (None, None)
+                
             # author -- what if there is more than 1?  or none?
             try:
                 book_data["author"] = {"display_name":cols[2].xpath('.//a')[0].text,
@@ -86,7 +93,46 @@ class LibraryThing(object):
             yield book_data
             
     def viewstyle_5(self, rows):
-        raise NotImplementedError()
+        # implement this view to get at the ISBNs
+        for (i,row) in enumerate(rows):
+            book_data = {}
+            cols = row.xpath('td')
+            
+            # title
+            book_data["title"] = {"href":cols[0].xpath('.//a')[0].attrib['href'],
+                                  "title":cols[0].xpath('.//a')[0].text}
+            
+            # extract work_id and book_id from href
+            try:
+                (book_data["work_id"], book_data["book_id"]) = re.match("^/work/(.*)/book/(.*)$",book_data["title"]["href"]).groups()
+            except:
+                (book_data["work_id"], book_data["book_id"]) = (None, None)
+            
+            # tags
+            tag_links = cols[1].xpath('.//a')
+            book_data["tags"] = filter(lambda x: x is not None, [a.text for a in tag_links])
+
+            # lc classification
+            try:
+                book_data["lc_call_number"] = cols[2].xpath('.//span')[0].text
+            except Exception, e:
+                logger.info("book lc call number exception: %s %s", book_data["title"], e)
+                book_data["lc_call_number"] = None
+                
+            # subject
+            
+            subjects = cols[3].xpath('.//div[@class="subjectLine"]')
+            book_data["subjects"] = [{'href':s.xpath('a')[0].attrib['href'],
+                                      'text':s.xpath('a')[0].text} for s in subjects]
+            
+            # isbn
+            try:
+                book_data["isbn"] = cols[4].xpath('.//span')[0].text
+            except Exception, e:
+                book_data["isbn"] = None
+            
+            yield book_data
+
         
     def parse_user_catalog(self, view_style=1):
         from lxml import html
