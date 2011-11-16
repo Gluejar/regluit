@@ -19,11 +19,12 @@
 	<p>Author: {{claim.work.author }}</p>
 	<p>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</p>
 	<p>PSA #: {{ claim.rights_holder.id }}</p>
-	<p></p>
+	<p>Date of Claim : {{ claim.created }}</p>
+	<p>Status: {{ claim.status }}</p>
 	{% endfor %}
 {% endif %}
 
-<h2>Rights Holder FAQ/How to launch a campaign</h2>
+<h2>How to launch an Unglue.it campaign</h2>
 
 <ol>
 	<li>
@@ -35,7 +36,14 @@
 	The next step for a rights holder is to claim works from the Unglue.it database. Find the work by adding it to you wishlist. 
 	On the "details" tab of the work's page, you will find a form that allows you to enter a claim.
 	When you enter a claim, you will be asked to agree to terms and conditions, in which you agree that you're making the claim in good faith, and that you can substantiate that you have legal control over rights to the work.
+	If you claim a work by mistake, please contact Unglue.it rights holder relations immediately: rights@gluejar.com
 	</li>
+	<li>
+	Once a claim is made, it will be reviewed by Unglue.it staff. 
+	We'll make sure that the the claim is in order, and we may contact you at {{ request.user.email }} if we have any questions.
+	We may want to look over publishing contracts, etc., to make sure you have sufficient rights to unglue the book.
+	</li>
+	
 </ol>
 
 <h2>Rightsholder social media tools</h2>
@@ -53,5 +61,7 @@ Here are the standard rewards:
 <li><em>$50</em> &#8212; Your name & link of your choice under "benefactors"</li>
 <li><em>$100</em> &#8212; Your name, link of your choice, & a brief message (140 characters max) under "bibliophiles"</li>
 </ul>
+
+<h2>More Questions</h2>
 
 {% endblock %}
