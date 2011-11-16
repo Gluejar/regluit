@@ -35,6 +35,6 @@ urlpatterns = patterns(
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
-    url(r"^subjects/$", "subjects", name="subjects")
-
+    url(r"^subjects/$", "subjects", name="subjects"),
+	url('^404testing/$', direct_to_template, {'template': '404.html'})
 )
