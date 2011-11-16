@@ -120,7 +120,7 @@
                         {% endfor %}
                         </ul>
                         {% endif %}
-                        {% if request.user.rights_holder %}
+                        {% if request.user.rights_holder.all.count %}
                         <h4> Claim this work:</h4>
                         <form method="GET" action="{% url claim %}">
 							{% csrf_token %}

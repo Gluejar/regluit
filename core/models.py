@@ -43,7 +43,7 @@ class CeleryTask(models.Model):
 class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
-    user =  models.ForeignKey(User, related_name="user", null=False ) 
+    user =  models.ForeignKey(User, related_name="claim", null=False ) 
     created =  models.DateTimeField(auto_now_add=True)  
    
 class RightsHolder(models.Model):
