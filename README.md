@@ -16,11 +16,11 @@ Here are some instructions for setting up regluit for development on
 an Ubuntu system. If you are on OS X see notes below 
 to install python-setuptools in step 1:
 
-1. `aptitude install python-setuptools git libxml2-dev libxslt-dev`
+1. `aptitude install python-setuptools git python-lxml` 
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
-1. `mkvirtualenv --no-site-packages regluit`
+1. `mkvirtualenv regluit`
 1. `pip install -r requirements.pip`
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
@@ -48,7 +48,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `git config --global user.name "Ed Summers"`
 1. `git config --global user.email "ehs@pobox.com"`
 1. `ssh-keygen`
-1. add `~/.ssh/id_rsa.pub` as a deploy key on github
+1. add `~/.ssh/id_rsa.pub` as a deploy key on github https://github.com/Gluejar/regluit/admin/keys
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd /opt/regluit`
 1. create an Amazon RDS instance
