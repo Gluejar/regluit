@@ -194,7 +194,16 @@ def supporter(request, supporter_username, template_name):
             profile_form= ProfileForm(instance=profile_obj)
     else:
         profile_form = ''
-            
+    
+    # add a Goodreads authorization link
+    # calculate the Goodreads authorization URL
+    gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+    (goodreads_auth_url, request_token) = gr_client.begin_authorization(request.build_absolute_uri(reverse('goodreads_cb')))
+    logger.info("goodreads_auth_url: %s" %(goodreads_auth_url))
+    # store request token in session so that we can redeem it for auth_token if authorization works
+    request.session['goodreads_request_token'] = request_token['oauth_token']
+    request.session['goodreads_request_secret'] = request_token['oauth_token_secret']
+        
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
@@ -204,7 +213,8 @@ def supporter(request, supporter_username, template_name):
             "date": date,
             "shared_works": shared_works,
             "profile_form": profile_form,
-            "ungluers": userlists.other_users(supporter, 5 )
+            "ungluers": userlists.other_users(supporter, 5 ),
+            "goodreads_auth_url": goodreads_auth_url
     }
     
     return render(request, template_name, context)
@@ -400,7 +410,7 @@ def goodreads_cb(request):
         profile.save()  # is this needed?
 
     # redirect to the Goodreads display page -- should observe some next later
-    return HttpResponseRedirect(reverse('goodreads_display'))
+    return HttpResponseRedirect(reverse('home'))
 
 @require_POST
 @login_required
