@@ -17,8 +17,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'unglueit_dev',
-        'USER': 'unglueit_dev',
-        'PASSWORD': 'unglu3it',
+        'USER': 'please',
+        'PASSWORD': 'unglueit',
         'HOST': 'gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
@@ -88,5 +88,3 @@ BROKER_TRANSPORT = "redis"
 BROKER_HOST = "localhost"
 BROKER_PORT = 6379
 BROKER_VHOST = "0"
-
-
