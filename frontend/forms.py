@@ -55,3 +55,6 @@ class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
                 ('all','all'),
                 )))
+
+class LibraryThingForm(forms.Form):
+    lt_username = forms.CharField(max_length=30, required=True)

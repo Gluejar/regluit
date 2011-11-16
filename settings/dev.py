@@ -88,9 +88,15 @@ INSTALLED_APPS += ("djkombu",)
 GOODREADS_API_KEY = ''
 GOODREADS_API_SECRET = ''
 
+# LibraryThing API
+LIBRARYTHING_API_KEY = ''
+
 # Freebase credentials
 FREEBASE_USERNAME = ''
 FREEBASE_PASSWORD = ''
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
+
+#
+MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES

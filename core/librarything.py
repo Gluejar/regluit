@@ -180,11 +180,14 @@ class LibraryThing(object):
         
             # deal with page 1 first and then working on paging through the collection
             rows = etree.xpath(rows_xpath)
+            
+            i = -1 # have to account for the problem of style_parser(rows) returning nothing
         
             for (i,row) in enumerate(style_parser(rows)):
                 yield row
                 
             # page size = 50, first page offset = 0, second page offset = 50 -- if total = 50 no need to go
+
             offset += i + 1  
             if offset >= total:
                 next_page = False

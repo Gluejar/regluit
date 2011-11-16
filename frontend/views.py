@@ -22,11 +22,11 @@ from itertools import islice
 import re
 
 from regluit.core import tasks
-from regluit.core import models, bookloader
+from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm, ClaimForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm, ClaimForm, LibraryThingForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -443,6 +443,29 @@ def clear_wishlist(request):
         return HttpResponse("Error in clearing wishlist: %s " % (e))
         logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
     
+
+class LibraryThingView(FormView):
+    template_name="librarything.html"
+    form_class = LibraryThingForm
+    
+    def get_context_data(self, **kwargs):
+        context = super(LibraryThingView, self).get_context_data(**kwargs)
+        form = kwargs['form']
+        # get the books for the lt_username in the form
+        lt_username=self.request.GET.get("lt_username",None)
+        if lt_username is not None:
+            lt = librarything.LibraryThing(username=lt_username)
+            context.update({'books':list(lt.parse_user_catalog(view_style=5))})
+        else:
+            context.update({'books':None})
+            
+        # pick up the LibraryThing api key
+        context.update({'lt_api_key':settings.LIBRARYTHING_API_KEY})
+        
+        return context
+
+    def form_valid(self,form):
+        return super(LibraryThingView, self).form_valid(form)
     
 @require_POST
 @login_required      
