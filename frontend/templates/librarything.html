@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}LibraryThing{% endblock %}
+
+{% block content %}
+<div id="main-container">
+<div class="js-main">
+<div id="js-maincol-fr">
+<div class="js-maincol-inner">
+<div class="content-block">
+    
+    <h1>LibraryThing</h1>
+    {% if books %}
+    <ul>
+    {% for book in books|slice:":50" %}
+      <li><img src="http://covers.librarything.com/devkey/{{lt_api_key}}/small/isbn/{{book.isbn}}"/> <img src="http://covers.openlibrary.org/b/isbn/{{book.isbn}}-S.jpg" />{{book.title.title}} | ISBN:{{book.isbn}} | Work ID:{{book.work_id}} | Book ID:{{book.book_id}}</li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+
+
+</div>
+</div>
+</div>
+</div>
+</div>    
+{% endblock %}
+
+
