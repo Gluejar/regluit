@@ -6,8 +6,10 @@ from decimal import Decimal as D
 from regluit.core.models import UserProfile, RightsHolder, Claim
 
 class ClaimForm(forms.ModelForm):
+    i_agree=forms.BooleanField()
     class Meta:
         model = Claim
+        exclude = 'status'
         widgets = { 'user': forms.HiddenInput, 'work': forms.HiddenInput }
 
 class RightsHolderForm(forms.ModelForm):

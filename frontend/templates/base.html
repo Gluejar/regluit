@@ -4,6 +4,7 @@
 {% url regluit.frontend.views.edit_user as editurl %}
 {% url rightsholders as rhtoolsurl %}
 {% url faq as faqurl %}
+{% url rh_admin as adminurl %}
 
 <html>
 <head>
@@ -57,6 +58,7 @@
     {% block content %}{% endblock %}
 
 <div id="footer">
+  <div class="js-main">
     <div class="column">
     <span>About unglue.it</span>
     <ul>
@@ -75,6 +77,9 @@
     <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
     <li><a href="{{privacyurl}}">Privacy</a></li>
     <li><a href="/stub/terms_and_conditions">Terms and Conditions</a></li>
+    {% if user.profile.is_admin %}
+    <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
+    {% endif %}
     </ul>
     </div>
     <div class="column">
@@ -83,6 +88,7 @@
     <li><a href="/stub/faq">FAQ</a></li>
     <li><a href="/stub/rhfaq">Rights Holder FAQ</a></li>
     <li><a href="{% url api_help %}">API</a></li>
+    <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
     </ul>
     </div>
     <div class="column">
@@ -95,6 +101,7 @@
     </ul>
     </div>
     </p>
+</div>
 </div>
 </div>
 

@@ -13,7 +13,6 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
-/* Local variables */
 .greenpanelstuff {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -32,23 +31,12 @@
   text-decoration: none;
   color: #3d4e53;
 }
-.readit {
-  width: 118px;
-  height: 35px;
-  padding: 0px 0px;
-  background: #FFFFFF;
-  margin: 0px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  border: 1px solid #81bb38;
-}
-/* background */
 @charset "utf-8";
 * {
   padding: 0px;
   margin: 0px;
 }
+/*main_Css*/
 #main-wrapper {
   height: 100%;
   width: 725px;
@@ -66,7 +54,6 @@
   margin: 15px 0px;
   font-weight: bold;
 }
-/* styling of front side elements */
 .panelview.book-list {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -78,7 +65,18 @@
   background-color: #ffffff;
   color: #3d4e53;
   border: 5px solid #edf3f4;
-  position: relative;
+  /*	might need this for panel hover state; don't want it for nonhover. hm.
+	a {
+    	color: @dark-green;
+    	text-decoration: none;
+    	
+    	&:hover {
+    		color: @green;
+	    	text-decoration: none;
+		}
+	}
+*/
+
 }
 .panelview.book-list:hover {
   color: #3d4e53;
@@ -87,19 +85,14 @@
   padding: 5px 0px;
   margin: 0px;
 }
-.panelview.remove-wishlist,
-.panelview.on-wishlist,
-.panelview.create-account,
-.panelview.add-wishlist {
+div.remove-wishlist.panelview {
   display: none;
 }
-.panelview.book-name div {
+.panelview.book-name, .panelview.author {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
-  max-height: 32px;
   color: #3d4e53;
-  overflow: hidden;
 }
 .panelview.booklist-status {
   color: #8dc63f;
@@ -109,46 +102,7 @@
   float: left;
   font-weight: bold;
 }
-.panelview.icons {
-  position: absolute;
-  bottom: -3px;
-  width: 140px;
-}
-.panelview.icons .booklist-status-img {
-  float: left;
-}
-.panelview.icons .booklist-status-label {
-  position: absolute;
-  color: #8dc63f;
-  padding-left: 5px;
-  left: 40px;
-  bottom: 5px;
-}
-.panelview.icons .right_add {
-  float: right;
-  padding: 10px 10px 0 0;
-  width: 24px;
-}
-.panelview.boolist-ebook a {
-  display: none;
-}
-/* switch to/from hover state when jquery swaps class names */
-span.panelview.panelback.side1, span.panelview.panelback.side1 div {
-  display: visible;
-}
-span.panelview.panelback.side2, span.panelview.panelback.side2 div {
-  display: none;
-}
-div.panelview.side1 > div {
-  display: visible;
-}
-div.panelview.side2 > div {
-  display: none;
-}
-/* styling of hover state */
-.panelback {
-  position: relative;
-}
+/*2 start*/
 .greenpanel2 {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
@@ -159,16 +113,13 @@ div.panelview.side2 > div {
   height: 295px;
   background-color: #8dc63f;
   color: #ffffff;
-  position: absolute;
-  top: -5px;
-  left: -10px;
+  position: relative;
 }
 .unglued_white {
   font-size: 12px;
   margin: 0px  auto;
   margin-bottom: 5px;
   padding: 10px 0px;
-  height: 48px;
 }
 .read_itbutton {
   width: 118px;
@@ -189,46 +140,18 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
+  background: url(/static/images/book-panel/book_icon.png) no-repeat left center;
   padding: 0px 0px 0px 30px;
   color: #73a334;
-  background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
   text-decoration: none;
 }
-.read_itbutton_fail {
-  width: 118px;
-  height: 35px;
-  padding: 0px 0px;
-  background: #FFFFFF;
-  margin: 0px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
-  border: 1px solid #81bb38;
-}
-.read_itbutton_fail span {
-  line-height: 40px;
-  font-size: 11px;
-  background-repeat: no-repeat;
-  background-position: 10px center;
-  font-weight: bold;
-  text-decoration: none;
-  text-transform: uppercase;
-  padding: 0px 0px 0px 15px;
-  color: #73a334;
-  background: none;
-}
-.read_itbutton_fail span:hover {
-  text-decoration: none;
-}
 .add_towish {
-  width: 130px;
+  width: 125px;
   height: 30px;
-  padding: 0px;
-  margin: 15px 0 15px 0;
-  vertical-align: baseline;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
+  padding: 0px 0px;
+  margin: 15px auto;
 }
 .add_towish a {
   line-height: 40px;
@@ -238,6 +161,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
+  background-image: url(/static/images/book-panel/add_wish_icon.png);
   padding: 8px 5px 8px 21px;
   color: #FFFFFF;
   border-top-width: 1px;
@@ -265,18 +189,12 @@ div.panelview.side2 > div {
   text-decoration: none;
   color: #3d4e53;
 }
-.white_text p {
-  line-height: 16px;
-  max-height: 32px;
-  overflow: hidden;
-}
+/*more info*/
 .moreinfo {
   width: 130px;
   height: 30px;
   padding: 0px;
-  margin: 15px 0 0px 0;
-  vertical-align: baseline;
-  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
+  margin: 15px 0 0;
 }
 .moreinfo a {
   line-height: 40px;
@@ -286,7 +204,9 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  padding: 8px 42px 8px 21px;
+  background-image: url(/static/images/book-panel/more_icon.png);
+  padding: 8px 42px 8px 20px;
+  padding-left: 20px;
   color: #FFFFFF;
   border-top-width: 1px;
   border-bottom-width: 1px;
@@ -299,13 +219,44 @@ div.panelview.side2 > div {
   text-decoration: none;
   color: #3d4e53;
 }
-/* styling of hover state when book has not been unglued, and a bunch of stuff I haven't figured out yet */
+/*end of the more info/*
+/*end the 2greenpanel*/
+/*2 start*/
+.graypanel {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  margin: 20px  auto;
+  padding: 4px 5px;
+  height: 300px;
+  width: 130px;
+  line-height: 16px;
+  background-color: #edf3f4;
+  color: #3d4e53;
+  border: 5px solid #edf3f4;
+}
+.unglued_white2 {
+  font-size: 12px;
+  margin: 3px  auto;
+  padding: 5px 0px;
+}
+.green {
+  color: #8dc63f;
+  text-align: left;
+}
+.graypanel a {
+  text-decoration: none;
+  color: #3d4e53;
+}
+.graypanel a:hover {
+  color: #8dc63f;
+  text-decoration: none;
+}
 .Unglue_itbutton {
   width: 110px;
   height: 40px;
   padding: 0px 9px;
   background: #FFFFFF;
-  margin: 0px 15px 0px -5px;
+  margin: 0px auto;
   -moz-border-radius: 4px 4px 4px 4px;
   -webkit-border-radius: 4px 4px 4px 4px;
   border-radius: 4px 4px 4px 4px;
@@ -319,7 +270,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/unglue_icon.png");
+  background-image: url(/static/images/book-panel/unglue_icon.png);
   padding: 5px 0px 0px 20px;
   color: #3d4e53;
   text-align: right;
@@ -342,7 +293,7 @@ div.panelview.side2 > div {
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_gray.png");
+  background-image: url(/static/images/book-panel/add_gray.png);
   padding: 8px 0px;
   padding-left: 20px;
   color: #3d4e53;
@@ -377,7 +328,7 @@ div.panelview.side2 > div {
 .moreinfo2 a {
   line-height: 40px;
   font-size: 12px;
-  background-image: url("/static/images/book-panel/gray_more_info.png");
+  background-image: url(/static/images/book-panel/gray_more_info.png);
   background-repeat: no-repeat;
   background-position: left center;
   padding: 8px 35px;
@@ -460,6 +411,7 @@ p.right_add {
 }
 /* --------------- ( slideout hover state ) --------------------------------------------- */
 .panelview.book-thumb {
+  float: left;
   position: relative;
   margin: 0px;
   padding: 0px;

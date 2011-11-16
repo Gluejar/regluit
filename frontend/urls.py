@@ -17,8 +17,7 @@ urlpatterns = patterns(
         name="privacy"),
     url(r"^rightsholders/$", TemplateView.as_view(template_name="rhtools.html"),
         name="rightsholders"), 
-    url(r"^rightsholders/claim/$", TemplateView.as_view(template_name="claim.html"),
-        name="claim"), 
+    url(r"^rightsholders/claim/$", "claim", name="claim"), 
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"), 
     url(r"^faq/$", TemplateView.as_view(template_name="faq.html"),
         name="faq"), 
@@ -38,6 +37,6 @@ urlpatterns = patterns(
     url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
     url(r"^subjects/$", "subjects", name="subjects"),
-    url(r"^librarything/$", LibraryThingView.as_view(), name="librarything")
-
+    url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
+    url('^404testing/$', direct_to_template, {'template': '404.html'})
 )

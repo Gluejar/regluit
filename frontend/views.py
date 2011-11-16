@@ -53,6 +53,7 @@ def stub(request):
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
+
     claimform = ClaimForm(data={'work':work_id, 'user':request.user.id })
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
@@ -106,8 +107,24 @@ def pledge(request,work_id):
 
     return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
 
+def claim(request):
+    if  request.method == 'GET': 
+        data = request.GET
+    else:
+        data =  request.POST
+    form =  ClaimForm(data=data)
+    if form.is_valid():
+        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder']).count():
+            form.save()
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))
+    else:
+        work = models.Work.objects.get(id=data['work'])
+        rights_holder = models.RightsHolder.objects.get(id=data['rights_holder'])
+        context = {'form': form, 'work': work, 'rights_holder':rights_holder }
+        return render(request, "claim.html", context)
+
 def rh_admin(request):
-    if not is_admin(request.user):
+    if not request.user.profile.is_admin:
         return render(request, "admins_only.html")
     if  request.method == 'POST': 
         form = RightsHolderForm(data=request.POST)
@@ -116,14 +133,15 @@ def rh_admin(request):
     else:
         form = RightsHolderForm()
     rights_holders = models.RightsHolder.objects.all()
-    context = { 'request': request, 'rights_holders': rights_holders, 'form': form }
+    pending = models.Claim.objects.filter(status = 'pending')
+    context = { 
+        'request': request, 
+        'rights_holders': rights_holders, 
+        'form': form,
+        'pending': pending,
+    }
     return render(request, "rights_holders.html", context)
 
-def is_admin(user):
-    for name,email in settings.ADMINS :
-        if email == user.email :
-            return True 
-    return False    
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)

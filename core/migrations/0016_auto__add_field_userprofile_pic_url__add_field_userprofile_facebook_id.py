@@ -20,6 +20,9 @@ class Migration(SchemaMigration):
         # Changing field 'CeleryTask.function_args'
         db.alter_column('core_celerytask', 'function_args', self.gf('django.db.models.fields.IntegerField')(null=True))
 
+        # Adding field 'Claim.status'
+        db.add_column('core_claim', 'status', self.gf('django.db.models.fields.CharField')(default='pending', max_length=7), keep_default=False)
+
 
     def backwards(self, orm):
         
@@ -34,6 +37,9 @@ class Migration(SchemaMigration):
 
         # Changing field 'CeleryTask.function_args'
         db.alter_column('core_celerytask', 'function_args', self.gf('django.db.models.fields.IntegerField')(default=0))
+
+        # Deleting field 'Claim.status'
+        db.delete_column('core_claim', 'status')
 
 
     models = {
@@ -100,7 +106,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2011, 11, 15, 16, 42, 26, 26741)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2011, 11, 16, 13, 17, 38, 822204)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
@@ -113,7 +119,8 @@ class Migration(SchemaMigration):
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'rights_holder': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'claim'", 'to': "orm['core.RightsHolder']"}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'user'", 'to': "orm['auth.User']"}),
+            'status': ('django.db.models.fields.CharField', [], {'default': "'pending'", 'max_length': '7'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'claim'", 'to': "orm['auth.User']"}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'claim'", 'to': "orm['core.Work']"})
         },
         'core.ebook': {
