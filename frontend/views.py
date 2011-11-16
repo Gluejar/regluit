@@ -26,7 +26,7 @@ from regluit.core import models, bookloader
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm, ClaimForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -53,6 +53,8 @@ def stub(request):
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
+
+    claimform = ClaimForm(data={'work':work_id, 'user':request.user.id })
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
@@ -61,15 +63,20 @@ def work(request, work_id, action='display'):
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
-        return render(request, 'work.html', {'work': work, 'premiums': premiums, 'ungluers': userlists.supporting_users(work, 5)})
+        return render(request, 'work.html', {
+            'work': work, 
+            'premiums': premiums, 
+            'ungluers': userlists.supporting_users(work, 5), 
+            'claimform': claimform,
+        })
         
 def workstub(request, title, imagebase, image, author, googlebooks_id, action='display'):
-	premiums = None
-	title = urllib.unquote_plus(title)
-	imagebase = urllib.unquote_plus(imagebase)
-	image = urllib.unquote_plus(image)
-	author = urllib.unquote_plus(author)
-	return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums, 'ungluers': userlists.other_users(supporter, 5)})
+    premiums = None
+    title = urllib.unquote_plus(title)
+    imagebase = urllib.unquote_plus(imagebase)
+    image = urllib.unquote_plus(image)
+    author = urllib.unquote_plus(author)
+    return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums, 'ungluers': userlists.other_users(supporter, 5)})
 
 def subjects(request):
     order = request.GET.get('order')
@@ -99,6 +106,22 @@ def pledge(request,work_id):
     form = CampaignPledgeForm(data)
 
     return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+
+def claim(request):
+    if  request.method == 'GET': 
+        data = request.GET
+    else:
+        data =  request.POST
+    form =  ClaimForm(data=data)
+    if form.is_valid():
+        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder']).count():
+            form.save()
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))
+    else:
+        work = models.Work.objects.get(id=data['work'])
+        rights_holder = models.RightsHolder.objects.get(id=data['rights_holder'])
+        context = {'form': form, 'work': work, 'rights_holder':rights_holder }
+        return render(request, "claim.html", context)
 
 def rh_admin(request):
     if not is_admin(request.user):
@@ -225,9 +248,9 @@ def search(request):
     # also urlencode some parameters we'll need to pass to workstub in the title links
     # needs to be done outside the if condition
     for result in results:
-    	result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['image']).encode("utf-8"), safe='')
-    	result['urlauthor'] = urllib.quote_plus(result['author'].encode("utf-8"), safe='')
-    	result['urltitle'] = urllib.quote_plus(result['title'].encode("utf-8"), safe='')
+        result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['image']).encode("utf-8"), safe='')
+        result['urlauthor'] = urllib.quote_plus(result['author'].encode("utf-8"), safe='')
+        result['urltitle'] = urllib.quote_plus(result['title'].encode("utf-8"), safe='')
 
     context = {
         "q": q,

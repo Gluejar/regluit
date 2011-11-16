@@ -3,13 +3,23 @@
 {% block doccontent %}
 
 <h1>unglue.it Tools for Rightsholders</h1>
-{% if request.user.rights_holder %}
+{% if request.user.rights_holder.count %}
 <h2>Rights Holders That You Administer</h2>
 	{% for rights_holder in request.user.rights_holder.all %}
 	<h3>Name: {{ rights_holder.rights_holder_name }}</h3>
 	<p>PSA #: {{ rights_holder.id }}<br/>
 	contact email: {{ rights_holder.email }}<br/>
 	</p>
+	{% endfor %}
+{% endif %}
+{% if request.user.rights_holder.count %}
+<h2>Works You Have Claimed</h2>
+	{% for claim in request.user.claim.all %}
+	<h3>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></h3>
+	<p>Author: {{claim.work.author }}</p>
+	<p>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</p>
+	<p>PSA #: {{ claim.rights_holder.id }}</p>
+	<p></p>
 	{% endfor %}
 {% endif %}
 

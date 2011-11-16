@@ -11,6 +11,6 @@ class Command(BaseCommand):
     def handle(self, lt_username, **options):
         
         lt = librarything.LibraryThing(username=lt_username)
-        for (i, book) in enumerate(lt.parse_user_catalog()):
-            print i, book["title"]
+        for (i, book) in enumerate(lt.parse_user_catalog(view_style=5)):
+            print i, book["title"], book["isbn"], book["work_id"], book["book_id"]
         

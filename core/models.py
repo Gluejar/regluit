@@ -17,7 +17,7 @@ class CeleryTask(models.Model):
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
-    function_args = models.IntegerField()  # not full generalized here -- takes only a single arg for now.
+    function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
     active = models.NullBooleanField(default=True) 
 
     def __unicode__(self):
@@ -43,13 +43,15 @@ class CeleryTask(models.Model):
 class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
-    user =  models.ForeignKey(User, related_name="user", null=False ) 
+    user =  models.ForeignKey(User, related_name="claim", null=False ) 
     created =  models.DateTimeField(auto_now_add=True)  
    
 class RightsHolder(models.Model):
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=True)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    def __unicode__(self):
+        return self.rights_holder_name
     
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))

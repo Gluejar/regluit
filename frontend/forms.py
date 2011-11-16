@@ -1,9 +1,15 @@
 from django import forms
 from django.db import models
-from regluit.core.models import UserProfile, RightsHolder
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from decimal import Decimal as D
+from regluit.core.models import UserProfile, RightsHolder, Claim
+
+class ClaimForm(forms.ModelForm):
+    i_agree=forms.BooleanField()
+    class Meta:
+        model = Claim
+        widgets = { 'user': forms.HiddenInput, 'work': forms.HiddenInput }
 
 class RightsHolderForm(forms.ModelForm):
     class Meta:

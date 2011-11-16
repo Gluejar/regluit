@@ -16,11 +16,11 @@ Here are some instructions for setting up regluit for development on
 an Ubuntu system. If you are on OS X see notes below 
 to install python-setuptools in step 1:
 
-1. `aptitude install python-setuptools git`
+1. `aptitude install python-setuptools git python-lxml` 
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
-1. `mkvirtualenv --no-site-packages regluit`
+1. `mkvirtualenv regluit`
 1. `pip install -r requirements.pip`
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
@@ -41,23 +41,22 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. create an ubuntu natty ec2 instance using ami-1aad5273
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server`
+1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
 1. `git config --global user.name "Ed Summers"`
 1. `git config --global user.email "ehs@pobox.com"`
 1. `ssh-keygen`
-1. add `~/.ssh/id_rsa.pub` as a deploy key on github
+1. add `~/.ssh/id_rsa.pub` as a deploy key on github https://github.com/Gluejar/regluit/admin/keys
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd /opt/regluit`
-1. `cp settings/dev.py settings/prod.py`
 1. create an Amazon RDS instance
 1. connect to it, e.g. `mysql -u root -h gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com -p`
 1. `CREATE DATABASE unglueit CHARSET utf8;`
 1. `GRANT ALL ON unglueit.* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL`
 1. update settings/prod.py with database credentials
-1. `virtualenv --no-site-packages ENV`
+1. `virtualenv ENV`
 1. `source ENV/bin/activate`
 1. `pip install -r requirements.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
@@ -66,9 +65,9 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `sudo a2ensite regluit`
 1. `sudo /etc/init.d/apache2 restart`
 1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
-1. `sudo cp celeryd /etc/init.d/celeryd`
+1. `sudo cp deploy/celeryd /etc/init.d/celeryd`
 1. `sudo chmod 755 /etc/init.d/celeryd`
-1. `sudo cp celeryd.conf /etc/default/celeryd`
+1. `sudo cp deploy/celeryd.conf /etc/default/celeryd`
 1. `sudo mkdir /var/log/celery`
 1. `sudo chown celery:celery /var/log/celery`
 1. `sudo mkdir /var/run/celery`

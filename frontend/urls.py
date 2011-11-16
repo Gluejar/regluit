@@ -17,6 +17,7 @@ urlpatterns = patterns(
         name="privacy"),
     url(r"^rightsholders/$", TemplateView.as_view(template_name="rhtools.html"),
         name="rightsholders"), 
+    url(r"^rightsholders/claim/$", "claim", name="claim"), 
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"), 
     url(r"^faq/$", TemplateView.as_view(template_name="faq.html"),
         name="faq"), 
