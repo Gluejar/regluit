@@ -1,6 +1,6 @@
 from regluit.settings.common import *
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -16,7 +16,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'unglueit_dev',
+        'NAME': 'please',
         'USER': 'please',
         'PASSWORD': 'unglueit',
         'HOST': 'gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
@@ -88,3 +88,23 @@ BROKER_TRANSPORT = "redis"
 BROKER_HOST = "localhost"
 BROKER_PORT = 6379
 BROKER_VHOST = "0"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    }
+}
+
+
