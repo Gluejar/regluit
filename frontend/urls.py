@@ -39,5 +39,6 @@ urlpatterns = patterns(
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
+    url(r"^librarything/load/$","librarything_load", name="librarything_load"),
     url('^404testing/$', direct_to_template, {'template': '404.html'})
 )

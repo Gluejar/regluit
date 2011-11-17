@@ -6,11 +6,11 @@ from django.contrib.auth.models import User
 
 class Command(BaseCommand):
     help = "load Librarything books into wishlist"
-    args = "<user_name lt_username lt_password max_books>"
+    args = "<user_name lt_username max_books>"
     
-    def handle(self, user_name, lt_username, lt_password, max_books, **options):
+    def handle(self, user_name, lt_username, max_books, **options):
         
         user = User.objects.get(username=user_name)
         max_books = int(max_books)
         
-        tasks.load_librarything_into_wishlist.delay(user, lt_username,  lt_password, max_books)
+        tasks.load_librarything_into_wishlist.delay(user, lt_username, max_books)

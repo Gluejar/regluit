@@ -192,7 +192,7 @@ class LibraryThing(object):
             if offset >= total:
                 next_page = False
 
-def load_librarything_into_wishlist(user, lt_username, lt_password, max_books=None):
+def load_librarything_into_wishlist(user, lt_username, max_books=None):
     """
     Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
     """
@@ -200,11 +200,13 @@ def load_librarything_into_wishlist(user, lt_username, lt_password, max_books=No
     from regluit.core import bookloader
     from itertools import islice
     
-    lt = LibraryThing(lt_username,lt_password)
-    lt.retrieve_csv()
-    for (i,book) in enumerate(islice(lt.parse_csv(),max_books)):
-        isbn = book["isbn"][0]  # grab the first one
-        logger.info("%d %s %s", i, book["title"], isbn)
+    logger.info("Entering into load_librarything_into_wishlist")
+    lt = LibraryThing(lt_username)
+    
+    
+    for (i,book) in enumerate(islice(lt.parse_user_catalog(view_style=5),max_books)):
+        isbn = book["isbn"]  # grab the first one
+        logger.info("%d %s %s", i, book["title"]["title"], isbn)
         try:
             edition = bookloader.add_by_isbn(isbn)
             # let's not trigger too much traffic to Google books for now

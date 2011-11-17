@@ -14,6 +14,7 @@
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
+<script type="text/javascript" src="/static/js/import_books.js"></script>
 
 {% endblock %}
 
@@ -149,18 +150,27 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
                                 </div>
                             </div>
+                            </form> 
                             <div class="block block3">
-                                <h3 class="title">Goodreads / LibraryThing </h3>
-                                <div class="check-list">
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
-                                <div class="check-list">
-                                    <input type="checkbox" />
-                                    <label>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</label>
-                                </div>
+                                <h3 class="title">Goodreads / LibraryThing Import </h3>
+                                {% if goodreads_shelf_load_form %}
+                                <form id="load_shelf_form" method="post" action="#">
+                                    {% csrf_token %}
+                                    {{ goodreads_shelf_load_form.non_field_errors }}
+                                    <div class="fieldWrapper">
+                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number.errors }}                                        
+                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number }}
+                                        <input type="submit" value="Load Goodreads shelf to wishlist" />
+                                    </div>
+                                </form>
+                                {% endif %}
+                                {% if librarything_id %}
+                                <form id="librarything_load" method="post" action="#">
+                                    {% csrf_token %}
+                                    <input type="submit" value="Load your LibraryThing library" />
+                                </form>
+                                {% endif %}
                             </div>
-                               
-                         </form>
                         </div>
                       {% endifequal %}
                     </div>

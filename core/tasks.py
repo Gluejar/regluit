@@ -17,8 +17,8 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
     return goodreads.load_goodreads_shelf_into_wishlist(user,shelf_name,goodreads_user_id,max_books, expected_number_of_books)
     
 @task
-def load_librarything_into_wishlist(user, lt_username, lt_password, max_books=None):
-    return librarything.load_librarything_into_wishlist(user, lt_username, lt_password, max_books)
+def load_librarything_into_wishlist(user, lt_username, max_books=None):
+    return librarything.load_librarything_into_wishlist(user, lt_username, max_books)
     
 @task
 def add(x,y):

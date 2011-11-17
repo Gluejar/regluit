@@ -175,11 +175,13 @@ def supporter(request, supporter_username, template_name):
 
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
+
         try:
             profile_obj=request.user.get_profile()
         except ObjectDoesNotExist:
             profile_obj= models.UserProfile()
             profile_obj.user=request.user
+
         if  request.method == 'POST': 
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)
             if profile_form.is_valid():
@@ -190,12 +192,34 @@ def supporter(request, supporter_username, template_name):
                         profile_obj.twitter_id=""
                     profile_obj.save()
                 profile_form.save()
+
         else:
             profile_form= ProfileForm(instance=profile_obj)
+            
+        # for now, also calculate the Goodreads shelves of user when loading this page
+        # we should move towards calculating this only if needed (perhaps with Ajax), caching previous results, etc to speed up
+        # performance
+        
+        if request.user.profile.goodreads_user_id is not None:
+            gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+            goodreads_shelves = gr_client.shelves_list(user_id=request.user.profile.goodreads_user_id)
+            goodreads_shelf_load_form = GoodreadsShelfLoadingForm()
+            # load the shelves into the form
+            choices = [('all:%d' % (goodreads_shelves["total_book_count"]),'all (%d)' % (goodreads_shelves["total_book_count"]))] +  \
+                [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in goodreads_shelves["user_shelves"]]
+            goodreads_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
+        else:
+            goodreads_shelf_load_form = None                        
+
+        if request.user.profile.librarything_id is not None:
+            librarything_id = request.user.profile.librarything_id
+        else:
+            librarything_id = None
     else:
         profile_form = ''
-    
-    goodreads_auth_url = reverse('goodreads_auth')
+        goodreads_shelf_load_form = None
+        librarything_id = None
+
         
     context = {
             "supporter": supporter,
@@ -207,7 +231,9 @@ def supporter(request, supporter_username, template_name):
             "shared_works": shared_works,
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
-            "goodreads_auth_url": goodreads_auth_url
+            "goodreads_auth_url": reverse('goodreads_auth'),
+            "goodreads_shelf_load_form": goodreads_shelf_load_form,
+            "librarything_id": librarything_id
     }
     
     return render(request, template_name, context)
@@ -464,6 +490,39 @@ def goodreads_load_shelf(request):
     except Exception,e:
         return HttpResponse("Error in loading shelf: %s " % (e))
         logger.info("Error in loading shelf for user %s: %s ", user, e)
+
+
+@require_POST
+@login_required      
+@csrf_exempt
+def librarything_load(request):
+    """
+    a view to allow user load librarything library into her wishlist
+    """
+    # Should be moved to the API
+    user = request.user
+
+    
+    try:        
+        # figure out expected_number_of_books later
+        
+        lt_username = request.user.profile.librarything_id
+        logger.info('Adding task to load librarything %s to user %s', lt_username, user)
+        load_task_name = "load_librarything_into_wishlist"
+        load_task = getattr(tasks, load_task_name)
+        task_id = load_task.delay(user, lt_username, None)
+        
+        ct = models.CeleryTask()
+        ct.task_id = task_id
+        ct.function_name = load_task_name
+        ct.user = user
+        ct.description = "Loading LibraryThing collection of %s to user %s." % (lt_username, user)
+        ct.save()
+        
+        return HttpResponse("LibraryThing loading placed on task queue.")
+    except Exception,e:
+        return HttpResponse("Error in loading LibraryThing library: %s " % (e))
+        logger.info("Error in loading LibraryThing for user %s: %s ", user, e)
 
 @require_POST
 @login_required      
