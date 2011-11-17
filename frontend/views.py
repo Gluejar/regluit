@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms import Select
+from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -114,7 +115,7 @@ def claim(request):
         data =  request.POST
     form =  ClaimForm(data=data)
     if form.is_valid():
-        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder']).count():
+        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder'], status='pending').count():
             form.save()
         return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))
     else:
@@ -126,19 +127,32 @@ def claim(request):
 def rh_admin(request):
     if not request.user.profile.is_admin:
         return render(request, "admins_only.html")
+    PendingFormSet = modelformset_factory(models.Claim, fields=['status'], extra=0)
+    pending_data = models.Claim.objects.filter(status = 'pending')
+    active_data = models.Claim.objects.filter(status = 'active')
     if  request.method == 'POST': 
-        form = RightsHolderForm(data=request.POST)
-        if form.is_valid():
-            form.save()
+        if 'create_rights_holder' in request.POST.keys():
+            form = RightsHolderForm(data=request.POST)
+            pending_formset = PendingFormSet (queryset=pending_data)
+            if form.is_valid():
+                form.save()
+        if 'set_claim_status' in request.POST.keys():
+            pending_formset = PendingFormSet (request.POST, request.FILES, queryset=pending_data)
+            form = RightsHolderForm()
+            if pending_formset.is_valid():
+                pending_formset.save()
     else:
         form = RightsHolderForm()
+        pending_formset = PendingFormSet(queryset=pending_data)
     rights_holders = models.RightsHolder.objects.all()
-    pending = models.Claim.objects.filter(status = 'pending')
+    
     context = { 
         'request': request, 
         'rights_holders': rights_holders, 
         'form': form,
-        'pending': pending,
+        'pending': zip(pending_data,pending_formset),
+        'pending_formset': pending_formset,
+        'active_data': active_data,
     }
     return render(request, "rights_holders.html", context)
 

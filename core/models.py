@@ -43,9 +43,9 @@ class CeleryTask(models.Model):
         
 class Claim(models.Model):
     STATUSES = ((
-        u'Active', u'Claim has been registered and approved.'),
-        (u'Pending', u'Claim is pending approval.'),
-        (u'Released', u'Claim has been released.'),
+        u'active', u'Claim has been registered and approved.'),
+        (u'pending', u'Claim is pending approval.'),
+        (u'release', u'Claim has been released.'),
     )
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    

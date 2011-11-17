@@ -16,6 +16,14 @@ class RightsHolderForm(forms.ModelForm):
     class Meta:
         model = RightsHolder
 
+    def clean_rights_holder_name(self):
+        rights_holder_name = self.data["rights_holder_name"]
+        try:
+            RightsHolder.objects.get(rights_holder_name__iexact=rights_holder_name)
+        except User.DoesNotExist:
+            return rights_holder_name
+        raise forms.ValidationError(_("Another rights holder with that name already exists."))
+
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)
@@ -43,7 +51,7 @@ class UserData(forms.Form):
         oldusername = self.data["oldusername"]
         if username != oldusername:
             try:
-                User.objects.get(username=username)
+                User.objects.get(username__iexact=username)
             except User.DoesNotExist:
                 return username
             raise forms.ValidationError(_("Another user with that username already exists."))
