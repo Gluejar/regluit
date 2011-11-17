@@ -507,7 +507,7 @@ def librarything_load(request):
         # figure out expected_number_of_books later
         
         lt_username = request.user.profile.librarything_id
-        logger.info('Adding task to load librarything %s to user %s', lt_username, user)
+        logger.info('Adding task to load librarything %s to user %s', lt_username, user )
         load_task_name = "load_librarything_into_wishlist"
         load_task = getattr(tasks, load_task_name)
         task_id = load_task.delay(user, lt_username, None)
@@ -552,8 +552,12 @@ class LibraryThingView(FormView):
         else:
             context.update({'books':None})
             
-        # pick up the LibraryThing api key
-        context.update({'lt_api_key':settings.LIBRARYTHING_API_KEY})
+        # try picking up the LibraryThing api key -- and set to None if not available.  Not being used for
+        # anything crucial at this moment, so a None is ok here
+        try:
+            context.update({'lt_api_key':settings.LIBRARYTHING_API_KEY})
+        except:
+            pass
         
         return context
 
