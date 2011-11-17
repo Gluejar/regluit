@@ -8,15 +8,6 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'UserProfile.pic_url'
-        db.add_column('core_userprofile', 'pic_url', self.gf('django.db.models.fields.URLField')(default='', max_length=200, blank=True), keep_default=False)
-
-        # Adding field 'UserProfile.facebook_id'
-        db.add_column('core_userprofile', 'facebook_id', self.gf('django.db.models.fields.PositiveIntegerField')(null=True), keep_default=False)
-
-        # Adding field 'UserProfile.librarything_id'
-        db.add_column('core_userprofile', 'librarything_id', self.gf('django.db.models.fields.CharField')(default='', max_length=31, blank=True), keep_default=False)
-
         # Changing field 'CeleryTask.function_args'
         db.alter_column('core_celerytask', 'function_args', self.gf('django.db.models.fields.IntegerField')(null=True))
 
@@ -26,15 +17,6 @@ class Migration(SchemaMigration):
 
     def backwards(self, orm):
         
-        # Deleting field 'UserProfile.pic_url'
-        db.delete_column('core_userprofile', 'pic_url')
-
-        # Deleting field 'UserProfile.facebook_id'
-        db.delete_column('core_userprofile', 'facebook_id')
-
-        # Deleting field 'UserProfile.librarything_id'
-        db.delete_column('core_userprofile', 'librarything_id')
-
         # Changing field 'CeleryTask.function_args'
         db.alter_column('core_celerytask', 'function_args', self.gf('django.db.models.fields.IntegerField')(default=0))
 
