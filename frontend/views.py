@@ -160,6 +160,7 @@ def rh_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
+    works = wishlist.works.all()
     backed = 0
     backing = 0
     transet = Transaction.objects.all().filter(user = supporter)
@@ -238,6 +239,7 @@ def supporter(request, supporter_username, template_name):
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
+            "works": works,
             "backed": backed,
             "backing": backing,
             "wished": wished,

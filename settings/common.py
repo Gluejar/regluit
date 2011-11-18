@@ -108,6 +108,7 @@ INSTALLED_APPS = (
     'social_auth',
     'tastypie',
     'djcelery',
+    'endless_pagination',
 )
 
 # A sample logging configuration. The only tangible logging
