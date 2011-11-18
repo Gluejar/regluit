@@ -111,9 +111,9 @@ class ISBN(object):
             else:
                 return self.__isbn13
     def __unicode__(self):
-        return unicode(self.to_string(type='13',hyphenate=False))
+        return unicode(self.to_string(type=self.type,hyphenate=False))
     def __str__(self):
-        return self.to_string(type='13',hyphenate=False)
+        return self.to_string(type=self.type,hyphenate=False)
     def __eq__(self, other):
         """ both equal if both valid checksums and ISBN 13 equal """
         if isinstance(other, ISBN):

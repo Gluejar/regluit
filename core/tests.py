@@ -347,7 +347,7 @@ class ISBNTest(TestCase):
         self.assertEqual(isbn.ISBN(python_10).to_string(10,True), '0-672-32978-6')
         
         # check casting to string -- ISBN 13
-        self.assertEqual(str(isbn.ISBN(python_10)), '9780672329784')
+        self.assertEqual(str(isbn.ISBN(python_10)), '0672329786')
         
         # test __eq__ and __ne__ and validate
         self.assertTrue(isbn.ISBN(milosz_10) == isbn.ISBN(milosz_13))
@@ -360,7 +360,8 @@ class ISBNTest(TestCase):
         
         # curious about set membership
         self.assertEqual(len(set([isbn.ISBN(milosz_10), isbn.ISBN(milosz_13)])),2)
-        self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])),1)
+        self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])),2)
+        self.assertEqual(len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),1)
 
 def suite():
 
