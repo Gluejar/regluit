@@ -5,10 +5,12 @@ from django.test import TestCase
 from django.utils import unittest
 from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Work, UnglueitError
-from regluit.core import bookloader, models, search
+from regluit.core import bookloader, models, search, goodreads, librarything
+from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 
 from regluit.core import tasks
@@ -281,12 +283,90 @@ class CeleryTaskTest(TestCase):
             sleep(0.2)
         self.assertEqual(result.join(),[factorial(x) for x in range(n)])
     
+class GoodreadsTest(TestCase):
+    def test_goodreads_shelves(self):
+        # test to see whether the core undeletable shelves are on the list
+        gr_uid = "767708"  # for Raymond Yee
+        gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        shelves = gc.shelves_list(gr_uid)
+        shelf_names = [s['name'] for s in shelves['user_shelves']]
+        self.assertTrue('currently-reading' in shelf_names)
+        self.assertTrue('read' in shelf_names)
+        self.assertTrue('to-read' in shelf_names)
+    def test_review_list_unauth(self):
+        gr_uid = "767708"  # for Raymond Yee
+        gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
+        # test to see whether there is a book field in each of the review
+        self.assertTrue(all([r.has_key("book") for r in reviews]))
+    #def test_review_list(self):
+    #    """ At this point this test doesn't work but at this moment we don't need this functionality"""
+    #    gr_uid = "767708"  # for Raymond Yee
+    #    gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+    #    reviews = gc.review_list(user_id=gr_uid, shelf='read')
+    #    # test to see whether there is a book field in each of the review
+    #    self.assertTrue(all([r.has_key("book") for r in reviews]))        
+
+class LibraryThingTest(TestCase):
+    def test_scrape_test_lib(self):
+        # account yujx : has one book: 0471925675
+        lt_username = 'yujx'
+        lt = librarything.LibraryThing(username=lt_username)
+        books = list(lt.parse_user_catalog(view_style=5))
+        self.assertEqual(len(books),1)
+        self.assertEqual(books[0]['isbn'], '0471925675')
+
+class ISBNTest(TestCase):
+    def test_ISBN(self):
+        milosz_10 = '006019667X'
+        milosz_13 = '9780060196677'
+        python_10 = '0-672-32978-6'
+        python_10_wrong = '0-672-32978-7'
+        python_13 = '978-0-672-32978-4'
         
+        isbn_python_10 = isbn.ISBN(python_10)
+        isbn_python_13 = isbn.ISBN(python_13)
+        # raise exception for wrong length  
+        self.assertRaises(isbn.ISBNException, isbn.ISBN, "978-0-M72-32978-X")
+        # right type?
+        self.assertEqual(isbn_python_10.type, '10')
+        self.assertEqual(isbn_python_13.type, '13')
+        # valid?
+        self.assertEqual(isbn_python_10.valid, True)
+        self.assertEqual(isbn.ISBN(python_10_wrong).valid, False)
         
+        # do conversion -- first the outside methods
+        self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
+        self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),isbn.strip(python_10))
+        
+        # check formatting
+        self.assertEqual(isbn.ISBN(python_13).to_string(type='13'), '9780672329784')
+        self.assertEqual(isbn.ISBN(python_13).to_string('13',True), '978-0-672-32978-4')
+        self.assertEqual(isbn.ISBN(python_13).to_string(type='10'), '0672329786')
+        self.assertEqual(isbn.ISBN(python_10).to_string(type='13'), '9780672329784')
+        self.assertEqual(isbn.ISBN(python_10).to_string(10,True), '0-672-32978-6')
+        
+        # check casting to string -- ISBN 13
+        self.assertEqual(str(isbn.ISBN(python_10)), '0672329786')
+        
+        # test __eq__ and __ne__ and validate
+        self.assertTrue(isbn.ISBN(milosz_10) == isbn.ISBN(milosz_13))
+        self.assertTrue(isbn.ISBN(milosz_10) == milosz_13)
+        self.assertFalse(isbn.ISBN(milosz_10) == 'ddds')
+        self.assertFalse(isbn.ISBN(milosz_10) != milosz_10)
+        self.assertTrue(isbn.ISBN(python_10) != python_10_wrong)
+        self.assertEqual(isbn.ISBN(python_10_wrong).validate(), python_10)
+        self.assertEqual(isbn.ISBN(python_13).validate(), python_10)
+        
+        # curious about set membership
+        self.assertEqual(len(set([isbn.ISBN(milosz_10), isbn.ISBN(milosz_13)])),2)
+        self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])),2)
+        self.assertEqual(len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),1)
+
 def suite():
 
-    testcases = [TestBookLoader, SearchTests, CampaignTests, WishlistTest, CeleryTaskTest]
+    testcases = [TestBookLoader, SearchTests, CampaignTests, WishlistTest, CeleryTaskTest, GoodreadsTest, LibraryThingTest, ISBNTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(SettingsTest('test_dev_me_alignment'))  # leave out alignment with prod test right now
+    suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites         
         

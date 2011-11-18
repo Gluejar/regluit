@@ -50,7 +50,7 @@ class GoodreadsClient(object):
                               secret=self.secret)
         
         self.client = oauth.Client(self.consumer)
-        self.unauth_client = None
+        #self.unauth_client = None
         
         if access_token is not None:
           self.__load_access_token(access_token)
@@ -137,6 +137,43 @@ class GoodreadsClient(object):
       else:
           return True
         
+    def review_list_unauth(self, user_id, shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
+        path="/review/list.xml"
+        method = "GET"
+        params = filter_none({'id':user_id,'shelf':shelf,'page':page,'sort':sort,'per_page':per_page,'order':order,
+                'search':search, 'v':2})
+        params["key"] = self.key
+        
+        request_url = urljoin(GoodreadsClient.url, path)
+        
+        more_pages = True
+        
+        while (more_pages):
+        
+          r = request(method,request_url,params=params)
+          if r.status_code != httplib.OK:
+              raise GoodreadsException('Error in review_list_unauth: %s ' % r.content)
+          else:
+              doc = ET.fromstring(r.content)
+              # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
+              reviews = doc.findall('reviews/review')
+              for review in reviews:
+                  yield ({'id':review.find('id').text,
+                          'book': {'id': review.find('book/id').text.strip(),
+                                   'isbn10':review.find('book/isbn').text,
+                                   'isbn13':review.find('book/isbn13').text,
+                                   'title':review.find('book/title').text.strip(),
+                                   'text_reviews_count':review.find('book/text_reviews_count').text.strip(),
+                                   'link':review.find('book/link').text.strip(),
+                                   'small_image_url':review.find('book/small_image_url').text.strip(),
+                                   'ratings_count':review.find('book/ratings_count').text.strip(),
+                                   'description':review.find('book/description').text.strip()}
+                          })
+              if len(reviews) == 0:
+                  more_pages = False
+              else:
+                  params["page"] += 1       
+
     def review_list(self, user_id, shelf='all',page=1,sort=None,per_page=20,order='a',search=None,v=2):
         """have to account for situation in which we might need authorized access
         for now:  assume no need for auth
@@ -160,7 +197,7 @@ class GoodreadsClient(object):
           response, content = self.client.request('%s?%s' % (request_url, urlencode(params)),
                             method)
           if int(response['status']) != httplib.OK:
-              raise GoodreadsException('Error in review_list_auth: %s ' % response)
+              raise GoodreadsException('Error in review_list: %s ' % response)
           else:
               doc = ET.fromstring(content)
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
@@ -183,6 +220,8 @@ class GoodreadsClient(object):
                   params["page"] += 1 
         
     def shelves_list(self,user_id,page=1):
+        """BUG to fix:  should go through all the pages, not just page 1
+        """
         path = "/shelf/list.xml"
         params = {'user_id':user_id, 'page':page}
         params["key"] = self.key
