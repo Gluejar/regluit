@@ -17,5 +17,5 @@ urlpatterns = patterns('',
     (r'', include('regluit.payment.urls')),
     (r'^selectable/', include('selectable.urls')),
 
-    url(r'^admin/', include(admin.site.urls)),
+   # url(r'^admin/', include(admin.site.urls)),
 )
