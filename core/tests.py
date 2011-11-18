@@ -292,12 +292,18 @@ class GoodreadsTest(TestCase):
         self.assertTrue('currently-reading' in shelf_names)
         self.assertTrue('read' in shelf_names)
         self.assertTrue('to-read' in shelf_names)
-    #def test_unauth_review_list(self):
-    #    gr_uid = "767708"  # for Raymond Yee
-    #    gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-    #    reviews = gc.review_list(user_id=gr_uid, shelf='read')
-    #    # test to see whether there is a book field in each of the review
-    #    self.assertTrue(all([r.has_key("book") for r in reviews]))
+    def test_review_list_unauth(self):
+        gr_uid = "767708"  # for Raymond Yee
+        gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
+        # test to see whether there is a book field in each of the review
+        self.assertTrue(all([r.has_key("book") for r in reviews]))
+    def test_review_list(self):
+        gr_uid = "767708"  # for Raymond Yee
+        gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        reviews = gc.review_list(user_id=gr_uid, shelf='read')
+        # test to see whether there is a book field in each of the review
+        self.assertTrue(all([r.has_key("book") for r in reviews]))        
 
 class LibraryThingTest(TestCase):
     def test_scrape_test_lib(self):
