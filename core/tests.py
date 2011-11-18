@@ -326,8 +326,11 @@ class ISBNTest(TestCase):
         
         isbn_python_10 = isbn.ISBN(python_10)
         isbn_python_13 = isbn.ISBN(python_13)
-        # raise exception for wrong length  
+        # raise exception for wrong length or invalid characters
         self.assertRaises(isbn.ISBNException, isbn.ISBN, "978-0-M72-32978-X")
+        # check that only ISBN 13 starting with 978 or 979 are accepted
+        self.assertRaises(isbn.ISBNException, isbn.ISBN, "111-0-M72-32978-X")
+        
         # right type?
         self.assertEqual(isbn_python_10.type, '10')
         self.assertEqual(isbn_python_13.type, '13')
@@ -345,6 +348,11 @@ class ISBNTest(TestCase):
         self.assertEqual(isbn.ISBN(python_13).to_string(type='10'), '0672329786')
         self.assertEqual(isbn.ISBN(python_10).to_string(type='13'), '9780672329784')
         self.assertEqual(isbn.ISBN(python_10).to_string(10,True), '0-672-32978-6')
+        
+        # complain if one tries to get ISBN-10 for a 979 ISBN 13
+        # making up a 979 ISBN
+        isbn_979 = isbn.ISBN("979-1-234-56789-0").validate()
+        self.assertRaises(isbn.ISBNException, isbn_979.to_string, '10')
         
         # check casting to string -- ISBN 13
         self.assertEqual(str(isbn.ISBN(python_10)), '0672329786')
