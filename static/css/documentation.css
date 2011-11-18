@@ -1,0 +1,131 @@
+/* Styles basedocumentation.html and its descendants. */
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+/* Learn More area */
+.user-block {
+  width: 100%;
+  clear: both;
+}
+.user-block-hide {
+  float: left;
+  width: 100%;
+  clear: both;
+}
+.user-block1, .user-block2 {
+  float: left;
+}
+.user-block1 {
+  width: 70%;
+}
+.user-block1 .block-intro-text {
+  float: left;
+  width: 70%;
+  font-size: 20px;
+}
+.user-block1 a.readon {
+  float: left;
+  margin-top: 10px;
+}
+.user-block2 {
+  color: #6994a3;
+  font-size: 11px;
+  line-height: normal;
+  width: 30%;
+}
+.user-block2 .block-inner {
+  float: right;
+  padding-right: 0;
+}
+.user-block2 label {
+  float: left;
+  font-size: 20px;
+  height: 30px;
+  line-height: 30px;
+  color: #3d4e53;
+  padding-right: 15px;
+}
+/* Containers */
+.have-right #js-main-container {
+  float: left;
+}
+.js-main-container-inner {
+  padding-left: 15px;
+}
+.have-right #js-rightcol {
+  margin-top: 50px;
+  background: #edf3f4;
+  border: 1px solid #d6dde0;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
+}
+.have-right #js-rightcol .jsmodule {
+  border-bottom: 1px solid #3c4e52;
+  width: 235px;
+}
+.have-right #js-rightcol .jsmodule.last {
+  border-bottom: none;
+  padding-bottom: 10px;
+}
+.js-rightcol-padd {
+  padding: 10px;
+}
+/* Elements */
+.doc h2 {
+  margin: 20px 0;
+  color: #3d4e53;
+  font-size: 17px;
+  font-weight: bold;
+}
+.doc h3 {
+  color: #3d4e53;
+  font-weight: bold;
+}
+.doc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.doc ul li {
+  margin-bottom: 7px;
+  -moz-border-radius: 14px 14px 14px 14px;
+  -webkit-border-radius: 14px 14px 14px 14px;
+  border-radius: 14px 14px 14px 14px;
+  padding: 10px;
+  background: #edf3f4;
+}
+.doc div.inset {
+  background: #edf3f4;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
+  padding: 10px;
+  font-style: italic;
+}
+dt {
+  margin: 7px 0px 7px -7px;
+  -moz-border-radius: 14px 14px 14px 14px;
+  -webkit-border-radius: 14px 14px 14px 14px;
+  border-radius: 14px 14px 14px 14px;
+  padding: 10px 0px 10px 7px;
+  background: #edf3f4;
+}
+dd {
+  margin: 0;
+}
+.doc ol li {
+  margin-bottom: 7px;
+}

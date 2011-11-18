@@ -1,26 +1,59 @@
 {% extends "base.html" %}
 {% block extra_head %}
-    <style type="text/css">
-        .undefined {text-decoration:underline;}
-    </style>
+<link type="text/css" rel="stylesheet" href="/static/css/documentation.css"  />
 {% endblock %}
 
 {% block title %}{% endblock %}
 
+{% block topsection %}
+    <div id="js-topsection">
+    	<div class="js-main">
+        	<div class="js-topnews">
+                    <div class="user-block">
+                        <div class="user-block1">
+                        <div class="block-inner">
+                            <div class="block-intro-text">With your help we raise money to buy book rights. The <span class="typo">unglued</span> books are free to download, here.</div>
+                            <a class="my-setting readon"><span>Learn more</span></a>
+                        </div>
+                        </div>
+                        
+                        <div class="user-block2">
+                        <div class="block-inner">
+                        	<label class="title">Spread the Word</label>
+                            <a href="#"><img src="/static/images/icons/facebook.png" alt="Facebook" title="Facebook"  /></a>
+                            <a href="#"><img src="/static/images/icons/twitter.png" alt="Twitter" title="Twitter"  /></a>
+                            <a href="#"><img src="/static/images/icons/email.png" alt="email" title="email"  /></a>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+    </div>
+{% endblock %}
+
 {% block content %}
 <div id="main-container">
-<div class="js-main">
-<div id="js-maincol-fr">
-<div class="js-maincol-inner">
-<div class="content-block">
+	<div class="js-main">
+		<div id="js-leftcol">
+			{% include "explore.html" %}
+		</div>
+		<div id="js-maincol-fr" class="have-right" class="doc">
+			<div class="js-maincol-inner">
+				<div class="content-block">
+					<div id="js-main-container">
+            			<div class="js-main-container-inner">
+
     
 {% block doccontent %}
 {% endblock %}
 
-</div>
-</div>
-</div>
-</div>
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
 </div>    
 
 {% endblock %}
