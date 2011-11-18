@@ -362,5 +362,5 @@ def twitter_extra_values(sender, user, response, details, **kwargs):
 pre_update.connect(facebook_extra_values, sender=FacebookBackend)
 pre_update.connect(twitter_extra_values, sender=TwitterBackend)
 
-admin.site.register(Edition, Work, Campaign, Claim, RightsHolder, Premium,
-                    Author, Subject, Ebook, Wishlist)
+admin.site.register([Edition, Work, Campaign, Claim, RightsHolder, Premium,
+                    Author, Subject, Ebook, Wishlist])
