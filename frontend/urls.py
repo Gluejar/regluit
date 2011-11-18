@@ -40,5 +40,6 @@ urlpatterns = patterns(
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
-    url('^404testing/$', direct_to_template, {'template': '404.html'})
+    url('^404testing/$', direct_to_template, {'template': '404.html'}),
+    url('^500testing/$', direct_to_template, {'template': '500.html'}),
 )
