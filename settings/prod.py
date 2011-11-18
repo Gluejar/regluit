@@ -4,7 +4,7 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Ed Summers', 'ehs@pobox.com'),
+    ('Ed Summers', 'ed.summers@gmail.com'),
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
     ('Eric Hellman', 'eric@gluejar.com'),
     ('Andromeda Yelton', 'andromeda@gluejar.com'),
@@ -107,4 +107,4 @@ LOGGING = {
     }
 }
 
-
+STATIC_ROOT = '/var/www/static'
