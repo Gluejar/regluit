@@ -2,8 +2,12 @@ from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+
 from decimal import Decimal as D
+from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
+
 from regluit.core.models import UserProfile, RightsHolder, Claim
+from regluit.core.lookups import OwnerLookup
 
 class ClaimForm(forms.ModelForm):
     i_agree=forms.BooleanField()
@@ -13,6 +17,13 @@ class ClaimForm(forms.ModelForm):
         widgets = { 'user': forms.HiddenInput, 'work': forms.HiddenInput }
 
 class RightsHolderForm(forms.ModelForm):
+    owner = AutoCompleteSelectField(
+            OwnerLookup,
+            label='Owner',
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+        )
+
     class Meta:
         model = RightsHolder
 
@@ -20,10 +31,10 @@ class RightsHolderForm(forms.ModelForm):
         rights_holder_name = self.data["rights_holder_name"]
         try:
             RightsHolder.objects.get(rights_holder_name__iexact=rights_holder_name)
-        except User.DoesNotExist:
+        except RightsHolder.DoesNotExist:
             return rights_holder_name
         raise forms.ValidationError(_("Another rights holder with that name already exists."))
-
+    
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)
