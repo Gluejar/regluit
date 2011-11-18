@@ -58,7 +58,7 @@ class ISBN(object):
         stripped_isbn = strip(input_isbn)
             
         if stripped_isbn is None:
-            raise(ISBNException("input_isbn %s does not seem to be a valid ISBN" % (input_isbn)))
+            raise(ISBNException("Input_isbn %s does not seem to be a valid ISBN" % (input_isbn)))
         elif len(stripped_isbn) == 10:
             self.__type = '10'
             self.__isbn10 = stripped_isbn
@@ -70,16 +70,26 @@ class ISBN(object):
             self.__valid_13 = self.__isbn13  
 
         elif len(stripped_isbn) == 13:
+            # Assume ISBN 13 all have to begin with 978 or 979 and only 978 ISBNs can possibly have ISBN-10 counterpart
+            
+            if stripped_isbn[0:3] not in ['978','979']:
+                raise (ISBNException("ISBN 13 must begin with 978 or 979 not %s " % (stripped_isbn[0:3])))
+                
             self.__type = '13'
             self.__isbn13 = stripped_isbn
             self.__valid_13 = stripped_isbn[0:12] + check_digit_13(stripped_isbn[0:12])
             self.__valid = (self.__isbn13 == self.__valid_13)
             
-            self.__isbn10 = convert_13_to_10(stripped_isbn)
-            self.__valid_10 = self.__isbn10
+            # now check to see whether the isbn starts with 978 -- only then convert to ISBN -10
+            if self.__isbn13[0:3] == '978':
+                self.__isbn10 = convert_13_to_10(stripped_isbn)
+                self.__valid_10 = self.__isbn10
+            else:
+                self.__isbn10 = None
+                self.__valid_10 = None
             
         else:
-            raise(ISBNException("stripped_isbn %s is of the wrong length" % (stripped_isbn)))
+            raise(ISBNException("Parsed ISBN %s is of the wrong length" % (stripped_isbn)))
 
     @property
     def type(self):
@@ -99,6 +109,8 @@ class ISBN(object):
             return self
     def to_string(self, type='13', hyphenate=False):
         if type == '10' or type == 10:
+            if self.__isbn10 is None:
+                raise (ISBNException("No ISBN-10 exists for %s" % (self.__isbn13)))
             if hyphenate:
                 s = self.__isbn10
                 return "%s-%s-%s-%s" % (s[0], s[1:4], s[4:9], s[9])
