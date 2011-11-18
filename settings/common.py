@@ -109,6 +109,7 @@ INSTALLED_APPS = (
     'tastypie',
     'djcelery',
     'endless_pagination',
+    'selectable',
 )
 
 # A sample logging configuration. The only tangible logging

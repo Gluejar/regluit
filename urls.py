@@ -11,5 +11,6 @@ urlpatterns = patterns('',
     ('^profiles/edit/$', 'profiles.views.edit_profile', {'form_class': ProfileForm,}),
     (r'^profiles/', include('profiles.urls')),
     (r'', include('regluit.frontend.urls')),
-    (r'', include('regluit.payment.urls'))
+    (r'', include('regluit.payment.urls')),
+    (r'^selectable/', include('selectable.urls')),
 )

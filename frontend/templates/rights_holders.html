@@ -1,4 +1,12 @@
 {% extends "basedocumentation.html" %}
+{% block base_js %}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+{{ form.media.css }}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+{{ form.media.js }}
+{% endblock %}
 
 {% block doccontent %}
 
@@ -13,10 +21,12 @@
 
 <h2> Accepted Rights Holders </h2>
 {% for rights_holder in rights_holders %}
-	<h3>{{ rights_holder.rights_holder_name }}</h3>
+	<h3>{{ rights_holder.rights_holder_name }}</h3><p>
 	PSA #: {{ rights_holder.id }}<br/>
 	email: {{ rights_holder.email }}<br/>
-	owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a><br/>
+	owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a></p>
+{% empty %}
+<p>No rights holders have been accepted yet</p>
 {% endfor %}
 
 {% if pending %}
@@ -37,7 +47,7 @@
 {% endfor %}
 </form>
 {% endif %}
-active:{{ active_data.count }}
+
 {% if active_data.count %}
 <h2> Active Claims </h2>
 {% for claim in active_data %}
