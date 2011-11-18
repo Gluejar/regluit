@@ -162,6 +162,10 @@ class Work(models.Model):
     title = models.CharField(max_length=1000)
     openlibrary_id = models.CharField(max_length=50, null=True)
 
+    def __init__(self, *args, **kwargs):
+        self._last_campaign = None
+        super(Work, self).__init__(*args, **kwargs)
+
     def cover_image_small(self):
         return self.editions.all()[0].cover_image_small()
 
@@ -169,21 +173,22 @@ class Work(models.Model):
         return self.editions.all()[0].cover_image_thumbnail()
         
     def author(self):
-        authorlist = self.editions.all()[0].authors.all()
-        if authorlist.count() == 1:
-            myauthor = authorlist[0].name
-        elif authorlist.count() > 1:
-            myauthor = authorlist[0].name + ' et al.'
-        else:
-            myauthor = ''
-        return myauthor
+        authors = list(Author.objects.filter(editions__work=self).all())
+        if len(authors) == 1:
+            return authors[0].name
+        elif len(authors) > 1:
+            return authors[0].name + ' et al.'
+        return ''
         
     def last_campaign(self):
+        # stash away the last campaign to prevent repeated lookups
+        if hasattr(self, '_last_campaign'):
+            return self._last_campaign
         try:
-            last = self.campaigns.order_by('-created')[0]
-        except:
-            last = None
-        return last
+            self._last_campaign = self.campaigns.order_by('-created')[0]
+        except IndexError:
+            pass
+        return self._last_campaign
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
@@ -236,10 +241,9 @@ class Work(models.Model):
         return self.first_ebook('epub')
 
     def first_ebook(self, ebook_format=None):
-        for edition in self.editions.all():
-            for ebook in edition.ebooks.all():
-                if ebook_format == None or ebook.format == ebook_format:
-                    return ebook
+        for ebook in Ebook.objects.filter(edition__work=self, 
+                                          format=ebook_format):
+            return ebook
         return None
 
     def wished_by(self):
