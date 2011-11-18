@@ -4,6 +4,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models import Q
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -360,3 +361,6 @@ def twitter_extra_values(sender, user, response, details, **kwargs):
 
 pre_update.connect(facebook_extra_values, sender=FacebookBackend)
 pre_update.connect(twitter_extra_values, sender=TwitterBackend)
+
+admin.site.register(Edition, Work, Campaign, Claim, RightsHolder, Premium,
+                    Author, Subject, Ebook, Wishlist)
