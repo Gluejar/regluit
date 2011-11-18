@@ -1,0 +1,132 @@
+/* Styles basedocumentation.html and its descendants. */
+@import "variables.less";
+
+/* Learn More area */
+.user-block {
+	width:100%; clear:both;
+}
+
+.user-block-hide {
+	float: left;
+	width:100%;
+	clear:both;
+}
+
+.user-block1, .user-block2 {
+	float:left;
+}
+
+.user-block1 {
+	width:70%;
+	
+	.block-intro-text {
+		float:left;
+		width:70%; 
+		font-size:20px;
+	}
+	
+	a.readon {
+		float: left;
+		margin-top:10px;
+	}
+}
+
+.user-block2 {
+	color: @medium-blue;
+	font-size:11px;
+	line-height:normal;
+	width:30%;
+	
+	.block-inner {
+		float:right;
+		padding-right:0;
+	}
+	
+	label {
+		float:left;
+		font-size:20px;
+		height:30px;
+		line-height:30px; 
+		color:@text-blue;
+		padding-right:15px;
+	}
+}
+
+/* Containers */
+.have-right #js-main-container {
+	float: left;
+}
+
+.js-main-container-inner {
+	padding-left:15px;
+}
+
+.have-right #js-rightcol {
+	margin-top:50px;
+	background:@pale-blue;
+	border:1px solid @blue-grey;
+	.border-radius(12px, 12px, 12px, 12px);
+	
+	.jsmodule {
+		border-bottom:1px solid #3c4e52;
+		width:235px;
+		
+		&.last {
+			border-bottom:none;
+			padding-bottom:10px;
+		}
+	}
+}
+
+.js-rightcol-padd {
+	padding:10px;
+}
+
+
+/* Elements */
+.doc h2 {
+	margin:20px 0;
+	color:@text-blue;
+	font-size:17px;
+	font-weight: bold;
+}
+
+.doc h3 {
+	color:@text-blue;
+	font-weight:bold;
+}
+
+.doc ul {
+	list-style: none;
+	padding:0;
+	margin:0;
+
+	li {
+		margin-bottom:7px;
+		.border-radius(14px, 14px, 14px, 14px);
+		padding:10px;
+		background:@pale-blue;
+	}
+}
+
+.doc div.inset {
+	background:@pale-blue;
+	.border-radius(12px, 12px, 12px, 12px);
+	padding:10px;
+	font-style:italic;
+}
+
+dt {
+	margin:7px 0px 7px -7px;
+	.border-radius(14px, 14px, 14px, 14px);
+	padding:10px 0px 10px 7px;
+	background:@pale-blue;
+}
+
+dd {
+	margin: 0;
+}
+
+.doc ol li {
+	margin-bottom: 7px;
+}

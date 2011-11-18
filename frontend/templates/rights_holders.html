@@ -10,55 +10,61 @@
 
 {% block doccontent %}
 
-<h1>Rights Holder Admin</h1>
+<h2>Rights Holder Admin</h2>
 
-<h2> Create New Rights Holder </h2>
+<h3> Create New Rights Holder </h3>
 <form method="POST" action="#">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" name="create_rights_holder" value="Create" id="submit">
 </form>
 
-<h2> Accepted Rights Holders </h2>
+<h3> Accepted Rights Holders </h3>
+<dl>
 {% for rights_holder in rights_holders %}
-	<h3>{{ rights_holder.rights_holder_name }}</h3><p>
-	PSA #: {{ rights_holder.id }}<br/>
-	email: {{ rights_holder.email }}<br/>
-	owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a></p>
+	<dt>{{ rights_holder.rights_holder_name }}</dt>
+	<dd>PSA #: {{ rights_holder.id }}</dd>
+	<dd>email: {{ rights_holder.email }}</dd>
+	<dd>owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
 {% empty %}
 <p>No rights holders have been accepted yet</p>
 {% endfor %}
+</dl>
 
 {% if pending %}
-<h2> Pending Claims </h2>
+<h3> Pending Claims </h3>
 <form method="POST" action="#">
     {{ pending_formset.management_form }}
     {% csrf_token %}
+<dl>
 {% for claim, claim_form in pending %}
-	<h3>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></h3>
-	<p>Author: {{claim.work.author }}</p>
-	<p>By: {{ claim.user.username }}
-	<p>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</p>
-	<p>PSA #: {{ claim.rights_holder.id }}</p>
-	<p>Date of Claim : {{ claim.created }}</p>
-	<p>Status: {{ claim.status }}</p>
-	<p> Change to:</p> {{ claim_form.as_p }}
+	<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+	<dd>Author: {{claim.work.author }}</dd>
+	<dd>By: {{ claim.user.username }}</dd>
+	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
+	<dd>PSA #: {{ claim.rights_holder.id }}</dd>
+	<dd>Date of Claim : {{ claim.created }}</dd>
+	<dd>Status: {{ claim.status }}</dd>
+	<dd> Change to:</dd> {{ claim_form.as_p }}
     <input type="submit" name="set_claim_status" value="Set Claim Status" id="submit">
 {% endfor %}
+</dl>
 </form>
 {% endif %}
 
 {% if active_data.count %}
-<h2> Active Claims </h2>
+<h3> Active Claims: {{ active_data.count }} </h3>
+<dl>
 {% for claim in active_data %}
-	<h3>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></h3>
-	<p>Author: {{claim.work.author }}</p>
-	<p>By: {{ claim.user.username }}
-	<p>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</p>
-	<p>PSA #: {{ claim.rights_holder.id }}</p>
-	<p>Date of Claim : {{ claim.created }}</p>
-	<p>Status: {{ claim.status }}</p>
+	<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+	<dd>Author: {{claim.work.author }}</dd>
+	<dd>By: {{ claim.user.username }}</dd>
+	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
+	<dd>PSA #: {{ claim.rights_holder.id }}</dd>
+	<dd>Date of Claim : {{ claim.created }}</dd>
+	<dd>Status: {{ claim.status }}</dd>
 {% endfor %}
+</dl>
 {% endif %}
 
 {% endblock %}

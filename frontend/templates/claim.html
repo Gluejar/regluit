@@ -2,15 +2,17 @@
 {% block title %}Claim Form{% endblock %}
 {% block doccontent %}
 
-<h1>Rights Holder Claim Form </h1>
+<h2>Rights Holder Claim Form </h2>
 <form method="POST" action="#">
     {% csrf_token %}
-<h2> Rightsholder making claim </h2>
+<h3> Rightsholder making claim </h3>
 {{ rights_holder.rights_holder_name }}
-<h2> Work being claimed  </h2>
-{{ work.title }}<br />
-{{ work.author }}
-<h2> Terms and Conditions  </h2>
+<h3> Work being claimed  </h3>
+<ul>
+<li>{{ work.title }}</li>
+<li>{{ work.author }}</li>
+</ul>
+<h3> Terms and Conditions  </h3>
     {{ form.as_p }}
 [legal stuff goes here]
     <input type="submit" name="submit" value="Confirm Claim" id="submit">
