@@ -10,8 +10,8 @@ cd /opt/regluit
 sudo -u ubuntu /usr/bin/git pull
 source ENV/bin/activate
 pip install -r requirements.pip
-django-admin.py syncdb --migrate --noinput --settings regluit.settings.prod
-django-admin.py collectstatic
+django-admin.py syncdb --migrate --settings regluit.settings.prod
+django-admin.py collectstatic --noinput --settings regluit.settings.prod
 sudo /etc/init.d/apache2 restart
 sudo /etc/init.d/celeryd restart
 touch /opt/regluit/deploy/last-update
