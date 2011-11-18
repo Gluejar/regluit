@@ -5,10 +5,11 @@ from django.test import TestCase
 from django.utils import unittest
 from django.db import IntegrityError
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Work, UnglueitError
-from regluit.core import bookloader, models, search
+from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 
 from regluit.core import tasks
@@ -281,7 +282,31 @@ class CeleryTaskTest(TestCase):
             sleep(0.2)
         self.assertEqual(result.join(),[factorial(x) for x in range(n)])
     
-        
+class GoodreadsTest(TestCase):
+    def test_goodreads_shelves(self):
+        # test to see whether the core undeletable shelves are on the list
+        gr_uid = "767708"  # for Raymond Yee
+        gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        shelves = gc.shelves_list(gr_uid)
+        shelf_names = [s['name'] for s in shelves['user_shelves']]
+        self.assertTrue('currently-reading' in shelf_names)
+        self.assertTrue('read' in shelf_names)
+        self.assertTrue('to-read' in shelf_names)
+    #def test_unauth_review_list(self):
+    #    gr_uid = "767708"  # for Raymond Yee
+    #    gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+    #    reviews = gc.review_list(user_id=gr_uid, shelf='read')
+    #    # test to see whether there is a book field in each of the review
+    #    self.assertTrue(all([r.has_key("book") for r in reviews]))
+
+class LibraryThingTest(TestCase):
+    def test_scrape_test_lib(self):
+        # account yujx : has one book: 0471925675
+        lt_username = 'yujx'
+        lt = librarything.LibraryThing(username=lt_username)
+        books = list(lt.parse_user_catalog(view_style=5))
+        self.assertEqual(len(books),1)
+        self.assertEqual(books[0]['isbn'], '0471925675')
         
 def suite():
 

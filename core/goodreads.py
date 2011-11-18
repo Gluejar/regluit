@@ -50,7 +50,7 @@ class GoodreadsClient(object):
                               secret=self.secret)
         
         self.client = oauth.Client(self.consumer)
-        self.unauth_client = None
+        #self.unauth_client = None
         
         if access_token is not None:
           self.__load_access_token(access_token)
@@ -160,7 +160,7 @@ class GoodreadsClient(object):
           response, content = self.client.request('%s?%s' % (request_url, urlencode(params)),
                             method)
           if int(response['status']) != httplib.OK:
-              raise GoodreadsException('Error in review_list_auth: %s ' % response)
+              raise GoodreadsException('Error in review_list: %s ' % response)
           else:
               doc = ET.fromstring(content)
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
@@ -183,6 +183,8 @@ class GoodreadsClient(object):
                   params["page"] += 1 
         
     def shelves_list(self,user_id,page=1):
+        """BUG to fix:  should go through all the pages, not just page 1
+        """
         path = "/shelf/list.xml"
         params = {'user_id':user_id, 'page':page}
         params["key"] = self.key
