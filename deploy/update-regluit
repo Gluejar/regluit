@@ -9,6 +9,7 @@
 cd /opt/regluit
 sudo -u ubuntu /usr/bin/git pull
 source ENV/bin/activate
+pip install requirements.pip
 django-admin.py syncdb --migrate --settings regluit.settings.prod
 sudo /etc/init.d/apache2 restart
 sudo /etc/init.d/celeryd restart
