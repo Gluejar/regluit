@@ -12,9 +12,12 @@
     <link type="text/css" rel="stylesheet" href="/static/css/sitewide.css" />
     <link href="/static/css/book-panel.css" rel="stylesheet" type="text/css" />
 	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
+	{% block base_js %}
 	<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
     <script type="text/javascript" src="/static/js/book-panel.js"></script>
-    {% block extra_head %}{% endblock %}
+    {% endblock %}
+    {% block extra_head %}
+    {% endblock %}
 </head>
 
 <body>

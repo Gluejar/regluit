@@ -61,6 +61,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `pip install -r requirements.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
 1. `django-admin.py syncdb --migrate --settings regluit.settings.prod`
+1. `django-admin.py collectstatic --settings regluit.settings.prod`
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
 1. `sudo /etc/init.d/apache2 restart`

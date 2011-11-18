@@ -1,4 +1,12 @@
 {% extends "basedocumentation.html" %}
+{% block base_js %}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+{{ form.media.css }}
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+{{ form.media.js }}
+{% endblock %}
 
 {% block doccontent %}
 
@@ -18,6 +26,8 @@
 	<dd>PSA #: {{ rights_holder.id }}</dd>
 	<dd>email: {{ rights_holder.email }}</dd>
 	<dd>owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
+{% empty %}
+<p>No rights holders have been accepted yet</p>
 {% endfor %}
 </dl>
 
@@ -41,6 +51,7 @@
 </dl>
 </form>
 {% endif %}
+
 {% if active_data.count %}
 <h3> Active Claims: {{ active_data.count }} </h3>
 <dl>
