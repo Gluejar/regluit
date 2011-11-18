@@ -296,3 +296,21 @@ div.content-block-content .cols3 .column {
 #footer .column li a {
   color: #6994a3;
 }
+.pagination {
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+.pagination .endless_page_link {
+  font-size: 16pt;
+  border: thin #eeeeee solid;
+  font-weight: normal;
+  margin: 5px;
+}
+.pagination .endless_page_current {
+  font-size: 16pt;
+  border: thin #eeeeee solid;
+  font-weight: normal;
+  margin: 5px;
+  background-color: #edf3f4;
+}

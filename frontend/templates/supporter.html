@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load endless %}
 
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 
@@ -231,7 +232,8 @@ how do I integrate the your wishlist thing with the tabs thing?
                         Nudge, nudge, say no more. 
                     {% endifequal %}
                     {% else %}
-                    {% for work in wishlist.works.all %}
+                    {% paginate 20 works %}
+                    {% for work in works %}
                        <!-- classify which tab depending on work.last_campaign_status -->
                        {% if work.last_campaign_status == 'SUCCESSFUL' %}
                             <div class="listview tabs tabs-1">
@@ -350,6 +352,11 @@ how do I integrate the your wishlist thing with the tabs thing?
                     </div>
                     </div>
                     {% endfor %}
+                    <br>
+                    <hr>
+                    <div class="pagination content-block-heading">
+                        {% show_pages %}
+                    </div>
                     {% endifequal %}
                 </div>
             </div>    
