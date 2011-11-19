@@ -54,7 +54,10 @@ class UserProfileAdmin(ModelAdmin):
 
 admin_site = RegluitAdmin("Admin")
 
-admin_site.register(models.User, UserAdmin)
+# need to figure out how to enable this without stomping on 
+# /accounts/password/change/
+# admin_site.register(models.User, UserAdmin)
+
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.RightsHolder, RightsHolderAdmin)
