@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from frontend.forms import ProfileForm
 
-from regluit.admin import admin_site
+#from regluit.admin import admin_site
 
 urlpatterns = patterns('',
     url(r'^accounts/activate/complete/$','django.contrib.auth.views.login',
@@ -15,5 +15,5 @@ urlpatterns = patterns('',
     (r'', include('regluit.frontend.urls')),
     (r'', include('regluit.payment.urls')),
     (r'^selectable/', include('selectable.urls')),
-    url(r'^admin/', include(admin_site.urls)), 
+#    url(r'^admin/', include(admin_site.urls)), 
 )
