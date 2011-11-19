@@ -13,134 +13,135 @@
 {% block content %}    
     <div id="main-container">
     <div class="js-main">
-	<div id="js-leftcol">
-        	<div class="jsmodule rounded">
-            	<div class="jsmod-content">
-            	{% if work.last_campaign %}
-            	{% if work.last_campaign_status == 'ACTIVE' %}
-                	Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
+    <div id="js-leftcol">
+            <div class="jsmodule rounded">
+                <div class="jsmod-content">
+                {% if work.last_campaign %}
+                {% if work.last_campaign_status == 'ACTIVE' %}
+                    Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
                 {% else %}{% if work.last_campaign_status == 'SUCCESSFUL' %}
-                	Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
+                    Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
                 {% else %}{% if work.last_campaign_status == 'INITIALIZED' %}
-                	Campaign starting soon<br />&nbsp;
+                    Campaign starting soon<br />&nbsp;
                 {% else %}{% if work.last_campaign_status == 'SUSPENDED' %}
-                	Campaign suspended. <br />See <a href="/faq">FAQ</a>.
+                    Campaign suspended. <br />See <a href="/faq">FAQ</a>.
                 {% else %}{% if work.last_campaign_status == 'WITHDRAWN' %}
-                	Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
+                    Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
                 {% else %}{% if work.wished_by.count == 1 %}
-                	{{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
+                    {{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
                 {% else %}
-                	{{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
+                    {{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
                 {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 {% else %}{% if work.wished_by.count == 1 %}
-                	{{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
+                    {{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
                 {% else %}
-                	{{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
+                    {{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
                 {% endif %}{% endif %}
                 </div>
             </div>
-			{% include "explore.html" %}
-		</div>
+            {% include "explore.html" %}
+        </div>
         <div id="js-maincol">
         <div class="js-maincol-inner">
-        	<div class="content-block">
-            	<div class="book-detail">
-                	<div class="book-detail-img"><a href="#">
-                    	<img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+            <div class="content-block">
+                <div class="book-detail">
+                    <div class="book-detail-img"><a href="#">
+                        <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
                     </div>
                     <div class="book-detail-info">
-                    	<h2 class="book-name">{{ work.title }}</h2>
+                        <h2 class="book-name">{{ work.title }}</h2>
                         <h3 class="book-author">{{ work.author }}</h3>
                         <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
                         <div class="find-book">
-                        	<label>Find it here</label>
-                        	<!-- todo: these should be a real thing -->
+                            <label>Find it here</label>
+                            <!-- todo: these should be a real thing -->
                             <div class="find-link">
-                            	<a class="find-google" href="#"><img src="/static/images/icons/google.png" align="" title="" /></a>
+                                <a class="find-google" href="#"><img src="/static/images/icons/google.png" align="" title="" /></a>
                                 <a class="find-group" href="#"><img src="/static/images/icons/group.png" align="" title="" /></a>
                             </div>
                         </div>
                         {% if work.last_campaign %}
                         <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}{{ work.last_campaign.supporters.count }} 1 Ungluer has{% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
-						{% else %}
+                        {% else %}
                         <div class="pledged-info"><div class="pledged-group">
-                        	{% if work.wished_by.count == 1 %}
-			                	{{ work.wished_by.count }} Ungluer has
-			                {% else %}
-                				{{ work.wished_by.count }} Ungluers have
-                			{% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                            {% if work.wished_by.count == 1 %}
+                                {{ work.wished_by.count }} Ungluer has
+                            {% else %}
+                                {{ work.wished_by.count }} Ungluers have
+                            {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support">Add/drop from wishlist</div>
-						{% endif %}
+                        {% endif %}
                     </div>
                 </div>
                 <!-- needed to put 10px padding on this for supporter page but hurts here. disentangle. -->
-            	<div class="content-block-heading" id="tabs">
+                <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Campaign</a></li>
                         <li class="tabs2"><a href="#">Community </a></li>
                         <li class="tabs3"><a href="#">Supporters</a></li>
                         <li class="tabs4"><a href="#">Details</a></li>
                     </ul>
-                    	
+                        
                 </div>
                 
                 <div class="content-block-content">
-               		<div id="tabs-1" class="tabs">
+                       <div id="tabs-1" class="tabs">
                     <div class="tabs-content">
                         <h3 class="tabcontent-title">Title</h3>
-                    	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. </p>
-
-						<p>Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. </p>
-
-						<p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius. </p>
-
-						<p>Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum. Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.</p>
-                    </div>
-                    </div>
-                    <div id="tabs-2" class="tabs">
-                	<div class="tabs-content">
-                       Being Unglued infomation
-                    </div>
-                    </div>
-                    <div id="tabs-3" class="tabs">
-                	<div class="tabs-content">
-                        Want to Unglue infomation
-                    </div>
-                    </div>
-                    <div id="tabs-4" class="tabs">
-                	<div class="tabs-content">
-                        <h3 class="tabcontent-title">Details for {{ work.title }}</h3>
                         {% if work.claim.count %}
                         <h4> Rights Information </h4>
                         <p> This work has been claimed by:</p>
                         <ul>
                         {% for claim in work.claim.all %}
-                        	<li>{{ claim.rights_holder.rights_holder_name }}  </li>
+                            <li>{{ claim.rights_holder.rights_holder_name }}  </li>
                         {% endfor %}
                         </ul>
                         {% endif %}
                         {% if request.user.rights_holder.all.count %}
                         <h4> Claim this work:</h4>
                         <form method="GET" action="{% url claim %}">
-							{% csrf_token %}
-							{{ claimform.user }}
-							{{ claimform.work }}
-							{{ claimform.rights_holder }}
-							<input type="submit" name="submit" value="Claim" id="submit">
-						</form>
+                            {% csrf_token %}
+                            {{ claimform.user }}
+                            {{ claimform.work }}
+                            {{ claimform.rights_holder }}
+                            <input type="submit" name="submit" value="Claim" id="submit">
+                        </form>
                         {% endif %}
+                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. </p>
+
+                        <p>Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi. </p>
+
+                        <p>Nam liber tempor cum soluta nobis eleifend option congue nihil imperdiet doming id quod mazim placerat facer possim assum. Typi non habent claritatem insitam; est usus legentis in iis qui facit eorum claritatem. Investigationes demonstraverunt lectores legere me lius quod ii legunt saepius. </p>
+
+                        <p>Claritas est etiam processus dynamicus, qui sequitur mutationem consuetudium lectorum. Mirum est notare quam littera gothica, quam nunc putamus parum claram, anteposuerit litterarum formas humanitatis per seacula quarta decima et quinta decima. Eodem modo typi, qui nunc nobis videntur parum clari, fiant sollemnes in futurum.</p>
+                    </div>
+                    </div>
+                    <div id="tabs-2" class="tabs">
+                    <div class="tabs-content">
+                       Being Unglued infomation
+                    </div>
+                    </div>
+                    <div id="tabs-3" class="tabs">
+                    <div class="tabs-content">
+                        Want to Unglue infomation
+                    </div>
+                    </div>
+                    <div id="tabs-4" class="tabs">
+                    <div class="tabs-content">
+                        <br>
+                        {{ work.longest_description|safe }}
                     </div>
                     </div>
                 </div>
-            </div>	
+            </div>    
         </div>
         </div>
         <div id="js-rightcol">
         <div class="js-rightcol-pad rounded">
-        	
-        	<div class="jsmodule">
-            	<h3 class="jsmod-title"><span>Share</span></h3>
+            
+            <div class="jsmodule">
+                <h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
                     <ul class="social menu">
                         <li class="facebook first"><a
@@ -152,13 +153,13 @@
             </div>
             {% if work.last_campaign %}
             <div class="jsmodule">
-            	<h3 class="jsmod-title"><span>Support</span></h3>
+                <h3 class="jsmod-title"><span>Support</span></h3>
                 <div class="jsmod-content">
                     <ul class="support menu">
-                    	{% for premium in premiums %}
+                        {% for premium in premiums %}
                         <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                         <a href="{% url pledge work_id=work.id %}?premium_id={{premium.id}}">
-                        	<span class="menu-item-price">${{ premium.amount }}</span>
+                            <span class="menu-item-price">${{ premium.amount }}</span>
                             <span class="menu-item-desc">{{ premium.description }}</span>
                             {% ifequal premium.type 'CU' %}<span class="custom-premium">exclusive!</span>{% endifequal %}
                         </a></li>

@@ -14,7 +14,8 @@
       "campaign": null, 
       "amount": 1,
       "type": "00", 
-      "description": "The unglued ebook delivered to your inbox."
+      "description": "The unglued ebook delivered to your inbox.",
+      "created": "2011-11-17 22:03:37"
     }
   }, 
   {
@@ -24,7 +25,8 @@
       "campaign": null, 
       "amount": 25, 
       "type": "00", 
-      "description": "Your name under \"supporters\" in the acknowledgements section."
+      "description": "Your name under \"supporters\" in the acknowledgements section.",
+      "created": "2011-11-17 22:03:37"
     }
   }, 
   {
@@ -34,7 +36,8 @@
       "campaign": null, 
       "amount": 50, 
       "type": "00", 
-      "description": "Your name and link of your choice under \"benefactors\""
+      "description": "Your name and link of your choice under \"benefactors\"",
+      "created": "2011-11-17 22:03:37"
     }
   }, 
   {
@@ -44,7 +47,8 @@
       "campaign": null, 
       "amount": 100, 
       "type": "00", 
-      "description": "Your name, link of your choice, and a brief message (140 characters max) under \"bibliophiles\""
+      "description": "Your name, link of your choice, and a brief message (140 characters max) under \"bibliophiles\"",
+      "created": "2011-11-17 22:03:37"
     }
   }
 ]

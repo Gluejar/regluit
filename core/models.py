@@ -4,7 +4,6 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models import Q
-from django.contrib import admin
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -14,8 +13,8 @@ class UnglueitError(RuntimeError):
     pass
 
 class CeleryTask(models.Model):
-    task_id = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now())
+    task_id = models.CharField(max_length=255)
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
@@ -48,13 +47,14 @@ class Claim(models.Model):
         (u'pending', u'Claim is pending approval.'),
         (u'release', u'Claim has been released.'),
     )
+    created =  models.DateTimeField(auto_now_add=True)  
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
-    created =  models.DateTimeField(auto_now_add=True)  
     status = models.CharField(max_length=7, choices= STATUSES, default='pending')
    
 class RightsHolder(models.Model):
+    created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=True)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
@@ -63,6 +63,7 @@ class RightsHolder(models.Model):
     
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    created =  models.DateTimeField(auto_now_add=True)  
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
@@ -249,7 +250,14 @@ class Work(models.Model):
 
     def wished_by(self):
         return User.objects.filter(wishlist__works__in=[self])
-        
+
+    def longest_description(self):
+        description = ""
+        for edition in self.editions.all():
+            if len(edition.description) > len(description): 
+                description = edition.description
+        return description
+
     def __unicode__(self):
         return self.title
 
@@ -304,11 +312,15 @@ class Edition(models.Model):
         return None
 
 class Ebook(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25)
     url = models.CharField(max_length=1024)
     provider = models.CharField(max_length=255)
     rights = models.CharField(max_length=255, null=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
+
+    def __unicode__(self):
+        return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -316,6 +328,7 @@ class Wishlist(models.Model):
     works = models.ManyToManyField('Work', related_name='wishlists')
 
 class UserProfile(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
     pic_url =  models.URLField(blank=True) 
@@ -361,6 +374,3 @@ def twitter_extra_values(sender, user, response, details, **kwargs):
 
 pre_update.connect(facebook_extra_values, sender=FacebookBackend)
 pre_update.connect(twitter_extra_values, sender=TwitterBackend)
-
-#admin.site.register([Edition, Work, Campaign, Claim, RightsHolder, Premium,
-#                    Author, Subject, Ebook, Wishlist])
