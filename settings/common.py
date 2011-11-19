@@ -93,7 +93,6 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    #'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -111,6 +110,11 @@ INSTALLED_APPS = (
     'djcelery',
     'endless_pagination',
     'selectable',
+
+    # this must appear *after* django.frontend or else it overrides the 
+    # registration templates in frontend/templates/registration
+    'django.contrib.admin', 
+                            
 )
 
 # A sample logging configuration. The only tangible logging

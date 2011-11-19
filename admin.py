@@ -32,6 +32,7 @@ class WorkAdmin(ModelAdmin):
 
 class AuthorAdmin(ModelAdmin):
     date_hierarchy = 'created'
+    ordering = ('name',)
 
 class SubjectAdmin(ModelAdmin):
     date_hierarchy = 'created'
