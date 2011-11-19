@@ -6,7 +6,7 @@ from regluit.core import models
 
 
 class RegluitAdmin(AdminSite):
-    password_change_template = 'registration/password_change_form'
+    login_template = 'registration/login.html'
 
 class UserAdmin(ModelAdmin):
     pass
@@ -55,8 +55,6 @@ class UserProfileAdmin(ModelAdmin):
 
 admin_site = RegluitAdmin("Admin")
 
-# need to figure out how to enable this without stomping on 
-# /accounts/password/change/
 admin_site.register(models.User, UserAdmin)
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
