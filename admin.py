@@ -53,7 +53,7 @@ class UserProfileAdmin(ModelAdmin):
 
 admin_site = RegluitAdmin("Admin")
 
-admin_site.register(models.User, User)
+admin_site.register(models.User, UserAdmin)
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.RightsHolder, RightsHolderAdmin)
