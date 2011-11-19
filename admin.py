@@ -4,11 +4,12 @@ from django.contrib.admin.sites import AdminSite
 
 from regluit.core import models
 
-class UserAdmin(User):
-    pass
 
 class RegluitAdmin(AdminSite):
     password_change_template = 'registration/password_change_form'
+
+class UserAdmin(ModelAdmin):
+    pass
 
 class ClaimAdmin(ModelAdmin):
     date_hierarchy = 'created'

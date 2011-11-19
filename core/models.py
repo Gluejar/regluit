@@ -327,6 +327,9 @@ class Wishlist(models.Model):
     user = models.OneToOneField(User, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists')
 
+    def __unicode__(self):
+        return "%s's Wishlist" % self.user.username
+
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
