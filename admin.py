@@ -1,7 +1,11 @@
+from django.contrib.auth.models import User
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.sites import AdminSite
 
 from regluit.core import models
+
+class UserAdmin(User):
+    pass
 
 class RegluitAdmin(AdminSite):
     password_change_template = 'registration/password_change_form'
@@ -49,6 +53,7 @@ class UserProfileAdmin(ModelAdmin):
 
 admin_site = RegluitAdmin("Admin")
 
+admin_site.register(models.User, User)
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.RightsHolder, RightsHolderAdmin)
