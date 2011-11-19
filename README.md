@@ -48,13 +48,13 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `git config --global user.name "Ed Summers"`
 1. `git config --global user.email "ehs@pobox.com"`
 1. `ssh-keygen`
-1. add `~/.ssh/id_rsa.pub` as a deploy key on github https://github.com/Gluejar/regluit/admin/keys
+1. add `~/.ssh/id\_rsa.pub` as a deploy key on github https://github.com/Gluejar/regluit/admin/keys
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd /opt/regluit`
 1. create an Amazon RDS instance
 1. connect to it, e.g. `mysql -u root -h gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com -p`
 1. `CREATE DATABASE unglueit CHARSET utf8;`
-1. `GRANT ALL ON unglueit.* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL`
+1. `GRANT ALL ON unglueit.\* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL`
 1. update settings/prod.py with database credentials
 1. `virtualenv ENV`
 1. `source ENV/bin/activate`
@@ -64,6 +64,9 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `django-admin.py collectstatic --settings regluit.settings.prod`
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
+1. `sudo a2enmod ssl`
+1. 'sudo a2ensite default-ssl`
+1. edit /etc/apache2/sites-available/default-ssl to use correct ssl certificate if necessary
 1. `sudo /etc/init.d/apache2 restart`
 1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
 1. `sudo cp deploy/celeryd /etc/init.d/celeryd`
@@ -84,7 +87,7 @@ To run regluit on OS X you should have XCode installed
 Install virtualenvwrapper according 
 to the process at http://blog.praveengollakota.com/47430655:
 
-1. `sudo easy_install pip`
+1. `sudo easy\_install pip`
 1. `sudo pip install virtualenv`
 1. `pip install virtualenvwrapper`
 
