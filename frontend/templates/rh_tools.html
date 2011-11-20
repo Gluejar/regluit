@@ -10,19 +10,9 @@
 {% endblock %}
 {% block doccontent %}
 
-<h2>unglue.it Tools for Rightsholders</h2>
+<h1>unglue.it Tools for Rightsholders</h1>
 {% if request.user.rights_holder.count %}
-<h3>Rights Holders That You Administer</h3>
-	<dl>
-		{% for rights_holder in request.user.rights_holder.all %}
-		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
-		<dd>PSA #: {{ rights_holder.id }}
-		<br />contact email: {{ rights_holder.email }}<dd/>
-		{% endfor %}
-	</dl>
-{% endif %}
-{% if request.user.rights_holder.count %}
-<h3>Works You Have Claimed</h3>
+<h2>Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
 		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
@@ -32,7 +22,7 @@
 			<br />Date of Claim : {{ claim.created }}
 			<br />Status: {{ claim.status }}
 			{% if claim.can_open_new  %}
-			<h4>Open a campaign for this work</h4>
+			<h3>Open a campaign for this work</h3>
 			<form method="POST" action="#">
 				{% csrf_token %}
 				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
@@ -47,7 +37,7 @@
 				<input type="submit" name="submit" value="Open Campaign" id="submit">
 			</form>
 			{% else %}{%if claim.campaigns %}			
-			<h4>Campaigns for this work</h4>
+			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
 			<p>Name: {{ campaign.name }} {{ campaign.status }}	<br />Created: {{ campaign.created }}<br />
 			Manager(s): {% for user in campaign.manager.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
@@ -58,7 +48,17 @@
 	{% endfor %}
 	</dl>
 {% endif %}
-<h3>How to launch an Unglue.it campaign</h3>
+{% if request.user.rights_holder.count %}
+<h2>Rights Holders That You Administer</h2>
+	<dl>
+		{% for rights_holder in request.user.rights_holder.all %}
+		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
+		<dd>PSA #: {{ rights_holder.id }}
+		<br />contact email: {{ rights_holder.email }}</dd>
+		{% endfor %}
+	</dl>
+{% endif %}
+<h2>How to launch an Unglue.it campaign</h2>
 
 <ol>
 	<li>
@@ -90,11 +90,11 @@
 	</li> 
 </ol>
 
-<h3>Rightsholder social media tools</h3>
+<h2>Rightsholder social media tools</h2>
 
 <a href="/stub/rightsholder_social_media_toolkit">Needs to be written.</a>
 
-<h3>Rewards</h3>
+<h2>Rewards</h2>
 
 <p>Campaigns have rewards as a way to thank supporters.  unglue.it includes a standard set of rewards in all campaigns.  You are encouraged to add additional sweeteners to motivate people to donate.</p>
 
@@ -102,10 +102,10 @@
 <ul>
 <li><em>Any level</em> &#8212; The unglued ebook delivered to your inbox</li>
 <li><em>$25</em> &#8212; Your name under "supporters" in the acknowledgements section</li>
-<li><em>$50</em> &#8212; Your name & link of your choice under "benefactors"</li>
-<li><em>$100</em> &#8212; Your name, link of your choice, & a brief message (140 characters max) under "bibliophiles"</li>
+<li><em>$50</em> &#8212; Your name &amp; link of your choice under "benefactors"</li>
+<li><em>$100</em> &#8212; Your name, link of your choice, &amp; a brief message (140 characters max) under "bibliophiles"</li>
 </ul>
 
-<h3>More Questions</h3>
+<h2>More Questions</h2>
 
 {% endblock %}
