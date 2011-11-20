@@ -142,7 +142,7 @@ class TestBookLoader(TestCase):
 class SearchTests(TestCase):
 
     def test_basic_search(self):
-        results = search.gluejar_search('melville')
+        results = search.gluejar_search('melville', '69.243.24.29')
         self.assertEqual(len(results), 10)
 
         r = results[0]
