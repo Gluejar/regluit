@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign
 from regluit.core.lookups import OwnerLookup
 
 class ClaimForm(forms.ModelForm):
@@ -68,8 +68,40 @@ class UserData(forms.Form):
             raise forms.ValidationError(_("Another user with that username already exists."))
         raise forms.ValidationError(_("Your username is already "+oldusername))
 
+class AutoCompleteSelectManyToManyField(AutoCompleteSelectField):
+	def to_python(self, value):
+		single_value = AutoCompleteSelectField.to_python(self, value)
+		return [single_value,]
+
+class OpenCampaignForm(forms.ModelForm):
+    manager = AutoCompleteSelectManyToManyField(
+            OwnerLookup,
+            label='Campaign Manager',
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=False,
+        )
+    userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
+    class Meta:
+        model = Campaign
+        fields = 'name', 'work', 'target', 'deadline', 'manager'
+        widgets = { 'work': forms.HiddenInput }
+
+    #def clean_manager(self):
+    	#value = self.data["manager"]
+        #value= self.manager.clean()
+        #if value:
+        	#return value
+        #return self.userid.clean()
+
 class CampaignPledgeForm(forms.Form):
-    preapproval_amount = forms.DecimalField(initial=None, required=True, min_value=D('0.00'), max_value=D('10000.00'), decimal_places=2, label="Pledge Amount")
+    preapproval_amount = forms.DecimalField(
+        initial=None, 
+        required=True, 
+        min_value=D('0.00'), 
+        max_value=D('10000.00'), 
+        decimal_places=2, 
+        label="Pledge Amount",
+    )
     anonymous = forms.BooleanField(required=False, label="Don't display my username in the supporters list")
     
 class GoodreadsShelfLoadingForm(forms.Form):

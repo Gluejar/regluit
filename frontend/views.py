@@ -27,7 +27,8 @@ from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm, RightsHolderForm, ClaimForm, LibraryThingForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
+from regluit.frontend.forms import  RightsHolderForm, ClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -124,6 +125,31 @@ def claim(request):
         context = {'form': form, 'work': work, 'rights_holder':rights_holder }
         return render(request, "claim.html", context)
 
+def rh_tools(request):
+    if not request.user.is_authenticated() :
+        return render(request, "rh_tools.html")
+    claims = request.user.claim.filter(user=request.user)
+    campaign_form = "xxx"
+    if not claims:
+        return render(request, "rh_tools.html")
+    for claim in claims:
+        claim.campaigns= claim.work.campaigns.all()
+        claim.can_open_new=True
+        for campaign in claim.campaigns:
+        	if campaign.status in ['ACTIVE','INITIALIZED']:
+        		claim.can_open_new=False
+        if claim.status == 'active' and claim.can_open_new:
+            if request.method == 'POST' and int(request.POST['work']) == claim.work.id :
+                claim.campaign_form = OpenCampaignForm(request.POST)
+                if claim.campaign_form.is_valid():                    
+                    claim.campaign_form.save()
+                    claim.can_open_new=False
+            else:
+                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title, 'userid': request.user.id})
+        else:
+            claim.can_open_new=False
+    return render(request, "rh_tools.html", {'claims': claims ,}) 
+
 def rh_admin(request):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
@@ -143,6 +169,7 @@ def rh_admin(request):
             form = RightsHolderForm()
             if pending_formset.is_valid():
                 pending_formset.save()
+                pending_formset = PendingFormSet(queryset=pending_data)
     else:
         form = RightsHolderForm()
         pending_formset = PendingFormSet(queryset=pending_data)

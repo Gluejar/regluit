@@ -52,7 +52,7 @@ class Claim(models.Model):
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
     status = models.CharField(max_length=7, choices= STATUSES, default='pending')
-   
+    
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
@@ -83,6 +83,7 @@ class Campaign(models.Model):
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
+    manager = models.ManyToManyField(User, related_name="campaigns", null=False)
 
     def __unicode__(self):
         try:

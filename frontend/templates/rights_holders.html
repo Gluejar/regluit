@@ -23,9 +23,9 @@
 <dl>
 {% for rights_holder in rights_holders %}
 	<dt>{{ rights_holder.rights_holder_name }}</dt>
-	<dd>PSA #: {{ rights_holder.id }}</dd>
-	<dd>email: {{ rights_holder.email }}</dd>
-	<dd>owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
+	<dd>PSA #: {{ rights_holder.id }}
+	<br />email: {{ rights_holder.email }}
+	<br />owner: <a href="{% url supporter supporter_username=rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
 {% empty %}
 <p>No rights holders have been accepted yet</p>
 {% endfor %}

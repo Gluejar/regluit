@@ -1,0 +1,111 @@
+{% extends "basedocumentation.html" %}
+{% block title %}Tools for Rightsholders {% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+<link href="/static/css/dj.selectable.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery.dj.selectable.js"></script>
+
+{% endblock %}
+{% block doccontent %}
+
+<h2>unglue.it Tools for Rightsholders</h2>
+{% if request.user.rights_holder.count %}
+<h3>Rights Holders That You Administer</h3>
+	<dl>
+		{% for rights_holder in request.user.rights_holder.all %}
+		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
+		<dd>PSA #: {{ rights_holder.id }}
+		<br />contact email: {{ rights_holder.email }}<dd/>
+		{% endfor %}
+	</dl>
+{% endif %}
+{% if request.user.rights_holder.count %}
+<h3>Works You Have Claimed</h3>
+	<dl>
+	{% for claim in claims %}
+		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+		<dd>Author: {{claim.work.author }}
+			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
+			<br />PSA #: {{ claim.rights_holder.id }}
+			<br />Date of Claim : {{ claim.created }}
+			<br />Status: {{ claim.status }}
+			{% if claim.can_open_new  %}
+			<h4>Open a campaign for this work</h4>
+			<form method="POST" action="#">
+				{% csrf_token %}
+				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
+				<p>Choose a Campaign Manager: {{ claim.campaign_form.manager }}{{ claim.campaign_form.manager.errors }}</p>
+				<p>Pick a Campaign End Date: {{ claim.campaign_form.deadline }} (You can change this before launching the campaign.){{ claim.campaign_form.deadline.errors }}</p>
+				<p>Set Your Price: {{ claim.campaign_form.target }} (You can change this before launching the campaign.){{ claim.campaign_form.deadline.errors }}</p>
+				<p>
+				{{ claim.campaign_form.work }}{{ claim.campaign_form.work.errors }}
+				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
+				</p>
+				
+				<input type="submit" name="submit" value="Open Campaign" id="submit">
+			</form>
+			{% else %}{%if claim.campaigns %}			
+			<h4>Campaigns for this work</h4>
+			{% for campaign in claim.campaigns %}
+			<p>Name: {{ campaign.name }} {{ campaign.status }}	<br />Created: {{ campaign.created }}<br />
+			Manager(s): {% for user in campaign.manager.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
+			{% endfor %}
+			{% endif %}
+			{% endif %}
+		</dd>
+	{% endfor %}
+	</dl>
+{% endif %}
+<h3>How to launch an Unglue.it campaign</h3>
+
+<ol>
+	<li>
+	In order to launch a campaign, the rights holder must first sign and submit an Unglue.it Platform Services Agreement. 
+	Unglue.it staff will review the credentials of the rights holder and enter it into the system, along with an email address and the username for the person who will use the Unglue.it rights holder tools on behalf of the rights holder.
+	If your unglue.it account has been associated with a rights holder, the name and contact address of that rights holder should appear above.
+	</li>
+	<li>
+	The next step for a rights holder is to claim works from the Unglue.it database. Find the work by adding it to you wishlist. 
+	On the "details" tab of the work's page, you will find a form that allows you to enter a claim.
+	When you enter a claim, you will be asked to agree to terms and conditions, in which you agree that you're making the claim in good faith, and that you can substantiate that you have legal control over rights to the work.
+	If you claim a work by mistake, please contact Unglue.it rights holder relations immediately: rights@gluejar.com
+	</li>
+	<li>
+	Once a claim is made, it will be reviewed by Unglue.it staff. 
+	We'll make sure that the the claim is in order, and we may contact you at {{ request.user.email }} if we have any questions.
+	We may want to look over publishing contracts, etc., to make sure you have sufficient rights to unglue the book.
+	</li>
+	<li>
+	When a claim has been approved, you're ready to open a campaign for the work. 
+	A form will appear with the claim listing, above.
+	You'll need to pick a manager for the campaign- someone who has an Unglue.it username. 
+	If you don't pick a campaign manager, that role will be assigned to you by default.
+	The campaign manager will be able to set parameters of the campaign.
+	Only you and the campaign manager will be able to see the campaign before the campaign is launged, so tweak away!
+	</li> 
+	<li>
+	When a campaign is ready to launch, it will be activated.
+	</li> 
+</ol>
+
+<h3>Rightsholder social media tools</h3>
+
+<a href="/stub/rightsholder_social_media_toolkit">Needs to be written.</a>
+
+<h3>Rewards</h3>
+
+<p>Campaigns have rewards as a way to thank supporters.  unglue.it includes a standard set of rewards in all campaigns.  You are encouraged to add additional sweeteners to motivate people to donate.</p>
+
+<p>Here are the standard rewards:</p>
+<ul>
+<li><em>Any level</em> &#8212; The unglued ebook delivered to your inbox</li>
+<li><em>$25</em> &#8212; Your name under "supporters" in the acknowledgements section</li>
+<li><em>$50</em> &#8212; Your name & link of your choice under "benefactors"</li>
+<li><em>$100</em> &#8212; Your name, link of your choice, & a brief message (140 characters max) under "bibliophiles"</li>
+</ul>
+
+<h3>More Questions</h3>
+
+{% endblock %}
