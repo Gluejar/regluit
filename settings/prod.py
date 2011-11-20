@@ -27,8 +27,15 @@ DATABASES = {
 TIME_ZONE = 'America/New_York'
 SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
-EMAIL_HOST = 'localhost'
-DEFAULT_FROM_EMAIL = 'info@gluejar.com'
+# settings for outbout email
+# if you have a gmail account you can use your email address and password
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'accounts@gluejar.com'
+EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 
 # googlebooks 
 GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
