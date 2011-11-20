@@ -5,6 +5,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
+from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign
 from regluit.core.lookups import OwnerLookup
@@ -74,10 +75,10 @@ class AutoCompleteSelectManyToManyField(AutoCompleteSelectField):
 		return [single_value,]
 
 class OpenCampaignForm(forms.ModelForm):
-    manager = AutoCompleteSelectManyToManyField(
+    manager = AutoCompleteSelectMultipleField(
             OwnerLookup,
             label='Campaign Manager',
-            widget=AutoCompleteSelectWidget(OwnerLookup),
+            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
             required=False,
         )
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
