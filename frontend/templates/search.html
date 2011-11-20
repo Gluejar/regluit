@@ -91,6 +91,17 @@
                         </div>
                     </div>
                     </div>
+                    {% empty %}
+                    <h2>Sorry, couldn't find that!</h2>
+                    <div class="js-search">
+                        <div class="js-search-inner">
+                            <form action="{% url search %}" method="get"> 
+                                <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q">
+                                <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
+                            </form>
+                        </div>
+                    </div>
+
                     {% endfor %}
                 </div>
             </div>    

@@ -302,7 +302,7 @@ def edit_user(request):
 
 def search(request):
     q = request.GET.get('q', None)
-    results = gluejar_search(q)
+    results = gluejar_search(q, request.META['REMOTE_ADDR'])
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
