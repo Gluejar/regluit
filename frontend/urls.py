@@ -41,4 +41,5 @@ urlpatterns = patterns(
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
     url('^404testing/$', direct_to_template, {'template': '404.html'}),
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
+    url('^robots.txt$', direct_to_template, {'template': 'robots.txt'}),
 )
