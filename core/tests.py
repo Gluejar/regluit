@@ -142,7 +142,7 @@ class TestBookLoader(TestCase):
 class SearchTests(TestCase):
 
     def test_basic_search(self):
-        results = search.gluejar_search('melville', '69.243.24.29')
+        results = search.gluejar_search('melville')
         self.assertEqual(len(results), 10)
 
         r = results[0]
@@ -155,7 +155,7 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('googlebooks_id'))
 
     def test_googlebooks_search(self):
-        response = search.googlebooks_search('melville')
+        response = search.googlebooks_search('melville', '69.243.24.29')
         self.assertEqual(len(response['items']), 10)
 
 
