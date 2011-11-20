@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from decimal import Decimal as D
-from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
+from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign
 from regluit.core.lookups import OwnerLookup
@@ -69,11 +69,6 @@ class UserData(forms.Form):
             raise forms.ValidationError(_("Another user with that username already exists."))
         raise forms.ValidationError(_("Your username is already "+oldusername))
 
-class AutoCompleteSelectManyToManyField(AutoCompleteSelectField):
-	def to_python(self, value):
-		single_value = AutoCompleteSelectField.to_python(self, value)
-		return [single_value,]
-
 class OpenCampaignForm(forms.ModelForm):
     manager = AutoCompleteSelectMultipleField(
             OwnerLookup,
@@ -87,12 +82,6 @@ class OpenCampaignForm(forms.ModelForm):
         fields = 'name', 'work', 'target', 'deadline', 'manager'
         widgets = { 'work': forms.HiddenInput }
 
-    #def clean_manager(self):
-    	#value = self.data["manager"]
-        #value= self.manager.clean()
-        #if value:
-        	#return value
-        #return self.userid.clean()
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(

@@ -347,13 +347,6 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
 
-    def is_admin(self):
-        if self.user.is_anonymous():
-            return False
-        for name,email in settings.ADMINS :
-            if email == self.user.email :
-                return True 
-        return False    
 
 from regluit.core import signals
 from regluit.payment.manager import PaymentManager

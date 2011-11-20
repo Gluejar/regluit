@@ -80,7 +80,7 @@
     <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
     <li><a href="{{privacyurl}}">Privacy</a></li>
     <li><a href="/stub/terms_and_conditions">Terms and Conditions</a></li>
-    {% if user.profile.is_admin %}
+    {% if user.is_staff %}
     <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
     {% endif %}
     </ul>

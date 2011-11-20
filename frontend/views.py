@@ -153,7 +153,7 @@ def rh_tools(request):
 def rh_admin(request):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
-    if not request.user.profile.is_admin() :
+    if not request.user.is_staff() :
         return render(request, "admins_only.html")
     PendingFormSet = modelformset_factory(models.Claim, fields=['status'], extra=0)
     pending_data = models.Claim.objects.filter(status = 'pending')
