@@ -15,7 +15,7 @@ DATABASES = {
         'NAME': 'regluit',
         'USER': 'jenkins',
         'PASSWORD': 'jenkins',
-        'HOST': '',
+        'HOST': 'jenkins.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }
