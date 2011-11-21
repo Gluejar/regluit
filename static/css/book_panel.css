@@ -154,7 +154,7 @@ div.panelview.side2 > div {
   font-size: 12px;
   width: 120px;
   line-height: 16px;
-  margin: 0px auto;
+  margin: 10px auto 0;
   padding: 10px;
   height: 295px;
   background-color: #8dc63f;
