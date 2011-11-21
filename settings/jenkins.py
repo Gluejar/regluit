@@ -11,12 +11,13 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'regluit.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'regluit',
+        'USER': 'jenkins',
+        'PASSWORD': 'jenkins',
+        'HOST': 'jenkins.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
+        'TEST_CHARSET': 'utf8',
     }
 }
 
