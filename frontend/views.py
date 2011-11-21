@@ -63,6 +63,13 @@ def work(request, work_id, action='display'):
         premiums = models.Premium.objects.filter(q)
     else:
         premiums = None
+        
+    try:
+    	status = campaign.status
+    except:
+    	status = 'No campaign yet'
+    	
+    wishers = work.wished_by().count()
     
     #may want to deprecate the following
     if action == 'setup_campaign':
@@ -73,6 +80,7 @@ def work(request, work_id, action='display'):
             'premiums': premiums, 
             'ungluers': userlists.supporting_users(work, 5), 
             'claimform': claimform,
+            'wishers': wishers,
         })
 
 def manage_campaign(request, id):

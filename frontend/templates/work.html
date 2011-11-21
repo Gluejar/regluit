@@ -17,25 +17,25 @@
             <div class="jsmodule rounded">
                 <div class="jsmod-content">
                 {% if work.last_campaign %}
-                {% if work.last_campaign_status == 'ACTIVE' %}
+                {% if status == 'ACTIVE' %}
                     Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
-                {% else %}{% if work.last_campaign_status == 'SUCCESSFUL' %}
+                {% else %}{% if status == 'SUCCESSFUL' %}
                     Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
-                {% else %}{% if work.last_campaign_status == 'INITIALIZED' %}
+                {% else %}{% if status == 'INITIALIZED' %}
                     Campaign starting soon<br />&nbsp;
-                {% else %}{% if work.last_campaign_status == 'SUSPENDED' %}
+                {% else %}{% if status == 'SUSPENDED' %}
                     Campaign suspended. <br />See <a href="/faq">FAQ</a>.
-                {% else %}{% if work.last_campaign_status == 'WITHDRAWN' %}
+                {% else %}{% if status == 'WITHDRAWN' %}
                     Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
-                {% else %}{% if work.wished_by.count == 1 %}
-                    {{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
+                {% else %}{% if wishers == 1 %}
+                    {{ wishers }} Ungluer is WISHING<br />&nbsp;
                 {% else %}
-                    {{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
+                    {{ wishers }} Ungluers are WISHING<br />&nbsp;
                 {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                {% else %}{% if work.wished_by.count == 1 %}
-                    {{ work.wished_by.count }} Ungluer is WISHING<br />&nbsp;
+                {% else %}{% if wishers == 1 %}
+                    {{ wishers }} Ungluer is WISHING<br />&nbsp;
                 {% else %}
-                    {{ work.wished_by.count }} Ungluers are WISHING<br />&nbsp;
+                    {{ wishers }} Ungluers are WISHING<br />&nbsp;
                 {% endif %}{% endif %}
                 </div>
             </div>
@@ -65,10 +65,10 @@
                         <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
                         {% else %}
                         <div class="pledged-info"><div class="pledged-group">
-                            {% if work.wished_by.count == 1 %}
-                                {{ work.wished_by.count }} Ungluer has
+                            {% if wishers == 1 %}
+                                {{ wishers }} Ungluer has
                             {% else %}
-                                {{ work.wished_by.count }} Ungluers have
+                                {{ wishers }} Ungluers have
                             {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support">Add/drop from wishlist</div>
                         {% endif %}
