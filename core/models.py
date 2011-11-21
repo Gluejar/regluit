@@ -73,6 +73,7 @@ class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = models.TextField(null=True, blank=False)
+    details = models.TextField(null=True, blank=False)
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
@@ -83,7 +84,7 @@ class Campaign(models.Model):
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
-    manager = models.ManyToManyField(User, related_name="campaigns", null=False)
+    managers = models.ManyToManyField(User, related_name="campaigns", null=False)
 
     def __unicode__(self):
         try:

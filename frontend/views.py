@@ -29,6 +29,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, ClaimForm, LibraryThingForm, OpenCampaignForm
+from regluit.frontend.forms import  ManageCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
 
@@ -62,6 +63,8 @@ def work(request, work_id, action='display'):
         premiums = models.Premium.objects.filter(q)
     else:
         premiums = None
+    
+    #may want to deprecate the following
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
     else:
@@ -71,6 +74,11 @@ def work(request, work_id, action='display'):
             'ungluers': userlists.supporting_users(work, 5), 
             'claimform': claimform,
         })
+
+def manage_campaign(request, id):
+    campaign = get_object_or_404(models.Campaign, id=id)
+    form= ManageCampaignForm(instance=campaign)
+    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form})
         
 def workstub(request, title, imagebase, image, author, googlebooks_id, action='display'):
     premiums = None

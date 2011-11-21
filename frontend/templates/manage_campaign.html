@@ -1,0 +1,51 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %}Campaign Management{% endblock %}
+
+{% block doccontent %}  
+{% if not request.user in campaign.managers.all %}
+<h2>You're not a manager for this campaign</h2>
+{% else %}
+<h1>Manage the  campaign</h1>
+<h2>The work</h2>
+    <div class="book-detail-info">
+        <h2 class="book-name">Title: {{ campaign.work.title }}</h2>
+        <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
+        <h3 class="book-year">Published: {{ campaign.work.editions.all.0.publication_date }}</h3>
+        <h3 class="book-author">Language: {{ campaign.work.editions.all.0.language }}</h3>
+    </div>
+<h3>Description of the offering</h2>
+<form action="#" method="POST">
+{% csrf_token %}
+<p>This should include:</p>
+<ul>
+<li>A synopsis of the work.</li>
+<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself.</li>
+</ul>
+{{ form.description }}{{ form.description.errors }}
+<h3>Offer details</h2>
+<p>This should include:</p>
+<ul>
+<li>Details about the edition being offered.</li>
+<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself.</li>
+</uL>
+{{ form.details }}{{ form.details.errors }}
+<h3>Target Price</h2>
+<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it.</p>
+{{ form.target }}{{ form.target.errors }}
+<h3>Ending date</h2>
+<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
+The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
+{{ form.deadline }}{{ form.deadline.errors }}
+<h3>Paypal collection address</h2>
+<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
+The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
+{{ form.paypal_receiver }}{{ form.paypal_receiver.errors }}
+
+{{ campaign.errors }}
+<input type="submit" name="save" value="Save Campaign" />
+<input type="submit" name="launch" value="Launch Campaign" />
+</form>
+
+{% endif %}
+{% endblock %}

@@ -11,6 +11,21 @@
 {% block doccontent %}
 
 <h1>unglue.it Tools for Rightsholders</h1>
+{% if request.user.campaigns.all %}
+<h2>Campaigns You Manage</h2>
+	<dl>
+	{% for campaign in request.user.campaigns.all %}
+		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
+		<dd>
+			<ul>
+			<li>Campaign: <a href="{% url manage_campaign campaign.id %}">{{ campaign.name }}</a></li>
+			<li>Status: {{ campaign.status }}	</li>
+			<li>Created: {{ campaign.created }}</li>
+			</ul>
+		</dd>
+	{% endfor %}
+	</dl>
+{% endif %}
 {% if request.user.rights_holder.count %}
 <h2>Works You Have Claimed</h2>
 	<dl>
@@ -26,7 +41,7 @@
 			<form method="POST" action="#">
 				{% csrf_token %}
 				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
-				<p>Choose a Campaign Manager: {{ claim.campaign_form.manager }}{{ claim.campaign_form.manager.errors }}</p>
+				<p>Choose a Campaign Manager: {{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</p>
 				<p>Pick a Campaign End Date: {{ claim.campaign_form.deadline }} (You can change this before launching the campaign.){{ claim.campaign_form.deadline.errors }}</p>
 				<p>Set Your Price: {{ claim.campaign_form.target }} (You can change this before launching the campaign.){{ claim.campaign_form.deadline.errors }}</p>
 				<p>
@@ -40,7 +55,7 @@
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
 			<p>Name: {{ campaign.name }} {{ campaign.status }}	<br />Created: {{ campaign.created }}<br />
-			Manager(s): {% for user in campaign.manager.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
+			Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
 			{% endfor %}
 			{% endif %}
 			{% endif %}
@@ -80,10 +95,9 @@
 	<li>
 	When a claim has been approved, you're ready to open a campaign for the work. 
 	A form will appear with the claim listing, above.
-	You'll need to pick a manager for the campaign- someone who has an Unglue.it username. 
-	If you don't pick a campaign manager, that role will be assigned to you by default.
-	The campaign manager will be able to set parameters of the campaign.
-	Only you and the campaign manager will be able to see the campaign before the campaign is launged, so tweak away!
+	You'll need to pick one or more managers for the campaign- someone who has an Unglue.it username. 
+	The campaign managers will be able to set parameters of the campaign.
+	Only you and the campaign managers will be able to see the campaign before the campaign is launged, so tweak away!
 	</li> 
 	<li>
 	When a campaign is ready to launch, it will be activated.

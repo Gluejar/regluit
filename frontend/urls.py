@@ -16,6 +16,7 @@ urlpatterns = patterns(
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
     url(r"^rightsholders/$", "rh_tools", name="rightsholders"), 
+    url(r"^rightsholders/campaign/(?P<id>\d+)/$", "manage_campaign", name="manage_campaign"), 
     url(r"^rightsholders/claim/$", "claim", name="claim"), 
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"), 
     url(r"^faq/$", TemplateView.as_view(template_name="faq.html"),
@@ -33,6 +34,7 @@ urlpatterns = patterns(
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
     url(r"^workstub/(?P<title>.+)/(?P<imagebase>.+)/(?P<image>.+)/(?P<author>.+)/(?P<googlebooks_id>.+)/$", "workstub", name="workstub"),
+    #may want to deprecate the following
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),

@@ -2,6 +2,7 @@ from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
+from django.forms.extras.widgets import SelectDateWidget
 
 from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
@@ -24,7 +25,10 @@ class RightsHolderForm(forms.ModelForm):
             widget=AutoCompleteSelectWidget(OwnerLookup),
             required=True,
         )
-
+    email = forms.EmailField(
+        label=_("notification email address for rights holder"), 
+        max_length=100, 
+        )
     class Meta:
         model = RightsHolder
 
@@ -70,17 +74,32 @@ class UserData(forms.Form):
         raise forms.ValidationError(_("Your username is already "+oldusername))
 
 class OpenCampaignForm(forms.ModelForm):
-    manager = AutoCompleteSelectMultipleField(
+    managers = AutoCompleteSelectMultipleField(
             OwnerLookup,
-            label='Campaign Manager',
+            label='Campaign Managers',
             widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
             required=False,
         )
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
         model = Campaign
-        fields = 'name', 'work', 'target', 'deadline', 'manager'
+        fields = 'name', 'work', 'target', 'deadline', 'managers'
         widgets = { 'work': forms.HiddenInput }
+
+class ManageCampaignForm(forms.ModelForm):
+    paypal_receiver = forms.EmailField(
+        label=_("email address to collect Paypal funds"), 
+        max_length=100, 
+        )
+    target = forms.DecimalField( min_value=1000.00 )
+    class Meta:
+        model = Campaign
+        fields = 'description', 'details', 'target', 'deadline', 'paypal_receiver'
+        widgets = { 
+                'description': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
+                'details': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
+                'deadline': SelectDateWidget
+            }
 
 
 class CampaignPledgeForm(forms.Form):
@@ -92,7 +111,7 @@ class CampaignPledgeForm(forms.Form):
         decimal_places=2, 
         label="Pledge Amount",
     )
-    anonymous = forms.BooleanField(required=False, label="Don't display my username in the supporters list")
+    anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the supporters list"))
     
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
