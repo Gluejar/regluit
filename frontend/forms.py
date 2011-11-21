@@ -84,7 +84,7 @@ class OpenCampaignForm(forms.ModelForm):
     class Meta:
         model = Campaign
         fields = 'name', 'work', 'target', 'deadline', 'managers'
-        widgets = { 'work': forms.HiddenInput }
+        widgets = { 'work': forms.HiddenInput, 'deadline': SelectDateWidget }
 
 class ManageCampaignForm(forms.ModelForm):
     paypal_receiver = forms.EmailField(
