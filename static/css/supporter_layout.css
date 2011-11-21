@@ -250,15 +250,3 @@ div.content-block-content {
   height: 25px;
   display: block;
 }
-#toggle-list {
-  filter: alpha(opacity=100);
-  -moz-opacity: 1;
-  -khtml-opacity: 1;
-  opacity: 1;
-}
-#toggle-panel {
-  filter: alpha(opacity=100);
-  -moz-opacity: 0.2;
-  -khtml-opacity: 0.2;
-  opacity: 0.2;
-}

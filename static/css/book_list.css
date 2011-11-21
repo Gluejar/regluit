@@ -13,6 +13,7 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+/* Cross-browser language */
 div.book-list.listview {
   clear: both;
   display: block;
@@ -221,4 +222,17 @@ div.content-block-content {
 }
 .listview.boolist-ebook a {
   color: #3d4e53;
+}
+/* Starting state of toggle icons; will be overwritten by js in page */
+#toggle-list {
+  filter: alpha(opacity=100);
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  opacity: 1;
+}
+#toggle-panel {
+  filter: alpha(opacity=100);
+  -moz-opacity: 0.2;
+  -khtml-opacity: 0.2;
+  opacity: 0.2;
 }

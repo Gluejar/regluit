@@ -1,5 +1,13 @@
 @import "variables.less";
 
+/* Cross-browser language */
+.opacity (@op) {
+    filter:alpha(opacity=@op);
+    -moz-opacity:@op/100;
+    -khtml-opacity:@op/100;
+    opacity:@op/100;
+}
+
 div.book-list.listview{ 
     clear:both;
     display:block;
@@ -237,4 +245,13 @@ div.content-block-content {
 
 .listview.boolist-ebook a {
 	color: @text-blue;
+}
+
+/* Starting state of toggle icons; will be overwritten by js in page */
+#toggle-list {
+	.opacity(100);
+}
+
+#toggle-panel {
+	.opacity(20);
 }
