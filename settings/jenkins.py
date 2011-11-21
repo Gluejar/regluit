@@ -17,6 +17,7 @@ DATABASES = {
         'PASSWORD': 'jenkins',
         'HOST': 'jenkins.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
+        'TEST_CHARSET': 'utf8',
     }
 }
 

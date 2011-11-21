@@ -81,7 +81,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     e.title = d.get('title')
     e.description = d.get('description')
     e.publisher = d.get('publisher')
-    e.publication_date = d.get('publishedDate')
+    e.publication_date = d.get('publishedDate', '')
     e.language = d.get('language')
 
     for i in d.get('industryIdentifiers', []):
