@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block extra_head %}
-<link type="text/css" rel="stylesheet" href="/static/css/documentation.css"  />
+<link href="/static/css/documentation.css" rel="stylesheet" type="text/css" />
+{% block extra_extra_head %}
+<!-- extra head content in descendants goes in extra_extra_head, not extra_head, to avoid overwriting the documentation.css include -->
+{% endblock %}
 {% endblock %}
 
 {% block title %}{% endblock %}
