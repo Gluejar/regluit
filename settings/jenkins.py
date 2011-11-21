@@ -13,9 +13,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'regluit',
-        'USER': 'jenkins',
-        'PASSWORD': 'jenkins',
-        'HOST': 'jenkins.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'USER': 'regluit',
+        'PASSWORD': 'regluit',
+        'HOST': '',
         'PORT': '',
         'TEST_CHARSET': 'utf8',
     }
