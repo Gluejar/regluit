@@ -235,9 +235,11 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% paginate 20 works %}
                     {% for work in works %}
                        <!-- classify which tab depending on work.last_campaign_status -->
-                       {% if work.last_campaign_status == 'SUCCESSFUL' %}
+                       {% with work.last_campaign_status as status %}
+                       {% with work.last_campaign.deadline as deadline %}
+                       {% if status == 'SUCCESSFUL' %}
                             <div class="listview tabs tabs-1">
-                       {% else %}{% if work.last_campaign_status == 'ACTIVE' %}
+                       {% else %}{% if status == 'ACTIVE' %}
                             <div class="listview tabs tabs-2">
                        {% else %}
                             <div class="listview tabs tabs-3">
@@ -249,21 +251,21 @@ how do I integrate the your wishlist thing with the tabs thing?
 										{% if work.first_ebook %}
 										<b>AVAILABLE!</b>
 										{% else %}
-										<b>{{ work.last_campaign_status }}</b>
-										{% if work.last_campaign_status == 'SUCCESSFUL' %} 
-										<p><b>On:</b> {{ work.last_campaign.deadline|date:"M d, Y" }}</p>
+										<b>{{ status }}</b>
+										{% if status == 'SUCCESSFUL' %} 
+										<p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
 				  						<p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
-				  						{% else %}{% if work.last_campaign_status == 'ACTIVE' %}
-										<p><b>Until:</b> {{ work.last_campaign.deadline|date:"M d, Y" }}</p>
+				  						{% else %}{% if status == 'ACTIVE' %}
+										<p><b>Until:</b> {{ deadline|date:"M d, Y" }}</p>
 				  						<p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
-				                        {% else %}{% if work.last_campaign_status == 'INITIALIZED' %}
+				                        {% else %}{% if status == 'INITIALIZED' %}
 				                        <p>Campaign coming soon!</p>
-				                        {% else %}{% if work.last_campaign_status == 'SUSPENDED' %}
+				                        {% else %}{% if status == 'SUSPENDED' %}
 										<p>This campaign was suspended on {{ work.last_campaign.suspended }}.</p>
-				                        {% else %}{% if work.last_campaign_status == 'WITHDRAWN' %}
+				                        {% else %}{% if status == 'WITHDRAWN' %}
 										<p>This campaign was withdrawn on {{ work.last_campaign.withdrawn }}.</p>
-				                        {% else %}{% if work.last_campaign_status == 'UNSUCCESSFUL' %}
-										<p>{{ work.last_campaign.deadline }}</p>
+				                        {% else %}{% if status == 'UNSUCCESSFUL' %}
+										<p>{{ deadline }}</p>
 										<p>Watch for a new campaign.</p>
 										{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
 									</div> 
@@ -322,7 +324,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         {% endif %}{% endif %}{% endifequal %}
                         <div class="listview booklist-status">
-                            <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ work.last_campaign_status }}</span>
+                            <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
                         </div>
                         <div class="listview icons">
                             <div class="booklist-status-img">
@@ -351,6 +353,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                     </div>
                     </div>
+                    {% endwith %}{% endwith %}
                     {% endfor %}
                     <br>
                     <div class="pagination content-block-heading">

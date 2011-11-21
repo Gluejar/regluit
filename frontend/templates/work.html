@@ -100,7 +100,20 @@
                     </div>
                     <div id="tabs-3" class="tabs">
                     <div class="tabs-content">
-                        Want to Unglue infomation
+                        {% for supporter in work.wished_by %}
+                          <div class="work_supporter">
+                          	<a href="/supporter/{{supporter}}">
+                          	<div class="work_supporter_avatar">
+                        		{% if supporter.profile.pic_url %}
+                                	<img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                           			{% else %}
+                                	<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                	{% endif %}
+                            </div>
+							<div class="work_supporter_name">{{supporter }}</div>
+							</a>
+						  </div>
+                        {% endfor %}
                     </div>
                     </div>
                     <div id="tabs-4" class="tabs">

@@ -64,11 +64,6 @@ def work(request, work_id, action='display'):
     else:
         premiums = None
         
-    try:
-    	status = campaign.status
-    except:
-    	status = 'No campaign yet'
-    	
     wishers = work.wished_by().count()
     
     #may want to deprecate the following
