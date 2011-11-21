@@ -3,7 +3,6 @@
 {% block extra_extra_head %}
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
 <link href="/static/css/dj.selectable.css" type="text/css" media="all" rel="stylesheet" />
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.dj.selectable.js"></script>
 
@@ -16,13 +15,9 @@
 	<dl>
 	{% for campaign in request.user.campaigns.all %}
 		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
-		<dd>
-			<ul>
-			<li>Campaign: <a href="{% url manage_campaign campaign.id %}">{{ campaign.name }}</a></li>
-			<li>Status: {{ campaign.status }}	</li>
-			<li>Created: {{ campaign.created }}</li>
-			</ul>
-		</dd>
+		<dd>Campaign: <a href="{% url manage_campaign campaign.id %}">{{ campaign.name }}</a><br />
+		Status: {{ campaign.status }}	<br />
+		Created: {{ campaign.created }}</dd>
 	{% endfor %}
 	</dl>
 {% endif %}
@@ -41,7 +36,7 @@
 			<form method="POST" action="#">
 				{% csrf_token %}
 				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
-				<p>Choose a Campaign Manager: {{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</p>
+				<p>Choose your Campaign Manager(s): {{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</p>
 				<p>Pick a Campaign End Date: {{ claim.campaign_form.deadline }} (You can change this before launching the campaign.){{ claim.campaign_form.deadline.errors }}</p>
 				<p>Set Your Price: {{ claim.campaign_form.target }} (You can change this before launching the campaign.){{ claim.campaign_form.deadline.errors }}</p>
 				<p>
