@@ -11,10 +11,10 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'regluit.db',
-        'USER': '',
-        'PASSWORD': '',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'regluit',
+        'USER': 'jenkins',
+        'PASSWORD': 'jenkins',
         'HOST': '',
         'PORT': '',
     }
