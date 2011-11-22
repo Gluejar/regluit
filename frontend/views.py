@@ -68,6 +68,8 @@ def work(request, work_id, action='display'):
         
     wishers = work.wished_by().count()
     
+    base_url = request.build_absolute_uri("/")[:-1]
+    
     #may want to deprecate the following
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
@@ -78,6 +80,7 @@ def work(request, work_id, action='display'):
             'ungluers': userlists.supporting_users(work, 5), 
             'claimform': claimform,
             'wishers': wishers,
+            'base_url': base_url,
         })
 
 def manage_campaign(request, id):

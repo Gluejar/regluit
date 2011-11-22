@@ -217,6 +217,14 @@ ul.social li.twitter {
 ul.social li.email {
   background: url("/static/images/icons/email.png") left center no-repeat;
 }
+#widgetcode {
+  display: none;
+  border: 1px solid #d6dde0;
+  -moz-border-radius: 10px 10px 10px 10px;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
+  padding: 10px;
+}
 ul.support li {
   border-bottom: 1px solid #d6dde0;
   padding: 10px 15px 10px 0;
