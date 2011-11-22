@@ -7,6 +7,8 @@
     <p>Target: {{campaign.target}}</p>
     <p>Deadline: {{campaign.deadline}}</p>
     <p>Status: {{campaign.status}}</p>
+    <p>ISBN: {{campaign.work.editions.all.0.isbn_10}} | {{campaign.work.editions.all.0.isbn_13}} </p>
+    <p><a href="{% url widget isbn=campaign.work.editions.all.0.isbn_10 %}">Widget Link</a></p>
     <p>PayPal receiver: {{campaign.paypal_receiver}}</p>
     <p>Current total (pledged/authorized): {{campaign.current_total}}</p>
     <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
