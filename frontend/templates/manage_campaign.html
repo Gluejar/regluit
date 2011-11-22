@@ -13,12 +13,13 @@
 {% endfor %}
 <h2>The work</h2>
     <div class="book-detail-info">
-        <h2 class="book-name">Title: {{ campaign.work.title }}</h2>
+        <h2 class="book-name">Title: <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a></h2>
         <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
         <h3 class="book-year">Published: {{ campaign.work.editions.all.0.publication_date }}</h3>
         <h3 class="book-author">Language: {{ campaign.work.editions.all.0.language }}</h3>
         <p>Target Price: {{ campaign.pretarget }}</p>
         <p>End Date: {{ campaign.predeadline }}</p>
+        <p>Campaign status: {{ campaign.status }}</p>
     </div>
 
 <h3>Description of the offering</h2>

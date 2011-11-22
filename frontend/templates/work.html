@@ -24,8 +24,10 @@ $(document).ready(function(){
     <div class="js-main">
     <div id="js-leftcol">
             <div class="jsmodule rounded">
-                <div class="jsmod-content">
+                <div class="jsmod-content"> {{ work.last_campaign.id }} {{ work.campaigns.0.id }}
                 {% if work.last_campaign %}
+                {% with work.last_campaign_status as status %} 
+                {{ work.last_campaign_status}}
                 {% if status == 'ACTIVE' %}
                     Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
                 {% else %}{% if status == 'SUCCESSFUL' %}
@@ -41,11 +43,14 @@ $(document).ready(function(){
                 {% else %}
                     {{ wishers }} Ungluers are WISHING<br />&nbsp;
                 {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                {% else %}{% if wishers == 1 %}
+                {% endwith %}
+                {% else %}
+                {% if wishers == 1 %}
                     {{ wishers }} Ungluer is WISHING<br />&nbsp;
                 {% else %}
                     {{ wishers }} Ungluers are WISHING<br />&nbsp;
-                {% endif %}{% endif %}
+                {% endif %}
+                {% endif %}
                 </div>
             </div>
             {% include "explore.html" %}
