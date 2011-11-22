@@ -3,17 +3,24 @@
 {% block title %}Campaign Management{% endblock %}
 
 {% block doccontent %}  
-{% if not request.user in campaign.managers.all %}
-<h2>You're not a manager for this campaign</h2>
+{% if campaign.not_manager %}
+<h2>You're not a manager for campaign: {{ campaign.name }}</h2>
 {% else %}
+{% for alert in alerts %}
+<h1 class="alert">{{ alert }}</h1>
+{% empty %}
 <h1>Manage the  campaign</h1>
+{% endfor %}
 <h2>The work</h2>
     <div class="book-detail-info">
         <h2 class="book-name">Title: {{ campaign.work.title }}</h2>
         <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
         <h3 class="book-year">Published: {{ campaign.work.editions.all.0.publication_date }}</h3>
         <h3 class="book-author">Language: {{ campaign.work.editions.all.0.language }}</h3>
+        <p>Target Price: {{ campaign.pretarget }}</p>
+        <p>End Date: {{ campaign.predeadline }}</p>
     </div>
+
 <h3>Description of the offering</h2>
 <form action="#" method="POST">
 {% csrf_token %}
@@ -36,13 +43,18 @@
 <h3>Ending date</h2>
 <p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
 The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
+
 {{ form.deadline }}{{ form.deadline.errors }}
+
 <h3>Paypal collection address</h2>
 <p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
 {{ form.paypal_receiver }}{{ form.paypal_receiver.errors }}
 <p> To save your work, or to launch the campaign, click a button below.</p>
 
-{{ campaign.errors }}
+
+{% for problem in problems %}
+<p>{{ problem }}</p>
+{% endfor %}
 <input type="submit" name="save" value="Save Campaign" />
 <input type="submit" name="launch" value="Launch Campaign" />
 </form>
