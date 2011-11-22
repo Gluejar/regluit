@@ -52,10 +52,11 @@ GOOGLE_OAUTH2_CLIENT_ID = '989608723367.apps.googleusercontent.com'
 GOOGLE_OAUTH2_CLIENT_SECRET = '3UqalKyNynnaaarumUIWh8vS'
 GOOGLE_DISPLAY_NAME = 'unglue it!'
 
-PAYPAL_USERNAME = ''
-PAYPAL_PASSWORD =  ''
-PAYPAL_SIGNATURE = ''
-PAYPAL_APPID = ''
+# credentials from a sandbox account that Raymond set up.
+PAYPAL_USERNAME = 'glueja_1317336101_biz_api1.gluejar.com'
+PAYPAL_PASSWORD =  '1317336137'
+PAYPAL_SIGNATURE = 'AHVb0D1mzGD6zdX4XtKZbH.Kd6OhALVyiJVbNReOZEfyz79AoEnQJWTR'
+PAYPAL_APPID = 'APP-80W284485P519543T'  # sandbox app id -- will have to replace with production id
 
 PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
 PAYPAL_PAYMENT_HOST = 'https://www.sandbox.paypal.com' # sandbox
