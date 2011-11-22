@@ -46,7 +46,7 @@
                         </div>
                         <div class="listview book-name">
                             <div class="title">
-								<a href="/workstub/{{ result.urltitle }}/{{ result.urlimage }}/{{ result.urlauthor }}/{{ result.googlebooks_id }}">{{ result.title }}</a>
+                                <a href="{% url googlebooks result.googlebooks_id %}">{{ result.title }}</a>
                             </div>
                             <div class="listview author {{ result.author }}">{{ result.author }}</div>
                         </div>

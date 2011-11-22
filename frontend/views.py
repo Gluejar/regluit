@@ -83,13 +83,16 @@ def manage_campaign(request, id):
     form= ManageCampaignForm(instance=campaign)
     return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form})
         
-def workstub(request, title, imagebase, image, author, googlebooks_id, action='display'):
-    premiums = None
-    title = urllib.unquote_plus(title)
-    imagebase = urllib.unquote_plus(imagebase)
-    image = urllib.unquote_plus(image)
-    author = urllib.unquote_plus(author)
-    return render(request, 'workstub.html', {'title': title, 'image': image, 'imagebase': imagebase, 'author': author, 'googlebooks_id': googlebooks_id, 'premiums': premiums, 'ungluers': userlists.other_users(supporter, 5)})
+def googlebooks(request, googlebooks_id):
+    try: 
+        edition = models.Edition.objects.get(googlebooks_id=googlebooks_id)
+    except models.Edition.DoesNotExist:
+        edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+    if not edition:
+        return HttpResponseNotFound("invalid googlebooks id")
+    tasks.add_related.delay(edition.isbn_10)
+    work_url = reverse('work', kwargs={'work_id': edition.work.id})
+    return HttpResponseRedirect(work_url)
 
 def subjects(request):
     order = request.GET.get('order')

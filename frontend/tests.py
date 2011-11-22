@@ -1,3 +1,5 @@
+import re
+
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
@@ -36,3 +38,15 @@ class SupporterPage(TestCase):
         anon_client = Client()
         r = self.client.get("/supporter/test/")
         self.assertEqual(r.status_code, 200)
+
+class GoogleBooksTest(TestCase):
+
+    def test_googlebooks_id(self):
+        r = self.client.get("/googlebooks/wtPxGztYx-UC/")
+        self.assertEqual(r.status_code, 302)
+        work_url = r['location']
+        self.assertTrue(re.match('.*/work/\d+/$', work_url))
+
+        r = self.client.get("/googlebooks/wtPxGztYx-UC/")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['location'], work_url)
