@@ -8,6 +8,15 @@
     opacity:@op/100;
 }
 
+/* rows in listview should alternate colors */
+.row1 .book-list.listview {
+	background: #f6f9f9;
+}
+
+.row2 .book-list.listview {
+	background: #fff;
+}
+
 div.book-list.listview{ 
     clear:both;
     display:block;
@@ -18,14 +27,8 @@ div.book-list.listview{
     // overflow:hidden;
     position: relative;
 
-    &.row1 {
-        background:#f6f9f9;
-    }
-    
-    &.row2 {
-        background:#fff;
-    }
-    
+	/* row is a container for divs with individual content elements */
+	/* these elements are styled differently to create list and panel views */
     div {
         &.unglue-this {
             float: left;
@@ -80,11 +83,7 @@ div.book-list.listview{
     }
 }
 
-div.add-wishlist {
-    cursor: pointer;
-}
-
-div.remove-wishlist {
+div.add-wishlist, div.remove-wishlist {
     cursor: pointer;
 }
 
@@ -244,7 +243,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 
 div.content-block-content {
-  padding-bottom: 200px;
+  padding-bottom: 100px;
 }
 
 .listview.panelback, .listview.panelback div {

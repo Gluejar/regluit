@@ -14,6 +14,13 @@
   border-color: #FFFFFF;
 }
 /* Cross-browser language */
+/* rows in listview should alternate colors */
+.row1 .book-list.listview {
+  background: #f6f9f9;
+}
+.row2 .book-list.listview {
+  background: #fff;
+}
 div.book-list.listview {
   clear: both;
   display: block;
@@ -23,12 +30,10 @@ div.book-list.listview {
   margin: 0 5px 0 0;
   padding: 7px 0;
   position: relative;
-}
-div.book-list.listview.row1 {
-  background: #f6f9f9;
-}
-div.book-list.listview.row2 {
-  background: #fff;
+  /* row is a container for divs with individual content elements */
+
+  /* these elements are styled differently to create list and panel views */
+
 }
 div.book-list.listview div.unglue-this {
   float: left;
@@ -78,10 +83,7 @@ div.book-list.listview div.booklist-status {
   margin-right: 7px;
   float: left;
 }
-div.add-wishlist {
-  cursor: pointer;
-}
-div.remove-wishlist {
+div.add-wishlist, div.remove-wishlist {
   cursor: pointer;
 }
 .booklist-status.listview span.booklist-status-label {
@@ -221,7 +223,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
   display: none;
 }
 div.content-block-content {
-  padding-bottom: 200px;
+  padding-bottom: 100px;
 }
 .listview.panelback, .listview.panelback div {
   display: none;
