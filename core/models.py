@@ -186,13 +186,13 @@ class Work(models.Model):
         
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
-        if hasattr(self, '_last_campaign'):
-            return self._last_campaign
+        if hasattr(self, '_last_campaign_'):
+            return self._last_campaign_
         try:
-            self._last_campaign = self.campaigns.order_by('-created')[0]
+            self._last_campaign_ = self.campaigns.order_by('-created')[0]
         except IndexError:
-            pass
-        return self._last_campaign
+            self._last_campaign_ = None
+        return self._last_campaign_
         
     def last_campaign_status(self):
         campaign = self.last_campaign()

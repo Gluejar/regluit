@@ -24,6 +24,9 @@ def append_element(doc, parent, name, text):
 
 # at this point, there is no internal context and therefore, the methods of PaymentManager can be recast into static methods
 class PaymentManager( object ): 
+    
+    def __init__( self, embedded=False):
+        self.embedded = embedded
 
     def checkStatus(self):
         
@@ -376,8 +379,12 @@ class PaymentManager( object ):
         if p.status() == 'Success':
             t.reference = p.paykey()
             t.save()
-            logger.info("Authorize Success: " + p.next_url())
-            return t, p.next_url()
+            
+            url = p.next_url()
+                
+            logger.info("Authorize Success: " + url)
+            return t, url
+    
         
         else:
             t.error = p.error()
@@ -434,8 +441,15 @@ class PaymentManager( object ):
             t.reference = p.paykey()
             t.status = 'CREATED'
             t.save()
-            logger.info("Pledge Success: " + p.next_url())
-            return t, p.next_url()
+            
+            if self.embedded:
+                url = p.embedded_url()
+                print url
+            else:
+                url = p.next_url()
+                
+            logger.info("Pledge Success: " + url)
+            return t, url
         
         else:
             t.error = p.error()
