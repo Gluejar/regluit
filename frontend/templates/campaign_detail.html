@@ -10,7 +10,7 @@
     <p>ISBN: {{campaign.work.editions.all.0.isbn_10}} | {{campaign.work.editions.all.0.isbn_13}} </p>
     <p><a href="{% url widget isbn=campaign.work.editions.all.0.isbn_10 %}">Widget Link</a></p>
     <p>Embed a widget:</p>
-    <textarea rows="2" cols="80">&lt;iframe src="{{base_url}}/api/widget/{{campaign.work.editions.all.0.isbn_13}}/" width="150" height="360" frameborder="0"&gt;</iframe></textarea>
+    <textarea rows="2" cols="80">&lt;iframe src="{{base_url}}/api/widget/{{campaign.work.editions.all.0.isbn_13}}/" width="140" height="360" frameborder="0"&gt;</iframe></textarea>
     <p>PayPal receiver: {{campaign.paypal_receiver}}</p>
     <p>Current total (pledged/authorized): {{campaign.current_total}}</p>
     <p>Base URL: {{base_url}}</p>
