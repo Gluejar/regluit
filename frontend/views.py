@@ -376,9 +376,12 @@ class CampaignFormView(FormView):
         pk = self.kwargs["pk"]
         campaign = models.Campaign.objects.get(id=int(pk))
         context = super(CampaignFormView, self).get_context_data(**kwargs)
+        base_url = self.request.build_absolute_uri("/")[:-1]
         context.update({
-           'campaign': campaign
+           'campaign': campaign,
+           'base_url':base_url
         })
+        
         return context
 
     def form_valid(self,form):
