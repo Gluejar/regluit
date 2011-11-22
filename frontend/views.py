@@ -1,4 +1,5 @@
 import logging
+import datetime 
 from decimal import Decimal as D
 
 from django.db.models import Q, Count
@@ -16,6 +17,7 @@ from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 
 import oauth2 as oauth
 from itertools import islice
@@ -80,8 +82,53 @@ def work(request, work_id, action='display'):
 
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
-    form= ManageCampaignForm(instance=campaign)
-    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form})
+    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
+        campaign.not_manager=True
+        return render(request, 'manage_campaign.html', {'campaign': campaign})
+    problems = []    
+    alerts = []   
+    campaign.savable = True
+    if campaign.status == 'INITIALIZED':
+        campaign.launchable = True
+    else:
+        campaign.launchable = False
+    if request.method == 'POST':
+        campaign.pretarget=campaign.target
+        campaign.predeadline=campaign.deadline
+        form= ManageCampaignForm(instance=campaign, data=request.POST)  
+        if form.is_valid():     
+            # might be a good idea to move this code to the model
+            # general constraints
+            if form.cleaned_data['target'] < D('1000'):
+                problems.append(_('The minimum target to launch a campaign is 1000'))
+                campaign.launchable = False
+            if form.cleaned_data['deadline'].date()-datetime.date.today() > datetime.timedelta(days=180):
+                problems.append(_('The chosen closing date is more than 6 months away'))
+                campaign.launchable = False
+                
+            if campaign.status == 'ACTIVE':
+                #special constraints on active campaigns
+                # can't increase target
+                if campaign.pretarget < campaign.target:
+                    problems.append(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
+                    campaign.savable = False
+                # can't change deadline
+                if campaign.deadline != campaign.predeadline:
+                    problems.append(_('The closing date for an ACTIVE campaign cannot be changed.'))
+                    campaign.savable = False
+            if campaign.savable:
+                form.save() 
+                alerts.append(_('Campaign data has been saved'))
+            else:
+                alerts.append(_('Campaign data has NOT been saved'))
+            if campaign.launchable and 'launch' in request.POST.keys():
+                campaign.activate()
+                alerts.append(_('Campaign has been launched'))
+            elif 'launch' in request.POST.keys():
+                alerts.append(_('Campaign has NOT been launched'))
+    else:
+        form= ManageCampaignForm(instance=campaign)
+    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': problems, 'alerts': alerts})
         
 def googlebooks(request, googlebooks_id):
     try: 
@@ -150,8 +197,8 @@ def rh_tools(request):
         claim.campaigns= claim.work.campaigns.all()
         claim.can_open_new=True
         for campaign in claim.campaigns:
-        	if campaign.status in ['ACTIVE','INITIALIZED']:
-        		claim.can_open_new=False
+            if campaign.status in ['ACTIVE','INITIALIZED']:
+                claim.can_open_new=False
         if claim.status == 'active' and claim.can_open_new:
             if request.method == 'POST' and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)
