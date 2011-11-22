@@ -18,181 +18,181 @@ div.book-list.listview{
     // overflow:hidden;
     position: relative;
 
-	&.row1 {
-		background:#f6f9f9;
-	}
-	
-	&.row2 {
-		background:#fff;
-	}
-	
-	div {
-		&.unglue-this {
-			float: left;
-		}
-		&.book-thumb {
-			margin-right: 5px;
-			float: left;
-		}
-		&.book-name {
-			width:235px;
-			margin-right:10px;
-			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
-			float: left;
-			
-			.title { 
-				display:block;
-				line-height:normal;
-				overflow: hidden;
-				.height(19px);
-				padding-bottom: 5px;
-				font-weight:bold;
-			}
-			
-			.listview.author {
-				overflow: hidden;
-				display:block;
-				line-height:normal;
-				.height(19px);
-			}
-		}
-		&.add-wishlist, &.remove-wishlist {
-			margin-right: 10px;
-			padding-right: 10px;
-			width: 136px;
-			background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
-			float: left;
-			
-			a {
-				font-weight:normal;
-				color:@text-blue;
-				text-transform: none;
-				background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
-				padding-left:20px;
-			}
-			
-		}
-		&.booklist-status {
-			width: 110px;
-			margin-right:7px;
-			float: left;
-		}
-	}
+    &.row1 {
+        background:#f6f9f9;
+    }
+    
+    &.row2 {
+        background:#fff;
+    }
+    
+    div {
+        &.unglue-this {
+            float: left;
+        }
+        &.book-thumb {
+            margin-right: 5px;
+            float: left;
+        }
+        &.book-name {
+            width:235px;
+            margin-right:10px;
+            background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
+            float: left;
+            
+            .title { 
+                display:block;
+                line-height:normal;
+                overflow: hidden;
+                .height(19px);
+                padding-bottom: 5px;
+                font-weight:bold;
+            }
+            
+            .listview.author {
+                overflow: hidden;
+                display:block;
+                line-height:normal;
+                .height(19px);
+            }
+        }
+        &.add-wishlist, &.remove-wishlist {
+            margin-right: 10px;
+            padding-right: 10px;
+            width: 136px;
+            background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
+            float: left;
+            
+            a {
+                font-weight:normal;
+                color:@text-blue;
+                text-transform: none;
+                background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
+                padding-left:20px;
+            }
+            
+        }
+        &.booklist-status {
+            width: 110px;
+            margin-right:7px;
+            float: left;
+        }
+    }
 }
 
 .booklist-status.listview {
-	span.booklist-status-label {
-		display: none;
-	}
+    span.booklist-status-label {
+        display: none;
+    }
 
-	span.booklist-status-text {
-		float:left;
-		display:block;
-		padding-right:5px;
-		text-transform:capitalize;
-	}
+    span.booklist-status-text {
+        float:left;
+        display:block;
+        padding-right:5px;
+        text-transform:capitalize;
+    }
 }
 
 div.unglue-this {
-	a {
-		text-transform:uppercase;
-		color:@text-blue;
-		font-size:11px;
-		font-weight:bold;
-	}
-	
-	&.complete {
-		.unglue-this-inner1 {
-			background:url(@background-booklist) 0 -84px no-repeat;
-			height:42px;
-		}
-		.unglue-this-inner2 {
-			background:url(@background-booklist) 100% -126px no-repeat;
-			margin-left:29px;
-			height:42px;
-			padding-right:10px;
-		}
-		a {
-			color:#fff;
-			display: block;
-		}
-	}
+    a {
+        text-transform:uppercase;
+        color:@text-blue;
+        font-size:11px;
+        font-weight:bold;
+    }
+    
+    &.complete {
+        .unglue-this-inner1 {
+            background:url(@background-booklist) 0 -84px no-repeat;
+            height:42px;
+        }
+        .unglue-this-inner2 {
+            background:url(@background-booklist) 100% -126px no-repeat;
+            margin-left:29px;
+            height:42px;
+            padding-right:10px;
+        }
+        a {
+            color:#fff;
+            display: block;
+        }
+    }
 
-	&.processing {
-		.unglue-this-inner1 {
-			background:url(@background-booklist) 0 0 no-repeat; 
-			height:42px;
-		}
-	
-		.unglue-this-inner2 {
-			background:url(@background-booklist) 100% -42px no-repeat;
-			margin-left:25px;
-			height:42px;
-			padding-right:10px;
-		}
-	}
+    &.processing {
+        .unglue-this-inner1 {
+            background:url(@background-booklist) 0 0 no-repeat; 
+            height:42px;
+        }
+    
+        .unglue-this-inner2 {
+            background:url(@background-booklist) 100% -42px no-repeat;
+            margin-left:25px;
+            height:42px;
+            padding-right:10px;
+        }
+    }
 }
 
 ul.book-list-view {
-	padding:0;
-	margin:15px;
-	float:right;
-	list-style:none;
-	
-	li {
-		float:left;
-		margin-right:10px;
-		display:block;
-		vertical-align:middle;
-		line-height:22px;
-	}
+    padding:0;
+    margin:15px;
+    float:right;
+    list-style:none;
+    
+    li {
+        float:left;
+        margin-right:10px;
+        display:block;
+        vertical-align:middle;
+        line-height:22px;
+    }
 }
 
 div.navigation {
-	float: left;
-	clear:both;
-	width:100%;
-	color:@dark-blue;
+    float: left;
+    clear:both;
+    width:100%;
+    color:@dark-blue;
 }
 
 ul.navigation {
-	float:right;
-	padding:0;
-	margin:0;
-	list-style:none;
-	
-	li {
-		float: left;
-		line-height:normal;
-		margin-right:5px;
-		
-		a {
-			color:@dark-blue;
-			font-weight:normal;			
-		}
-		
-		&.arrow-l a {
-			.navigation-arrows(0, -168px);
-		}
-		
-		&.arrow-r a {
-			.navigation-arrows(-1px, -185px);
-		}		
-	}
+    float:right;
+    padding:0;
+    margin:0;
+    list-style:none;
+    
+    li {
+        float: left;
+        line-height:normal;
+        margin-right:5px;
+        
+        a {
+            color:@dark-blue;
+            font-weight:normal;            
+        }
+        
+        &.arrow-l a {
+            .navigation-arrows(0, -168px);
+        }
+        
+        &.arrow-r a {
+            .navigation-arrows(-1px, -185px);
+        }        
+    }
 }
 
 ul.navigation li a:hover, ul.navigation li.active a {
-	color: #8ac3d7;
-	text-decoration:underline;
+    color: #8ac3d7;
+    text-decoration:underline;
 }
 
 .unglue-button {
-	display: block;
-	border: 0;
+    display: block;
+    border: 0;
 }
 
 .book-thumb.listview a {
-	display:block;
+    display:block;
     height: 50px;
     width: 32px;
     overflow:hidden;
@@ -200,39 +200,39 @@ ul.navigation li a:hover, ul.navigation li.active a {
     z-index:1;
     
     &:hover {
-		overflow:visible;
-		z-index:1000;
-		border:none;		
-	}
+        overflow:visible;
+        z-index:1000;
+        border:none;        
+    }
     
     img {
-    	position:absolute;
-    	/* the excerpt you get looks cooler if you select from the middle, but 
-    	the popup version doesn't extend past the containing div's boundaries,
-    	so the positioned part is cut off.
-    	top:-20px;
-		left:-50px;
-		*/
+        position:absolute;
+        /* the excerpt you get looks cooler if you select from the middle, but 
+        the popup version doesn't extend past the containing div's boundaries,
+        so the positioned part is cut off.
+        top:-20px;
+        left:-50px;
+        */
     }
 }
 
 .listview.icons {
-	position: absolute;
-	right: 31px;
-	
-	.booklist-status-img {
-		.border-radius(4px, 4px, 4px, 4px);
-		background-color: #fff;
-		margin-top: 4px;
-		height: 37px;
+    position: absolute;
+    right: 31px;
+    
+    .booklist-status-img {
+        .border-radius(4px, 4px, 4px, 4px);
+        background-color: #fff;
+        margin-top: 4px;
+        height: 37px;
 
-		img {
-			padding: 5px;
-		}
-	}
-	.booklist-status-label, .right_add {
-		display: none;
-	}
+        img {
+            padding: 5px;
+        }
+    }
+    .booklist-status-label, .right_add {
+        display: none;
+    }
 }
 
 div.content-block-content {
@@ -240,18 +240,18 @@ div.content-block-content {
 }
 
 .listview.panelback, .listview.panelback div {
-	display: none;
+    display: none;
 }
 
 .listview.boolist-ebook a {
-	color: @text-blue;
+    color: @text-blue;
 }
 
 /* Starting state of toggle icons; will be overwritten by js in page */
 #toggle-list {
-	.opacity(100);
+    .opacity(100);
 }
 
 #toggle-panel {
-	.opacity(20);
+    .opacity(20);
 }
