@@ -330,12 +330,15 @@ def wishlist(request):
 class CampaignFormView(FormView):
     template_name="campaign_detail.html"
     form_class = CampaignPledgeForm
+    embedded = False
     
     def get_context_data(self, **kwargs):
         pk = self.kwargs["pk"]
         campaign = models.Campaign.objects.get(id=int(pk))
         context = super(CampaignFormView, self).get_context_data(**kwargs)
+        
         context.update({
+           'embedded': self.embedded,
            'campaign': campaign
         })
         return context
@@ -348,7 +351,7 @@ class CampaignFormView(FormView):
         # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
         campaign = models.Campaign.objects.get(id=int(pk))
         
-        p = PaymentManager()
+        p = PaymentManager(embedded=self.embedded)
                     
         # we should force login at this point -- or if no account, account creation, login, and return to this spot
         if self.request.user.is_authenticated():
@@ -358,20 +361,21 @@ class CampaignFormView(FormView):
             
         # calculate the work corresponding to the campaign id
         work_id = campaign.work.id
-        return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
-        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, campaign=campaign, list=None, user=user,
+        
+        if not self.embedded:
+            
+            return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, campaign=campaign, list=None, user=user,
                             return_url=return_url, anonymous=anonymous)    
- 
-        #else:
-        #    # instant payment:  send to the partnering RH
-        #    # right now, all money going to Gluejar.  
-        #    receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':pledge_amount}]
-        #    
-        #    # redirect the page back to campaign page on success
-        #    #return_url = self.request.build_absolute_uri("/campaigns/%s" %(str(pk)))
-        #    return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
-        #    t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-        #                      return_url=return_url, anonymous=anonymous)
+        else:
+            # instant payment:  send to the partnering RH
+            # right now, all money going to Gluejar.  
+            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':preapproval_amount}]
+            
+            #redirect the page back to campaign page on success
+            return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
+            t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
+                              return_url=return_url, anonymous=anonymous)
         
         if url:
             logger.info("CampaignFormView paypal: " + url)

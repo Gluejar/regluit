@@ -196,6 +196,9 @@ class Pay( object ):
   def next_url( self ):
     return '%s?cmd=_ap-payment&paykey=%s' % (settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
 
+  def embedded_url(self):
+      return '%s/webapps/adaptivepayment/flow/pay?paykey=%s&expType=light'  % ( settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
+
 class PaymentDetails(object):
   def __init__(self, transaction=None):
  
@@ -374,7 +377,7 @@ class Preapproval( object ):
       return self.response['preapprovalKey']
     else:
       return None
-
+  
   def next_url( self ):
     return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( settings.PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
 

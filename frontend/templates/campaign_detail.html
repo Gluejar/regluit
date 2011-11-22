@@ -1,7 +1,26 @@
 {% extends "base.html" %}
 {% url privacy as privacyurl %}
 
+{% block extra_head %}
+	<script src ='https://www.paypalobjects.com/js/external/dg.js' type='text/javascript'></script>
+	
+	{% if embedded %}
+	<script>
+		//
+		// This page is also used as the completion URL for purchases.  Close the lightbox
+		// whenever we are opened
+		//
+		dgFlow = top.dgFlow || top.opener.top.dgFlow; 
+		dgFlow.closeFlow(); 
+		top.close()
+	</script>
+	{% endif %}
+	
+{% endblock %}
+
 {% block content %}
+    
+
     <h2>Campaign: {{campaign.name}}</h2>
     <p>Work: {{campaign.work}}</p>
     <p>Target: {{campaign.target}}</p>
@@ -9,11 +28,12 @@
     <p>Status: {{campaign.status}}</p>
     <p>PayPal receiver: {{campaign.paypal_receiver}}</p>
     <p>Current total (pledged/authorized): {{campaign.current_total}}</p>
-    <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
+    <form method="POST" action="{% url campaign_by_id pk=campaign.id %}"  onsubmit="test()">
         {% csrf_token %}
        {{form.as_p}}
-       <input type="submit" value="Pledge" />
+       <input type="submit" value="Pledge" id="pledgeBtn"/>
     </form>
+    
     <!-- All associated transactions -->
     {% if campaign.transactions %}
       <p>Associated transactions:</p>
@@ -25,4 +45,14 @@
     {% else %}
       <p>No associated transactions</p>
     {% endif %}
+    
+    {% if embedded %}
+    <script>
+    	//
+    	// This has to be included AFTER the definition of the button
+    	//
+ 		var dgFlow = new PAYPAL.apps.DGFlow({ trigger: 'pledgeBtn' });
+    </script>
+    {% endif %}
+    
 {% endblock %}
