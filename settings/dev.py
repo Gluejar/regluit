@@ -101,3 +101,5 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 
 # a debug_toolbar setting
 INTERNAL_IPS = ('127.0.0.1',)
+
+CELERYD_LOG_LEVEL = "INFO"

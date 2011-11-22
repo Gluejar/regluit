@@ -78,6 +78,12 @@ div.book-list.listview div.booklist-status {
   margin-right: 7px;
   float: left;
 }
+div.add-wishlist {
+  cursor: pointer;
+}
+div.remove-wishlist {
+  cursor: pointer;
+}
 .booklist-status.listview span.booklist-status-label {
   display: none;
 }
@@ -189,11 +195,11 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .book-thumb.listview a img {
   position: absolute;
   /* the excerpt you get looks cooler if you select from the middle, but 
-    	the popup version doesn't extend past the containing div's boundaries,
-    	so the positioned part is cut off.
-    	top:-20px;
-		left:-50px;
-		*/
+        the popup version doesn't extend past the containing div's boundaries,
+        so the positioned part is cut off.
+        top:-20px;
+        left:-50px;
+        */
 
 }
 .listview.icons {
