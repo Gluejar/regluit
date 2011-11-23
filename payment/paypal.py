@@ -173,6 +173,7 @@ class Pay( object ):
    
       self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
       logger.info("paypal PAY response was: %s" % self.raw_response)
+      print >> sys.stderr, "paypal PAY response was:", self.raw_response
       self.response = json.loads( self.raw_response )
       logger.info(self.response)
     
@@ -375,6 +376,7 @@ class Preapproval( object ):
       self.raw_request = json.dumps(data)
       self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
       logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
+      print >> sys.stderr, "paypal PREAPPROVAL response was:", self.raw_response
       self.response = json.loads( self.raw_response )
       logger.info(self.response)
       
