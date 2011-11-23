@@ -30,7 +30,7 @@ from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
-from regluit.frontend.forms import  RightsHolderForm, ClaimForm, LibraryThingForm, OpenCampaignForm
+from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import  ManageCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
@@ -59,7 +59,7 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
 
-    claimform = ClaimForm(data={'work':work_id, 'user':request.user.id })
+    claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
@@ -178,8 +178,9 @@ def claim(request):
         data = request.GET
     else:
         data =  request.POST
-    form =  ClaimForm(data=data)
+    form =  UserClaimForm(request.user, data=data)
     if form.is_valid():
+        # make sure we're not creating a duplicate claim
         if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder'], status='pending').count():
             form.save()
         return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))

@@ -25,6 +25,7 @@ import commands
 import smtplib
 import urlparse
 import decimal
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -160,6 +161,8 @@ class Pay( object ):
               } 
       
       logging.info("paypal PAY data: %s" % data)
+      # Is ipnNotificationUrl being computed properly
+      print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
       
       # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
       # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
@@ -366,6 +369,9 @@ class Preapproval( object ):
               'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
               } 
 
+      # Is ipnNotificationUrl being computed properly
+      print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
+      
       self.raw_request = json.dumps(data)
       self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
       logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
