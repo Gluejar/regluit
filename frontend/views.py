@@ -423,7 +423,7 @@ def wishlist(request):
 class CampaignFormView(FormView):
     template_name="campaign_detail.html"
     form_class = CampaignPledgeForm
-    embedded = True
+    embedded = False
     
     def get_context_data(self, **kwargs):
         pk = self.kwargs["pk"]
