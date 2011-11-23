@@ -23,6 +23,7 @@ import oauth2 as oauth
 from itertools import islice
 
 import re
+import sys
 
 from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
