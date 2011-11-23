@@ -473,6 +473,7 @@ class CampaignFormView(FormView):
         
         if url:
             logger.info("CampaignFormView paypal: " + url)
+            print >> sys.stderr, "CampaignFormView paypal: ", url
             return HttpResponseRedirect(url)
         else:
             response = t.reference
