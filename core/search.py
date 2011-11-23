@@ -31,18 +31,18 @@ def gluejar_search(q, user_ip='69.243.24.29'):
     
             # cover image
             if v.has_key('imageLinks'):
-                r['image'] = v['imageLinks'].get('thumbnail', "")
+                r['cover_image_thumbnail'] = v['imageLinks'].get('thumbnail', "")
             else:
-                r['image'] = ""
+                r['cover_image_thumbnail'] = "/static/images/generic_cover_larger.png"
     
             access_info = item.get('accessInfo')
             if access_info:
                 epub = access_info.get('epub')
                 if epub and epub.get('downloadLink'):
-                    r['epub'] = epub['downloadLink']
+                    r['first_epub_url'] = epub['downloadLink']
                 pdf = access_info.get('pdf')
                 if pdf and pdf.get('downloadLink'):
-                    r['pdf'] = pdf['downloadLink']
+                    r['first_pdf_url'] = pdf['downloadLink']
             results.append(r)
     return results 
 

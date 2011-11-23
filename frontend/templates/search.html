@@ -3,6 +3,8 @@
 {% block extra_head %}
 <link rel="stylesheet" href="/static/css/book_list.css">
 <link rel="stylesheet" href="/static/css/book_panel.css">
+<!-- important! search.css goes last -->
+<link rel="stylesheet" href="/static/css/search.css">
 
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
@@ -38,58 +40,11 @@
                         </ul>
                 </div>
                 <div class="content-block-content">
-                    {% for result in results %}
-                    <div class="listview tabs tabs-1">
-                    <div class="listview book-list {% cycle 'row1' 'row2' %}">
-                        <div class="listview book-thumb">
-                            <a href="#"><img src="{{ result.image }}" alt="{{ result.title }}" title="{{ result.title }}"  /></a>
-                        </div>
-                        <div class="listview book-name">
-                            <div class="title">
-                                <a href="{% url googlebooks result.googlebooks_id %}">{{ result.title }}</a>
-                            </div>
-                            <div class="listview author {{ result.author }}">{{ result.author }}</div>
-                        </div>
-                        {% if request.user.is_anonymous %}
-                        <div class="listview create-account">
-                            <span>Add to Wishlist</span>
-                        </div>
-                        {% else %}
-                        <div class="listview add-wishlist">
-                            {% if result.on_wishlist %}
-                            <span class="on-wishlist">On Your Wishlist!</span>
-                            {% else %}
-                            <span id="{{ result.googlebooks_id }}">Add to Wishlist</span>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                        <div class="listview booklist-status">
-                            <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ result.last_campaign_status }}</span>
-                        </div>
-                        <div class="listview icons">
-                            <span class="booklist-status-img">
-                                <img src="/static/images/images/icon-book-37by25-4.png" title="book list status" alt="book list status" />
-                            </span>
-                        </div>
-                        <div class="listview ebooks">
-                            {% if result.epub %}
-                            <span class="listview boolist-ebook">
-                                <a href="{{ result.epub }}">epub</a>
-                            </span>
-                            {% endif %}
-                            {% if result.pdf %}
-                            <span class="listview boolist-ebook">
-                                <a href="{{ result.pdf }}">pdf</a>
-                            </span>
-                            {% endif %}
-                        </div>
-                        <div class="unglue-this none">
-                            <div class="unglue-this-inner1">
-                                <div class="unglue-this-inner2">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {% for work in results %}
+                    <div class="{% cycle 'row1' 'row2' %}">
+                    {% with work.googlebooks_id as googlebooks_id %}
+                    {% include "book_panel.html" %}
+                    {% endwith %}
                     </div>
                     {% empty %}
                     <h2>Sorry, couldn't find that!</h2>

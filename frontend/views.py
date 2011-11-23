@@ -387,7 +387,7 @@ def search(request):
     # also urlencode some parameters we'll need to pass to workstub in the title links
     # needs to be done outside the if condition
     for result in results:
-        result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['image']).encode("utf-8"), safe='')
+        result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['cover_image_thumbnail']).encode("utf-8"), safe='')
         result['urlauthor'] = urllib.quote_plus(result['author'].encode("utf-8"), safe='')
         result['urltitle'] = urllib.quote_plus(result['title'].encode("utf-8"), safe='')
 

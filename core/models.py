@@ -244,6 +244,20 @@ class Work(models.Model):
     def first_epub(self):
         return self.first_ebook('epub')
 
+    def first_pdf_url(self):
+    	try:
+        	url = self.first_ebook('pdf').url
+        	return url
+        except:
+        	return None
+
+    def first_epub_url(self):
+    	try:
+        	url = self.first_ebook('epub').url
+        	return url
+        except:
+        	return None
+
     def first_ebook(self, ebook_format=None):
         for ebook in Ebook.objects.filter(edition__work=self, 
                                           format=ebook_format):

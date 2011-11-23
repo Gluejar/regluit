@@ -1,0 +1,12 @@
+/* search.html and supporter.html both include book_panel.html
+   however, some of book_panel's data relies on the work/edition linkage having been established,
+   which is not necessarily the case for search results
+   we could do lots of logic to test to see if things exist on the search results page and make 
+   display choices accordingly
+   or we could just suppress display of those elements and not worry about it for now
+   so we are, with this stylesheet
+   hackish solution ftw!
+*/
+div.book-list div.booklist-status, .booklist-status, .icons {
+  visibility: hidden;
+}
