@@ -25,6 +25,7 @@ import commands
 import smtplib
 import urlparse
 import decimal
+import sys
 
 logger = logging.getLogger(__name__)
 
