@@ -161,6 +161,7 @@ class Pay( object ):
               } 
       
       logging.info("paypal PAY data: %s" % data)
+      print >> sys.stderr, "paypal PAY data:", data
       # Is ipnNotificationUrl being computed properly
       print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
       
@@ -172,6 +173,7 @@ class Pay( object ):
       self.raw_request = json.dumps(data)
    
       self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
+      print >> sys.stderr, "PAY request", settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", self.raw_request, headers 
       logger.info("paypal PAY response was: %s" % self.raw_response)
       print >> sys.stderr, "paypal PAY response was:", self.raw_response
       self.response = json.loads( self.raw_response )
