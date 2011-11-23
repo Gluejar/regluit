@@ -11,13 +11,24 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign
 from regluit.core.lookups import OwnerLookup
 
-class ClaimForm(forms.ModelForm):
-    i_agree=forms.BooleanField()
-    class Meta:
-        model = Claim
-        exclude = 'status'
-        widgets = { 'user': forms.HiddenInput, 'work': forms.HiddenInput }
+def UserClaimForm ( user_instance, *args, **kwargs ):
+    class ClaimForm(forms.ModelForm):
+        i_agree=forms.BooleanField()
+        rights_holder=forms.ModelChoiceField(queryset=user_instance.rights_holder.all(), empty_label=None)
+        
+        class Meta:
+            model = Claim
+            exclude = 'status'
+            widgets = { 
+                    'user': forms.HiddenInput, 
+                    'work': forms.HiddenInput, 
+                }
 
+        def __init__(self):
+            super(ClaimForm, self).__init__(*args, **kwargs)
+
+    return ClaimForm()
+            
 class RightsHolderForm(forms.ModelForm):
     owner = AutoCompleteSelectField(
             OwnerLookup,

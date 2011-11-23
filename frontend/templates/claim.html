@@ -3,20 +3,40 @@
 {% block doccontent %}
 
 <h2>Rights Holder Claim Form </h2>
-<form method="POST" action="#">
-    {% csrf_token %}
 <h3> Rightsholder making claim </h3>
 {{ rights_holder.rights_holder_name }}
 <h3> Work being claimed  </h3>
 <ul>
-<li>Title: {{ work.title }}</li>
+<li>Title: <a href="{% url work work.id %}">{{ work.title }}</a></li>
 <li>Author: {{ work.author }}</li>
 </ul>
-<h3> Terms and Conditions  </h3>
-    {{ form.as_p }}
-[legal stuff goes here]
-    <input type="submit" name="submit" value="Confirm Claim" id="submit">
-</form>
+{% if work.claim.count %}
+
+    {% for otherclaim in work.claim.all %}
+        {% ifequal rights_holder.id otherclaim.rights_holder.id %} 
+        <p><a href="{% url work work.id %}">This work</a> has already been claimed by {{ rights_holder.rights_holder_name }}</p>
+        {% else %}
+        <p><a href="{% url work work.id %}">This work</a> has previously been claimed by {{ otherclaim.rights_holder.rights_holder_name }}.
+        Please take careful note of the "interfering claims" section below.
+        </p>
+        <form method="POST" action="#">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% include "claim_terms.html" %}
+            <input type="submit" name="submit" value="Confirm Claim" id="submit">
+        </form>        
+        {% endifequal %}
+    {% endfor %}
+
+{% else %}
+
+    <form method="POST" action="#">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {% include "claim_terms.html" %}
+        <input type="submit" name="submit" value="Confirm Claim" id="submit">
+    </form>
+{% endif %}
 
 
 {% endblock %}
