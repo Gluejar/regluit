@@ -149,7 +149,7 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('title'))
         self.assertTrue(r.has_key('author'))
         self.assertTrue(r.has_key('description'))
-        self.assertTrue(r.has_key('image'))
+        self.assertTrue(r.has_key('cover_image_thumbnail'))
         self.assertTrue(r.has_key('publisher'))
         self.assertTrue(r.has_key('isbn_10'))
         self.assertTrue(r.has_key('googlebooks_id'))
