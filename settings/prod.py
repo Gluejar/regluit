@@ -67,7 +67,7 @@ PAYPAL_SANDBOX_PASSWORD = ''
 PAYPAL_BUYER_LOGIN =''
 PAYPAL_BUYER_PASSWORD = ''
 
-PAYPAL_GLUEJAR_EMAIL = ""
+PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
 
 # for test purposes have a single RH paypal email
 PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
