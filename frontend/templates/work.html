@@ -20,13 +20,13 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block content %}    
+    {% with work.last_campaign_status as status %} 
     <div id="main-container">
     <div class="js-main">
     <div id="js-leftcol">
             <div class="jsmodule rounded">
                 <div class="jsmod-content"> {{ work.last_campaign.id }} {{ work.campaigns.0.id }}
                 {% if work.last_campaign %}
-                {% with work.last_campaign_status as status %} 
                 {{ work.last_campaign_status}}
                 {% if status == 'ACTIVE' %}
                     Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
@@ -43,7 +43,6 @@ $(document).ready(function(){
                 {% else %}
                     {{ wishers }} Ungluers are WISHING<br />&nbsp;
                 {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                {% endwith %}
                 {% else %}
                 {% if wishers == 1 %}
                     {{ wishers }} Ungluer is WISHING<br />&nbsp;
@@ -74,7 +73,7 @@ $(document).ready(function(){
                                 <a class="find-group" href="#"><img src="/static/images/icons/group.png" align="" title="" /></a>
                             </div>
                         </div>
-                        {% if work.last_campaign %}
+                        {% if status == 'ACTIVE' %}
                         <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}{{ work.last_campaign.supporters.count }} 1 Ungluer has{% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
                         {% else %}
@@ -102,9 +101,22 @@ $(document).ready(function(){
                 <div class="content-block-content">
                        <div id="tabs-1" class="tabs">
                     <div class="tabs-content">
-                        <h3 class="tabcontent-title">{{work.title}}</h3>
                         <p><br>
-                        {{ work.longest_description|safe }}</p>
+                        {% if status == 'ACTIVE' %}
+                        <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                        <p>The rights holder, {% for claim in work.claim.all %}
+                            {% if claim.status == 'active' %}
+                            {{ claim.rights_holder.rights_holder_name }} 
+                            {% endif %} 
+                        {% endfor %}
+                        has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
+                        You can help!</p>
+                        {{ work.last_campaign.description }}
+                        {% else %}
+                        <h3 class="tabcontent-title">{{work.title}}</h3>
+                        {{ work.longest_description|safe }}
+                        {% endif %}
+                        </p>
                     </div>
                     </div>
                     <div id="tabs-2" class="tabs">
@@ -132,7 +144,10 @@ $(document).ready(function(){
                     </div>
                     <div id="tabs-4" class="tabs">
                     <div class="tabs-content">
-                        
+                        {% if status == 'ACTIVE' %}
+                        {{ work.last_campaign.details }}
+                        {% endif %}
+
                         {% if work.claim.count %}
                         <h4> Rights Information </h4>
                         <p> This work has been claimed by:</p>
@@ -174,7 +189,7 @@ $(document).ready(function(){
                     </ul>
                 </div>
             </div>
-            {% if work.last_campaign %}
+            {% if status == 'ACTIVE' %}
             <div class="jsmodule">
                 <h3 class="jsmod-title"><span>Support</span></h3>
                 <div class="jsmod-content">
@@ -195,5 +210,5 @@ $(document).ready(function(){
         </div>
     </div>
     </div>
-    
+{% endwith %} 
 {% endblock %}
