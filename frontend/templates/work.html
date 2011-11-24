@@ -111,7 +111,7 @@ $(document).ready(function(){
                         {% endfor %}
                         has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
-                        {{ work.last_campaign.description }}
+                        {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
                         {{ work.longest_description|safe }}
@@ -145,7 +145,7 @@ $(document).ready(function(){
                     <div id="tabs-4" class="tabs">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' %}
-                        {{ work.last_campaign.details }}
+                        {{ work.last_campaign.details|safe }}
                         {% endif %}
 
                         {% if work.claim.count %}
