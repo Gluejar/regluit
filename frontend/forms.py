@@ -102,7 +102,7 @@ class ManageCampaignForm(forms.ModelForm):
         label=_("email address to collect Paypal funds"), 
         max_length=100, 
         )
-    target = forms.DecimalField( min_value= D('1000.00') )
+    target = forms.DecimalField( min_value= D('0.00') )
     class Meta:
         model = Campaign
         fields = 'description', 'details', 'target', 'deadline', 'paypal_receiver'

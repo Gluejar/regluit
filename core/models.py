@@ -1,11 +1,11 @@
 import random
 import datetime
 from decimal import Decimal
-
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 import regluit
 
@@ -85,13 +85,28 @@ class Campaign(models.Model):
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
-
+    problems = []
+    
     def __unicode__(self):
         try:
             return u"Campaign for %s" % self.work.title
         except:
             return u"Campaign %s (no associated work)" % self.name
-        
+    
+    @property
+    def launchable(self):
+        may_launch=True
+        if self.status != 'INITIALIZED':
+            self.problems.append(_('A campaign must initialized properly before it can be launched'))
+            may_launch = False
+        if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
+            self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+            may_launch = False
+        if self.deadline.date()-datetime.date.today() > datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+            self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+            may_launch = False           
+        return may_launch
+
     @property
     def status(self):
         """Returns the status of the campaign
@@ -124,7 +139,7 @@ class Campaign(models.Model):
     def activate(self):
         status = self.status
         if status != 'INITIALIZED':
-            raise UnglueitError('Campaign needs to be initialized in order to be activated')
+            raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         self.activated = datetime.datetime.utcnow()
         self.save()
         return self   
@@ -132,7 +147,7 @@ class Campaign(models.Model):
     def suspend(self, reason):
         status = self.status
         if status != 'ACTIVE':
-            raise UnglueitError('Campaign needs to be active in order to be suspended')
+            raise UnglueitError(_('Campaign needs to be active in order to be suspended'))
         self.suspended = datetime.datetime.utcnow()
         self.suspended_reason = reason
         self.save()
@@ -141,7 +156,7 @@ class Campaign(models.Model):
     def withdraw(self, reason):
         status = self.status
         if status != 'ACTIVE':
-            raise UnglueitError('Campaign needs to be active in order to be withdrawn')
+            raise UnglueitError(_('Campaign needs to be active in order to be withdrawn'))
         self.withdrawn = datetime.datetime.utcnow()
         self.withdrawn_reason = reason
         self.save()
@@ -151,7 +166,7 @@ class Campaign(models.Model):
         """Change campaign status from SUSPENDED to ACTIVE.  We may want to track reason for resuming and track history"""
         status = self.status
         if status != 'SUSPENDED':
-            raise UnglueitError('Campaign needs to be suspended in order to be resumed')
+            raise UnglueitError(_('Campaign needs to be suspended in order to be resumed'))
         self.suspended = None
         self.suspended_reason = None
         self.save()
@@ -245,18 +260,18 @@ class Work(models.Model):
         return self.first_ebook('epub')
 
     def first_pdf_url(self):
-    	try:
-        	url = self.first_ebook('pdf').url
-        	return url
+        try:
+            url = self.first_ebook('pdf').url
+            return url
         except:
-        	return None
+            return None
 
     def first_epub_url(self):
-    	try:
-        	url = self.first_ebook('epub').url
-        	return url
+        try:
+            url = self.first_ebook('epub').url
+            return url
         except:
-        	return None
+            return None
 
     def first_ebook(self, ebook_format=None):
         for ebook in Ebook.objects.filter(edition__work=self, 
