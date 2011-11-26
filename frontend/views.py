@@ -59,8 +59,10 @@ def stub(request):
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
-
-    claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
+    if not request.user.is_anonymous():
+        claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
+    else:
+        claimform = None
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
