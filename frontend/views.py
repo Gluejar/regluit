@@ -86,28 +86,24 @@ def work(request, work_id, action='display'):
 
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
+    campaign.not_manager=False
+    campaign.problems=[]
     if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
-    campaign.problems = []    
     alerts = []   
-    campaign.savable = True
     if request.method == 'POST':
-        campaign.pretarget=campaign.target
-        campaign.predeadline=campaign.deadline
         form= ManageCampaignForm(instance=campaign, data=request.POST)  
         if form.is_valid():     
-            # might be a good idea to move this code to the model
-            # general constraints
-            if campaign.savable:
-                form.save() 
-                alerts.append(_('Campaign data has been saved'))
-            else:
-                alerts.append(_('Campaign data has NOT been saved'))
-            if campaign.launchable and 'launch' in request.POST.keys():
+            form.save() 
+            alerts.append(_('Campaign data has been saved'))
+        else:
+            alerts.append(_('Campaign data has NOT been saved'))
+        if 'launch' in request.POST.keys():
+            if campaign.launchable :
                 campaign.activate()
                 alerts.append(_('Campaign has been launched'))
-            elif 'launch' in request.POST.keys():
+            else:
                 alerts.append(_('Campaign has NOT been launched'))
     else:
         form= ManageCampaignForm(instance=campaign)
