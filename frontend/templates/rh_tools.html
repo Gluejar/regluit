@@ -49,7 +49,8 @@
 			{% else %}{%if claim.campaigns %}			
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
-			<p>Name: {{ campaign.name }} {{ campaign.status }}	<br />Created: {{ campaign.created }}<br />
+			<p>Name: {{ campaign.name }} {{ campaign.status }}	(<a href="{% url manage_campaign campaign.id %}">manage campaign</a>)<br />
+			Created: {{ campaign.created }}<br />
 			Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
 			{% endfor %}
 			{% endif %}

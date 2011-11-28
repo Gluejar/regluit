@@ -5,7 +5,7 @@
 {% block extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
 
@@ -20,14 +20,13 @@ $(document).ready(function(){
 {% endblock %}
 
 {% block content %}    
-    {% with work.last_campaign_status as status %} 
+{% with work.last_campaign_status as status %} 
     <div id="main-container">
     <div class="js-main">
     <div id="js-leftcol">
             <div class="jsmodule rounded">
-                <div class="jsmod-content"> {{ work.last_campaign.id }} {{ work.campaigns.0.id }}
+                <div class="jsmod-content">
                 {% if work.last_campaign %}
-                {{ work.last_campaign_status}}
                 {% if status == 'ACTIVE' %}
                     Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
                 {% else %}{% if status == 'SUCCESSFUL' %}
@@ -74,7 +73,7 @@ $(document).ready(function(){
                             </div>
                         </div>
                         {% if status == 'ACTIVE' %}
-                        <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}{{ work.last_campaign.supporters.count }} 1 Ungluer has{% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                        <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}{{ work.last_campaign.supporters.count }} 1 Ungluer has{% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}<br />toward a ${{ work.last_campaign.target }} goal </div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
                         {% else %}
                         <div class="pledged-info"><div class="pledged-group">

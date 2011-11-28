@@ -133,6 +133,8 @@ class TestBookLoader(TestCase):
         w = edition.work
         self.assertEqual(w.first_epub().url, "http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api")
         self.assertEqual(w.first_pdf().url, "http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api")
+        self.assertEqual(w.first_epub_url(), "http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api")
+        self.assertEqual(w.first_pdf_url(), "http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api")
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
