@@ -129,3 +129,6 @@ dd {
 .doc ol li {
   margin-bottom: 7px;
 }
+.errorlist li {
+  border: solid #8dc63f 4px;
+}

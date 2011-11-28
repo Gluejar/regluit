@@ -98,7 +98,7 @@
 }
 .book-detail-info .status {
   float: right;
-  padding-top: 4px;
+  margin-top: 11px;
 }
 .book-detail-info .btn_support a {
   background: url("/static/images/btn_bg.png") 0 0 no-repeat;

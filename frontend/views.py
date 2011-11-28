@@ -23,6 +23,7 @@ import oauth2 as oauth
 from itertools import islice
 
 import re
+import sys
 
 from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
@@ -58,8 +59,10 @@ def stub(request):
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     campaign = work.last_campaign()
-
-    claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
+    if not request.user.is_anonymous():
+        claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
+    else:
+        claimform = None
     if campaign:
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
@@ -85,53 +88,28 @@ def work(request, work_id, action='display'):
 
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
+    campaign.not_manager=False
+    campaign.problems=[]
     if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
-    problems = []    
     alerts = []   
-    campaign.savable = True
-    if campaign.status == 'INITIALIZED':
-        campaign.launchable = True
-    else:
-        campaign.launchable = False
     if request.method == 'POST':
-        campaign.pretarget=campaign.target
-        campaign.predeadline=campaign.deadline
         form= ManageCampaignForm(instance=campaign, data=request.POST)  
         if form.is_valid():     
-            # might be a good idea to move this code to the model
-            # general constraints
-            if form.cleaned_data['target'] < D('1000'):
-                problems.append(_('The minimum target to launch a campaign is 1000'))
-                campaign.launchable = False
-            if form.cleaned_data['deadline'].date()-datetime.date.today() > datetime.timedelta(days=180):
-                problems.append(_('The chosen closing date is more than 6 months away'))
-                campaign.launchable = False
-                
-            if campaign.status == 'ACTIVE':
-                #special constraints on active campaigns
-                # can't increase target
-                if campaign.pretarget < campaign.target:
-                    problems.append(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
-                    campaign.savable = False
-                # can't change deadline
-                if campaign.deadline != campaign.predeadline:
-                    problems.append(_('The closing date for an ACTIVE campaign cannot be changed.'))
-                    campaign.savable = False
-            if campaign.savable:
-                form.save() 
-                alerts.append(_('Campaign data has been saved'))
-            else:
-                alerts.append(_('Campaign data has NOT been saved'))
-            if campaign.launchable and 'launch' in request.POST.keys():
+            form.save() 
+            alerts.append(_('Campaign data has been saved'))
+        else:
+            alerts.append(_('Campaign data has NOT been saved'))
+        if 'launch' in request.POST.keys():
+            if campaign.launchable :
                 campaign.activate()
                 alerts.append(_('Campaign has been launched'))
-            elif 'launch' in request.POST.keys():
+            else:
                 alerts.append(_('Campaign has NOT been launched'))
     else:
         form= ManageCampaignForm(instance=campaign)
-    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': problems, 'alerts': alerts})
+    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': campaign.problems, 'alerts': alerts})
         
 def googlebooks(request, googlebooks_id):
     try: 
@@ -422,7 +400,7 @@ def wishlist(request):
 class CampaignFormView(FormView):
     template_name="campaign_detail.html"
     form_class = CampaignPledgeForm
-    embedded = True
+    embedded = False
     
     def get_context_data(self, **kwargs):
         pk = self.kwargs["pk"]
@@ -473,6 +451,7 @@ class CampaignFormView(FormView):
         
         if url:
             logger.info("CampaignFormView paypal: " + url)
+            print >> sys.stderr, "CampaignFormView paypal: ", url
             return HttpResponseRedirect(url)
         else:
             response = t.reference

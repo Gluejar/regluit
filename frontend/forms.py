@@ -102,7 +102,7 @@ class ManageCampaignForm(forms.ModelForm):
         label=_("email address to collect Paypal funds"), 
         max_length=100, 
         )
-    target = forms.DecimalField( min_value= D('1000.00') )
+    target = forms.DecimalField( min_value= D('0.00') )
     class Meta:
         model = Campaign
         fields = 'description', 'details', 'target', 'deadline', 'paypal_receiver'
@@ -112,6 +112,19 @@ class ManageCampaignForm(forms.ModelForm):
                 'deadline': SelectDateWidget
             }
 
+    def clean_target(self):
+        new_target = self.cleaned_data['target']
+        if self.instance:
+            if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
+                raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
+        return new_target
+
+    def clean_deadline(self):
+        new_deadline = self.cleaned_data['deadline']
+        if self.instance:
+            if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
+                raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+        return new_deadline
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
