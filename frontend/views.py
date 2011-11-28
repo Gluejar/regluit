@@ -134,22 +134,78 @@ def subjects(request):
 
     return render(request, 'subjects.html', {'subjects': subjects})
 
-def pledge(request,work_id):
-    work = get_object_or_404(models.Work, id=work_id)
-    campaign = work.last_campaign()
-    if campaign:
-        premiums = campaign.premiums.all()
-        if premiums.count() == 0:
-            premiums = models.Premium.objects.filter(campaign__isnull=True)
-    premium_id = request.GET.get('premium_id', None)
-    if premium_id is not None:
-        preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
-    else:
-        preapproval_amount = D('0.00')
-    data = {'preapproval_amount':preapproval_amount}
-    form = CampaignPledgeForm(data)
 
-    return render(request,'pledge.html',{'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+class PledgeView(FormView):
+    template_name="pledge.html"
+    form_class = CampaignPledgeForm
+    embedded = False
+    
+    def get_context_data(self, **kwargs):
+        context = super(PledgeView, self).get_context_data(**kwargs)
+        
+        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        
+        campaign = work.last_campaign()
+        if campaign:
+            premiums = campaign.premiums.all()
+            if premiums.count() == 0:
+                premiums = models.Premium.objects.filter(campaign__isnull=True)
+                
+        premium_id = self.request.GET.get('premium_id', None)
+        preapproval_amount = self.request.POST.get('preapproval_amount', None)
+        
+        if premium_id is not None:
+            try:
+                preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
+            except:
+                preapproval_amount = None
+            
+        data = {'preapproval_amount':preapproval_amount}
+        form = CampaignPledgeForm(data)
+        
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+        return context
+    
+    def form_valid(self, form):
+        work_id = self.kwargs["work_id"]
+        preapproval_amount = form.cleaned_data["preapproval_amount"]
+        anonymous = form.cleaned_data["anonymous"]
+        
+        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
+        campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
+        
+        p = PaymentManager(embedded=self.embedded)
+                    
+        # we should force login at this point -- or if no account, account creation, login, and return to this spot
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+                   
+        if not self.embedded:
+            
+            return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, campaign=campaign, list=None, user=user,
+                            return_url=return_url, anonymous=anonymous)    
+        else:
+            # instant payment:  send to the partnering RH
+            # right now, all money going to Gluejar.  
+            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':preapproval_amount}]
+            
+            #redirect the page back to campaign page on success
+            return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
+            t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
+                              return_url=return_url, anonymous=anonymous)
+        
+        if url:
+            logger.info("PledgeView paypal: " + url)
+            print >> sys.stderr, "CampaignFormView paypal: ", url
+            return HttpResponseRedirect(url)
+        else:
+            response = t.reference
+            logger.info("PledgeView paypal: Error " + str(t.reference))
+            return HttpResponse(response)
+    
 
 def claim(request):
     if  request.method == 'GET': 

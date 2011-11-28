@@ -72,7 +72,7 @@ IPN_TXN_STATUS_COMPLETED = 'Completed'
 IPN_TXN_STATUS_PENDING = 'Pending'
 IPN_TXN_STATUS_REFUNDED = 'Refunded'
 
-# addaptive payment adjusted IPN reason codes
+# adaptive payment adjusted IPN reason codes
 IPN_REASON_CODE_CHARGEBACK_SETTLEMENT = 'Chargeback Settlement'
 IPN_REASON_CODE_ADMIN_REVERSAL = 'Admin reversal'
 IPN_REASON_CODE_REFUND = 'Refund'

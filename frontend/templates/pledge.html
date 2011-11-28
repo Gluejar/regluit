@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block doccontent %}
-    <h2>Pledge Page</h2>
-        <h3>Campaign: {{campaign.name}}</h3>
+
+<h2>Campaign: {{campaign.name}}</h2>
     <p>Wonderful:  We're glad that you would like to support this campaign.</p>
             	
             	<div class="book-detail">
@@ -36,7 +36,8 @@
                 	Campaign in Progress: ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
                 </div>
 
-    <form method="POST" action="{% url campaign_by_id pk=campaign.id %}">
+    <!-- Change this to submit to pledge page, not campaign page -->
+    <form method="POST" action="{% url pledge work_id=work.id %}">
         {% csrf_token %}
        {{form.as_p}}
        <input type="submit" value="Pledge" />

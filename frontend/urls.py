@@ -5,7 +5,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -36,7 +36,7 @@ urlpatterns = patterns(
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     #may want to deprecate the following
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
-    url(r"^pledge/(?P<work_id>\d+)/$", "pledge", name="pledge"),
+    url(r"^pledge/(?P<work_id>\d+)/$", PledgeView.as_view(), name="pledge"),
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
