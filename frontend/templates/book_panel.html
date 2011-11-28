@@ -36,7 +36,7 @@
                                                     <div class="Unglue_itbutton"><a href="#">Unglue it!</a> </div>
                                                     {% endif %}
                                                     {% ifequal supporter request.user %}
-                                            <div class="moreinfo remove-wishlist"><a id="{{ work.id }}">Remove</a></div>
+                                            <div class="moreinfo remove-wishlist"><div><a id="{{ work.id }}">Remove</a></div></div>
                             {% else %}{% if work in shared_works %}
                         <div class="moreinfo on-wishlist">
                         <a href="#">On Your Wishlist!</a>

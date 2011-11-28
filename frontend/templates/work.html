@@ -5,7 +5,7 @@
 {% block extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
 
@@ -27,7 +27,6 @@ $(document).ready(function(){
                 <div class="jsmod-content"> {{ work.last_campaign.id }} {{ work.campaigns.0.id }}
                 {% if work.last_campaign %}
                 {% with work.last_campaign_status as status %} 
-                {{ work.last_campaign_status}}
                 {% if status == 'ACTIVE' %}
                     Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
                 {% else %}{% if status == 'SUCCESSFUL' %}
