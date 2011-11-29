@@ -11,8 +11,3 @@ CANCEL_URL = '/paymentcancel'
 
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PAYPAL_COMMISSION = 0.10
-
-PAYPAL_USERNAME = 'yelton_1320244082_biz_api1.gmail.com'
-PAYPAL_PASSWORD =  '1320244125'
-PAYPAL_SIGNATURE = 'AIKUBuPr4mikKyQtufsnK0Fx1uwkAb.mfadAfInsxk746zqcM838IAnf'
-PAYPAL_APPID = 'APP-80W284485P519543T'
