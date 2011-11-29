@@ -97,14 +97,20 @@ class Campaign(models.Model):
     def launchable(self):
         may_launch=True
         if self.status != 'INITIALIZED':
-            self.problems.append(_('A campaign must initialized properly before it can be launched'))
+            if self.status == 'ACTIVE':
+                self.problems.append(_('The campaign is already launched'))            
+            else:
+                self.problems.append(_('A campaign must initialized properly before it can be launched'))
             may_launch = False
         if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
             self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
             may_launch = False
         if self.deadline.date()-datetime.date.today() > datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-            may_launch = False           
+            may_launch = False  
+        elif self.deadline.date()-datetime.date.today() < datetime.timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+            self.problems.append(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
+            may_launch = False  
         return may_launch
 
     @property
