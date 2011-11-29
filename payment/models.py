@@ -7,24 +7,53 @@ import uuid
 
 class Transaction(models.Model):
     
+    # type e.g., PAYMENT_TYPE_INSTANT or PAYMENT_TYPE_AUTHORIZATION -- defined in parameters.py
     type = models.IntegerField(default=PAYMENT_TYPE_NONE, null=False)
+    
+    # target: e.g, TARGET_TYPE_CAMPAIGN,  TARGET_TYPE_LIST -- defined in parameters.py 
     target = models.IntegerField(default=TARGET_TYPE_NONE, null=False)
+    
+    # status: constants defined in paypal.py (e.g., IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
     status = models.CharField(max_length=32, default='NONE', null=False)
+    
+    # amount & currency -- amount of money and its currency involved for transaction
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10, default='USD', null=True)
+    
+    # a unique ID that can be passed to PayPal to track a transaction
     secret = models.CharField(max_length=64, null=True)
+    
+    # a paykey that PayPal generates to identify this transaction
     reference = models.CharField(max_length=128, null=True)
+    
+    # (RY is not sure what receipt is for)
     receipt = models.CharField(max_length=256, null=True)
+    
+    # error message from a PayPal transaction
     error = models.CharField(max_length=256, null=True)
+    
+    # IPN.reason_code
     reason = models.CharField(max_length=64, null=True)
+    
+    # creation and last modified timestamps
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    
+    # date_payment: when an attempt is made to make the payment
     date_payment = models.DateTimeField(null=True)
+    
+    # datetime for creation of preapproval and for its expiration
     date_authorized = models.DateTimeField(null=True)
     date_expired = models.DateTimeField(null=True)
+    
+    # associated User and Campaign for this Transaction
     user = models.ForeignKey(User, null=True)
     campaign = models.ForeignKey(Campaign, null=True)
+    
+    # list:  makes allowance for pledging against a Wishlist:  not currently in use
     list = models.ForeignKey(Wishlist, null=True)
+    
+    # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)
     
     def save(self, *args, **kwargs):
