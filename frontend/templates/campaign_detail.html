@@ -44,7 +44,7 @@
       <p>Associated transactions:</p>
       <ul>
       {% for transaction in campaign.transactions %}
-        <li>{{transaction.id}} | {{transaction.status}} | {{transaction.user}} | {{transaction.amount}}</li>
+        <li>id:{{transaction.id}} | type:{{transaction.type}} | {{transaction.status}} | {{transaction.user}} | amount:{{transaction.amount}}</li>
       {% endfor %}   
       </ul>
     {% else %}
