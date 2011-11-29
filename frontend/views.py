@@ -241,7 +241,11 @@ def rh_tools(request):
             if request.method == 'POST' and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
-                    claim.campaign_form.save()
+                    new_campaign = claim.campaign_form.save(commit=False)
+                    new_campaign.deadline = datetime.date.today() + datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+                    new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
+                    new_campaign.save()
+                    claim.campaign_form.save_m2m()
                     claim.can_open_new=False
             else:
                 claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title, 'userid': request.user.id})
