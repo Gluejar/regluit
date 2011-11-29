@@ -2,12 +2,12 @@
 {% load endless %}
 
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
-
-{% block extra_head %}
+{% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
-
+{% endblock %}
+{% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
@@ -256,3 +256,10 @@ how do I integrate the your wishlist thing with the tabs thing?
 
 {% endblock %}
 
+{% block counter %}
+<div class="statcounter"><a title="web
+statistics" href="http://statcounter.com/free-web-stats/"
+class="statcounter"><img class="statcounter"
+src="https://c.statcounter.com/7447776/0/9ae2ba93/1/"
+alt="web statistics" /></a></div>
+{% endblock %}

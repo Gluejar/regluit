@@ -12,6 +12,7 @@
     <link type="text/css" rel="stylesheet" href="/static/css/sitewide.css" />
     <link href="/static/css/book-panel.css" rel="stylesheet" type="text/css" />
 	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
+    {% block extra_css %}{% endblock %}
 	{% block base_js %}
 	<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
     <script type="text/javascript" src="/static/js/book-panel.js"></script>
@@ -106,7 +107,23 @@
 </div>
 </div>
 </div>
-
+{% block counter %}
+<script type="text/javascript">
+var sc_project=7447776; 
+var sc_invisible=1; 
+var sc_security="9ae2ba93"; 
+var sc_https=1; 
+var scJsHost = (("https:" == document.location.protocol) ?
+"https://secure." : "http://www.");
+document.write("<sc"+"ript type='text/javascript' src='" +
+scJsHost +
+"statcounter.com/counter/counter_xhtml.js'></"+"script>");</script>
+<noscript><div class="statcounter"><a title="web
+statistics" href="http://statcounter.com/free-web-stats/"
+class="statcounter"><img class="statcounter"
+src="https://c.statcounter.com/7447776/0/9ae2ba93/1/"
+alt="web statistics" /></a></div></noscript>
+{% endblock %}
 </body>
 </html>
 
