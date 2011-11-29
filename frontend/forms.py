@@ -1,6 +1,8 @@
+import datetime
 from django import forms
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.forms.extras.widgets import SelectDateWidget
 
@@ -94,8 +96,8 @@ class OpenCampaignForm(forms.ModelForm):
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
         model = Campaign
-        fields = 'name', 'work', 'target', 'deadline', 'managers'
-        widgets = { 'work': forms.HiddenInput, 'deadline': SelectDateWidget }
+        fields = 'name', 'work',  'managers'
+        widgets = { 'work': forms.HiddenInput }
 
 class ManageCampaignForm(forms.ModelForm):
     paypal_receiver = forms.EmailField(
@@ -117,6 +119,8 @@ class ManageCampaignForm(forms.ModelForm):
         if self.instance:
             if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
                 raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
+        if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
+            raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
         return new_target
 
     def clean_deadline(self):
@@ -124,6 +128,10 @@ class ManageCampaignForm(forms.ModelForm):
         if self.instance:
             if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
                 raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+        if new_deadline-datetime.datetime.today() > datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+            raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+        elif new_deadline-datetime.datetime.today() < datetime.timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+            raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
         return new_deadline
 
 class CampaignPledgeForm(forms.Form):
