@@ -73,7 +73,7 @@ $(document).ready(function(){
                             </div>
                         </div>
                         {% if status == 'ACTIVE' %}
-                        <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}{{ work.last_campaign.supporters.count }} 1 Ungluer has{% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}<br />toward a ${{ work.last_campaign.target }} goal </div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                        <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}One Ungluer has {% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}<br />toward a ${{ work.last_campaign.target }} goal </div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
                         {% else %}
                         <div class="pledged-info"><div class="pledged-group">
