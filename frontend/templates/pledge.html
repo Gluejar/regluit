@@ -38,6 +38,12 @@
 
 
     <div class="jsmod-content">
+	
+    {% comment %}
+    Even though we have in frontend/forms.py a CampaignPledgeForm, we
+    
+    {% endcomment %}	
+	
 
     <form method="POST" action="{% url pledge work_id=work.id %}">
         {% csrf_token %}
@@ -51,7 +57,7 @@
         <ul class="support menu">
             {% for premium in premiums %}
             <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                <input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.GET.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
+                <input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
                     <span class="menu-item-price">${{ premium.amount }}</span>
                 <span class="menu-item-desc">{{ premium.description }}</span>
             </a></li>

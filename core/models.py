@@ -181,6 +181,12 @@ class Campaign(models.Model):
     def supporters(self):
         translist = self.transactions().values_list('user', flat=True).distinct()
         return translist
+    def effective_premiums(self):
+        """returns either the custom premiums for Campaign or any default premiums"""
+        premiums = self.premiums.all()
+        if premiums.count() == 0:
+            premiums = Premium.objects.filter(campaign__isnull=True)
+        return premiums
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)

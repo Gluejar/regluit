@@ -150,36 +150,16 @@ class CampaignPledgeForm(forms.Form):
     anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the supporters list"))
 
     premium_id = forms.IntegerField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        # might want to create the premiums regardless of whether premiums being passed in.
-        # pull out any premiums keyword
-
-        try:
-            premiums = kwargs.get('premiums', None)
-            del kwargs["premiums"]
-        except:
-            premiums = None
-        
-        super(CampaignPledgeForm,self).__init__(*args, **kwargs)
-
-        # right now we're rendering the premiums in HTML in the template.  Might want to create a custom widget
-        
-        if premiums is not None:
-            premium_choices = tuple( [(p.id, "%s (%s)" % (p.description, p.amount)) for p in premiums] )
-            self.fields["premium_id"] = forms.ChoiceField(choices=premium_choices, required=False, widget=forms.RadioSelect)
         
     def clean(self):
         cleaned_data = self.cleaned_data
-        logger.info("cleaned_data: %s " ,cleaned_data)
         # check on whether the preapproval amount is < amount for premium tier. If so, put an error message
         try:
             preapproval_amount = cleaned_data.get("preapproval_amount")
             premium_id =  int(cleaned_data.get("premium_id"))
             premium_amount = Premium.objects.get(id=premium_id).amount
-            logger.info("amount, id, premium_amount: %s %s %s", preapproval_amount, premium_id, premium_amount  )
             if preapproval_amount < premium_amount:
-                raise forms.ValidationError(_("Sorry, you must pledge at least %s to select that premium." % (premium_amount)))
+                raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
         except Exception, e:
             if isinstance(e, forms.ValidationError):
                 raise e

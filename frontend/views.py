@@ -149,9 +149,7 @@ class PledgeView(FormView):
         campaign = work.last_campaign()
         
         if campaign:
-            premiums = campaign.premiums.all()
-            if premiums.count() == 0:
-                premiums = models.Premium.objects.filter(campaign__isnull=True)
+            premiums = campaign.effective_premiums()
                 
         premium_id = self.request.REQUEST.get('premium_id', None)
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
@@ -165,9 +163,9 @@ class PledgeView(FormView):
         logger.info("preapproval_amount, premium_id: %s %s ", preapproval_amount, premium_id)   
         data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
         
-        form = CampaignPledgeForm(data, premiums=premiums)
+        form = CampaignPledgeForm(data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id})
         return context
     
     def form_valid(self, form):
