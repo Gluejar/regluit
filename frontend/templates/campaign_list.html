@@ -1,10 +1,104 @@
-{% extends "basedocumentation.html" %}
+{% extends "base.html" %}
+{% load endless %}
 
-{% block doccontent %}
-    <h2>Campaigns</h2>
-    <ul>
-        {% for campaign in campaign_list %}
-            <li><a href="{% url work work_id=campaign.work.id %}">{{ campaign.name }}</a></li>
-        {% endfor %}
-    </ul>
+{% block title %} Active Campaigns {% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
+{% endblock %}
+{% block extra_head %}
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/toggle.js"></script>
+<script type="text/javascript" src="/static/js/tabs.js"></script>
+{% endblock %}
+{% block topsection %}
+
+<div id="js-topsection">
+    <div class="js-main">
+        <div class="js-topnews">
+            <div class="js-topnews1">
+                <div class="js-topnews2">
+                    <div class="js-topnews3">
+                        <div class="user-block">
+                            <div class="user-block2">
+                            	<div class="block-intro-text">With your help we're trying to raise money to buy the right to give these books to the world.</div>
+                            </div>
+                            <div class="user-block4">
+                            </div>
+                            <div class="user-block3">
+                                <div class="user-block">
+                                <span class="rounded"><span class="orange" title="We're ungluing {{ campaign_list.count }} {% if campaign_list.count == 1 %}book{% else %}books{% endif %}.">{{ campaign_list.count }}</span></span>
+                                </div>
+                                <span class="user-status-title">We are ungluing {{ campaign_list.count }} {% if campaign_list.count == 1 %}book{% else %}books{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="main-container">
+    <div class="js-main">
+        <div id="js-leftcol">
+            {% include "explore.html" %}
+        </div>
+
+        <div id="js-maincol-fr">
+        <div class="js-maincol-inner">
+            <div class="content-block">
+                <div class="content-block-heading" id="tabs">
+                    <ul class="tabs">
+                        <li class="tabs2"><a href="#">Being Unglued</a></li>
+                    </ul>
+    
+                        <ul class="book-list-view">
+                            <li>View As:</li>
+                            <li class="view-list">
+                                <a href="#" id="toggle-list">
+                                <img src="/static/images/booklist/view-list.png" alt="view list" title="view list" height="21" width="24" />
+                                </a>
+                            </li>
+                            <li class="view-list">
+                                <a href="#" id="toggle-panel">
+                                <img src="/static/images/booklist/view-icon.png" alt="view icon" title="view icon" height="22" width="22" />
+                                </a>
+                            </li>
+                        </ul>
+                </div>
+                <div class="content-block-content">
+                    {% ifequal campaign_list.count 0 %}
+                    There aren't any ungluing campaigns active. Poor Unglueman has nothing to do.
+                    {% else %}
+                    {% paginate 20 campaign_list %}
+                    {% for campaign in campaign_list %}
+                    <div class="{% cycle 'row1' 'row2' %}">
+                    {% with campaign.status as status %}
+					{% with campaign.deadline as deadline %}
+					{% with campaign.work.editions.all.0.googlebooks_id as googlebooks_id %}
+					{% with campaign.work as work %}				
+                    {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    </div>
+                    {% endfor %}
+                    <br>
+                    <div class="pagination content-block-heading">
+                        {% show_pages %}
+                    </div>
+                    {% endifequal %}
+                </div>
+            </div>    
+        </div>
+        </div>
+    </div>
+    </div>
 {% endblock %}
