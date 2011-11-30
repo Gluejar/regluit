@@ -2,6 +2,7 @@ import logging
 import datetime 
 from decimal import Decimal as D
 
+from django import forms
 from django.db.models import Q, Count
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -146,23 +147,26 @@ class PledgeView(FormView):
         work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
         
         campaign = work.last_campaign()
+        
         if campaign:
             premiums = campaign.premiums.all()
             if premiums.count() == 0:
                 premiums = models.Premium.objects.filter(campaign__isnull=True)
                 
-        premium_id = self.request.GET.get('premium_id', None)
-        preapproval_amount = self.request.POST.get('preapproval_amount', None)
+        premium_id = self.request.REQUEST.get('premium_id', None)
+        preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         
-        if premium_id is not None:
+        if premium_id is not None and preapproval_amount is None:
             try:
                 preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
             except:
                 preapproval_amount = None
             
-        data = {'preapproval_amount':preapproval_amount}
-        form = CampaignPledgeForm(data)
+        logger.info("preapproval_amount, premium_id: %s %s ", preapproval_amount, premium_id)   
+        data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
         
+        form = CampaignPledgeForm(data, premiums=premiums)
+    
         context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form})
         return context
     
