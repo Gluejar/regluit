@@ -3,6 +3,7 @@ from django.contrib.admin import ModelAdmin
 from django.contrib.admin.sites import AdminSite
 
 from regluit.core import models
+from regluit import payment
 
 
 class RegluitAdmin(AdminSite):
@@ -53,6 +54,9 @@ class WishlistAdmin(ModelAdmin):
 class UserProfileAdmin(ModelAdmin):
     date_hierarchy = 'created'
 
+class TransactionAdmin(ModelAdmin):
+    date_hierarchy = 'date_created'
+
 admin_site = RegluitAdmin("Admin")
 
 admin_site.register(models.User, UserAdmin)
@@ -67,3 +71,4 @@ admin_site.register(models.Edition, EditionAdmin)
 admin_site.register(models.Ebook, EbookAdmin)
 admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
+admin_site.register(payment.models.Transaction, TransactionAdmin)
