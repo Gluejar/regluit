@@ -6,7 +6,7 @@
      <div class="listview tabs tabs-3">
 {% endif %}{% endif %}
 <div class="listview book-list side1">
-            <div class="listview panelback side2">
+            <span class="listview panelback side2">
                                     <div class="greenpanel2">
                                                     <div class="unglued_white">
                                                             {% if work.first_pdf_url or work.first_epub_url %}
@@ -57,7 +57,7 @@
                                                             {% if work.id %}<a href="{% url work work.id %}">{% else %}<a href="{% url googlebooks work.googlebooks_id %}">{% endif %}More Info</a> 
                                                     </div>
                                             </div>
-                            </div>
+                            </span>
     <div class="listview book-thumb">
         <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
     </div>
