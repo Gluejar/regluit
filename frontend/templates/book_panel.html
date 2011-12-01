@@ -37,9 +37,9 @@
                         <div class="moreinfo create-account">
                         <a href="#">Add to Wishlist</a>
                         </div>
-                    {% else %}{% if work in request.user.wishlist %}
+                    {% else %}{% if work in request.user.wishlist.works.all %}
                         <div class="moreinfo on-wishlist">
-                         <a href="#">On Your Wishlist!</a>
+                         <a href="#">On Wishlist!</a>
                         </div>
                     {% else %}
                         <div class="moreinfo add-wishlist">
@@ -68,13 +68,13 @@
     <div class="listview panelfront side1 remove-wishlist">
         <span id="{{ work.id }}">Remove from Wishlist</span>
     </div>
-    {% else %}{% if work in shared_works %}
-    <div class="listview panelfront side1 on-wishlist">
-        <span>On Your Wishlist!</span>
-    </div>
     {% else %}{% if request.user.is_anonymous %}
     <div class="listview panelfront side1 create-account">
         <span>Add to Wishlist</span>
+    </div>
+    {% else %}{% if work in request.user.wishlist.works.all %}
+    <div class="listview panelfront side1 on-wishlist">
+        <span>On Your Wishlist!</span>
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">

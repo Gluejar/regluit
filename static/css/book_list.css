@@ -64,14 +64,14 @@ div.book-list.listview div.book-name .listview.author {
   height: 19px;
   line-height: 19px;
 }
-div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist {
+div.book-list.listview div.add-wishlist, div.book-list.listview div.remove-wishlist, div.book-list.listview div.on-wishlist {
   margin-right: 10px;
   padding-right: 10px;
   width: 136px;
   background: url("/static/images/booklist/booklist-vline.png") right center no-repeat;
   float: left;
 }
-div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a {
+div.book-list.listview div.add-wishlist a, div.book-list.listview div.remove-wishlist a, div.book-list.listview div.on-wishlist a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
