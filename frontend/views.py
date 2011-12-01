@@ -312,16 +312,6 @@ def supporter(request, supporter_username, template_name):
     
     date = supporter.date_joined.strftime("%B %d, %Y")
 
-    # figure out what works the users have in commmon if someone
-    # is looking at someone else's supporter page
-    if not request.user.is_anonymous and request.user != supporter:
-        w1 = request.user.wishlist
-        w2 = supporter.wishlist
-        shared_works = models.Work.objects.filter(wishlists__in=[w1])
-        shared_works = list(shared_works.filter(wishlists__in=[w2]))
-    else: 
-        shared_works = []
-
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
 
@@ -378,7 +368,6 @@ def supporter(request, supporter_username, template_name):
             "backing": backing,
             "wished": wished,
             "date": date,
-            "shared_works": shared_works,
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
             "goodreads_auth_url": reverse('goodreads_auth'),
