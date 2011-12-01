@@ -6,12 +6,12 @@
                         <li class="first parent">
                             <a href="#"><span>Show me...</span></a>
                             <ul class="menu level2">
-                                <li class="first"><a href="/stub/list_of_recommended_books"><span>Recommended</span></a></li>
-                                <li><a href="/stub/list_of_popular_books"><span>Popular</span></a></li>
-                                <li><a href="/stub/list_of_almost_unglued_books"><span>Almost unglued</span></a></li>
-                                <li><a href="/stub/list_of_recently_unglued_books"><span>Recently unglued</span></a></li>
-                                <li><a href="/stub/list_of_campaigns_ending_soon"><span>Ending Soon</span></a></li>
-                                <li class="last"><a href="/stub/list_of_campaigns_just_listed"><span>Just Listed</span></a></li>
+                                <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
+                                <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
+                                <li><a href="{% url campaign_list 'almost' %}"><span>Almost unglued</span></a></li>
+                                <li><a href="{% url unglued_list 'recent' %}"><span>Recently unglued</span></a></li>
+                                <li><a href="{% url campaign_list 'ending' %}"><span>Ending Soon</span></a></li>
+                                <li class="last"><a href="{% url campaign_list 'newest' %}"><span>Just Listed</span></a></li>
                             </ul>
                         </li>
                         <li class="parent">
