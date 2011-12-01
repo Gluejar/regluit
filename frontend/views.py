@@ -3,7 +3,7 @@ import datetime
 from decimal import Decimal as D
 
 from django import forms
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -144,11 +144,15 @@ class CampaignListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'newest'):
-            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('activated').reverse()
+            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('-activated')
+        elif (facet == 'pledged'):
+            return models.Campaign.objects.annotate(total_pledge=Sum('transaction__amount')).order_by('-total_pledge')
+        elif (facet == 'pledges'):
+            return models.Campaign.objects.annotate(pledges=Count('transaction')).order_by('-pledges')
         elif (facet == 'almost'):
-            return models.Campaign.objects.all()
+            return models.Campaign.objects.all() # STUB: will need to make db changes to make this work 
         elif (facet == 'ending'):
-            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('activated')
+            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('deadline')
         else:
             return models.Campaign.objects.all()
             
