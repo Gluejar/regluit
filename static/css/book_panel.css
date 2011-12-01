@@ -133,16 +133,10 @@
   display: none;
 }
 /* switch to/from hover state when jquery swaps class names */
-span.panelview.panelback.side1, span.panelview.panelback.side1 div {
+div.panelview.side1 {
   display: visible;
 }
-span.panelview.panelback.side2, span.panelview.panelback.side2 div {
-  display: none;
-}
-div.panelview.side1 > div {
-  display: visible;
-}
-div.panelview.side2 > div {
+div.panelview.side2 {
   display: none;
 }
 /* styling of hover state */

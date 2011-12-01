@@ -1,3 +1,4 @@
+/* variables and mixins used in multiple less files go here */
 .header-text {
   height: 36px;
   line-height: 36px;
