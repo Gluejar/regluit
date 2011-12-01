@@ -15,6 +15,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
+from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
@@ -135,7 +136,22 @@ def subjects(request):
 
     return render(request, 'subjects.html', {'subjects': subjects})
 
+class CampaignListView(ListView):
+    template_name = "campaign_list.html"
+    context_object_name = "campaign_list"
+    model = models.Campaign
 
+    def get_queryset(self):
+        facet = self.kwargs['facet']
+        if (facet == 'newest'):
+            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('activated').reverse()
+        elif (facet == 'almost'):
+            return models.Campaign.objects.all()
+        elif (facet == 'ending'):
+            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('activated')
+        else:
+            return models.Campaign.objects.all()
+            
 class PledgeView(FormView):
     template_name="pledge.html"
     form_class = CampaignPledgeForm
