@@ -166,6 +166,21 @@ class CampaignPledgeForm(forms.Form):
             
         return cleaned_data
 
+class DonateForm(forms.Form):
+    donation_amount = forms.DecimalField(
+        required=False,
+        min_value=D('1.00'), 
+        max_value=D('100000.00'), 
+        decimal_places=2, 
+        label="Donation",
+    )
+    anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the donors' list"))
+        
+    def clean(self):
+        cleaned_data = self.cleaned_data         
+        return cleaned_data
+
+
     
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(

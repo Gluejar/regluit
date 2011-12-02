@@ -5,7 +5,8 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, CampaignListView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView
+from regluit.frontend.views import CampaignListView, DonateView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -46,6 +47,7 @@ urlpatterns = patterns(
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
+    url(r"^donate/$", DonateView.as_view(), name="donate"),
     url('^404testing/$', direct_to_template, {'template': '404.html'}),
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
     url('^robots.txt$', direct_to_template, {'template': 'robots.txt'}),
