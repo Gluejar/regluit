@@ -94,8 +94,8 @@ to the process at http://blog.praveengollakota.com/47430655:
 Edit or create .bashrc in ~ to enable virtualenvwrapper commands:
 1. `mkdir ~/.virtualenvs`
 1. Edit .bashrc to include the following lines:
-* export WORKON_HOME=$HOME/.virtualenvs
-* source your_path_to_virtualenvwrapper.sh_here
+    export WORKON_HOME=$HOME/.virtualenvs
+    source your_path_to_virtualenvwrapper.sh_here
 
 In the above web site, the path to virtualenvwrapper.sh was
 /Library/Frameworks/Python.framework/Versions/2.7/bin/virtualenvwrapper.sh
