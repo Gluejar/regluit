@@ -196,6 +196,9 @@ class Work(models.Model):
     openlibrary_id = models.CharField(max_length=50, null=True)
     librarything_id = models.CharField(max_length=50, null=True)
 
+    class Meta:
+        ordering = ['title']
+
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
         super(Work, self).__init__(*args, **kwargs)
