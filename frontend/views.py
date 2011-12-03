@@ -161,8 +161,10 @@ class WorkListView(ListView):
 
     def get_context_data(self, **kwargs):
             context = super(WorkListView, self).get_context_data(**kwargs)
-            context['counts'] = self.work_set_counts(self.get_queryset())
-            context['imhere'] = 'imhere'
+            qs=self.get_queryset()
+            context['counts'] = self.work_set_counts(qs)
+            context['ungluers'] = userlists.work_list_users(qs,5)
+            context['facet'] =self.kwargs['facet']
             return context
         
 class CampaignListView(ListView):
