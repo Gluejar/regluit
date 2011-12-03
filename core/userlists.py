@@ -30,7 +30,7 @@ def work_list_users(work_list, how_many):
     if count <= how_many :
         user_list = users[0: count]
     else :
-        user_list = work.wished_by()[0: how_many]
+        user_list = users[0: how_many]
     return user_list
 
 def campaign_list_users(campaign_list, how_many):
@@ -39,5 +39,5 @@ def campaign_list_users(campaign_list, how_many):
     if count <= how_many :
         user_list = users[0: count]
     else :
-        user_list = work.wished_by()[0: how_many]
+        user_list = uaers()[0: how_many]
     return user_list
