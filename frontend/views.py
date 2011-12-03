@@ -72,7 +72,6 @@ def work(request, work_id, action='display'):
         premiums = None
         
     wishers = work.wished_by().count()
-    
     base_url = request.build_absolute_uri("/")[:-1]
     
     #may want to deprecate the following

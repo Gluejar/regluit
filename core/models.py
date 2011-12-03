@@ -1,6 +1,8 @@
+import re
 import random
 import datetime
 from decimal import Decimal
+
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
@@ -198,6 +200,15 @@ class Work(models.Model):
         self._last_campaign = None
         super(Work, self).__init__(*args, **kwargs)
 
+    @property
+    def googlebooks_id(self):
+        # may want to denormalize this at some point to avoid an extra query
+        return self.editions.all()[0].googlebooks_id
+
+    @property
+    def googlebooks_url(self):
+        return "http://books.google.com/books?id=%s" % self.googlebooks_id
+
     def cover_image_small(self):
         return self.editions.all()[0].cover_image_small()
 
@@ -296,9 +307,11 @@ class Work(models.Model):
         return User.objects.filter(wishlist__works__in=[self])
 
     def longest_description(self):
+        """get the longest English description from an edition of this work
+        """
         description = ""
-        for edition in self.editions.all():
-            if len(edition.description) > len(description): 
+        for edition in self.editions.filter(language='en'):
+            if len(edition.description) > len(description):
                 description = edition.description
         return description
 
