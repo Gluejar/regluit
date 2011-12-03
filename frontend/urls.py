@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
 from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView
-from regluit.frontend.views import CampaignListView, DonateView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
