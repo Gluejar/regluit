@@ -136,6 +136,35 @@ def subjects(request):
 
     return render(request, 'subjects.html', {'subjects': subjects})
 
+
+recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_USERNAME)
+
+class WorkListView(ListView):
+    template_name = "work_list.html"
+    context_object_name = "work_list"
+    
+    def work_set_counts(self,work_set):
+        counts={}
+        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        counts['unglueing'] = work_set.filter(campaigns__activated__isnull=False).count()
+        counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
+        return counts
+
+    def get_queryset(self):
+        facet = self.kwargs['facet']
+        if (facet == 'popular'):
+            return models.Work.objects.annotate(wished=Count('wishlists')).order_by('-wished')
+        elif (facet == 'recommended'):
+            return models.Work.objects.filter(wishlists__user=recommended_user)
+        else:
+            return models.Work.objects.all().order_by('-created')
+
+    def get_context_data(self, **kwargs):
+            context = super(WorkListView, self).get_context_data(**kwargs)
+            context['counts'] = self.work_set_counts(self.get_queryset())
+            context['imhere'] = 'imhere'
+            return context
+        
 class CampaignListView(ListView):
     template_name = "campaign_list.html"
     context_object_name = "campaign_list"

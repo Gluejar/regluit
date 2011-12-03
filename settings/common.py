@@ -203,3 +203,4 @@ TEST_RUNNER = 'djcelery.contrib.test_runner.run_tests'
 UNGLUEIT_MINIMUM_TARGET = '1000' # in US Dollars
 UNGLUEIT_LONGEST_DEADLINE = '180' # number of days allowed for a campaign
 UNGLUEIT_SHORTEST_DEADLINE = '7' # minimum number of days allowed for a campaign
+UNGLUEIT_RECOMMENDED_USERNAME = 'recommended'
