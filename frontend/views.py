@@ -34,9 +34,9 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm
+from regluit.frontend.forms import  ManageCampaignForm, DonateForm
 from regluit.payment.manager import PaymentManager
-from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN
+from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
 
 from regluit.core import goodreads
 from tastypie.models import ApiKey
@@ -257,7 +257,51 @@ class PledgeView(FormView):
             logger.info("PledgeView paypal: Error " + str(t.reference))
             return HttpResponse(response)
     
+class DonateView(FormView):
+    template_name="donate.html"
+    form_class = DonateForm
+    embedded = False
+    
+    #def get_context_data(self, **kwargs):
+    #    context = super(DonateView, self).get_context_data(**kwargs)
+    #    
+    #    form = CampaignPledgeForm(data)
+    #
+    #    context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id})
+    #    return context
+    
+    def form_valid(self, form):
+        donation_amount = form.cleaned_data["donation_amount"]
+        anonymous = form.cleaned_data["anonymous"]
+        
+        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
+        campaign = None
+        
+        p = PaymentManager(embedded=self.embedded)
+                    
+        # we should force login at this point -- or if no account, account creation, login, and return to this spot
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
 
+        # instant payment:  send to the partnering RH
+        receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':donation_amount}]
+        
+        #redirect the page back to campaign page on success
+        return_url = self.request.build_absolute_uri(reverse('donate'))
+        
+        t, url = p.pledge('USD', TARGET_TYPE_DONATION, receiver_list, campaign=campaign, list=None, user=user,
+                          return_url=return_url, anonymous=anonymous)
+    
+        if url:
+            return HttpResponseRedirect(url)
+        else:
+            response = t.reference
+            logger.info("PledgeView paypal: Error " + str(t.reference))
+            return HttpResponse(response)
+    
+    
 def claim(request):
     if  request.method == 'GET': 
         data = request.GET
