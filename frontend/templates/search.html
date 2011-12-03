@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-
-{% block extra_head %}
+{% block extra_css %}
 <link rel="stylesheet" href="/static/css/book_list.css">
 <link rel="stylesheet" href="/static/css/book_panel.css">
 <!-- important! search.css goes last -->
 <link rel="stylesheet" href="/static/css/search.css">
-
+{% endblock %}
+{% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
@@ -66,3 +66,4 @@
     </div>
 
 {% endblock %}
+{% block counter %}{% endblock %}
