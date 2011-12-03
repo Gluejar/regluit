@@ -24,6 +24,7 @@ class LibraryThing(object):
         self.username = username
         self.password = password
         self.csv_handle = None
+
     def retrieve_csv(self):
         br = mechanize.Browser()
         br.open(LibraryThing.url)
@@ -34,6 +35,7 @@ class LibraryThing(object):
         br.submit()
         self.csv_handle = br.open(LibraryThing.csv_file_url)
         return self.csv_handle
+
     def parse_csv(self):
         h = HTMLParser.HTMLParser()
         reader = csv.DictReader(self.csv_handle)
@@ -209,6 +211,12 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
         logger.info("%d %s %s", i, book["title"]["title"], isbn)
         try:
             edition = bookloader.add_by_isbn(isbn)
+            # add the librarything ids to the db since we know them now
+            edition.librarything_id = book['book_id']
+            edition.save()
+            edition.work.librarything_id = book['work_id']
+            edition.work.save()
+
             # let's not trigger too much traffic to Google books for now
             # regluit.core.tasks.add_related.delay(isbn)
             user.wishlist.works.add(edition.work)

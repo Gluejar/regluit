@@ -192,6 +192,7 @@ class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
     openlibrary_id = models.CharField(max_length=50, null=True)
+    librarything_id = models.CharField(max_length=50, null=True)
 
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
@@ -325,6 +326,8 @@ class Subject(models.Model):
 
 class Edition(models.Model):
     googlebooks_id = models.CharField(max_length=50, null=False)
+    goodreads_id = models.CharField(max_length=50, null=True)
+    librarything_id = models.CharField(max_length=50, null=True)
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
     description = models.TextField(default='', null=True)

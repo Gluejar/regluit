@@ -63,6 +63,7 @@ class GoodreadsClient(object):
     @property     
     def is_authorized(self):
         return (self.access_token is not None)
+
     def begin_authorization (self, callback_url=None):
         # get request token
         response, content = self.client.request(GoodreadsClient.request_token_url, 'GET')
@@ -250,15 +251,13 @@ class GoodreadsClient(object):
             return d
         
         
-def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id=None, max_books=None,
-                                       expected_number_of_books=None):
+def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id=None, max_books=None, expected_number_of_books=None):
     """
     Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
     """
     
     logger.info('Entering load_goodreads_shelf_into_wishlist.  user: %s, shelf_name: %s, goodreads_user_id: %s, max_books: %s, expected_number_of_books: %s',
                 user, shelf_name, goodreads_user_id, max_books, expected_number_of_books)
-    
     gc = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET, user=user)
         
     if goodreads_user_id is None:
@@ -274,6 +273,11 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
         logger.info("%d %s %s %s ", i, review["book"]["title"], isbn, review["book"]["small_image_url"])
         try:
             edition = bookloader.add_by_isbn(isbn)
+
+            # save the goodreads id since we know it at this point
+            edition.goodreads_id = review['id']
+            edition.save()
+
             # let's not trigger too much traffic to Google books for now
             # regluit.core.tasks.add_related.delay(isbn)
             user.wishlist.works.add(edition.work)
@@ -282,3 +286,5 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             logger.info ("Exception adding ISBN %s: %s", isbn, e) 
 
     logger.info('Leaving load_goodreads_shelf_into_wishlist.  Length of wishlist for user %s is %s', user, len(user.wishlist.works.all()))
+
+    return user.wishlist

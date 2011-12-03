@@ -264,18 +264,19 @@ class SettingsTest(TestCase):
             return
         
         self.assertEqual(set(me.__dict__.keys()) ^ set(dev.__dict__.keys()), set([]))
-       
         
     def test_prod_me_alignment(self):
         from regluit.settings import me, prod
         self.assertEqual(set(me.__dict__.keys()) ^ set(prod.__dict__.keys()), set([]))
 
 class CeleryTaskTest(TestCase):
+
     def test_single_fac(self):
         n = 10
         task = tasks.fac.delay(n)
         result = task.get(timeout=10)
         self.assertEqual(result,factorial(n))
+
     def test_subtask(self):
         n = 30
         subtasks = [tasks.fac.subtask(args=(x,)) for x in range(n)]
@@ -286,6 +287,7 @@ class CeleryTaskTest(TestCase):
         self.assertEqual(result.join(),[factorial(x) for x in range(n)])
     
 class GoodreadsTest(TestCase):
+
     def test_goodreads_shelves(self):
         # test to see whether the core undeletable shelves are on the list
         gr_uid = "767708"  # for Raymond Yee
@@ -295,21 +297,16 @@ class GoodreadsTest(TestCase):
         self.assertTrue('currently-reading' in shelf_names)
         self.assertTrue('read' in shelf_names)
         self.assertTrue('to-read' in shelf_names)
+
     def test_review_list_unauth(self):
         gr_uid = "767708"  # for Raymond Yee
         gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
         # test to see whether there is a book field in each of the review
         self.assertTrue(all([r.has_key("book") for r in reviews]))
-    #def test_review_list(self):
-    #    """ At this point this test doesn't work but at this moment we don't need this functionality"""
-    #    gr_uid = "767708"  # for Raymond Yee
-    #    gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-    #    reviews = gc.review_list(user_id=gr_uid, shelf='read')
-    #    # test to see whether there is a book field in each of the review
-    #    self.assertTrue(all([r.has_key("book") for r in reviews]))        
 
 class LibraryThingTest(TestCase):
+
     def test_scrape_test_lib(self):
         # account yujx : has one book: 0471925675
         lt_username = 'yujx'
@@ -317,8 +314,11 @@ class LibraryThingTest(TestCase):
         books = list(lt.parse_user_catalog(view_style=5))
         self.assertEqual(len(books),1)
         self.assertEqual(books[0]['isbn'], '0471925675')
+        self.assertEqual(books[0]['work_id'], '80826')
+        self.assertEqual(books[0]['book_id'], '79883733')
 
 class ISBNTest(TestCase):
+
     def test_ISBN(self):
         milosz_10 = '006019667X'
         milosz_13 = '9780060196677'
