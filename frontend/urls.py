@@ -8,7 +8,6 @@ from regluit.core.models import Campaign
 from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView
 
-
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
