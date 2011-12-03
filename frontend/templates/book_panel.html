@@ -31,7 +31,7 @@
                     {% endif %}
                     {% ifequal supporter request.user %}
                         <div class="moreinfo remove-wishlist">
-                            <div><a id="{{ work.id }}">Remove</a></div>
+                            <div><a id="{{ work.id }}">Remove This</a></div>
                         </div>
                     {% else %}{% if request.user.is_anonymous %}
                         <div class="moreinfo create-account">
@@ -66,7 +66,7 @@
     </div>
     {% ifequal supporter request.user %}
     <div class="listview panelfront side1 remove-wishlist">
-        <span id="{{ work.id }}">Remove from Wishlist</span>
+        <span id="{{ work.id }}">Remove This</span>
     </div>
     {% else %}{% if request.user.is_anonymous %}
     <div class="listview panelfront side1 create-account">
