@@ -28,7 +28,7 @@ $(document).ready(function() {
 
     $(".create-account").each(function (index, element) {
         $(element).click(function() {
-            window.location = "/accounts/login/";
+            window.location = "/accounts/login/?next=" + $(location).attr('href');
         });
     });
 
