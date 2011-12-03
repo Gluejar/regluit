@@ -32,3 +32,12 @@ def work_list_users(work_list, how_many):
     else :
         user_list = work.wished_by()[0: how_many]
     return user_list
+
+def campaign_list_users(campaign_list, how_many):
+    users = User.objects.filter(wishlist__works__campaigns__in=campaign_list).distinct().reverse()
+    count = users.count()
+    if count <= how_many :
+        user_list = users[0: count]
+    else :
+        user_list = work.wished_by()[0: how_many]
+    return user_list
