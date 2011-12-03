@@ -43,7 +43,7 @@
                         </div>
                     {% else %}
                         <div class="moreinfo add-wishlist">
-                        <a href="#" id="{{ googlebooks_id }}">Add to Wishlist</a>
+                        <span id="{{ googlebooks_id }}">Add to Wishlist</span>
                         </div>
                     {% endif %}{% endif %}{% endifequal %}
                     <div class="white_text"> 
@@ -78,7 +78,7 @@
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">
-        <span id="{{ work.editions.all.0.googlebooks_id }}">Add to Wishlist</span>
+        <span id="{{ googlebooks_id }}">Add to Wishlist</span>
     </div>
     {% endif %}{% endif %}{% endifequal %}
     <div class="listview panelfront side1 booklist-status">
