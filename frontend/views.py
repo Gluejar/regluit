@@ -185,6 +185,13 @@ class CampaignListView(ListView):
             return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('deadline')
         else:
             return models.Campaign.objects.all()
+
+    def get_context_data(self, **kwargs):
+            context = super(CampaignListView, self).get_context_data(**kwargs)
+            qs=self.get_queryset()
+            context['ungluers'] = userlists.campaign_list_users(qs,5)
+            context['facet'] =self.kwargs['facet']
+            return context
             
 class PledgeView(FormView):
     template_name="pledge.html"
