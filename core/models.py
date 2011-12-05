@@ -212,6 +212,19 @@ class Work(models.Model):
     def googlebooks_url(self):
         return "http://books.google.com/books?id=%s" % self.googlebooks_id
 
+    @property 
+    def goodreads_id(self):
+        for e in self.editions.filter(goodreads_id__isnull=False):
+            return e.goodreads_id
+
+    @property
+    def goodreads_url(self):
+        return "http://www.goodreads.com/book/show/%s" % self.goodreads_id
+
+    @property
+    def librarything_url(self):
+        return "http://www.librarything.com/work/%s" % self.librarything_id
+
     def cover_image_small(self):
         return self.editions.all()[0].cover_image_small()
 
@@ -317,6 +330,10 @@ class Work(models.Model):
             if len(edition.description) > len(description):
                 description = edition.description
         return description
+
+    def first_isbn_10(self):
+        for e in self.editions.filter(isbn_10__isnull=False):
+            return e.isbn_10
 
     def __unicode__(self):
         return self.title

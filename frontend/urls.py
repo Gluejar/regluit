@@ -37,6 +37,9 @@ urlpatterns = patterns(
     url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
+    url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
+    url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),
+    url(r"^work/(?P<work_id>\d+)/openlibrary/$", "work_openlibrary", name="work_openlibrary"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     #may want to deprecate the following
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),

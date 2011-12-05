@@ -1,14 +1,17 @@
+import re
 import json
 import logging
-from xml.etree import ElementTree as ET
-from requests import request
-import oauth2 as oauth
-from urlparse import urlparse, urlunparse, urljoin
-from urllib import urlencode
-import httplib
 from itertools import islice
-from regluit.core import bookloader
+from urllib import urlencode
+from urlparse import urlparse, urlunparse, urljoin
+
+import httplib
+import oauth2 as oauth
+from requests import request
+from xml.etree import ElementTree as ET
+
 import regluit.core
+from regluit.core import bookloader
 
 # import parse_qsl from cgi if it doesn't exist in urlparse
 try:
@@ -275,8 +278,15 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             edition = bookloader.add_by_isbn(isbn)
 
             # save the goodreads id since we know it at this point
-            edition.goodreads_id = review['id']
-            edition.save()
+            # we need to extract it from the link since review['id']
+            # is the id for a users review, not the book
+            link = review['book']['link']
+            match = re.search('/show/(\d+)', link)
+            if match:
+                edition.goodreads_id = match.group(1)
+                edition.save()
+            else:
+                logger.error("unable to extract goodreads id from %s", link)
 
             # let's not trigger too much traffic to Google books for now
             # regluit.core.tasks.add_related.delay(isbn)

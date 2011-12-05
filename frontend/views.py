@@ -1,6 +1,11 @@
+import re
+import sys
+import json
+import urllib
 import logging
 import datetime 
 from decimal import Decimal as D
+from re import sub
 
 from django import forms
 from django.db.models import Q, Count, Sum
@@ -21,11 +26,9 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
+import requests
 import oauth2 as oauth
 from itertools import islice
-
-import re
-import sys
 
 from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
@@ -44,9 +47,6 @@ from tastypie.models import ApiKey
 logger = logging.getLogger(__name__)
 
 from regluit.payment.models import Transaction
-
-import urllib
-from re import sub
 
 def home(request):
     if request.user.is_authenticated():
@@ -825,3 +825,51 @@ def clear_celery_tasks(request):
 
 def celery_test(request):
     return HttpResponse("celery_test")
+
+# routing views that try to redirect to the works page on a 3rd party site
+#
+# TODO: need to queue up a task to look up IDs if we have to fallback to 
+# routing based on ISBN or search
+
+def work_librarything(request, work_id):
+    work = get_object_or_404(models.Work, id=work_id)
+    isbn = work.first_isbn_10()
+    if work.librarything_id:
+        url = work.librarything_url
+    elif isbn:
+        # TODO: do the redirect here and capture the work id?
+        url = "http://www.librarything.com/isbn/%s" % work.first_isbn_10()
+    else:
+        term = work.title + " " + work.author()
+        q = urllib.urlencode({'searchtpe': 'work', 'term': term})
+        url = "http://www.librarything.com/search.php?" + q
+    print url
+    return HttpResponseRedirect(url)
+
+def work_openlibrary(request, work_id):
+    work = get_object_or_404(models.Work, id=work_id)
+    isbns = ["ISBN:" + e.isbn_10 for e in work.editions.filter(isbn_10__isnull=False)]
+    if work.openlibrary_id:
+        url = work.openlibrary_url
+    elif len(isbns) > 0:
+        isbns = ",".join(isbns)
+        url = 'http://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
+        j = json.loads(requests.get(url).content)
+        first = j.keys()[0]
+        url = "http://openlibrary.org" + j[first]['key'] 
+    else:
+        q = urllib.urlencode({'q': work.title + " " + work.author()})
+        url = "http://openlibrary.org/search?" + q
+    return HttpResponseRedirect(url)
+
+def work_goodreads(request, work_id):
+    work = get_object_or_404(models.Work, id=work_id)
+    isbn = work.first_isbn_10()
+    if work.goodreads_id:
+        url = work.goodreads_url
+    elif isbn:
+        url = "http://www.goodreads.com/book/isbn/%s" % work.first_isbn_10()
+    else:
+        q = urllib.urlencode({'query': work.title + " " + work.author()})
+        url = "http://www.goodreads.com/search?" + q
+    return HttpResponseRedirect(url)
