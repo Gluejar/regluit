@@ -1,28 +1,326 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
+{% endblock %}
 
+{% block base_js %}
+
+<script src="/static/js/jquery-1.6.3.min.js"></script>
+<script type="text/javascript">
+	var $j = jQuery.noConflict();
+	$j(document).ready(function(){
+		$j('.user-block-hide').hide();
+		$j('.user-block1 a').click(
+			function() {
+				$j(this).toggleClass("active");
+				$j(".user-block-hide").slideToggle(300);
+			}
+		);
+	});
+</script>
+<script src="/static/js/slides.min.jquery.js"></script>
+<script>
+var $j = jQuery.noConflict();
+	$j(function(){
+		$j('#js-slideshow').slides({
+			preload: true,
+			preloadImage: '/static/images/landingpage/loading.gif',
+			play: 5000,
+			pause: 2500000,
+			hoverPause: true,
+			generateNextPrev: true,
+			next: 'next',
+			prev: 'prev',
+			pagination: true,
+			generatePagination: false,
+			slideSpeed: 600,
+			autoHeight: true
+		});
+	});
+</script>
+
+{% endblock %}
+
+{% block topsection %}
     <div id="js-topsection">
     	<div class="js-main">
         	<div class="js-topnews">
-            	<div class="js-news-text">With your help we raise money to buy book rights. The unglued books are free to download, here.</div>
-                <div class="js-news-links"><a class="readon"><span>Learn more</span></a></div>
+                    <div class="user-block">
+                        <div class="user-block1">
+                        <div class="block-inner">
+                            <div class="block-intro-text">With your help we raise money to buy book rights. The <span class="typo">unglued</span> books are free to download, here.</div>
+                            <a class="my-setting readon"><span>Learn more</span></a>
+                        </div>
+                        </div>
+                        
+                        <div class="user-block2">
+                        <div class="block-inner">
+                        	<label class="title">Spread the Word</label>
+                            <a href="https://www.facebook.com/sharer/sharer.php?src=bm&u=http://{{ request.META.HTTP_HOST }}{{ request.path }}"><img src="/static/images/supporter_icons/facebook_square.png" alt="Facebook" title="Facebook"  /></a>
+                            <a href="https://twitter.com/share"><img src="/static/images/supporter_icons/twitter_square.png" alt="tweeter" title="Twitter"  /></a>
+                        </div>
+                        </div>
+                    </div>
+                    <div class="user-block-hide">
+                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
+                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</p>
+                    </div>
             </div>
-            <div class="js-search">
-        	<h2>What book would you give to the world?</h2>
-            <div class="js-search-inner">
-                <form action="{% url search %}" method="get"> 
-                    <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q">
-                    <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
-                </form>
+        </div>
+    </div>
+{% endblock %}
+    
+{% block content %}
+    <div id="main-container" class="main-container-fl">
+    <div class="js-main">
+        <div id="js-maincol-fl">
+        	<div id="js-main-container">
+            <div class="js-main-container-inner">
+            		<div id="js-maincontainer-content" class="have-content-right-module">
+                        <div class="item-content">
+                        	<h2 class="page-heading">We all have books we love so much, we'd like to give them to the world.</h2>
+                            
+                        	<p>
+                            	We want to share them, but also reward their creators. With digital books, it can be hard to do both. Unglue.it offers a win-win solution.
+                            </p>
+                            <p>
+                            	Crowdfunding. We run pledge campaigns for books; you chip in. When, together, we've reached the goal, we'll reward the book's creators and issue an unglued ebook. 
+                            </p>
+                            <p>
+                            	<a href="https://creativecommons.org/">Creative Commons</a> licensing means everyone, everywhere can read and share the unglued book — freely and legally. You've given your favorite book to the world.
+                            </p>
+                        </div>
+                        <div class="content-right-module">
+                        	<h3>How does it work?</h3>
+                            <div class="jsmod-content">
+                            	<img src="/static/images/landingpage/icon-group.png" alt="How does it work?" title="How does it work?" height="269" width="268" />
+                            </div>
+                        </div>
+                    </div>
+                    <div id="js-maincontainer-bot-block">
+                        <div id="js-search">
+                        	<label>What book would you give to the world? </label>
+				                <form action="{% url search %}" method="get">
+                				    <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q" value="{{ q }}">
+                				    <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
+               					</form>
+                        </div>
+                    </div>
+                    <div id="js-maincontainer-faq">
+                    	<div class="js-maincontainer-faq-inner">
+                        	Questions? Read our <a href="/stub/tour">FAQ’s</a> or take the <a href="/stub/tour">Tour</a>
+                        </div>
+                    </div>
+            </div>
+            </div>
+            <div id="js-rightcol">
+            <div class="js-rightcol-padd">
+            	<div class="jsmodule">
+                	<h3 class="module-title">Start Ungluing Now!</h3>
+                    <div class="jsmod-content">
+                    	<div class="user-name">
+                    	<label>Username</label>
+                        <input type="text" size="25" value="" name="username" />
+                        </div>
+                        <div class="password">
+                    	<label>Password</label>
+                        <input type="text" size="25" value="" name="password" />
+                        </div>
+                        <div class="email">
+                    	<label>Email</label>
+                        <input type="text" size="25" value="" name="email" />
+                        </div>
+						<div class="button">
+                        	<input type="button" value="Submit" />
+                            <p>Or, <a href="#">Sign In With Google</a></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="jsmodule">
+                	<h3 class="module-title">Who's ungluing what</h3>
+                    <div class="jsmod-content">
+						<ul class="ungluingwhat">
+                        	<li>
+                            	<div class="user-avatar"><img src="/static/images/landingpage/user-avatar.png" width="43" height="43" title="User sure Name" alt="User sure name" /></div>
+                                <div class="user-book-info">
+                                	<p class="user-book-info">Very Long Username is Wishing For </p>
+                                    <a class="user-book-name" href="#">Very Long Book Title</a>
+                                </div>
+                                <div class="user-book-thumb"><img src="/static/images/landingpage/user-bookthumb.png" width="29" height="43" title="Very Long Username is Wishing For" alt="Very Long Book Title" /></div>
+                            </li>
+                            <li>
+                            	<div class="user-avatar"><img src="/static/images/landingpage/user-avatar.png" width="43" height="43" title="User sure Name" alt="User sure name" /></div>
+                                <div class="user-book-info">
+                                	<p class="user-book-info">Very Long Username is Wishing For </p>
+                                    <a class="user-book-name" href="#">Very Long Book Title</a>
+                                </div>
+                                <div class="user-book-thumb"><img src="/static/images/landingpage/user-bookthumb.png" width="29" height="43" title="Very Long Username is Wishing For" alt="Very Long Book Title" /></div>
+                            </li>
+                            <li>
+                            	<div class="user-avatar"><img src="/static/images/landingpage/user-avatar.png" width="43" height="43" title="User sure Name" alt="User sure name" /></div>
+                                <div class="user-book-info">
+                                	<p class="user-book-info">Very Long Username is Wishing For </p>
+                                    <a class="user-book-name" href="#">Very Long Book Title</a>
+                                </div>
+                                <div class="user-book-thumb"><img src="/static/images/landingpage/user-bookthumb.png" width="29" height="43" title="Very Long Username is Wishing For" alt="Very Long Book Title" /></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             </div>
         </div>
     </div>
-
-    <div style="margin-top: 20%;">
     </div>
     
+    <div id="js-slide">
+    	<div class="js-main">
+        	<div class="jsmodule">
+            <h3><span>Top ungluing campaigns</span></h3>
+            <div class="jsmod-content">
+                <div id="js-slideshow">
+                    <div class="slides_container">
+                        <div class="slide-page slide-page1">
+                        	<div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="slide-page slide-page2">
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                            <div class="slide-item">
+                            <div class="slide-item-inner">
+                                <div class="book-thumb">
+                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
+                                </div>
+                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
+                                <div class="book-genre">Genre: Sci-Fi</div>
+                                <div class="book-status">Status: Unglued!</div>
+                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>	
+            </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
-
-		

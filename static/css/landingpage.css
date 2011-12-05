@@ -1,0 +1,389 @@
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+#main-container.main-container-fl .js-main {
+  width: 968px;
+  background: #ffffff url(/static/images/landingpage/container-top.png) top center no-repeat;
+}
+#js-maincol-fl {
+  padding: 30px 30px 0 30px;
+  overflow: hidden;
+}
+#js-maincol-fl .content-block {
+  background: none;
+  padding: 0;
+}
+#js-maincol-fl #js-main-container {
+  float: left;
+  width: 672px;
+}
+#js-maincol-fl .js-main-container-inner {
+  padding-right: 40px;
+}
+#js-maincol-fl h2.page-heading {
+  margin: 0 0 20px 0;
+  color: #3d4e53;
+  font-size: 17px;
+  font-weight: bold;
+}
+.user-block {
+  width: 100%;
+  clear: both;
+}
+.user-block-hide {
+  float: left;
+  width: 100%;
+  clear: both;
+}
+.user-block1, .user-block2 {
+  float: left;
+}
+.user-block1 {
+  width: 70%;
+}
+.user-block1 .block-intro-text {
+  float: left;
+  width: 70%;
+  font-size: 20px;
+}
+.user-block1 a.readon {
+  float: left;
+  margin-top: 10px;
+}
+.user-block2 {
+  color: #6994a3;
+  font-size: 11px;
+  line-height: normal;
+  width: 30%;
+}
+.user-block2 .block-inner {
+  float: right;
+  padding-right: 0;
+}
+.user-block2 label {
+  float: left;
+  font-size: 20px;
+  height: 30px;
+  line-height: 30px;
+  color: #3d4e53;
+  padding-right: 15px;
+}
+#js-rightcol {
+  float: right;
+  width: 230px;
+}
+#js-rightcol .jsmodule {
+  background: #edf3f4;
+  border: 1px solid #d6dde0;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
+  margin-bottom: 10px;
+  padding: 0 10px 10px 10px;
+}
+#js-rightcol .jsmodule.last {
+  border-bottom: none;
+  padding-bottom: 10px;
+}
+#js-rightcol div.button {
+  padding-top: 10px;
+}
+#js-rightcol div.buttona {
+  color: #000;
+}
+#js-rightcol label {
+  width: 100%;
+  display: block;
+  clear: both;
+  padding-top: 10px;
+}
+.js-rightcol-padd {
+  padding: 0;
+}
+h3.heading {
+  color: #3d4e53;
+  font-weight: bold;
+}
+input[type=button] {
+  background: url("/static/images/landingpage/button.png") no-repeat scroll 0 0 transparent;
+  border: medium none;
+  color: #FFF;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  height: 36px;
+  line-height: 36px;
+  overflow: hidden;
+  padding: 0 31px 0 11px;
+  width: 111px;
+}
+ul.ungluingwhat {
+  list-style: none;
+  padding: 0;
+  margin: 0 -10px;
+}
+ul.ungluingwhat li {
+  margin-bottom: 7px;
+  background: #fff;
+  padding: 10px;
+  display: block;
+  overflow: hidden;
+}
+ul.ungluingwhat li > div {
+  float: left;
+}
+ul.ungluingwhat div.user-avatar {
+  width: 43px;
+}
+ul.ungluingwhat .user-book-thumb {
+  width: 29px;
+}
+ul.ungluingwhat .user-book-info {
+  width: 135px;
+  color: #3d4e53;
+}
+ul.ungluingwhat .user-book-info p {
+  margin: 0;
+  padding: 0 5px;
+  font-size: 11px;
+}
+ul.ungluingwhat .user-book-info a {
+  display: block;
+  padding: 0 5px;
+  color: #3d4e53;
+  font-size: 11px;
+  text-decoration: underline;
+}
+div.typo2 {
+  background: #edf3f4;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
+  padding: 10px;
+  font-style: italic;
+}
+div.signup_btn {
+  display: block;
+  overflow: hidden;
+}
+div.signup_btn a {
+  background: url("/static/images/bg.png") no-repeat scroll right top transparent;
+  color: #fff;
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  height: 36px;
+  line-height: 36px;
+  letter-spacing: 1px;
+  text-decoration: none;
+  text-transform: capitalize;
+  float: left;
+}
+div.signup_btn a span {
+  background: url("/static/images/bg.png") no-repeat scroll -770px -36px transparent;
+  display: block;
+  margin-right: 29px;
+  padding: 0 5px 0 15px;
+}
+.have-content-right-module .item-content {
+  float: left;
+  width: 364px;
+  font-size: 14px;
+}
+.have-content-right-module .item-content p {
+  margin-bottom: 20px;
+  line-height: 135%;
+}
+.have-content-right-module .item-content h2.page-heading {
+  padding-right: 97px;
+  line-height: 43px;
+  border-bottom: 7px solid #8ac3d7;
+  padding-bottom: 4px;
+}
+.have-content-right-module .content-right-module {
+  width: 268px;
+  float: right;
+}
+.have-content-right-module .content-right-module h3 {
+  color: #8ac3d7;
+  text-transform: uppercase;
+  font-size: 24px;
+  font-weight: normal;
+  padding: 0;
+  margin: 0 0 16px 0;
+}
+h2.page-heading {
+  color: #3c4e52;
+  font-size: 28px !important;
+  font-style: italic;
+  font-weight: normal !important;
+}
+#js-maincontainer-bot-block {
+  width: 100%;
+  clear: both;
+  overflow: hidden;
+}
+#js-maincontainer-bot-block #js-search {
+  background: url(/static/images/landingpage/bg-search.png) 0 0 no-repeat;
+  width: 628px;
+  height: 80px;
+  overflow: hidden;
+  clear: both;
+  color: #fff;
+}
+#js-maincontainer-bot-block #js-search label {
+  line-height: 80px;
+  font-size: 18px;
+  float: left;
+  padding: 0;
+  width: auto;
+  padding: 0 30px;
+}
+#js-maincontainer-bot-block #js-search form {
+  float: left;
+  width: 209px;
+  background: url(/static/images/landingpage/search-box.png) 0 0 no-repeat;
+  height: 36px;
+  display: block;
+  overflow: hidden;
+  margin-top: 22px;
+}
+#js-search input.inputbox {
+  border: none;
+  color: #66942e;
+  height: 26px;
+  line-height: 26px;
+  font-size: 13px;
+  float: left;
+  padding: 0;
+  margin: 5px 0 5px 20px;
+  background: none;
+}
+#js-search input[type=button] {
+  background: url(/static/images/landingpage/search-button.png) 0 0 no-repeat;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  margin: 7px 15px 0 0;
+  border: none;
+  display: block;
+  float: right;
+  text-indent: -10000px;
+  font-size: 0;
+}
+#js-maincontainer-faq {
+  clear: both;
+  overflow: hidden;
+  margin: 15px 0;
+  width: 100%;
+}
+.js-maincontainer-faq-inner {
+  float: right;
+  color: #3d4e53;
+  font-size: 14px;
+  padding-right: 60px;
+}
+.js-maincontainer-faq-inner a {
+  font-weight: normal;
+  color: #3d4e53;
+  text-decoration: underline;
+}
+#js-slide .jsmodule > h3 {
+  background: url(/static/images/landingpage/bg-slide.png) bottom center no-repeat;
+  padding-bottom: 7px;
+  padding-left: 35px;
+}
+#js-slide .jsmodule > h3 span {
+  background: #8ac3d7;
+  color: #fff;
+  padding: 10px 20px;
+  -moz-border-radius: 10px 10px 0 0;
+  -webkit-border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 0 0;
+  font-size: 18px;
+  overflow: hidden;
+  display: inline-block;
+  font-weight: normal;
+}
+#js-slideshow {
+  padding: 0 30px;
+  position: relative;
+}
+#js-slideshow .slide-item {
+  float: left;
+  width: 150px;
+}
+#js-slideshow .slide-item-inner {
+  border: 5px solid #edf3f4;
+  padding: 5px;
+  margin: 0 5px;
+}
+#js-slideshow a.prev {
+  text-indent: -10000px;
+  font-size: 0;
+  width: 15px;
+  height: 22px;
+  display: block;
+  position: absolute;
+  top: 45%;
+  background: url("/static/images/landingpage/arrow-left.png") 0 0 no-repeat;
+  left: 0;
+}
+#js-slideshow a.next {
+  text-indent: -10000px;
+  font-size: 0;
+  width: 15px;
+  height: 22px;
+  display: block;
+  position: absolute;
+  top: 45%;
+  background: url("/static/images/landingpage/arrow-right.png") 0 0 no-repeat;
+  right: 0;
+}
+#js-slideshow .book-status {
+  padding: 0;
+  border: none;
+  color: #8dc63f;
+  margin: 0;
+  font-size: 10px;
+}
+.book-rate {
+  overflow: hidden;
+  clear: both;
+  display: block;
+  width: 100%;
+  padding-top: 10px;
+}
+.book-rate span {
+  height: 25px;
+  line-height: 25px;
+  padding: 0 0 0 40px;
+  font-size: 16px;
+}
+.book-rate .book-rate100 {
+  background: url(/static/images/landingpage/rate100.png) 0 0 no-repeat;
+  color: #8dc63f;
+}
+.book-rate .book-rate-button {
+  float: right;
+  padding-top: 7px;
+}
+.book-genre {
+  font-size: 10px;
+}
+#footer {
+  clear: both;
+  margin-top: 30px;
+}
