@@ -69,9 +69,9 @@ $(document).ready(function(){
                             <!-- todo: these should be a real thing -->
                             <div class="find-link">
                                 <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/icons/google.png" align="" title="Find on GoogleBooks" /></a>
-                                <a class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
-                                <a class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
-                                <a class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
+                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
+                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
+                                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
                                 <a class="find-group" href="#"><img src="/static/images/icons/group.png" align="" title="" /></a>
                             </div>
                         </div>
