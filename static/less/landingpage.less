@@ -108,11 +108,7 @@
 	}
 	
 	div.button { 
-		padding-top:10px;
-		
-		&a { 
-			color:#000;
-		}
+		padding-top:10px;		
 	}
 	
 	label { 
@@ -365,17 +361,6 @@ h2.page-heading {
 	padding:0 30px; 
 	position:relative;
 	
-	.slide-item { 
-		float: left; 
-		width:150px;
-	}
-	
-	.slide-item-inner { 
-		border:5px solid @pale-blue; 
-		padding:5px; 
-		margin:0 5px;
-	}
-	
 	a.prev {
 		.clickyarrows();
 		background:url("/static/images/landingpage/arrow-left.png") 0 0 no-repeat;
@@ -387,42 +372,11 @@ h2.page-heading {
 		background:url("/static/images/landingpage/arrow-right.png") 0 0 no-repeat;
 		right: 0; 
 	}
-	
-	.book-status { 
-		padding:0; 
-		border: none; 
-		color:@green; 
-		margin:0; 
-		font-size:10px;
-	}
-}
-	
-.book-rate { 
-	overflow:hidden;
-	clear:both; 
-	display:block; 
-	width:100%; 
-	padding-top:10px;
-
-	span { 
-		.height(25px); 
-		padding:0 0 0 40px; 
-		font-size:16px;
-	}
-	
-	.book-rate100 { 
-		background:url(/static/images/landingpage/rate100.png) 0 0 no-repeat; 
-		color:@green;
-	}
-	
-	.book-rate-button { 
-		float:right; 
-		padding-top:7px;
-	}
 }
 
-.book-genre { 
-	font-size:10px;
+.spacer {
+	float: left;
+	margin: 0 4px;
 }
 
 #footer {

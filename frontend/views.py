@@ -52,7 +52,9 @@ def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
-    return render(request, 'home.html', {'suppress_search_box': True})
+    works = models.Work.objects.all()[0:6]
+    works2 = models.Work.objects.all()[6:12]
+    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2})
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/

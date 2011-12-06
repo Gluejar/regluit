@@ -100,9 +100,6 @@
 #js-rightcol div.button {
   padding-top: 10px;
 }
-#js-rightcol div.buttona {
-  color: #000;
-}
 #js-rightcol label {
   width: 100%;
   display: block;
@@ -321,15 +318,6 @@ h2.page-heading {
   padding: 0 30px;
   position: relative;
 }
-#js-slideshow .slide-item {
-  float: left;
-  width: 150px;
-}
-#js-slideshow .slide-item-inner {
-  border: 5px solid #edf3f4;
-  padding: 5px;
-  margin: 0 5px;
-}
 #js-slideshow a.prev {
   text-indent: -10000px;
   font-size: 0;
@@ -352,36 +340,9 @@ h2.page-heading {
   background: url("/static/images/landingpage/arrow-right.png") 0 0 no-repeat;
   right: 0;
 }
-#js-slideshow .book-status {
-  padding: 0;
-  border: none;
-  color: #8dc63f;
-  margin: 0;
-  font-size: 10px;
-}
-.book-rate {
-  overflow: hidden;
-  clear: both;
-  display: block;
-  width: 100%;
-  padding-top: 10px;
-}
-.book-rate span {
-  height: 25px;
-  line-height: 25px;
-  padding: 0 0 0 40px;
-  font-size: 16px;
-}
-.book-rate .book-rate100 {
-  background: url(/static/images/landingpage/rate100.png) 0 0 no-repeat;
-  color: #8dc63f;
-}
-.book-rate .book-rate-button {
-  float: right;
-  padding-top: 7px;
-}
-.book-genre {
-  font-size: 10px;
+.spacer {
+  float: left;
+  margin: 0 4px;
 }
 #footer {
   clear: both;

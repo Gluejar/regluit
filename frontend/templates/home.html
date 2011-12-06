@@ -2,11 +2,14 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
 {% endblock %}
 
 {% block base_js %}
 
 <script src="/static/js/jquery-1.6.3.min.js"></script>
+
+<!-- expands/collapses the learn more section -->
 <script type="text/javascript">
 	var $j = jQuery.noConflict();
 	$j(document).ready(function(){
@@ -19,6 +22,17 @@
 		);
 	});
 </script>
+
+
+<!-- toggle to panelview state instead of listview default -->
+<script type="application/x-javascript">
+	jQuery(document).ready(function($) { 
+        $('.listview').addClass("panelview").removeClass("listview");
+    });    
+</script>    
+
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
+
 <script src="/static/js/slides.min.jquery.js"></script>
 <script>
 var $j = jQuery.noConflict();
@@ -39,7 +53,6 @@ var $j = jQuery.noConflict();
 		});
 	});
 </script>
-
 {% endblock %}
 
 {% block topsection %}
@@ -133,7 +146,7 @@ var $j = jQuery.noConflict();
                         </div>
 						<div class="button">
                         	<input type="button" value="Submit" />
-                            <p>Or, <a href="#">Sign In With Google</a></p>
+                            <p><a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}"><img src="{{ STATIC_URL }}/images/auth/google_64.png">Sign In With Google</a></p>
                         </div>
                     </div>
                 </div>
@@ -182,140 +195,18 @@ var $j = jQuery.noConflict();
                 <div id="js-slideshow">
                     <div class="slides_container">
                         <div class="slide-page slide-page1">
-                        	<div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
+                        	{% for work in works %}
+                        	<div class="spacer">
+                        	{% include "book_panel.html" %}
+                        	</div>
+                        	{% endfor %}
                         </div>
                         <div class="slide-page slide-page2">
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
-                            <div class="slide-item">
-                            <div class="slide-item-inner">
-                                <div class="book-thumb">
-                                <a href="#" title="Nineteen Eighty-Four George Orwell"><img src="/static/images/landingpage/slide-thumb.png" alt="Nineteen Eighty-Four George Orwell" title="Nineteen Eighty-Four George Orwell" width="120" height="183"></a>
-                                </div>
-                                <div class="book-name">Nineteen Eighty-Four George Orwell</div>
-                                <div class="book-genre">Genre: Sci-Fi</div>
-                                <div class="book-status">Status: Unglued!</div>
-                                <div class="book-rate book-rate100"><span class="book-rate100">100%</span><a href="#" class="book-rate-button"><img src="/static/images/landingpage/book-rate-icon.png" alt="Book rate" title="Book rate" width="15" height="15" /></a></div>
-                            </div>
-                            </div>
+                        	{% for work in works2 %}
+                        	<div class="spacer">
+                        	{% include "book_panel.html" %}
+                        	</div>
+                        	{% endfor %}
                         </div>
                     </div>
                 </div>	
