@@ -87,7 +87,7 @@ class Campaign(models.Model):
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
-    status = models.CharField(max_length=15, null=True, blank=False)
+    status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
     problems = []
     
     def __unicode__(self):
@@ -117,24 +117,21 @@ class Campaign(models.Model):
         return may_launch
 
     
-    def set_status(self):
-        """Returns the status of the campaign
+    def update_success(self):
+        """  updates the campaign's status. returns true if updated
         """
         now = datetime.datetime.utcnow()
-        
-        if self.activated is None:
-            return 'INITIALIZED'
-        elif self.suspended is not None:
-            return 'SUSPENDED'
-        elif self.withdrawn is not None:
-            return 'WITHDRAWN'
+        if not self.status=='ACTIVE':
+            return False
         elif self.deadline < now:
             if self.current_total >= self.target:
-                return 'SUCCESSFUL'
+                self.status = 'SUCCESSFUL'
             else:
-                return 'UNSUCCESSFUL'
+                self.status =  'UNSUCCESSFUL'
+            self.save()
+            return True            
         else:
-            return 'ACTIVE'
+            return False
 
     @property
     def current_total(self):
@@ -150,6 +147,7 @@ class Campaign(models.Model):
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         self.activated = datetime.datetime.utcnow()
+        self.status= 'ACTIVE'
         self.save()
         return self   
 
@@ -159,6 +157,7 @@ class Campaign(models.Model):
             raise UnglueitError(_('Campaign needs to be active in order to be suspended'))
         self.suspended = datetime.datetime.utcnow()
         self.suspended_reason = reason
+        self.status='SUSPENDED'
         self.save()
         return self
         
@@ -168,6 +167,7 @@ class Campaign(models.Model):
             raise UnglueitError(_('Campaign needs to be active in order to be withdrawn'))
         self.withdrawn = datetime.datetime.utcnow()
         self.withdrawn_reason = reason
+        self.status='WITHDRAWN'
         self.save()
         return self
 
@@ -178,6 +178,7 @@ class Campaign(models.Model):
             raise UnglueitError(_('Campaign needs to be suspended in order to be resumed'))
         self.suspended = None
         self.suspended_reason = None
+        self.status= 'ACTIVE'
         self.save()
         return self
        
