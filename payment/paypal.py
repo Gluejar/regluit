@@ -208,55 +208,73 @@ class Pay( object ):
 class PaymentDetails(object):
   def __init__(self, transaction=None):
  
-      self.transaction = transaction
-      
-      headers = {
-            'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
-            'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
-            'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
-            'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
-            'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
-            'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
-            }
-      
-      # we can feed any of payKey, transactionId, and trackingId to identify transaction in question
-      # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
-      data = {
-              'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'trackingId':transaction.secret
-              }       
-
-      self.raw_request = json.dumps(data)
-   
-      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/PaymentDetails", data=self.raw_request, headers=headers ).content() 
-      logger.info("paypal PaymentDetails response was: %s" % self.raw_response)
-      self.response = json.loads( self.raw_response )
-      logger.info(self.response)
-      
-      self.status = self.response.get("status", None)
-      self.trackingId = self.response.get("trackingId", None)
-      self.feesPayer = self.response.get("feesPayer", None)
-      payment_info_list = self.response.get("paymentInfoList", None)
-      payment_info = payment_info_list.get("paymentInfo", None)
-      
-      self.transactions = []
-      for payment in payment_info:
-          receiver = {}
-          receiver['status'] = payment.get("transactionStatus", None)
-          receiver['txn_id'] = payment.get("transactionId")
+      try:
+          self.transaction = transaction
+          self.errorMessage = None
+          self.response = None
           
-          r = payment.get("receiver", None)
-          if r:
-              receiver['email'] = r.get('email')
-
+          headers = {
+                'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+                'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
+                }
+          
+          # we can feed any of payKey, transactionId, and trackingId to identify transaction in question
+          # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
+          data = {
+                  'requestEnvelope': { 'errorLanguage': 'en_US' },
+                  'trackingId':transaction.secret
+                  }       
+    
+          self.raw_request = json.dumps(data)
+       
+          self.connection = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/PaymentDetails", data=self.raw_request, headers=headers )
+          self.raw_response = self.connection.content()
+          self.code = self.connection.code()
+          
+          if self.code != 200:
+            self.errorMessage = 'PayPal response code was %i' % self.code
+            return
+          
+          logger.info("paypal PaymentDetails response was: %s" % self.raw_response)
+          self.response = json.loads( self.raw_response )
+          logger.info(self.response)
+          
+          self.status = self.response.get("status", None)
+          self.trackingId = self.response.get("trackingId", None)
+          self.feesPayer = self.response.get("feesPayer", None)
+          payment_info_list = self.response.get("paymentInfoList", None)
+          payment_info = payment_info_list.get("paymentInfo", None)
+          
+          self.transactions = []
+          for payment in payment_info:
+              receiver = {}
+              receiver['status'] = payment.get("transactionStatus", None)
+              receiver['txn_id'] = payment.get("transactionId")
               
-          self.transactions.append(receiver)
+              r = payment.get("receiver", None)
+              if r:
+                  receiver['email'] = r.get('email')
+    
+                  
+              self.transactions.append(receiver)
+              
+      except:
+          self.errorMessage = "Error: ServerError"
+          traceback.print_exc()
+          
       
   def error(self):
-      if self.response.has_key('error'):
+      if self.response and self.response.has_key('error'):
           error = self.response['error']
           logger.info(error)
           return error[0]['message']
+      
+      elif self.errorMessage:
+          return self.errorMessage
       else:
           return None
               
@@ -408,7 +426,63 @@ class Preapproval( object ):
 
 
 class PreapprovalDetails(object):
-  pass
+  def __init__(self, transaction):
+ 
+      try:
+          self.transaction = transaction
+          self.response = None
+          self.errorMessage = None
+          
+          headers = {
+                'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+                'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
+                }
+          
+          # we can feed any of payKey, transactionId, and trackingId to identify transaction in question
+          # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
+          data = {
+                  'requestEnvelope': { 'errorLanguage': 'en_US' },
+                  'preapprovalKey':transaction.reference
+                  }       
+    
+          self.raw_request = json.dumps(data)
+       
+          self.connection = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/PreapprovalDetails", data=self.raw_request, headers=headers )
+          self.raw_response = self.connection.content() 
+          self.code = self.connection.code()
+          
+          if self.code != 200:
+            self.errorMessage = 'PayPal response code was %i' % self.code
+            return
+          
+          logger.info("paypal PreapprovalDetails response was: %s" % self.raw_response)
+          self.response = json.loads( self.raw_response )
+          logger.info(self.response)
+          
+          self.status = self.response.get("status", None)
+          self.amount = self.response.get("maxTotalAmountOfAllPayments", None)
+          self.currency = self.response.get("currencyCode", None)
+          self.approved = self.response.get("approved", None)
+          self.expiration = self.response.get("endingDate", None)
+          self.date = self.response.get("startingDate", None)
+          
+      except:
+          self.errorMessage = "Error: ServerError"
+          traceback.print_exc()
+      
+  def error(self):
+      if self.response and self.response.has_key('error'):
+          error = self.response['error']
+          logger.info(error)
+          return error[0]['message']
+      elif self.errorMessage:
+          return self.errorMessage
+      else:
+          return None
 
 class IPN( object ):
     
