@@ -147,7 +147,7 @@ class WorkListView(ListView):
     def work_set_counts(self,work_set):
         counts={}
         counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
-        counts['unglueing'] = work_set.filter(campaigns__activated__isnull=False).count()
+        counts['unglueing'] = work_set.filter(campaigns__status='ACTIVE').count()
         counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
         return counts
 
@@ -176,15 +176,15 @@ class CampaignListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'newest'):
-            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('-activated')
+            return models.Campaign.objects.filter(status='ACTIVE').order_by('-activated')
         elif (facet == 'pledged'):
-            return models.Campaign.objects.annotate(total_pledge=Sum('transaction__amount')).order_by('-total_pledge')
+            return models.Campaign.objects.filter(status='ACTIVE').annotate(total_pledge=Sum('transaction__amount')).order_by('-total_pledge')
         elif (facet == 'pledges'):
-            return models.Campaign.objects.annotate(pledges=Count('transaction')).order_by('-pledges')
+            return models.Campaign.objects.filter(status='ACTIVE').annotate(pledges=Count('transaction')).order_by('-pledges')
         elif (facet == 'almost'):
-            return models.Campaign.objects.all() # STUB: will need to make db changes to make this work 
+            return models.Campaign.objects.filter(status='ACTIVE').all() # STUB: will need to make db changes to make this work 
         elif (facet == 'ending'):
-            return models.Campaign.objects.filter(activated__isnull = False, suspended__isnull = True, withdrawn__isnull = True).order_by('deadline')
+            return models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
         else:
             return models.Campaign.objects.all()
 
