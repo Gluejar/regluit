@@ -35,7 +35,7 @@
                         </div>
                     {% else %}{% if request.user.is_anonymous %}
                         <div class="moreinfo create-account">
-                        <a href="#">Add to Wishlist</a>
+                        <span title="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Add</span>
                         </div>
                     {% else %}{% if work in request.user.wishlist.works.all %}
                         <div class="moreinfo on-wishlist">
@@ -60,7 +60,7 @@
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
-            {% if work.id %}<a href="{% url work work.id %}">{% else %}<a href="{% url googlebooks googlebooks_id %}">{% endif %}{{ work.title }}</a>
+            <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a>
         </div>
         <div class="listview author {{ work.author }}">{{ work.author }}</div>
     </div>
@@ -70,7 +70,7 @@
     </div>
     {% else %}{% if request.user.is_anonymous %}
     <div class="listview panelfront side1 create-account">
-        <span>Add to Wishlist</span>
+        <span title="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Add</span>
     </div>
     {% else %}{% if work in request.user.wishlist.works.all %}
     <div class="listview panelfront side1 on-wishlist">
