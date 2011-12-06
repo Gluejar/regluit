@@ -87,6 +87,7 @@ class Campaign(models.Model):
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
+    status = models.CharField(max_length=15, null=True, blank=False)
     problems = []
     
     def __unicode__(self):
@@ -115,8 +116,8 @@ class Campaign(models.Model):
             may_launch = False  
         return may_launch
 
-    @property
-    def status(self):
+    
+    def set_status(self):
         """Returns the status of the campaign
         """
         now = datetime.datetime.utcnow()
