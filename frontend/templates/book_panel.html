@@ -35,7 +35,7 @@
                         </div>
                     {% else %}{% if request.user.is_anonymous %}
                         <div class="moreinfo create-account">
-                        <a href="#">Add to Wishlist</a>
+                        <span title="{% url work work.id %}">Add to Wishlist</span>
                         </div>
                     {% else %}{% if work in request.user.wishlist.works.all %}
                         <div class="moreinfo on-wishlist">
@@ -70,7 +70,7 @@
     </div>
     {% else %}{% if request.user.is_anonymous %}
     <div class="listview panelfront side1 create-account">
-        <span>Add to Wishlist</span>
+        <span title="{% url work work.id %}">Add to Wishlist</span>
     </div>
     {% else %}{% if work in request.user.wishlist.works.all %}
     <div class="listview panelfront side1 on-wishlist">
