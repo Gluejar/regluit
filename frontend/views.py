@@ -849,15 +849,20 @@ def work_librarything(request, work_id):
 def work_openlibrary(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
     isbns = ["ISBN:" + e.isbn_10 for e in work.editions.filter(isbn_10__isnull=False)]
+    url = None
+
     if work.openlibrary_id:
         url = work.openlibrary_url
     elif len(isbns) > 0:
         isbns = ",".join(isbns)
-        url = 'http://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
-        j = json.loads(requests.get(url).content)
-        first = j.keys()[0]
-        url = "http://openlibrary.org" + j[first]['key'] 
-    else:
+        u = 'http://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
+        j = json.loads(requests.get(u).content)
+        # as long as there were some matches get the first one and route to it
+        if len(j.keys()) > 0:
+            first = j.keys()[0]
+            url = "http://openlibrary.org" + j[first]['key'] 
+    # fall back to doing a search on openlibrary
+    if not url:
         q = urllib.urlencode({'q': work.title + " " + work.author()})
         url = "http://openlibrary.org/search?" + q
     return HttpResponseRedirect(url)
