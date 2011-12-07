@@ -1,22 +1,23 @@
 {% extends "base.html" %}
-{% block title %}
-{{ work.title }}
-{% endblock %}
-{% block extra_head %}
-<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+{% block title %}&#151; {{ work.title }}{% endblock %}
 
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+{% endblock %}
+
+{% block base_js %}
 <script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
 
 <script>
-$(document).ready(function(){
-	$('#embed').click(function(){
-		$('div#widgetcode').toggle();
+jQuery(document).ready(function(){
+	jQuery('#embed').click(function(){
+		jQuery('div#widgetcode').toggle();
 	});
 });
 </script>
-
 {% endblock %}
 
 {% block content %}    
@@ -85,7 +86,21 @@ $(document).ready(function(){
                             {% else %}
                                 {{ wishers }} Ungluers have
                             {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
-                        <div class="btn_support">Add/drop from wishlist</div>
+                        <div class="btn_support">
+                        	{% if request.user.is_anonymous %}
+    							<div class="create-account">
+        							<span title="{% url work work.id %}">Login to Add</span>
+    							</div>
+                            {% else %}{% if work in request.user.wishlist.works.all %}
+    							<div class="remove-wishlist">
+        							<span id="{{ work.id }}">Remove This</span>
+    							</div>
+    						{% else %}
+    							<div class="add-wishlist">
+        							<span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
+    							</div>
+    						{% endif %}{% endif %}
+                        </div>
                         {% endif %}
                     </div>
                 </div>

@@ -104,7 +104,7 @@
 	}
 	
 	.btn_support a {
-		background:url("@{image-base}btn_bg.png") 0 0  no-repeat;
+		background:url("@{image-base}btn_bg.png") 0 0 no-repeat;
 		width:104px;
 		height:41px;
 		line-height:41px;
@@ -275,3 +275,19 @@ ul.support li {
 
 /* differs from sitewide.css. should it? */
 a{ color:#3d4e53; font-size:12px;}
+
+.add-wishlist, &.remove-wishlist, &.on-wishlist, &.create-account {
+	margin-right: 10px;
+	padding-right: 10px;
+	width: 136px;
+	float: left;
+	cursor: pointer;
+            
+	span {
+    	font-weight:normal;
+        color:@text-blue;
+        text-transform: none;
+        background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
+        padding-left:20px;
+	}
+}

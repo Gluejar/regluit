@@ -132,20 +132,27 @@ var $j = jQuery.noConflict();
             	<div class="jsmodule">
                 	<h3 class="module-title">Start Ungluing Now!</h3>
                     <div class="jsmod-content">
+                      <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
-                        <input type="text" size="25" value="" name="username" />
-                        </div>
-                        <div class="password">
-                    	<label>Password</label>
-                        <input type="text" size="25" value="" name="password" />
+                        <input id="id_username" type="text" class="required" name="username" maxlength="30" size="25" />
                         </div>
                         <div class="email">
                     	<label>Email</label>
-                        <input type="text" size="25" value="" name="email" />
+                        <input id="id_email" type="text" class="required" name="email" maxlength="75" size="25" />
+                        </div>
+                        <div class="password">
+                    	<label>Password</label>
+                        <input id="id_password1" type="password" class="required" name="password1" size="25" />
+                        </div>
+                        <div class="password">
+                    	<label>Password (again):</label>
+                        <input id="id_password2" type="password" class="required" name="password2" size="25" />
                         </div>
 						<div class="button">
-                        	<input type="button" value="Submit" />
+                        	<input type="submit" value="sign up" />
+                        </div>
+                        <div>
                             <p><a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}"><img src="{{ STATIC_URL }}/images/auth/google_64.png">Sign In With Google</a></p>
                         </div>
                     </div>
