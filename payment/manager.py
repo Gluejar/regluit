@@ -28,20 +28,25 @@ class PaymentManager( object ):
     def __init__( self, embedded=False):
         self.embedded = embedded
 
-    def checkStatus(self):
+    def checkStatus(self, past_days=3):
         
         '''
         Run through all pay transactions and verify that their current status is as we think.
-        For now this only checks things submitted to the PAY api using the PaymentDetails.
         '''
         
         doc = minidom.Document()
         head = doc.createElement('transactions')
         doc.appendChild(head)
         
-        # look at all transacitons in the last 3 days
-        ref_date = datetime.now() - relativedelta(days=3)
-        transactions = Transaction.objects.filter(date_payment__gte=ref_date)
+        # look at all transacitons for stated number of past days; if past_days is not int, get all Transaction
+        try:
+            ref_date = datetime.now() - relativedelta(days=int(past_days))
+            transactions = Transaction.objects.filter(date_payment__gte=ref_date)
+        except:
+            ref_date = datetime.now()
+            transactions = Transaction.objects.filter(date_payment__isnull=False)
+            
+        print transactions
         
         for t in transactions:
         
