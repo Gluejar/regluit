@@ -275,8 +275,12 @@ a {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
 }
+.editions {
+  clear: both;
+}
 .editions div {
   float: left;
+  padding-bottom: 5px;
 }
 .editions .metadata {
   display: block;
