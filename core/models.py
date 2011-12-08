@@ -410,6 +410,33 @@ class Wishlist(models.Model):
 
     def __unicode__(self):
         return "%s's Wishlist" % self.user.username
+        
+    def add_work(self, work, source):
+        try:
+    	    w = Wishes.objects.get(wishlist=self,work=work)
+    	    w.source=source
+    	except:
+            Wishes.objects.create(source=source,wishlist=self,work=work)        
+    
+    def remove_work(self, work):
+        w = Wishes.objects.filter(wishlist=self, work=work)
+        if w:
+            w.delete()
+    
+    def work_source(self, work):
+        w = Wishes.objects.filter(wishlist=self, work=work)
+        if w:
+            return w[0].source
+        else:
+            return ''
+            
+class Wishes(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    source = models.CharField(max_length=15, blank=True)
+    wishlist  = models.ForeignKey('Wishlist')
+    work = models.ForeignKey('Work')
+    class Meta:
+        db_table = 'core_wishlist_works'
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
