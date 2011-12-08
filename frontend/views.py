@@ -75,6 +75,7 @@ def stub(request):
 
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
+    editions = work.editions.all()
     campaign = work.last_campaign()
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
@@ -100,6 +101,7 @@ def work(request, work_id, action='display'):
             'claimform': claimform,
             'wishers': wishers,
             'base_url': base_url,
+            'editions': editions,
         })
 
 def manage_campaign(request, id):

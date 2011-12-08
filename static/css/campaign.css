@@ -250,7 +250,7 @@ ul.support li span.menu-item-price {
   float: left;
   margin-left: 5px;
 }
-/* differs from sitewide.css. should it? */
+/* this line differs from sitewide.css. should it? */
 a {
   color: #3d4e53;
   font-size: 12px;
@@ -274,4 +274,12 @@ a {
   text-transform: none;
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
+}
+.editions div {
+  float: left;
+}
+.editions .metadata {
+  display: block;
+  overflow: hidden;
+  margin-left: 5px;
 }
