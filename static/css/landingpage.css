@@ -198,6 +198,8 @@ div.signup_btn a span {
   float: left;
   width: 364px;
   font-size: 14px;
+  height: 132px;
+  border-bottom: 7px solid #8ac3d7;
 }
 .have-content-right-module .item-content p {
   margin-bottom: 20px;
@@ -206,8 +208,8 @@ div.signup_btn a span {
 .have-content-right-module .item-content h2.page-heading {
   padding-right: 97px;
   line-height: 43px;
-  border-bottom: 7px solid #8ac3d7;
   padding-bottom: 4px;
+  padding-top: 5px;
 }
 .have-content-right-module .content-right-module {
   width: 268px;
@@ -231,6 +233,7 @@ h2.page-heading {
   width: 100%;
   clear: both;
   overflow: hidden;
+  margin-top: 55px;
 }
 #js-maincontainer-bot-block #js-search {
   background: url(/static/images/landingpage/bg-search.png) 0 0 no-repeat;
@@ -343,6 +346,11 @@ h2.page-heading {
 .spacer {
   float: left;
   margin: 0 4px;
+}
+.landingheader {
+  border-bottom: solid 5px #6994a3;
+  float: left;
+  height: 134px;
 }
 #footer {
   clear: both;
