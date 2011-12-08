@@ -52,8 +52,21 @@ def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
-    works = models.Work.objects.all()[0:6]
-    works2 = models.Work.objects.all()[6:12]
+    ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+    j=0
+    i=0
+    works=[]
+    works2=[]
+    count=ending.count()
+    while i<12 and count>0:
+        if i<6:
+            works.append(ending[j].work)
+        else:
+            works2.append(ending[j].work)
+        i += 1
+        j += 1
+        if j == count:
+            j = 0
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2})
 
 def stub(request):
