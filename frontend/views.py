@@ -67,7 +67,8 @@ def home(request):
         j += 1
         if j == count:
             j = 0
-    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2})
+    events = models.Wishes.objects.order_by('-created')[0:2]
+    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
