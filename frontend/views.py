@@ -861,7 +861,6 @@ def work_librarything(request, work_id):
         term = work.title + " " + work.author()
         q = urllib.urlencode({'searchtpe': 'work', 'term': term})
         url = "http://www.librarything.com/search.php?" + q
-    print url
     return HttpResponseRedirect(url)
 
 def work_openlibrary(request, work_id):
