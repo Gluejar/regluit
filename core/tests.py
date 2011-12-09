@@ -86,8 +86,8 @@ class TestBookLoader(TestCase):
 
         # add the stub works to a wishlist
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
-        user.wishlist.works.add(e1.work)
-        user.wishlist.works.add(e2.work)
+        user.wishlist.add_work(e1.work, 'test')
+        user.wishlist.add_work(e2.work, 'test')
 
         # create campaigns for the stub works 
         c1 = models.Campaign.objects.create(
@@ -248,9 +248,9 @@ class WishlistTest(TestCase):
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
         edition = bookloader.add_by_isbn('0441012035')
         work = edition.work
-        user.wishlist.works.add(work)
+        user.wishlist.add_work(work, 'test')
         self.assertEqual(user.wishlist.works.count(), 1)
-        user.wishlist.works.remove(work)
+        user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
 
 class SettingsTest(TestCase):

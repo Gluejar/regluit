@@ -83,7 +83,7 @@ class ApiTests(TestCase):
         self.assertEqual(j['objects'][0]['in_wishlist'], False)
 
         w = models.Work.objects.get(editions__isbn_10='0441012035') 
-        self.user.wishlist.works.add(w)
+        self.user.wishlist.add_work(w,'test')
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
             'work__editions__isbn_10': '0441012035', 

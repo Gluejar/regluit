@@ -219,7 +219,7 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
 
             # let's not trigger too much traffic to Google books for now
             # regluit.core.tasks.add_related.delay(isbn)
-            user.wishlist.works.add(edition.work)
+            user.wishlist.add_work(edition.work, 'librarything')
             logger.info("Work with isbn %s added to wishlist.", isbn)
         except Exception, e:
             logger.info ("error adding ISBN %s: %s", isbn, e)             

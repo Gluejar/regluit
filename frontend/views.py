@@ -68,7 +68,8 @@ def home(request):
         j += 1
         if j == count:
             j = 0
-    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2})
+    events = models.Wishes.objects.order_by('-created')[0:2]
+    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
@@ -561,12 +562,12 @@ def wishlist(request):
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # add related editions asynchronously
         tasks.add_related.delay(edition.isbn_10)
-        request.user.wishlist.works.add(edition.work)
+        request.user.wishlist.add_work(edition.work,'user')
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
         work = models.Work.objects.get(id=int(remove_work_id))
-        request.user.wishlist.works.remove(work)
+        request.user.wishlist.remove_work(work)
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
   
@@ -864,7 +865,6 @@ def work_librarything(request, work_id):
         term = work.title + " " + work.author()
         q = urllib.urlencode({'searchtpe': 'work', 'term': term})
         url = "http://www.librarything.com/search.php?" + q
-    print url
     return HttpResponseRedirect(url)
 
 def work_openlibrary(request, work_id):
