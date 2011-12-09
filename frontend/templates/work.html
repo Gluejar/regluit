@@ -170,11 +170,6 @@ jQuery(document).ready(function(){
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
                         
-                        <h4>Editions</h4>
-                        {% for edition in editions %}
-            				<div class="editions"><div><img src="http://bks{{ server }}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{{ server }}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
-        				{% endfor %}
-
                         {% if work.claim.count %}
                         <h4> Rights Information </h4>
                         <p> This work has been claimed by:</p>
@@ -196,6 +191,11 @@ jQuery(document).ready(function(){
                         </form>
                         {% endif %}
                         {% endif %}
+
+                        <h4>Editions</h4>
+                        {% for edition in editions %}
+            				<div class="editions"><div><img src="http://bks{{ server }}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{{ server }}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
+        				{% endfor %}
                     </div>
                     </div>
                 </div>
