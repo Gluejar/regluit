@@ -406,7 +406,7 @@ class Ebook(models.Model):
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='wishlist')
-    works = models.ManyToManyField('Work', related_name='wishlists')
+    works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
     def __unicode__(self):
         return "%s's Wishlist" % self.user.username
