@@ -171,8 +171,9 @@ def merge_works(w1, w2):
         campaign.work = w1
         campaign.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
-        wishlist.works.remove(w2)
-        wishlist.works.add(w1)
+        w2source=wishlist.work_source(w2)
+        wishlist.remove_work(w2)
+        wishlist.add_work(w1, w2source)
     w2.delete()
 
 

@@ -14,7 +14,7 @@ class Command(BaseCommand):
                     continue
                 for work in Work.objects.all():
                     print "adding %s to %s's wishlist" % (work, user)
-                    user.wishlist.works.add(work)
+                    user.wishlist.add_work(work, 'random')
             except Exception, e:
                 print e
                 pass

@@ -102,7 +102,7 @@ class MyZotero(Zotero2):
                     edition = bookloader.add_by_isbn(isbn)
                     # let's not trigger too much traffic to Google books for now
                     # regluit.core.tasks.add_related.delay(isbn)
-                    user.wishlist.works.add(edition.work)
+                    user.wishlist.add_work(edition.work, 'zotero')
                     logger.info("Work with isbn %s added to wishlist.", isbn)
             except Exception, e:
                 logger.info ("error adding ISBN %s: %s", isbn, e)            

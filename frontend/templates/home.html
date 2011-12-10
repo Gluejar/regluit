@@ -159,30 +159,16 @@ var $j = jQuery.noConflict();
                 	<h3 class="module-title">Who's ungluing what</h3>
                     <div class="jsmod-content">
 						<ul class="ungluingwhat">
+						{% for event in events %}
                         	<li>
-                            	<div class="user-avatar"><img src="/static/images/landingpage/user-avatar.png" width="43" height="43" title="User sure Name" alt="User sure name" /></div>
+                            	<div class="user-avatar"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/landingpage/user-avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></div>
                                 <div class="user-book-info">
-                                	<p class="user-book-info">Very Long Username is Wishing For </p>
-                                    <a class="user-book-name" href="#">Very Long Book Title</a>
+                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username}}</a> is Wishing For </p>
+                                    <a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
                                 </div>
-                                <div class="user-book-thumb"><img src="/static/images/landingpage/user-bookthumb.png" width="29" height="43" title="Very Long Username is Wishing For" alt="Very Long Book Title" /></div>
+                                <div class="user-book-thumb"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="Very Long Book Title" /></div>
                             </li>
-                            <li>
-                            	<div class="user-avatar"><img src="/static/images/landingpage/user-avatar.png" width="43" height="43" title="User sure Name" alt="User sure name" /></div>
-                                <div class="user-book-info">
-                                	<p class="user-book-info">Very Long Username is Wishing For </p>
-                                    <a class="user-book-name" href="#">Very Long Book Title</a>
-                                </div>
-                                <div class="user-book-thumb"><img src="/static/images/landingpage/user-bookthumb.png" width="29" height="43" title="Very Long Username is Wishing For" alt="Very Long Book Title" /></div>
-                            </li>
-                            <li>
-                            	<div class="user-avatar"><img src="/static/images/landingpage/user-avatar.png" width="43" height="43" title="User sure Name" alt="User sure name" /></div>
-                                <div class="user-book-info">
-                                	<p class="user-book-info">Very Long Username is Wishing For </p>
-                                    <a class="user-book-name" href="#">Very Long Book Title</a>
-                                </div>
-                                <div class="user-book-thumb"><img src="/static/images/landingpage/user-bookthumb.png" width="29" height="43" title="Very Long Username is Wishing For" alt="Very Long Book Title" /></div>
-                            </li>
+                        {% endfor %}
                         </ul>
                     </div>
                 </div>

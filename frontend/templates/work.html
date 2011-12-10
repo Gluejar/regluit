@@ -67,13 +67,17 @@ jQuery(document).ready(function(){
                         <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
                         <div class="find-book">
                             <label>Find it here</label>
-                            <!-- todo: these should be a real thing -->
                             <div class="find-link">
-                                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/icons/google.png" align="" title="Find on GoogleBooks" /></a>
-                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
-                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
+                                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
-                                <a class="find-group" href="#"><img src="/static/images/icons/group.png" align="" title="" /></a>
+                                {% if not request.user.is_anonymous %}
+                                {% if request.user.profile.goodreads_user_link %}
+                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
+                                {% endif %}
+                                {% if request.user.profile.librarything_id %}
+                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
+                                {% endif %}
+                                {% endif %}
                             </div>
                         </div>
                         {% if status == 'ACTIVE' %}
@@ -162,9 +166,10 @@ jQuery(document).ready(function(){
                     <div id="tabs-4" class="tabs">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' %}
+                        <h4>Last campaign details</h4>
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
-
+                        
                         {% if work.claim.count %}
                         <h4> Rights Information </h4>
                         <p> This work has been claimed by:</p>
@@ -186,6 +191,11 @@ jQuery(document).ready(function(){
                         </form>
                         {% endif %}
                         {% endif %}
+
+                        <h4>Editions</h4>
+                        {% for edition in editions %}
+            				<div class="editions"><div><img src="http://bks{{ server }}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{{ server }}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
+        				{% endfor %}
                     </div>
                     </div>
                 </div>

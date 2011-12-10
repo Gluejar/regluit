@@ -6,6 +6,7 @@ import logging
 import datetime 
 from decimal import Decimal as D
 from re import sub
+from random import randint
 
 from django import forms
 from django.db.models import Q, Count, Sum
@@ -67,7 +68,8 @@ def home(request):
         j += 1
         if j == count:
             j = 0
-    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2})
+    events = models.Wishes.objects.order_by('-created')[0:2]
+    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
@@ -75,7 +77,10 @@ def stub(request):
 
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
+    editions = work.editions.all()
     campaign = work.last_campaign()
+    server = randint(0,9)
+    
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
     else:
@@ -100,6 +105,8 @@ def work(request, work_id, action='display'):
             'claimform': claimform,
             'wishers': wishers,
             'base_url': base_url,
+            'editions': editions,
+            'server': server,
         })
 
 def manage_campaign(request, id):
@@ -555,12 +562,12 @@ def wishlist(request):
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # add related editions asynchronously
         tasks.add_related.delay(edition.isbn_10)
-        request.user.wishlist.works.add(edition.work)
+        request.user.wishlist.add_work(edition.work,'user')
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
         work = models.Work.objects.get(id=int(remove_work_id))
-        request.user.wishlist.works.remove(work)
+        request.user.wishlist.remove_work(work)
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
   
@@ -858,7 +865,6 @@ def work_librarything(request, work_id):
         term = work.title + " " + work.author()
         q = urllib.urlencode({'searchtpe': 'work', 'term': term})
         url = "http://www.librarything.com/search.php?" + q
-    print url
     return HttpResponseRedirect(url)
 
 def work_openlibrary(request, work_id):

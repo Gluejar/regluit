@@ -290,7 +290,7 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
 
             # let's not trigger too much traffic to Google books for now
             # regluit.core.tasks.add_related.delay(isbn)
-            user.wishlist.works.add(edition.work)
+            user.wishlist.add_work(edition.work, 'goodreads')
             logger.info("Work with isbn %s added to wishlist.", isbn)
         except Exception, e:
             logger.info ("Exception adding ISBN %s: %s", isbn, e) 
