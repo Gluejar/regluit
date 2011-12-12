@@ -2,7 +2,7 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
 from datetime import datetime
@@ -28,36 +28,41 @@ class PaymentManager( object ):
     def __init__( self, embedded=False):
         self.embedded = embedded
 
-    def checkStatus(self):
+    def checkStatus(self, past_days=3):
         
         '''
         Run through all pay transactions and verify that their current status is as we think.
-        For now this only checks things submitted to the PAY api using the PaymentDetails.  We
-        Should also implement PreapprovalDetails for more info
         '''
         
         doc = minidom.Document()
         head = doc.createElement('transactions')
         doc.appendChild(head)
         
-        # look at all transacitons in the last 3 days
-        ref_date = datetime.now() - relativedelta(days=3)
-        transactions = Transaction.objects.filter(date_payment__gte=ref_date)
+        # look at all transacitons for stated number of past days; if past_days is not int, get all Transaction
+        try:
+            ref_date = datetime.now() - relativedelta(days=int(past_days))
+            transactions = Transaction.objects.filter(date_payment__gte=ref_date)
+        except:
+            ref_date = datetime.now()
+            transactions = Transaction.objects.filter(date_payment__isnull=False)
+            
+        print transactions
         
         for t in transactions:
         
+            tran = doc.createElement('transaction')
+            tran.setAttribute("id", str(t.id))
+            head.appendChild(tran)
+                
             p = PaymentDetails(t)
             
             if p.error():
                 logger.info("Error retrieving payment details for transaction %d" % t.id)
+                append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
                 
             else:
                 
-                tran = doc.createElement('transaction')
-                tran.setAttribute("id", str(t.id))
-                head.appendChild(tran)
-                
-                # Check the transaction satus
+                # Check the transaction status
                 if t.status != p.status:
                     append_element(doc, tran, "status_ours", t.status)
                     append_element(doc, tran, "status_theirs", p.status)
@@ -79,7 +84,45 @@ class PaymentManager( object ):
                             receiver.save()
                     except:
                         traceback.print_exc()
+                        
+        # Now look for preapprovals that have not been paid and check on their status
+        transactions = Transaction.objects.filter(date_authorized__gte=ref_date, date_payment=None, type=PAYMENT_TYPE_AUTHORIZATION)
+        
+        for t in transactions:
+            
+            p = PreapprovalDetails(t)
+            
+            tran = doc.createElement('preapproval')
+            tran.setAttribute("key", str(t.reference))
+            head.appendChild(tran)
+            
+            if p.error():
+                logger.info("Error retrieving preapproval details for transaction %d" % t.id)
+                append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
+                
+            else:
+                
+                # Check the transaction status
+                if t.status != p.status:
+                    append_element(doc, tran, "status_ours", t.status)
+                    append_element(doc, tran, "status_theirs", p.status)
+                    t.status = p.status
+                    t.save()
                     
+                # check the currency code
+                if t.currency != p.currency:
+                    append_element(doc, tran, "currency_ours", t.currency)
+                    append_element(doc, tran, "currency_theirs", p.currency)
+                    t.currency = p.currency
+                    t.save()
+                    
+                # Check the amount
+                if t.amount != D(p.amount):
+                    append_element(doc, tran, "amount_ours", str(t.amount))
+                    append_element(doc, tran, "amount_theirs", str(p.amount))
+                    t.amount = p.amount
+                    t.save()
+                            
 
         return doc.toxml()
     

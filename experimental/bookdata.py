@@ -226,6 +226,26 @@ class OpenLibrary(object):
                         raise OpenLibraryException("Assumption of 1 key in response invalid in OpenLibrary.works")
                 else:
                     yield []
+    @classmethod
+    def json_for_olid(cls, olid, follow_redirect=True):
+        ol_types = {'M': 'books', 'W':'works', 'A':'authors'}
+        id_type = ol_types.get(str(olid)[-1].upper(), None)
+        if id_type is not None:
+            url = "http://openlibrary.org/{0}/{1}.json".format(id_type, olid.upper())
+            r = requests.get(url)  
+            if r.status_code == httplib.OK:
+                # check to see whether type is redirect, retrieve that item it we are following redirects
+                resp = json.loads(r.content)
+                if resp["type"]["key"] == "/type/redirect" and follow_redirect:
+                    redir_olid = resp["location"].split("/")[-1]
+                    return OpenLibrary.json_for_olid(redir_olid)
+                else:
+                    return resp
+            else:
+                raise OpenLibraryException("OpenLibrary API response: %s " % (httplib.responses[r.status_code]) )
+        else:
+            return None
+ 
 
 class FreebaseBooks(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -478,6 +498,39 @@ class OpenLibraryTest(TestCase):
         ids = [(MASHUPBOOK_ISBN_10, 'isbn'), (SURFACING_EDITION_OLID,'olid'), ('233434','isbn')]
         resp = list(OpenLibrary.works(ids))
         self.assertEqual(resp, [['OL10306321W'], ['OL675829W'], []])
+    def test_json_for_olid(self):
+        # manifestation
+        # http://openlibrary.org/books/OL13439114M.json
+        id = "OL13439114M"
+        edition = OpenLibrary.json_for_olid(id)
+        self.assertEqual(edition["title"], "Pro Web 2.0 Mashups")
+        self.assertEqual(edition["identifiers"]["librarything"], ['2771144'])
+        self.assertEqual(edition["subjects"], ['Mashups (World Wide Web)'])
+        
+        # work
+        # http://openlibrary.org/works/OL10306321W.json
+        id = "OL10306321W"
+        work = OpenLibrary.json_for_olid(id)
+        self.assertEqual(work["title"], "Pro Web 2.0 Mashups")
+        self.assertEqual(work["type"]["key"], "/type/work")
+        self.assertEqual(work["authors"][0]["type"]["key"], "/type/author_role")
+        self.assertEqual(work["authors"][0]["author"]["key"], "/authors/OL4264806A")
+
+        # author
+        # http://openlibrary.org/authors/OL4264806A.json
+        id = "OL4264806A"
+        author = OpenLibrary.json_for_olid(id)
+        self.assertEqual(author["name"], "Raymond Yee")
+        
+        # redirect ok?
+        #  "OL14917149W" -> "OL362684W"
+        id = "OL14917149W"
+        work = OpenLibrary.json_for_olid(id,follow_redirect=True)
+        self.assertEqual(work["title"], "King Richard III")
+        self.assertEqual(work["key"], "/works/OL362684W")
+    
+        work = OpenLibrary.json_for_olid(id,follow_redirect=False)
+        self.assertEqual(work["type"]["key"], "/type/redirect")
 
 class WorkMapperTest(TestCase):
     def test_freebase_book_to_openlibrary_work(self):
@@ -494,7 +547,7 @@ def suite():
     #testcases = [WorkMapperTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(WorkMapperTest('test_work_info_from_openlibrary')) 
+    suites.addTest(OpenLibraryTest('test_json_for_olid')) 
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     

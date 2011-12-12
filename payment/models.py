@@ -75,8 +75,10 @@ class Transaction(models.Model):
 class Receiver(models.Model):
     
     email = models.CharField(max_length=64)
+    
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10)
+
     status = models.CharField(max_length=64)
     reason = models.CharField(max_length=64)
     primary = models.BooleanField()
