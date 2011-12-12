@@ -33,7 +33,7 @@
             <div class="js-search">
             <div class="js-search-inner">
                 <form action="{% url search %}" method="get">
-                    <input type="text" id="watermark" size="25" class="inputbox" name="q" value="{{ q }}">
+                    <input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
                     <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
                 </form>
             </div>

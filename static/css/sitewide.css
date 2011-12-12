@@ -160,24 +160,19 @@ a.readon span {
 .js-search .inputbox {
   padding: 0 0 0 15px;
   margin: 0;
-  border: none;
+  border: solid 4px #8ac3d7;
+  -moz-border-radius: 50px 50px 50px 50px;
+  -webkit-border-radius: 50px 50px 50px 50px;
+  border-radius: 50px 50px 50px 50px;
   outline: none;
-  background: url("/static/images/bg.png") -645px -180px;
-  height: 36px;
-  line-height: 36px;
+  height: 28px;
+  line-height: 28px;
+  width: 176px;
   float: left;
   color: #6994a3;
 }
 .js-search .button {
-  background: url("/static/images/bg.png") 100% -144px no-repeat;
-  padding: 0;
-  margin: 0;
-  width: 40px;
-  height: 36px;
-  display: block;
-  border: none;
-  text-indent: -10000px;
-  cursor: pointer;
+  display: none;
 }
 .js-search-inner {
   float: right;
@@ -198,7 +193,7 @@ a.readon span {
   text-decoration: underline;
 }
 #js-leftcol .jsmod-content {
-  border: 1px solid #edf3f4;
+  border: solid 1px #edf3f4;
   margin-left: 10px;
   -moz-border-radius: 0 0 10px 10px;
   -webkit-border-radius: 0 0 10px 10px;

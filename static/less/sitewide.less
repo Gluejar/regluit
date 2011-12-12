@@ -173,24 +173,28 @@ a.readon {
     .inputbox {
         padding:0 0 0 15px;
         margin:0;
-        border:none;
+        border: solid 4px #8ac3d7;
+        .border-radius(50px, 50px, 50px, 50px);
         outline: none;
-        background:url(@background-header) -645px -180px;
-        .height(36px);
+        // background:url(@background-header) -645px -180px;
+        .height(28px);
+        width:176px;
         float: left;
         color:@medium-blue;
     }
     
     .button {
-        background:url(@background-header) 100% -144px no-repeat;
-        padding:0;
-        margin:0;
-        width:40px;
-        height:36px;
-        display:block;
-        border:none;
-        text-indent:-10000px;
-        cursor:pointer;
+    	display: none;
+    	// Not presently compatible with Google watermark.
+        // background:url(@background-header) 100% -144px no-repeat;
+        // padding:0;
+        // margin:0;
+        // width:20px;
+        // height:26px;
+        // display:block;
+        // border:none;
+        // text-indent:-10000px;
+        // cursor:pointer;
     }
 }
 
@@ -216,7 +220,7 @@ a.readon {
     }
     
     .jsmod-content {
-        border:1px solid @pale-blue;
+        border: solid 1px @pale-blue;
         margin-left:10px;
         .border-radius(0, 0, 10px, 10px);
     }

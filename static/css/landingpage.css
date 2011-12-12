@@ -270,6 +270,7 @@ h2.page-heading {
   padding: 0;
   margin: 5px 0 5px 20px;
   width: 175px;
+  outline: none;
 }
 #js-search input[type=button] {
   background: url(/static/images/landingpage/search-button.png) 0 0 no-repeat;
