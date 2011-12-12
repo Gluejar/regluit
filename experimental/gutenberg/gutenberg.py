@@ -18,7 +18,7 @@ from urlparse import urljoin
 from urllib import urlencode
 from pprint import pprint
 
-from itertools import islice, chain
+from itertools import islice, chain, izip
 import time
 
 import re
@@ -495,7 +495,36 @@ def compute_ol_title_from_work_id(max=None):
             print message
             
     db.commit_db()        
-        
+
+def export_gutenberg_to_ol_mapping(max=None,fname=None):
+    SQL = """SELECT mw.gutenberg_etext_id, gt.title as gt_title, mw.olid, olw.title as ol_title, mw.freebase_id, gf.about 
+  FROM MappedWork mw LEFT JOIN GutenbergText gt 
+  ON mw.gutenberg_etext_id = gt.etext_id LEFT JOIN OpenLibraryWork olw ON olw.id=mw.olid LEFT JOIN GutenbergFile gf ON gf.is_format_of = gt.id 
+  WHERE gf.format = 'application/epub+zip';"""
+
+    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "about")
+    db = GluejarDB()
+    output = []
+
+    resp = enumerate(islice(db.session.query(*headers).from_statement(SQL).all(),None))
+    
+    # what choice of serialization at this point?  JSON for now, but not the best for a large file
+    for (i,r) in resp:
+        print r, type(r), dict(izip(headers,r))
+        output.append(dict(izip(headers,r)))
+    
+    #print json.dumps(output)
+    
+    if fname is not None:
+        f = open(fname, "wb")
+        f.write(json.dumps(output))
+        f.close()
+
+def import_gutenberg_json(fname):
+    f = open(fname)
+    m = json.load(f)
+    print m
+    return m
 
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -720,7 +749,9 @@ if __name__ == '__main__':
     #load_wikipedia_external_links_into_db(None)
     #map_wikipedia_links_to_freebase_ids(None, page_size=10)
     #map_refine_fb_links_to_openlibrary_work_ids(max=None)
-    compute_ol_title_from_work_id(max=1000)
+    #compute_ol_title_from_work_id(max=1000)
+    export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
+    import_gutenberg_json(fname="gutenberg_openlibrary.json")
     #unittest.main()
 
     suites = suite()
