@@ -51,6 +51,10 @@ var $j = jQuery.noConflict();
 		});
 	});
 </script>
+
+<script type="text/javascript" src="/static/js/watermark_init.js"></script>
+<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+
 {% endblock %}
 
 {% block topsection %}
@@ -113,7 +117,7 @@ var $j = jQuery.noConflict();
                         <div id="js-search">
                         	<label>What book would you give to the world? </label>
 				                <form action="{% url search %}" method="get">
-                				    <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q" value="{{ q }}">
+                				    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur()" size="25" class="inputbox" name="q" value="{{ q }}">
                 				    <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
                					</form>
                         </div>
