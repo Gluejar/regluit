@@ -197,6 +197,7 @@ class Work(models.Model):
     title = models.CharField(max_length=1000)
     openlibrary_id = models.CharField(max_length=50, null=True)
     librarything_id = models.CharField(max_length=50, null=True)
+    language = models.CharField(max_length=2, default="en", null=False)
 
     class Meta:
         ordering = ['title']
@@ -325,10 +326,10 @@ class Work(models.Model):
         return User.objects.filter(wishlist__works__in=[self])
 
     def longest_description(self):
-        """get the longest English description from an edition of this work
+        """get the longest description from an edition of this work
         """
         description = ""
-        for edition in self.editions.filter(language='en'):
+        for edition in self.editions.all():
             if len(edition.description) > len(description):
                 description = edition.description
         return description
@@ -373,7 +374,6 @@ class Edition(models.Model):
     isbn_13 = models.CharField(max_length=13, null=True)
     oclc = models.CharField(max_length=25, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
-    language = models.CharField(max_length=2, null=True)
 
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.isbn_13)

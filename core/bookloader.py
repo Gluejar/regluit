@@ -68,27 +68,40 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     work parameter is optional, and if not supplied the edition will be 
     associated with a stub work.
     """
+
     # don't ping google again if we already know about the edition
-    e, created = models.Edition.objects.get_or_create(googlebooks_id=googlebooks_id)
-    if not created:
+    try:
+        e = models.Edition.objects.get(googlebooks_id=googlebooks_id)
         return e
+    except models.Edition.DoesNotExist:
+        pass
 
     logger.info("loading metadata from google for %s", googlebooks_id)
     url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
     item  = _get_json(url)
     d = item['volumeInfo']
 
+    # don't add the edition to a work with a different language
+    # https://www.pivotaltracker.com/story/show/17234433
+    language = d.get('language')
+    if work and work.language != language:
+        logger.warn("ignoring %s since it is %s instead of %s" %
+                (googlebooks_id, language, work.language))
+        return
+ 
+    e = models.Edition(googlebooks_id=googlebooks_id)
     e.title = d.get('title')
     e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
-    e.language = d.get('language')
-
+   
     for i in d.get('industryIdentifiers', []):
         if i['type'] == 'ISBN_10':
             e.isbn_10 = i['identifier']
         elif i['type'] == 'ISBN_13':
             e.isbn_13 = i['identifier']
+
+    e.save()
 
     for a in d.get('authors', []):
         a, created = models.Author.objects.get_or_create(name=a)
@@ -115,13 +128,13 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
                                  provider='google')
             ebook.save()            
 
-    # if we know what work to add the edition to do it
+    # if we know what work the edition should be attached to, attach it
     if work:
         work.editions.add(e)
 
     # otherwise we need to create a stub work
     else:
-        w = models.Work.objects.create(title=e.title)
+        w = models.Work.objects.create(title=e.title, language=language)
         w.editions.add(e)
 
     return e
@@ -174,6 +187,8 @@ def merge_works(w1, w2):
         w2source=wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
+    # TODO: should we decommission w2 instead of deleting it, so that we can
+    # redirect from the old work URL to the new one?
     w2.delete()
 
 
