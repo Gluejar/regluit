@@ -10,6 +10,7 @@
 <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
+<script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 
 <script>
 jQuery(document).ready(function(){
@@ -209,10 +210,9 @@ jQuery(document).ready(function(){
                 <h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
                     <ul class="social menu">
-                        <li class="facebook first"><a
-                            href="https://www.facebook.com/sharer/sharer.php?src=bm&u=http://{{ request.META.HTTP_HOST }}{{ request.path }}"><span>Facebook</span></a></li>
-                        <li class="twitter"><a href="https://twitter.com/share"><span>Twitter</span></a></li>
-                        <li class="lasts email"><a href="#"><span>Email</span></a></li>
+                        <li class="facebook first"><a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}"><span>Facebook</span></a></li>
+                        <li class="twitter"><a href="https://twitter.com/intent/tweet?url=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><span>Twitter</span></a></li>
+                        <li class="lasts email"><a href="#"<span>Email</span></a></li>
                         <li><a href="#" id="embed"><span>Embed</span></a></li>
                         <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                     </ul>
