@@ -71,6 +71,13 @@ class Premium(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description =  models.TextField(null=True, blank=False)
 
+class CampaignAction(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    # anticipated types: activated, withdrawn, suspended, restarted, succeeded, failed, unglued
+    type = models.CharField(max_length=15)
+    comment = models.TextField(null=True, blank=True)
+    campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
+    
 class Campaign(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
@@ -79,10 +86,6 @@ class Campaign(models.Model):
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
-    suspended = models.DateTimeField(null=True)
-    withdrawn = models.DateTimeField(null=True)
-    suspended_reason = models.TextField(null=True, blank=True)
-    withdrawn_reason = models.TextField(null=True, blank=True)
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
@@ -126,8 +129,12 @@ class Campaign(models.Model):
         elif self.deadline < now:
             if self.current_total >= self.target:
                 self.status = 'SUCCESSFUL'
+                action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
+                action.save()
             else:
                 self.status =  'UNSUCCESSFUL'
+                action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
+                action.save()
             self.save()
             return True            
         else:
@@ -146,7 +153,6 @@ class Campaign(models.Model):
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
-        self.activated = datetime.datetime.utcnow()
         self.status= 'ACTIVE'
         self.save()
         return self   
@@ -155,8 +161,8 @@ class Campaign(models.Model):
         status = self.status
         if status != 'ACTIVE':
             raise UnglueitError(_('Campaign needs to be active in order to be suspended'))
-        self.suspended = datetime.datetime.utcnow()
-        self.suspended_reason = reason
+        action = CampaignAction( campaign = self, type='suspended', comment = reason) 
+        action.save()
         self.status='SUSPENDED'
         self.save()
         return self
@@ -165,19 +171,21 @@ class Campaign(models.Model):
         status = self.status
         if status != 'ACTIVE':
             raise UnglueitError(_('Campaign needs to be active in order to be withdrawn'))
-        self.withdrawn = datetime.datetime.utcnow()
-        self.withdrawn_reason = reason
+        action = CampaignAction( campaign = self, type='withdrawn', comment = reason) 
+        action.save()
         self.status='WITHDRAWN'
         self.save()
         return self
 
-    def resume(self):
+    def resume(self, reason):
         """Change campaign status from SUSPENDED to ACTIVE.  We may want to track reason for resuming and track history"""
         status = self.status
         if status != 'SUSPENDED':
             raise UnglueitError(_('Campaign needs to be suspended in order to be resumed'))
-        self.suspended = None
-        self.suspended_reason = None
+        if not reason:
+            reason=''
+        action = CampaignAction( campaign = self, type='restarted', comment = reason) 
+        action.save()
         self.status= 'ACTIVE'
         self.save()
         return self
@@ -185,6 +193,7 @@ class Campaign(models.Model):
     def supporters(self):
         translist = self.transactions().values_list('user', flat=True).distinct()
         return translist
+
     def effective_premiums(self):
         """returns either the custom premiums for Campaign or any default premiums"""
         premiums = self.premiums.all()

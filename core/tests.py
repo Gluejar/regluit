@@ -210,8 +210,8 @@ class CampaignTests(TestCase):
         c2.suspend(reason="for testing")
         self.assertEqual(c2.status, 'SUSPENDED')
         # RESUMING
-        c2.resume()
-        self.assertEqual(c2.suspended, None)
+        c2.resume(reason="for testing")
+        #self.assertEqual(c2.suspended, None)
         self.assertEqual(c2.status,'ACTIVE')
         # should not let me suspend a campaign that hasn't been initialized
         self.assertRaises(UnglueitError, c1.suspend, "for testing")

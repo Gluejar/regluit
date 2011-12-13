@@ -16,9 +16,9 @@
                             {% else %}{% if status == 'INITIALIZED' %}
                                 <p>Campaign coming soon!</p>
                             {% else %}{% if status == 'SUSPENDED' %}
-                                <p>This campaign was suspended on {{ work.last_campaign.suspended }}.</p>
+                                <p>This campaign had been suspended }.</p>
                             {% else %}{% if status == 'WITHDRAWN' %}
-                                <p>This campaign was withdrawn on {{ work.last_campaign.withdrawn }}.</p>
+                                <p>This campaign was has been withdrawn.</p>
                             {% else %}{% if status == 'UNSUCCESSFUL' %}
                                 <p>{{ deadline }}</p>
                                 <p>Watch for a new campaign.</p>
