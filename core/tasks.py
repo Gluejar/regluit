@@ -38,6 +38,3 @@ def fac(n, sleep_interval=None):
             if sleep_interval is not None:
                 sleep(sleep_interval)
         return res
-        
-
-
