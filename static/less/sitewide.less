@@ -170,31 +170,33 @@ a.readon {
         float: left;
     }
     
+    
     .inputbox {
         padding:0 0 0 15px;
         margin:0;
-        border: solid 4px #8ac3d7;
-        .border-radius(50px, 50px, 50px, 50px);
+        border-top: solid 4px #8ac3d7;
+        border-left: solid 4px #8ac3d7;
+        border-bottom: solid 4px #8ac3d7;
+        border-right: none;
+        .border-radius(50px, 0, 0, 50px);
         outline: none;
         // background:url(@background-header) -645px -180px;
         .height(28px);
-        width:176px;
+        width:156px;
         float: left;
         color:@medium-blue;
     }
     
     .button {
-    	display: none;
-    	// Not presently compatible with Google watermark.
-        // background:url(@background-header) 100% -144px no-repeat;
-        // padding:0;
-        // margin:0;
-        // width:20px;
-        // height:26px;
-        // display:block;
-        // border:none;
-        // text-indent:-10000px;
-        // cursor:pointer;
+        background:url("@{image-base}blue-search-button.png") no-repeat;
+        padding:0;
+        margin:0;
+        width:40px;
+        height:36px;
+        display:block;
+        border:none;
+        text-indent:-10000px;
+    	cursor:pointer;
     }
 }
 
