@@ -24,7 +24,7 @@
         <div class="js-maincol-inner">
             <div class="content-block">
                 <div class="content-block-heading">
-                    <h2 class="content-heading">Search Results</span></h2>
+                    <h2 class="content-heading">Google Books search results</span></h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -51,7 +51,7 @@
                     <div class="js-search">
                         <div class="js-search-inner">
                             <form action="{% url search %}" method="get"> 
-                                <input type="text" placeholder="Search for a book..." size="25" class="inputbox" name="q">
+			                    <input type="text" id="watermarkempty" size="25" onfocus="imgfocusempty()" onblur="imgblurempty(15)" class="inputbox" name="q" value="{{ q }}">
                                 <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
                             </form>
                         </div>
