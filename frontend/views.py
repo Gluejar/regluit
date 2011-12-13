@@ -77,7 +77,7 @@ def stub(request):
 
 def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
-    editions = work.editions.all()
+    editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     server = randint(0,9)
     
