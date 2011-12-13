@@ -118,7 +118,7 @@ var $j = jQuery.noConflict();
                         	<label>What book would you give to the world? </label>
 				                <form action="{% url search %}" method="get">
                 				    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-                				    <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
+                				    <input type="submit" class="greenbutton" value="Search">
                					</form>
                         </div>
                     </div>
