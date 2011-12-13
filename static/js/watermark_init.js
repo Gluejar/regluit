@@ -5,6 +5,6 @@ $j(document).ready(function() {
 	}
 	// special case for search box which is repeated on empty search results page
 	if (!$j('#watermarkempty').val()) {
-		$j('#watermarkempty').css({"background": "white url('/static/images/google_watermark.gif') no-repeat "+pos+"px center"});
+		$j('#watermarkempty').css({"background": "white url('/static/images/google_watermark.gif') no-repeat 15px center"});
 	}
 });
