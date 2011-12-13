@@ -6,7 +6,6 @@ import logging
 import datetime 
 from decimal import Decimal as D
 from re import sub
-from random import randint
 
 from django import forms
 from django.db.models import Q, Count, Sum
@@ -79,7 +78,6 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
-    server = randint(0,9)
     
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
@@ -106,7 +104,6 @@ def work(request, work_id, action='display'):
             'wishers': wishers,
             'base_url': base_url,
             'editions': editions,
-            'server': server,
         })
 
 def manage_campaign(request, id):
