@@ -158,10 +158,13 @@ ul.ungluingwhat .user-book-info p {
 }
 ul.ungluingwhat .user-book-info a {
   display: block;
-  padding: 0 5px;
+  padding: 0;
   color: #3d4e53;
   font-size: 11px;
   text-decoration: underline;
+}
+ul.ungluingwhat .user-book-info a.user-book-name {
+  padding: 0 5px;
 }
 div.typo2 {
   background: #edf3f4;

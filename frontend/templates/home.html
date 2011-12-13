@@ -155,7 +155,7 @@ var $j = jQuery.noConflict();
                         	<input type="submit" value="sign up" />
                         </div>
                         <div>
-                            <p><a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}"><img src="{{ STATIC_URL }}/images/auth/google_64.png">Sign In With Google</a></p>
+                            <p><a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}"><img src="{{ STATIC_URL }}/images/auth/google_64.png">Sign Up With Google</a></p>
                         </div>
                     </div>
                 </div>
@@ -165,12 +165,12 @@ var $j = jQuery.noConflict();
 						<ul class="ungluingwhat">
 						{% for event in events %}
                         	<li>
-                            	<div class="user-avatar"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/landingpage/user-avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></div>
+                            	<div class="user-avatar"><a href="{% url supporter event.wishlist.user.username %}"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/landingpage/user-avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></a></div>
                                 <div class="user-book-info">
-                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username}}</a> is Wishing For </p>
+                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username}}</a> is Wishing For</p>
                                     <a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
                                 </div>
-                                <div class="user-book-thumb"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="Very Long Book Title" /></div>
+                                <div class="user-book-thumb"><a class="user-book-name" href="{% url work event.work.id %}"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="Very Long Book Title" /></a></div>
                             </li>
                         {% endfor %}
                         </ul>
