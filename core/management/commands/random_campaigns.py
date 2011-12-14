@@ -37,7 +37,7 @@ class Command(BaseCommand):
                     campaign.activate()
 
             campaign.save()
-            print "campaign %s...status: %s" % (campaign, campaign.status)
+            print "campaign %s...status: %s" % (unicode(campaign).encode('ascii','replace') , campaign.status)
 
 
 def random_date(start, end):
