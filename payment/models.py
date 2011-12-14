@@ -4,7 +4,7 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.parameters import *
 from decimal import Decimal
 import uuid
-
+    
 class Transaction(models.Model):
     
     # type e.g., PAYMENT_TYPE_INSTANT or PAYMENT_TYPE_AUTHORIZATION -- defined in parameters.py
@@ -12,6 +12,9 @@ class Transaction(models.Model):
     
     # target: e.g, TARGET_TYPE_CAMPAIGN,  TARGET_TYPE_LIST -- defined in parameters.py 
     target = models.IntegerField(default=TARGET_TYPE_NONE, null=False)
+    
+    #execution: e.g. EXECUTE_TYPE_CHAINED_INSTANT, EXECUTE_TYPE_CHAINED_DELAYED, EXECUTE_TYPE_PARALLEL
+    execution = models.IntegerField(default=EXECUTE_TYPE_NONE, null=False)
     
     # status: constants defined in paypal.py (e.g., IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
     status = models.CharField(max_length=32, default='NONE', null=False)
@@ -24,7 +27,10 @@ class Transaction(models.Model):
     secret = models.CharField(max_length=64, null=True)
     
     # a paykey that PayPal generates to identify this transaction
-    reference = models.CharField(max_length=128, null=True)
+    pay_key = models.CharField(max_length=128, null=True)
+    
+    # a preapproval key that Paypal generates to identify this transaction
+    preapproval_key = models.CharField(max_length=128, null=True)
     
     # (RY is not sure what receipt is for)
     receipt = models.CharField(max_length=256, null=True)
@@ -39,8 +45,11 @@ class Transaction(models.Model):
     date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     
-    # date_payment: when an attempt is made to make the payment
+    # date_payment: when an attempt is made to make the primary payment
     date_payment = models.DateTimeField(null=True)
+    
+    # date_executed: when an attempt is made to send money to non-primary chained receivers
+    date_executed = models.DateTimeField(null=True)
     
     # datetime for creation of preapproval and for its expiration
     date_authorized = models.DateTimeField(null=True)
@@ -62,7 +71,7 @@ class Transaction(models.Model):
         super(Transaction, self).save(*args, **kwargs) # Call the "real" save() method.
     
     def __unicode__(self):
-        return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \treference: %s\n \terror: %s\n" % (self.status, str(self.amount), self.reference, self.error)
+        return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \treference: %s\n \terror: %s\n" % (self.status, str(self.amount), self.preapproval_key, self.error)
     
     def create_receivers(self, receiver_list):
         
@@ -71,6 +80,22 @@ class Transaction(models.Model):
             receiver = Receiver.objects.create(email=r['email'], amount=r['amount'], currency=self.currency, status="None", primary=primary, transaction=self)
             primary = False
                 
+    
+class PaymentResponse(models.Model):
+    # The API used
+    api = models.CharField(max_length=64, null=False)
+    
+    # The correlation ID
+    correlation_id = models.CharField(max_length=512, null=True)
+    
+    # the paypal timestamp
+    timestamp = models.CharField(max_length=128, null=True)
+    
+    # extra info we want to store if an error occurs such as the response message
+    info = models.CharField(max_length=1024, null=True)
+    
+    transaction = models.ForeignKey(Transaction, null=False)
+    
     
 class Receiver(models.Model):
     
@@ -85,4 +110,22 @@ class Receiver(models.Model):
     txn_id = models.CharField(max_length=64)
     transaction = models.ForeignKey(Transaction)
     
+from django.db.models.signals import post_save
+import regluit.payment.manager
+
+# handle any save, updates to a payment.Transaction
+
+def handle_transaction_change(sender, instance, created, **kwargs):
+    campaign = instance.campaign
     
+    if campaign:
+        p = regluit.payment.manager.PaymentManager()
+        amount = p.query_campaign(campaign=instance.campaign,summary=True)
+        instance.campaign.left=instance.campaign.target - amount
+        instance.campaign.save()
+        
+    return True
+
+post_save.connect(handle_transaction_change,sender=Transaction)
+
+

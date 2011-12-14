@@ -84,6 +84,7 @@ class Campaign(models.Model):
     description = models.TextField(null=True, blank=False)
     details = models.TextField(null=True, blank=False)
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
     paypal_receiver = models.CharField(max_length=100, blank=True)
@@ -142,8 +143,10 @@ class Campaign(models.Model):
 
     @property
     def current_total(self):
-        p = PaymentManager()
-        return p.query_campaign(campaign=self,summary=True)
+        if self.left:
+            return self.target-self.left
+        else:
+            return 0
         
     def transactions(self, pledged=True, authorized=True):
         p = PaymentManager()
@@ -154,6 +157,7 @@ class Campaign(models.Model):
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         self.status= 'ACTIVE'
+        self.left = self.target
         self.save()
         return self   
 
@@ -298,7 +302,7 @@ class Work(models.Model):
                     status = 100
                 else:
                     total = float(self.campaigns.order_by('-created')[0].current_total)
-                    percent = int(total/target)
+                    percent = int(total*100/target)
                     if percent >= 100:
                         status = 100
                     else:

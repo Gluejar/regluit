@@ -16,8 +16,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
-#TEST_RECEIVERS = ['jakace_1309677337_biz@gmail.com', 'seller_1317463643_biz@gmail.com']
-TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
+TEST_RECEIVERS = ['jakace_1309677337_biz@gmail.com', 'seller_1317463643_biz@gmail.com']
+#TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
 
 
 '''
@@ -135,6 +135,26 @@ def testCancel(request):
     else:
         message = "Error: " + t.error
         return HttpResponse(message)
+    
+    
+'''
+http://BASE/testfinish?transaction=2
+
+Example that finishes a delayed chained transaction
+'''    
+def testFinish(request):
+    
+    if "transaction" not in request.GET.keys():
+        return HttpResponse("No Transaction in Request")
+    
+    t = Transaction.objects.get(id=int(request.GET['transaction']))
+    p = PaymentManager()
+    if p.finish_transaction(t):
+        return HttpResponse("Success")
+    else:
+        message = "Error: " + t.error
+        return HttpResponse(message)
+
 
     
 '''

@@ -39,14 +39,3 @@ post_save.connect(create_user_objects, sender=User)
 # create API key for new User
 post_save.connect(create_api_key, sender=User)
 
-# handle any save, updates to a payment.Transaction
-
-def handle_transaction_change(sender, instance, created, **kwargs):
-    try:
-        campaign = instance.campaign
-        logger.info('Got the signal for Transaction %s w/ Campaign %s ', instance.id, campaign.id)
-        return True
-    except Exception, e:
-        return False
-
-post_save.connect(handle_transaction_change,sender=get_model('payment','Transaction'))
