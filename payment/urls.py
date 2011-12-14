@@ -10,5 +10,6 @@ urlpatterns = patterns(
     url(r"^paypalipn", "paypalIPN", name="PayPalIPN"),
     url(r"^runtests", "runTests"),
     url(r"^paymentcomplete","paymentcomplete"),
-    url(r"^checkstatus", "checkStatus")
+    url(r"^checkstatus", "checkStatus"),
+    url(r"^testfinish", "testFinish"),
 )

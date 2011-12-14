@@ -1,8 +1,8 @@
 from regluit.core.models import Campaign, Wishlist
-from regluit.payment.models import Transaction, Receiver
+from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
 from datetime import datetime
@@ -56,7 +56,7 @@ class PaymentManager( object ):
                 
             p = PaymentDetails(t)
             
-            if p.error():
+            if p.error() or not p.success():
                 logger.info("Error retrieving payment details for transaction %d" % t.id)
                 append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
                 
@@ -73,15 +73,23 @@ class PaymentManager( object ):
                     
                     try:
                         receiver = Receiver.objects.get(transaction=t, email=r['email'])
-                    
-                        # Check for updates on each receiver's status
+                        print r
+                        print receiver
+                        
+                        # Check for updates on each receiver's status.  Note that unprocessed delayed chained payments
+                        # will not have a status code or txn id code
                         if receiver.status != r['status']:
                             append_element(doc, tran, "receiver_status_ours", receiver.status)
                             append_element(doc, tran, "receiver_status_theirs", r['status'])
                             receiver.status = r['status']
-                            receiver.txn_id = r['txn_id']
-                            
                             receiver.save()
+                            
+                        if receiver.txn_id != r['txn_id']:
+                            append_element(doc, tran, "txn_id_ours", receiver.txn_id)
+                            append_element(doc, tran, "txn_id_theirs", r['txn_id'])
+                            receiver.txn_id = r['txn_id']
+                            receiver.save()
+                            
                     except:
                         traceback.print_exc()
                         
@@ -93,10 +101,10 @@ class PaymentManager( object ):
             p = PreapprovalDetails(t)
             
             tran = doc.createElement('preapproval')
-            tran.setAttribute("key", str(t.reference))
+            tran.setAttribute("key", str(t.preapproval_key))
             head.appendChild(tran)
             
-            if p.error():
+            if p.error() or not p.success():
                 logger.info("Error retrieving preapproval details for transaction %d" % t.id)
                 append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
                 
@@ -160,12 +168,14 @@ class PaymentManager( object ):
                         try:
                             r = Receiver.objects.get(transaction=t, email=item['receiver'])
                             logger.info(item)
-                            # one of the IPN_SENDER_STATUS codes defined in paypal.py
+                            # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
+                            # payments, then there is no status or id for non-primary receivers.  Leave their status alone
                             r.status = item['status_for_sender_txn']
                             r.txn_id = item['id_for_sender_txn']
                             r.save()
                         except:
-                            # Log an excecption if we have a receiver that is not found
+                            # Log an exception if we have a receiver that is not found.  This will be hit
+                            # for delayed chained payments as there is no status or id for the non-primary receivers yet
                             traceback.print_exc()
                     
                     t.save()
@@ -179,8 +189,8 @@ class PaymentManager( object ):
                     if uniqueID:
                         t = Transaction.objects.get(secret=uniqueID)
                     else:
-                        key = ipn.key()
-                        t = Transaction.objects.get(reference=key)
+                        key = ipn.pay_key
+                        t = Transaction.objects.get(pay_key=key)
                     
                     # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
                     t.status = ipn.status
@@ -192,8 +202,8 @@ class PaymentManager( object ):
                 elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
                     
                     # IPN for preapproval always uses the key to ref the transaction as this is always valid
-                    key = ipn.key()
-                    t = Transaction.objects.get(reference=key)
+                    key = ipn.preapproval_key
+                    t = Transaction.objects.get(preapproval_key=key)
                     
                     # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
                     t.status = ipn.status
@@ -326,6 +336,49 @@ class PaymentManager( object ):
         return transactions
     
 
+    def finish_transaction(self, transaction):
+        '''
+        finish_transaction
+        
+        calls the paypal API to excute payment to non-primary receivers
+        
+        transaction: the transaction we want to complete
+        
+        '''
+        
+        if transaction.execution != EXECUTE_TYPE_CHAINED_DELAYED:
+            logger.error("FinishTransaction called with invalid execution type")
+            return False
+        
+        # mark this transaction as executed
+        transaction.date_executed = datetime.now()
+        transaction.save()
+        
+        p = Execute(transaction)            
+        
+        # Create a response for this
+        envelope = p.envelope()
+        
+        if envelope:
+            correlation = p.correlation_id()
+            timestamp = p.timestamp()
+        
+            r = PaymentResponse.objects.create(api=p.url,
+                                              correlation_id = correlation,
+                                              timestamp = timestamp,
+                                              info = p.raw_response,
+                                              transaction=transaction)
+        
+        if p.success() and not p.error():
+            logger.info("finish_transaction Success")
+            return True
+        
+        else:
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("finish_transaction error " + p.error_string())
+            return False
+        
     def execute_transaction(self, transaction, receiver_list):
         '''
         execute_transaction
@@ -357,15 +410,31 @@ class PaymentManager( object ):
         
         p = Pay(transaction)
         
-        # We will update our transaction status when we receive the IPN
+        # Create a response for this
+        envelope = p.envelope()
         
-        if p.status() == IPN_PAY_STATUS_COMPLETED:
-            logger.info("Execute Success")
+        if envelope:
+        
+            correlation = p.correlation_id()
+            timestamp = p.timestamp()
+        
+            r = PaymentResponse.objects.create(api=p.api(),
+                                              correlation_id = correlation,
+                                              timestamp = timestamp,
+                                              info = p.raw_response,
+                                              transaction=transaction)
+        
+        # We will update our transaction status when we receive the IPN
+        if p.success() and not p.error():
+            transaction.pay_key = p.key()
+            transaction.save()
+            logger.info("execute_transaction Success")
             return True
         
         else:
-            transaction.error = p.error()
-            logger.info("Execute Error: " + p.error())
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("execute_transaction Error: " + p.error_string())
             return False
     
     def cancel(self, transaction):
@@ -379,13 +448,28 @@ class PaymentManager( object ):
         
         p = CancelPreapproval(transaction)
         
-        if p.success():
+        # Create a response for this
+        envelope = p.envelope()
+        
+        if envelope:
+        
+            correlation = p.correlation_id()
+            timestamp = p.timestamp()
+        
+            r = PaymentResponse.objects.create(api=p.url,
+                                              correlation_id = correlation,
+                                              timestamp = timestamp,
+                                              info = p.raw_response,
+                                              transaction=transaction)
+        
+        if p.success() and not p.error():
             logger.info("Cancel Transaction " + str(transaction.id) + " Completed")
             return True
         
         else:
-            logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error())
-            transaction.error = p.error()
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
     def authorize(self, currency, target, amount, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
@@ -407,7 +491,8 @@ class PaymentManager( object ):
         '''        
             
         t = Transaction.objects.create(amount=amount, 
-                                       type=PAYMENT_TYPE_AUTHORIZATION, 
+                                       type=PAYMENT_TYPE_AUTHORIZATION,
+                                       execution = EXECUTE_TYPE_CHAINED_DELAYED,
                                        target=target,
                                        currency=currency,
                                        status='NONE',
@@ -419,8 +504,18 @@ class PaymentManager( object ):
         
         p = Preapproval(t, amount, return_url=return_url, cancel_url=cancel_url)
         
-        if p.status() == 'Success':
-            t.reference = p.paykey()
+         # Create a response for this
+        envelope = p.envelope()
+        
+        if envelope:        
+            r = PaymentResponse.objects.create(api=p.url,
+                                              correlation_id = p.correlation_id(),
+                                              timestamp = p.timestamp(),
+                                              info = p.raw_response,
+                                              transaction=t)
+        
+        if p.success() and not p.error():
+            t.preapproval_key = p.key()
             t.save()
             
             url = p.next_url()
@@ -430,9 +525,9 @@ class PaymentManager( object ):
     
         
         else:
-            t.error = p.error()
+            t.error = p.error_string()
             t.save()
-            logger.info("Authorize Error: " + p.error())
+            logger.info("Authorize Error: " + p.error_string())
             return t, None
         
     def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
@@ -465,7 +560,8 @@ class PaymentManager( object ):
         amount = D(receiver_list[0]['amount'])
             
         t = Transaction.objects.create(amount=amount, 
-                                       type=PAYMENT_TYPE_INSTANT, 
+                                       type=PAYMENT_TYPE_INSTANT,
+                                       execution=EXECUTE_TYPE_CHAINED_INSTANT,
                                        target=target,
                                        currency=currency,
                                        status='NONE',
@@ -480,8 +576,19 @@ class PaymentManager( object ):
         
         p = Pay(t,return_url=return_url, cancel_url=cancel_url)
         
-        if p.status() == 'CREATED':
-            t.reference = p.paykey()
+         # Create a response for this
+        envelope = p.envelope()
+        print envelope
+        
+        if envelope:        
+            r = PaymentResponse.objects.create(api=p.api(),
+                                              correlation_id = p.correlation_id(),
+                                              timestamp = p.timestamp(),
+                                              info = p.raw_response,
+                                              transaction=t)
+        
+        if p.success() and not p.error():
+            t.pay_key = p.key()
             t.status = 'CREATED'
             t.save()
             
@@ -495,9 +602,9 @@ class PaymentManager( object ):
             return t, url
         
         else:
-            t.error = p.error()
+            t.error = p.error_string()
             t.save()
-            logger.info("Pledge Error: " + p.error())
+            logger.info("Pledge Error: " + p.error_string())
             return t, None
     
     

@@ -82,10 +82,10 @@ class PaypalError(RuntimeError):
 
 class url_request( object ): 
 
-  def __init__( self, base, url, data=None, headers={} ):
+  def __init__( self, request):
    
-    conn = httplib.HTTPSConnection(base)
-    conn.request("POST", url, data, headers)
+    conn = httplib.HTTPSConnection(settings.PAYPAL_ENDPOINT)
+    conn.request("POST", request.url, request.raw_request, request.headers)
     
     #Check the response - should be 200 OK.
     self.response = conn.getresponse()
@@ -96,11 +96,241 @@ class url_request( object ):
   def code( self ):
     return self.response.status
 
+class PaypalEnvelopeRequest:
+    '''
+       Handles common information that is processed from the response envelope of the paypal request.
+       
+       All of our requests have a response envelope of the following format:
+       
+      ack common:AckCode
+        Acknowledgement code. It is one of the following values:
+            Success - The operation completed successfully.
+            Failure - The operation failed.
+            Warning - Warning.
+            SuccessWithWarning - The operation completed successfully; however, there is a warning message.
+            FailureWithWarning - The operation failed with a warning message.
+        build Build number; it is used only by Developer Technical Support.
+        correlationId Correlation ID; it is used only by Developer Technical Support.
+        timestamp Date on which the response was sent. The time is currently not supported.
 
-class Pay( object ):
+        Additionally, our subclasses may set the error_message field if an undetermined error occurs.  Examples of undertmined errors are:
+            HTTP error codes(not 200)
+            Invalid parameters
+            Python exceptions during processing
+            
+        All clients should check both the success() and the error() functions to determine the result of the operation
+        
+    '''
+    
+    # Global values for the class
+    response = None
+    raw_response = None
+    errorMessage = None
+    raw_request = None
+    url = None
+            
+    def ack( self ):
+        if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
+            return self.response['responseEnvelope']['ack']
+        else:
+            return None
+        
+    def success(self):
+        status = self.ack()
+        print status
+        if status == "Success" or status == "SuccessWithWarning":
+            return True
+        else:
+            return False 
+        
+    def error(self):
+        message = self.errorMessage
+        print message
+        if message:
+            return True
+        else:
+            return False
+        
+    def error_data(self):
+        if self.response.has_key('error'):
+            return self.response['error']
+        else:
+            return None
+    
+    def error_id(self):
+        if self.response.has_key('error'):
+            return self.response['error'][0]['errorId']
+    
+    def error_string(self):
+        if self.response.has_key('error'):
+            return self.response['error'][0]['message']
+      
+        elif self.errorMessage:
+            return self.errorMessage
+      
+        else:
+            return None
+    
+    def envelope(self):
+        if self.response.has_key('responseEnvelope'):
+            return self.response['responseEnvelope']
+        else:
+            return None
+      
+    def correlation_id(self):
+        if self.response.has_key('responseEnvelope') and self.response['responseEnvelope'].has_key('correlationId'):
+            return self.response['responseEnvelope']['correlationId']
+        else:
+            return None
+        
+    def timestamp(self):
+        if self.response.has_key('responseEnvelope') and self.response['responseEnvelope'].has_key('timestamp'):
+            return self.response['responseEnvelope']['timestamp']
+        else:
+            return None
+
+
+class Pay( PaypalEnvelopeRequest ):
   def __init__( self, transaction, return_url=None, cancel_url=None):
       
-      headers = {
+      try:
+          
+          headers = {
+                'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+                'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
+                }
+    
+          if return_url is None:
+              return_url = settings.BASE_URL + COMPLETE_URL
+          if cancel_url is None:
+              cancel_url = settings.BASE_URL + CANCEL_URL
+            
+          logger.info("Return URL: " + return_url)
+          logger.info("Cancel URL: " + cancel_url)
+          
+          receiver_list = []
+          receivers = transaction.receiver_set.all()
+          
+          if len(receivers) == 0:
+              raise Exception
+          
+          # by setting primary_string of the first receiver to 'true', we are doing a Chained payment
+          for r in receivers:
+              if len(receivers) > 1:
+                  if r.primary and (transaction.execution == EXECUTE_TYPE_CHAINED_INSTANT or transaction.execution == EXECUTE_TYPE_CHAINED_DELAYED):
+                      # Only set a primary if we are using chained payments
+                      primary_string = 'true'
+                  else:
+                      primary_string = 'false'
+                      
+                  receiver_list.append({'email':r.email,'amount':str(r.amount), 'primary':primary_string})
+              else:
+                  receiver_list.append({'email':r.email,'amount':str(r.amount)})
+                      
+          logger.info(receiver_list)
+            
+          # actionType can be 'PAY', 'CREATE', or 'PAY_PRIMARY'
+          # PAY_PRIMARY': "For chained payments only, specify this value to delay payments to the secondary receivers; only the payment to the primary receiver is processed"
+          
+          if transaction.execution == EXECUTE_TYPE_CHAINED_DELAYED:
+              self.actionType = 'PAY_PRIMARY'
+          else:
+              self.actionType = 'PAY'
+          
+          # feesPayer: SENDER, PRIMARYRECEIVER, EACHRECEIVER, SECONDARYONLY
+          # if only one receiver, set to EACHRECEIVER, otherwise set to SECONDARYONLY
+          
+          if len(receivers) == 1:
+            feesPayer = 'EACHRECEIVER'
+          else:
+            feesPayer = 'SECONDARYONLY'
+          
+          data = {
+                  'actionType': self.actionType,
+                  'receiverList': { 'receiver': receiver_list },
+                  'currencyCode': transaction.currency,
+                  'returnUrl': return_url,
+                  'cancelUrl': cancel_url,
+                  'requestEnvelope': { 'errorLanguage': 'en_US' },
+                  'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
+                  'feesPayer': feesPayer,
+                  'trackingId': transaction.secret
+                  } 
+          
+          logging.info("paypal PAY data: %s" % data)
+          print >> sys.stderr, "paypal PAY data:", data
+          # Is ipnNotificationUrl being computed properly
+          print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
+          
+          # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
+          # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
+          if transaction.preapproval_key:
+              data['preapprovalKey'] = transaction.preapproval_key
+          
+          self.raw_request = json.dumps(data)
+          self.url = "/AdaptivePayments/Pay"
+          self.headers = headers
+          self.connection = url_request(self)
+          self.code = self.connection.code()
+          
+          if self.code != 200:
+              self.errorMessage = 'PayPal response code was %i' % self.code
+              return
+          
+          self.raw_response = self.connection.content() 
+          print >> sys.stderr, "PAY request", settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", self.raw_request, headers 
+          logger.info("paypal PAY response was: %s" % self.raw_response)
+          print >> sys.stderr, "paypal PAY response was:", self.raw_response
+          self.response = json.loads( self.raw_response )
+          logger.info(self.response)
+          
+      except:
+          traceback.print_exc()
+          self.errorMessage = "Error: Server Error"
+      
+  def api(self):
+      return self.actionType
+    
+  def exec_status( self ):
+      if self.response.has_key( 'paymentExecStatus' ):
+          return self.response['paymentExecStatus']
+      else:
+          return None 
+      
+  def amount( self ):
+      if self.response.has_key('payment_gross'):
+          return self.response['payment_gross']
+      else:
+          return None
+      
+  def key( self ):
+      if self.response.has_key('payKey'):
+          return self.response['payKey']
+      else:
+          return None
+
+  def next_url( self ):
+    return '%s?cmd=_ap-payment&paykey=%s' % (settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
+
+  def embedded_url(self):
+      return '%s/webapps/adaptivepayment/flow/pay?paykey=%s&expType=light'  % ( settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
+  
+  
+  
+class Execute(PaypalEnvelopeRequest):
+    
+    def __init__(self, transaction=None):
+        
+        try:
+            
+            self.errorMessage = None
+            self.response = None
+            
+            headers = {
             'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
             'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
             'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
@@ -108,110 +338,47 @@ class Pay( object ):
             'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
             'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON'
             }
+            
+            
+            if transaction.execution != EXECUTE_TYPE_CHAINED_DELAYED:
+                self.errorMessage = "Invalid transaction type for execution"
+                return
+            
+            if not transaction.pay_key:
+                self.errorMessage = "No Paykey Found in transaction"
+                return
+             
+            data = {
+                      'payKey': transaction.pay_key,
+                      'requestEnvelope': { 'errorLanguage': 'en_US' }
+                   } 
+      
+            logging.info("paypal EXECUTE data: %s" % data)
+            self.raw_request = json.dumps(data)
+            self.url = "/AdaptivePayments/ExecutePayment"
+            self.headers = headers
+            self.connection = url_request(self)
+            self.code = self.connection.code()
+            
+            if self.code != 200:
+                self.errorMessage = 'PayPal response code was %i' % self.code
+                return
+            
+            self.raw_response = self.connection.content()
+                        
+            logger.info("paypal EXECUTE response was: %s" % self.raw_response)
+            self.response = json.loads( self.raw_response )
+            
+        except:
+            traceback.print_exc()
+            self.errorMessage = "Error: Server error occurred"
+            
 
-      if return_url is None:
-        return_url = settings.BASE_URL + COMPLETE_URL
-      if cancel_url is None:
-        cancel_url = settings.BASE_URL + CANCEL_URL
-        
-      logger.info("Return URL: " + return_url)
-      logger.info("Cancel URL: " + cancel_url)
-      
-      receiver_list = []
-      receivers = transaction.receiver_set.all()
-      
-      if len(receivers) == 0:
-          raise Exception
-      
-      # by setting primary_string of the first receiver to 'true', we are doing a Chained payment
-      for r in receivers:
-          if len(receivers) > 1:
-              if r.primary:
-                  primary_string = 'true'
-              else:
-                  primary_string = 'false'
-                  
-              receiver_list.append({'email':r.email,'amount':str(r.amount), 'primary':primary_string})
-          else:
-              receiver_list.append({'email':r.email,'amount':str(r.amount)})
-                  
-      logger.info(receiver_list)
-        
-      # actionType can be 'PAY', 'CREATE', or 'PAY_PRIMARY'
-      # PAY_PRIMARY': "For chained payments only, specify this value to delay payments to the secondary receivers; only the payment to the primary receiver is processed"
-      
-      # feesPayer: SENDER, PRIMARYRECEIVER, EACHRECEIVER, SECONDARYONLY
-      # if only one receiver, set to EACHRECEIVER, otherwise set to SECONDARYONLY
-      
-      if len(receivers) == 1:
-        feesPayer = 'EACHRECEIVER'
-      else:
-        feesPayer = 'SECONDARYONLY'
-      
-      data = {
-              'actionType': 'PAY',
-              'receiverList': { 'receiver': receiver_list },
-              'currencyCode': transaction.currency,
-              'returnUrl': return_url,
-              'cancelUrl': cancel_url,
-              'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
-              'feesPayer': feesPayer,
-              'trackingId': transaction.secret
-              } 
-      
-      logging.info("paypal PAY data: %s" % data)
-      print >> sys.stderr, "paypal PAY data:", data
-      # Is ipnNotificationUrl being computed properly
-      print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
-      
-      # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
-      # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
-      if transaction.reference:
-          data['preapprovalKey'] = transaction.reference
-      
-      self.raw_request = json.dumps(data)
-   
-      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", data=self.raw_request, headers=headers ).content() 
-      print >> sys.stderr, "PAY request", settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", self.raw_request, headers 
-      logger.info("paypal PAY response was: %s" % self.raw_response)
-      print >> sys.stderr, "paypal PAY response was:", self.raw_response
-      self.response = json.loads( self.raw_response )
-      logger.info(self.response)
-    
-  def status( self ):
-      if self.response.has_key( 'paymentExecStatus' ):
-          return self.response['paymentExecStatus']
-      else:
-          return None 
-  
-  def error( self ):
-      if self.response.has_key('error'):
-          error = self.response['error']
-          logger.info(error)
-          return error[0]['message']
-      else:
-          return 'Paypal PAY: Unknown Error'
-      
-  def amount( self ):
-    return decimal.Decimal(self.results[ 'payment_gross' ])
-  
-  def paykey( self ):
-    return self.response['payKey']
-
-  def next_url( self ):
-    return '%s?cmd=_ap-payment&paykey=%s' % (settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
-
-  def embedded_url(self):
-      return '%s/webapps/adaptivepayment/flow/pay?paykey=%s&expType=light'  % ( settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
-
-class PaymentDetails(object):
+class PaymentDetails(PaypalEnvelopeRequest):
   def __init__(self, transaction=None):
  
       try:
           self.transaction = transaction
-          self.errorMessage = None
-          self.response = None
           
           headers = {
                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -230,14 +397,17 @@ class PaymentDetails(object):
                   }       
     
           self.raw_request = json.dumps(data)
-       
-          self.connection = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/PaymentDetails", data=self.raw_request, headers=headers )
-          self.raw_response = self.connection.content()
+          self.headers = headers
+          self.url = "/AdaptivePayments/PaymentDetails"
+          self.connection = url_request(self)
+          
           self.code = self.connection.code()
           
           if self.code != 200:
             self.errorMessage = 'PayPal response code was %i' % self.code
             return
+        
+          self.raw_response = self.connection.content()
           
           logger.info("paypal PaymentDetails response was: %s" % self.raw_response)
           self.response = json.loads( self.raw_response )
@@ -266,17 +436,6 @@ class PaymentDetails(object):
           self.errorMessage = "Error: ServerError"
           traceback.print_exc()
           
-      
-  def error(self):
-      if self.response and self.response.has_key('error'):
-          error = self.response['error']
-          logger.info(error)
-          return error[0]['message']
-      
-      elif self.errorMessage:
-          return self.errorMessage
-      else:
-          return None
               
   def compare(self):
     """compare current status information from what's in the current transaction object"""
@@ -308,99 +467,109 @@ class PaymentDetails(object):
     # paymentInfoList -- holds info for each recipient
     
 
-class CancelPreapproval(object):
+class CancelPreapproval(PaypalEnvelopeRequest):
     
     def __init__(self, transaction):
         
-        headers = {
-                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
-                 'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
-                 'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
-                 'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
-                 'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
-                 'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
-                 }
-      
-        data = {
-              'preapprovalKey':transaction.reference,
-              'requestEnvelope': { 'errorLanguage': 'en_US' }
-              } 
-
-        self.raw_request = json.dumps(data)
-        self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/CancelPreapproval", data=self.raw_request, headers=headers ).content() 
-        logger.info("paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response)
-        self.response = json.loads( self.raw_response )
-        logger.info(self.response)
-        
-    def success(self):
-        if self.status() == 'Success' or self.status() == "SuccessWithWarning":
-            return True
-        else:
-            return False
-        
-    def error(self):
-        if self.response.has_key('error'):
-            error = self.response['error']
-            logger.info(error)
-            return error[0]['message']
-        else:
-            return 'Paypal Preapproval Cancel: Unknown Error'
-        
-    def status(self):
-        if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
-            return self.response['responseEnvelope']['ack']
-        else:
-            return None 
+        try:
+            
+            headers = {
+                     'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                     'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                     'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                     'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+                     'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                     'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
+                     }
+          
+            data = {
+                  'preapprovalKey':transaction.preapproval_key,
+                  'requestEnvelope': { 'errorLanguage': 'en_US' }
+                  } 
+    
+            self.raw_request = json.dumps(data)
+            self.headers = headers
+            self.url = "/AdaptivePayments/CancelPreapproval"
+            self.connection = url_request(self)
+            self.code = self.connection.code()
+            
+            if self.code != 200:
+                self.errorMessage = 'PayPal response code was %i' % self.code
+                return
+            
+            self.raw_response = self.connection.content() 
+            logger.info("paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response)
+            self.response = json.loads( self.raw_response )
+            logger.info(self.response)
+            
+        except:
+            traceback.print_exc()
+            self.errorMessage = "Error: Server Error"
         
 
-class Preapproval( object ):
+class Preapproval( PaypalEnvelopeRequest ):
   def __init__( self, transaction, amount, return_url=None, cancel_url=None):
       
-      headers = {
-                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
-                 'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
-                 'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
-                 'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
-                 'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
-                 'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
-                 }
-
-      if return_url is None:
-        return_url = settings.BASE_URL + COMPLETE_URL
-      if cancel_url is None:
-        cancel_url = settings.BASE_URL + CANCEL_URL
-      
-      # set the expiration date for the preapproval
-      now = datetime.datetime.utcnow()
-      expiry = now + datetime.timedelta( days=PREAPPROVAL_PERIOD )  
-      transaction.date_authorized = now
-      transaction.date_expired = expiry
-      transaction.save()
-      
-      data = {
-              'endingDate': expiry.isoformat(),
-              'startingDate': now.isoformat(),
-              'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
-              'maxNumberOfPayments':1,
-              'maxAmountPerPayment': '%.2f' % transaction.amount,
-              'currencyCode': transaction.currency,
-              'returnUrl': return_url,
-              'cancelUrl': cancel_url,
-              'requestEnvelope': { 'errorLanguage': 'en_US' },
-              'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
-              } 
-
-      # Is ipnNotificationUrl being computed properly
-      print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
-      
-      self.raw_request = json.dumps(data)
-      self.raw_response = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Preapproval", data=self.raw_request, headers=headers ).content() 
-      logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
-      print >> sys.stderr, "paypal PREAPPROVAL response was:", self.raw_response
-      self.response = json.loads( self.raw_response )
-      logger.info(self.response)
-      
-  def paykey( self ):
+      try:
+          
+          headers = {
+                     'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                     'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                     'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                     'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+                     'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                     'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
+                     }
+    
+          if return_url is None:
+            return_url = settings.BASE_URL + COMPLETE_URL
+          if cancel_url is None:
+            cancel_url = settings.BASE_URL + CANCEL_URL
+          
+          # set the expiration date for the preapproval
+          now = datetime.datetime.utcnow()
+          expiry = now + datetime.timedelta( days=PREAPPROVAL_PERIOD )  
+          transaction.date_authorized = now
+          transaction.date_expired = expiry
+          transaction.save()
+          
+          data = {
+                  'endingDate': expiry.isoformat(),
+                  'startingDate': now.isoformat(),
+                  'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
+                  'maxNumberOfPayments':1,
+                  'maxAmountPerPayment': '%.2f' % transaction.amount,
+                  'currencyCode': transaction.currency,
+                  'returnUrl': return_url,
+                  'cancelUrl': cancel_url,
+                  'requestEnvelope': { 'errorLanguage': 'en_US' },
+                  'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
+                  } 
+    
+          # Is ipnNotificationUrl being computed properly
+          print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
+          
+          self.raw_request = json.dumps(data)
+          self.url = "/AdaptivePayments/Preapproval"
+          self.headers = headers
+          self.connection = url_request(self)
+          self.code = self.connection.code()
+          
+          if self.code != 200:
+            self.errorMessage = 'PayPal response code was %i' % self.code
+            return
+        
+          self.raw_response = self.connection.content() 
+          logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
+          print >> sys.stderr, "paypal PREAPPROVAL response was:", self.raw_response
+          self.response = json.loads( self.raw_response )
+          logger.info(self.response)
+          
+      except:
+          traceback.print_exc()
+          self.errorMessage = "Error: Server Error Occurred"
+          
+  def key( self ):
     if self.response.has_key( 'preapprovalKey' ):
       return self.response['preapprovalKey']
     else:
@@ -409,29 +578,12 @@ class Preapproval( object ):
   def next_url( self ):
     return '%s?cmd=_ap-preapproval&preapprovalkey=%s' % ( settings.PAYPAL_PAYMENT_HOST, self.response['preapprovalKey'] )
 
-  def error( self ):
-      if self.response.has_key('error'):
-          error = self.response['error']
-          logger.info(error)
-          return error[0]['message']
-      else:
-          return 'Paypal Preapproval: Unknown Error'
-      
-  def status( self ):
-    if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
-      return self.response['responseEnvelope']['ack']
-    else:
-      return None 
 
-
-
-class PreapprovalDetails(object):
+class PreapprovalDetails(PaypalEnvelopeRequest):
   def __init__(self, transaction):
  
       try:
           self.transaction = transaction
-          self.response = None
-          self.errorMessage = None
           
           headers = {
                 'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
@@ -446,19 +598,20 @@ class PreapprovalDetails(object):
           # I think we've been tracking payKey.  We might want to use our own trackingId (what's Transaction.secret for?)  
           data = {
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
-                  'preapprovalKey':transaction.reference
+                  'preapprovalKey':transaction.preapproval_key
                   }       
     
           self.raw_request = json.dumps(data)
-       
-          self.connection = url_request(settings.PAYPAL_ENDPOINT, "/AdaptivePayments/PreapprovalDetails", data=self.raw_request, headers=headers )
-          self.raw_response = self.connection.content() 
+          self.headers = headers
+          self.url = "/AdaptivePayments/PreapprovalDetails"
+          self.connection = url_request(self)
           self.code = self.connection.code()
           
           if self.code != 200:
             self.errorMessage = 'PayPal response code was %i' % self.code
             return
           
+          self.raw_response = self.connection.content() 
           logger.info("paypal PreapprovalDetails response was: %s" % self.raw_response)
           self.response = json.loads( self.raw_response )
           logger.info(self.response)
@@ -474,15 +627,6 @@ class PreapprovalDetails(object):
           self.errorMessage = "Error: ServerError"
           traceback.print_exc()
       
-  def error(self):
-      if self.response and self.response.has_key('error'):
-          error = self.response['error']
-          logger.info(error)
-          return error[0]['message']
-      elif self.errorMessage:
-          return self.errorMessage
-      else:
-          return None
 
 class IPN( object ):
     
@@ -532,16 +676,6 @@ class IPN( object ):
       else:
           return None
       
-  def key(self):
-        # We only keep one reference, either a prapproval key, or a pay key, for the transaction.  This avoids the 
-        # race condition that may result if the IPN for an executed pre-approval(with both a pay key and preapproval key) is received
-        # before we have time to store the pay key
-        if self.preapproval_key:
-            return self.preapproval_key
-        elif self.pay_key:
-            return self.pay_key
-        else:
-            return None
         
   def success( self ):
     return self.error == None
