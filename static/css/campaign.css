@@ -89,6 +89,9 @@
 .book-detail-info .find-link {
   float: right;
 }
+.book-detail-info .find-link a {
+  padding: 0 0 0 4px;
+}
 .book-detail-info .pledged-info {
   padding: 0;
 }

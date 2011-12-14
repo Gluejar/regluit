@@ -67,7 +67,7 @@ jQuery(document).ready(function(){
                         <h3 class="book-author">{{ work.author }}</h3>
                         <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
                         <div class="find-book">
-                            <label>Find it here</label>
+                            <label>Find it:</label>
                             <div class="find-link">
                                 <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>

@@ -95,6 +95,8 @@
 	width:230px;
 	
 	.jsmodule { 
+		float: left;
+		width: 208px;
 		background:@pale-blue; 
 		border:1px solid @blue-grey; 
 		.border-radius(12px, 12px, 12px, 12px); 
@@ -128,14 +130,15 @@ h3.heading {
 	font-weight:bold;
 }
 
-input[type=button]{ 
-	background: url("/static/images/landingpage/button.png") no-repeat scroll 0 0 transparent;
+input.signup { 
+	background: url("/static/images/landingpage/button.png") no-repeat 0 0;
     border: medium none;
     color: #FFF;
     cursor: pointer;
     display: inline-block;
     font-weight: bold;
-    .height(36px);
+	font-size: 13px;
+	.height(36px);
     overflow: hidden;
     padding: 0 31px 0 11px;
     width: 111px;
@@ -285,7 +288,7 @@ h2.page-heading {
 			float:left; 
 			padding:0; 
 			width:auto; 
-			padding:0 30px;
+			padding:0 15px 0 30px;
 		}
 		
 		form { 
@@ -362,6 +365,24 @@ h2.page-heading {
 		overflow:hidden; 
 		display:inline-block; 
 		font-weight:normal;
+	}
+}
+
+h3.module-title {
+	padding: 14px 0;
+}
+
+.google_signup {
+	padding: 14px 0;
+	
+	div {
+		.height(32px);
+		float: left;
+		padding-left:5px;
+	}
+	
+	img {
+		float: left;
 	}
 }
 

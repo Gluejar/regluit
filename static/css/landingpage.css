@@ -85,6 +85,8 @@
   width: 230px;
 }
 #js-rightcol .jsmodule {
+  float: left;
+  width: 208px;
   background: #edf3f4;
   border: 1px solid #d6dde0;
   -moz-border-radius: 12px 12px 12px 12px;
@@ -113,13 +115,14 @@ h3.heading {
   color: #3d4e53;
   font-weight: bold;
 }
-input[type=button] {
-  background: url("/static/images/landingpage/button.png") no-repeat scroll 0 0 transparent;
+input.signup {
+  background: url("/static/images/landingpage/button.png") no-repeat 0 0;
   border: medium none;
   color: #FFF;
   cursor: pointer;
   display: inline-block;
   font-weight: bold;
+  font-size: 13px;
   height: 36px;
   line-height: 36px;
   overflow: hidden;
@@ -252,7 +255,7 @@ h2.page-heading {
   float: left;
   padding: 0;
   width: auto;
-  padding: 0 30px;
+  padding: 0 15px 0 30px;
 }
 #js-maincontainer-bot-block #js-search form {
   float: left;
@@ -320,6 +323,21 @@ h2.page-heading {
   overflow: hidden;
   display: inline-block;
   font-weight: normal;
+}
+h3.module-title {
+  padding: 14px 0;
+}
+.google_signup {
+  padding: 14px 0;
+}
+.google_signup div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup img {
+  float: left;
 }
 #js-slideshow {
   padding: 0 30px;

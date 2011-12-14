@@ -135,12 +135,20 @@ a.my-setting.active {
   background: #d6dde0 url("/static/images/header/collspane.png") 90% center no-repeat;
 }
 #tabs {
-  border-bottom: 4px solid #8dc63f;
   clear: both;
   float: left;
   margin-left: 10px;
   margin-top: 10px;
   width: 100%;
+}
+#tabs.wantto {
+  border-bottom: 4px solid #bacfd6;
+}
+#tabs.ungluing {
+  border-bottom: 4px solid #eabc7c;
+}
+#tabs.unglued {
+  border-bottom: 4px solid #a7d26a;
 }
 #tabs ul.book-list-view {
   margin-bottom: 4px !important;
@@ -158,7 +166,7 @@ ul.tabs li {
   float: left;
   height: 46px;
   line-height: 46px;
-  margin-right: 10px;
+  margin-right: 2px;
 }
 ul.tabs li a {
   height: 46px;
@@ -170,10 +178,11 @@ ul.tabs li a {
   -moz-border-radius: 7px 7px 0 0;
   -webkit-border-radius: 7px 7px 0 0;
   border-radius: 7px 7px 0 0;
-  background: url("/static/images/header/bg-tabs1.png") left bottom repeat-x;
+  background: #d6dde0;
+  color: #3d4e53;
 }
 ul.tabs li a:hover, ul.tabs li.active a {
-  background: url("/static/images/header/bg-tabs.png") left bottom repeat-x;
+  background: #6994a3;
   color: #fff;
 }
 .book-list span.rounded > span {

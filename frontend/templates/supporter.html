@@ -97,9 +97,9 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             <div class="user-block3">
                                 <div class="user-block">
-                                <span class="rounded"><span class="blue" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backed }}</span></span>
-                                <span class="rounded"><span class="orange" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backing }}</span></span>
-                                <span class="rounded"><span class="grey" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ wished }}</span></span>
+                                <span class="rounded"><span class="blue tabs1" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backed }}</span></span>
+                                <span class="rounded"><span class="orange tabs2" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backing }}</span></span>
+                                <span class="rounded"><span class="grey tabs3" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ wished }}</span></span>
                                 </div>
                                 <span class="user-status-title">I am ungluing</span>
                             </div>
@@ -194,7 +194,7 @@ how do I integrate the your wishlist thing with the tabs thing?
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div class="content-block">
-                <div class="content-block-heading" id="tabs">
+                <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
                         <li class="tabs2"><a href="#">Being Unglued</a></li>
