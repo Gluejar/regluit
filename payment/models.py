@@ -85,4 +85,19 @@ class Receiver(models.Model):
     txn_id = models.CharField(max_length=64)
     transaction = models.ForeignKey(Transaction)
     
-    
+from django.db.models.signals import post_save
+import regluit.payment.manager
+
+# handle any save, updates to a payment.Transaction
+
+def handle_transaction_change(sender, instance, created, **kwargs):
+    campaign = instance.campaign
+    p = regluit.payment.manager.PaymentManager()
+    amount = p.query_campaign(campaign=instance.campaign,summary=True)
+    instance.campaign.left=instance.campaign.target - amount
+    instance.campaign.save()
+    return True
+
+post_save.connect(handle_transaction_change,sender=Transaction)
+
+

@@ -242,7 +242,7 @@ class TransactionTest(TestCase):
         p = PaymentManager()
         results = p.query_campaign(campaign=c)
         self.assertEqual(results[0].amount, D('12.34'))
-        
+        self.assertEqual(c.left,c.target-D('12.34'))
 
 def suite():
 
