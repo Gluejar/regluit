@@ -298,7 +298,7 @@ class Work(models.Model):
                     status = 100
                 else:
                     total = float(self.campaigns.order_by('-created')[0].current_total)
-                    percent = int(total/target)
+                    percent = int(total*100/target)
                     if percent >= 100:
                         status = 100
                     else:
