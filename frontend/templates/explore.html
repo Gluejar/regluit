@@ -20,13 +20,12 @@
                             <ul class="menu level2">
                             {% for ungluer in ungluers %}
                                 <li class="first"><a href="{% url supporter supporter_username=ungluer %}">
-									<span class="ungluer-pic">
 									{% if ungluer.profile.pic_url %}
 										<img src="{{ungluer.profile.pic_url}}" height="30" width="30" alt="{{ungluer}}" title="{{ungluer}}" />
 									{% else %}
 										<img src="/static/images/header/avatar.png" height="30" width="30" alt="Generic Ungluer Avatar" />
 									{% endif %}
-                                	</span><span class="ungluer-name">{{ungluer}}</span>
+                                	<span class="ungluer-name">{{ungluer}}</span>
                                 </a></li>
                             {% endfor %}
                             </ul>

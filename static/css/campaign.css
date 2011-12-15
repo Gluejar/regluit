@@ -13,6 +13,10 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
 #js-page-wrap {
   overflow: hidden;
 }
@@ -34,6 +38,13 @@
   border: none;
   margin: 0;
 }
+#js-leftcol .jsmodule.rounded .jsmod-content span {
+  display: inline-block;
+  vertical-align: middle;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content span.spacer {
+  visibility: none;
+}
 .book-detail {
   float: left;
   width: 100%;
@@ -47,7 +58,7 @@
 }
 .book-detail-img img {
   padding: 5px;
-  border: solid 5px #edf3f4;
+  border: solid 5px #EDF3F4;
 }
 .book-detail-info {
   float: left;
@@ -159,9 +170,10 @@ ul.tabs li a:hover, ul.tabs li.active a {
 #js-rightcol {
   float: right;
   width: 235px;
+  margin-bottom: 20px;
 }
 #js-rightcol h3.jsmod-title {
-  background: #a7c1ca;
+  background: #3d4e53;
   -moz-border-radius: 10px 10px 10px 10px;
   -webkit-border-radius: 10px 10px 10px 10px;
   border-radius: 10px 10px 10px 10px;
@@ -170,6 +182,7 @@ ul.tabs li a:hover, ul.tabs li.active a {
   font-style: normal;
   font-size: 14px;
   margin: 0 0 10px 0;
+  color: white;
 }
 #js-rightcol h3.jsmod-title span {
   padding: 0;
@@ -206,6 +219,10 @@ div.content-block-content {
 .tabs-content {
   padding-right: 5px;
 }
+.tabs-content iframe {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
 ul.social li {
   padding: 5px 0 5px 30px;
   height: 28px;
@@ -230,13 +247,24 @@ ul.social li.email {
 }
 ul.support li {
   border-bottom: 1px solid #d6dde0;
-  padding: 10px 15px 10px 0;
+  padding: 10px 0 10px 0;
+  margin-right: 15px;
 }
 ul.support li span {
   display: block;
 }
 ul.support li span.menu-item-price {
   font-size: 18px;
+}
+ul.support li:hover {
+  background-color: #8dc63f;
+  color: #fff;
+  -moz-border-radius: 10px 10px 10px 10px;
+  -webkit-border-radius: 10px 10px 10px 10px;
+  border-radius: 10px 10px 10px 10px;
+}
+ul.support li:hover a {
+  color: #fff;
 }
 .work_supporter {
   height: 50px;
@@ -275,8 +303,16 @@ a {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
+}
+.add-wishlist span.on-wishlist,
+.remove-wishlist span.on-wishlist,
+.on-wishlist span.on-wishlist,
+.create-account span.on-wishlist {
+  background: url("/static/images/checkmark_small.png") left center no-repeat;
+}
+.add-wishlist span, .create-account span {
+  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
 }
 .editions {
   clear: both;

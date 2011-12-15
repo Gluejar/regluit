@@ -226,6 +226,13 @@ a.readon span {
 #js-leftcol ul.level2 li a {
   color: #6994a3;
 }
+#js-leftcol ul.level2 li img {
+  vertical-align: middle;
+}
+#js-leftcol ul.level2 li .ungluer-name {
+  height: 30px;
+  line-height: 30px;
+}
 /* Main content area: top */
 #js-topsection {
   padding: 15px 0;

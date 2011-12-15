@@ -70,11 +70,22 @@ div.book-list.listview{
                 font-weight:normal;
                 color:@text-blue;
                 text-transform: none;
-                background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
                 padding-left:20px;
             }
             
         }
+        
+        &.add-wishlist span, &.create-account span {
+            background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
+        }
+        
+        &.remove-wishlist span {
+        }
+        
+        > span.on-wishlist {
+            background:url("@{image-base}checkmark_small.png") left center no-repeat;        	
+        }
+
         &.booklist-status {
             width: 110px;
             margin-right:7px;

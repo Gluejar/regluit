@@ -81,8 +81,13 @@ div.book-list.listview div.create-account span {
   font-weight: normal;
   color: #3d4e53;
   text-transform: none;
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
   padding-left: 20px;
+}
+div.book-list.listview div.add-wishlist span, div.book-list.listview div.create-account span {
+  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
+}
+div.book-list.listview div > span.on-wishlist {
+  background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
 div.book-list.listview div.booklist-status {
   width: 110px;

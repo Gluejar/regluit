@@ -49,9 +49,18 @@
   width: 25%;
 }
 .user-block3, .user-block4 {
-  float: right;
+  float: left;
   width: 25%;
-  margin-top: 10px;
+}
+.user-block3 {
+  margin-top: 8px;
+}
+.user-block3 .ungluingtext {
+  height: 29px;
+  line-height: 29px;
+  float: left;
+  color: #3d4e53;
+  padding-right: 5px;
 }
 img.user-avatar {
   float: left;

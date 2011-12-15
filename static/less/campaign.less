@@ -1,5 +1,10 @@
 @import "variables.less";
 
+.mediaborder {
+	padding: 5px;
+	border: solid 5px #EDF3F4;
+}
+
 #js-page-wrap {
 	overflow:hidden;
 }
@@ -20,6 +25,15 @@
 			font-weight:bold;
 			border:none;
 			margin:0;
+			
+			span {
+				display: inline-block;
+				vertical-align: middle;
+			}
+			
+			span.spacer {
+				visibility: none;
+			}
 		}
 
 	}
@@ -38,8 +52,7 @@
 	width:151px;
 	
 	img {
-		padding:5px;
-		border: solid 5px @pale-blue;
+		.mediaborder;
 	}
 }
 
@@ -171,15 +184,17 @@ ul.tabs {
 #js-rightcol {
 	float:right;
 	width:235px;
+	margin-bottom: 20px;
 	
 	h3.jsmod-title {
-		background:#a7c1ca;
+		background:@text-blue;
 		.border-radius(10px, 10px, 10px, 10px);
 		padding:10px;
 		height:auto;
 		font-style:normal;
 		font-size:14px;
 		margin:0 0 10px 0;
+		color: white;
 		
 		span {
 			padding:0;
@@ -221,6 +236,10 @@ div.content-block-content {
 
 .tabs-content {
 	padding-right: 5px;
+	
+	iframe {
+		.mediaborder;
+	}
 }
 
 ul.social li {
@@ -249,13 +268,23 @@ ul.social li {
 
 ul.support li {
 	border-bottom:1px solid @blue-grey;
-	padding:10px 15px 10px 0;
+	padding:10px 0 10px 0;
+	margin-right: 15px;
 	
 	span {
 		display:block;
 
 		&.menu-item-price { 
 			font-size:18px;
+		}
+	}
+	
+	&:hover {
+		background-color: @green;
+		color: #fff;
+		.border-radius(10px, 10px, 10px, 10px);
+		a {
+			color: #fff;
 		}
 	}
 }
@@ -291,9 +320,16 @@ a{ color:#3d4e53; font-size:12px;}
     	font-weight:normal;
         color:@text-blue;
         text-transform: none;
-        background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
         padding-left:20px;
+        
+        &.on-wishlist {
+    		background:url("@{image-base}checkmark_small.png") left center no-repeat;
+        }
 	}
+}
+
+.add-wishlist span, .create-account span {
+    background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
 }
 
 .editions {
