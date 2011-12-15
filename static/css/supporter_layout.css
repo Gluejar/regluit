@@ -62,6 +62,9 @@
   color: #3d4e53;
   padding-right: 5px;
 }
+.user-block4 {
+  margin-top: 7px;
+}
 img.user-avatar {
   float: left;
   margin-right: 10px;
@@ -93,13 +96,19 @@ span.rounded {
   display: inline-block;
 }
 span.rounded > span {
-  padding: 7px 10px;
+  padding: 7px 7px;
   min-width: 15px;
   -moz-border-radius: 5px 5px 5px 5px;
   -webkit-border-radius: 5px 5px 5px 5px;
   border-radius: 5px 5px 5px 5px;
   text-align: center;
   display: inline-block;
+}
+span.rounded > span .hovertext {
+  display: none;
+}
+span.rounded > span:hover .hovertext {
+  display: inline;
 }
 span.blue {
   background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;

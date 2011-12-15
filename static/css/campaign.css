@@ -114,15 +114,15 @@
   float: right;
   margin-top: 11px;
 }
-.book-detail-info .btn_support a {
+.book-detail-info .btn_support input {
   background: url("/static/images/btn_bg.png") 0 0 no-repeat;
   width: 104px;
   height: 41px;
-  line-height: 41px;
   display: block;
   color: #fff;
   font-weight: bold;
   text-align: center;
+  border: none;
 }
 #tabs {
   border-bottom: 4px solid #6994a3;

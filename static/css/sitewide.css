@@ -235,7 +235,7 @@ a.readon span {
 }
 /* Main content area: top */
 #js-topsection {
-  padding: 15px 0;
+  padding: 15px 0 0 0;
   overflow: hidden;
 }
 .js-topnews {
@@ -255,6 +255,9 @@ a.readon span {
   padding: 10px;
 }
 /* Main content area: main*/
+#main-container {
+  margin: 15px 0 0 0;
+}
 #js-maincol-fr {
   float: right;
   width: 725px;

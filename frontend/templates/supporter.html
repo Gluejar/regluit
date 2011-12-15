@@ -67,11 +67,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
                             <div class="user-block3">
-                            	<div class="ungluingtext">Ungluing:</div>
                                 <div class="badges">
-                                <span class="rounded"><span class="blue tabs1" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backed }}</span></span>
-                                <span class="rounded"><span class="orange tabs2" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ backing }}</span></span>
-                                <span class="rounded"><span class="grey tabs3" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% endifequal %}>{{ wished }}</span></span>
+                                <span class="rounded"><span class="blue tabs1" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I've unglued&nbsp;</span>{{ backed }}</span></span>
+                                <span class="rounded"><span class="orange tabs2" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I'm ungluing&nbsp;</span>{{ backing }}</span></span>
+                                <span class="rounded"><span class="grey tabs3" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I'm wishing for&nbsp;</span>{{ wished }}</span></span>
                                 </div>
                             </div>
                             <div class="user-block4">
