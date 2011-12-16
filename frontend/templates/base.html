@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {# raw url references raise test errors in tests for django registration; this is a workaround #}
 {% url privacy as privacyurl %}
+{% url terms as termsurl %}
 {% url regluit.frontend.views.edit_user as editurl %}
 {% url rightsholders as rhtoolsurl %}
 {% url faq as faqurl %}
@@ -82,7 +83,7 @@
     {% endif %}
     <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
     <li><a href="{{privacyurl}}">Privacy</a></li>
-    <li><a href="/stub/terms_and_conditions">Terms and Conditions</a></li>
+    <li><a href="{{termsurl}}">Terms and Conditions</a></li>
     {% if user.is_staff %}
     <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
     {% endif %}
