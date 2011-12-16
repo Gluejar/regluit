@@ -13,6 +13,9 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+#expandable {
+  display: none;
+}
 #main-container.main-container-fl .js-main {
   width: 968px;
   background: #ffffff url(/static/images/landingpage/container-top.png) top center no-repeat;
@@ -80,11 +83,26 @@
   color: #3d4e53;
   padding-right: 15px;
 }
-#js-rightcol {
+#collapser {
+  float: right;
+  height: 24px;
+  line-height: 24px;
+  width: 24px;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
+  border: solid 4px #3d4e53;
+  text-align: center;
+  font-size: 17px;
+  z-index: 5000;
+  margin-top: -12px;
+  margin-right: -22px;
+}
+#js-rightcol, #js-rightcol2 {
   float: right;
   width: 230px;
 }
-#js-rightcol .jsmodule {
+#js-rightcol .jsmodule, #js-rightcol2 .jsmodule {
   float: left;
   width: 208px;
   background: #edf3f4;
@@ -95,14 +113,14 @@
   margin-bottom: 10px;
   padding: 0 10px 10px 10px;
 }
-#js-rightcol .jsmodule.last {
+#js-rightcol .jsmodule.last, #js-rightcol2 .jsmodule.last {
   border-bottom: none;
   padding-bottom: 10px;
 }
-#js-rightcol div.button {
+#js-rightcol div.button, #js-rightcol2 div.button {
   padding-top: 10px;
 }
-#js-rightcol label {
+#js-rightcol label, #js-rightcol2 label {
   width: 100%;
   display: block;
   clear: both;

@@ -24,10 +24,16 @@
   float: left;
   width: 100%;
   clear: both;
+  padding-top: 10px;
 }
 .user-block-hide .block {
   float: left;
-  width: 33%;
+}
+.user-block-hide .block1, .user-block-hide .block3 {
+  width: 25%;
+}
+.user-block-hide .block2 {
+  width: 50%;
 }
 .user-block-hide input {
   float: left;
@@ -71,10 +77,20 @@ img.user-avatar {
 }
 .social {
   width: 100%;
-  padding-left: 35px;
+}
+span.special-user-name {
+  display: block;
+  font-size: 17px;
+  color: #3d4e53;
+  margin-left: 10px;
+  font-weight: bold;
+  height: 50px;
 }
 span.user-name, span.user-date, span.user-short-info {
   display: block;
+}
+.user-block2 .user-short-info {
+  padding-right: 10px;
 }
 span.user-name, span.user-name a, a {
   font-size: 12px;
@@ -126,7 +142,6 @@ div.check-list {
 }
 a.profile-edit {
   display: block;
-  background: url("/static/images/header/icon-edit.png") right top no-repeat;
 }
 div.profile-save {
   padding-top: 15px;
@@ -185,6 +200,9 @@ ul.tabs li {
   height: 46px;
   line-height: 46px;
   margin-right: 2px;
+}
+ul.tabs li.tabs1, ul.tabs li.tabs2 {
+  width: 112px;
 }
 ul.tabs li a {
   height: 46px;
