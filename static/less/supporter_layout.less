@@ -13,12 +13,20 @@
 	float: left;
 	width:100%;
 	clear:both;
+	padding-top: 10px;
 	
 	.block { 
 		float:left; 
-		width:33%;
 	}
 	
+	.block1, .block3 {
+		width:25%;
+	}
+	
+	.block2 {
+		width:50%;
+	}
+
 	input { 
 		float:left; 
 		margin:3px 10px 0 0;
@@ -74,13 +82,25 @@ img.user-avatar {
 
 .social { 
 	width:100%;
-	padding-left:35px;
+}
+
+span.special-user-name {
+	display: block;
+	font-size: 17px;
+	color:@text-blue;
+	margin-left:10px;
+	font-weight:bold;
+	height:50px;
 }
 
 span.user-name,
 span.user-date, 
 span.user-short-info { 
 	display: block;
+}
+
+.user-block2 .user-short-info {
+	padding-right:10px;
 }
 
 span.user-name,
@@ -142,7 +162,7 @@ div.check-list {
 
 a.profile-edit { 
 	display:block; 
-	background:url("@{image-base}header/icon-edit.png") right top no-repeat;
+//	background:url("@{image-base}header/icon-edit.png") right top no-repeat;
 }
 
 div.profile-save { 
@@ -212,6 +232,10 @@ ul.tabs {
 		float: left; 
 		.height(46px); 
 		margin-right:2px;
+		
+		&.tabs1, &.tabs2 {
+			width:112px;
+		}
 
 		a { 
 			.height(46px);

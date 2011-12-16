@@ -65,7 +65,7 @@ class ProfileForm(forms.ModelForm):
         model = UserProfile
         fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter'
         widgets = {
-            'tagline': forms.Textarea(attrs={'cols': 35, 'rows': 4}),
+            'tagline': forms.Textarea(attrs={'cols': 25, 'rows': 5}),
         }
 
 class UserData(forms.Form):

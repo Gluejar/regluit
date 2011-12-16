@@ -55,7 +55,6 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <a class="my-setting" href="#">My Settings</a>
                             </div>
                             </div>
-                            {% endifequal %}
                             <div class="user-block2">
                             	{% if supporter.profile.pic_url %}
                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
@@ -66,6 +65,22 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
+                            {% else %}
+                            <div class="user-block1">
+                            <div class="block-inner">
+                            	{% if supporter.profile.pic_url %}
+                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                           		{% else %}
+                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                {% endif %}
+                                <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
+                                <span class="user-date">{{ date }}</span>
+                            </div>
+                            </div>
+                            <div class="user-block2">
+                                <span class="user-short-info">{{ supporter.profile.tagline }}</span>
+                            </div>
+                            {% endifequal %}
                             <div class="user-block3">
                                 <div class="badges">
                                 <span class="rounded"><span class="blue tabs1" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I've unglued&nbsp;</span>{{ backed }}</span></span>
@@ -109,12 +124,12 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
-                                <h3><a class="profile-edit" href="#">Your Tagline</a></h3>
+                                <h3><a class="profile-edit" href="#">Your Tagline</a></h3> (140 characters max)
                                     {{ profile_form.tagline.errors }}
                                     {{ profile_form.tagline }}
 
-                                     <input class="profile-save" type="submit" name="submit" value="Update" id="submit">
                             </div>
+                                     <input class="profile-save" type="submit" name="submit" value="Update" id="submit">
                             </div>
                             
                              <div class="block block2">

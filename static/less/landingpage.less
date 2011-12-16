@@ -9,12 +9,15 @@
 	position:absolute; 
 	top:45%;
 }
+#expandable {
+	display: none;
+}
 
 #main-container.main-container-fl .js-main {
 	width:968px;
 	background:#fff url(/static/images/landingpage/container-top.png) top center no-repeat;
 }
-#js-maincol-fl { 
+#js-maincol-fl,  { 
 	padding:30px 30px 0 30px;
 	overflow:hidden;
 
@@ -90,7 +93,20 @@
 	}
 }
 
-#js-rightcol {  
+#collapser {
+	float: right;
+	.height(24px);
+	width: 24px;
+	.border-radius(12px, 12px, 12px, 12px); 
+	border: solid 4px @text-blue;
+	text-align: center;
+	font-size: 17px;
+	z-index:5000;
+	margin-top: -12px;
+	margin-right:-22px;
+}
+
+#js-rightcol, #js-rightcol2 {  
 	float:right;
 	width:230px;
 	
