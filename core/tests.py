@@ -155,7 +155,7 @@ class BookLoaderTests(TestCase):
         work = bookloader.add_by_isbn('0441012035').work
         bookloader.add_related('0441012035')
         bookloader.add_openlibrary(work)
-        subjects = list(work.subjects.all())
+        subjects = [s.name for s in work.subjects.all()]
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
         self.assertEqual(work.openlibrary_id, '/works/OL27258W')
