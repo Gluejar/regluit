@@ -4,9 +4,12 @@ import json
 import urllib
 import logging
 import datetime 
-from decimal import Decimal as D
 from re import sub
+from itertools import islice
+from decimal import Decimal as D
 
+import requests
+import oauth2 as oauth
 from django import forms
 from django.db.models import Q, Count, Sum
 from django.conf import settings
@@ -26,10 +29,6 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-import requests
-import oauth2 as oauth
-from itertools import islice
-
 from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
@@ -40,13 +39,13 @@ from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThin
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
-
 from regluit.core import goodreads
 from tastypie.models import ApiKey
+from regluit.payment.models import Transaction
+
 
 logger = logging.getLogger(__name__)
 
-from regluit.payment.models import Transaction
 
 def home(request):
     if request.user.is_authenticated():
@@ -136,19 +135,21 @@ def googlebooks(request, googlebooks_id):
         edition = models.Edition.objects.get(googlebooks_id=googlebooks_id)
     except models.Edition.DoesNotExist:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+        # we could populate_edition(edition) to pull in related editions here
+        # but it is left out for now to lower the amount of traffic on 
+        # googlebooks, librarything and openlibrary
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
-    tasks.add_related.delay(edition.isbn_10)
     work_url = reverse('work', kwargs={'work_id': edition.work.id})
     return HttpResponseRedirect(work_url)
 
 def subjects(request):
     order = request.GET.get('order')
     subjects = models.Subject.objects.all()
-    subjects = subjects.annotate(Count('editions'))
+    subjects = subjects.annotate(Count('works'))
 
     if request.GET.get('order') == 'count':
-        subjects = subjects.order_by('-editions__count')
+        subjects = subjects.order_by('-works__count')
     else:
         subjects = subjects.order_by('name')
 
@@ -558,7 +559,7 @@ def wishlist(request):
     if googlebooks_id:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # add related editions asynchronously
-        tasks.add_related.delay(edition.isbn_10)
+        tasks.populate_edition.delay(edition)
         request.user.wishlist.add_work(edition.work,'user')
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')

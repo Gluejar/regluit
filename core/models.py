@@ -211,6 +211,7 @@ class Work(models.Model):
     openlibrary_id = models.CharField(max_length=50, null=True)
     librarything_id = models.CharField(max_length=50, null=True)
     language = models.CharField(max_length=2, default="en", null=False)
+    openlibrary_lookup = models.DateTimeField(null=True)
 
     class Meta:
         ordering = ['title']
@@ -366,8 +367,8 @@ class Author(models.Model):
 
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=500)
-    editions = models.ManyToManyField("Edition", related_name="subjects")
+    name = models.CharField(max_length=200, unique=True)
+    works = models.ManyToManyField("Work", related_name="subjects")
 
     def __unicode__(self):
         return self.name

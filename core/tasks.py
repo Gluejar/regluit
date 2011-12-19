@@ -1,15 +1,18 @@
-from celery.decorators import task
-from regluit.core import bookloader
-from regluit.core import goodreads, librarything
 from time import sleep
 
-@task
-def add_related(isbn):
-    return bookloader.add_related(isbn)
+from celery.decorators import task
 
-@task
-def add_by_isbn(isbn):
-    return bookloader.add_by_isbn(isbn)
+from regluit.core import bookloader
+from regluit.core import goodreads, librarything
+
+@task 
+def populate_edition(edition):
+    """given an edition this task will populate the database with additional
+    information about related editions and subjects related to this edition
+    """
+    bookloader.add_related(edition.isbn_10)
+    bookloader.add_openlibrary(edition.work)
+    return edition
 
 @task
 def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id=None, max_books=None,

@@ -2,12 +2,16 @@
 
 import re
 import json
-import time
-import urllib
+import fileinput
 
 import requests
-from oaipmh.client import Client
-from oaipmh.metadata import MetadataRegistry, oai_dc_reader
+
+def match():
+    for line in fileinput.input():
+        j = json.loads(line)
+        authors = j['authors']
+        title = j['title']
+        print googlebooks_id(title, authors)
 
 def google_search(title, authors, no_matches):
     headers = {'X-Forwarded-For': '69.243.24.29'}
@@ -78,6 +82,4 @@ def norm_author(a):
     return a
 
 if __name__ == "__main__":
-    results = open("results.txt", "w")
-    no_matches = open("no-matches.log", "w")
-    lookup(results, no_matches)
+    googlebooks_ids()

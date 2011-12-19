@@ -21,7 +21,7 @@ from time import sleep
 from math import factorial
 
 
-class TestBookLoader(TestCase):
+class BookLoaderTests(TestCase):
 
     def test_add_by_isbn(self):
         # edition
@@ -32,11 +32,6 @@ class TestBookLoader(TestCase):
         self.assertEqual(edition.isbn_10, '0441012035')
         self.assertEqual(edition.isbn_13, '9780441012039')
         self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
-
-        # subjects
-        subject_names = [subject.name for subject in edition.subjects.all()]
-        self.assertEqual(len(subject_names), 11)
-        self.assertTrue('Japan' in subject_names)
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
@@ -51,7 +46,6 @@ class TestBookLoader(TestCase):
         self.assertEqual(models.Edition.objects.all().count(), 1)
         self.assertEqual(models.Author.objects.all().count(), 1)
         self.assertEqual(models.Work.objects.all().count(), 1)
-        self.assertEqual(models.Subject.objects.all().count(), 11)
        
     def test_missing_isbn(self):
         e = bookloader.add_by_isbn('0139391401')
@@ -79,6 +73,11 @@ class TestBookLoader(TestCase):
         self.assertEqual(models.Edition.objects.count(),
                 edition.work.editions.count())
 
+    def test_populate_edition(self):
+        edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
+        edition = tasks.populate_edition.run(edition)
+        self.assertTrue(edition.work.editions.all().count() > 20)
+        self.assertTrue(edition.work.subjects.all().count() > 10)
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works
@@ -86,6 +85,8 @@ class TestBookLoader(TestCase):
         e2 = bookloader.add_by_isbn('1458776204')
         self.assertTrue(e1)
         self.assertTrue(e2)
+        self.assertTrue(e1.work)
+        self.assertTrue(e2.work)
         self.assertEqual(models.Work.objects.count(), 2)
 
         # add the stub works to a wishlist
@@ -117,10 +118,6 @@ class TestBookLoader(TestCase):
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
     
-    def test_oclc(self):
-        edition = bookloader.add_by_oclc('1246014')
-        self.assertEqual(edition.title, 'The Latin language')
-
     def test_ebook(self):
         edition = bookloader.add_by_oclc('1246014')
         self.assertEqual(edition.ebooks.count(), 2)
@@ -153,6 +150,19 @@ class TestBookLoader(TestCase):
         bookloader.add_related('079530272X')
         for edition in work.editions.all():
             self.assertEqual(edition.title.lower(), "cat's cradle")
+
+    def test_add_openlibrary(self):
+        work = bookloader.add_by_isbn('0441012035').work
+        bookloader.add_related('0441012035')
+        bookloader.add_openlibrary(work)
+        subjects = work.subjects.all()
+        for s in work.subjects.all():
+            print s.name
+        self.assertEqual(len(subjects), 2)
+        self.assertEqual(subjects[0].name, 'Computer science')
+        self.assertEqual(subjects[1].name, 'Mathematics')
+        self.assertEqual(work.openlibrary_id, '/works/OL3951639W')
+
 
 class SearchTests(TestCase):
 
@@ -384,10 +394,3 @@ class ISBNTest(TestCase):
         self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])),2)
         self.assertEqual(len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),1)
 
-def suite():
-
-    testcases = [TestBookLoader, SearchTests, CampaignTests, WishlistTest, CeleryTaskTest, GoodreadsTest, LibraryThingTest, ISBNTest]
-    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
-    return suites         
-        
