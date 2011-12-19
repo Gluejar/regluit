@@ -192,9 +192,6 @@ ul.tabs li a:hover, ul.tabs li.active a {
 #js-rightcol .jsmodule {
   margin-bottom: 10px;
 }
-#js-rightcol .jsmod-content {
-  padding-left: 10px;
-}
 .js-rightcol-pad {
   border: 1px solid #d6dde0;
   -moz-border-radius: 10px 10px 10px 10px;
@@ -228,14 +225,56 @@ ul.social li {
   height: 28px;
   line-height: 28px;
 }
+ul.social li a {
+  padding-left: 10px;
+}
 ul.social li.facebook {
-  background: url("/static/images/icons/facebook.png") left center no-repeat;
+  background: url("/static/images/icons/facebook.png") 10px center no-repeat;
+}
+ul.social li.facebook span {
+  padding-left: 10px;
+}
+ul.social li.facebook:hover {
+  background: #8dc63f url("/static/images/icons/facebook-hover.png") 10px center no-repeat;
+}
+ul.social li.facebook:hover span {
+  color: #fff;
 }
 ul.social li.twitter {
-  background: url("/static/images/icons/twitter.png") left center no-repeat;
+  background: url("/static/images/icons/twitter.png") 10px center no-repeat;
+}
+ul.social li.twitter span {
+  padding-left: 10px;
+}
+ul.social li.twitter:hover {
+  background: #8dc63f url("/static/images/icons/twitter-hover.png") 10px center no-repeat;
+}
+ul.social li.twitter:hover span {
+  color: #fff;
 }
 ul.social li.email {
-  background: url("/static/images/icons/email.png") left center no-repeat;
+  background: url("/static/images/icons/email.png") 10px center no-repeat;
+}
+ul.social li.email span {
+  padding-left: 10px;
+}
+ul.social li.email:hover {
+  background: #8dc63f url("/static/images/icons/email-hover.png") 10px center no-repeat;
+}
+ul.social li.email:hover span {
+  color: #fff;
+}
+ul.social li.embed {
+  background: url("/static/images/icons/embed.png") 10px center no-repeat;
+}
+ul.social li.embed span {
+  padding-left: 10px;
+}
+ul.social li.embed:hover {
+  background: #8dc63f url("/static/images/icons/embed-hover.png") 10px center no-repeat;
+}
+ul.social li.embed:hover span {
+  color: #fff;
 }
 #widgetcode {
   display: none;

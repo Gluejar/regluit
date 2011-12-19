@@ -14,9 +14,9 @@
 
 <script>
 jQuery(document).ready(function(){
-	jQuery('#embed').click(function(){
-		jQuery('div#widgetcode').toggle();
-	});
+    jQuery('#embed').click(function(){
+        jQuery('div#widgetcode').toggle();
+    });
 });
 </script>
 {% endblock %}
@@ -95,19 +95,19 @@ jQuery(document).ready(function(){
                                 {{ wishers }} Ungluers have
                             {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support">
-                        	{% if request.user.is_anonymous %}
-    							<div class="create-account">
-        							<span title="{% url work work.id %}">Login to Add</span>
-    							</div>
+                            {% if request.user.is_anonymous %}
+                                <div class="create-account">
+                                    <span title="{% url work work.id %}">Login to Add</span>
+                                </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
-    							<div class="remove-wishlist">
-        							<span id="{{ work.id }}">Remove This</span>
-    							</div>
-    						{% else %}
-    							<div class="add-wishlist">
-        							<span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
-    							</div>
-    						{% endif %}{% endif %}
+                                <div class="remove-wishlist">
+                                    <span id="{{ work.id }}">Remove This</span>
+                                </div>
+                            {% else %}
+                                <div class="add-wishlist">
+                                    <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
+                                </div>
+                            {% endif %}{% endif %}
                         </div>
                         {% endif %}
                     </div>
@@ -153,17 +153,17 @@ jQuery(document).ready(function(){
                     <div class="tabs-content">
                         {% for supporter in work.wished_by %}
                           <div class="work_supporter">
-                          	<a href="/supporter/{{supporter}}">
-                          	<div class="work_supporter_avatar">
-                        		{% if supporter.profile.pic_url %}
-                                	<img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                           			{% else %}
-                                	<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                	{% endif %}
+                              <a href="/supporter/{{supporter}}">
+                              <div class="work_supporter_avatar">
+                                {% if supporter.profile.pic_url %}
+                                    <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                       {% else %}
+                                    <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                    {% endif %}
                             </div>
-							<div class="work_supporter_name">{{supporter }}</div>
-							</a>
-						  </div>
+                            <div class="work_supporter_name">{{supporter }}</div>
+                            </a>
+                          </div>
                         {% endfor %}
                     </div>
                     </div>
@@ -196,10 +196,19 @@ jQuery(document).ready(function(){
                         {% endif %}
                         {% endif %}
 
+                        {% if work.subjects.all.count > 0 %}
+                        <h4>Subjects</h4>
+                        <ul>
+                        {% for subject in work.subjects.all %}
+                            <li>{{ subject.name }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+
                         <h4>Editions</h4>
                         {% for edition in editions %}
-            				<div class="editions"><div><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
-        				{% endfor %}
+                            <div class="editions"><div><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
+                        {% endfor %}
                     </div>
                     </div>
                 </div>
@@ -213,10 +222,10 @@ jQuery(document).ready(function(){
                 <h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
                     <ul class="social menu">
-                        <li class="facebook first"><a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}"><span>Facebook</span></a></li>
-                        <li class="twitter"><a href="https://twitter.com/intent/tweet?url=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><span>Twitter</span></a></li>
-                        <li class="lasts email"><a href="#"<span>Email</span></a></li>
-                        <li><a href="#" id="embed"><span>Embed</span></a></li>
+                        <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
+                        <a href="https://twitter.com/intent/tweet?url=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
+                        <a href="#"><li class="email"><span>Email</span></li></a>
+                        <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
                         <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                     </ul>
                 </div>
