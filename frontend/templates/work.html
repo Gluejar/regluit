@@ -196,6 +196,15 @@ jQuery(document).ready(function(){
                         {% endif %}
                         {% endif %}
 
+                        {% if work.subjects.all.count > 0 %}
+                        <h4>Subjects</h4>
+                        <ul>
+                        {% for subject in work.subjects.all %}
+                            <li>{{ subject.name }}</li>
+                        {% endfor %}
+                        </ul>
+                        {% endif %}
+
                         <h4>Editions</h4>
                         {% for edition in editions %}
                             <div class="editions"><div><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
