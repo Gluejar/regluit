@@ -201,19 +201,34 @@ a.my-setting.active {
 
 	&.wantto {
 		border-bottom: 4px solid #bacfd6;
+		
+		ul.tabs li.tabs3.active a {
+			background: @blue-grey;
+			color: @text-blue;
+		}
 	}
 
 	&.ungluing {
 		border-bottom: 4px solid #eabc7c;
+
+		ul.tabs li.tabs2.active a {
+			background: #eabc7c;
+			color: #fff;
+		}
 	}
 
 	&.unglued {
 		border-bottom: 4px solid #a7d26a;
+
+		ul.tabs li.tabs1.active a {
+			background: @green;
+			color: #fff;
+		}
 	}
 }
 
 #tabs ul.book-list-view { 
-	margin-bottom:4px !important;
+	margin-bottom:0 !important;
 }
 
 #tabs-1,
@@ -244,14 +259,24 @@ ul.tabs {
 			padding:0 10px;
 			min-width:80px;
 			.border-radius(7px, 7px, 0, 0);
-			background:@blue-grey;
-			color:@text-blue;
-		}
-		
-		a:hover, &.active a {
 			background:@medium-blue;
 			color:#fff;
 		}
+		
+		&.tabs1 a:hover, &.active a {
+			background:@green;
+			color:#fff
+		} 
+
+		&.tabs2 a:hover, &.active a {
+			background:#eabc7c;
+			color:#fff;
+		} 
+
+		&.tabs3 a:hover, &.active a {
+			background:@blue-grey;
+			color:@text-blue;
+		} 
 	}
 }
 

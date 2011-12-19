@@ -177,14 +177,26 @@ a.my-setting.active {
 #tabs.wantto {
   border-bottom: 4px solid #bacfd6;
 }
+#tabs.wantto ul.tabs li.tabs3.active a {
+  background: #d6dde0;
+  color: #3d4e53;
+}
 #tabs.ungluing {
   border-bottom: 4px solid #eabc7c;
+}
+#tabs.ungluing ul.tabs li.tabs2.active a {
+  background: #eabc7c;
+  color: #fff;
 }
 #tabs.unglued {
   border-bottom: 4px solid #a7d26a;
 }
+#tabs.unglued ul.tabs li.tabs1.active a {
+  background: #8dc63f;
+  color: #fff;
+}
 #tabs ul.book-list-view {
-  margin-bottom: 4px !important;
+  margin-bottom: 0 !important;
 }
 #tabs-1, #tabs-2, #tabs-3 {
   margin-left: 10px;
@@ -214,12 +226,20 @@ ul.tabs li a {
   -moz-border-radius: 7px 7px 0 0;
   -webkit-border-radius: 7px 7px 0 0;
   border-radius: 7px 7px 0 0;
-  background: #d6dde0;
-  color: #3d4e53;
-}
-ul.tabs li a:hover, ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
+}
+ul.tabs li.tabs1 a:hover, ul.tabs li.active a {
+  background: #8dc63f;
+  color: #ffffff;
+}
+ul.tabs li.tabs2 a:hover, ul.tabs li.active a {
+  background: #eabc7c;
+  color: #fff;
+}
+ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
+  background: #d6dde0;
+  color: #3d4e53;
 }
 .book-list span.rounded > span {
   line-height: normal;
