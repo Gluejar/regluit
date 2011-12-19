@@ -11,6 +11,8 @@ import logging
 from decimal import Decimal as D
 from xml.dom import minidom
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
 
 def append_element(doc, parent, name, text):
@@ -46,7 +48,7 @@ class PaymentManager( object ):
             ref_date = datetime.now()
             transactions = Transaction.objects.filter(date_payment__isnull=False)
             
-        print transactions
+        logger.info(transactions)
         
         for t in transactions:
         
@@ -73,8 +75,8 @@ class PaymentManager( object ):
                     
                     try:
                         receiver = Receiver.objects.get(transaction=t, email=r['email'])
-                        print r
-                        print receiver
+                        logger.info(r)
+                        logger.info(receiver)
                         
                         # Check for updates on each receiver's status.  Note that unprocessed delayed chained payments
                         # will not have a status code or txn id code
@@ -328,8 +330,9 @@ class PaymentManager( object ):
         for t in transactions:
             
             # BUGBUG: Fill this in with the correct info from the campaign object
-            receiver_list = [{'email':'jakace_1309677337_biz@gmail.com', 'amount':t.amount}, 
-                            {'email':'seller_1317463643_biz@gmail.com', 'amount':t.amount * 0.20}]
+            # Campaign.paypal_receiver
+            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':t.amount}, 
+                            {'email':campaign.paypal_receiver, 'amount':D(t.amount) * (D('1.00') - D(str(settings.GLUEJAR_COMMISSION)))}]
             
             self.execute_transaction(t, receiver_list) 
 
@@ -340,7 +343,7 @@ class PaymentManager( object ):
         '''
         finish_transaction
         
-        calls the paypal API to excute payment to non-primary receivers
+        calls the paypal API to execute payment to non-primary receivers
         
         transaction: the transaction we want to complete
         
@@ -578,7 +581,7 @@ class PaymentManager( object ):
         
          # Create a response for this
         envelope = p.envelope()
-        print envelope
+        logger.info(envelope)
         
         if envelope:        
             r = PaymentResponse.objects.create(api=p.api(),
@@ -594,7 +597,7 @@ class PaymentManager( object ):
             
             if self.embedded:
                 url = p.embedded_url()
-                print url
+                logger.info(url)
             else:
                 url = p.next_url()
                 
