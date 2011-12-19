@@ -1,5 +1,6 @@
 import json
 import logging
+import datetime
 
 import requests
 from xml.etree import ElementTree
@@ -11,6 +12,7 @@ from django.db import IntegrityError
 from regluit.core import models
 
 logger = logging.getLogger(__name__)
+
 
 def add_by_oclc(oclc):
     logger.info("adding book by oclc %s", oclc)
@@ -107,10 +109,6 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
         a, created = models.Author.objects.get_or_create(name=a)
         a.editions.add(e)
 
-    for s in d.get('categories', []):
-        s, created = models.Subject.objects.get_or_create(name=s)
-        s.editions.add(e)
-
     access_info = item.get('accessInfo')
     if access_info:
         e.public_domain = item.get('public_domain', None)
@@ -190,6 +188,47 @@ def merge_works(w1, w2):
     # TODO: should we decommission w2 instead of deleting it, so that we can
     # redirect from the old work URL to the new one?
     w2.delete()
+
+
+def add_openlibrary(work):
+    work.openlibrary_lookup = datetime.datetime.now()
+    work.save()
+
+    # find the first ISBN match in OpenLibrary
+    logger.info("looking up openlibrary data for work %s", work.id)
+    found = False
+    e = None # openlibrary edition json
+    w = None # openlibrary work json
+
+    # get the 1st openlibrary match by isbn that has an associated work
+    url = "http://openlibrary.org/api/books"
+    params = {"format": "json", "jscmd": "details"}
+    for edition in work.editions.all():
+        isbn_key = "ISBN:%s" % edition.isbn_10
+        params['bibkeys'] = isbn_key
+        e = _get_json(url, params)
+        if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):
+            work_key = e[isbn_key]['details']['works'].pop(0)['key']
+            logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
+            w = _get_json("http://openlibrary.org" + work_key)
+            if w.has_key('subjects'):
+                found = True
+                break
+
+    if not found:
+        logger.warn("unable to find work %s at openlibrary", work.id)
+        return 
+
+    # add the subjects to the Work
+    for s in w.get('subjects',  []):
+        logger.info("adding subject %s to work %s", s, work.id)
+        subject, created = models.Subject.objects.get_or_create(name=s)
+        work.subjects.add(subject)
+
+    work.openlibrary_id = w['key']
+    work.save()
+    # TODO: add authors here once they are moved from Edition to Work
+    # TODO: add LCCN, LibraryThing, GoodReads to appropriate models
 
 
 def _get_json(url, params={}):
