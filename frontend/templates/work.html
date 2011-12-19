@@ -14,9 +14,9 @@
 
 <script>
 jQuery(document).ready(function(){
-	jQuery('#embed').click(function(){
-		jQuery('div#widgetcode').toggle();
-	});
+    jQuery('#embed').click(function(){
+        jQuery('div#widgetcode').toggle();
+    });
 });
 </script>
 {% endblock %}
@@ -95,19 +95,19 @@ jQuery(document).ready(function(){
                                 {{ wishers }} Ungluers have
                             {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
                         <div class="btn_support">
-                        	{% if request.user.is_anonymous %}
-    							<div class="create-account">
-        							<span title="{% url work work.id %}">Login to Add</span>
-    							</div>
+                            {% if request.user.is_anonymous %}
+                                <div class="create-account">
+                                    <span title="{% url work work.id %}">Login to Add</span>
+                                </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
-    							<div class="remove-wishlist">
-        							<span id="{{ work.id }}">Remove This</span>
-    							</div>
-    						{% else %}
-    							<div class="add-wishlist">
-        							<span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
-    							</div>
-    						{% endif %}{% endif %}
+                                <div class="remove-wishlist">
+                                    <span id="{{ work.id }}">Remove This</span>
+                                </div>
+                            {% else %}
+                                <div class="add-wishlist">
+                                    <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
+                                </div>
+                            {% endif %}{% endif %}
                         </div>
                         {% endif %}
                     </div>
@@ -153,17 +153,17 @@ jQuery(document).ready(function(){
                     <div class="tabs-content">
                         {% for supporter in work.wished_by %}
                           <div class="work_supporter">
-                          	<a href="/supporter/{{supporter}}">
-                          	<div class="work_supporter_avatar">
-                        		{% if supporter.profile.pic_url %}
-                                	<img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                           			{% else %}
-                                	<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                	{% endif %}
+                              <a href="/supporter/{{supporter}}">
+                              <div class="work_supporter_avatar">
+                                {% if supporter.profile.pic_url %}
+                                    <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                       {% else %}
+                                    <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                    {% endif %}
                             </div>
-							<div class="work_supporter_name">{{supporter }}</div>
-							</a>
-						  </div>
+                            <div class="work_supporter_name">{{supporter }}</div>
+                            </a>
+                          </div>
                         {% endfor %}
                     </div>
                     </div>
@@ -198,8 +198,8 @@ jQuery(document).ready(function(){
 
                         <h4>Editions</h4>
                         {% for edition in editions %}
-            				<div class="editions"><div><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
-        				{% endfor %}
+                            <div class="editions"><div><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
+                        {% endfor %}
                     </div>
                     </div>
                 </div>
