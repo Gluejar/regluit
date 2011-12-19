@@ -157,7 +157,7 @@ class BookLoaderTests(TestCase):
         bookloader.add_openlibrary(work)
         subjects = list(work.subjects.all())
         self.assertTrue(len(subjects) > 10)
-        self.assertEqual('Science fiction' in subjects)
+        self.assertTrue('Science fiction' in subjects)
         self.assertEqual(work.openlibrary_id, '/works/OL27258W')
 
 
@@ -242,24 +242,12 @@ class CampaignTests(TestCase):
         self.assertTrue(c4.update_success())        
         self.assertEqual(c4.status, 'SUCCESSFUL')
         
-        
         # WITHDRAWN
         c5 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')        
 
-
-class SettingsTest(TestCase):
-    
-    def test_dev_me_alignment(self):
-        from regluit.settings import me, dev
-        self.assertEqual(set(me.__dict__.keys()) ^ set(dev.__dict__.keys()), set([]))
-        
-    def test_prod_me_alignment(self):
-        from regluit.settings import me, prod
-        self.assertEqual(set(me.__dict__.keys()) ^ set(prod.__dict__.keys()), set([]))
-        
 
 class WishlistTest(TestCase):
 
@@ -272,20 +260,6 @@ class WishlistTest(TestCase):
         self.assertEqual(user.wishlist.works.count(), 1)
         user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
-
-class SettingsTest(TestCase):
-    
-    def test_dev_me_alignment(self):
-        try:
-            from regluit.settings import me, dev
-        except:
-            return
-        
-        self.assertEqual(set(me.__dict__.keys()) ^ set(dev.__dict__.keys()), set([]))
-        
-    def test_prod_me_alignment(self):
-        from regluit.settings import me, prod
-        self.assertEqual(set(me.__dict__.keys()) ^ set(prod.__dict__.keys()), set([]))
 
 class CeleryTaskTest(TestCase):
 
