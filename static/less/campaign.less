@@ -5,6 +5,22 @@
 	border: solid 5px #EDF3F4;
 }
 
+.shareclass(@sharewhere) {
+	background:url("@{image-base}icons/@{sharewhere}.png") 10px center no-repeat;
+		
+	span {
+		padding-left:10px;
+	}
+		
+	&:hover {
+	background:@green url("@{image-base}icons/@{sharewhere}-hover.png") 10px center no-repeat;
+			
+	span {
+		color: #fff;
+		}
+	}
+}
+
 #js-page-wrap {
 	overflow:hidden;
 }
@@ -205,11 +221,7 @@ ul.tabs {
 
 	.jsmodule {
 		margin-bottom:10px;
-	}
-	
-	.jsmod-content {
-		padding-left:10px;
-	}
+	}	
 }
 
 .js-rightcol-pad {
@@ -245,18 +257,27 @@ div.content-block-content {
 ul.social li {
 	padding:5px 0 5px 30px;
 	.height(28px);
-
-	&.facebook {
-		background:url("@{image-base}icons/facebook.png") left center no-repeat;
+	
+	a {
+		padding-left: 10px;
 	}
 
+	&.facebook {
+		.shareclass("facebook");
+	}
+	
 	&.twitter {
-		background:url("@{image-base}icons/twitter.png") left center no-repeat;
+		.shareclass("twitter");
 	}
 	
 	&.email {
-		background:url("@{image-base}icons/email.png") left center no-repeat;
+		.shareclass("email");
 	}
+	
+	&.embed {
+		.shareclass("embed");
+	}
+	
 }
 
 #widgetcode {

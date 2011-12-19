@@ -175,7 +175,7 @@ a.my-setting.active {
   width: 100%;
 }
 #tabs.wantto {
-  border-bottom: 4px solid #bacfd6;
+  border-bottom: 4px solid #d6dde0;
 }
 #tabs.wantto ul.tabs li.tabs3.active a {
   background: #d6dde0;
@@ -189,7 +189,7 @@ a.my-setting.active {
   color: #fff;
 }
 #tabs.unglued {
-  border-bottom: 4px solid #a7d26a;
+  border-bottom: 4px solid #8dc63f;
 }
 #tabs.unglued ul.tabs li.tabs1.active a {
   background: #8dc63f;
