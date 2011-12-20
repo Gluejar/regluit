@@ -383,7 +383,7 @@ class Subject(models.Model):
 
 
 class Edition(models.Model):
-    googlebooks_id = models.CharField(max_length=50, null=False)
+    googlebooks_id = models.CharField(max_length=50, null=False, unique=True)
     goodreads_id = models.CharField(max_length=50, null=True)
     librarything_id = models.CharField(max_length=50, null=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -392,7 +392,6 @@ class Edition(models.Model):
     publisher = models.CharField(max_length=255)
     publication_date = models.CharField(max_length=50)
     public_domain = models.NullBooleanField(null=True)
-    #isbn_10 = models.CharField(max_length=10, null=True)
     isbn_13 = models.CharField(max_length=13, null=True)
     oclc = models.CharField(max_length=25, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
