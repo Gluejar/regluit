@@ -12,5 +12,8 @@ class Command(BaseCommand):
         for r in q:
             if r['googlebooks_id__count'] == 1:
                 continue
-            print r['googlebooks_id']
-
+            gb = r['googlebooks_id']
+            editions = models.Edition.objects.filter(googlebooks_id=gb)
+            for e in editions[1:]:
+                print "removing duplicate edition: %s" % e
+                e.delete()
