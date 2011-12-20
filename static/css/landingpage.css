@@ -143,6 +143,29 @@
   border-bottom: none;
   padding-bottom: 10px;
 }
+#js-rightcol .jsmodule input, #js-rightcol2 .jsmodule input {
+  -moz-border-radius: 32px 32px 32px 32px;
+  -webkit-border-radius: 32px 32px 32px 32px;
+  border-radius: 32px 32px 32px 32px;
+  border: none;
+  height: 36px;
+  line-height: 36px;
+  width: 90%;
+  outline: none;
+  padding-left: 16px;
+}
+#js-rightcol .jsmodule input.signup, #js-rightcol2 .jsmodule input.signup {
+  background: url("/static/images/landingpage/button.png") no-repeat 0 0;
+  border: medium none;
+  color: #FFF;
+  cursor: pointer;
+  display: inline-block;
+  font-weight: bold;
+  font-size: 13px;
+  overflow: hidden;
+  padding: 0 31px 0 11px;
+  width: 111px;
+}
 #js-rightcol div.button, #js-rightcol2 div.button {
   padding-top: 10px;
 }
@@ -158,20 +181,6 @@
 h3.heading {
   color: #3d4e53;
   font-weight: bold;
-}
-input.signup {
-  background: url("/static/images/landingpage/button.png") no-repeat 0 0;
-  border: medium none;
-  color: #FFF;
-  cursor: pointer;
-  display: inline-block;
-  font-weight: bold;
-  font-size: 13px;
-  height: 36px;
-  line-height: 36px;
-  overflow: hidden;
-  padding: 0 31px 0 11px;
-  width: 111px;
 }
 ul.ungluingwhat {
   list-style: none;
@@ -373,6 +382,8 @@ h2.page-heading {
 }
 h3.module-title {
   padding: 14px 0;
+  font-size: 17px;
+  font-weight: normal;
 }
 .google_signup {
   padding: 14px 0;

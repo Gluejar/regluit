@@ -153,6 +153,33 @@
 			border-bottom:none; 
 			padding-bottom:10px;
 		}
+		
+		input {
+			.border-radius(32px, 32px, 32px, 32px);
+			border: none;
+			.height(36px);
+			width:90%;
+			outline: none;
+			padding-left: 16px;
+		}
+		
+		input.signup { 
+			background: url("@{image-base}landingpage/button.png") no-repeat 0 0;
+			//the following are part of what we need to move this from graphics to css
+			// which we will need if we institute a call-to-action color separately from green
+			//.border-radius(32px, 0, 0, 32px);
+			//background-color: @call-to-action;
+		    border: medium none;
+		    color: #FFF;
+		    cursor: pointer;
+		    display: inline-block;
+		    font-weight: bold;
+			font-size: 13px;
+    		overflow: hidden;
+    		padding: 0 31px 0 11px;
+    		width: 111px;
+		}
+
 	}
 	
 	div.button { 
@@ -174,24 +201,6 @@
 h3.heading {
 	color:@text-blue; 
 	font-weight:bold;
-}
-
-input.signup { 
-	background: url("@{image-base}landingpage/button.png") no-repeat 0 0;
-	//the following are part of what we need to move this from graphics to css
-	// which we will need if we institute a call-to-action color separately from green
-	//.border-radius(32px, 0, 0, 32px);
-	//background-color: @call-to-action;
-    border: medium none;
-    color: #FFF;
-    cursor: pointer;
-    display: inline-block;
-    font-weight: bold;
-	font-size: 13px;
-	.height(36px);
-    overflow: hidden;
-    padding: 0 31px 0 11px;
-    width: 111px;
 }
 
 ul.ungluingwhat { 
@@ -422,6 +431,8 @@ h2.page-heading {
 
 h3.module-title {
 	padding: 14px 0;
+	font-size:17px;
+	font-weight: normal;
 }
 
 .google_signup {

@@ -62,14 +62,16 @@ h2 {
 
 h3 {
     &.jsmod-title {
-        background:url(@background-header) 0 0 no-repeat;
+    	.border-radius(8px, 8px, 0, 0);
+    	background: @medium-blue-grey;
         padding:0;
         margin:0;
         height:73px;
         
         span {
-            font-size:17px;
-            color:#fff;
+            font-size:19px;
+            font-style: italic;
+            color:@text-blue;
             padding:26px 40px 27px 20px;
             display:block;
         }
@@ -231,7 +233,6 @@ a.readon {
     
     .jsmod-content {
         border: solid 1px @pale-blue;
-        margin-left:10px;
         .border-radius(0, 0, 10px, 10px);
     }
 
