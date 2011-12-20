@@ -10,7 +10,7 @@ def populate_edition(edition):
     """given an edition this task will populate the database with additional
     information about related editions and subjects related to this edition
     """
-    bookloader.add_related(edition.isbn_10)
+    bookloader.add_related(edition.isbn_13)
     bookloader.add_openlibrary(edition.work)
     return edition
 

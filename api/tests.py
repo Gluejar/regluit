@@ -7,6 +7,7 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 
 from regluit.core import bookloader, models
+import regluit.core.isbn
 
 class ApiTests(TestCase):
 
@@ -56,7 +57,7 @@ class ApiTests(TestCase):
     def test_campaign_lookup_by_isbn(self):
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__editions__isbn_10': '0441012035', 
+            'work__editions__isbn_13': regluit.core.isbn.convert_10_to_13('0441012035'), 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })
@@ -74,7 +75,7 @@ class ApiTests(TestCase):
 
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__editions__isbn_10': '0441012035', 
+            'work__editions__isbn_13': regluit.core.isbn.convert_10_to_13('0441012035'), 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })
@@ -82,11 +83,11 @@ class ApiTests(TestCase):
         self.assertEqual(j['meta']['logged_in_username'], 'test')
         self.assertEqual(j['objects'][0]['in_wishlist'], False)
 
-        w = models.Work.objects.get(editions__isbn_10='0441012035') 
+        w = models.Work.objects.get(editions__isbn_13=regluit.core.isbn.convert_10_to_13('0441012035')) 
         self.user.wishlist.add_work(w,'test')
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__editions__isbn_10': '0441012035', 
+            'work__editions__isbn_13': regluit.core.isbn.convert_10_to_13('0441012035'), 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })
