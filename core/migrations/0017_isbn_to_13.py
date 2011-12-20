@@ -5,7 +5,7 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 class Migration(SchemaMigration):
-
+    no_dry_run = True
     def forwards(self, orm):
         import regluit.core.isbn
         for edition in orm.Edition.objects.all():
