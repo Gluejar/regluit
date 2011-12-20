@@ -475,7 +475,7 @@ class PaymentManager( object ):
             logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def authorize(self, currency, target, amount, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
+    def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
         '''
         authorize
         
@@ -505,7 +505,7 @@ class PaymentManager( object ):
                                        anonymous=anonymous
                                        )
         
-        p = Preapproval(t, amount, return_url=return_url, cancel_url=cancel_url)
+        p = Preapproval(t, amount, expiry, return_url=return_url, cancel_url=cancel_url)
         
          # Create a response for this
         envelope = p.envelope()
