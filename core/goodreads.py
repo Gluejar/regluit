@@ -119,7 +119,7 @@ class GoodreadsClient(object):
             if int(response['status']) != httplib.OK:
                 raise GoodreadsException('Error authenticating Goodreads user: %s ' % response)
             else:
-                doc = ET.fromstring(content)
+                doc = ET.fromstring(content.encode('utf-8'))
                 user = doc.find('user')
                 userid = user.get('id')
                 name = user.find('name').text
@@ -155,10 +155,11 @@ class GoodreadsClient(object):
         while (more_pages):
         
           r = request(method,request_url,params=params)
+          print request_url, params
           if r.status_code != httplib.OK:
               raise GoodreadsException('Error in review_list_unauth: %s ' % r.content)
           else:
-              doc = ET.fromstring(r.content)
+              doc = ET.fromstring(r.content.encode('utf-8'))
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
               reviews = doc.findall('reviews/review')
               for review in reviews:
@@ -203,7 +204,7 @@ class GoodreadsClient(object):
           if int(response['status']) != httplib.OK:
               raise GoodreadsException('Error in review_list: %s ' % response)
           else:
-              doc = ET.fromstring(content)
+              doc = ET.fromstring(content.encode('utf-8'))
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
               reviews = doc.findall('reviews/review')
               for review in reviews:
@@ -239,7 +240,7 @@ class GoodreadsClient(object):
             raise GoodreadsException('Error in shelves_list: %s %s ' % (r.headers, r.content))
         else:
             logger.info('headers, content: %s | %s ' % (r.headers,r.content))
-            doc = ET.fromstring(r.content)
+            doc = ET.fromstring(r.content.encode('utf-8'))
             shelves = doc.find('shelves')
             # do a simple parsing to a dictionary
             
