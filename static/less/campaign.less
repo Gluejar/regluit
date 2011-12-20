@@ -34,7 +34,7 @@
 	margin-bottom:10px;
 
 	&.rounded .jsmod-content {
-		.border-radius(20px, 20px, 20px, 20px);
+		   .border-radius(20px, 20px, 20px, 20px);
 			background:@pale-blue;
 			color: @text-blue;
 			padding:10px 20px;
@@ -42,6 +42,30 @@
 			border:none;
 			margin:0;
 			
+			&.active0, &.active1 {
+				background: #e35351;
+			}
+
+			&.active2 {
+				background: #e18551;
+			}
+
+			&.active3 {
+				background: #e5a956;
+			}
+
+			&.active4 {
+				background: #efd45e;
+			}
+
+			&.active5 {
+				background: #bbcf67;
+			}
+
+			&.active6 {
+				background: @green;
+			}
+
 			span {
 				display: inline-block;
 				vertical-align: middle;
@@ -49,32 +73,7 @@
 			
 			span.spacer {
 				visibility: none;
-			}
-			
-			&.active.0, &.active.1 {
-				background: #e35351;
-			}
-
-			&.active.2 {
-				background: #e18551;
-			}
-
-			&.active.3 {
-				background: #e5a956;
-			}
-
-			&.active.4 {
-				background: #efd45e;
-			}
-
-			&.active.5 {
-				background: #bbcf67;
-			}
-
-			&.active.6 {
-				background: @green;
-			}
-
+			}			
 		}
 }
 
@@ -194,12 +193,17 @@ ul.tabs {
 	padding:0;
 	margin:0;
 	list-style:none;
+	width: 100%;
 	
 	li {
 		float: left;
 		.height(46px);
-		margin-right:2px;
-		margin-bottom:1px;
+		padding-right:2px;
+		width: 116px;
+		
+		&.tabs4 {
+			padding-right:0px;
+		}
 		
 		a { 
 			.height(46px);
@@ -226,7 +230,7 @@ ul.tabs {
 	margin-bottom: 20px;
 	
 	h3.jsmod-title {
-		background:@text-blue;
+		background:@medium-blue-grey;
 		.border-radius(10px, 10px, 10px, 10px);
 		padding:10px;
 		height:auto;
@@ -312,11 +316,12 @@ ul.social li {
 
 ul.support li {
 	border-bottom:1px solid @blue-grey;
-	padding:10px 0 10px 0;
-	margin-right: 15px;
+	padding:10px 5px 10px 10px;
+	background:url("@{image-base}icons/pledgearrow.png") 98% center no-repeat;
 	
 	span {
 		display:block;
+		padding-right:10px;
 
 		&.menu-item-price { 
 			font-size:18px;
@@ -324,9 +329,8 @@ ul.support li {
 	}
 	
 	&:hover {
-		background-color: @call-to-action;
 		color: #fff;
-		.border-radius(10px, 10px, 10px, 10px);
+		background:@call-to-action url("@{image-base}icons/pledgearrow-hover.png") 98% center no-repeat;
 		a {
 			color: #fff;
 		}
@@ -376,6 +380,10 @@ a{ color:#3d4e53; font-size:12px;}
     background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
 }
 
+.remove-wishlist span {
+    background:url("@{image-base}booklist/remove-wishlist-blue.png") left center no-repeat;
+}
+
 .editions {
 	clear: both;
 	
@@ -388,5 +396,9 @@ a{ color:#3d4e53; font-size:12px;}
     	display:block;
         overflow: hidden;
         margin-left: 5px;
+    }
+    
+    a:hover {
+    	text-decoration: underline;
     }
 }

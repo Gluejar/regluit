@@ -37,30 +37,30 @@
   border: none;
   margin: 0;
 }
+#js-leftcol .jsmodule.rounded .jsmod-content.active0, #js-leftcol .jsmodule.rounded .jsmod-content.active1 {
+  background: #e35351;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active2 {
+  background: #e18551;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active3 {
+  background: #e5a956;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active4 {
+  background: #efd45e;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active5 {
+  background: #bbcf67;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active6 {
+  background: #8dc63f;
+}
 #js-leftcol .jsmodule.rounded .jsmod-content span {
   display: inline-block;
   vertical-align: middle;
 }
 #js-leftcol .jsmodule.rounded .jsmod-content span.spacer {
   visibility: none;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active.0, #js-leftcol .jsmodule.rounded .jsmod-content.active.1 {
-  background: #e35351;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active.2 {
-  background: #e18551;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active.3 {
-  background: #e5a956;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active.4 {
-  background: #efd45e;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active.5 {
-  background: #bbcf67;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active.6 {
-  background: #8dc63f;
 }
 .book-detail {
   float: left;
@@ -159,13 +159,17 @@ ul.tabs {
   padding: 0;
   margin: 0;
   list-style: none;
+  width: 100%;
 }
 ul.tabs li {
   float: left;
   height: 46px;
   line-height: 46px;
-  margin-right: 2px;
-  margin-bottom: 1px;
+  padding-right: 2px;
+  width: 116px;
+}
+ul.tabs li.tabs4 {
+  padding-right: 0px;
 }
 ul.tabs li a {
   height: 46px;
@@ -190,7 +194,7 @@ ul.tabs li a:hover, ul.tabs li.active a {
   margin-bottom: 20px;
 }
 #js-rightcol h3.jsmod-title {
-  background: #3d4e53;
+  background: #a7c1ca;
   -moz-border-radius: 10px 10px 10px 10px;
   -webkit-border-radius: 10px 10px 10px 10px;
   border-radius: 10px 10px 10px 10px;
@@ -307,21 +311,19 @@ ul.social li.embed:hover span {
 }
 ul.support li {
   border-bottom: 1px solid #d6dde0;
-  padding: 10px 0 10px 0;
-  margin-right: 15px;
+  padding: 10px 5px 10px 10px;
+  background: url("/static/images/icons/pledgearrow.png") 98% center no-repeat;
 }
 ul.support li span {
   display: block;
+  padding-right: 10px;
 }
 ul.support li span.menu-item-price {
   font-size: 18px;
 }
 ul.support li:hover {
-  background-color: #8dc63f;
   color: #fff;
-  -moz-border-radius: 10px 10px 10px 10px;
-  -webkit-border-radius: 10px 10px 10px 10px;
-  border-radius: 10px 10px 10px 10px;
+  background: #8dc63f url("/static/images/icons/pledgearrow-hover.png") 98% center no-repeat;
 }
 ul.support li:hover a {
   color: #fff;
@@ -374,6 +376,9 @@ a {
 .add-wishlist span, .create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
 }
+.remove-wishlist span {
+  background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
+}
 .editions {
   clear: both;
 }
@@ -385,4 +390,7 @@ a {
   display: block;
   overflow: hidden;
   margin-left: 5px;
+}
+.editions a:hover {
+  text-decoration: underline;
 }

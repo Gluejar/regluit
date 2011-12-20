@@ -86,6 +86,9 @@ div.book-list.listview div.create-account span {
 div.book-list.listview div.add-wishlist span, div.book-list.listview div.create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
 }
+div.book-list.listview div.remove-wishlist span {
+  background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
+}
 div.book-list.listview div > span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
