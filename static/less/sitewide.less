@@ -95,16 +95,21 @@ ul.menu{
 }
 
 a.readon {
-    background:url(@background-header) 100% -72px no-repeat;
+    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
     color:#fff;
     text-transform:capitalize;
     display:block;
     float:right;
     font-size:13px;
     font-weight:bold;
+    
+    &.down {
+	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
+    }
 
     span {
-        background:url(@background-header) -770px -108px no-repeat;
+        .border-radius(32px, 0, 0, 32px);
+        background-color: @bright-blue;
         margin-right:34px;
         padding:0 5px 0 20px;
         .height(36px);
@@ -177,9 +182,9 @@ a.readon {
     .inputbox {
         padding:0 0 0 15px;
         margin:0;
-        border-top: solid 4px #8ac3d7;
-        border-left: solid 4px #8ac3d7;
-        border-bottom: solid 4px #8ac3d7;
+        border-top: solid 4px @bright-blue;
+        border-left: solid 4px @bright-blue;
+        border-bottom: solid 4px @bright-blue;
         border-right: none;
         .border-radius(50px, 0, 0, 50px);
         outline: none;
