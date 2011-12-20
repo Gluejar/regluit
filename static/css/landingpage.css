@@ -260,7 +260,10 @@ h2.page-heading {
   margin-top: 55px;
 }
 #js-maincontainer-bot-block #js-search {
-  background: url(/static/images/landingpage/bg-search.png) 0 0 no-repeat;
+  -moz-border-radius: 64px 64px 64px 64px;
+  -webkit-border-radius: 64px 64px 64px 64px;
+  border-radius: 64px 64px 64px 64px;
+  background-color: #8dc63f;
   width: 628px;
   height: 80px;
   overflow: hidden;

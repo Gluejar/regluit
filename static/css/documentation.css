@@ -1,4 +1,3 @@
-/* Styles basedocumentation.html and its descendants. */
 /* variables and mixins used in multiple less files go here */
 .header-text {
   height: 36px;
@@ -14,7 +13,6 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
-/* Learn More area */
 .user-block {
   width: 100%;
   clear: both;

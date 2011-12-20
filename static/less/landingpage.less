@@ -148,6 +148,10 @@ h3.heading {
 
 input.signup { 
 	background: url("/static/images/landingpage/button.png") no-repeat 0 0;
+	//the following are part of what we need to move this from graphics to css
+	// which we will need if we institute a call-to-action color separately from green
+	//.border-radius(32px, 0, 0, 32px);
+	//background-color: @call-to-action;
     border: medium none;
     color: #FFF;
     cursor: pointer;
@@ -291,7 +295,9 @@ h2.page-heading {
 	margin-top:55px;
 	
 	#js-search { 
-		background:url(/static/images/landingpage/bg-search.png) 0 0 no-repeat; 
+		//background:url(/static/images/landingpage/bg-search.png) 0 0 no-repeat; 
+		.border-radius(64px, 64px, 64px, 64px);
+		background-color: @call-to-action;
 		width:628px; 
 		height:80px; 
 		overflow:hidden; 
