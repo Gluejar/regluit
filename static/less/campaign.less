@@ -193,12 +193,17 @@ ul.tabs {
 	padding:0;
 	margin:0;
 	list-style:none;
+	width: 100%;
 	
 	li {
 		float: left;
 		.height(46px);
-		margin-right:2px;
-		margin-bottom:1px;
+		padding-right:2px;
+		width: 116px;
+		
+		&.tabs4 {
+			padding-right:0px;
+		}
 		
 		a { 
 			.height(46px);
@@ -391,5 +396,9 @@ a{ color:#3d4e53; font-size:12px;}
     	display:block;
         overflow: hidden;
         margin-left: 5px;
+    }
+    
+    a:hover {
+    	text-decoration: underline;
     }
 }
