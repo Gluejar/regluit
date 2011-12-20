@@ -36,7 +36,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm
+from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
 from regluit.core import goodreads
@@ -413,6 +413,34 @@ def rh_admin(request):
     }
     return render(request, "rights_holders.html", context)
 
+def campaign_admin(request):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")    
+    if not request.user.is_staff :
+        return render(request, "admins_only.html")
+        
+    context = {}
+    
+    # first task:  run PaymentManager.checkStatus() to update Campaign statuses
+    # does it return data to display?
+    
+    form = CampaignAdminForm()
+    
+    if request.method == 'GET':
+        check_status_results = None
+    elif request.method == 'POST':
+        try:
+            pm = PaymentManager()
+            check_status_results = pm.checkStatus()
+        except Exception, e:
+            check_status_results = e
+    
+    context.update({
+        'form': form,
+        'check_status_results':check_status_results
+    })
+    
+    return render(request, "campaign_admin.html", context)
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)

@@ -1,0 +1,31 @@
+{% extends "basedocumentation.html" %}
+{% block base_js %}{% endblock %}
+{% block extra_extra_head %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+{{ form.media.css }}
+<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+{{ form.media.js }}
+{% endblock %}
+
+{% block doccontent %}
+
+<h2>Campaign Admin</h2>
+
+<form method="post" action="#">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="campaign_checkstatus" value="Update Transaction Statuses" id="submit">
+</form>
+
+{% if check_status_results %}
+<p>Campaign checkstatus output:</p>
+
+<textarea id="id" cols="45" rows="15">
+{% autoescape on %}
+{{check_status_results}}
+{% endautoescape %}
+</textarea>
+{% endif %}
+
+{% endblock %}
