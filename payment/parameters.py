@@ -15,6 +15,3 @@ TARGET_TYPE_DONATION = 3
 
 COMPLETE_URL = '/paymentcomplete'
 CANCEL_URL = '/paymentcancel'
-
-PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
-PAYPAL_COMMISSION = 0.10

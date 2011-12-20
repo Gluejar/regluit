@@ -242,6 +242,8 @@ class Pay( PaypalEnvelopeRequest ):
               self.actionType = 'PAY'
           
           # feesPayer: SENDER, PRIMARYRECEIVER, EACHRECEIVER, SECONDARYONLY
+          # The PayPal documentation says that fees for delayed chain payments cannot be set to secondaryonly
+          # but the sandbox seems to show the secondary recipient paying all the fees.
           # if only one receiver, set to EACHRECEIVER, otherwise set to SECONDARYONLY
           
           if len(receivers) == 1:
@@ -508,7 +510,7 @@ class CancelPreapproval(PaypalEnvelopeRequest):
         
 
 class Preapproval( PaypalEnvelopeRequest ):
-  def __init__( self, transaction, amount, return_url=None, cancel_url=None):
+  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
       
       try:
           
@@ -526,9 +528,10 @@ class Preapproval( PaypalEnvelopeRequest ):
           if cancel_url is None:
             cancel_url = settings.BASE_URL + CANCEL_URL
           
-          # set the expiration date for the preapproval
+          # set the expiration date for the preapproval if not passed in
           now = datetime.datetime.utcnow()
-          expiry = now + datetime.timedelta( days=PREAPPROVAL_PERIOD )  
+          if expiry is None:
+            expiry = now + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD )
           transaction.date_authorized = now
           transaction.date_expired = expiry
           transaction.save()

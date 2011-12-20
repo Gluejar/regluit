@@ -264,12 +264,14 @@ class PledgeView(FormView):
         if not self.embedded:
             
             return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
-            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, campaign=campaign, list=None, user=user,
+            # the recipients of this authorization is not specified here but rather by the PaymentManager.
+            # set the expiry date based on the campaign deadline
+            expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, anonymous=anonymous)    
-        else:
-            # instant payment:  send to the partnering RH
-            # right now, all money going to Gluejar.  
-            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':preapproval_amount}]
+        else:  # embedded view -- which we're not actively using right now.
+            # embedded view triggerws instant payment:  send to the partnering RH
+            receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
             
             #redirect the page back to campaign page on success
             return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
@@ -606,10 +608,13 @@ class CampaignFormView(FormView):
         # calculate the work corresponding to the campaign id
         work_id = campaign.work.id
         
+        # set the expiry date based on the campaign deadline
+        expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+        
         if not self.embedded:
             
             return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
-            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, campaign=campaign, list=None, user=user,
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, anonymous=anonymous)    
         else:
             # instant payment:  send to the partnering RH
