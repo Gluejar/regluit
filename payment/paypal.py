@@ -510,7 +510,7 @@ class CancelPreapproval(PaypalEnvelopeRequest):
         
 
 class Preapproval( PaypalEnvelopeRequest ):
-  def __init__( self, transaction, amount, return_url=None, cancel_url=None):
+  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
       
       try:
           
@@ -528,9 +528,10 @@ class Preapproval( PaypalEnvelopeRequest ):
           if cancel_url is None:
             cancel_url = settings.BASE_URL + CANCEL_URL
           
-          # set the expiration date for the preapproval
+          # set the expiration date for the preapproval if not passed in
           now = datetime.datetime.utcnow()
-          expiry = now + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD )  
+          if expiry is None:
+            expiry = now + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD )
           transaction.date_authorized = now
           transaction.date_expired = expiry
           transaction.save()

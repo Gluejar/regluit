@@ -15,7 +15,7 @@
 
 #main-container.main-container-fl .js-main {
 	width:968px;
-	background:#fff url(/static/images/landingpage/container-top.png) top center no-repeat;
+	background:#fff url("@{image-base}landingpage/container-top.png") top center no-repeat;
 }
 #js-maincol-fl,  { 
 	padding:30px 30px 0 30px;
@@ -52,6 +52,36 @@
 	float: left;
 	width:100%; 
 	clear:both;
+	border-top: solid 1px @bright-blue;
+	margin-top: 20px;
+	
+	.quicktour {
+		width: 270px;
+		float: left;
+		font-style: italic;
+		line-height:20px;
+		font-size:13px;
+		margin-top: 20px;
+	
+		.highlight {
+			font-weight: bold;
+		}
+	
+		&.last {
+			padding-right:0px;
+			width:270px;
+			background: url("@{image-base}landingpage/signmeup-arrow.png") no-repeat center bottom;
+			padding-bottom: 42px;
+		}
+	}
+	
+	.movingrightalong {
+		background: url("@{image-base}landingpage/quicktour-arrow.png") no-repeat center;
+		height: 100px;
+		width: 75px;
+		float: left;
+		margin-top: 20px;
+	}
 }
 
 .user-block1, .user-block2 { 
@@ -147,7 +177,11 @@ h3.heading {
 }
 
 input.signup { 
-	background: url("/static/images/landingpage/button.png") no-repeat 0 0;
+	background: url("@{image-base}landingpage/button.png") no-repeat 0 0;
+	//the following are part of what we need to move this from graphics to css
+	// which we will need if we institute a call-to-action color separately from green
+	//.border-radius(32px, 0, 0, 32px);
+	//background-color: @call-to-action;
     border: medium none;
     color: #FFF;
     cursor: pointer;
@@ -221,7 +255,7 @@ div.signup_btn {
 	overflow:hidden;
 	
 	a {
-		background: url("/static/images/bg.png") no-repeat scroll right top transparent;
+		background: url("@{image-base}bg.png") no-repeat scroll right top transparent;
 		color: #fff;
     	display: block;
     	font-size: 13px;
@@ -233,7 +267,7 @@ div.signup_btn {
 		float:left;
 		
 		span {
-			background: url("/static/images/bg.png") no-repeat scroll -770px -36px transparent;
+			background: url("@{image-base}bg.png") no-repeat scroll -770px -36px transparent;
     	display: block;
     	margin-right: 29px;
     	padding: 0 5px 0 15px;
@@ -247,7 +281,7 @@ div.signup_btn {
 		width:364px; 
 		font-size:14px;
 		height: 132px;
-		border-bottom:7px solid #8ac3d7; 
+		border-bottom:7px solid @bright-blue; 
 		
 		p { 
 			margin-bottom:20px; 
@@ -267,7 +301,7 @@ div.signup_btn {
 		float:right;
 		
 		h3 {
-			color:#8ac3d7;
+			color:@bright-blue;
 			text-transform:uppercase; 
 			font-size:24px; 
 			font-weight:normal; 
@@ -291,7 +325,9 @@ h2.page-heading {
 	margin-top:55px;
 	
 	#js-search { 
-		background:url(/static/images/landingpage/bg-search.png) 0 0 no-repeat; 
+		//background:url("@{image-base}andingpage/bg-search.png") 0 0 no-repeat; 
+		.border-radius(64px, 64px, 64px, 64px);
+		background-color: @call-to-action;
 		width:628px; 
 		height:80px; 
 		overflow:hidden; 
@@ -310,7 +346,7 @@ h2.page-heading {
 		form { 
 			float:left; 
 			width:210px; 
-			background:url(/static/images/landingpage/search-box-two.png) 0 0 no-repeat; 
+			background:url("@{image-base}landingpage/search-box-two.png") 0 0 no-repeat; 
 			height:36px; 
 			display:block; 
 			overflow:hidden; 
@@ -333,7 +369,7 @@ h2.page-heading {
 	}
 	
 	&.greenbutton { 
-		background:url(/static/images/landingpage/search-button-two.png) 0 0 no-repeat;
+		background:url("@{image-base}landingpage/search-button-two.png") 0 0 no-repeat;
 		width:40px; 
 		height:40px; 
 		padding:0; 
@@ -368,12 +404,12 @@ h2.page-heading {
 }
 
 #js-slide .jsmodule > h3 { 
-	background:url(/static/images/landingpage/bg-slide.png) bottom center no-repeat; 
+	background:url("@{image-base}landingpage/bg-slide.png") bottom center no-repeat; 
 	padding-bottom:7px; 
 	padding-left:35px;
 	
 	span { 
-		background:#8ac3d7; 
+		background:@bright-blue; 
 		color:#fff; 
 		padding:10px 20px; 
 		.border-radius(10px, 10px, 0, 0); 
@@ -408,13 +444,13 @@ h3.module-title {
 	
 	a.prev {
 		.clickyarrows();
-		background:url("/static/images/landingpage/arrow-left.png") 0 0 no-repeat;
+		background:url("@{image-base}landingpage/arrow-left.png") 0 0 no-repeat;
 		left: 0;
 	}
 
 	a.next {
 		.clickyarrows(rt);
-		background:url("/static/images/landingpage/arrow-right.png") 0 0 no-repeat;
+		background:url("@{image-base}landingpage/arrow-right.png") 0 0 no-repeat;
 		right: 0; 
 	}
 }

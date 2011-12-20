@@ -27,12 +27,15 @@ jQuery(document).ready(function(){
     <div class="js-main">
     <div id="js-leftcol">
             <div class="jsmodule rounded">
-                <div class="jsmod-content">
-                <span>
                 {% if work.last_campaign %}
                 {% if status == 'ACTIVE' %}
+                <div class="jsmod-content active {{ work.percent_unglued}}">
+                <span>
                     Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
-                {% else %}{% if status == 'SUCCESSFUL' %}
+                {% else %}
+                <div class="jsmod-content">
+                <span>
+				{% if status == 'SUCCESSFUL' %}
                     Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
                 {% else %}{% if status == 'INITIALIZED' %}
                     Campaign starting soon
@@ -46,6 +49,8 @@ jQuery(document).ready(function(){
                     {{ wishers }} Ungluers are WISHING
                 {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 {% else %}
+                <div class="jsmod-content">
+                <span>
                 {% if wishers == 1 %}
                     {{ wishers }} Ungluer is WISHING
                 {% else %}

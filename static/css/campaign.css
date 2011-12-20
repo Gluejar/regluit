@@ -26,13 +26,12 @@
 #js-leftcol .jsmodule {
   margin-bottom: 10px;
 }
-#js-leftcol .jsmodule.rounded {
-  background: #edf3f4;
+#js-leftcol .jsmodule.rounded .jsmod-content {
   -moz-border-radius: 20px 20px 20px 20px;
   -webkit-border-radius: 20px 20px 20px 20px;
   border-radius: 20px 20px 20px 20px;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content {
+  background: #edf3f4;
+  color: #3d4e53;
   padding: 10px 20px;
   font-weight: bold;
   border: none;
@@ -44,6 +43,24 @@
 }
 #js-leftcol .jsmodule.rounded .jsmod-content span.spacer {
   visibility: none;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active.0, #js-leftcol .jsmodule.rounded .jsmod-content.active.1 {
+  background: #e35351;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active.2 {
+  background: #e18551;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active.3 {
+  background: #e5a956;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active.4 {
+  background: #efd45e;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active.5 {
+  background: #bbcf67;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.active.6 {
+  background: #8dc63f;
 }
 .book-detail {
   float: left;
@@ -230,6 +247,7 @@ ul.social li a {
 }
 ul.social li.facebook {
   background: url("/static/images/icons/facebook.png") 10px center no-repeat;
+  cursor: pointer;
 }
 ul.social li.facebook span {
   padding-left: 10px;
@@ -242,6 +260,7 @@ ul.social li.facebook:hover span {
 }
 ul.social li.twitter {
   background: url("/static/images/icons/twitter.png") 10px center no-repeat;
+  cursor: pointer;
 }
 ul.social li.twitter span {
   padding-left: 10px;
@@ -254,6 +273,7 @@ ul.social li.twitter:hover span {
 }
 ul.social li.email {
   background: url("/static/images/icons/email.png") 10px center no-repeat;
+  cursor: pointer;
 }
 ul.social li.email span {
   padding-left: 10px;
@@ -266,6 +286,7 @@ ul.social li.email:hover span {
 }
 ul.social li.embed {
   background: url("/static/images/icons/embed.png") 10px center no-repeat;
+  cursor: pointer;
 }
 ul.social li.embed span {
   padding-left: 10px;
