@@ -10,6 +10,7 @@ from django.conf import settings
 from django.db import IntegrityError
 
 from regluit.core import models
+import regluit.core.isbn
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +44,12 @@ def add_by_isbn(isbn, work=None):
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
+    if len(isbn)==10:
+        isbn=regluit.core.isbn.convert_10_to_13(isbn)
+    
     logger.info("adding book by isbn %s", isbn)
     # save a lookup to google if we already have this isbn
-    has_isbn = Q(isbn_10=isbn) | Q(isbn_13=isbn)
+    has_isbn =  Q(isbn_13=isbn)
     for edition in models.Edition.objects.filter(has_isbn):
         return edition
 
@@ -98,8 +102,8 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
     e.publication_date = d.get('publishedDate', '')
    
     for i in d.get('industryIdentifiers', []):
-        if i['type'] == 'ISBN_10':
-            e.isbn_10 = i['identifier']
+        if i['type'] == 'ISBN_13':
+            e.isbn_13 = i['identifier']
         elif i['type'] == 'ISBN_13':
             e.isbn_13 = i['identifier']
 
@@ -151,6 +155,9 @@ def add_related(isbn):
 
     new_editions = []
     for other_isbn in thingisbn(isbn):
+        # 979's come back as 13
+        if len(other_isbn)==10:
+            other_isbn=regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work)
         if related_edition and related_edition.work != edition.work:
             merge_works(edition.work, related_edition.work)
@@ -162,7 +169,7 @@ def add_related(isbn):
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
-    Library Thing.
+    Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
     """
     logger.info("looking up %s at ThingISBN" % isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
@@ -204,7 +211,7 @@ def add_openlibrary(work):
     url = "http://openlibrary.org/api/books"
     params = {"format": "json", "jscmd": "details"}
     for edition in work.editions.all():
-        isbn_key = "ISBN:%s" % edition.isbn_10
+        isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
         e = _get_json(url, params)
         if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):

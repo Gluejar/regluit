@@ -28,7 +28,7 @@ class EditionResource(ModelResource):
         queryset = models.Edition.objects.all()
         resource_name = 'edition'
         filtering = {
-            "isbn_10": ALL,
+            "isbn_13": ALL,
         }
   
 class WorkResource(ModelResource):

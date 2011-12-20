@@ -10,6 +10,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 import regluit
+import regluit.core.isbn
 
 class UnglueitError(RuntimeError):
     pass
@@ -352,9 +353,9 @@ class Work(models.Model):
                 description = edition.description
         return description
 
-    def first_isbn_10(self):
-        for e in self.editions.filter(isbn_10__isnull=False):
-            return e.isbn_10
+    def first_isbn_13(self):
+        for e in self.editions.filter(isbn_13__isnull=False):
+            return e.isbn_13
 
     def __unicode__(self):
         return self.title
@@ -391,7 +392,7 @@ class Edition(models.Model):
     publisher = models.CharField(max_length=255)
     publication_date = models.CharField(max_length=50)
     public_domain = models.NullBooleanField(null=True)
-    isbn_10 = models.CharField(max_length=10, null=True)
+    #isbn_10 = models.CharField(max_length=10, null=True)
     isbn_13 = models.CharField(max_length=13, null=True)
     oclc = models.CharField(max_length=25, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
@@ -406,10 +407,17 @@ class Edition(models.Model):
     def cover_image_thumbnail(self):
         server_id = random.randint(0, 9)
         return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
-
+    
+    @property
+    def isbn_10(self):
+        return regluit.core.isbn.convert_13_to_10(self.isbn_13)
+    
     @classmethod
     def get_by_isbn(klass, isbn):
-        for e in Edition.objects.filter(Q(isbn_10=isbn) | Q(isbn_13=isbn)):
+        if length(isbn)==10:
+            isbn=regluit.core.isbn.convert_10_to_13(isbn)
+
+        for e in Edition.objects.filter( Q(isbn_13=isbn) ):
             return e
         return None
 
