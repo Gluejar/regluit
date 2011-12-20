@@ -18,7 +18,7 @@
 }
 #main-container.main-container-fl .js-main {
   width: 968px;
-  background: #ffffff url(/static/images/landingpage/container-top.png) top center no-repeat;
+  background: #ffffff url("/static/images/landingpage/container-top.png") top center no-repeat;
 }
 #js-maincol-fl {
   padding: 30px 30px 0 30px;
@@ -49,6 +49,32 @@
   float: left;
   width: 100%;
   clear: both;
+  border-top: solid 1px #8ac3d7;
+  margin-top: 20px;
+}
+.user-block-hide .quicktour {
+  width: 270px;
+  float: left;
+  font-style: italic;
+  line-height: 20px;
+  font-size: 13px;
+  margin-top: 20px;
+}
+.user-block-hide .quicktour .highlight {
+  font-weight: bold;
+}
+.user-block-hide .quicktour.last {
+  padding-right: 0px;
+  width: 270px;
+  background: url("/static/images/landingpage/signmeup-arrow.png") no-repeat center bottom;
+  padding-bottom: 42px;
+}
+.user-block-hide .movingrightalong {
+  background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
+  height: 100px;
+  width: 75px;
+  float: left;
+  margin-top: 20px;
 }
 .user-block1, .user-block2 {
   float: left;
@@ -260,7 +286,10 @@ h2.page-heading {
   margin-top: 55px;
 }
 #js-maincontainer-bot-block #js-search {
-  background: url(/static/images/landingpage/bg-search.png) 0 0 no-repeat;
+  -moz-border-radius: 64px 64px 64px 64px;
+  -webkit-border-radius: 64px 64px 64px 64px;
+  border-radius: 64px 64px 64px 64px;
+  background-color: #8dc63f;
   width: 628px;
   height: 80px;
   overflow: hidden;
@@ -278,7 +307,7 @@ h2.page-heading {
 #js-maincontainer-bot-block #js-search form {
   float: left;
   width: 210px;
-  background: url(/static/images/landingpage/search-box-two.png) 0 0 no-repeat;
+  background: url("/static/images/landingpage/search-box-two.png") 0 0 no-repeat;
   height: 36px;
   display: block;
   overflow: hidden;
@@ -297,7 +326,7 @@ h2.page-heading {
   outline: none;
 }
 #js-search input.greenbutton {
-  background: url(/static/images/landingpage/search-button-two.png) 0 0 no-repeat;
+  background: url("/static/images/landingpage/search-button-two.png") 0 0 no-repeat;
   width: 40px;
   height: 40px;
   padding: 0;
@@ -326,7 +355,7 @@ h2.page-heading {
   text-decoration: underline;
 }
 #js-slide .jsmodule > h3 {
-  background: url(/static/images/landingpage/bg-slide.png) bottom center no-repeat;
+  background: url("/static/images/landingpage/bg-slide.png") bottom center no-repeat;
   padding-bottom: 7px;
   padding-left: 35px;
 }

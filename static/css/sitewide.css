@@ -85,7 +85,7 @@ ul.menu {
   margin: 0;
 }
 a.readon {
-  background: url("/static/images/bg.png") 100% -72px no-repeat;
+  background: url("/static/images/learnmore-downarrow.png") right center no-repeat;
   color: #fff;
   text-transform: capitalize;
   display: block;
@@ -93,8 +93,14 @@ a.readon {
   font-size: 13px;
   font-weight: bold;
 }
+a.readon.down {
+  background: url("/static/images/learnmore-uparrow.png") right center no-repeat;
+}
 a.readon span {
-  background: url("/static/images/bg.png") -770px -108px no-repeat;
+  -moz-border-radius: 32px 0 0 32px;
+  -webkit-border-radius: 32px 0 0 32px;
+  border-radius: 32px 0 0 32px;
+  background-color: #8ac3d7;
   margin-right: 34px;
   padding: 0 5px 0 20px;
   height: 36px;
@@ -144,7 +150,10 @@ a.readon span {
   background: url("/static/images/bg.png") right top no-repeat;
 }
 .js-topmenu ul li.last a span {
-  background: url("/static/images/bg.png") -770px -36px no-repeat;
+  -moz-border-radius: 32px 0 0 32px;
+  -webkit-border-radius: 32px 0 0 32px;
+  border-radius: 32px 0 0 32px;
+  background-color: #8dc63f;
   margin-right: 29px;
   display: block;
   padding: 0 5px 0 15px;
