@@ -6,11 +6,14 @@ from django.db.models import Q
 from django.views.generic.base import TemplateView
 
 from regluit.core import models
+import regluit.core.isbn
+
 from tastypie.models import ApiKey
 
 def isbn(request,isbn):
-    
-    editions = models.Edition.objects.filter(Q(isbn_10 = isbn) | Q(isbn_13 = isbn))
+    if len(isbn)==10:
+        isbn=regluit.core.isbn.convert_10_to_13(isbn)
+    editions = models.Edition.objects.filter( Q(isbn_13 = isbn))
     # models.Campaign.objects.filter(work__editions__isbn_13='9780811216999')
     
     return render_to_response('isbn.html', 
@@ -42,7 +45,9 @@ def widget(request,isbn):
     """
    
     # presumably 0 or 1 Edition will match
-    editions = models.Edition.objects.filter(Q(isbn_10 = isbn) | Q(isbn_13 = isbn))
+    if len(isbn)==10:
+        isbn=regluit.core.isbn.convert_10_to_13(isbn)
+    editions = models.Edition.objects.filter( Q(isbn_13 = isbn))
     # if 1 edition: should be 0 or 1 corresponding Work
     # for 1 Work, there will be a Campaign or not
     assert len(editions) < 2
@@ -99,10 +104,7 @@ class ApiHelpView(TemplateView):
         campaigns = models.Campaign.objects.all()
         if len(campaigns):
             c = campaigns[0]
-            if c.work.editions.all()[0].isbn_10 is not None:
-                isbn = c.work.editions.all()[0].isbn_10
-            else:
-                isbn = c.work.editions.all()[0].isbn_13
+            isbn = c.work.editions.all()[0].isbn_13
             context["campaign"] = campaigns[0]
             context["campaign_isbn"] = isbn
 

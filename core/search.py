@@ -1,5 +1,6 @@
 import json
 import requests
+import regluit.core.isbn
 
 def gluejar_search(q, user_ip='69.243.24.29'):
     """normalizes results from the google books search suitable for gluejar
@@ -19,15 +20,15 @@ def gluejar_search(q, user_ip='69.243.24.29'):
                 r['author'] = v['authors'][0]
             else:
                 r['author'] = ""
-            r['isbn_10'] = None
             r['isbn_13'] = None
     
             # pull out isbns
             for i in v.get('industryIdentifiers', []):
                 if i['type'] == 'ISBN_13':
                     r['isbn_13'] = i['identifier']
-                if i['type'] == 'ISBN_10':
-                    r['isbn_10'] = i['identifier']
+                elif i['type'] == 'ISBN_10':
+                    if not r['isbn_13'] :
+                        r['isbn_13'] = regluit.core.isbn.convert_10_to_13(i['identifier'])
     
             # cover image
             if v.has_key('imageLinks'):

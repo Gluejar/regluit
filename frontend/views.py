@@ -853,12 +853,12 @@ def celery_test(request):
 
 def work_librarything(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    isbn = work.first_isbn_10()
+    isbn = work.first_isbn_13()
     if work.librarything_id:
         url = work.librarything_url
     elif isbn:
         # TODO: do the redirect here and capture the work id?
-        url = "http://www.librarything.com/isbn/%s" % work.first_isbn_10()
+        url = "http://www.librarything.com/isbn/%s" % isbn
     else:
         term = work.title + " " + work.author()
         q = urllib.urlencode({'searchtpe': 'work', 'term': term})
@@ -867,7 +867,7 @@ def work_librarything(request, work_id):
 
 def work_openlibrary(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    isbns = ["ISBN:" + e.isbn_10 for e in work.editions.filter(isbn_10__isnull=False)]
+    isbns = ["ISBN:" + e.isbn_13 for e in work.editions.filter(isbn_13__isnull=False)]
     url = None
 
     if work.openlibrary_id:
@@ -888,11 +888,11 @@ def work_openlibrary(request, work_id):
 
 def work_goodreads(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    isbn = work.first_isbn_10()
+    isbn = work.first_isbn_13()
     if work.goodreads_id:
         url = work.goodreads_url
     elif isbn:
-        url = "http://www.goodreads.com/book/isbn/%s" % work.first_isbn_10()
+        url = "http://www.goodreads.com/book/isbn/%s" % isbn
     else:
         q = urllib.urlencode({'query': work.title + " " + work.author()})
         url = "http://www.goodreads.com/search?" + q
