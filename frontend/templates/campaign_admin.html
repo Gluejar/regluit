@@ -28,4 +28,41 @@
 </textarea>
 {% endif %}
 
+<!-- Active transactions -->
+<p style="font-weight:bold">Campaigns with active transactions</p>
+{% if campaigns_with_active_transactions %}
+    <ul>
+{% for campaign in campaigns_with_active_transactions %}
+        <li>{{campaign.id}} | {{campaign.name}} </li>
+{% endfor %}
+    </ul>
+{% else %}
+  <p>No campaigns with active transactions</p>
+{% endif %}
+
+<!-- incomplete transactions -->
+<p style="font-weight:bold">Campaigns with incomplete transactions</p>
+{% if campaigns_with_incomplete_transactions %}
+    <ul>
+{% for campaign in campaigns_with_incomplete_transactions %}
+        <li>{{campaign.id}} | {{campaign.name}} </li>
+{% endfor %}
+    </ul>
+{% else %}
+  <p>No campaigns with incomplete transactions</p>
+{% endif %}
+
+<!--  completed transactions -->
+<p style="font-weight:bold">Campaigns with completed transactions</p>
+{% if campaigns_with_completed_transactions %}
+    <ul>
+{% for campaign in campaigns_with_completed_transactions %}
+        <li>{{campaign.id}} | {{campaign.name}} </li>
+{% endfor %}
+    </ul>
+{% else %}
+  <p>No campaigns with completed transactions</p>
+{% endif %}
+
+
 {% endblock %}
