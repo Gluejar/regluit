@@ -71,9 +71,16 @@ jQuery(document).ready(function(){
                         <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
                     </div>
                     <div class="book-detail-info">
+                      <div class="layout">
                         <h2 class="book-name">{{ work.title }}</h2>
-                        <h3 class="book-author">{{ work.author }}</h3>
-                        <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
+                        <div>
+                          <div class="pubinfo">
+                            <h3 class="book-author">{{ work.author }}</h3>
+                            <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
+					      </div>
+                          {% if status == 'ACTIVE' %}<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>{% endif %}
+					  </div>
+					  </div>
                         <div class="find-book">
                             <label>Find it:</label>
                             <div class="find-link">
@@ -91,7 +98,6 @@ jQuery(document).ready(function(){
                         </div>
                         {% if status == 'ACTIVE' %}
                         <div class="pledged-info"><div class="pledged-group">{% if work.last_campaign.supporters.count == 1 %}One Ungluer has {% else %} {{ work.last_campaign.supporters.count }} Ungluers have {% endif %}pledged ${{ work.last_campaign.current_total }}<br />toward a ${{ work.last_campaign.target }} goal </div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
-                        <div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
                         {% else %}
                         <div class="pledged-info"><div class="pledged-group">
                             {% if wishers == 1 %}
@@ -99,7 +105,7 @@ jQuery(document).ready(function(){
                             {% else %}
                                 {{ wishers }} Ungluers have
                             {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
-                        <div class="btn_support">
+                        <div class="btn_wishlist">
                             {% if request.user.is_anonymous %}
                                 <div class="create-account">
                                     <span title="{% url work work.id %}">Login to Add</span>
