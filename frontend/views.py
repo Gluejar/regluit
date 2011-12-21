@@ -36,9 +36,10 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm
+from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -413,6 +414,51 @@ def rh_admin(request):
     }
     return render(request, "rights_holders.html", context)
 
+def campaign_admin(request):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")    
+    if not request.user.is_staff :
+        return render(request, "admins_only.html")
+        
+    context = {}
+    
+    # first task:  run PaymentManager.checkStatus() to update Campaign statuses
+    # does it return data to display?
+    
+    form = CampaignAdminForm()
+    
+    if request.method == 'GET':
+        check_status_results = None
+    elif request.method == 'POST':
+        try:
+            pm = PaymentManager()
+            check_status_results = pm.checkStatus()
+        except Exception, e:
+            check_status_results = e
+            
+    # second task: pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
+    # Campaign.objects.filter(transaction__status='ACTIVE')
+    
+    campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+        
+    # third task:  pull out Campaigns with Transactions that are INCOMPLETE
+
+    campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
+    
+    # 4th task:  show all Campaigns with Transactions that are COMPLETED
+
+    campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_COMPLETED)
+
+    context.update({
+        'form': form,
+        'check_status_results':check_status_results,
+        'campaigns_with_active_transactions': campaigns_with_active_transactions,
+        'campaigns_with_incomplete_transactions': campaigns_with_incomplete_transactions,
+        'campaigns_with_completed_transactions': campaigns_with_completed_transactions
+    })
+    
+    
+    return render(request, "campaign_admin.html", context)
 
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)

@@ -2,7 +2,8 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
 from datetime import datetime
@@ -82,7 +83,8 @@ class PaymentManager( object ):
                         # will not have a status code or txn id code
                         if receiver.status != r['status']:
                             append_element(doc, tran, "receiver_status_ours", receiver.status)
-                            append_element(doc, tran, "receiver_status_theirs", r['status'])
+                            append_element(doc, tran, "receiver_status_theirs",
+                                           r['status'] if r['status'] is not None else 'None')
                             receiver.status = r['status']
                             receiver.save()
                             
@@ -325,19 +327,39 @@ class PaymentManager( object ):
         '''               
         
         # only allow active transactions to go through again, if there is an error, intervention is needed
-        transactions = Transaction.objects.filter(campaign=campaign, status="ACTIVE")
+        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PAY_STATUS_ACTIVE)
         
         for t in transactions:
             
-            # BUGBUG: Fill this in with the correct info from the campaign object
-            # Campaign.paypal_receiver
             receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':t.amount}, 
                             {'email':campaign.paypal_receiver, 'amount':D(t.amount) * (D('1.00') - D(str(settings.GLUEJAR_COMMISSION)))}]
             
             self.execute_transaction(t, receiver_list) 
 
         return transactions
-    
+
+    def finish_campaign(self, campaign):
+        '''
+        finish_campaign
+        
+        attempts to execute all remaining payment to non-primary receivers
+
+        
+        return value: returns a list of transactions with the status of each receiver/transaction updated
+        
+        '''               
+        
+        # QUESTION:  to figure out which transactions are in a state in which the payment to the primary recipient is done but not to secondary recipient
+        # Consider two possibilities:  status=IPN_PAY_STATUS_INCOMPLETE or execution = EXECUTE_TYPE_CHAINED_DELAYED
+        # which one?  Let's try the second one
+        # only allow incomplete transactions to go through again, if there is an error, intervention is needed
+        transactions = Transaction.objects.filter(campaign=campaign, execution=EXECUTE_TYPE_CHAINED_DELAYED)
+        
+        for t in transactions:            
+            result = self.finish_transaction(t) 
+
+        return transactions
+        
 
     def finish_transaction(self, transaction):
         '''

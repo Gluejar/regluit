@@ -189,3 +189,6 @@ class GoodreadsShelfLoadingForm(forms.Form):
 
 class LibraryThingForm(forms.Form):
     lt_username = forms.CharField(max_length=30, required=True)
+    
+class CampaignAdminForm(forms.Form):
+    pass
