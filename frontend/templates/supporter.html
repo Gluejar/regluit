@@ -78,7 +78,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             </div>
                             <div class="user-block2">
-                                <span class="user-short-info">{{ supporter.profile.tagline }}</span>
+                                <span class="user-short-info">{% with supporter.profile.tagline as tagline %}{% if tagline %}{{ tagline }}{% else %}&nbsp;{% endif %}{% endwith %}</span>
                             </div>
                             {% endifequal %}
                             <div class="user-block3">
