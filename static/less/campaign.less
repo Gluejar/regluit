@@ -127,6 +127,31 @@
 		padding:10px 0;
 	}
 	
+	> div.layout {
+		border: none;
+		padding-bottom: 0;
+		
+		div.pubinfo {
+			float: left;
+			width: auto;
+		}
+		
+		div.btn_support {
+			float: right;
+			
+			input {
+				background:url("@{image-base}btn_bg.png") 0 0 no-repeat;
+				width:104px;
+				height:41px;
+				display:block;
+				color:#fff;
+				font-weight:bold;
+				text-align:center;
+				border:none;
+				padding:0;
+			}
+		}
+	}
 	.find-book {
 		margin-top:15px;
 		
@@ -146,6 +171,7 @@
 	
 	.pledged-info {
 		padding:0;
+		position: relative;
 	}
 	
 	.pledged-group {
@@ -154,21 +180,13 @@
 	}
 	
 	.status {
-		float: right;
-		margin-top: 11px;
+		position: absolute;
+		top:50%;
+		right:0%;
+		height: 25px;
+		margin-top: -12px;
 	}
 	
-	.btn_support input {
-		background:url("@{image-base}btn_bg.png") 0 0 no-repeat;
-		width:104px;
-		height:41px;
-		display:block;
-		color:#fff;
-		font-weight:bold;
-		text-align:center;
-		border:none;
-	}
-
 }
 
 
