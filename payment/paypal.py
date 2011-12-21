@@ -137,7 +137,7 @@ class PaypalEnvelopeRequest:
         
     def success(self):
         status = self.ack()
-        print status
+        # print status
         if status == "Success" or status == "SuccessWithWarning":
             return True
         else:
@@ -145,7 +145,7 @@ class PaypalEnvelopeRequest:
         
     def error(self):
         message = self.errorMessage
-        print message
+        # print message
         if message:
             return True
         else:
@@ -264,9 +264,9 @@ class Pay( PaypalEnvelopeRequest ):
                   } 
           
           logging.info("paypal PAY data: %s" % data)
-          print >> sys.stderr, "paypal PAY data:", data
+          #print >> sys.stderr, "paypal PAY data:", data
           # Is ipnNotificationUrl being computed properly
-          print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
+          #print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
           
           # a Pay operation can be for a payment that goes through immediately or for setting up a preapproval.
           # transaction.reference is not null if it represents a preapproved payment, which has a preapprovalKey.
@@ -284,9 +284,9 @@ class Pay( PaypalEnvelopeRequest ):
               return
           
           self.raw_response = self.connection.content() 
-          print >> sys.stderr, "PAY request", settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", self.raw_request, headers 
+          #print >> sys.stderr, "PAY request", settings.PAYPAL_ENDPOINT, "/AdaptivePayments/Pay", self.raw_request, headers 
           logger.info("paypal PAY response was: %s" % self.raw_response)
-          print >> sys.stderr, "paypal PAY response was:", self.raw_response
+          #print >> sys.stderr, "paypal PAY response was:", self.raw_response
           self.response = json.loads( self.raw_response )
           logger.info(self.response)
           
@@ -550,7 +550,7 @@ class Preapproval( PaypalEnvelopeRequest ):
                   } 
     
           # Is ipnNotificationUrl being computed properly
-          print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
+          # print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
           
           self.raw_request = json.dumps(data)
           self.url = "/AdaptivePayments/Preapproval"
@@ -564,7 +564,7 @@ class Preapproval( PaypalEnvelopeRequest ):
         
           self.raw_response = self.connection.content() 
           logger.info("paypal PREAPPROVAL response was: %s" % self.raw_response)
-          print >> sys.stderr, "paypal PREAPPROVAL response was:", self.raw_response
+          # print >> sys.stderr, "paypal PREAPPROVAL response was:", self.raw_response
           self.response = json.loads( self.raw_response )
           logger.info(self.response)
           
