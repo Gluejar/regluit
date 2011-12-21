@@ -225,7 +225,7 @@ class PaymentManager( object ):
         except:
             traceback.print_exc()
          
-    def run_query(self, transaction_list, summary, pledged, authorized ):
+    def run_query(self, transaction_list, summary, pledged, authorized):
         '''
         Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
         '''
@@ -240,7 +240,7 @@ class PaymentManager( object ):
             authorized_list = Transaction.objects.filter(type=PAYMENT_TYPE_AUTHORIZATION,
                                                          status="ACTIVE")
         else:
-            authorized_list = []
+            authorized_list = []           
         
         if summary:
             pledged_amount = D('0.00')
