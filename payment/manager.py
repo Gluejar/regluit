@@ -359,6 +359,24 @@ class PaymentManager( object ):
             result = self.finish_transaction(t) 
 
         return transactions
+    
+    def cancel_campaign(self, campaign):
+        '''
+        cancel_campaign
+        
+        attempts to cancel active preapprovals related to the campaign 
+
+        
+        return value: returns a list of transactions with the status of each receiver/transaction updated
+        
+        '''               
+        
+        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PAY_STATUS_ACTIVE)
+        
+        for t in transactions:            
+            result = self.cancel_transaction(t) 
+
+        return transactions    
         
 
     def finish_transaction(self, transaction):
@@ -462,7 +480,7 @@ class PaymentManager( object ):
             logger.info("execute_transaction Error: " + p.error_string())
             return False
     
-    def cancel(self, transaction):
+    def cancel_transaction(self, transaction):
         '''
         cancel
         
