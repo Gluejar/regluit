@@ -30,6 +30,9 @@ def execute_campaigns(clist):
 def finish_campaigns(clist):
     return [pm.finish_campaign(c) for c in clist]
 
+def drop_all_transactions():
+    Transaction.objects.all().delete()
+
 
 # by the time we've executed a campaign, we should have r.status = 'COMPLETED' for primary but None for secondary
 # [[[r.status  for r in t.receiver_set.all()]  for t in c.transaction_set.all()]  for c in campaigns_incomplete()]
