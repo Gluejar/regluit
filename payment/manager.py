@@ -83,7 +83,8 @@ class PaymentManager( object ):
                         # will not have a status code or txn id code
                         if receiver.status != r['status']:
                             append_element(doc, tran, "receiver_status_ours", receiver.status)
-                            append_element(doc, tran, "receiver_status_theirs", r['status'])
+                            append_element(doc, tran, "receiver_status_theirs",
+                                           r['status'] if r['status'] is not None else 'None')
                             receiver.status = r['status']
                             receiver.save()
                             
@@ -336,7 +337,29 @@ class PaymentManager( object ):
             self.execute_transaction(t, receiver_list) 
 
         return transactions
-    
+
+    def finish_campaign(self, campaign):
+        '''
+        finish_campaign
+        
+        attempts to execute all remaining payment to non-primary receivers
+
+        
+        return value: returns a list of transactions with the status of each receiver/transaction updated
+        
+        '''               
+        
+        # QUESTION:  to figure out which transactions are in a state in which the payment to the primary recipient is done but not to secondary recipient
+        # Consider two possibilities:  status=IPN_PAY_STATUS_INCOMPLETE or execution = EXECUTE_TYPE_CHAINED_DELAYED
+        # which one?  Let's try the second one
+        # only allow incomplete transactions to go through again, if there is an error, intervention is needed
+        transactions = Transaction.objects.filter(campaign=campaign, execution=EXECUTE_TYPE_CHAINED_DELAYED)
+        
+        for t in transactions:            
+            result = self.finish_transaction(t) 
+
+        return transactions
+        
 
     def finish_transaction(self, transaction):
         '''
