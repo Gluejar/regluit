@@ -32,6 +32,10 @@ def finish_campaigns(clist):
 
 def drop_all_transactions():
     Transaction.objects.all().delete()
+    # go through all Campaigns and set the self.left = self.target
+    for c in models.Campaign.objects.all():
+        c.left = c.target
+        c.save()
 
 
 # by the time we've executed a campaign, we should have r.status = 'COMPLETED' for primary but None for secondary
