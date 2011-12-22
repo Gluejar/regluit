@@ -120,7 +120,7 @@ class GoodreadsClient(object):
             if int(response['status']) != httplib.OK:
                 raise GoodreadsException('Error authenticating Goodreads user ' )
             else:
-                doc = ET.fromstring(content.encode('utf-8'))
+                doc = ET.fromstring(content)
                 user = doc.find('user')
                 userid = user.get('id')
                 name = user.find('name').text
@@ -202,12 +202,11 @@ class GoodreadsClient(object):
         
           response, content = self.client.request('%s?%s' % (request_url, urlencode(params)),
                             method)
-          logger.info(response['status'])
           if int(response['status']) != httplib.OK:
               raise GoodreadsException('Error in review_list:  ' )
           else:
-              logger.info(' %s' % (content))
-              doc = ET.fromstring(content.encode('utf-8'))
+              #logger.info(' %s' % (content))
+              doc = ET.fromstring(content)
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
               reviews = doc.findall('reviews/review')
               for review in reviews:
