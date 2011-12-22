@@ -120,7 +120,7 @@ class GoodreadsClient(object):
             if int(response['status']) != httplib.OK:
                 raise GoodreadsException('Error authenticating Goodreads user ' )
             else:
-                doc = ET.fromstring(content.encode('utf-8'))
+                doc = ET.fromstring(content)
                 user = doc.find('user')
                 userid = user.get('id')
                 name = user.find('name').text
@@ -202,12 +202,11 @@ class GoodreadsClient(object):
         
           response, content = self.client.request('%s?%s' % (request_url, urlencode(params)),
                             method)
-          logger.info(response['status'])
           if int(response['status']) != httplib.OK:
               raise GoodreadsException('Error in review_list:  ' )
           else:
-              logger.info(' %s' % (content))
-              doc = ET.fromstring(content.encode('utf-8'))
+              #logger.info(' %s' % (content))
+              doc = ET.fromstring(content)
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
               reviews = doc.findall('reviews/review')
               for review in reviews:
@@ -279,7 +278,8 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
         logger.info("%d %s %s %s ", i, review["book"]["title"], isbn, review["book"]["small_image_url"])
         try:
             edition = bookloader.add_by_isbn(isbn)
-
+            if not edition:
+                continue
             # save the goodreads id since we know it at this point
             # we need to extract it from the link since review['id']
             # is the id for a users review, not the book
@@ -288,11 +288,12 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             if match:
                 edition.goodreads_id = match.group(1)
                 edition.save()
-                regluit.core.tasks.populate_edition.delay(edition)
                 user.wishlist.add_work(edition.work, 'goodreads')
                 logger.info("Work with isbn %s added to wishlist.", isbn)
             else:
                 logger.error("unable to extract goodreads id from %s", link)
+            if edition.new:
+                regluit.core.tasks.populate_edition.delay(edition)
 
         except Exception, e:
             logger.info ("Exception adding ISBN %s: %s", isbn, e) 
