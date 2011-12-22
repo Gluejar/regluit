@@ -130,7 +130,7 @@ def testCancel(request):
     
     t = Transaction.objects.get(id=int(request.GET['transaction']))
     p = PaymentManager()
-    if p.cancel(t):
+    if p.cancel_transaction(t):
         return HttpResponse("Success")
     else:
         message = "Error: " + t.error

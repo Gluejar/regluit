@@ -9,6 +9,7 @@ import httplib
 import oauth2 as oauth
 from requests import request
 from xml.etree import ElementTree as ET
+import django.utils.encoding
 
 import regluit.core
 from regluit.core import bookloader
@@ -117,7 +118,7 @@ class GoodreadsClient(object):
             response, content = self.client.request('%s/api/auth_user' % GoodreadsClient.url,
                                          'GET')
             if int(response['status']) != httplib.OK:
-                raise GoodreadsException('Error authenticating Goodreads user: %s ' % response)
+                raise GoodreadsException('Error authenticating Goodreads user ' )
             else:
                 doc = ET.fromstring(content.encode('utf-8'))
                 user = doc.find('user')
@@ -155,9 +156,9 @@ class GoodreadsClient(object):
         while (more_pages):
         
           r = request(method,request_url,params=params)
-          print request_url, params
+          # print request_url, params
           if r.status_code != httplib.OK:
-              raise GoodreadsException('Error in review_list_unauth: %s ' % r.content)
+              raise GoodreadsException('Error in review_list_unauth: ' )
           else:
               doc = ET.fromstring(r.content.encode('utf-8'))
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
@@ -201,9 +202,11 @@ class GoodreadsClient(object):
         
           response, content = self.client.request('%s?%s' % (request_url, urlencode(params)),
                             method)
+          logger.info(response['status'])
           if int(response['status']) != httplib.OK:
-              raise GoodreadsException('Error in review_list: %s ' % response)
+              raise GoodreadsException('Error in review_list:  ' )
           else:
+              logger.info(' %s' % (content))
               doc = ET.fromstring(content.encode('utf-8'))
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
               reviews = doc.findall('reviews/review')
@@ -236,10 +239,9 @@ class GoodreadsClient(object):
         r = request(method,request_url,params=params)
         
         if r.status_code != httplib.OK:
-            logger.info('headers, content: %s | %s ' % (r.headers,r.content))
-            raise GoodreadsException('Error in shelves_list: %s %s ' % (r.headers, r.content))
+            raise GoodreadsException('Error in shelves_list: %s ' % (r.headers))
         else:
-            logger.info('headers, content: %s | %s ' % (r.headers,r.content))
+            logger.info('headers: %s' % (r.headers))
             doc = ET.fromstring(r.content.encode('utf-8'))
             shelves = doc.find('shelves')
             # do a simple parsing to a dictionary

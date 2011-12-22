@@ -39,7 +39,7 @@ from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThin
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -425,39 +425,70 @@ def campaign_admin(request):
     # first task:  run PaymentManager.checkStatus() to update Campaign statuses
     # does it return data to display?
     
+    
+    def campaigns_types():
+        # pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
+        # Campaign.objects.filter(transaction__status='ACTIVE')
+        
+        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+            
+        # pull out Campaigns with Transactions that are INCOMPLETE
+    
+        campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
+        
+        # show all Campaigns with Transactions that are COMPLETED
+    
+        campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_COMPLETED)
+        
+        # show Campaigns with Transactions that are CANCELED
+        
+        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_CANCELED)
+        
+        return (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
+                campaigns_with_canceled_transactions)
+        
     form = CampaignAdminForm()
+    pm = PaymentManager()
+    check_status_results = None
+    command_status = None
     
     if request.method == 'GET':
-        check_status_results = None
+        pass
     elif request.method == 'POST':
-        try:
-            pm = PaymentManager()
-            check_status_results = pm.checkStatus()
-        except Exception, e:
-            check_status_results = e
+        if 'campaign_checkstatus' in request.POST.keys():
+            # campaign_checkstatus
+            try:
+                check_status_results = pm.checkStatus()
+                command_status = _("PaymentDetails and PreapprovalDetails have been applied")
+            except Exception, e:
+                check_status_results = e
+        elif 'execute_campaigns' in request.POST.keys():
+            campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+            results = [pm.execute_campaign(c) for c in campaigns_with_active_transactions]
+            command_status = str(results)
+        elif 'finish_campaigns' in request.POST.keys():
+            campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
+            results = [pm.finish_campaign(c) for c in campaigns_with_incomplete_transactions]
+            command_status = str(results)            
+            pass
+        elif 'cancel_campaigns' in request.POST.keys():
+            campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+            results = [pm.cancel_campaign(c) for c in campaigns_with_active_transactions]
+            command_status = str(results)
             
-    # second task: pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
-    # Campaign.objects.filter(transaction__status='ACTIVE')
+    (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
+                campaigns_with_canceled_transactions) = campaigns_types()
     
-    campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
-        
-    # third task:  pull out Campaigns with Transactions that are INCOMPLETE
-
-    campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
-    
-    # 4th task:  show all Campaigns with Transactions that are COMPLETED
-
-    campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_COMPLETED)
-
     context.update({
         'form': form,
         'check_status_results':check_status_results,
         'campaigns_with_active_transactions': campaigns_with_active_transactions,
         'campaigns_with_incomplete_transactions': campaigns_with_incomplete_transactions,
-        'campaigns_with_completed_transactions': campaigns_with_completed_transactions
+        'campaigns_with_completed_transactions': campaigns_with_completed_transactions,
+        'campaigns_with_canceled_transactions': campaigns_with_canceled_transactions,
+        'command_status': command_status
     })
-    
-    
+
     return render(request, "campaign_admin.html", context)
 
 def supporter(request, supporter_username, template_name):
