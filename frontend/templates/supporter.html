@@ -166,7 +166,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                             </form> 
                             <div class="block block3">
-                                <h3 class="title">Goodreads / LibraryThing Import </h3>
+                                <h3 class="title">Import your books</h3>
                                 {% if goodreads_shelf_load_form %}
                                 <form id="load_shelf_form" method="post" action="#">
                                     {% csrf_token %}
@@ -174,15 +174,19 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     <div class="fieldWrapper">
                                         {{ goodreads_shelf_load_form.goodreads_shelf_name_number.errors }}                                        
                                         {{ goodreads_shelf_load_form.goodreads_shelf_name_number }}
-                                        <input type="submit" value="Load Goodreads shelf to wishlist" />
+                                        <div id="loadgr"><input type="submit" value="Add your Goodreads shelf" /></div>
                                     </div>
                                 </form>
+                                {% else %}
+                                <div id="loadgr"><div>Connect your GoodReads account to import from GoodReads.</div></div>
                                 {% endif %}
                                 {% if librarything_id %}
                                 <form id="librarything_load" method="post" action="#">
                                     {% csrf_token %}
-                                    <input type="submit" value="Load your LibraryThing library" />
+                                    <div id="loadlt"><input type="submit" value="Add your LibraryThing library" /></div>
                                 </form>
+                                {% else %}
+                                <div id="loadlt"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
                                 {% endif %}
                             </div>
                         </div>

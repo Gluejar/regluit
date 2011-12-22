@@ -155,6 +155,20 @@ input.profile-save {
   text-indent: -100000px;
   border: none;
 }
+#loadgr {
+  background: url("/static/images/supporter_icons/goodreads_square.png") left center no-repeat;
+  min-height: 32px;
+}
+#loadgr div, #loadgr input {
+  margin: 4px 10px 4px 36px;
+}
+#loadlt {
+  background: url("/static/images/supporter_icons/librarything_square.png") left center no-repeat;
+  min-height: 32px;
+}
+#loadlt div, #loadlt input {
+  margin: auto 10px auto 36px;
+}
 a.my-setting {
   background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;
   border-radius: 7px;
