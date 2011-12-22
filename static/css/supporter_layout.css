@@ -245,12 +245,21 @@ ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
   background: #d6dde0;
   color: #3d4e53;
 }
-.book-list span.rounded > span {
-  line-height: normal;
-  width: 75px;
+/*
+.book-list span.rounded {
+	
+	> span { 
+		.height(15px); 
+	
+		a { 
+			text-transform:capitalize;
+		}
+	}
 }
-.book-list span.rounded > span a {
-  text-transform: capitalize;
+*/
+.listview .rounded {
+  line-height: normal;
+  margin-right: 0;
 }
 div.content-block-content {
   padding-left: 10px;

@@ -285,14 +285,23 @@ ul.tabs {
 	}
 }
 
-
-.book-list span.rounded > span { 
-	line-height:normal; 
-	width:75px;
+/*
+.book-list span.rounded {
 	
-	a { 
-		text-transform:capitalize;
+	> span { 
+		.height(15px); 
+	
+		a { 
+			text-transform:capitalize;
+		}
 	}
+}
+*/
+
+.listview .rounded {
+	// cancelling out styles that would otherwise apply
+	line-height: normal;
+	margin-right: 0;
 }
 
 div.content-block-content {
