@@ -464,6 +464,7 @@ def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
     works = wishlist.works.all()
+    fromsupport = 1
     backed = 0
     backing = 0
     transet = Transaction.objects.all().filter(user = supporter)
@@ -533,6 +534,7 @@ def supporter(request, supporter_username, template_name):
             "supporter": supporter,
             "wishlist": wishlist,
             "works": works,
+            "fromsupport": fromsupport,
             "backed": backed,
             "backing": backing,
             "wished": wished,
