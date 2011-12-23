@@ -7,6 +7,7 @@ import datetime
 from re import sub
 from itertools import islice
 from decimal import Decimal as D
+from xml.etree import ElementTree as ET
 
 import requests
 import oauth2 as oauth
@@ -422,10 +423,6 @@ def campaign_admin(request):
         
     context = {}
     
-    # first task:  run PaymentManager.checkStatus() to update Campaign statuses
-    # does it return data to display?
-    
-    
     def campaigns_types():
         # pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
         # Campaign.objects.filter(transaction__status='ACTIVE')
@@ -458,8 +455,22 @@ def campaign_admin(request):
         if 'campaign_checkstatus' in request.POST.keys():
             # campaign_checkstatus
             try:
-                check_status_results = pm.checkStatus()
-                command_status = _("PaymentDetails and PreapprovalDetails have been applied")
+                status = pm.checkStatus()
+                check_status_results = ""
+                # parse the output to display chat transaction statuses have been updated
+                if len(status["preapprovals"]):
+                    for t in status["preapprovals"]:
+                        check_status_results += "<p>Preapproval key: %s updated</p>" % (t["key"])
+                else:
+                    check_status_results += "<p>No preapprovals needed updating</p>"
+                if len(status["payments"]):
+                    for t in status["payments"]:
+                        info = ", ".join(["%s:%s" % (k,v) for (k,v) in t.items()])
+                        check_status_results += "<p>Payment updated: %s </p>" % (info)
+                        
+                else:
+                    check_status_results += "<p>No payments needed updating</p>"                    
+                command_status = _("Transactions updated based on PaymentDetails and PreapprovalDetails")
             except Exception, e:
                 check_status_results = e
         elif 'execute_campaigns' in request.POST.keys():

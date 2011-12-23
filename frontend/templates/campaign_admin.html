@@ -23,13 +23,10 @@
 </form>
 
 {% if check_status_results %}
-<p>Campaign checkstatus output:</p>
-
-<textarea id="id" cols="45" rows="15">
-{% autoescape on %}
+<p style="font-weight:bold">Campaign checkstatus output:</p>
+{% autoescape off %}
 {{check_status_results}}
 {% endautoescape %}
-</textarea>
 {% endif %}
 
 <!-- Active transactions -->

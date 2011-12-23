@@ -44,6 +44,8 @@ def add_by_isbn(isbn, work=None):
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
+    if not isbn:
+        return None
     if len(isbn)==10:
         isbn=regluit.core.isbn.convert_10_to_13(isbn)
     
@@ -51,6 +53,7 @@ def add_by_isbn(isbn, work=None):
     # save a lookup to google if we already have this isbn
     has_isbn =  Q(isbn_13=isbn)
     for edition in models.Edition.objects.filter(has_isbn):
+        edition.new = False
         return edition
 
     url = "https://www.googleapis.com/books/v1/volumes"
@@ -108,6 +111,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
             e.isbn_13 = i['identifier']
 
     e.save()
+    e.new=True
 
     for a in d.get('authors', []):
         a, created = models.Author.objects.get_or_create(name=a)
