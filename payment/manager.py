@@ -37,66 +37,90 @@ class PaymentManager( object ):
         Run through all pay transactions and verify that their current status is as we think.
         '''
         
-        doc = minidom.Document()
-        head = doc.createElement('transactions')
-        doc.appendChild(head)
+        #doc = minidom.Document()
+        #head = doc.createElement('transactions')
+        #doc.appendChild(head)
         
-        # look at all transacitons for stated number of past days; if past_days is not int, get all Transaction
+        status = {'payments':[], 'preapprovals':[]}
+        
+        # look at all PAY transactions for stated number of past days; if past_days is not int, get all Transaction
+        # only PAY transactions have date_payment not None
         try:
-            ref_date = datetime.now() - relativedelta(days=int(past_days))
+            ref_date = datetime.utcnow() - relativedelta(days=int(past_days))
             transactions = Transaction.objects.filter(date_payment__gte=ref_date)
         except:
-            ref_date = datetime.now()
+            ref_date = datetime.utcnow()
             transactions = Transaction.objects.filter(date_payment__isnull=False)
             
         logger.info(transactions)
         
         for t in transactions:
         
-            tran = doc.createElement('transaction')
-            tran.setAttribute("id", str(t.id))
-            head.appendChild(tran)
+            #tran = doc.createElement('transaction')
+            #tran.setAttribute("id", str(t.id))
+            #head.appendChild(tran)
+            
+            payment_status = {'id':t.id}
                 
             p = PaymentDetails(t)
             
             if p.error() or not p.success():
                 logger.info("Error retrieving payment details for transaction %d" % t.id)
-                append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
-                
+                #append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
+                payment_status['error'] = "An error occurred while verifying this transaction, see server logs for details"
             else:
                 
                 # Check the transaction status
                 if t.status != p.status:
-                    append_element(doc, tran, "status_ours", t.status)
-                    append_element(doc, tran, "status_theirs", p.status)
+                    #append_element(doc, tran, "status_ours", t.status)
+                    #append_element(doc, tran, "status_theirs", p.status)
+                    payment_status['status'] = {'ours': t.status, 'theirs': p.status}
+                    
                     t.status = p.status
                     t.save()
+                    
+                receivers_status = []
                 
                 for r in p.transactions:
                     
                     try:
                         receiver = Receiver.objects.get(transaction=t, email=r['email'])
+                        
+                        receiver_status = {'email':r['email']}
+                        
                         logger.info(r)
                         logger.info(receiver)
                         
                         # Check for updates on each receiver's status.  Note that unprocessed delayed chained payments
                         # will not have a status code or txn id code
                         if receiver.status != r['status']:
-                            append_element(doc, tran, "receiver_status_ours", receiver.status)
-                            append_element(doc, tran, "receiver_status_theirs",
-                                           r['status'] if r['status'] is not None else 'None')
+                            #append_element(doc, tran, "receiver_status_ours", receiver.status)
+                            #append_element(doc, tran, "receiver_status_theirs",
+                            #               r['status'] if r['status'] is not None else 'None')
+                            receiver_status['status'] = {'ours': receiver.status, 'theirs': r['status']}
                             receiver.status = r['status']
                             receiver.save()
                             
                         if receiver.txn_id != r['txn_id']:
-                            append_element(doc, tran, "txn_id_ours", receiver.txn_id)
-                            append_element(doc, tran, "txn_id_theirs", r['txn_id'])
+                            #append_element(doc, tran, "txn_id_ours", receiver.txn_id)
+                            #append_element(doc, tran, "txn_id_theirs", r['txn_id'])
+                            receiver_status['txn_id'] = {'ours':receiver.txn_id, 'theirs':r['txn_id']}
+                            
                             receiver.txn_id = r['txn_id']
                             receiver.save()
                             
                     except:
                         traceback.print_exc()
                         
+                    if not set(["status","txn_id"]).isdisjoint(receiver_status.keys()):   
+                        receivers_status.append(receiver_status)
+                
+                if len(receivers_status):
+                    status["receivers"] = receivers_status
+                    
+            if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
+                status["payments"].append(payment_status)
+            
         # Now look for preapprovals that have not been paid and check on their status
         transactions = Transaction.objects.filter(date_authorized__gte=ref_date, date_payment=None, type=PAYMENT_TYPE_AUTHORIZATION)
         
@@ -104,39 +128,47 @@ class PaymentManager( object ):
             
             p = PreapprovalDetails(t)
             
-            tran = doc.createElement('preapproval')
-            tran.setAttribute("key", str(t.preapproval_key))
-            head.appendChild(tran)
+            #tran = doc.createElement('preapproval')
+            #tran.setAttribute("key", str(t.preapproval_key))
+            #head.appendChild(tran)
+            
+            preapproval_status = {'id':t.id, 'key':t.preapproval_key}
             
             if p.error() or not p.success():
                 logger.info("Error retrieving preapproval details for transaction %d" % t.id)
-                append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
-                
+                #append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
+                preapproval_status["error"] = "An error occurred while verifying this transaction, see server logs for details"
             else:
                 
                 # Check the transaction status
                 if t.status != p.status:
-                    append_element(doc, tran, "status_ours", t.status)
-                    append_element(doc, tran, "status_theirs", p.status)
+                    #append_element(doc, tran, "status_ours", t.status)
+                    #append_element(doc, tran, "status_theirs", p.status)
+                    preapproval_status["status"] = {'ours':t.status, 'theirs':p.status}
                     t.status = p.status
                     t.save()
                     
                 # check the currency code
                 if t.currency != p.currency:
-                    append_element(doc, tran, "currency_ours", t.currency)
-                    append_element(doc, tran, "currency_theirs", p.currency)
+                    #append_element(doc, tran, "currency_ours", t.currency)
+                    #append_element(doc, tran, "currency_theirs", p.currency)
+                    preapproval_status["currency"] = {'ours':t.currency, 'theirs':p.currency}
                     t.currency = p.currency
                     t.save()
                     
                 # Check the amount
                 if t.amount != D(p.amount):
-                    append_element(doc, tran, "amount_ours", str(t.amount))
-                    append_element(doc, tran, "amount_theirs", str(p.amount))
+                    #append_element(doc, tran, "amount_ours", str(t.amount))
+                    #append_element(doc, tran, "amount_theirs", str(p.amount))
+                    preapproval_status["amount"] = {'ours':t.amount, 'theirs':p.amount}
                     t.amount = p.amount
                     t.save()
-                            
+            
+            # append only if there was a change in status
+            if not set(['status', 'currency', 'amount']).isdisjoint(set(preapproval_status.keys())):
+                status["preapprovals"].append(preapproval_status)            
 
-        return doc.toxml()
+        return status
     
         
     def processIPN(self, request):
@@ -394,7 +426,7 @@ class PaymentManager( object ):
             return False
         
         # mark this transaction as executed
-        transaction.date_executed = datetime.now()
+        transaction.date_executed = datetime.utcnow()
         transaction.save()
         
         p = Execute(transaction)            
@@ -448,7 +480,7 @@ class PaymentManager( object ):
         transaction.create_receivers(receiver_list)
         
         # Mark as payment attempted so we will poll this periodically for status changes
-        transaction.date_payment = datetime.now()
+        transaction.date_payment = datetime.utcnow()
         transaction.save()
         
         p = Pay(transaction)
@@ -611,7 +643,7 @@ class PaymentManager( object ):
                                        campaign=campaign,
                                        list=list,
                                        user=user,
-                                       date_payment=datetime.now(),
+                                       date_payment=datetime.utcnow(),
                                        anonymous=anonymous
                                        )
     
