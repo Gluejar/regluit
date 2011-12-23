@@ -30,19 +30,18 @@
 {% endif %}
 
 <!-- Active transactions -->
+
 <p style="font-weight:bold">Campaigns with active transactions</p>
 {% if campaigns_with_active_transactions %}
+<form method="post" action="#">
+    {% csrf_token %}
     <ul>
 {% for campaign in campaigns_with_active_transactions %}
-        <li>{{campaign.id}} | {{campaign.name}} </li>
+        <li><input type="radio" name="active_campaign" value="{{campaign.id}}" />{{campaign.id}} | {{campaign.name}} </li>
 {% endfor %}
     </ul>
-<form method="post" action="#">
-    {% csrf_token %}
+
     <input type="submit" name="execute_campaigns" value="Execute Payment to Gluejar" id="submit">
-</form>
-<form method="post" action="#">
-    {% csrf_token %}
     <input type="submit" name="cancel_campaigns" value="Cancel Active Transactions" id="submit">
 </form>  
 {% else %}
@@ -52,13 +51,13 @@
 <!-- incomplete transactions -->
 <p style="font-weight:bold">Campaigns with incomplete transactions</p>
 {% if campaigns_with_incomplete_transactions %}
-    <ul>
-{% for campaign in campaigns_with_incomplete_transactions %}
-        <li>{{campaign.id}} | {{campaign.name}} </li>
-{% endfor %}
-    </ul>
 <form method="post" action="#">
     {% csrf_token %}
+    <ul>
+{% for campaign in campaigns_with_incomplete_transactions %}
+        <li><input type="radio" name="incomplete_campaign" value="{{campaign.id}}" />{{campaign.id}} | {{campaign.name}} </li>
+{% endfor %}
+    </ul>
     <input type="submit" name="finish_campaigns" value="Pay Rights Holders" id="submit">
 </form>       
 {% else %}

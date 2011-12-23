@@ -473,19 +473,34 @@ def campaign_admin(request):
                 command_status = _("Transactions updated based on PaymentDetails and PreapprovalDetails")
             except Exception, e:
                 check_status_results = e
-        elif 'execute_campaigns' in request.POST.keys():
-            campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
-            results = [pm.execute_campaign(c) for c in campaigns_with_active_transactions]
-            command_status = str(results)
+        elif 'execute_campaigns' in request.POST.keys():            
+            c_id = request.POST.get('active_campaign', None)
+            if c_id is not None:
+                try:
+                    campaign = models.Campaign.objects.get(id=c_id)
+                    results = pm.execute_campaign(campaign)
+                    command_status = str(results)
+                except Exception, e:
+                    command_status = "Error in executing transactions for campaign %s " % (str(e))
         elif 'finish_campaigns' in request.POST.keys():
-            campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
-            results = [pm.finish_campaign(c) for c in campaigns_with_incomplete_transactions]
-            command_status = str(results)            
-            pass
+            c_id = request.POST.get('incomplete_campaign', None)
+            if c_id is not None:
+                try:
+                    campaign = models.Campaign.objects.get(id=c_id)
+                    results = pm.finish_campaign(campaign)
+                    command_status = str(results)
+                except Exception, e:
+                    command_status = "Error in finishing transactions for campaign %s " % (str(e))            
+            
         elif 'cancel_campaigns' in request.POST.keys():
-            campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
-            results = [pm.cancel_campaign(c) for c in campaigns_with_active_transactions]
-            command_status = str(results)
+            c_id = request.POST.get('active_campaign', None)
+            if c_id is not None:
+                try:
+                    campaign = models.Campaign.objects.get(id=c_id)
+                    results = pm.cancel_campaign(campaign)
+                    command_status = str(results)
+                except Exception, e:
+                    command_status = "Error in canceling transactions for campaign %s " % (str(e))        
             
     (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
                 campaigns_with_canceled_transactions) = campaigns_types()
