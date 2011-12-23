@@ -16,22 +16,9 @@
   <p style="font-weight:bold; color:red">{{command_status}}</p>
 {% endif %}
 
-<form method="post" action="#">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" name="campaign_checkstatus" value="Update Transaction Statuses" id="submit">
-</form>
-
-{% if check_status_results %}
-<p style="font-weight:bold">Campaign checkstatus output:</p>
-{% autoescape off %}
-{{check_status_results}}
-{% endautoescape %}
-{% endif %}
-
 <!-- Active transactions -->
 
-<p style="font-weight:bold">Campaigns with active transactions</p>
+<p style="font-weight:bold">A) Campaigns with active transactions</p>
 {% if campaigns_with_active_transactions %}
 <form method="post" action="#">
     {% csrf_token %}
@@ -49,7 +36,7 @@
 {% endif %}
 
 <!-- incomplete transactions -->
-<p style="font-weight:bold">Campaigns with incomplete transactions</p>
+<p style="font-weight:bold">B) Campaigns with incomplete transactions</p>
 {% if campaigns_with_incomplete_transactions %}
 <form method="post" action="#">
     {% csrf_token %}
@@ -65,7 +52,7 @@
 {% endif %}
 
 <!--  completed transactions -->
-<p style="font-weight:bold">Campaigns with completed transactions</p>
+<p style="font-weight:bold">C) Campaigns with completed transactions</p>
 {% if campaigns_with_completed_transactions %}
     <ul>
 {% for campaign in campaigns_with_completed_transactions %}
@@ -78,7 +65,7 @@
 
 
 <!--  canceled transactions -->
-<p style="font-weight:bold">Campaigns with canceled transactions</p>
+<p style="font-weight:bold">D) Campaigns with canceled transactions</p>
 {% if campaigns_with_canceled_transactions %}
     <ul>
 {% for campaign in campaigns_with_canceled_transactions %}
@@ -87,6 +74,19 @@
     </ul>
 {% else %}
   <p>No campaigns with canceled transactions</p>
+{% endif %}
+
+<form method="post" action="#">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="campaign_checkstatus" value="Update Transaction Statuses" id="submit">
+</form>
+
+{% if check_status_results %}
+<p style="font-weight:bold">E) Campaign checkstatus output</p>
+{% autoescape off %}
+{{check_status_results}}
+{% endautoescape %}
 {% endif %}
 
 {% endblock %}
