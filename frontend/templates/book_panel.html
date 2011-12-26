@@ -85,11 +85,17 @@
         <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
     </div>
     <div class="listview panelfront side1 icons">
-      {% if status == 'No campaign yet' and fromsupport %}
-        <span class="rounded"><span class="grey">Wished by {{ work.wished_by.count }}</span></span>
+      {% if fromsupport %}
+        {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
+          <span class="rounded"><span class="grey">Wished by {{ work.wished_by.count }}</span></span>
+        {% else %}
+          <div class="booklist-status-img">
+            <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
+          </div>
+	    {% endif %}
       {% else %}
         <div class="booklist-status-img">
-                            <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
+          <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
         </div>
 	  {% endif %}
                     <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>

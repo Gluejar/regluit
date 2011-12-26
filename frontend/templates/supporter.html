@@ -135,7 +135,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                              <div class="block block2">
                                 <h3 class="title">Links</h3>
                                 <div class="check-list">
-                                   <label>Add your homepage URL:</label>
+                                   <label> {% if supporter.profile.home_url %}Change{% else %}Add{% endif %} your homepage URL:</label>
                                     {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
                                 </div>
                                 <div class="check-list">
@@ -160,7 +160,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
-                                    <label>Add Your LibraryThing User ID:</label>
+                                    <label>{% if supporter.profile.librarything_id %}Change{% else %}Add{% endif %} your LibraryThing User ID:</label>
                                     {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
                                 </div>
                             </div>
@@ -172,9 +172,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     {% csrf_token %}
                                     {{ goodreads_shelf_load_form.non_field_errors }}
                                     <div class="fieldWrapper">
-                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number.errors }}                                        
-                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number }}
-                                        <div id="loadgr"><input type="submit" value="Add your Goodreads shelf" /></div>
+                                        <div id="loadgr"><span><div>{{ goodreads_shelf_load_form.goodreads_shelf_name_number.errors }}                                        
+                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number }}</div>
+                                        <input type="submit" value="Add this shelf" />
+                                        </div></span>
                                     </div>
                                 </form>
                                 {% else %}
@@ -186,7 +187,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     <div id="loadlt"><input type="submit" value="Add your LibraryThing library" /></div>
                                 </form>
                                 {% else %}
-                                <div id="loadlt"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
+                                <div id="loadlt"><div>Add your LibraryThing ID to import from LibraryThing: </div></div>
                                 {% endif %}
                             </div>
                         </div>

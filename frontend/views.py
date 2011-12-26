@@ -837,7 +837,7 @@ def goodreads_load_shelf(request):
         ct.description = "Loading Goodread shelf %s to user %s with %s books" % (shelf_name, user, expected_number_of_books)
         ct.save()
         
-        return HttpResponse("Shelf loading placed on task queue.")
+        return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
     except Exception,e:
         return HttpResponse("Error in loading shelf: %s " % (e))
         logger.info("Error in loading shelf for user %s: %s ", user, e)
@@ -869,8 +869,8 @@ def librarything_load(request):
         ct.user = user
         ct.description = "Loading LibraryThing collection of %s to user %s." % (lt_username, user)
         ct.save()
-        
-        return HttpResponse("LibraryThing loading placed on task queue.")
+        	
+        return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
     except Exception,e:
         return HttpResponse("Error in loading LibraryThing library: %s " % (e))
         logger.info("Error in loading LibraryThing for user %s: %s ", user, e)

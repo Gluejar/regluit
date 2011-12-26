@@ -158,16 +158,25 @@ input.profile-save {
 #loadgr {
   background: url("/static/images/supporter_icons/goodreads_square.png") left center no-repeat;
   min-height: 32px;
+  margin-bottom: 12px;
+}
+#loadgr span {
+  display: inline-block;
+  vertical-align: middle;
 }
 #loadgr div, #loadgr input {
-  margin: 4px 10px 4px 36px;
+  margin: 2px 10px 2px 36px;
 }
 #loadlt {
   background: url("/static/images/supporter_icons/librarything_square.png") left center no-repeat;
   min-height: 32px;
+  padding-top: 4px;
 }
 #loadlt div, #loadlt input {
   margin: auto 10px auto 36px;
+}
+.weareonthat {
+  background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
 a.my-setting {
   background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;
