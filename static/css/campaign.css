@@ -128,6 +128,7 @@
   text-align: center;
   border: none;
   padding: 0;
+  cursor: pointer;
 }
 .book-detail-info .find-book {
   margin-top: 15px;

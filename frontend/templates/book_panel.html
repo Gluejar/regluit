@@ -2,36 +2,39 @@
 <div class="listview book-list">
     <div class="listview panelback side2">
             <div class="greenpanel2">
+            	<div class="greenpanel_top">
                     <div class="unglued_white">
                             {% if work.first_pdf_url or work.first_epub_url %}
                                 <b>AVAILABLE!</b>
                             {% else %}
-                                <b>{{ status }}</b>
                             {% if status == 'SUCCESSFUL' %} 
+                            	<b>UNGLUED!</b>
                                 <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
                                 <p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
                             {% else %}{% if status == 'ACTIVE' %}
-                                <p><b>Until:</b> {{ deadline|date:"M d, Y" }}</p>
-                                <p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
+                            	<b>UNGLUE IT!</b>
+                                <p><b>${{ work.last_campaign.current_total }}</b> raised</p><p><b>${{ work.last_campaign.target }}</b> needed</p>
+                                <p>by {{ deadline|date:"M d, Y" }}</p>
                             {% else %}{% if status == 'INITIALIZED' %}
                                 <p>Campaign coming soon!</p>
                             {% else %}{% if status == 'SUSPENDED' %}
-                                <p>This campaign had been suspended }.</p>
+                                <p>This campaign has been suspended }.</p>
                             {% else %}{% if status == 'WITHDRAWN' %}
-                                <p>This campaign was has been withdrawn.</p>
+                                <p>This campaign has been withdrawn.</p>
                             {% else %}{% if status == 'UNSUCCESSFUL' %}
                                 <p>{{ deadline }}</p>
                                 <p>Watch for a new campaign.</p>
                             {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                     </div> 
                     {% if work.first_pdf_url or work.first_epub_url %}
-                        <div class="read_itbutton">{% if work.first_epub_url %}<a href="{{ work.first_epub_url }}">{% else %}<a href="{{ work.first_pdf_url }}">{% endif %}Read it Now</a> </div>
-                    {% else %}
-                        <div class="Unglue_itbutton"><a href="#">Unglue it!</a> </div>
-                    {% endif %}
+                        <div class="read_itbutton">{% if work.first_epub_url %}<a href="{{ work.first_epub_url }}">{% else %}<a href="{{ work.first_pdf_url }}">{% endif %}Read it Now</a></div>
+                    {% else %}{% if status == 'ACTIVE' %}
+                        <div class="read_itbutton pledge"><a href="/pledge/{{work.id}}">Support</a></div>
+                    {% endif %}{% endif %}
+                </div>
                     {% ifequal supporter request.user %}
                         <div class="moreinfo remove-wishlist">
-                            <div><a id="{{ work.id }}">Remove This</a></div>
+                            <a id="{{ work.id }}">Remove This</a>
                         </div>
                     {% else %}{% if request.user.is_anonymous %}
                         <div class="moreinfo create-account">
@@ -43,7 +46,7 @@
                         </div>
                     {% else %}
                         <div class="moreinfo add-wishlist">
-                        <span id="{{ googlebooks_id }}">Add to Wishlist</span>
+                        <span id="{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
                         </div>
                     {% endif %}{% endif %}{% endifequal %}
                     <div class="white_text"> 
@@ -56,7 +59,8 @@
             </div>
     </div>
     <div class="listview panelfront side1 book-thumb">
-        <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a>
+<!--        <a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="Book name" title="book name" /></a> -->
+        <a href="#"><img src="/static/images/generic_cover_larger.png" alt="Book name" title="book name" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
@@ -87,18 +91,19 @@
     <div class="listview panelfront side1 icons">
       {% if fromsupport %}
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
-          <span class="rounded"><span class="grey">Wished by {{ work.wished_by.count }}</span></span>
+          <span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.wished_by.count }}</span></span>
         {% else %}
           <div class="booklist-status-img">
             <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
           </div>
+                    <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
 	    {% endif %}
       {% else %}
         <div class="booklist-status-img">
           <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
         </div>
-	  {% endif %}
                     <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
+	  {% endif %}
         <div class="right_add"><img src="/static/images/book-panel/add_gray.png" alt="Add"/></div>
     </div>
     <div class="listview panelfront side1 ebooks">

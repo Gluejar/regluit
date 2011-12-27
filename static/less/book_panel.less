@@ -8,8 +8,8 @@
     line-height:16px;
 }
 
-.greenpanelactionitems(@pos) {
-    line-height:40px;
+.greenpanelactionitems(@pos, @lineheight) {
+    line-height:@lineheight;
     font-size:11px;
     background-repeat: no-repeat;
     background-position: @pos center;
@@ -42,8 +42,8 @@
     border: 1px solid #81bb38;    
 }
 
-.readit_inner (@padding) {
-    .greenpanelactionitems(10px);
+.readit_inner (@padding, @lineheight) {
+    .greenpanelactionitems(10px, @lineheight);
     padding:0px 0px 0px @padding;
     color:@dark-green;
     	
@@ -52,15 +52,15 @@
 	}
 }
 
-.banners (@right, @bottom) {
+.banners (@right) {
     width:120px;
     height:30px;
     padding:0px;
-    margin:15px 0 @bottom 0;
+    margin:10px 0 0 0;
     .greenpanelactionborders;
     
-    a {
-    	.greenpanelactionitems(left);
+    a, span {
+    	.greenpanelactionitems(left, 30px);
 		padding:0 @right 0 21px;
     	color:#FFF;
     	
@@ -131,7 +131,6 @@
     overflow: hidden;    
 }
 
-
 .panelview.booklist-status {
     color: @green;
     text-align: left;
@@ -139,7 +138,7 @@
     .booklist-status-label {
     	float: left;
     	font-weight: bold;
-    }
+    }    
 }
 
 .panelview.icons {
@@ -164,6 +163,10 @@
 		padding:10px 10px 0 0;
 		width:24px;
 	}
+
+    .panelnope {
+    	display: none;
+    }
 }
 
 .panelview.boolist-ebook a {
@@ -187,7 +190,7 @@ div.panelview.side2  {
 
 .greenpanel2 {
 	.greenpanelstuff;
-    margin: 0 auto 0;
+    margin: 0;
     padding: 10px;
     height: 295px;
     background-color: @green;
@@ -197,29 +200,43 @@ div.panelview.side2  {
     left:-10px;
 }
 
+.greenpanel_top {
+	height: 135px;
+}
+
 /* Campaign status text at top of hover state */
 .unglued_white {
     font-size: 12px;
-    margin: 0px  auto;
-    margin-bottom:5px;
-    padding: 10px 0px;
-    height:48px;
+    margin: 0px auto 10px auto;
+    padding: 5px 0 10px 0;
+    height:58px;
 }
 
 /* White-background action buttons; vary by state of campaign */
 .read_itbutton {
 	.readit;
 	a {
-		.readit_inner(30px);
+		.readit_inner(30px, 40px);
 		background: url("@{image-base}book-panel/book_icon.png") no-repeat 10% center;
 	}
+	
+	&.pledge {
+		a {
+			.readit_inner(25px, 35px);
+			background: none;
+		}
+		
+		background-image: url("@{image-base}icons/pledgearrow-green.png");
+		background-repeat: no-repeat;
+		background-position: 90% center;		
+	}	
 }
 
 .read_itbutton_fail {
 	.readit;
 	
 	span {
-		.readit_inner(15px);
+		.readit_inner(15px, 40px);
 		background: none;
 	}
 }
@@ -229,21 +246,31 @@ div.panelview.side2  {
 	
 	a {
     	background-image: url("@{image-base}book-panel/unglue_icon.png");
-    	.readit_inner(25px);
+    	.readit_inner(25px, 40px);
 	}
 }
 
-.add_towish {
-	.banners(5px, 15px);
-	background-image: url("@{image-base}book-panel/add_wish_icon.png");
+.moreinfo.add-wishlist {
+	.banners(5px);
+	background: url("@{image-base}book-panel/add_wish_icon.png") no-repeat left center;
+	padding-right:0;
+}
 
+.moreinfo.remove-wishlist {
+	.banners(5px);
+	background: url("@{image-base}booklist/remove-wishlist-white.png") no-repeat left center;
+}
+
+.moreinfo.on-wishlist {
+	.banners(5px);
+	background: url("@{image-base}checkmark_small-white.png") no-repeat left center;
 }
 
 /* title, author */
 .white_text {
     width:130px;
-    height:40px;
-    padding:17px 0px;
+    height:45px;
+    padding:15px 0px;
     margin:0px;
 
 	 a {
@@ -262,8 +289,8 @@ div.panelview.side2  {
 }
 
 .moreinfo {
-	.banners(0, 0);
-	background-image: url("@{image-base}book-panel/more_icon.png") no-repeat 10% center;
+	.banners(0);
+	background: url("@{image-base}book-panel/more_icon.png") no-repeat left center;
 	
 	> div {
 		.height(30px);
@@ -271,64 +298,6 @@ div.panelview.side2  {
 	}
 }
 
-
-/* styling of hover state when book has not been unglued, and a bunch of stuff I haven't figured out yet */
-
-
-.add_towish2{
-    width:130px;
-    height:30px;
-    padding:0px 0px;
-    margin:15px auto;
-}
-.add_towish2 a{
-	.greenpanelactionitems(left);
-    background-image: url("@{image-base}book-panel/add_gray.png");
-    padding:8px 0px;
-    padding-left:20px;
-    color:@text-blue;
-    .greenpanelactionborders;
-    font-family: "LucidaGrandeBold";
-}
-.add_towish2 a:hover{
-    text-decoration:none;
-}
-
-.white_text2{
-    width:130px;
-    height:40px;
-    padding:13px 0px;
-    margin:0px;
-}
-.white_text2 a, a:hover {
-	.panelhoverlink;
-}
-
-/*more info*/
-.moreinfo2{
-    width:130px;
-    height:30px;
-    padding:0px 20px 0px 0px;
-    margin:15px auto;
-}
-.moreinfo2 a{
-    line-height:40px;
-    font-size:12px;
-    background-image: url("@{image-base}book-panel/gray_more_info.png");
-    background-repeat: no-repeat;
-    background-position: left center;
-    padding:8px 35px;
-    font-weight:bold;
-    padding-left:20px;
-    color:@text-blue;
-    text-decoration:none;
-    text-transform: uppercase;
-	.greenpanelactionborders;
-	font-family: "LucidaGrandeBold";
-}
-.moreinfo2 a:hover{
-	.panelhoverlink;
-}
 /*end the 2greenpanel*/
 
 .read{

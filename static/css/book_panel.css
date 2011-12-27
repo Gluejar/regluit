@@ -129,6 +129,9 @@
   padding: 10px 10px 0 0;
   width: 24px;
 }
+.panelview.icons .panelnope {
+  display: none;
+}
 .panelview.boolist-ebook a {
   display: none;
 }
@@ -148,7 +151,7 @@ div.panelview.side2 {
   font-size: 12px;
   width: 120px;
   line-height: 16px;
-  margin: 0 auto 0;
+  margin: 0;
   padding: 10px;
   height: 295px;
   background-color: #8dc63f;
@@ -157,13 +160,15 @@ div.panelview.side2 {
   top: -6px;
   left: -10px;
 }
+.greenpanel_top {
+  height: 135px;
+}
 /* Campaign status text at top of hover state */
 .unglued_white {
   font-size: 12px;
-  margin: 0px  auto;
-  margin-bottom: 5px;
-  padding: 10px 0px;
-  height: 48px;
+  margin: 0px auto 10px auto;
+  padding: 5px 0 10px 0;
+  height: 58px;
 }
 /* White-background action buttons; vary by state of campaign */
 .read_itbutton {
@@ -190,6 +195,26 @@ div.panelview.side2 {
   background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
 .read_itbutton a:hover {
+  text-decoration: none;
+}
+.read_itbutton.pledge {
+  background-image: url("/static/images/icons/pledgearrow-green.png");
+  background-repeat: no-repeat;
+  background-position: 90% center;
+}
+.read_itbutton.pledge a {
+  line-height: 35px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: 10px center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0px 0px 0px 25px;
+  color: #73a334;
+  background: none;
+}
+.read_itbutton.pledge a:hover {
   text-decoration: none;
 }
 .read_itbutton_fail {
@@ -244,21 +269,22 @@ div.panelview.side2 {
 .Unglue_itbutton a:hover {
   text-decoration: none;
 }
-.add_towish {
+.moreinfo.add-wishlist {
   width: 120px;
   height: 30px;
   padding: 0px;
-  margin: 15px 0 15px 0;
+  margin: 10px 0 0 0;
   border-top-width: 1px;
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
   border-top-color: #FFFFFF;
   border-bottom-color: #FFFFFF;
-  background-image: url("/static/images/book-panel/add_wish_icon.png");
+  background: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
+  padding-right: 0;
 }
-.add_towish a {
-  line-height: 40px;
+.moreinfo.add-wishlist a, .moreinfo.add-wishlist span {
+  line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
   background-position: left center;
@@ -268,15 +294,71 @@ div.panelview.side2 {
   padding: 0 5px 0 21px;
   color: #FFF;
 }
-.add_towish a:hover {
+.moreinfo.add-wishlist a:hover, .moreinfo.add-wishlist span:hover {
+  text-decoration: none;
+  color: #3d4e53;
+}
+.moreinfo.remove-wishlist {
+  width: 120px;
+  height: 30px;
+  padding: 0px;
+  margin: 10px 0 0 0;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  background: url("/static/images/booklist/remove-wishlist-white.png") no-repeat left center;
+}
+.moreinfo.remove-wishlist a, .moreinfo.remove-wishlist span {
+  line-height: 30px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0 5px 0 21px;
+  color: #FFF;
+}
+.moreinfo.remove-wishlist a:hover, .moreinfo.remove-wishlist span:hover {
+  text-decoration: none;
+  color: #3d4e53;
+}
+.moreinfo.on-wishlist {
+  width: 120px;
+  height: 30px;
+  padding: 0px;
+  margin: 10px 0 0 0;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  border-top-style: solid;
+  border-bottom-style: solid;
+  border-top-color: #FFFFFF;
+  border-bottom-color: #FFFFFF;
+  background: url("/static/images/checkmark_small-white.png") no-repeat left center;
+}
+.moreinfo.on-wishlist a, .moreinfo.on-wishlist span {
+  line-height: 30px;
+  font-size: 11px;
+  background-repeat: no-repeat;
+  background-position: left center;
+  font-weight: bold;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0 5px 0 21px;
+  color: #FFF;
+}
+.moreinfo.on-wishlist a:hover, .moreinfo.on-wishlist span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
 /* title, author */
 .white_text {
   width: 130px;
-  height: 40px;
-  padding: 17px 0px;
+  height: 45px;
+  padding: 15px 0px;
   margin: 0px;
 }
 .white_text a {
@@ -298,17 +380,17 @@ div.panelview.side2 {
   width: 120px;
   height: 30px;
   padding: 0px;
-  margin: 15px 0 0 0;
+  margin: 10px 0 0 0;
   border-top-width: 1px;
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
   border-top-color: #FFFFFF;
   border-bottom-color: #FFFFFF;
-  background-image: url("/static/images/book-panel/more_icon.png") no-repeat 10% center;
+  background: url("/static/images/book-panel/more_icon.png") no-repeat left center;
 }
-.moreinfo a {
-  line-height: 40px;
+.moreinfo a, .moreinfo span {
+  line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
   background-position: left center;
@@ -318,7 +400,7 @@ div.panelview.side2 {
   padding: 0 0 0 21px;
   color: #FFF;
 }
-.moreinfo a:hover {
+.moreinfo a:hover, .moreinfo span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -326,77 +408,6 @@ div.panelview.side2 {
   height: 30px;
   line-height: 30px;
   padding-bottom: 8px;
-}
-/* styling of hover state when book has not been unglued, and a bunch of stuff I haven't figured out yet */
-.add_towish2 {
-  width: 130px;
-  height: 30px;
-  padding: 0px 0px;
-  margin: 15px auto;
-}
-.add_towish2 a {
-  line-height: 40px;
-  font-size: 11px;
-  background-repeat: no-repeat;
-  background-position: left center;
-  font-weight: bold;
-  text-decoration: none;
-  text-transform: uppercase;
-  background-image: url("/static/images/book-panel/add_gray.png");
-  padding: 8px 0px;
-  padding-left: 20px;
-  color: #3d4e53;
-  border-top-width: 1px;
-  border-bottom-width: 1px;
-  border-top-style: solid;
-  border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
-  font-family: "LucidaGrandeBold";
-}
-.add_towish2 a:hover {
-  text-decoration: none;
-}
-.white_text2 {
-  width: 130px;
-  height: 40px;
-  padding: 13px 0px;
-  margin: 0px;
-}
-.white_text2 a, a:hover {
-  text-decoration: none;
-  color: #3d4e53;
-}
-/*more info*/
-.moreinfo2 {
-  width: 130px;
-  height: 30px;
-  padding: 0px 20px 0px 0px;
-  margin: 15px auto;
-}
-.moreinfo2 a {
-  line-height: 40px;
-  font-size: 12px;
-  background-image: url("/static/images/book-panel/gray_more_info.png");
-  background-repeat: no-repeat;
-  background-position: left center;
-  padding: 8px 35px;
-  font-weight: bold;
-  padding-left: 20px;
-  color: #3d4e53;
-  text-decoration: none;
-  text-transform: uppercase;
-  border-top-width: 1px;
-  border-bottom-width: 1px;
-  border-top-style: solid;
-  border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
-  font-family: "LucidaGrandeBold";
-}
-.moreinfo2 a:hover {
-  text-decoration: none;
-  color: #3d4e53;
 }
 /*end the 2greenpanel*/
 .read {
