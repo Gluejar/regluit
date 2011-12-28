@@ -189,7 +189,7 @@ USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
 
 SOUTH_TESTS_MIGRATE = True
 
-AUTH_PROFILE_MODULE = "core.userprofile"
+AUTH_PROFILE_MODULE = "core.UserProfile"
 
 GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
