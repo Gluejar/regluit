@@ -369,6 +369,8 @@ a {
   font-size: 12px;
 }
 .add-wishlist,
+.add-wishlist-workpage,
+.remove-wishlist-workpage,
 .remove-wishlist,
 .on-wishlist,
 .create-account {
@@ -376,6 +378,8 @@ a {
   cursor: pointer;
 }
 .add-wishlist span,
+.add-wishlist-workpage span,
+.remove-wishlist-workpage span,
 .remove-wishlist span,
 .on-wishlist span,
 .create-account span {
@@ -385,15 +389,17 @@ a {
   padding-left: 20px;
 }
 .add-wishlist span.on-wishlist,
+.add-wishlist-workpage span.on-wishlist,
+.remove-wishlist-workpage span.on-wishlist,
 .remove-wishlist span.on-wishlist,
 .on-wishlist span.on-wishlist,
 .create-account span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
-.add-wishlist span, .create-account span {
+.add-wishlist span, .add-wishlist-workpage span, .create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
 }
-.remove-wishlist span {
+.remove-wishlist-workpage span, .remove-wishlist span {
   background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
 }
 .editions {

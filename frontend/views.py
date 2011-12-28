@@ -663,6 +663,7 @@ def search(request):
 def wishlist(request):
     googlebooks_id = request.POST.get('googlebooks_id', None)
     remove_work_id = request.POST.get('remove_work_id', None)
+    add_work_id = request.POST.get('add_work_id', None)
     if googlebooks_id:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # add related editions asynchronously
@@ -674,6 +675,11 @@ def wishlist(request):
         work = models.Work.objects.get(id=int(remove_work_id))
         request.user.wishlist.remove_work(work)
         # TODO: where to redirect?
+        return HttpResponseRedirect('/')
+    elif add_work_id:
+    	# if adding from work page, we have may work.id, not googlebooks_id
+    	work = models.Work.objects.get(pk=add_work_id)
+    	request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   
 class CampaignFormView(FormView):
