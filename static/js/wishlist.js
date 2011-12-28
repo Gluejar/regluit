@@ -9,7 +9,7 @@ $j(document).ready(function() {
             if (!gb_id) return;
             jQuery.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
                 span.fadeOut();
-                var newSpan = $j('<span class="on-wishlist">On Your Wishlist!</span>').hide();
+                var newSpan = $j('<span class="on-wishlist">On Wishlist!</span>').hide();
                 span.replaceWith(newSpan);
                 newSpan.fadeIn('slow');
                 newSpan.removeAttr("id");
@@ -22,7 +22,7 @@ $j(document).ready(function() {
             var span = $j(element).find("span");
             var work_id = span.attr('id')
             jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
-                var book = $j(element).parent();
+                var book = $j(element).closest('.thewholebook');
                 book.fadeOut();
             });
         });

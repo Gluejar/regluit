@@ -196,7 +196,7 @@ div.panelview.side2  {
     background-color: @green;
     color: #fff;
     position:absolute;
-    top:-6px;
+    top:-5px;
     left:-10px;
 }
 
@@ -218,12 +218,16 @@ div.panelview.side2  {
 	a {
 		.readit_inner(30px, 40px);
 		background: url("@{image-base}book-panel/book_icon.png") no-repeat 10% center;
+
+		&:hover { .panelhoverlink; }
 	}
 	
 	&.pledge {
 		a {
 			.readit_inner(25px, 35px);
 			background: none;
+			
+			&:hover { .panelhoverlink; }
 		}
 		
 		background-image: url("@{image-base}icons/pledgearrow-green.png");
@@ -250,7 +254,7 @@ div.panelview.side2  {
 	}
 }
 
-.moreinfo.add-wishlist {
+.moreinfo.add-wishlist, .moreinfo.create-account {
 	.banners(5px);
 	background: url("@{image-base}book-panel/add_wish_icon.png") no-repeat left center;
 	padding-right:0;
@@ -291,6 +295,7 @@ div.panelview.side2  {
 .moreinfo {
 	.banners(0);
 	background: url("@{image-base}book-panel/more_icon.png") no-repeat left center;
+	cursor: pointer;
 	
 	> div {
 		.height(30px);

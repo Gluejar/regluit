@@ -13,7 +13,7 @@
     	}
     </style>
 
-    <script src="/static/js/jquery-1.6.3.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/static/js/jquery-1.6.3.min.js" ></script>
     <script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
 
 	<!-- toggle to panelview state instead of listview default -->
@@ -33,7 +33,9 @@
 <!--- editions --->
 
 {% if work %}
+  {% with work.editions.all.0.googlebooks_id as googlebooks_id %}
   {% include "book_panel.html" %}
+{% endwith %}
 {% else %}
         <p class="classname">No work corresponding to ISBN {{isbn}} available</p>
 {% endif %}

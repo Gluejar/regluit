@@ -109,7 +109,7 @@
 }
 .book-detail-info > div.layout {
   border: none;
-  padding-bottom: 0;
+  padding: 0;
 }
 .book-detail-info > div.layout div.pubinfo {
   float: left;
@@ -129,6 +129,9 @@
   border: none;
   padding: 0;
   cursor: pointer;
+}
+.book-detail-info .btn_wishlist span {
+  text-align: right;
 }
 .book-detail-info .find-book {
   margin-top: 15px;
@@ -369,10 +372,7 @@ a {
 .remove-wishlist,
 .on-wishlist,
 .create-account {
-  margin-right: 10px;
-  padding-right: 10px;
-  width: 136px;
-  float: left;
+  float: right;
   cursor: pointer;
 }
 .add-wishlist span,

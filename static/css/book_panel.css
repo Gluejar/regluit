@@ -157,7 +157,7 @@ div.panelview.side2 {
   background-color: #8dc63f;
   color: #fff;
   position: absolute;
-  top: -6px;
+  top: -5px;
   left: -10px;
 }
 .greenpanel_top {
@@ -197,6 +197,10 @@ div.panelview.side2 {
 .read_itbutton a:hover {
   text-decoration: none;
 }
+.read_itbutton a:hover {
+  text-decoration: none;
+  color: #3d4e53;
+}
 .read_itbutton.pledge {
   background-image: url("/static/images/icons/pledgearrow-green.png");
   background-repeat: no-repeat;
@@ -216,6 +220,10 @@ div.panelview.side2 {
 }
 .read_itbutton.pledge a:hover {
   text-decoration: none;
+}
+.read_itbutton.pledge a:hover {
+  text-decoration: none;
+  color: #3d4e53;
 }
 .read_itbutton_fail {
   width: 118px;
@@ -269,7 +277,7 @@ div.panelview.side2 {
 .Unglue_itbutton a:hover {
   text-decoration: none;
 }
-.moreinfo.add-wishlist {
+.moreinfo.add-wishlist, .moreinfo.create-account {
   width: 120px;
   height: 30px;
   padding: 0px;
@@ -283,7 +291,10 @@ div.panelview.side2 {
   background: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
   padding-right: 0;
 }
-.moreinfo.add-wishlist a, .moreinfo.add-wishlist span {
+.moreinfo.add-wishlist a,
+.moreinfo.create-account a,
+.moreinfo.add-wishlist span,
+.moreinfo.create-account span {
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -294,7 +305,10 @@ div.panelview.side2 {
   padding: 0 5px 0 21px;
   color: #FFF;
 }
-.moreinfo.add-wishlist a:hover, .moreinfo.add-wishlist span:hover {
+.moreinfo.add-wishlist a:hover,
+.moreinfo.create-account a:hover,
+.moreinfo.add-wishlist span:hover,
+.moreinfo.create-account span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -388,6 +402,7 @@ div.panelview.side2 {
   border-top-color: #FFFFFF;
   border-bottom-color: #FFFFFF;
   background: url("/static/images/book-panel/more_icon.png") no-repeat left center;
+  cursor: pointer;
 }
 .moreinfo a, .moreinfo span {
   line-height: 30px;

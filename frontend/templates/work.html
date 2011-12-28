@@ -105,6 +105,7 @@ jQuery(document).ready(function(){
                             {% else %}
                                 {{ wishers }} Ungluers have
                             {% endif %}wished for this Work</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
+                        {% endif %}
                         <div class="btn_wishlist">
                             {% if request.user.is_anonymous %}
                                 <div class="create-account">
@@ -120,7 +121,6 @@ jQuery(document).ready(function(){
                                 </div>
                             {% endif %}{% endif %}
                         </div>
-                        {% endif %}
                     </div>
                 </div>
                 <!-- needed to put 10px padding on this for supporter page but hurts here. disentangle. -->
