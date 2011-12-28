@@ -24,8 +24,6 @@ DATABASES = {
 TIME_ZONE = 'America/New_York'
 SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
-HTML_BASE = 'https://please.unglueit.com'
-
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 

@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 def home(request):
     if request.user.is_authenticated():
-        return HttpResponseRedirect(settings.HTML_BASE + reverse('supporter',
+        return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     j=0
@@ -69,7 +69,7 @@ def home(request):
         if j == count:
             j = 0
     events = models.Wishes.objects.order_by('-created')[0:2]
-    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events, 'htmlbase':settings.HTML_BASE})
+    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
@@ -132,7 +132,7 @@ def manage_campaign(request, id):
                 alerts.append(_('Campaign has NOT been launched'))
     else:
         form= ManageCampaignForm(instance=campaign)
-    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': campaign.problems, 'alerts': alerts, 'htmlbase':settings.HTML_BASE})
+    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': campaign.problems, 'alerts': alerts})
         
 def googlebooks(request, googlebooks_id):
     try: 
@@ -380,7 +380,7 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title, 'userid': request.user.id})
         else:
             claim.can_open_new=False
-    return render(request, "rh_tools.html", {'claims': claims , 'htmlbase':settings.HTML_BASE}) 
+    return render(request, "rh_tools.html", {'claims': claims ,}) 
 
 def rh_admin(request):
     if not request.user.is_authenticated() :
@@ -610,7 +610,7 @@ def supporter(request, supporter_username, template_name):
 def edit_user(request):
     form=UserData()
     if not request.user.is_authenticated():
-        return HttpResponseRedirect(settings.HTML_BASE + reverse('auth_login'))
+        return HttpResponseRedirect(reverse('auth_login'))
     oldusername=request.user.username
     if request.method == 'POST': 
         # surely there's a better way to add data to the POST data?

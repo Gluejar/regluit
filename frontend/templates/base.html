@@ -10,7 +10,6 @@
 <html>
 <head>
     <title>unglue.it {% block title %}{% endblock %}</title>
-    {% if htmlbase %}<base href="{{ htmlbase }}" />{% endif %}
     <link type="text/css" rel="stylesheet" href="/static/css/sitewide.css" />
 	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
@@ -49,13 +48,13 @@
                     <li class="first"><a href="/supporter/{{user.username}}"><span id="welcome">Welcome, {{ user.username }}</span></a></li>
                     <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                     {% else %}
-                    <li class="first"><a href="{{ htmlbase }}{% url auth_login %}"><span>Sign In</span></a></li>
+                    <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
                     <li><a href="/stub/tour"><span>Tour</span></a></li>  
                     <li><a href="{{faqurl}}"><span>FAQs</span></a></li>   
                     <li><a href="/stub/Help"><span>Help</span></a></li>
                     {% if not user.is_authenticated %}
-                    <li class="last" id="expander"><a href="{{ htmlbase }}{% url registration_register %}"><span>sign up</span></a></li>
+                    <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
                     {% endif %}
                 </ul>
             </div>
