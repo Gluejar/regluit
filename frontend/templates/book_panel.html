@@ -82,7 +82,7 @@
             </div>
     </div>
     <div class="listview panelfront side1 book-thumb">
-        <a href="#"><img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
+         <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks work.googlebooks_id %}{% endif %}" target="_top"><img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">

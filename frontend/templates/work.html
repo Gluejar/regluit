@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}&#151; {{ work.title }}{% endblock %}
+{% block title %}&#151; {% if work.last_campaign_status == 'ACTIVE' %}Campaign to unglue {% endif %}{{ work.title }}{% endblock %}
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
@@ -76,7 +76,7 @@ jQuery(document).ready(function(){
                         <div>
                           <div class="pubinfo">
                             <h3 class="book-author">{{ work.author }}</h3>
-                            <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
+                            <h3 class="book-year">{{ pubdate }}</h3>
 					      </div>
                           {% if status == 'ACTIVE' %}<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>{% endif %}
 					  </div>
