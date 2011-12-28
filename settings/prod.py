@@ -3,6 +3,8 @@ from regluit.settings.common import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
+SITE_ID = 2
+
 ADMINS = (
     ('Ed Summers', 'ed.summers@gmail.com'),
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),

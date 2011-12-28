@@ -8,6 +8,22 @@
     }
   }, 
   {
+    "pk": 2, 
+    "model": "sites.site", 
+    "fields": {
+      "domain": "please.unglueit.com", 
+      "name": "unglue.it development"
+    }
+  },
+  {
+    "pk": 3, 
+    "model": "sites.site", 
+    "fields": {
+      "domain": "localhost:8000", 
+      "name": "unglue.it local development"
+    }
+  },
+  {
     "pk": 1, 
     "model": "core.premium", 
     "fields": {
