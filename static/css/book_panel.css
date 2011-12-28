@@ -102,12 +102,7 @@
   overflow: hidden;
 }
 .panelview.booklist-status {
-  color: #8dc63f;
-  text-align: left;
-}
-.panelview.booklist-status .booklist-status-label {
-  float: left;
-  font-weight: bold;
+  display: none;
 }
 .panelview.icons {
   position: absolute;
