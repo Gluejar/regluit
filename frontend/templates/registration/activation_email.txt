@@ -5,7 +5,7 @@ and your address will be removed from our records.
 To activate this account, please click the following link within the next 
 {{ expiration_days }} days:
 
-https://{{request.META.SERVER_NAME}}/accounts/activate/{{ activation_key }}
+https://{{ site.domain }}/accounts/activate/{{ activation_key }}
 
 Sincerely,
 The {{ site.name }} Team

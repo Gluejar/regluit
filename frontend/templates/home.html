@@ -74,7 +74,7 @@ var $j = jQuery.noConflict();
                         <div class="user-block2">
                         <div class="block-inner">
                         	<label class="title">Spread the Word</label>
-                            <a href="https://www.facebook.com/sharer/sharer.php?src=bm&u=http://{{ request.META.HTTP_HOST }}{{ request.path }}"><img src="/static/images/supporter_icons/facebook_square.png" alt="Facebook" title="Facebook"  /></a>
+                            <a href="https://www.facebook.com/sharer/sharer.php?src=bm&u={{request.build_absolute_uri}}"><img src="/static/images/supporter_icons/facebook_square.png" alt="Facebook" title="Facebook"  /></a>
                             <a href="https://twitter.com/share"><img src="/static/images/supporter_icons/twitter_square.png" alt="tweeter" title="Twitter"  /></a>
                         </div>
                         </div>
@@ -121,7 +121,7 @@ var $j = jQuery.noConflict();
                         </div>
                         </form>
                         <div class="google_signup">
-                            <a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}">Sign Up With Google</a></div>
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
                     </div>
                 </div>
@@ -189,7 +189,7 @@ var $j = jQuery.noConflict();
                         	<input type="submit" class="signup" value="sign up" />
                         </div>
                         <div class="google_signup">
-                            <a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next=http://{{ request.get_host }}{{ next }}">Sign Up With Google</a></div>
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
                     </div>
                 </div>

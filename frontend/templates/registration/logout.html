@@ -3,7 +3,7 @@
 {% block doccontent %}
 
 <script type="text/javascript">
-    window.location.replace("http://{{ request.get_host }}/");
+    window.location.replace("{{request.build_absolute_uri}}/");
 </script>
 
 <div id="registration">
