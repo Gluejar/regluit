@@ -23,8 +23,8 @@
                         <div class="user-block2">
                         <div class="block-inner">
                         	<label class="title">Spread the Word</label>
-                            <a href="#"><img src="/static/images/icons/facebook.png" alt="Facebook" title="Facebook"  /></a>
-                            <a href="#"><img src="/static/images/icons/twitter.png" alt="Twitter" title="Twitter"  /></a>
+                            <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}{{ request.path|urlencode:"" }}"><img src="/static/images/icons/facebook.png" alt="Facebook" title="Facebook"  /></a>
+                            <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri}}{{ request.path|urlencode:"" }}&text=Unglue%ebooks%21"><img src="/static/images/icons/twitter.png" alt="Twitter" title="Twitter"  /></a>
                             <a href="#"><img src="/static/images/icons/email.png" alt="email" title="email"  /></a>
                         </div>
                         </div>
