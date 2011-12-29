@@ -196,3 +196,7 @@ class EmailShareForm(forms.Form):
 	message = forms.CharField(widget=forms.Textarea())
 	sender = forms.EmailField()
 	recipient = forms.EmailField()
+	# allows us to return user to original page by passing it as hidden form input
+	# we can't rely on POST or GET since the emailshare view handles both
+	# and may iterate several times as it catches user errors, losing URL info
+	next = forms.CharField(widget=forms.HiddenInput())

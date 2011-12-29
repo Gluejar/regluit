@@ -1026,10 +1026,17 @@ def emailshare(request):
 			sender = form.cleaned_data['sender']
 			recipient = form.cleaned_data['recipient']
 			send_mail(subject, message, sender, [recipient])
-			
-			return HttpResponseRedirect('/')
+			try:
+				next = form.cleaned_data['next']
+			except:
+				next = ''
+			return HttpResponseRedirect(next)
 			
 	else:
-		form = EmailShareForm()
+		try:
+			next = request.GET['next']
+		except:
+			next = ''
+		form = EmailShareForm(initial={'next':next})
 
-	return render(request, "emailshare.html", {'form':form,})	
+	return render(request, "emailshare.html", {'form':form})	
