@@ -7,6 +7,8 @@ from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
+import registration.signals
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -39,3 +41,15 @@ post_save.connect(create_user_objects, sender=User)
 # create API key for new User
 post_save.connect(create_api_key, sender=User)
 
+def merge_emails(sender, user, **kwargs):
+    logger.info('checking %s' % user.username)
+    try:
+        old_user=User.objects.exclude(id=user.id).get(email=user.email)
+        old_user.username=user.username
+        old_user.password=user.password
+        user.delete()
+        old_user.save()
+    except User.DoesNotExist:
+        return
+
+registration.signals.user_activated.connect(merge_emails)
