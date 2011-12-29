@@ -1037,6 +1037,10 @@ def emailshare(request):
 			next = request.GET['next']
 		except:
 			next = ''
-		form = EmailShareForm(initial={'next':next})
+		if request.user.is_authenticated():
+			sender = request.user.email
+		else:
+			sender = ''
+		form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
 
 	return render(request, "emailshare.html", {'form':form})	
