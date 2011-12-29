@@ -1,5 +1,9 @@
-# The truncatechars filter is part of Django dev, but we're on 1.3.1
-# The following is the filter and its dependencies
+"""
+The truncatechars filter is part of Django dev, but we're on 1.3.1
+The following is the filter and its dependencies
+To use this filter, put "{% load truncatechars %}" at the beginning of your template, 
+then {{ myvariable|truncatechars:num }}
+"""
 import unicodedata
 from django import template
 from django.template.base import Library

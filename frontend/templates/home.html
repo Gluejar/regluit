@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load truncatechars %}
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
@@ -201,7 +202,7 @@ var $j = jQuery.noConflict();
                         	<li>
                             	<div class="user-avatar"><a href="{% url supporter event.wishlist.user.username %}"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/landingpage/user-avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></a></div>
                                 <div class="user-book-info">
-                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username}}</a> is Wishing For</p>
+                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username|truncatechars:20}}</a> is Wishing For</p>
                                     <a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
                                 </div>
                                 <div class="user-book-thumb"><a class="user-book-name" href="{% url work event.work.id %}"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="Very Long Book Title" /></a></div>
