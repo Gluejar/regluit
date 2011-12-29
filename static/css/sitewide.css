@@ -149,6 +149,8 @@ a.readon span {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
+  overflow: auto;
+  max-width: 240px;
 }
 .js-topmenu ul li.last a {
   background: url("/static/images/bg.png") right top no-repeat;
