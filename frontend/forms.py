@@ -180,8 +180,6 @@ class DonateForm(forms.Form):
         cleaned_data = self.cleaned_data         
         return cleaned_data
 
-
-    
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
                 ('all','all'),
@@ -192,3 +190,9 @@ class LibraryThingForm(forms.Form):
     
 class CampaignAdminForm(forms.Form):
     pass
+    
+class EmailShareForm(forms.Form):
+	subject = forms.CharField(max_length=100)
+	message = forms.CharField(widget=forms.Textarea())
+	sender = forms.EmailField()
+	recipient = forms.EmailField()

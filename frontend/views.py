@@ -17,6 +17,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import send_mail
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
@@ -37,7 +38,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm
+from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED
@@ -1015,3 +1016,20 @@ def work_goodreads(request, work_id):
         q = urllib.urlencode({'query': work.title + " " + work.author()})
         url = "http://www.goodreads.com/search?" + q
     return HttpResponseRedirect(url)
+
+def emailshare(request):
+	if request.method == 'POST':
+		form=EmailShareForm(request.POST)
+		if form.is_valid():
+			subject = form.cleaned_data['subject']
+			message = form.cleaned_data['message']
+			sender = form.cleaned_data['sender']
+			recipient = form.cleaned_data['recipient']
+			send_mail(subject, message, sender, [recipient])
+			
+			return HttpResponseRedirect('/')
+			
+	else:
+		form = EmailShareForm()
+
+	return render(request, "emailshare.html", {'form':form,})	

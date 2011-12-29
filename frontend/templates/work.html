@@ -235,7 +235,7 @@ jQuery(document).ready(function(){
                     <ul class="social menu">
                         <a href="https://www.facebook.com/sharer.php?u=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
                         <a href="https://twitter.com/intent/tweet?url=http%3A%2F%2F{{ request.META.HTTP_HOST|urlencode:"" }}{{ request.path|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
-                        <a href="#"><li class="email"><span>Email</span></li></a>
+                        <a href="/emailshare/"><li class="email"><span>Email</span></li></a>
                         <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
                         <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                     </ul>
