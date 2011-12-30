@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
+{% load truncatechars %}
 
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
@@ -61,7 +62,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                            		{% else %}
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                 {% endif %}
-                                <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
+                                <span class="user-name"><a href="#">{{ supporter.username|truncatechars:20 }}</a></span>
                                 <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>

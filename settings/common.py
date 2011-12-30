@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     'djcelery',
     'endless_pagination',
     'selectable',
+    'regluit.frontend.templatetags',
 
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
