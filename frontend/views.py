@@ -80,8 +80,10 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
-    pubdate = work.editions.all()[0].publication_date[:4]
-
+    try:
+        pubdate = work.editions.all()[0].publication_date[:4]
+    except IndexError:
+        pubdate = 'unknown'
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
     else:
