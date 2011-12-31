@@ -1,0 +1,20 @@
+{% load comments i18n %}
+<form action="{% comment_form_target %}" method="post">{% csrf_token %}
+  {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
+  {% for field in form %}
+    {% if field.is_hidden %}
+      <div>{{ field }}</div>
+    {% else %}
+      {% if field.errors %}{{ field.errors }}{% endif %}
+      {% ifequal field.name "honeypot" %}<p style="display:none;"{% if field.errors %} class="error"{% endif %}>{{ field.label_tag }} {{ field }}</p>{% endifequal %}
+      {% ifequal field.name "name" %}<div><input id="id_name" type="hidden" name="name" value="" /></div>{% endifequal %}
+      {% ifequal field.name "email" %}<div><input id="id_email" type="hidden" name="email" value="" /></div>{% endifequal %}
+      {% ifequal field.name "url" %}<div><input id="id_url" type="hidden" name="url" value="" /></div>{% endifequal %}
+      {% ifequal field.name "comment" %}<p{% if field.errors %} class="error"{% endif %}>Add your comment:<br /> <textarea id="id_comment" rows="4" cols="60" name="comment"></textarea></p>{% endifequal %}
+    {% endif %}
+  {% endfor %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}#" />
+  <p class="submit">
+    <input type="submit" name="post" class="submit-post" value="{% trans "Post" %}" />
+  </p>
+</form>
