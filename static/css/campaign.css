@@ -348,20 +348,19 @@ ul.support li:hover {
 ul.support li:hover a {
   color: #fff;
 }
-.work_supporter {
+.work_supporter_nocomment {
   height: 50px;
   margin-top: 5px;
   vertical-align: middle;
   margin-left: -5px;
 }
-.work_supporter .work_supporter_avatar {
+.work_supporter_avatar {
   float: left;
 }
-.work_supporter .work_supporter_name {
+.work_supporter_name {
   height: 50px;
   line-height: 50px;
   float: left;
-  margin-left: 5px;
 }
 /* this line differs from sitewide.css. should it? */
 a {
@@ -416,4 +415,14 @@ a {
 }
 .editions a:hover {
   text-decoration: underline;
+}
+.work_supporter {
+  height: auto;
+  min-height: 50px;
+  margin-top: 5px;
+  vertical-align: middle;
+  margin-left: -5px;
+}
+.work_supporter_avatar {
+  margin-right: 5px;
 }
