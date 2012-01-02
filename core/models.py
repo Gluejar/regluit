@@ -206,6 +206,17 @@ class Campaign(models.Model):
         if premiums.count() == 0:
             premiums = Premium.objects.filter(campaign__isnull=True)
         return premiums
+        
+class Identifier(models.Model):
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc
+    type = models.CharField(max_length=4, null=False)
+    value =  models.CharField(max_length=31, null=False)
+    work = models.ForeignKey("Work", related_name="identifiers", null=False)
+    edition = models.ForeignKey("Edition", related_name="identifiers", null=True)
+    
+    class Meta:
+        unique_together = ("type", "value")
+
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
