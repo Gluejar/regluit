@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.contrib import messages
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
@@ -1017,6 +1018,7 @@ def work_goodreads(request, work_id):
         url = "http://www.goodreads.com/search?" + q
     return HttpResponseRedirect(url)
 
+@login_required
 def emailshare(request):
 	if request.method == 'POST':
 		form=EmailShareForm(request.POST)
