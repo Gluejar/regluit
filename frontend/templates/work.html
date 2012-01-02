@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load comments %}
 {% block title %}&#151; {% if work.last_campaign_status == 'ACTIVE' %}Campaign to unglue {% endif %}{{ work.title }}{% endblock %}
 
 {% block extra_css %}
@@ -123,11 +124,11 @@ jQuery(document).ready(function(){
                         </div>
                     </div>
                 </div>
-
+                {% get_comment_count for work as comment_count %}
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1 active"><a href="#">Campaign</a></li>
-                        <li class="tabs2"><a href="#">Community </a></li>
+                        <li class="tabs1 active"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
+                        <li class="tabs2"><a href="#">Comments ({{comment_count}})</a></li>
                         <li class="tabs3"><a href="#">Supporters</a></li>
                         <li class="tabs4"><a href="#">Details</a></li>
                     </ul>
@@ -157,7 +158,8 @@ jQuery(document).ready(function(){
                     </div>
                     <div id="tabs-2" class="tabs">
                     <div class="tabs-content">
-                       Being Unglued infomation
+                       {% render_comment_list for work %}
+                       {% if user.is_authenticated %}{% render_comment_form for work %}{% endif %}
                     </div>
                     </div>
                     <div id="tabs-3" class="tabs">

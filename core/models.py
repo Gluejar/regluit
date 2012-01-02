@@ -224,7 +224,10 @@ class Work(models.Model):
     @property
     def googlebooks_id(self):
         # may want to denormalize this at some point to avoid an extra query
-        return self.editions.all()[0].googlebooks_id
+        try:
+        	return self.editions.all()[0].googlebooks_id
+        except IndexError:
+        	return ''
 
     @property
     def googlebooks_url(self):
@@ -248,10 +251,16 @@ class Work(models.Model):
         return "http://openlibrary.org" + self.openlibrary_id
 
     def cover_image_small(self):
-        return self.editions.all()[0].cover_image_small()
+        try:
+        	return self.editions.all()[0].cover_image_small()
+        except IndexError:
+        	return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
-        return self.editions.all()[0].cover_image_thumbnail()
+        try:
+        	return self.editions.all()[0].cover_image_thumbnail()
+        except IndexError:
+        	return "/static/images/generic_cover_larger.png"
         
     def author(self):
         authors = list(Author.objects.filter(editions__work=self).all())

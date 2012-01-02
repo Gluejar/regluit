@@ -229,7 +229,7 @@ class TransactionTest(TestCase):
         
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'),deadline=datetime.datetime(2012,1,1),work=w)
+        c = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() + datetime.timedelta(days=180),work=w)
         c.save()
         
         t = Transaction()
@@ -249,6 +249,7 @@ def suite():
     #testcases = [PledgeTest, AuthorizeTest]
     testcases = [TransactionTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
+    
     return suites    
         
        

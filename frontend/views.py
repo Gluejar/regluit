@@ -81,8 +81,10 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
-    pubdate = work.editions.all()[0].publication_date[:4]
-
+    try:
+        pubdate = work.editions.all()[0].publication_date[:4]
+    except IndexError:
+        pubdate = 'unknown'
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
     else:
@@ -681,9 +683,9 @@ def wishlist(request):
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
     elif add_work_id:
-    	# if adding from work page, we have may work.id, not googlebooks_id
-    	work = models.Work.objects.get(pk=add_work_id)
-    	request.user.wishlist.add_work(work,'user')
+        # if adding from work page, we have may work.id, not googlebooks_id
+        work = models.Work.objects.get(pk=add_work_id)
+        request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   
 class CampaignFormView(FormView):
@@ -905,7 +907,7 @@ def librarything_load(request):
         ct.user = user
         ct.description = "Loading LibraryThing collection of %s to user %s." % (lt_username, user)
         ct.save()
-        	
+            
         return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
     except Exception,e:
         return HttpResponse("Error in loading LibraryThing library: %s " % (e))
@@ -1020,29 +1022,29 @@ def work_goodreads(request, work_id):
 
 @login_required
 def emailshare(request):
-	if request.method == 'POST':
-		form=EmailShareForm(request.POST)
-		if form.is_valid():
-			subject = form.cleaned_data['subject']
-			message = form.cleaned_data['message']
-			sender = form.cleaned_data['sender']
-			recipient = form.cleaned_data['recipient']
-			send_mail(subject, message, sender, [recipient])
-			try:
-				next = form.cleaned_data['next']
-			except:
-				next = ''
-			return HttpResponseRedirect(next)
-			
-	else:
-		try:
-			next = request.GET['next']
-		except:
-			next = ''
-		if request.user.is_authenticated():
-			sender = request.user.email
-		else:
-			sender = ''
-		form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
+    if request.method == 'POST':
+        form=EmailShareForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            sender = form.cleaned_data['sender']
+            recipient = form.cleaned_data['recipient']
+            send_mail(subject, message, sender, [recipient])
+            try:
+                next = form.cleaned_data['next']
+            except:
+                next = ''
+            return HttpResponseRedirect(next)
+            
+    else:
+        try:
+            next = request.GET['next']
+        except:
+            next = ''
+        if request.user.is_authenticated():
+            sender = request.user.email
+        else:
+            sender = ''
+        form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
 
-	return render(request, "emailshare.html", {'form':form})	
+    return render(request, "emailshare.html", {'form':form})    

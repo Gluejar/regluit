@@ -14,4 +14,5 @@ urlpatterns = patterns('',
     (r'', include('regluit.payment.urls')),
     (r'^selectable/', include('selectable.urls')),
     url(r'^admin/', include(admin_site.urls)), 
+    (r'^comments/', include('django.contrib.comments.urls')),
 )

@@ -104,7 +104,10 @@ class ApiHelpView(TemplateView):
         campaigns = models.Campaign.objects.all()
         if len(campaigns):
             c = campaigns[0]
-            isbn = c.work.editions.all()[0].isbn_13
+            try:
+                isbn = c.work.editions.all()[0].isbn_13
+            except IndexError:
+                isbn = ''
             context["campaign"] = campaigns[0]
             context["campaign_isbn"] = isbn
 
