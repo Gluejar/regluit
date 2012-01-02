@@ -243,7 +243,7 @@ jQuery(document).ready(function(){
                         <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
                         {% if request.user.is_authenticated %}<a href="{% url emailshare %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                         <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
-                        <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
+                        <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{request.META.HTTP_HOST}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                     </ul>
                 </div>
             </div>
