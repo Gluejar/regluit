@@ -50,6 +50,11 @@
                 </div>
 
 					<!-- status of book vis-a-vis user's wishlist -->
+				    {% if request.user.id in work.last_campaign.supporters %}
+					    <div class="moreinfo on-wishlist">
+        					<span>Pledged!</span>
+					    </div>
+				    {% else %}
                     {% ifequal supporter request.user %}
                         <div class="moreinfo remove-wishlist">
                             <span id="{{ work.id }}">Remove This</span>
@@ -66,7 +71,7 @@
                         <div class="moreinfo add-wishlist">
                         <span id="{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
                         </div>
-                    {% endif %}{% endif %}{% endifequal %}
+                    {% endif %}{% endif %}{% endifequal %}{% endif %}
 
 					<!-- bibliographic data -->
                     <div class="white_text"> 
