@@ -112,6 +112,10 @@ jQuery(document).ready(function(){
                                 <div class="create-account">
                                     <span title="{% url work work.id %}">Login to Add</span>
                                 </div>
+                            {% else %}{% if request.user.id in work.last_campaign.supporters %}
+								<div class="add-wishlist">
+							        <span class="on-wishlist">Pledged!</span>
+							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
                                     <span id="{{ work.id }}">Remove This</span>
@@ -120,7 +124,7 @@ jQuery(document).ready(function(){
                                 <div class="add-wishlist">
                                     <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
-                            {% endif %}{% endif %}
+                            {% endif %}{% endif %}{% endif %}
                         </div>
                     </div>
                 </div>

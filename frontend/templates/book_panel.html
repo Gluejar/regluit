@@ -90,6 +90,11 @@
         </div>
         <div class="listview author {{ work.author }}">{{ work.author }}</div>
     </div>
+    {% if request.user.id in work.last_campaign.supporters %}
+    <div class="listview panelfront side1 on-wishlist">
+        <span>Pledged!</span>
+    </div>
+    {% else %}
     {% ifequal supporter request.user %}
     <div class="listview panelfront side1 remove-wishlist">
         <span id="{{ work.id }}">Remove This</span>
@@ -106,7 +111,7 @@
     <div class="listview panelfront side1 add-wishlist">
         <span id="{{ googlebooks_id }}">Add to Wishlist</span>
     </div>
-    {% endif %}{% endif %}{% endifequal %}
+    {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">
         <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
     </div>

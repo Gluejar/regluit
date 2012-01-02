@@ -196,6 +196,7 @@ class Campaign(models.Model):
         return self
        
     def supporters(self):
+    	"""nb: returns (distinct) supporter IDs, not supporter objects"""
         translist = self.transactions().values_list('user', flat=True).distinct()
         return translist
 
