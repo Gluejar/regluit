@@ -1,6 +1,22 @@
 {% extends "base.html" %}
 {% block extra_head %}
 <link href="/static/css/documentation.css" rel="stylesheet" type="text/css" />
+{% block extra_js %}
+<!-- expands/collapses the learn more section -->
+<script type="text/javascript">
+	var $j = jQuery.noConflict();
+	$j(document).ready(function(){
+		$j('.user-block-hide').hide();
+		$j('.user-block1 a').click(
+			function() {
+				$j(this).toggleClass("active");
+				$j(".user-block-hide").slideToggle(300);
+				$j("a.readon").toggleClass("down");
+			}
+		);
+	});
+</script>
+{% endblock %}
 {% block extra_extra_head %}
 <!-- extra head content in descendants goes in extra_extra_head, not extra_head, to avoid overwriting the documentation.css include -->
 {% endblock %}
@@ -9,31 +25,7 @@
 {% block title %}{% endblock %}
 
 {% block topsection %}
-    <div id="js-topsection">
-    	<div class="js-main">
-        	<div class="js-topnews">
-                    <div class="user-block">
-                        <div class="user-block1">
-                        <div class="block-inner">
-                            <div class="block-intro-text">With your help we raise money to buy book rights. The <span class="typo">unglued</span> books are free to download, here.</div>
-                            <a class="my-setting readon"><span>Learn more</span></a>
-                        </div>
-                        </div>
-                        
-                        <div class="user-block2">
-                        <div class="block-inner">
-                        	<label class="title">Spread the Word</label>
-                            <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}{{ request.path|urlencode:"" }}"><img src="/static/images/icons/facebook.png" alt="Facebook" title="Facebook"  /></a>
-                            <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri}}{{ request.path|urlencode:"" }}&text=Unglue%ebooks%21"><img src="/static/images/icons/twitter.png" alt="Twitter" title="Twitter"  /></a>
-                            <a href="#"><img src="/static/images/icons/email.png" alt="email" title="email"  /></a>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-           
-        </div>
-    </div>
+{% include "learn_more.html" %}
 {% endblock %}
 
 {% block content %}

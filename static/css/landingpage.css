@@ -13,37 +13,20 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
-#expandable {
-  display: none;
-}
-#main-container.main-container-fl .js-main {
-  width: 968px;
-  background: #ffffff url("/static/images/landingpage/container-top.png") top center no-repeat;
-}
-#js-maincol-fl {
-  padding: 30px 30px 0 30px;
-  overflow: hidden;
-}
-#js-maincol-fl .content-block {
-  background: none;
-  padding: 0;
-}
-#js-maincol-fl #js-main-container {
-  float: left;
-  width: 672px;
-}
-#js-maincol-fl .js-main-container-inner {
-  padding-right: 40px;
-}
-#js-maincol-fl h2.page-heading {
-  margin: 0 0 20px 0;
-  color: #3d4e53;
-  font-size: 17px;
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
   font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
 }
-.user-block {
-  width: 100%;
-  clear: both;
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
 }
 .user-block-hide {
   float: left;
@@ -76,6 +59,44 @@
   float: left;
   margin-top: 20px;
 }
+.block-intro-text div {
+  display: none;
+}
+.block-intro-text div#active {
+  display: inherit;
+}
+#expandable {
+  display: none;
+}
+#main-container.main-container-fl .js-main {
+  width: 968px;
+  background: #ffffff url("/static/images/landingpage/container-top.png") top center no-repeat;
+}
+#js-maincol-fl {
+  padding: 30px 30px 0 30px;
+  overflow: hidden;
+}
+#js-maincol-fl .content-block {
+  background: none;
+  padding: 0;
+}
+#js-maincol-fl #js-main-container {
+  float: left;
+  width: 672px;
+}
+#js-maincol-fl .js-main-container-inner {
+  padding-right: 40px;
+}
+#js-maincol-fl h2.page-heading {
+  margin: 0 0 20px 0;
+  color: #3d4e53;
+  font-size: 17px;
+  font-weight: bold;
+}
+.user-block {
+  width: 100%;
+  clear: both;
+}
 .user-block1, .user-block2 {
   float: left;
 }
@@ -106,6 +127,8 @@
   font-size: 20px;
   height: 30px;
   line-height: 30px;
+  height: 30px;
+  line-height: 30px;
   color: #3d4e53;
   padding-right: 15px;
 }
@@ -113,7 +136,12 @@
   float: right;
   height: 24px;
   line-height: 24px;
+  height: 24px;
+  line-height: 24px;
   width: 24px;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
   -moz-border-radius: 12px 12px 12px 12px;
   -webkit-border-radius: 12px 12px 12px 12px;
   border-radius: 12px 12px 12px 12px;
@@ -136,6 +164,9 @@
   -moz-border-radius: 12px 12px 12px 12px;
   -webkit-border-radius: 12px 12px 12px 12px;
   border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
   margin-bottom: 10px;
   padding: 0 10px 10px 10px;
 }
@@ -147,7 +178,12 @@
   -moz-border-radius: 32px 32px 32px 32px;
   -webkit-border-radius: 32px 32px 32px 32px;
   border-radius: 32px 32px 32px 32px;
+  -moz-border-radius: 32px 32px 32px 32px;
+  -webkit-border-radius: 32px 32px 32px 32px;
+  border-radius: 32px 32px 32px 32px;
   border: none;
+  height: 36px;
+  line-height: 36px;
   height: 36px;
   line-height: 36px;
   width: 90%;
@@ -227,6 +263,9 @@ div.typo2 {
   -moz-border-radius: 12px 12px 12px 12px;
   -webkit-border-radius: 12px 12px 12px 12px;
   border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
   padding: 10px;
   font-style: italic;
 }
@@ -240,6 +279,8 @@ div.signup_btn a {
   display: block;
   font-size: 13px;
   font-weight: bold;
+  height: 36px;
+  line-height: 36px;
   height: 36px;
   line-height: 36px;
   letter-spacing: 1px;
@@ -298,6 +339,9 @@ h2.page-heading {
   -moz-border-radius: 64px 64px 64px 64px;
   -webkit-border-radius: 64px 64px 64px 64px;
   border-radius: 64px 64px 64px 64px;
+  -moz-border-radius: 64px 64px 64px 64px;
+  -webkit-border-radius: 64px 64px 64px 64px;
+  border-radius: 64px 64px 64px 64px;
   background-color: #8dc63f;
   width: 628px;
   height: 80px;
@@ -325,6 +369,8 @@ h2.page-heading {
 #js-search input.inputbox {
   border: none;
   color: #66942e;
+  height: 26px;
+  line-height: 26px;
   height: 26px;
   line-height: 26px;
   font-size: 13px;
@@ -375,6 +421,9 @@ h2.page-heading {
   -moz-border-radius: 10px 10px 0 0;
   -webkit-border-radius: 10px 10px 0 0;
   border-radius: 10px 10px 0 0;
+  -moz-border-radius: 10px 10px 0 0;
+  -webkit-border-radius: 10px 10px 0 0;
+  border-radius: 10px 10px 0 0;
   font-size: 18px;
   overflow: hidden;
   display: inline-block;
@@ -389,6 +438,8 @@ h3.module-title {
   padding: 14px 0;
 }
 .google_signup div {
+  height: 32px;
+  line-height: 32px;
   height: 32px;
   line-height: 32px;
   float: left;
