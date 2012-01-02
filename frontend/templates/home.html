@@ -10,21 +10,6 @@
 
 <script src="/static/js/jquery-1.6.3.min.js"></script>
 
-<!-- expands/collapses the learn more section -->
-<script type="text/javascript">
-	var $j = jQuery.noConflict();
-	$j(document).ready(function(){
-		$j('.user-block-hide').hide();
-		$j('.user-block1 a').click(
-			function() {
-				$j(this).toggleClass("active");
-				$j(".user-block-hide").slideToggle(300);
-				$j("a.readon").toggleClass("down");
-			}
-		);
-	});
-</script>
-
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
 	jQuery(document).ready(function($) { 

@@ -261,6 +261,9 @@ div.content-block-content {
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+.tabs-content form {
+  margin-left: -5px;
+}
 ul.social li {
   padding: 5px 0 5px 30px;
   height: 28px;

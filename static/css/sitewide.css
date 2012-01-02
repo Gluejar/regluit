@@ -89,6 +89,12 @@ ul.menu {
   margin: 0;
 }
 /* Learn More menu */
+.block-intro-text {
+  padding-right: 10px;
+}
+.block-intro-text span.def {
+  font-style: italic;
+}
 a.readon {
   background: url("/static/images/learnmore-downarrow.png") right center no-repeat;
   color: #fff;

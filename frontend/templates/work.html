@@ -163,7 +163,6 @@ jQuery(document).ready(function(){
                     <div id="tabs-2" class="tabs">
                     <div class="tabs-content">
                        {% render_comment_list for work %}
-                       <div class="editions"></div>
                        {% if user.is_authenticated %}{% render_comment_form for work %}{% endif %}
                     </div>
                     </div>
