@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load comments %}
 {% block title %}&#151; {% if work.last_campaign_status == 'ACTIVE' %}Campaign to unglue {% endif %}{{ work.title }}{% endblock %}
 
 {% block extra_css %}
@@ -111,6 +112,10 @@ jQuery(document).ready(function(){
                                 <div class="create-account">
                                     <span title="{% url work work.id %}">Login to Add</span>
                                 </div>
+                            {% else %}{% if request.user.id in work.last_campaign.supporters %}
+								<div class="add-wishlist">
+							        <span class="on-wishlist">Pledged!</span>
+							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
                                     <span id="{{ work.id }}">Remove This</span>
@@ -119,15 +124,15 @@ jQuery(document).ready(function(){
                                 <div class="add-wishlist">
                                     <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
-                            {% endif %}{% endif %}
+                            {% endif %}{% endif %}{% endif %}
                         </div>
                     </div>
                 </div>
-
+                {% get_comment_count for work as comment_count %}
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1 active"><a href="#">Campaign</a></li>
-                        <li class="tabs2"><a href="#">Community </a></li>
+                        <li class="tabs1 active"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
+                        <li class="tabs2"><a href="#">Comments ({{comment_count}})</a></li>
                         <li class="tabs3"><a href="#">Supporters</a></li>
                         <li class="tabs4"><a href="#">Details</a></li>
                     </ul>
@@ -145,7 +150,7 @@ jQuery(document).ready(function(){
                             {{ claim.rights_holder.rights_holder_name }} 
                             {% endif %} 
                         {% endfor %}
-                        has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
                         {{ work.last_campaign.description|safe }}
                         {% else %}
@@ -157,13 +162,14 @@ jQuery(document).ready(function(){
                     </div>
                     <div id="tabs-2" class="tabs">
                     <div class="tabs-content">
-                       Being Unglued infomation
+                       {% render_comment_list for work %}
+                       {% if user.is_authenticated %}{% render_comment_form for work %}{% endif %}
                     </div>
                     </div>
                     <div id="tabs-3" class="tabs">
                     <div class="tabs-content">
                         {% for supporter in work.wished_by %}
-                          <div class="work_supporter">
+                          <div class="work_supporter_nocomment">
                               <a href="/supporter/{{supporter}}">
                               <div class="work_supporter_avatar">
                                 {% if supporter.profile.pic_url %}
@@ -233,11 +239,11 @@ jQuery(document).ready(function(){
                 <h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
                     <ul class="social menu">
-                        <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri}}{{ request.path|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
-                        <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri}}{{ request.path|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
-                        <a href="{% url emailshare %}?next={% firstof request.path '/' %}"><li class="email"><span>Email</span></li></a>
+                        <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
+                        <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
+                        {% if request.user.is_authenticated %}<a href="{% url emailshare %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                         <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
-                        <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{request.build_absolute_uri}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
+                        <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.editions.all.0.isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                     </ul>
                 </div>
             </div>

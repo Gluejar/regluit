@@ -50,6 +50,11 @@
                 </div>
 
 					<!-- status of book vis-a-vis user's wishlist -->
+				    {% if request.user.id in work.last_campaign.supporters %}
+					    <div class="moreinfo on-wishlist">
+        					<span>Pledged!</span>
+					    </div>
+				    {% else %}
                     {% ifequal supporter request.user %}
                         <div class="moreinfo remove-wishlist">
                             <span id="{{ work.id }}">Remove This</span>
@@ -66,7 +71,7 @@
                         <div class="moreinfo add-wishlist">
                         <span id="{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
                         </div>
-                    {% endif %}{% endif %}{% endifequal %}
+                    {% endif %}{% endif %}{% endifequal %}{% endif %}
 
 					<!-- bibliographic data -->
                     <div class="white_text"> 
@@ -90,6 +95,11 @@
         </div>
         <div class="listview author {{ work.author }}">{{ work.author }}</div>
     </div>
+    {% if request.user.id in work.last_campaign.supporters %}
+    <div class="listview panelfront side1 on-wishlist">
+        <span>Pledged!</span>
+    </div>
+    {% else %}
     {% ifequal supporter request.user %}
     <div class="listview panelfront side1 remove-wishlist">
         <span id="{{ work.id }}">Remove This</span>
@@ -106,12 +116,11 @@
     <div class="listview panelfront side1 add-wishlist">
         <span id="{{ googlebooks_id }}">Add to Wishlist</span>
     </div>
-    {% endif %}{% endif %}{% endifequal %}
+    {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">
         <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
     </div>
     <div class="listview panelfront side1 icons">
-      {% if fromsupport %}
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
           <span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.wished_by.count }}</span></span>
         {% else %}
@@ -120,12 +129,6 @@
           </div>
                     <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
 	    {% endif %}
-      {% else %}
-        <div class="booklist-status-img">
-          <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
-        </div>
-                    <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
-	  {% endif %}
         <div class="right_add"><img src="/static/images/book-panel/add_gray.png" alt="Add"/></div>
     </div>
     <div class="listview panelfront side1 ebooks">

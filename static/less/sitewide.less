@@ -96,6 +96,15 @@ ul.menu{
     margin:0;
 }
 
+/* Learn More menu */
+.block-intro-text {
+	padding-right: 10px;
+
+	span.def {
+	    font-style: italic;
+	}
+}
+
 a.readon {
     background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
     color:#fff;
@@ -115,7 +124,7 @@ a.readon {
         margin-right:34px;
         padding:0 5px 0 20px;
         .height(36px);
-        display:block;
+        display:block;        
     }
 }
 
@@ -150,6 +159,9 @@ a.readon {
             span#welcome {
                 color:@green;
                 .header-text;
+                overflow:auto;
+                //emergency backstop to prevent usernames too long for truncate filter to force header into content area
+                max-width: 240px;
             }
             
             &.last {

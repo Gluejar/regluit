@@ -3,6 +3,7 @@ from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.validators import validate_email
 from django.utils.translation import ugettext_lazy as _
 from django.forms.extras.widgets import SelectDateWidget
 
@@ -192,10 +193,10 @@ class CampaignAdminForm(forms.Form):
     pass
     
 class EmailShareForm(forms.Form):
+	recipient = forms.EmailField()
+	sender = forms.EmailField(widget=forms.HiddenInput())
 	subject = forms.CharField(max_length=100)
 	message = forms.CharField(widget=forms.Textarea())
-	sender = forms.EmailField()
-	recipient = forms.EmailField()
 	# allows us to return user to original page by passing it as hidden form input
 	# we can't rely on POST or GET since the emailshare view handles both
 	# and may iterate several times as it catches user errors, losing URL info

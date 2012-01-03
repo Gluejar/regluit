@@ -1,4 +1,5 @@
 @import "variables.less";
+@import "learnmore.less";
 
 .clickyarrows() {
 	text-indent:-10000px; 
@@ -46,42 +47,6 @@
 .user-block { 
 	width:100%; 
 	clear:both;
-}
-
-.user-block-hide { 
-	float: left;
-	width:100%; 
-	clear:both;
-	border-top: solid 1px @bright-blue;
-	margin-top: 20px;
-	
-	.quicktour {
-		width: 270px;
-		float: left;
-		font-style: italic;
-		line-height:20px;
-		font-size:13px;
-		margin-top: 20px;
-	
-		.highlight {
-			font-weight: bold;
-		}
-	
-		&.last {
-			padding-right:0px;
-			width:270px;
-			background: url("@{image-base}landingpage/signmeup-arrow.png") no-repeat center bottom;
-			padding-bottom: 42px;
-		}
-	}
-	
-	.movingrightalong {
-		background: url("@{image-base}landingpage/quicktour-arrow.png") no-repeat center;
-		height: 100px;
-		width: 75px;
-		float: left;
-		margin-top: 20px;
-	}
 }
 
 .user-block1, .user-block2 { 

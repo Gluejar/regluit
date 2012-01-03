@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load truncatechars %}
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
@@ -9,29 +10,14 @@
 
 <script src="/static/js/jquery-1.6.3.min.js"></script>
 
-<!-- expands/collapses the learn more section -->
-<script type="text/javascript">
-	var $j = jQuery.noConflict();
-	$j(document).ready(function(){
-		$j('.user-block-hide').hide();
-		$j('.user-block1 a').click(
-			function() {
-				$j(this).toggleClass("active");
-				$j(".user-block-hide").slideToggle(300);
-				$j("a.readon").toggleClass("down");
-			}
-		);
-	});
-</script>
-
-
 <!-- toggle to panelview state instead of listview default -->
-<script type="application/x-javascript">
+<script type="text/javascript">
 	jQuery(document).ready(function($) { 
         $('.listview').addClass("panelview").removeClass("listview");
     });    
 </script>    
 
+<script type="text/javascript" src="/static/js/definitions.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 
 <script src="/static/js/slides.min.jquery.js"></script>
@@ -60,35 +46,7 @@ var $j = jQuery.noConflict();
 {% endblock %}
 
 {% block topsection %}
-    <div id="js-topsection">
-    	<div class="js-main">
-        	<div class="js-topnews">
-                    <div class="user-block">
-                        <div class="user-block1">
-                        <div class="block-inner">
-                            <div class="block-intro-text">With your help we raise money to buy book rights. The <span class="typo">unglued</span> books are free to download, here.</div>
-                            <a class="my-setting readon"><span>Learn more</span></a>
-                        </div>
-                        </div>
-                        
-                        <div class="user-block2">
-                        <div class="block-inner">
-                        	<label class="title">Spread the Word</label>
-                            <a href="https://www.facebook.com/sharer/sharer.php?src=bm&u={{request.build_absolute_uri}}"><img src="/static/images/supporter_icons/facebook_square.png" alt="Facebook" title="Facebook"  /></a>
-                            <a href="https://twitter.com/share"><img src="/static/images/supporter_icons/twitter_square.png" alt="tweeter" title="Twitter"  /></a>
-                        </div>
-                        </div>
-                    </div>
-                    <div class="user-block-hide">
-                        	<div class="quicktour"><span class="highlight">We all have books we love so much, we'd like to give them to the world.</span>  We want to share them, but also reward their creators. With digital books, it can be hard to do both.</div>
-	                        <div class="movingrightalong"></div>
-	                        <div class="quicktour"><span class="highlight">Unglue.it offers a win-win solution: Crowdfunding.</span> We run pledge campaigns for books; you chip in. When, together, we've reached the goal, we'll reward the book's creators and issue an unglued ebook.</div>
-	                        <div class="movingrightalong"></div>
-                        	<div class="quicktour last"><a href="https://creativecommons.org/">Creative Commons</a> licensing means everyone, everywhere can read and share the unglued book — freely and legally. <span class="highlight">You've given your favorite book to the world.</span></div>
-                    </div>
-            </div>
-        </div>
-    </div>
+{% include "learn_more.html" %}
 {% endblock %}
     
 {% block content %}
@@ -201,7 +159,7 @@ var $j = jQuery.noConflict();
                         	<li>
                             	<div class="user-avatar"><a href="{% url supporter event.wishlist.user.username %}"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/landingpage/user-avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></a></div>
                                 <div class="user-book-info">
-                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username}}</a> is Wishing For</p>
+                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username|truncatechars:20}}</a> is Wishing For</p>
                                     <a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
                                 </div>
                                 <div class="user-book-thumb"><a class="user-book-name" href="{% url work event.work.id %}"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="Very Long Book Title" /></a></div>

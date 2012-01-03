@@ -18,6 +18,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
+from django.contrib import messages
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
@@ -80,8 +81,10 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
-    pubdate = work.editions.all()[0].publication_date[:4]
-
+    try:
+        pubdate = work.editions.all()[0].publication_date[:4]
+    except IndexError:
+        pubdate = 'unknown'
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
     else:
@@ -631,30 +634,20 @@ def search(request):
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
-        # get a list of all the googlebooks_ids for works on the user's wishlist
-        wishlist = request.user.wishlist
-        editions = models.Edition.objects.filter(work__wishlists__in=[wishlist])
-        googlebooks_ids = [e['googlebooks_id'] for e in editions.values('googlebooks_id')]
         ungluers = userlists.other_users(request.user, 5)
-        # if the results is on their wishlist flag it
-        for result in results:
-            if result['googlebooks_id'] in googlebooks_ids:
-                result['on_wishlist'] = True
-            else:
-                result['on_wishlist'] = False
     else:
         ungluers = userlists.other_users(None, 5)
             
-    # also urlencode some parameters we'll need to pass to workstub in the title links
-    # needs to be done outside the if condition
+    works=[]
     for result in results:
-        result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['cover_image_thumbnail']).encode("utf-8"), safe='')
-        result['urlauthor'] = urllib.quote_plus(result['author'].encode("utf-8"), safe='')
-        result['urltitle'] = urllib.quote_plus(result['title'].encode("utf-8"), safe='')
-
+		try:
+			edition = models.Edition.objects.get(googlebooks_id=result['googlebooks_id'])
+			works.append(edition.work)
+		except models.Edition.DoesNotExist: 
+			works.append(result)
     context = {
         "q": q,
-        "results": results,
+        "results": works,
         "ungluers": ungluers
     }
     return render(request, 'search.html', context)
@@ -680,9 +673,9 @@ def wishlist(request):
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
     elif add_work_id:
-    	# if adding from work page, we have may work.id, not googlebooks_id
-    	work = models.Work.objects.get(pk=add_work_id)
-    	request.user.wishlist.add_work(work,'user')
+        # if adding from work page, we have may work.id, not googlebooks_id
+        work = models.Work.objects.get(pk=add_work_id)
+        request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   
 class CampaignFormView(FormView):
@@ -904,7 +897,7 @@ def librarything_load(request):
         ct.user = user
         ct.description = "Loading LibraryThing collection of %s to user %s." % (lt_username, user)
         ct.save()
-        	
+            
         return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
     except Exception,e:
         return HttpResponse("Error in loading LibraryThing library: %s " % (e))
@@ -1017,26 +1010,31 @@ def work_goodreads(request, work_id):
         url = "http://www.goodreads.com/search?" + q
     return HttpResponseRedirect(url)
 
+@login_required
 def emailshare(request):
-	if request.method == 'POST':
-		form=EmailShareForm(request.POST)
-		if form.is_valid():
-			subject = form.cleaned_data['subject']
-			message = form.cleaned_data['message']
-			sender = form.cleaned_data['sender']
-			recipient = form.cleaned_data['recipient']
-			send_mail(subject, message, sender, [recipient])
-			try:
-				next = form.cleaned_data['next']
-			except:
-				next = ''
-			return HttpResponseRedirect(next)
-			
-	else:
-		try:
-			next = request.GET['next']
-		except:
-			next = ''
-		form = EmailShareForm(initial={'next':next})
+    if request.method == 'POST':
+        form=EmailShareForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            sender = form.cleaned_data['sender']
+            recipient = form.cleaned_data['recipient']
+            send_mail(subject, message, sender, [recipient])
+            try:
+                next = form.cleaned_data['next']
+            except:
+                next = ''
+            return HttpResponseRedirect(next)
+            
+    else:
+        try:
+            next = request.GET['next']
+        except:
+            next = ''
+        if request.user.is_authenticated():
+            sender = request.user.email
+        else:
+            sender = ''
+        form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
 
-	return render(request, "emailshare.html", {'form':form})	
+    return render(request, "emailshare.html", {'form':form})    

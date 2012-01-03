@@ -1,0 +1,15 @@
+<div id="comments">
+  {% for comment in comment_list %}
+  <div class="work_supporter">
+      <a href="/supporter/{{comment.user.username}}">
+      <div class="work_supporter_avatar">
+        {% if comment.user.profile.pic_url %}
+            <img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
+               {% else %}
+            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+            {% endif %}
+    </div>
+    <span class="comment_username">{{comment.user.username }}</span></a> <span>({{ comment.submit_date }})</span> <br /><span class="comment">{{ comment.comment }}</span> 
+  </div>
+  {% endfor %}
+</div>

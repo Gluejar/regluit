@@ -269,7 +269,7 @@ class PaymentManager( object ):
             pledged_list = []
         
         if authorized:
-            authorized_list = Transaction.objects.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+            authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
                                                          status="ACTIVE")
         else:
             authorized_list = []           
