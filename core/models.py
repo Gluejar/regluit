@@ -150,9 +150,10 @@ class Campaign(models.Model):
         else:
             return 0
         
-    def transactions(self, pledged=True, authorized=True):
+    def transactions(self, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         p = PaymentManager()
-        return p.query_campaign(campaign=self, summary=False, pledged=pledged, authorized=authorized)
+        return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
+                                completed=completed)
         
     def activate(self):
         status = self.status
