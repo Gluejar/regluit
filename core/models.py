@@ -92,6 +92,7 @@ class Campaign(models.Model):
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
+    # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
     problems = []
     
