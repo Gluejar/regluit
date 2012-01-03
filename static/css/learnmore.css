@@ -46,7 +46,9 @@
 }
 .block-intro-text div {
   display: none;
+  line-height: 25px;
 }
 .block-intro-text div#active {
   display: inherit;
+  height: 75px;
 }
