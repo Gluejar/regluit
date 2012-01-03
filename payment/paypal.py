@@ -35,11 +35,20 @@ IPN_TYPE_ADJUSTMENT = 'Adjustment'
 IPN_TYPE_PREAPPROVAL = 'Adaptive Payment PREAPPROVAL'
 
 #pay API status constants
-# I think 'NONE' is not something the API produces but is particular to our implementation
-# couldn't we use the Python None?
+#  NONE' is not something the API produces but is particular to our implementation
 IPN_PAY_STATUS_NONE = 'NONE'
 
-# The following apply to INSTANT PAYMENTS
+
+#The following apply to INSTANT PAYMENTS
+#https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APPayAPI
+#CREATED - The payment request was received; funds will be transferred once the payment is approved
+#COMPLETED - The payment was successful
+#INCOMPLETE - Some transfers succeeded and some failed for a parallel payment or, for a delayed chained payment, secondary receivers have not been paid
+#ERROR - The payment failed and all attempted transfers failed or all completed transfers were successfully reversed
+#REVERSALERROR - One or more transfers failed when attempting to reverse a payment
+#PROCESSING - The payment is in progress
+#PENDING - The payment is awaiting processing
+
 IPN_PAY_STATUS_CREATED = 'CREATED'
 IPN_PAY_STATUS_COMPLETED = 'COMPLETED'
 IPN_PAY_STATUS_INCOMPLETE = 'INCOMPLETE'
@@ -49,9 +58,25 @@ IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
 IPN_PAY_STATUS_PENDING = 'PENDING'
 
 # particular to preapprovals -- may want to rename these constants to IPN_PREAPPROVAL_STATUS_*
+# https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APPreapprovalDetails
+#ACTIVE - The preapproval is active
+#CANCELED - The preapproval was explicitly canceled by the sender or by PayPal
+#DEACTIVED - The preapproval is not active; you can be reactivate it by resetting the personal identification number (PIN) or by contacting PayPal
+
 IPN_PAY_STATUS_ACTIVE = "ACTIVE"
 IPN_PAY_STATUS_CANCELED = "CANCELED"
 IPN_PAY_STATUS_DEACTIVED = "DEACTIVED"
+
+# https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APIPN
+#COMPLETED - The sender's transaction has completed
+#PENDING - The transaction is awaiting further processing
+#CREATED - The payment request was received; funds will be transferred once approval is received
+#PARTIALLY_REFUNDED - Transaction was partially refunded
+#DENIED - The transaction was rejected by the receiver
+#PROCESSING - The transaction is in progress
+#REVERSED - The payment was returned to the sender
+#REFUNDED - The payment was refunded
+#FAILED - The payment failed
 
 IPN_SENDER_STATUS_COMPLETED = 'COMPLETED'
 IPN_SENDER_STATUS_PENDING = 'PENDING'
@@ -67,7 +92,7 @@ IPN_SENDER_STATUS_FAILED = 'FAILED'
 IPN_ACTION_TYPE_PAY = 'PAY'
 IPN_ACTION_TYPE_CREATE = 'CREATE'
 
-# individual sender transaction constants
+# individual sender transaction constants (???)
 IPN_TXN_STATUS_COMPLETED = 'Completed'
 IPN_TXN_STATUS_PENDING = 'Pending'
 IPN_TXN_STATUS_REFUNDED = 'Refunded'

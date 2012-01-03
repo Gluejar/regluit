@@ -7,11 +7,11 @@ EXECUTE_TYPE_CHAINED_INSTANT = 1
 EXECUTE_TYPE_CHAINED_DELAYED = 2
 EXECUTE_TYPE_PARALLEL = 3
 
-
 TARGET_TYPE_NONE = 0
 TARGET_TYPE_CAMPAIGN = 1
 TARGET_TYPE_LIST = 2
 TARGET_TYPE_DONATION = 3
 
+# these two following parameters are probably extraneous since I think we will compute dynamically where to return each time.
 COMPLETE_URL = '/paymentcomplete'
 CANCEL_URL = '/paymentcancel'

@@ -56,6 +56,12 @@ class UserProfileAdmin(ModelAdmin):
 
 class TransactionAdmin(ModelAdmin):
     date_hierarchy = 'date_created'
+    
+class PaymentResponseAdmin(ModelAdmin):
+    pass
+
+class ReceiverAdmin(ModelAdmin):
+    ordering = ('email',)
 
 admin_site = RegluitAdmin("Admin")
 
@@ -72,3 +78,5 @@ admin_site.register(models.Ebook, EbookAdmin)
 admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
 admin_site.register(payment.models.Transaction, TransactionAdmin)
+admin_site.register(payment.models.PaymentResponse, PaymentResponseAdmin)
+admin_site.register(payment.models.Receiver, ReceiverAdmin)

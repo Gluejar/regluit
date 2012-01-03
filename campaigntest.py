@@ -1,5 +1,5 @@
 from regluit.core import models
-from regluit.payment.models import Transaction
+from regluit.payment.models import Transaction, PaymentResponse, Receiver
 from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 
@@ -31,7 +31,10 @@ def finish_campaigns(clist):
     return [pm.finish_campaign(c) for c in clist]
 
 def drop_all_transactions():
+    PaymentResponse.objects.all().delete()
+    Receiver.objects.all().delete()
     Transaction.objects.all().delete()
+    
     # go through all Campaigns and set the self.left = self.target
     for c in models.Campaign.objects.all():
         c.left = c.target
