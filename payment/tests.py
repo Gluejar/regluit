@@ -249,7 +249,6 @@ def suite():
     #testcases = [PledgeTest, AuthorizeTest]
     testcases = [TransactionTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    
     return suites    
         
        
