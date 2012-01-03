@@ -2,7 +2,7 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 import uuid
 import traceback
@@ -257,26 +257,40 @@ class PaymentManager( object ):
         except:
             traceback.print_exc()
          
-    def run_query(self, transaction_list, summary, pledged, authorized):
+    def run_query(self, transaction_list, summary, pledged, authorized, incomplete, completed):
         '''
         Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
         '''
 
         if pledged:
             pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
-                                                   status="COMPLETED")
+                                                   status=IPN_PAY_STATUS_COMPLETED)
         else:
             pledged_list = []
         
         if authorized:
             authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status="ACTIVE")
+                                                         status=IPN_PAY_STATUS_ACTIVE)
         else:
-            authorized_list = []           
+            authorized_list = []
+            
+        if incomplete:
+            incomplete_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                         status=IPN_PAY_STATUS_INCOMPLETE)
+        else:
+            incomplete_list = []                      
+            
+        if completed:
+            completed_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                         status=IPN_PAY_STATUS_COMPLETED)
+        else:
+            completed_list = []            
         
         if summary:
             pledged_amount = D('0.00')
             authorized_amount = D('0.00')
+            incomplete_amount = D('0.00')
+            completed_amount = D('0.00')
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
@@ -288,15 +302,19 @@ class PaymentManager( object ):
             for t in authorized_list:
                 authorized_amount += t.amount
                 
-            amount = pledged_amount + authorized_amount
+            for t in incomplete_list:
+                incomplete_amount += t.amount
+                
+            for t in completed_list:
+                completed_amount += t.amount                
+                
+            amount = pledged_amount + authorized_amount + incomplete_amount + completed_amount
             return amount
         
         else:
-            return pledged_list | authorized_list
-        
-           
+            return pledged_list | authorized_list | incomplete_list | completed_list   
 
-    def query_user(self, user, summary=False, pledged=True, authorized=True):
+    def query_user(self, user, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         '''
         query_user
         
@@ -305,15 +323,17 @@ class PaymentManager( object ):
         summary: if true, return a float of the total, if false, return a list of transactions
         pledged: include amounts pledged
         authorized: include amounts pre-authorized
+        incomplete: include amounts for transactions with INCOMPLETE status
+        completed: include amounts for transactions that are COMPLETED
         
         return value: either a float summary or a list of transactions
         
         '''        
         
         transactions = Transaction.objects.filter(user=user)
-        return self.run_query(transactions, summary, pledged, authorized)
+        return self.run_query(transactions, summary, pledged, authorized, incomplete=True, completed=True)
        
-    def query_campaign(self, campaign, summary=False, pledged=True, authorized=True):
+    def query_campaign(self, campaign, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         '''
         query_campaign
         
@@ -322,16 +342,18 @@ class PaymentManager( object ):
         summary: if true, return a float of the total, if false, return a list of transactions
         pledged: include amounts pledged
         authorized: include amounts pre-authorized
+        incomplete: include amounts for transactions with INCOMPLETE status
+        completed: includes payments that have been completed
         
         return value: either a float summary or a list of transactions
         
         '''        
         
         transactions = Transaction.objects.filter(campaign=campaign)
-        return self.run_query(transactions, summary, pledged, authorized)
+        return self.run_query(transactions, summary, pledged, authorized, incomplete, completed)
     
 
-    def query_list(self, list, summary=False, pledged=True, authorized=True):
+    def query_list(self, list, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         '''
         query_list
         
@@ -340,13 +362,15 @@ class PaymentManager( object ):
         summary: if true, return a float of the total, if false, return a list of transactions
         pledged: include amounts pledged
         authorized: include amounts pre-authorized
+        incomplete: include amounts for transactions with INCOMPLETE status
+        completed: includes payments that have been completed
         
         return value: either a float summary or a list of transactions
         
         '''        
         
         transactions = Transaction.objects.filter(list=list)
-        return self.run_query(transactions, summary, pledged, authorized)
+        return self.run_query(transactions, summary, pledged, authorized, incomplete, completed)
             
     def execute_campaign(self, campaign):
         '''

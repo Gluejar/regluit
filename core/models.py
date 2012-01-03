@@ -92,6 +92,7 @@ class Campaign(models.Model):
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
+    # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
     problems = []
     
@@ -149,9 +150,10 @@ class Campaign(models.Model):
         else:
             return 0
         
-    def transactions(self, pledged=True, authorized=True):
+    def transactions(self, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         p = PaymentManager()
-        return p.query_campaign(campaign=self, summary=False, pledged=pledged, authorized=authorized)
+        return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
+                                completed=completed)
         
     def activate(self):
         status = self.status
