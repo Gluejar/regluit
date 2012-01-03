@@ -2,8 +2,6 @@
 {% block extra_css %}
 <link rel="stylesheet" href="/static/css/book_list.css">
 <link rel="stylesheet" href="/static/css/book_panel.css">
-<!-- important! search.css goes last -->
-<link rel="stylesheet" href="/static/css/search.css">
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
@@ -43,8 +41,10 @@
                     {% for work in results %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.googlebooks_id as googlebooks_id %}
+                    {% with work.last_campaign_status as status %}
+					{% with work.last_campaign.deadline as deadline %}
                     {% include "book_panel.html" %}
-                    {% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% empty %}
                     <h2>Sorry, couldn't find that!</h2>
