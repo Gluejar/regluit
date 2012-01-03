@@ -233,7 +233,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .listview.icons .booklist-status-img img {
   padding: 5px;
 }
-.listview.icons .booklist-status-label, .listview.icons .right_add {
+.listview.icons .booklist-status-label {
   display: none;
 }
 div.content-block-content {
