@@ -105,6 +105,9 @@
   color: #3d4e53;
   padding-right: 15px;
 }
+.user-block-hide .quicktour.last {
+  background: none;
+}
 /* Containers */
 .have-right #js-main-container {
   float: left;
