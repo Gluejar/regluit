@@ -263,7 +263,7 @@ class PledgeView(FormView):
         
         p = PaymentManager(embedded=self.embedded)
                     
-        # we should force login at this point -- or if no account, account creation, login, and return to this spot
+        # PledgeView is wrapped in login_required -- so in theory, user should never be None -- but I'll keep this logic here for now.
         if self.request.user.is_authenticated():
             user = self.request.user
         else:

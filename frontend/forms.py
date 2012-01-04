@@ -74,7 +74,7 @@ class UserData(forms.Form):
         label=_("New Username"), 
         max_length=30, 
         regex=r'^[\w.@+-]+$',
-        help_text = _("30 characters or less."),
+        help_text = _("30 characters or fewer."),
         error_messages = {
             'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
         }
