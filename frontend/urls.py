@@ -5,7 +5,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, FAQView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView
 
 urlpatterns = patterns(
@@ -23,8 +23,8 @@ urlpatterns = patterns(
     url(r"^rightsholders/claim/$", "claim", name="claim"), 
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"),
     url(r"^campaign_admin/$", "campaign_admin", name="campaign_admin"),    
-    url(r"^faq/$", TemplateView.as_view(template_name="faq.html"),
-        name="faq"), 
+    url(r"^faq/$", FAQView.as_view(), {'location':'faq'}, name="faq"), 
+    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view()), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),

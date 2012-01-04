@@ -742,6 +742,11 @@ class CampaignFormView(FormView):
             logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
 
+class FAQView(TemplateView):
+	template_name = "faq.html"
+	def get_context_data(self, **kwargs):
+		location = self.kwargs["location"]
+		return {'location': location}
 
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"

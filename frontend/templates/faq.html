@@ -5,6 +5,22 @@
 <h2>FAQ</h2>
 
 <dl>
+{% if location == 'basics' or location == 'faq' %}
+If you were on the Basics or general FAQ page, you'd be able to read this.  Oh hey! You are!<br />
+{% endif %}
+
+{% if location == 'starting_campaigns' or location == 'faq' %}
+If you were on the Starting Campaigns or general FAQ page, you'd be able to read this.  Oh hey! You are!<br />
+{% endif %}
+
+{% if location == 'supporting_campaigns' or location == 'faq' %}
+If you were on the Supporting Campaigns or general FAQ page, you'd be able to read this.  Oh hey! You are!<br />
+{% endif %}
+
+{% if location == 'unglued_ebooks' or location == 'faq' %}
+If you were on the Unglued Ebooks or general FAQ page, you'd be able to read this.  Oh hey! You are!<br />
+{% endif %}
+
 <dt>I know a book that should be unglued.</dt>
 
 <dd>Great! Find it in our database (using the search box above) and add it to your wishlist, so we know it should be on our list, too.  You can also contact us: <!-- info? --></dd>
