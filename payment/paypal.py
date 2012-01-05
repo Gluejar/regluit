@@ -155,7 +155,8 @@ class PaypalEnvelopeRequest:
     url = None
             
     def ack( self ):
-        if self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
+
+        if self.response and self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
             return self.response['responseEnvelope']['ack']
         else:
             return None
@@ -177,17 +178,22 @@ class PaypalEnvelopeRequest:
             return False
         
     def error_data(self):
-        if self.response.has_key('error'):
+        
+        if self.response and self.response.has_key('error'):
             return self.response['error']
         else:
             return None
     
     def error_id(self):
-        if self.response.has_key('error'):
+        
+        if self.response and self.response.has_key('error'):
             return self.response['error'][0]['errorId']
+        else:
+            return None
     
     def error_string(self):
-        if self.response.has_key('error'):
+                
+        if self.response and self.response.has_key('error'):
             return self.response['error'][0]['message']
       
         elif self.errorMessage:
@@ -197,19 +203,20 @@ class PaypalEnvelopeRequest:
             return None
     
     def envelope(self):
-        if self.response.has_key('responseEnvelope'):
+
+        if self.response and self.response.has_key('responseEnvelope'):
             return self.response['responseEnvelope']
         else:
             return None
       
     def correlation_id(self):
-        if self.response.has_key('responseEnvelope') and self.response['responseEnvelope'].has_key('correlationId'):
+        if self.response and self.response.has_key('responseEnvelope') and self.response['responseEnvelope'].has_key('correlationId'):
             return self.response['responseEnvelope']['correlationId']
         else:
             return None
         
     def timestamp(self):
-        if self.response.has_key('responseEnvelope') and self.response['responseEnvelope'].has_key('timestamp'):
+        if self.response and self.response.has_key('responseEnvelope') and self.response['responseEnvelope'].has_key('timestamp'):
             return self.response['responseEnvelope']['timestamp']
         else:
             return None
@@ -526,6 +533,46 @@ class CancelPreapproval(PaypalEnvelopeRequest):
             
             self.raw_response = self.connection.content() 
             logger.info("paypal CANCEL PREAPPROBAL response was: %s" % self.raw_response)
+            self.response = json.loads( self.raw_response )
+            logger.info(self.response)
+            
+        except:
+            traceback.print_exc()
+            self.errorMessage = "Error: Server Error"
+            
+            
+class RefundPayment(PaypalEnvelopeRequest):
+    
+    def __init__(self, transaction):
+        
+        try:
+            
+            headers = {
+                     'X-PAYPAL-SECURITY-USERID':settings.PAYPAL_USERNAME, 
+                     'X-PAYPAL-SECURITY-PASSWORD':settings.PAYPAL_PASSWORD, 
+                     'X-PAYPAL-SECURITY-SIGNATURE':settings.PAYPAL_SIGNATURE,
+                     'X-PAYPAL-APPLICATION-ID':settings.PAYPAL_APPID,
+                     'X-PAYPAL-REQUEST-DATA-FORMAT':'JSON',
+                     'X-PAYPAL-RESPONSE-DATA-FORMAT':'JSON',
+                     }
+          
+            data = {
+                  'payKey':transaction.pay_key,
+                  'requestEnvelope': { 'errorLanguage': 'en_US' }
+                  } 
+    
+            self.raw_request = json.dumps(data)
+            self.headers = headers
+            self.url = "/AdaptivePayments/Refund"
+            self.connection = url_request(self)
+            self.code = self.connection.code()
+            
+            if self.code != 200:
+                self.errorMessage = 'PayPal response code was %i' % self.code
+                return
+            
+            self.raw_response = self.connection.content() 
+            logger.info("paypal Refund response was: %s" % self.raw_response)
             self.response = json.loads( self.raw_response )
             logger.info(self.response)
             

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from regluit.payment.parameters import *
 from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import RefundPayment
 import uuid
 import traceback
 from datetime import datetime
@@ -220,7 +221,7 @@ class PaymentManager( object ):
                     
                 elif ipn.transaction_type == IPN_TYPE_ADJUSTMENT:
                     # a chargeback, reversal or refund for an existng payment
-                    
+
                     uniqueID = ipn.uniqueID()
                     if uniqueID:
                         t = Transaction.objects.get(secret=uniqueID)
@@ -233,6 +234,23 @@ class PaymentManager( object ):
                     
                     # Reason code indicates more details of the adjustment type
                     t.reason = ipn.reason_code
+        
+                    # Update the receiver status codes
+                    for item in ipn.transactions:
+                        
+                        try:
+                            r = Receiver.objects.get(transaction=t, email=item['receiver'])
+                            logger.info(item)
+                            # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
+                            # payments, then there is no status or id for non-primary receivers.  Leave their status alone
+                            r.status = item['status_for_sender_txn']
+                            r.save()
+                        except:
+                            # Log an exception if we have a receiver that is not found.  This will be hit
+                            # for delayed chained payments as there is no status or id for the non-primary receivers yet
+                            traceback.print_exc()
+                            
+                    t.save()                    
                     
                         
                 elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
@@ -590,6 +608,7 @@ class PaymentManager( object ):
         '''        
             
         t = Transaction.objects.create(amount=amount, 
+                                       max_amount=amount,
                                        type=PAYMENT_TYPE_AUTHORIZATION,
                                        execution = EXECUTE_TYPE_CHAINED_DELAYED,
                                        target=target,
@@ -629,6 +648,121 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return t, None
         
+    def modify_transaction(self, transaction, amount=None, expiry=None, return_url=None, cancel_url=None):
+        '''
+        modify
+        
+        Modifies a transaction.  The only type of modification allowed is to the amount and expiration date
+        
+        amount: the new amount
+        expiry: the new expiration date, or if none the current expiration date will be used
+        return_url: the return URL after the preapproval(if needed)
+        cancel_url: the cancel url after the preapproval(if needed)
+        
+        return value: True if successful, false otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
+        '''        
+        
+        if not amount:
+            logger.info("Error, no amount speicified")
+            return False
+        
+        if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
+            # Can only modify the amount of a preapproval for now
+            logger.info("Error, attempt to modify an invalid transaction type")
+            return False, None
+        
+        if transaction.status != IPN_PAY_STATUS_ACTIVE:
+            # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
+            # then an IPN may be pending and we cannot touch it
+            logger.info("Error, attempt to modify a transaction that is not active")
+            return False, None
+            
+        if not expiry:
+            # Use the old expiration date
+            expiry = transaction.date_expired
+        
+        if amount > transaction.max_amount or expiry != transaction.date_expired:
+            
+            # Increase or expiuration change, cancel and start again
+            self.cancel_transaction(transaction)                
+                
+            # Start a new authorization for the new amount
+            
+            t, url = self.authorize(transaction.currency, 
+                                    transaction.target,
+                                    amount,
+                                    expiry, 
+                                    transaction.campaign, 
+                                    transaction.list, 
+                                    transaction.user, 
+                                    return_url, 
+                                    cancel_url, 
+                                    transaction.anonymous)
+            
+            if t and url:
+                # Need to re-direct to approve the transaction
+                logger.info("New authorization needed, redirectiont to url %s" % url)
+                return True, url
+            else:
+                # No amount change necessary
+                logger.info("Error, unable to start a new authorization")
+                return False, None
+            
+        elif amount < transaction.max_amount:
+            # Change the amount but leave the preapproval alone
+            transaction.amount = amount
+            transaction.save()
+            logger.info("Updated amount of transaction to %f" % amount)
+            return True, None
+        
+        else:
+            # No changes
+            logger.info("Error, no modifications requested")
+            return False, None
+        
+        
+    def refund_transaction(self, transaction):
+        '''
+        refund
+        
+        Refunds a transaction.  The money for the transaction may have gone to a number of places.   We can only
+        refund money that is in our account
+        
+        return value: True if successful, false otherwise
+        '''        
+        
+        # First check if a payment has been made.  It is possible that some of the receivers may be incomplete
+        # We need to verify that the refund API will cancel these
+        if transaction.status != IPN_PAY_STATUS_COMPLETED:
+            logger.info("Refund Transaction failed, invalid transaction status")
+            return False
+        
+        p = RefundPayment(transaction)
+        
+        # Create a response for this
+        envelope = p.envelope()
+        
+        if envelope:
+        
+            correlation = p.correlation_id()
+            timestamp = p.timestamp()
+        
+            r = PaymentResponse.objects.create(api=p.url,
+                                              correlation_id = correlation,
+                                              timestamp = timestamp,
+                                              info = p.raw_response,
+                                              transaction=transaction)
+        
+        if p.success() and not p.error():
+            logger.info("Refund Transaction " + str(transaction.id) + " Completed")
+            return True
+        
+        else:
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+            return False
+        
     def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
         '''
         pledge
@@ -658,7 +792,8 @@ class PaymentManager( object ):
         # for chained payments, first amount is the total amount
         amount = D(receiver_list[0]['amount'])
             
-        t = Transaction.objects.create(amount=amount, 
+        t = Transaction.objects.create(amount=amount,
+                                       max_amount=amount, 
                                        type=PAYMENT_TYPE_INSTANT,
                                        execution=EXECUTE_TYPE_CHAINED_INSTANT,
                                        target=target,
