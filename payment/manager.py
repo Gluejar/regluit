@@ -708,7 +708,7 @@ class PaymentManager( object ):
                 logger.info("Error, unable to start a new authorization")
                 return False, None
             
-        elif amount < transaction.max_amount:
+        elif amount <= transaction.max_amount:
             # Change the amount but leave the preapproval alone
             transaction.amount = amount
             transaction.save()
