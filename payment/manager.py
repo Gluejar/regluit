@@ -158,11 +158,11 @@ class PaymentManager( object ):
                     t.save()
                     
                 # Check the amount
-                if t.amount != D(p.amount):
+                if t.max_amount != D(p.amount):
                     #append_element(doc, tran, "amount_ours", str(t.amount))
                     #append_element(doc, tran, "amount_theirs", str(p.amount))
-                    preapproval_status["amount"] = {'ours':t.amount, 'theirs':p.amount}
-                    t.amount = p.amount
+                    preapproval_status["amount"] = {'ours':t.max_amount, 'theirs':p.amount}
+                    t.max_amount = p.amount
                     t.save()
             
             # append only if there was a change in status
@@ -708,7 +708,7 @@ class PaymentManager( object ):
                 logger.info("Error, unable to start a new authorization")
                 return False, None
             
-        elif amount < transaction.max_amount:
+        elif amount <= transaction.max_amount:
             # Change the amount but leave the preapproval alone
             transaction.amount = amount
             transaction.save()
