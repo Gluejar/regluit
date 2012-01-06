@@ -12,4 +12,6 @@ urlpatterns = patterns(
     url(r"^paymentcomplete","paymentcomplete"),
     url(r"^checkstatus", "checkStatus"),
     url(r"^testfinish", "testFinish"),
+    url(r"^testrefund", "testRefund"),
+    url(r"^testmodify", "testModify"),
 )

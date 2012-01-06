@@ -21,6 +21,7 @@ class Transaction(models.Model):
     
     # amount & currency -- amount of money and its currency involved for transaction
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
+    max_amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10, default='USD', null=True)
     
     # a unique ID that can be passed to PayPal to track a transaction

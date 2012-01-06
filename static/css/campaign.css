@@ -419,6 +419,9 @@ a {
 .editions a:hover {
   text-decoration: underline;
 }
+.thank-you {
+  font-size: 20px;
+}
 .work_supporter {
   height: auto;
   min-height: 50px;

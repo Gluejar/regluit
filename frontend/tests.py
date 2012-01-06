@@ -3,6 +3,11 @@ import re
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from regluit.core.models import Work, Campaign
+
+from decimal import Decimal as D
+import datetime
 
 class WishlistTests(TestCase):
 
@@ -67,3 +72,29 @@ class GoogleBooksTest(TestCase):
         r = self.client.get("/googlebooks/wtPxGztYx-UC/")
         self.assertEqual(r.status_code, 302)
         self.assertEqual(r['location'], work_url)
+
+class CampaignUiTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test@example.org', 'test')
+        self.client = Client()
+        # load a Work and a Campaign to create a Pledge page
+        self.work = Work(title="test Work")
+        self.work.save()
+        self.campaign = Campaign(target=D('1000.00'), deadline=datetime.datetime.utcnow() + datetime.timedelta(days=180),
+                                 work=self.work)
+        self.campaign.save()
+        self.campaign.activate()
+
+    def test_login_required_for_pledge(self):
+        """ Make sure that the user has to be logged in to be able to access a pledge page"""
+        pledge_path = reverse("pledge", kwargs={'work_id': self.work.id})
+        r = self.client.get(pledge_path)
+        self.assertEqual(r.status_code, 302)
+        
+        # now login and see whether the pledge page is accessible
+        self.client.login(username='test', password='test')
+        r = self.client.get(pledge_path)
+        self.assertEqual(r.status_code, 200)
+        
+    def tearDown(self):
+        pass
