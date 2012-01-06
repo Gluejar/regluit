@@ -746,7 +746,8 @@ class FAQView(TemplateView):
 	template_name = "faq.html"
 	def get_context_data(self, **kwargs):
 		location = self.kwargs["location"]
-		return {'location': location}
+		sublocation = self.kwargs["sublocation"]
+		return {'location': location, 'sublocation': sublocation}
 
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
