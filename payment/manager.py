@@ -2,8 +2,9 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import RefundPayment
 import uuid
 import traceback
 from datetime import datetime
@@ -157,11 +158,11 @@ class PaymentManager( object ):
                     t.save()
                     
                 # Check the amount
-                if t.amount != D(p.amount):
+                if t.max_amount != D(p.amount):
                     #append_element(doc, tran, "amount_ours", str(t.amount))
                     #append_element(doc, tran, "amount_theirs", str(p.amount))
-                    preapproval_status["amount"] = {'ours':t.amount, 'theirs':p.amount}
-                    t.amount = p.amount
+                    preapproval_status["amount"] = {'ours':t.max_amount, 'theirs':p.amount}
+                    t.max_amount = p.amount
                     t.save()
             
             # append only if there was a change in status
@@ -220,7 +221,7 @@ class PaymentManager( object ):
                     
                 elif ipn.transaction_type == IPN_TYPE_ADJUSTMENT:
                     # a chargeback, reversal or refund for an existng payment
-                    
+
                     uniqueID = ipn.uniqueID()
                     if uniqueID:
                         t = Transaction.objects.get(secret=uniqueID)
@@ -233,6 +234,23 @@ class PaymentManager( object ):
                     
                     # Reason code indicates more details of the adjustment type
                     t.reason = ipn.reason_code
+        
+                    # Update the receiver status codes
+                    for item in ipn.transactions:
+                        
+                        try:
+                            r = Receiver.objects.get(transaction=t, email=item['receiver'])
+                            logger.info(item)
+                            # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
+                            # payments, then there is no status or id for non-primary receivers.  Leave their status alone
+                            r.status = item['status_for_sender_txn']
+                            r.save()
+                        except:
+                            # Log an exception if we have a receiver that is not found.  This will be hit
+                            # for delayed chained payments as there is no status or id for the non-primary receivers yet
+                            traceback.print_exc()
+                            
+                    t.save()                    
                     
                         
                 elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
@@ -257,26 +275,40 @@ class PaymentManager( object ):
         except:
             traceback.print_exc()
          
-    def run_query(self, transaction_list, summary, pledged, authorized):
+    def run_query(self, transaction_list, summary, pledged, authorized, incomplete, completed):
         '''
         Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
         '''
 
         if pledged:
             pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
-                                                   status="COMPLETED")
+                                                   status=IPN_PAY_STATUS_COMPLETED)
         else:
             pledged_list = []
         
         if authorized:
             authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status="ACTIVE")
+                                                         status=IPN_PAY_STATUS_ACTIVE)
         else:
-            authorized_list = []           
+            authorized_list = []
+            
+        if incomplete:
+            incomplete_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                         status=IPN_PAY_STATUS_INCOMPLETE)
+        else:
+            incomplete_list = []                      
+            
+        if completed:
+            completed_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                         status=IPN_PAY_STATUS_COMPLETED)
+        else:
+            completed_list = []            
         
         if summary:
             pledged_amount = D('0.00')
             authorized_amount = D('0.00')
+            incomplete_amount = D('0.00')
+            completed_amount = D('0.00')
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
@@ -288,15 +320,19 @@ class PaymentManager( object ):
             for t in authorized_list:
                 authorized_amount += t.amount
                 
-            amount = pledged_amount + authorized_amount
+            for t in incomplete_list:
+                incomplete_amount += t.amount
+                
+            for t in completed_list:
+                completed_amount += t.amount                
+                
+            amount = pledged_amount + authorized_amount + incomplete_amount + completed_amount
             return amount
         
         else:
-            return pledged_list | authorized_list
-        
-           
+            return pledged_list | authorized_list | incomplete_list | completed_list   
 
-    def query_user(self, user, summary=False, pledged=True, authorized=True):
+    def query_user(self, user, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         '''
         query_user
         
@@ -305,15 +341,17 @@ class PaymentManager( object ):
         summary: if true, return a float of the total, if false, return a list of transactions
         pledged: include amounts pledged
         authorized: include amounts pre-authorized
+        incomplete: include amounts for transactions with INCOMPLETE status
+        completed: include amounts for transactions that are COMPLETED
         
         return value: either a float summary or a list of transactions
         
         '''        
         
         transactions = Transaction.objects.filter(user=user)
-        return self.run_query(transactions, summary, pledged, authorized)
+        return self.run_query(transactions, summary, pledged, authorized, incomplete=True, completed=True)
        
-    def query_campaign(self, campaign, summary=False, pledged=True, authorized=True):
+    def query_campaign(self, campaign, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         '''
         query_campaign
         
@@ -322,16 +360,18 @@ class PaymentManager( object ):
         summary: if true, return a float of the total, if false, return a list of transactions
         pledged: include amounts pledged
         authorized: include amounts pre-authorized
+        incomplete: include amounts for transactions with INCOMPLETE status
+        completed: includes payments that have been completed
         
         return value: either a float summary or a list of transactions
         
         '''        
         
         transactions = Transaction.objects.filter(campaign=campaign)
-        return self.run_query(transactions, summary, pledged, authorized)
+        return self.run_query(transactions, summary, pledged, authorized, incomplete, completed)
     
 
-    def query_list(self, list, summary=False, pledged=True, authorized=True):
+    def query_list(self, list, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
         '''
         query_list
         
@@ -340,13 +380,15 @@ class PaymentManager( object ):
         summary: if true, return a float of the total, if false, return a list of transactions
         pledged: include amounts pledged
         authorized: include amounts pre-authorized
+        incomplete: include amounts for transactions with INCOMPLETE status
+        completed: includes payments that have been completed
         
         return value: either a float summary or a list of transactions
         
         '''        
         
         transactions = Transaction.objects.filter(list=list)
-        return self.run_query(transactions, summary, pledged, authorized)
+        return self.run_query(transactions, summary, pledged, authorized, incomplete, completed)
             
     def execute_campaign(self, campaign):
         '''
@@ -566,6 +608,7 @@ class PaymentManager( object ):
         '''        
             
         t = Transaction.objects.create(amount=amount, 
+                                       max_amount=amount,
                                        type=PAYMENT_TYPE_AUTHORIZATION,
                                        execution = EXECUTE_TYPE_CHAINED_DELAYED,
                                        target=target,
@@ -605,6 +648,121 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return t, None
         
+    def modify_transaction(self, transaction, amount=None, expiry=None, return_url=None, cancel_url=None):
+        '''
+        modify
+        
+        Modifies a transaction.  The only type of modification allowed is to the amount and expiration date
+        
+        amount: the new amount
+        expiry: the new expiration date, or if none the current expiration date will be used
+        return_url: the return URL after the preapproval(if needed)
+        cancel_url: the cancel url after the preapproval(if needed)
+        
+        return value: True if successful, false otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
+        '''        
+        
+        if not amount:
+            logger.info("Error, no amount speicified")
+            return False
+        
+        if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
+            # Can only modify the amount of a preapproval for now
+            logger.info("Error, attempt to modify an invalid transaction type")
+            return False, None
+        
+        if transaction.status != IPN_PAY_STATUS_ACTIVE:
+            # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
+            # then an IPN may be pending and we cannot touch it
+            logger.info("Error, attempt to modify a transaction that is not active")
+            return False, None
+            
+        if not expiry:
+            # Use the old expiration date
+            expiry = transaction.date_expired
+        
+        if amount > transaction.max_amount or expiry != transaction.date_expired:
+            
+            # Increase or expiuration change, cancel and start again
+            self.cancel_transaction(transaction)                
+                
+            # Start a new authorization for the new amount
+            
+            t, url = self.authorize(transaction.currency, 
+                                    transaction.target,
+                                    amount,
+                                    expiry, 
+                                    transaction.campaign, 
+                                    transaction.list, 
+                                    transaction.user, 
+                                    return_url, 
+                                    cancel_url, 
+                                    transaction.anonymous)
+            
+            if t and url:
+                # Need to re-direct to approve the transaction
+                logger.info("New authorization needed, redirectiont to url %s" % url)
+                return True, url
+            else:
+                # No amount change necessary
+                logger.info("Error, unable to start a new authorization")
+                return False, None
+            
+        elif amount <= transaction.max_amount:
+            # Change the amount but leave the preapproval alone
+            transaction.amount = amount
+            transaction.save()
+            logger.info("Updated amount of transaction to %f" % amount)
+            return True, None
+        
+        else:
+            # No changes
+            logger.info("Error, no modifications requested")
+            return False, None
+        
+        
+    def refund_transaction(self, transaction):
+        '''
+        refund
+        
+        Refunds a transaction.  The money for the transaction may have gone to a number of places.   We can only
+        refund money that is in our account
+        
+        return value: True if successful, false otherwise
+        '''        
+        
+        # First check if a payment has been made.  It is possible that some of the receivers may be incomplete
+        # We need to verify that the refund API will cancel these
+        if transaction.status != IPN_PAY_STATUS_COMPLETED:
+            logger.info("Refund Transaction failed, invalid transaction status")
+            return False
+        
+        p = RefundPayment(transaction)
+        
+        # Create a response for this
+        envelope = p.envelope()
+        
+        if envelope:
+        
+            correlation = p.correlation_id()
+            timestamp = p.timestamp()
+        
+            r = PaymentResponse.objects.create(api=p.url,
+                                              correlation_id = correlation,
+                                              timestamp = timestamp,
+                                              info = p.raw_response,
+                                              transaction=transaction)
+        
+        if p.success() and not p.error():
+            logger.info("Refund Transaction " + str(transaction.id) + " Completed")
+            return True
+        
+        else:
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+            return False
+        
     def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
         '''
         pledge
@@ -634,7 +792,8 @@ class PaymentManager( object ):
         # for chained payments, first amount is the total amount
         amount = D(receiver_list[0]['amount'])
             
-        t = Transaction.objects.create(amount=amount, 
+        t = Transaction.objects.create(amount=amount,
+                                       max_amount=amount, 
                                        type=PAYMENT_TYPE_INSTANT,
                                        execution=EXECUTE_TYPE_CHAINED_INSTANT,
                                        target=target,

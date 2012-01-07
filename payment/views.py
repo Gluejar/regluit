@@ -16,7 +16,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
-TEST_RECEIVERS = ['jakace_1309677337_biz@gmail.com', 'seller_1317463643_biz@gmail.com']
+TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
 #TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
 
 
@@ -114,8 +114,8 @@ def testAuthorize(request):
         return HttpResponseRedirect(url)
     
     else:
-        response = t.reference
-        logger.info("testAuthorize: Error " + str(t.reference))
+        response = t.error
+        logger.info("testAuthorize: Error " + str(t.error))
         return HttpResponse(response)
  
 '''
@@ -135,6 +135,58 @@ def testCancel(request):
     else:
         message = "Error: " + t.error
         return HttpResponse(message)
+    
+'''
+http://BASE/testrefund?transaction=2
+
+Example that refunds a transaction
+'''    
+def testRefund(request):
+    
+    if "transaction" not in request.GET.keys():
+        return HttpResponse("No Transaction in Request")
+    
+    t = Transaction.objects.get(id=int(request.GET['transaction']))
+    p = PaymentManager()
+    if p.refund_transaction(t):
+        return HttpResponse("Success")
+    else:
+        if t.error:
+            message = "Error: " + t.error
+        else:
+            message = "Error"
+            
+        return HttpResponse(message)
+    
+'''
+http://BASE/testmodify?transaction=2
+
+Example that modifies the amount of a transaction
+'''    
+def testModify(request):
+    
+    if "transaction" not in request.GET.keys():
+        return HttpResponse("No Transaction in Request")
+    
+    if "amount" in request.GET.keys():
+        amount = float(request.GET['amount'])
+    else:
+        amount = 200.0
+    
+    t = Transaction.objects.get(id=int(request.GET['transaction']))
+    p = PaymentManager()
+    
+    status, url = p.modify_transaction(t, amount)
+    
+    if url:
+        logger.info("testModify: " + url)
+        return HttpResponseRedirect(url)
+    
+    if status:
+        return HttpResponse("Success")
+    else:
+        return HttpResponse("Error")
+    
     
     
 '''

@@ -263,7 +263,7 @@ class PledgeView(FormView):
         
         p = PaymentManager(embedded=self.embedded)
                     
-        # we should force login at this point -- or if no account, account creation, login, and return to this spot
+        # PledgeView is wrapped in login_required -- so in theory, user should never be None -- but I'll keep this logic here for now.
         if self.request.user.is_authenticated():
             user = self.request.user
         else:
@@ -634,30 +634,20 @@ def search(request):
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
-        # get a list of all the googlebooks_ids for works on the user's wishlist
-        wishlist = request.user.wishlist
-        editions = models.Edition.objects.filter(work__wishlists__in=[wishlist])
-        googlebooks_ids = [e['googlebooks_id'] for e in editions.values('googlebooks_id')]
         ungluers = userlists.other_users(request.user, 5)
-        # if the results is on their wishlist flag it
-        for result in results:
-            if result['googlebooks_id'] in googlebooks_ids:
-                result['on_wishlist'] = True
-            else:
-                result['on_wishlist'] = False
     else:
         ungluers = userlists.other_users(None, 5)
             
-    # also urlencode some parameters we'll need to pass to workstub in the title links
-    # needs to be done outside the if condition
+    works=[]
     for result in results:
-        result['urlimage'] = urllib.quote_plus(sub('^https?:\/\/','', result['cover_image_thumbnail']).encode("utf-8"), safe='')
-        result['urlauthor'] = urllib.quote_plus(result['author'].encode("utf-8"), safe='')
-        result['urltitle'] = urllib.quote_plus(result['title'].encode("utf-8"), safe='')
-
+		try:
+			edition = models.Edition.objects.get(googlebooks_id=result['googlebooks_id'])
+			works.append(edition.work)
+		except models.Edition.DoesNotExist: 
+			works.append(result)
     context = {
         "q": q,
-        "results": results,
+        "results": works,
         "ungluers": ungluers
     }
     return render(request, 'search.html', context)
@@ -752,6 +742,12 @@ class CampaignFormView(FormView):
             logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
 
+class FAQView(TemplateView):
+	template_name = "faq.html"
+	def get_context_data(self, **kwargs):
+		location = self.kwargs["location"]
+		sublocation = self.kwargs["sublocation"]
+		return {'location': location, 'sublocation': sublocation}
 
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"

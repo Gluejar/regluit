@@ -21,6 +21,7 @@ class Transaction(models.Model):
     
     # amount & currency -- amount of money and its currency involved for transaction
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
+    max_amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     currency = models.CharField(max_length=10, default='USD', null=True)
     
     # a unique ID that can be passed to PayPal to track a transaction
@@ -95,7 +96,10 @@ class PaymentResponse(models.Model):
     info = models.CharField(max_length=1024, null=True)
     
     transaction = models.ForeignKey(Transaction, null=False)
-    
+
+    def __unicode__(self):
+        return u"PaymentResponse -- api: {0} correlation_id: {1} transaction: {2}".format(self.api, self.correlation_id, unicode(self.transaction))
+        
     
 class Receiver(models.Model):
     
@@ -109,6 +113,9 @@ class Receiver(models.Model):
     primary = models.BooleanField()
     txn_id = models.CharField(max_length=64)
     transaction = models.ForeignKey(Transaction)
+    
+    def __unicode__(self):
+        return u"Receiver -- email: {0} status: {1} transaction: {2}".format(self.email, self.status, unicode(self.transaction))
     
 from django.db.models.signals import post_save, post_delete
 import regluit.payment.manager

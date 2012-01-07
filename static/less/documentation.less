@@ -1,15 +1,10 @@
 // Styles basedocumentation.html and its descendants.
 @import "variables.less";
+@import "learnmore.less";
 
-// Learn More area
+/* Learn More area (not already styles by learnmore.less) */
 .user-block {
 	width:100%; clear:both;
-}
-
-.user-block-hide {
-	float: left;
-	width:100%;
-	clear:both;
 }
 
 .user-block1, .user-block2 {
@@ -50,6 +45,10 @@
 		color:@text-blue;
 		padding-right:15px;
 	}
+}
+
+.user-block-hide .quicktour.last {
+	background: none;
 }
 
 /* Containers */
@@ -133,4 +132,8 @@ dd {
 
 .errorlist li {
 	border: solid @call-to-action 4px;
+}
+
+.collapse ul {
+	display: none;
 }

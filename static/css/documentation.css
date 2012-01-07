@@ -13,12 +13,62 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
-.user-block {
-  width: 100%;
-  clear: both;
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
 }
 .user-block-hide {
   float: left;
+  width: 100%;
+  clear: both;
+  border-top: solid 1px #8ac3d7;
+  margin-top: 20px;
+}
+.user-block-hide .quicktour {
+  width: 270px;
+  float: left;
+  font-style: italic;
+  line-height: 20px;
+  font-size: 13px;
+  margin-top: 20px;
+}
+.user-block-hide .quicktour .highlight {
+  font-weight: bold;
+}
+.user-block-hide .quicktour.last {
+  padding-right: 0px;
+  width: 270px;
+  background: url("/static/images/landingpage/signmeup-arrow.png") no-repeat center bottom;
+  padding-bottom: 42px;
+}
+.user-block-hide .movingrightalong {
+  background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
+  height: 100px;
+  width: 75px;
+  float: left;
+  margin-top: 20px;
+}
+.block-intro-text div {
+  display: none;
+  line-height: 25px;
+}
+.block-intro-text div#active {
+  display: inherit;
+  height: 75px;
+}
+/* Learn More area (not already styles by learnmore.less) */
+.user-block {
   width: 100%;
   clear: both;
 }
@@ -55,6 +105,9 @@
   color: #3d4e53;
   padding-right: 15px;
 }
+.user-block-hide .quicktour.last {
+  background: none;
+}
 /* Containers */
 .have-right #js-main-container {
   float: left;
@@ -66,6 +119,9 @@
   margin-top: 50px;
   background: #edf3f4;
   border: 1px solid #d6dde0;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
   -moz-border-radius: 12px 12px 12px 12px;
   -webkit-border-radius: 12px 12px 12px 12px;
   border-radius: 12px 12px 12px 12px;
@@ -102,6 +158,9 @@
   -moz-border-radius: 14px 14px 14px 14px;
   -webkit-border-radius: 14px 14px 14px 14px;
   border-radius: 14px 14px 14px 14px;
+  -moz-border-radius: 14px 14px 14px 14px;
+  -webkit-border-radius: 14px 14px 14px 14px;
+  border-radius: 14px 14px 14px 14px;
   padding: 10px;
   background: #edf3f4;
 }
@@ -110,11 +169,17 @@
   -moz-border-radius: 12px 12px 12px 12px;
   -webkit-border-radius: 12px 12px 12px 12px;
   border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px 12px 12px 12px;
+  -webkit-border-radius: 12px 12px 12px 12px;
+  border-radius: 12px 12px 12px 12px;
   padding: 10px;
   font-style: italic;
 }
 dt {
   margin: 7px 0px 7px -7px;
+  -moz-border-radius: 14px 14px 14px 14px;
+  -webkit-border-radius: 14px 14px 14px 14px;
+  border-radius: 14px 14px 14px 14px;
   -moz-border-radius: 14px 14px 14px 14px;
   -webkit-border-radius: 14px 14px 14px 14px;
   border-radius: 14px 14px 14px 14px;
@@ -129,4 +194,7 @@ dd {
 }
 .errorlist li {
   border: solid #8dc63f 4px;
+}
+.collapse ul {
+  display: none;
 }
