@@ -300,6 +300,37 @@ class PledgeView(FormView):
             response = t.reference
             logger.info("PledgeView paypal: Error " + str(t.reference))
             return HttpResponse(response)
+
+class PledgeCompleteView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully"""
+    
+    template_name="pledge_complete.html"
+    
+    def get_context_data(self, **kwargs):
+        # pick up all get and post parameters and display
+        context = super(PledgeCompleteView, self).get_context_data(**kwargs)
+
+        output = "pledge complete"
+        output += self.request.method + "\n" + str(self.request.REQUEST.items())
+        context["output"] = output
+        
+        return context
+        
+    
+class PledgeCancelView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+    template_name="pledge_cancel.html"
+    
+    def get_context_data(self, **kwargs):
+        # pick up all get and post parameters and display
+        context = super(PledgeCancelView, self).get_context_data(**kwargs)
+
+        output = "pledge cancel"
+        output += self.request.method + "\n" + str(self.request.REQUEST.items())
+        context["output"] = output
+        
+        return context
+    
     
 class DonateView(FormView):
     template_name="donate.html"
