@@ -201,3 +201,22 @@ class EmailShareForm(forms.Form):
 	# we can't rely on POST or GET since the emailshare view handles both
 	# and may iterate several times as it catches user errors, losing URL info
 	next = forms.CharField(widget=forms.HiddenInput())
+	
+class FeedbackForm(forms.Form):
+	sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}))
+	subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}))
+	message = forms.CharField(widget=forms.Textarea())
+	page = forms.CharField(widget=forms.HiddenInput())
+	notarobot = forms.IntegerField(label="Please prove you're not a robot")
+	answer = forms.IntegerField(widget=forms.HiddenInput())
+	num1 = forms.IntegerField(widget=forms.HiddenInput())
+	num2 = forms.IntegerField(widget=forms.HiddenInput())
+	
+	def clean(self):
+		cleaned_data = self.cleaned_data
+		notarobot = str(cleaned_data.get("notarobot"))
+		answer = str(cleaned_data.get("answer"))
+		if notarobot!=answer:
+			raise forms.ValidationError(_("Whoops, try that sum again."))
+			
+		return cleaned_data
