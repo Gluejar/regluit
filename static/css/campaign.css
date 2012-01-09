@@ -130,6 +130,9 @@
   padding: 0;
   cursor: pointer;
 }
+.book-detail-info > div.layout div.btn_support.modify input {
+  background: url("/static/images/btn_bg_grey.png") 0 0 no-repeat;
+}
 .book-detail-info .btn_wishlist span {
   text-align: right;
 }

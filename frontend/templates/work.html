@@ -79,7 +79,13 @@ jQuery(document).ready(function(){
                             <h3 class="book-author">{{ work.author }}</h3>
                             <h3 class="book-year">{{ pubdate }}</h3>
 					      </div>
-                          {% if status == 'ACTIVE' %}<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>{% endif %}
+                          {% if status == 'ACTIVE' %}
+                          {% if pledged %}
+                          	<div class="btn_support modify"><form action="/stub/modify_pledge" method="get"><input type="submit" value="Change Pledge"/></form></div>
+                          {% else %}
+                          	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
+                          {% endif %}
+                          {% endif %}
 					  </div>
 					  </div>
                         <div class="find-book">

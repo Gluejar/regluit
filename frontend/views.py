@@ -81,6 +81,7 @@ def work(request, work_id, action='display'):
     work = get_object_or_404(models.Work, id=work_id)
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
+    pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     try:
         pubdate = work.editions.all()[0].publication_date[:4]
     except IndexError:
@@ -111,6 +112,7 @@ def work(request, work_id, action='display'):
             'base_url': base_url,
             'editions': editions,
             'pubdate': pubdate,
+            'pledged':pledged,
         })
 
 def manage_campaign(request, id):
