@@ -159,7 +159,7 @@ def testRefund(request):
         return HttpResponse(message)
     
 '''
-http://BASE/testmodufy?transaction=2
+http://BASE/testmodify?transaction=2
 
 Example that modifies the amount of a transaction
 '''    
