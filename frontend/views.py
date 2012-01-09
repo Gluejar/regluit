@@ -140,8 +140,8 @@ def manage_campaign(request, id):
         
 def googlebooks(request, googlebooks_id):
     try: 
-        edition = models.Edition.objects.get(googlebooks_id=googlebooks_id)
-    except models.Edition.DoesNotExist:
+        edition = models.Identifier.objects.get(type='goog',value=googlebooks_id).edition
+    except models.Identifier.DoesNotExist:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # we could populate_edition(edition) to pull in related editions here
         # but it is left out for now to lower the amount of traffic on 

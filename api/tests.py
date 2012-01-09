@@ -12,7 +12,7 @@ import regluit.core.isbn
 class ApiTests(TestCase):
 
     def setUp(self):
-        edition = bookloader.add_by_isbn(isbn='0441012035')
+        edition = bookloader.add_by_isbn_from_google(isbn='0441012035')
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
             work=edition.work, 

@@ -28,7 +28,7 @@ class BookLoaderTests(TestCase):
         edition = bookloader.add_by_isbn('0441012035')
         self.assertEqual(edition.title, 'Neuromancer')
         self.assertEqual(edition.publication_date, '2004')
-        self.assertEqual(edition.publisher, 'Ace Books')
+        self.assertEqual(edition.publisher, u'Ace Hardcover')
         self.assertEqual(edition.isbn_10, '0441012035')
         self.assertEqual(edition.isbn_13, '9780441012039')
         self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
@@ -48,7 +48,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.all().count(), 1)
        
     def test_missing_isbn(self):
-        e = bookloader.add_by_isbn('0139391401')
+        e = bookloader.add_by_isbn_from_google('0139391401')
         self.assertEqual(e, None)
 
     def test_thingisbn(self):
