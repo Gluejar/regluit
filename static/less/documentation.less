@@ -140,6 +140,11 @@ dd {
 }
 
 /* items on press page */
+.spacer {
+	clear:both;
+	height:7px;
+}
+
 .presstoc {
 	div {
 		float: left;
@@ -149,11 +154,29 @@ dd {
 			border: solid 2px @text-blue;
 			padding: 5px;
 			.border-radius(7px, 7px, 7px, 7px);
+			max-width: 678px;
 		}
 	}
 	overflow: auto;
 	clear: both;
 	padding-bottom: 10px;
+}
+
+.pressarticles div {
+	margin-bottom: 10px;
+}
+
+.pressvideos {
+	> div {
+		margin-bottom: 15px;
+		padding-bottom: 7px;
+		border-bottom: solid 1px @text-blue;
+		float: left;
+	}
+	
+	iframe {
+		.mediaborder;
+	}
 }
 
 .pressimages {

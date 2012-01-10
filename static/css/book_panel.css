@@ -13,6 +13,10 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
 /* Local variables */
 .greenpanelstuff {
   font-family: Arial, Helvetica, sans-serif;
