@@ -278,19 +278,27 @@ class PledgeView(FormView):
         if not self.embedded:
             
             return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
+            # I was hoping that we'd be able to pass in a transaction ID as part of the cancel_url,
+            # but we don't get a transaction ID until we already pass in the cancel_url.  Hmmm.
+            # Possible approach:  look in PaymentManager to see where we create our own ID
+            cancel_url = None
+            
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, anonymous=anonymous)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
             
             #redirect the page back to campaign page on success
             return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
+            # 
+            cancel_url = None
+            
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, anonymous=anonymous)
+                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)
         
         if url:
             logger.info("PledgeView paypal: " + url)
@@ -306,9 +314,9 @@ class PledgeCompleteView(TemplateView):
     
     template_name="pledge_complete.html"
     
-    def get_context_data(self, **kwargs):
+    def get_context_data(self):
         # pick up all get and post parameters and display
-        context = super(PledgeCompleteView, self).get_context_data(**kwargs)
+        context = super(PledgeCompleteView, self).get_context_data()
 
         output = "pledge complete"
         output += self.request.method + "\n" + str(self.request.REQUEST.items())
@@ -321,9 +329,9 @@ class PledgeCancelView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
     template_name="pledge_cancel.html"
     
-    def get_context_data(self, **kwargs):
+    def get_context_data(self):
         # pick up all get and post parameters and display
-        context = super(PledgeCancelView, self).get_context_data(**kwargs)
+        context = super(PledgeCancelView, self).get_context_data()
 
         output = "pledge cancel"
         output += self.request.method + "\n" + str(self.request.REQUEST.items())
