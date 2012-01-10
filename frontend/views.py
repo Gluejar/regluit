@@ -4,6 +4,7 @@ import json
 import urllib
 import logging
 import datetime 
+from random import randint
 from re import sub
 from itertools import islice
 from decimal import Decimal as D
@@ -39,7 +40,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm
+from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED
@@ -82,6 +83,10 @@ def work(request, work_id, action='display'):
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     try:
+	    pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
+    except:
+		pledged = None
+    try:
         pubdate = work.editions.all()[0].publication_date[:4]
     except IndexError:
         pubdate = 'unknown'
@@ -111,6 +116,7 @@ def work(request, work_id, action='display'):
             'base_url': base_url,
             'editions': editions,
             'pubdate': pubdate,
+            'pledged':pledged,
         })
 
 def manage_campaign(request, id):
@@ -294,6 +300,37 @@ class PledgeView(FormView):
             response = t.reference
             logger.info("PledgeView paypal: Error " + str(t.reference))
             return HttpResponse(response)
+
+class PledgeCompleteView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully"""
+    
+    template_name="pledge_complete.html"
+    
+    def get_context_data(self, **kwargs):
+        # pick up all get and post parameters and display
+        context = super(PledgeCompleteView, self).get_context_data(**kwargs)
+
+        output = "pledge complete"
+        output += self.request.method + "\n" + str(self.request.REQUEST.items())
+        context["output"] = output
+        
+        return context
+        
+    
+class PledgeCancelView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+    template_name="pledge_cancel.html"
+    
+    def get_context_data(self, **kwargs):
+        # pick up all get and post parameters and display
+        context = super(PledgeCancelView, self).get_context_data(**kwargs)
+
+        output = "pledge cancel"
+        output += self.request.method + "\n" + str(self.request.REQUEST.items())
+        context["output"] = output
+        
+        return context
+    
     
 class DonateView(FormView):
     template_name="donate.html"
@@ -1044,3 +1081,39 @@ def emailshare(request):
         form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
 
     return render(request, "emailshare.html", {'form':form})    
+    
+def feedback(request):
+    num1 = randint(0,10)
+    num2 = randint(0,10)
+    sum = num1 + num2
+	
+    if request.method == 'POST':
+        form=FeedbackForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            sender = form.cleaned_data['sender']
+            recipient = 'support@gluejar.com'
+            page = form.cleaned_data['page']
+            message = "<<<This feedback is about "+page+". Original user message follows: >>>"+message
+            send_mail(subject, message, sender, [recipient])
+            
+            return render(request, "thanks.html", {"page":page}) 
+            
+        else:
+        	num1 = request.POST['num1']
+        	num2 = request.POST['num2']
+        
+    else:
+    	if request.user.is_authenticated():
+    		sender=user.email;
+    	else:
+    		sender=''
+    	try:
+	    	page = request.GET['page']
+    	except:
+	    	page='/'
+        form = FeedbackForm(initial={"sender":sender, "subject": "Feedback on page "+page, "page":page, "num1":num1, "num2":num2, "answer":sum})
+        
+    return render(request, "feedback.html", {'form':form, 'num1':num1, 'num2':num2})    
+        

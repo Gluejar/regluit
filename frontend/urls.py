@@ -5,7 +5,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, FAQView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, FAQView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView
 
 urlpatterns = patterns(
@@ -48,6 +48,8 @@ urlpatterns = patterns(
     #may want to deprecate the following
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
+    url(r"^pledge/cancel/$", PledgeCancelView.as_view(), name="pledge_cancel"),
+    url(r"^pledge/complete/$", PledgeCompleteView.as_view(), name="pledge_complete"),
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
@@ -57,4 +59,8 @@ urlpatterns = patterns(
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
     url('^robots.txt$', direct_to_template, {'template': 'robots.txt'}),
     url(r"^emailshare/$", "emailshare", name="emailshare"),
+    url(r"^feedback/$", "feedback", name="feedback"),
+    url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
+    url(r"^press/$", TemplateView.as_view(template_name="press.html"),
+        name="press"),
 )

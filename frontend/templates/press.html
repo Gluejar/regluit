@@ -1,0 +1,75 @@
+{% extends "basedocumentation.html" %}
+
+{% block doccontent %}
+<h1>Press</h1>
+<div class="presstoc">
+	<div>
+		<a href="#overview">Overview</a><br />
+		<a href="#press">Press Coverage</a><br />
+		<a href="#blogs">Blog Coverage (Highlights)</a><br />
+	</div>
+	<div>
+		<a href="#video">Video</a><br />
+		<a href="#newsletters">Newsletters</a><br />
+		<a href="#images">Logos &amp; Icons</a><br />
+	</div>
+	<div class="pressemail">
+		Additional press questions?  Please email <a href="mailto:press@gluejar.com">press@gluejar.com</a>.
+	</div>
+	<div style="clear:both; height:7px;"></div>
+	<div class="pressemail">
+		Thanks for your interest! As of January 2011 Unglue.It is in alpha release.  Things are mostly working but they're rough around the edges and may change without notice.
+	</div>
+</div>
+
+<a name="overview"></a><h2>Overview</h2>
+<dl>
+<dt>What?</dt>
+<dd>Unglue.It offers a win-win solution to readers, who want to read and share their favorite books conveniently, and rights holders, who want to be rewarded for their work.<br /><br />
+We run [TBA:link to wikipedia?]crowdfunding campaigns to raise money for specific, already-published books.  When we reach a goal set by the rights holder, we pay them to unglue their work.  They issue an electronic edition with a <a href="http://creativecommons.org"</a>Creative Commons</a> license.  This license makes the edition free and legal for everyone to read, copy, and share, noncommercially, worldwide.</dd>
+<dt>Why?</dt>
+<dd>As ereaders proliferate, more and more people are enjoying the ereading experience.  However, their favorite books may not be available as ebooks.  They may come with DRM which makes them unreadable on certain devices, and difficult or impossible for individuals and libraries to lend.  Or they may not be able to tell if they have the legal right to use the book as they'd like.<br /><br />
+When books have a clear, established legal license which promotes use, they can be read more widely, leading to enjoyment, scholarship, and innovation.  By raising money to compensate authors and publishers up front, Unglue.It encourages the benefits of openness while ensuring sustainability for creators.</dd>
+<dt>Who?</dt>
+<dd>Unglue.It is a service of Gluejar, Inc.  We are <a href="http://go-to-hellman.blogspot.com">Eric Hellman</a>, <a href="http://www.ameckeco.com/">Amanda Mecke</a>, <a href="http://raymondyee.net/">Raymond Yee</a>, and <a href="http://andromedayelton.com">Andromeda Yelton</a>.  (TBA: include contractors?)  We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our personal home pages (linked above) or <a href="http://gluejar.com/team">the team page</a> of our corporate site.</dd>
+<dt>When?</dt>
+<dd>Unglue.It is in alpha -- a limited release for testing purposes -- as of January 2011.  If you <a href="http://eepurl.com/fKLfI">sign up for our newsletter</a>, we'll tell you the moment we're in beta.  At that point we'll have active campaigns and be welcoming account signups from everyone.</dd>
+<dt>Where?</dt>
+<dd>Gluejar is a New Jersey corporation, but its employees and contractors live and work across North America.  The best way to contact us is by email, <a mailto="press@gluejar.com">press@gluejar.com</a>.</dd>
+<dt>What does it cost?</dt>
+<dd>Unglue.It is free to join and explore.  Supporters pay only if they choose to support campaigns, and the amount is up to them.  Unglue.It takes a small percentage from successful campaigns, with the remainder going to the rights holders.</dd>
+<dt>What's your technology?</dt>
+<dd>Unglue.It is built using Python and the Django framework. [TBA: links]  We use data from the Google Books, OpenLibrary, LibraryThing, and GoodReads APIs [TBA: public? "Open Library"]; we appreciate that they've made these APIs available, and we'll be returning the favor with <a href="http://0.0.0.0:8000/api/help">our own API</a>.  We use the Less framework [TBA:link] to organize our CSS.  We collaborate on our code at <a href="https://github.com/">github</a>[TBA: capitalization?] and deploy to Amazon EC2 [TBA: throw in "cloud" here somehow, look up what EC2 is exactly].</dd>
+<dt>I have more questions...</dt>
+<dd>Please consult our <a href="/faq/">FAQ</a> (sidebar at left); join the site and explore its features for yourself; or email us, <a href="press@gluejar.com">press@gluejar.com</a>.</dd>
+
+<a name="press"></a><h2>Press Coverage</h2>
+<a name="blogs"></a><h2>Blog Coverage (Highlights)</h2>
+<a name="video"></a><h2>Video</h2>
+<a name="newsletters"></a><h2>Newsletters</h2>
+<a name="images"></a><h2>Logos &amp; Icons</h2>
+<div class="pressimages">
+	<div class="outer">
+		<div><img src="/static/images/logo.png"></div>
+		<div><p>(161 x 70)</p></div>
+	</div>
+	<div class="outer">
+		<div><img src="/static/images/unglued.png"></div>
+		<div><p>(44 x 30)</p></div>
+	</div>
+</div>
+<br /><br /><br /><br /><br /><br />
+<div>
+logos at
+Low Resolution Logo (350 x 150)
+Standard Resolution Logo (1400 x 600)
+High Resolution Logo (5600 x 2400)
+
+black background and white background (color versions only)
+
+icons on black, dark grey, white; 1(?) p grey border, rounded corners (at some surprisingly large border radius), 48px square
+
+screencaps
+look through mail for different sizes of icon and B&W -- ping stefan, ask if this looks like enough, & if not can he send more
+</div>
+{% endblock %}
