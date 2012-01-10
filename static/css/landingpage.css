@@ -13,6 +13,10 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
 /* variables and mixins used in multiple less files go here */
 .header-text {
   height: 36px;
@@ -27,6 +31,10 @@
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
 }
 .user-block-hide {
   float: left;

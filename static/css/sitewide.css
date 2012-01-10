@@ -14,6 +14,10 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
 /* Local variables */
 .utilityheaders {
   text-transform: uppercase;
@@ -77,6 +81,9 @@ a {
   text-decoration: none;
   cursor: pointer;
   color: #6994a3;
+}
+a:hover {
+  text-decoration: underline;
 }
 img {
   border: none;

@@ -13,6 +13,10 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
 /* Cross-browser language */
 /* rows in listview should alternate colors */
 .row1 .book-list.listview {
