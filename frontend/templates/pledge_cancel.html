@@ -11,6 +11,18 @@
     <div class="thank-you">Would you consider pledging in the future?</div>
 
     <div>{{output}}</div>
+    
+{% if transaction %}
+    <div>You did not complete {{transaction.id}}</div>
+{% else %}
+    <div>What transaction are you talking about?</div>
+{% endif %}
+
+<div>correct_user: {{correct_user}}</div>
+<div>correct_transaction_type: {{correct_transaction_type}}</div>
+
+<div><a href="{{try_again_url}}">pledge again</a></div>
+    
 {% endblock %}
 
 

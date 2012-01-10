@@ -42,8 +42,9 @@ from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, Go
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.payment.manager import PaymentManager
-from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -336,6 +337,46 @@ class PledgeCancelView(TemplateView):
         output = "pledge cancel"
         output += self.request.method + "\n" + str(self.request.REQUEST.items())
         context["output"] = output
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+        
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = 'True'
+        else:
+            correct_transaction_type = 'False'
+            
+        # status?
+        
+        # give the user an opportunity to approved the transaction again
+        # provide a URL to click on.
+        # https://www.sandbox.paypal.com/?cmd=_ap-preapproval&preapprovalkey=PA-6JV656290V840615H
+        try_again_url = '%s?cmd=_ap-preapproval&preapprovalkey=%s' % (settings.PAYPAL_PAYMENT_HOST, transaction.preapproval_key)
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["try_again_url"] = try_again_url
         
         return context
     

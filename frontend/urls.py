@@ -48,7 +48,7 @@ urlpatterns = patterns(
     #may want to deprecate the following
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
-    url(r"^pledge/cancel/$", PledgeCancelView.as_view(), name="pledge_cancel"),
+    url(r"^pledge/cancel/$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", PledgeCompleteView.as_view(), name="pledge_complete"),
     url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
     url(r"^subjects/$", "subjects", name="subjects"),

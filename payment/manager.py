@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from regluit.payment.paypal import RefundPayment
 import uuid
@@ -629,7 +629,7 @@ class PaymentManager( object ):
         
         if cancel_url is None:
             cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
-                                urllib.urlencode({'id':t.id}))            
+                                urllib.urlencode({'tid':t.id}))            
             cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
         
         p = Preapproval(t, amount, expiry, return_url=return_url, cancel_url=cancel_url)
