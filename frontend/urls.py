@@ -61,4 +61,6 @@ urlpatterns = patterns(
     url(r"^emailshare/$", "emailshare", name="emailshare"),
     url(r"^feedback/$", "feedback", name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
+    url(r"^press/$", TemplateView.as_view(template_name="press.html"),
+        name="press"),
 )

@@ -124,6 +124,7 @@ dt {
 
 dd {
 	margin: 0;
+	padding-bottom: 7px;
 }
 
 .doc ol li {
@@ -136,4 +137,36 @@ dd {
 
 .collapse ul {
 	display: none;
+}
+
+/* items on press page */
+.presstoc {
+	div {
+		float: left;
+		padding-right: 15px;
+		
+		&.pressemail {
+			border: solid 2px @text-blue;
+			padding: 5px;
+			.border-radius(7px, 7px, 7px, 7px);
+		}
+	}
+	overflow: auto;
+	clear: both;
+	padding-bottom: 10px;
+}
+
+.pressimages {
+	.outer {
+		clear: both;
+		
+		div {
+			float: left;
+			width: 25%;
+			padding-bottom: 10px;
+			display: table-cell;
+			margin: auto 0;
+		}
+	}
+	clear: both;
 }

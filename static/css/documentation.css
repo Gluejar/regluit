@@ -188,6 +188,7 @@ dt {
 }
 dd {
   margin: 0;
+  padding-bottom: 7px;
 }
 .doc ol li {
   margin-bottom: 7px;
@@ -197,4 +198,37 @@ dd {
 }
 .collapse ul {
   display: none;
+}
+/* items on press page */
+.presstoc {
+  overflow: auto;
+  clear: both;
+  padding-bottom: 10px;
+}
+.presstoc div {
+  float: left;
+  padding-right: 15px;
+}
+.presstoc div.pressemail {
+  border: solid 2px #3d4e53;
+  padding: 5px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
+}
+.pressimages {
+  clear: both;
+}
+.pressimages .outer {
+  clear: both;
+}
+.pressimages .outer div {
+  float: left;
+  width: 25%;
+  padding-bottom: 10px;
+  display: table-cell;
+  margin: auto 0;
 }
