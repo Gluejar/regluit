@@ -22,7 +22,7 @@ def add_by_oclc(isbn, work=None):
 
 def add_by_oclc_from_google(oclc):
     if oclc:
-        logger.info("adding book by oclc %s", oclc)
+        logger.info("adding book by oclc %s" , oclc)
     else:
         return None
     try:
@@ -32,7 +32,7 @@ def add_by_oclc_from_google(oclc):
         results = _get_json(url, {"q": '"OCLC%s"' % oclc})
     
         if not results.has_key('items') or len(results['items']) == 0:
-            logger.warn("no google hits for %s" % oclc)
+            logger.warn("no google hits for %s" , oclc)
             return None
     
         try:
@@ -51,9 +51,13 @@ def add_by_isbn(isbn, work=None):
     e=add_by_isbn_from_google(isbn, work=work)
     if e:
         return e
-    if not work:
+    
+    logger.info("null came back from add_by_isbn_from_google: %s", isbn)
+
+    if not work or not work.title:
         return None
-    # if there's a work, we want to create a stub edition, even if google doesn't know about it
+
+    # if there's a work with a title, we want to create stub editions and works, even if google doesn't know about it
     # but if it's not valid, forget it!
     try:
         isbn=regluit.core.isbn.ISBN(isbn)
@@ -63,10 +67,14 @@ def add_by_isbn(isbn, work=None):
     if not isbn.valid:
         return None
     isbn=isbn.to_string()
-    e= models.Edition(title=work.title,work=work)
+    
+    # we don't know the language  ->'xx'
+    w= models.Work(title=work.title, language='xx')
+    w.save()
+    e= models.Edition(title=work.title,work=w)
     e.save()
     e.new=True
-    models.Identifier(type='isbn', value=isbn, work=work, edition=e).save()
+    models.Identifier(type='isbn', value=isbn, work=w, edition=e).save()
     return e
     
     
@@ -91,7 +99,7 @@ def add_by_isbn_from_google(isbn, work=None):
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
     if not results.has_key('items') or len(results['items']) == 0:
-        logger.warn("no google hits for %s" % isbn)
+        logger.warn("no google hits for %s" , isbn)
         return None
 
     try:
@@ -123,7 +131,6 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
     associated with a stub work. 
     
     """
-
     # don't ping google again if we already know about the edition
     try:
         return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
@@ -142,14 +149,10 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
     language = d['language']
-    logger.info("testing %s language: %s " % (googlebooks_id, language))
-    if work:
-        logger.info("testing %s language: %s work.language: %s" % (googlebooks_id, language, work.language))
-
     if work and work.language != language:
-        logger.warn("ignoring %s since it is %s instead of %s" %
+        logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
-        return
+        work=None
     isbn = None
     for i in d.get('industryIdentifiers', []):
         if i['type'] == 'ISBN_10' and not isbn:
@@ -164,7 +167,6 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
         work = models.Work.objects.create(title=d['title'], language=language)
         work.new=True
         work.save()
-        logger.info("created work %s language: %s " % (googlebooks_id, language))
 
     
     # because this is a new google id, we have to create a new edition
@@ -215,26 +217,42 @@ def add_related(isbn):
 
     # this is the work everything will hang off
     work = edition.work
-
     new_editions = []
+    other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
         if len(other_isbn)==10:
             other_isbn=regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=work)
-        if related_edition and related_edition.work != edition.work:
-            merge_works(edition.work, related_edition.work)
+
         if related_edition:
-            new_editions.append(related_edition)
+            related_language=related_edition.work.language
+            if edition.work.language == related_language:
+                new_editions.append(related_edition)
+                if related_edition.work != edition.work:
+                    merge_works(edition.work, related_edition.work)
+            else:
+                if other_editions.has_key(related_language):
+                    other_editions[related_language].append(related_edition)
+                else:
+                    other_editions[related_language]=[related_edition]
 
+    # group the other language editions together
+    for lang_group in other_editions.itervalues():
+        if len(lang_group)>1:
+            lang_edition = lang_group[0]
+            for related_edition in lang_group[1:]:
+                if lang_edition.work != related_edition.work:
+                    merge_works(lang_edition.work, related_edition.work)
+        
     return new_editions
-
+    
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
     Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
     """
-    logger.info("looking up %s at ThingISBN" % isbn)
+    logger.info("looking up %s at ThingISBN" , isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
@@ -307,9 +325,9 @@ def add_openlibrary(work):
     if e[isbn_key]['details'].has_key('identifiers'):
         ids = e[isbn_key]['details']['identifiers']
         if ids.has_key('goodreads'):
-            models.Identifier.get_or_add(type='gdrd',value=ids['goodreads'],work=work,edition=edition)
+            models.Identifier.get_or_add(type='gdrd',value=ids['goodreads'][0],work=work,edition=edition)
         if ids.has_key('librarything'):
-            models.Identifier.get_or_add(type='ltwk',value=ids['librarything'],work=work)
+            models.Identifier.get_or_add(type='ltwk',value=ids['librarything'][0],work=work)
     # TODO: add authors here once they are moved from Edition to Work
 
 

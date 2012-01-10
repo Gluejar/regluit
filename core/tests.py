@@ -62,16 +62,13 @@ class BookLoaderTests(TestCase):
         edition = bookloader.add_by_isbn('0441012035')
         self.assertEqual(models.Edition.objects.count(), 1)
         self.assertEqual(models.Work.objects.count(), 1)
-    
+        lang=edition.work.language
         # ask for related editions to be added using the work we just created
         bookloader.add_related('0441012035')
         self.assertTrue(models.Edition.objects.count() > 15)
-        self.assertEqual(models.Work.objects.count(), 1)
-        self.assertTrue(edition.work.editions.count() > 15)
+        self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
+        self.assertTrue(edition.work.editions.count() > 10)
 
-        # all the editions in the db should be tied to the work
-        self.assertEqual(models.Edition.objects.count(),
-                edition.work.editions.count())
 
     def test_populate_edition(self):
         edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
@@ -159,6 +156,8 @@ class BookLoaderTests(TestCase):
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
         self.assertEqual(work.openlibrary_id, '/works/OL27258W')
+        self.assertEqual(work.goodreads_id, '14770')
+        self.assertEqual(work.librarything_id, '609')
 
 
 class SearchTests(TestCase):

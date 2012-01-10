@@ -641,9 +641,9 @@ def search(request):
     works=[]
     for result in results:
 		try:
-			edition = models.Edition.objects.get(googlebooks_id=result['googlebooks_id'])
-			works.append(edition.work)
-		except models.Edition.DoesNotExist: 
+			work = models.Identifier.objects.get(type='goog',value=result['googlebooks_id']).work
+			works.append(work)
+		except models.Identifier.DoesNotExist: 
 			works.append(result)
     context = {
         "q": q,

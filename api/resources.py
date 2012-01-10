@@ -23,21 +23,52 @@ class UserResource(ModelResource):
         fields = ['username', 'first_name', 'last_name']
 
 class EditionResource(ModelResource):
+    work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
+    identifiers = fields.ToManyField('regluit.api.resources.IdentifierResource', 'identifiers')
     class Meta:
         authentication = ApiKeyAuthentication()
         queryset = models.Edition.objects.all()
         resource_name = 'edition'
         filtering = {
-            "isbn_13": ALL,
+            "isbn_13": ALL, "identifiers": ALL_WITH_RELATIONS, 
         }
+    
+    def build_filters(self, filters = None):
+        if filters is None:
+            filters = {}
+        for filter_expr, value in filters.items():
+            if filter_expr.startswith('isbn_13'):
+                filters['identifiers__type'] = 'isbn'
+                if len(filter_expr)>7:
+                    filters['identifiers__value'+filter_expr[7:]] = value
+                else:
+                    filters['identifiers__value'] = value
+                del filters[ filter_expr ]
+        return super(EditionResource, self).build_filters(filters)
+
+class IdentifierResource(ModelResource):
+    work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
+    edition = fields.ForeignKey('regluit.api.resources.EditionResource', 'edition')
+    
+    class Meta:
+        authentication = ApiKeyAuthentication()
+        queryset = models.Identifier.objects.all()
+        resource_name = 'identifier'
+        filtering = {
+            "value": ALL, "type" : ALL,
+        }
+    
+
   
 class WorkResource(ModelResource):
     editions = fields.ToManyField(EditionResource, 'editions')
+    identifiers = fields.ToManyField(IdentifierResource, 'identifiers')
+
     class Meta:
         authentication = ApiKeyAuthentication()
         queryset = models.Work.objects.all()
         resource_name = 'work'
-        filtering = {'editions': ALL_WITH_RELATIONS, 'id': ALL}
+        filtering = {'editions': ALL_WITH_RELATIONS, 'id': ALL, 'identifiers': ALL_WITH_RELATIONS}
     
 class CampaignResource(ModelResource):
     work = fields.ToOneField(WorkResource, 'work')
