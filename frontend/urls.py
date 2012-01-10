@@ -59,4 +59,8 @@ urlpatterns = patterns(
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
     url('^robots.txt$', direct_to_template, {'template': 'robots.txt'}),
     url(r"^emailshare/$", "emailshare", name="emailshare"),
+    url(r"^feedback/$", "feedback", name="feedback"),
+    url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
+    url(r"^press/$", TemplateView.as_view(template_name="press.html"),
+        name="press"),
 )
