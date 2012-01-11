@@ -121,7 +121,7 @@ class PaymentManager( object ):
                         receivers_status.append(receiver_status)
                 
                 if len(receivers_status):
-                    status["receivers"] = receivers_status
+                    payment_status["receivers"] = receivers_status
                     
             if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
                 status["payments"].append(payment_status)
