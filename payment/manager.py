@@ -123,41 +123,56 @@ class PaymentManager( object ):
         return payment_status
 
     
-    def checkStatus(self, past_days=3):
+    def checkStatus(self, past_days=None, transactions=None):
         
         '''
         Run through all pay transactions and verify that their current status is as we think.
+        
+        Allow for a list of transactions to be passed in or for the method to check on all transactions within the
+        given past_days
+        
         '''
+        
+        DEFAULT_DAYS_TO_CHECK = 3
         
         status = {'payments':[], 'preapprovals':[]}
         
         # look at all PAY transactions for stated number of past days; if past_days is not int, get all Transaction
         # only PAY transactions have date_payment not None
-        try:
-            ref_date = datetime.utcnow() - relativedelta(days=int(past_days))
-            transactions = Transaction.objects.filter(date_payment__gte=ref_date)
-        except:
-            ref_date = datetime.utcnow()
-            transactions = Transaction.objects.filter(date_payment__isnull=False)
+        
+        if transactions is None:
             
-        logger.info(transactions)
+            if past_days is None:
+                past_days = DEFAULT_DAYS_TO_CHECK
+        
+            try:
+                ref_date = datetime.utcnow() - relativedelta(days=int(past_days))
+                payment_transactions = Transaction.objects.filter(date_payment__gte=ref_date)
+            except:
+                ref_date = datetime.utcnow()
+                payment_transactions = Transaction.objects.filter(date_payment__isnull=False)
+                
+            logger.info(payment_transactions)
+            
+            # Now look for preapprovals that have not been paid and check on their status
+            preapproval_transactions = Transaction.objects.filter(date_authorized__gte=ref_date, date_payment=None, type=PAYMENT_TYPE_AUTHORIZATION)
+    
+            logger.info(preapproval_transactions)
+            
+            transactions = payment_transactions | preapproval_transactions
+ 
         
         for t in transactions:
             
-            payment_status = self.update_payment(t)                    
-            if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
-                status["payments"].append(payment_status)
+            if t.date_payment is None:
+                preapproval_status = self.update_preapproval(t)            
+                if not set(['status', 'currency', 'amount']).isdisjoint(set(preapproval_status.keys())):
+                    status["preapprovals"].append(preapproval_status)
+            else:
+                payment_status = self.update_payment(t)                    
+                if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
+                    status["payments"].append(payment_status)
             
-        # Now look for preapprovals that have not been paid and check on their status
-        transactions = Transaction.objects.filter(date_authorized__gte=ref_date, date_payment=None, type=PAYMENT_TYPE_AUTHORIZATION)
-        
-        for t in transactions:
-            
-            preapproval_status = self.update_preapproval(t)            
-            # append only if there was a change in status
-            if not set(['status', 'currency', 'amount']).isdisjoint(set(preapproval_status.keys())):
-                status["preapprovals"].append(preapproval_status)            
-
         return status
     
         
