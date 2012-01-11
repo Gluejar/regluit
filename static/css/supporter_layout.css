@@ -205,6 +205,9 @@ a.my-setting.active {
   margin-top: 10px;
   width: 100%;
 }
+#tabs ul.tabs li a:hover {
+  text-decoration: none;
+}
 #tabs.wantto {
   border-bottom: 4px solid #d6dde0;
 }

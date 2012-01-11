@@ -257,6 +257,19 @@ dd {
   float: left;
   width: 25%;
   padding-bottom: 10px;
-  display: table-cell;
-  margin: auto 0;
+}
+.pressimages .outer div.text {
+  width: 75%;
+}
+.pressimages .outer div p {
+  margin: 0 auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.pressimages .screenshot {
+  width: 150px;
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+  padding: 5px;
+  border: solid 5px #EDF3F4;
 }

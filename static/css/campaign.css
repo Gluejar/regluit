@@ -207,6 +207,9 @@ ul.tabs li a {
   background: #d6dde0;
   color: #3d4e53;
 }
+ul.tabs li a:hover {
+  text-decoration: none;
+}
 ul.tabs li a:hover, ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
@@ -267,13 +270,13 @@ div.content-block-content {
 .tabs-content form {
   margin-left: -5px;
 }
+ul.social a:hover {
+  text-decoration: none;
+}
 ul.social li {
   padding: 5px 0 5px 30px;
   height: 28px;
   line-height: 28px;
-}
-ul.social li a {
-  padding-left: 10px;
 }
 ul.social li.facebook {
   background: url("/static/images/icons/facebook.png") 10px center no-repeat;

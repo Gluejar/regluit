@@ -187,9 +187,22 @@ dd {
 			float: left;
 			width: 25%;
 			padding-bottom: 10px;
-			display: table-cell;
-			margin: auto 0;
+
+			&.text {
+				width: 75%;
+			}
+						
+			p { 
+				margin: 0 auto;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
 		}
 	}
 	clear: both;
+	
+	.screenshot {
+		width: 150px;
+		.mediaborder;
+	}
 }
