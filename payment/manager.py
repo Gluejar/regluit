@@ -631,6 +631,11 @@ class PaymentManager( object ):
             cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
                                 urllib.urlencode({'tid':t.id}))            
             cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+            
+        if return_url is None:
+            return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+                                urllib.urlencode({'tid':t.id})) 
+            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
         p = Preapproval(t, amount, expiry, return_url=return_url, cancel_url=cancel_url)
         
