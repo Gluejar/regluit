@@ -42,8 +42,9 @@ from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, Go
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.payment.manager import PaymentManager
-from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -277,20 +278,23 @@ class PledgeView(FormView):
                    
         if not self.embedded:
             
-            return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
+            return_url = None
+            cancel_url = None
+            
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, anonymous=anonymous)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
             
-            #redirect the page back to campaign page on success
-            return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
+            return_url = None
+            cancel_url = None
+            
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, anonymous=anonymous)
+                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)
         
         if url:
             logger.info("PledgeView paypal: " + url)
@@ -302,32 +306,133 @@ class PledgeView(FormView):
             return HttpResponse(response)
 
 class PledgeCompleteView(TemplateView):
-    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully"""
+    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
+    
+    Possible things to implement:
+    
+    after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
+study other confirmation emails for their contents
+after pledging, supporters are returned to a thank-you screen
+should have prominent "thank you" or "congratulations" message
+should have prominent share options
+should suggest other works for supporters to explore (on what basis?)
+link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
+should note that a confirmation email has been sent to $email from $sender
+should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
+    
+    """
     
     template_name="pledge_complete.html"
     
-    def get_context_data(self, **kwargs):
+    def get_context_data(self):
         # pick up all get and post parameters and display
-        context = super(PledgeCompleteView, self).get_context_data(**kwargs)
+        context = super(PledgeCompleteView, self).get_context_data()
 
         output = "pledge complete"
         output += self.request.method + "\n" + str(self.request.REQUEST.items())
         context["output"] = output
         
-        return context
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
         
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # work and campaign in question
+        try:
+            campaign = transaction.campaign
+            work = campaign.work
+        except Exception, e:
+            campaign = None
+            work = None
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = True
+        else:
+            correct_transaction_type = False
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["work"] = work
+        context["campaign"] = campaign
+        
+        return context        
+                
     
 class PledgeCancelView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
     template_name="pledge_cancel.html"
     
-    def get_context_data(self, **kwargs):
-        # pick up all get and post parameters and display
-        context = super(PledgeCancelView, self).get_context_data(**kwargs)
+    def get_context_data(self):
+        context = super(PledgeCancelView, self).get_context_data()
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+        
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # work and campaign in question
+        try:
+            campaign = transaction.campaign
+            work = campaign.work
+        except Exception, e:
+            campaign = None
+            work = None
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = True
+        else:
+            correct_transaction_type = False
+            
+        # status?
 
-        output = "pledge cancel"
-        output += self.request.method + "\n" + str(self.request.REQUEST.items())
-        context["output"] = output
+        # give the user an opportunity to approved the transaction again
+        # provide a URL to click on.
+        # https://www.sandbox.paypal.com/?cmd=_ap-preapproval&preapprovalkey=PA-6JV656290V840615H
+        try_again_url = '%s?cmd=_ap-preapproval&preapprovalkey=%s' % (settings.PAYPAL_PAYMENT_HOST, transaction.preapproval_key)
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["try_again_url"] = try_again_url
+        context["work"] = work
+        context["campaign"] = campaign
         
         return context
     
@@ -1106,7 +1211,7 @@ def feedback(request):
         
     else:
     	if request.user.is_authenticated():
-    		sender=user.email;
+    		sender=request.user.email;
     	else:
     		sender=''
     	try:

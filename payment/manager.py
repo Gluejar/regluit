@@ -1,8 +1,10 @@
 from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from regluit.payment.paypal import RefundPayment
 import uuid
@@ -12,8 +14,10 @@ from dateutil.relativedelta import relativedelta
 import logging
 from decimal import Decimal as D
 from xml.dom import minidom
+import urllib, urlparse
 
 from django.conf import settings
+
 
 logger = logging.getLogger(__name__)
 
@@ -619,6 +623,19 @@ class PaymentManager( object ):
                                        user=user,
                                        anonymous=anonymous
                                        )
+        
+        # we might want to not allow for a return_url or cancel_url to be passed in but calculated
+        # here because we have immediate access to the Transaction object.
+        
+        if cancel_url is None:
+            cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
+                                urllib.urlencode({'tid':t.id}))            
+            cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+            
+        if return_url is None:
+            return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+                                urllib.urlencode({'tid':t.id})) 
+            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
         p = Preapproval(t, amount, expiry, return_url=return_url, cancel_url=cancel_url)
         
