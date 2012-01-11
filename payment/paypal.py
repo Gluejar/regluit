@@ -748,7 +748,7 @@ class IPN( object ):
         self.trackingId = request.POST.get('tracking_id', None)
         
         # a bit uncertain about how well PayPal sticks to a standard case
-        approved = self.response.get("approved", 'None')    
+        approved = request.POST.get("approved", 'None')    
         if approved.lower() == 'true':
           self.approved = True
         elif approved.lower() == 'false':
