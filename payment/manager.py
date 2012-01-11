@@ -37,6 +37,7 @@ class PaymentManager( object ):
         self.embedded = embedded
 
     def update_preapproval(self, transaction):
+        """Update a transaction to hold the data from a PreapprovalDetails on that transaction"""
         t = transaction
         p = PreapprovalDetails(t)
                     
@@ -75,7 +76,7 @@ class PaymentManager( object ):
         return preapproval_status            
 
     def update_payment(self, transaction):
-        
+        """Update a transaction to hold the data from a PaymentDetails on that transaction"""
         t = transaction
         payment_status = {'id':t.id}
             
@@ -272,6 +273,10 @@ class PaymentManager( object ):
                     
                     # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
                     t.status = ipn.status
+                    
+                    # capture whether the transaction has been approved
+                    t.approved = ipn.approved
+                    
                     t.save()
                     logger.info("IPN: Preapproval transaction: " + str(t.id) + " Status: " + ipn.status)
                         
@@ -298,8 +303,10 @@ class PaymentManager( object ):
             pledged_list = []
         
         if authorized:
+            # return only ACTIVE transactions with approved=True
             authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=IPN_PAY_STATUS_ACTIVE)
+                                                         status=IPN_PAY_STATUS_ACTIVE,
+                                                         approved=True)
         else:
             authorized_list = []
             
