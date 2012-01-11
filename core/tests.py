@@ -237,6 +237,7 @@ class CampaignTests(TestCase):
         t.amount = D('1234.00')
         t.type = PAYMENT_TYPE_AUTHORIZATION
         t.status = 'ACTIVE'
+        t.approved = True
         t.campaign = c4
         t.save()        
         self.assertTrue(c4.update_success())        

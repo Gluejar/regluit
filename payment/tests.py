@@ -240,7 +240,7 @@ class TransactionTest(TestCase):
         pass
     def testSimple(self):
         """
-        create a single transaction with PAYMENT_TYPE_INSTANT / COMPLETED with a $12.34 pledge and see whether the payment
+        create a single transaction with PAYMENT_TYPE_AUTHORIZATION / ACTIVE with a $12.34 pledge and see whether the payment
         manager can query and get the right amount.
         """
         
@@ -253,6 +253,7 @@ class TransactionTest(TestCase):
         t.amount = D('12.34')
         t.type = PAYMENT_TYPE_AUTHORIZATION
         t.status = 'ACTIVE'
+        t.approved = True
         t.campaign = c
         t.save()
         
