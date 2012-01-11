@@ -1211,7 +1211,7 @@ def feedback(request):
         
     else:
     	if request.user.is_authenticated():
-    		sender=user.email;
+    		sender=request.user.email;
     	else:
     		sender=''
     	try:
