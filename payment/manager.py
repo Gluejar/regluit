@@ -64,6 +64,13 @@ class PaymentManager( object ):
                 preapproval_status["amount"] = {'ours':t.max_amount, 'theirs':p.amount}
                 t.max_amount = p.amount
                 t.save()
+                
+            # Check approved
+            if t.approved != p.approved:
+                preapproval_status["approved"] = {'ours':t.approved, 'theirs':p.approved}
+                t.approved = p.approved
+                t.save()
+            
         
         return preapproval_status            
 
@@ -166,7 +173,7 @@ class PaymentManager( object ):
             
             if t.date_payment is None:
                 preapproval_status = self.update_preapproval(t)            
-                if not set(['status', 'currency', 'amount']).isdisjoint(set(preapproval_status.keys())):
+                if not set(['status', 'currency', 'amount', 'approved']).isdisjoint(set(preapproval_status.keys())):
                     status["preapprovals"].append(preapproval_status)
             else:
                 payment_status = self.update_payment(t)                    
