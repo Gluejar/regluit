@@ -697,6 +697,7 @@ class PreapprovalDetails(PaypalEnvelopeRequest):
           self.approved = self.response.get("approved", None)
           self.expiration = self.response.get("endingDate", None)
           self.date = self.response.get("startingDate", None)
+          self.approved = self.response.get("approved", None)
           
       except:
           self.errorMessage = "Error: ServerError"

@@ -36,15 +36,98 @@ class PaymentManager( object ):
     def __init__( self, embedded=False):
         self.embedded = embedded
 
+    def update_preapproval(self, transaction):
+        t = transaction
+        p = PreapprovalDetails(t)
+                    
+        preapproval_status = {'id':t.id, 'key':t.preapproval_key}
+        
+        if p.error() or not p.success():
+            logger.info("Error retrieving preapproval details for transaction %d" % t.id)
+            preapproval_status["error"] = "An error occurred while verifying this transaction, see server logs for details"
+        else:
+            
+            # Check the transaction status
+            if t.status != p.status:
+                preapproval_status["status"] = {'ours':t.status, 'theirs':p.status}
+                t.status = p.status
+                t.save()
+                
+            # check the currency code
+            if t.currency != p.currency:
+                preapproval_status["currency"] = {'ours':t.currency, 'theirs':p.currency}
+                t.currency = p.currency
+                t.save()
+                
+            # Check the amount
+            if t.max_amount != D(p.amount):
+                preapproval_status["amount"] = {'ours':t.max_amount, 'theirs':p.amount}
+                t.max_amount = p.amount
+                t.save()
+        
+        return preapproval_status            
+
+    def update_payment(self, transaction):
+        
+        t = transaction
+        payment_status = {'id':t.id}
+            
+        p = PaymentDetails(t)
+        
+        if p.error() or not p.success():
+            logger.info("Error retrieving payment details for transaction %d" % t.id)
+            payment_status['error'] = "An error occurred while verifying this transaction, see server logs for details"
+        else:
+            
+            # Check the transaction status
+            if t.status != p.status:
+                payment_status['status'] = {'ours': t.status, 'theirs': p.status}
+                
+                t.status = p.status
+                t.save()
+                
+            receivers_status = []
+            
+            for r in p.transactions:
+                
+                try:
+                    receiver = Receiver.objects.get(transaction=t, email=r['email'])
+                    
+                    receiver_status = {'email':r['email']}
+                    
+                    logger.info(r)
+                    logger.info(receiver)
+                    
+                    # Check for updates on each receiver's status.  Note that unprocessed delayed chained payments
+                    # will not have a status code or txn id code
+                    if receiver.status != r['status']:
+                        receiver_status['status'] = {'ours': receiver.status, 'theirs': r['status']}
+                        receiver.status = r['status']
+                        receiver.save()
+                        
+                    if receiver.txn_id != r['txn_id']:
+                        receiver_status['txn_id'] = {'ours':receiver.txn_id, 'theirs':r['txn_id']}
+                        
+                        receiver.txn_id = r['txn_id']
+                        receiver.save()
+                        
+                except:
+                    traceback.print_exc()
+                    
+                if not set(["status","txn_id"]).isdisjoint(receiver_status.keys()):   
+                    receivers_status.append(receiver_status)
+            
+            if len(receivers_status):
+                payment_status["receivers"] = receivers_status
+                
+        return payment_status
+
+    
     def checkStatus(self, past_days=3):
         
         '''
         Run through all pay transactions and verify that their current status is as we think.
         '''
-        
-        #doc = minidom.Document()
-        #head = doc.createElement('transactions')
-        #doc.appendChild(head)
         
         status = {'payments':[], 'preapprovals':[]}
         
@@ -60,69 +143,8 @@ class PaymentManager( object ):
         logger.info(transactions)
         
         for t in transactions:
-        
-            #tran = doc.createElement('transaction')
-            #tran.setAttribute("id", str(t.id))
-            #head.appendChild(tran)
             
-            payment_status = {'id':t.id}
-                
-            p = PaymentDetails(t)
-            
-            if p.error() or not p.success():
-                logger.info("Error retrieving payment details for transaction %d" % t.id)
-                #append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
-                payment_status['error'] = "An error occurred while verifying this transaction, see server logs for details"
-            else:
-                
-                # Check the transaction status
-                if t.status != p.status:
-                    #append_element(doc, tran, "status_ours", t.status)
-                    #append_element(doc, tran, "status_theirs", p.status)
-                    payment_status['status'] = {'ours': t.status, 'theirs': p.status}
-                    
-                    t.status = p.status
-                    t.save()
-                    
-                receivers_status = []
-                
-                for r in p.transactions:
-                    
-                    try:
-                        receiver = Receiver.objects.get(transaction=t, email=r['email'])
-                        
-                        receiver_status = {'email':r['email']}
-                        
-                        logger.info(r)
-                        logger.info(receiver)
-                        
-                        # Check for updates on each receiver's status.  Note that unprocessed delayed chained payments
-                        # will not have a status code or txn id code
-                        if receiver.status != r['status']:
-                            #append_element(doc, tran, "receiver_status_ours", receiver.status)
-                            #append_element(doc, tran, "receiver_status_theirs",
-                            #               r['status'] if r['status'] is not None else 'None')
-                            receiver_status['status'] = {'ours': receiver.status, 'theirs': r['status']}
-                            receiver.status = r['status']
-                            receiver.save()
-                            
-                        if receiver.txn_id != r['txn_id']:
-                            #append_element(doc, tran, "txn_id_ours", receiver.txn_id)
-                            #append_element(doc, tran, "txn_id_theirs", r['txn_id'])
-                            receiver_status['txn_id'] = {'ours':receiver.txn_id, 'theirs':r['txn_id']}
-                            
-                            receiver.txn_id = r['txn_id']
-                            receiver.save()
-                            
-                    except:
-                        traceback.print_exc()
-                        
-                    if not set(["status","txn_id"]).isdisjoint(receiver_status.keys()):   
-                        receivers_status.append(receiver_status)
-                
-                if len(receivers_status):
-                    payment_status["receivers"] = receivers_status
-                    
+            payment_status = self.update_payment(t)                    
             if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
                 status["payments"].append(payment_status)
             
@@ -131,44 +153,7 @@ class PaymentManager( object ):
         
         for t in transactions:
             
-            p = PreapprovalDetails(t)
-            
-            #tran = doc.createElement('preapproval')
-            #tran.setAttribute("key", str(t.preapproval_key))
-            #head.appendChild(tran)
-            
-            preapproval_status = {'id':t.id, 'key':t.preapproval_key}
-            
-            if p.error() or not p.success():
-                logger.info("Error retrieving preapproval details for transaction %d" % t.id)
-                #append_element(doc, tran, "error", "An error occurred while verifying this transaction, see server logs for details")
-                preapproval_status["error"] = "An error occurred while verifying this transaction, see server logs for details"
-            else:
-                
-                # Check the transaction status
-                if t.status != p.status:
-                    #append_element(doc, tran, "status_ours", t.status)
-                    #append_element(doc, tran, "status_theirs", p.status)
-                    preapproval_status["status"] = {'ours':t.status, 'theirs':p.status}
-                    t.status = p.status
-                    t.save()
-                    
-                # check the currency code
-                if t.currency != p.currency:
-                    #append_element(doc, tran, "currency_ours", t.currency)
-                    #append_element(doc, tran, "currency_theirs", p.currency)
-                    preapproval_status["currency"] = {'ours':t.currency, 'theirs':p.currency}
-                    t.currency = p.currency
-                    t.save()
-                    
-                # Check the amount
-                if t.max_amount != D(p.amount):
-                    #append_element(doc, tran, "amount_ours", str(t.amount))
-                    #append_element(doc, tran, "amount_theirs", str(p.amount))
-                    preapproval_status["amount"] = {'ours':t.max_amount, 'theirs':p.amount}
-                    t.max_amount = p.amount
-                    t.save()
-            
+            preapproval_status = self.update_preapproval(t)            
             # append only if there was a change in status
             if not set(['status', 'currency', 'amount']).isdisjoint(set(preapproval_status.keys())):
                 status["preapprovals"].append(preapproval_status)            
