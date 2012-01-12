@@ -78,6 +78,9 @@
 img.user-avatar {
   float: left;
   margin-right: 10px;
+  -moz-border-radius: 7px 7px 7px 7px;
+  -webkit-border-radius: 7px 7px 7px 7px;
+  border-radius: 7px 7px 7px 7px;
 }
 .social {
   width: 100%;

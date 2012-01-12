@@ -180,7 +180,7 @@ AUTHENTICATION_BACKENDS = (
 
 SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
 SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
-SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/accounts/edit/'
+SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 
 TWITTER_EXTRA_DATA = [('profile_image_url', 'profile_image_url')]
 
