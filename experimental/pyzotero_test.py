@@ -4,6 +4,10 @@ from zoteroconf import user_id, user_key
 
 from pyzotero import zotero
 zot = zotero.Zotero(user_id, user_key)
-items = zot.items()
+items = zot.top()
 for item in items:
-    print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'], item['title'])
+    #print item
+    try:
+        print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'], item['title'])
+    except Exception, e:
+        print "Error: %s " % (e)
