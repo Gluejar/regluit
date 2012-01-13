@@ -120,12 +120,15 @@ def get_unglue_collection():
         
 def hello_world():
     zot = Zotero(user_id, user_key)
-    items = zot.items()
+    items = zot.top()
     for item in items:
-        print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'], item['title'])
+        try:
+            print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'] if item['creators'] else '', item['title'])
+        except Exception, e:
+            print "Error: %s " % (e)
     
         
 if __name__ == '__main__':
-    hello_world()
+    get_unglue_collection()
 
 
