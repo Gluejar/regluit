@@ -1,1 +1,16 @@
-{% extends "basedocumentation.html" %}
+{% extends "base.html" %}
+
+{% block extra_head %}
+	<link href="/static/css/documentation.css" rel="stylesheet" type="text/css" />
+{% block extra_extra_head %}
+    <link type="text/css" rel="stylesheet" href="/static/css/registration.css" />
+{% endblock %}
+{% endblock %}
+
+{% block content %}
+<div id="registration">
+{% block doccontent %}
+{% endblock %}
+</div>
+<div class="spacer"></div>
+{% endblock %}

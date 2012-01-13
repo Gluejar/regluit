@@ -1,14 +1,71 @@
-.errorlist {color: red}
+@import "variables.less";
+
+.errorlist {
+	.one-border-radius(32px);
+	border: solid #e35351 4px;
+	width: 90%;
+	padding: 5px;
+	font-weight: bold;
+	padding: 7px 0;
+	.height(16px);
+	text-align: center;	
+}
+
+#login_centerer {
+    padding:10px 25%;
+    width: 960px;
+}
 
 #registration {
-    margin-left: auto;
-    margin-right: auto;
-    width: 30%;
-    margin-top: 5%;
+	width: 960px;
+	padding: 10px;
+	margin: 0 auto;
+	padding: 10px 0;
 }
 
 #registration input[type="submit"] {
-    margin-left: auto;
-    margin-right: auto;
-    padding: 5px 15px;
+    margin: 0 auto;
+    padding: 5px 0;
+}
+
+#login {
+	border: solid 3px @blue-grey;
+	.one-border-radius(5px);
+	margin: 10px auto;
+	float: left;
+	padding: 10px;
+	width: 50%;
+	
+	form {
+		label {
+			display: block;
+		}
+		
+		input {
+			width: 90%;
+			.one-border-radius(5px);
+			border: 1px solid @blue-grey;
+			.height(18px);
+			margin-bottom: 16px;
+			
+			&:focus {
+				border: 1px solid @call-to-action;
+				outline: none;
+			}
+			
+			&[type=submit] {
+				text-decoration: capitalize;
+				.actionbuttons;
+			}
+		}
+	}
+	
+	.google_signup {
+		.google_signup_div;
+	}
+}
+
+.actionbutton {
+	.actionbuttons;
+	float: left;
 }

@@ -18,6 +18,34 @@
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin-top: 15px;
+}
 /* Local variables */
 .utilityheaders {
   text-transform: uppercase;
@@ -59,9 +87,9 @@ body {
   bottom: 0;
   width: 160px;
   height: 26px;
-  -moz-border-radius: 32px 32px 32px 32px;
-  -webkit-border-radius: 32px 32px 32px 32px;
-  border-radius: 32px 32px 32px 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
   background: #8dc63f;
   margin-bottom: 0;
   text-align: center;
@@ -402,4 +430,7 @@ div.content-block-content .cols3 .column {
   margin: 5px;
   padding: 1px;
   background-color: #edf3f4;
+}
+a.nounderline {
+  text-decoration: none;
 }

@@ -31,9 +31,9 @@
 }
 
 .one-border-radius(@radius) {
-  -moz-border-radius: @radius, @radius, @radius, @radius;
-  -webkit-border-radius:  @radius, @radius, @radius, @radius;
-  border-radius:  @radius, @radius, @radius, @radius;
+  -moz-border-radius: @radius;
+  -webkit-border-radius:  @radius;
+  border-radius:  @radius;
 }
 
 .panelborders {
@@ -63,4 +63,32 @@
 .mediaborder {
 	padding: 5px;
 	border: solid 5px #EDF3F4;
+}
+
+.google_signup_div {
+	padding: 14px 0;
+	
+	div {
+		.height(32px);
+		float: left;
+		padding-left:5px;
+	}
+	
+	img {
+		float: left;
+	}
+}
+
+.actionbuttons {
+	width: auto;
+	.height(36px);
+	background: @call-to-action;
+	.one-border-radius(32px);
+	color: white;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: bold;
+	padding: 0 15px;
+	border:none;
+	margin-top: 15px;
 }
