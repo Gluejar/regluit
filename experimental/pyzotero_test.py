@@ -8,6 +8,6 @@ items = zot.top()
 for item in items:
     #print item
     try:
-        print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'], item['title'])
+        print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'] if item['creators'] else '', item['title'])
     except Exception, e:
         print "Error: %s " % (e)
