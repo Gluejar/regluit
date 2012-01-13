@@ -2,9 +2,6 @@
 {% block title %}login{% endblock %}
 {% block doccontent %}
 
-<div id="login_centerer">
-<div id="login">
-
 {% if form.errors %}
 <p class="errorlist">Your username and password didn't match. Please try again.</p>
 {% endif %}
@@ -18,9 +15,6 @@
 <br /><br />
 <div class="google_signup">
 	<a href="/socialauth/login/google?next=/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next=/">Sign in with Google</a></div>
-</div>
-
-</div>
 </div>
 
 {% endblock %}

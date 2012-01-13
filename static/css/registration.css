@@ -43,7 +43,7 @@
   font-weight: bold;
   padding: 0 15px;
   border: none;
-  margin-top: 15px;
+  margin: 5px 0;
 }
 .errorlist {
   -moz-border-radius: 32px;
@@ -58,6 +58,10 @@
   line-height: 16px;
   text-align: center;
 }
+.errorlist li {
+  list-style: none;
+  border: none;
+}
 #login_centerer {
   padding: 10px 25%;
   width: 960px;
@@ -67,6 +71,8 @@
   padding: 10px;
   margin: 0 auto;
   padding: 10px 0;
+  font-size: 13px;
+  line-height: 18px;
 }
 #registration input[type="submit"] {
   margin: 0 auto;
@@ -114,7 +120,13 @@
   font-weight: bold;
   padding: 0 15px;
   border: none;
-  margin-top: 15px;
+  margin: 5px 0;
+}
+#login form span.helptext {
+  display: block;
+  margin-top: -11px;
+  font-style: italic;
+  font-size: 12px;
 }
 #login .google_signup {
   padding: 14px 0;
@@ -142,6 +154,6 @@
   font-weight: bold;
   padding: 0 15px;
   border: none;
-  margin-top: 15px;
+  margin: 5px 0;
   float: left;
 }
