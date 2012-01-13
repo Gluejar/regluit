@@ -30,6 +30,12 @@
   border-radius: @arguments;
 }
 
+.one-border-radius(@radius) {
+  -moz-border-radius: @radius, @radius, @radius, @radius;
+  -webkit-border-radius:  @radius, @radius, @radius, @radius;
+  border-radius:  @radius, @radius, @radius, @radius;
+}
+
 .panelborders {
 	border-width: 1px 0px;
 	border-style: solid none;
