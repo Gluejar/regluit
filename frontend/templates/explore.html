@@ -5,7 +5,7 @@
                     <ul class="menu level1">
 
                         <li class="first parent">
-                            <a href="#"><span>Show me...</span></a>
+                            <span>Show me...</span>
                             <ul class="menu level2">
                                 <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
@@ -17,7 +17,7 @@
                             </ul>
                         </li>
                         <li class="parent">
-                            <a href="#"><span>Ungluers</span></a>
+                            <span>Ungluers</span>
                             <ul class="menu level2">
                             {% for ungluer in ungluers %}
                                 <li class="first"><a href="{% url supporter supporter_username=ungluer %}">
