@@ -10,8 +10,8 @@
                             {% if is_preview %}
                                 <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
-                                <li><a href="{% url unglued_list 'recent' %}" class="comingsoon"><span>Recently unglued</span></a></li>
-                                <li class="last"><a href="{% url work_list 'new' %}" class="comingsoon"><span>Newly Wished</span></a></li>
+                                <li><a href="{% url unglued_list 'recent' %}"><span>Recently unglued</span></a></li>
+                                <li class="last"><a href="{% url work_list 'new' %}"><span>Newly Wished</span></a></li>
                             {% else %}
                                 <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>

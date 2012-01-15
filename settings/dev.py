@@ -4,7 +4,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 # if you're doing development work, you'll want this to be zero
-IS_PREVIEW = 0
+IS_PREVIEW = False
 
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),

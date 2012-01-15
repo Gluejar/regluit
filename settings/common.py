@@ -210,4 +210,4 @@ djcelery.setup_loader()
 
 # this suppresses functionality that should not be visible on the alpha site
 # change to 0 if you want to see it on your local machine
-IS_PREVIEW = 1
+IS_PREVIEW = True
