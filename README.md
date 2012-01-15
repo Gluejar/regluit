@@ -38,10 +38,10 @@ Production Deployment
 
 Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
 
-1. create an ubuntu natty ec2 instance using ami-1aad5273
+1. create an ubuntu LTS ec2 instance
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
+1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
