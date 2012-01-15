@@ -63,4 +63,6 @@ urlpatterns = patterns(
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
     url(r"^press/$", TemplateView.as_view(template_name="press.html"),
         name="press"),
+    url(r"^about/$", TemplateView.as_view(template_name="about.html"),
+        name="about"),
 )
