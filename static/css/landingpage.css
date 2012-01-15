@@ -320,6 +320,14 @@ ul.ungluingwhat li > div {
 ul.ungluingwhat div.user-avatar {
   width: 43px;
 }
+ul.ungluingwhat div.user-avatar img {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
 ul.ungluingwhat .user-book-thumb {
   width: 29px;
 }

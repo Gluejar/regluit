@@ -373,6 +373,9 @@ a.readon span {
 }
 #js-leftcol ul.level2 li img {
   vertical-align: middle;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 #js-leftcol ul.level2 li .ungluer-name {
   height: 30px;
