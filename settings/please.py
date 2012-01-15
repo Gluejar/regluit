@@ -2,7 +2,6 @@ from regluit.settings.common import *
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-IS_PREVIEW = True
 
 SITE_ID = 2
 
@@ -18,10 +17,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'unglueit',
-        'USER': 'unglueit',
+        'NAME': 'please',
+        'USER': 'please',
         'PASSWORD': 'unglueit',
-        'HOST': 'production.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'HOST': 'gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }
@@ -122,3 +121,5 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
+
+IS_PREVIEW = False
