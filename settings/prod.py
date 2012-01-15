@@ -4,7 +4,7 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 IS_PREVIEW = True
 
-SITE_ID = 2
+SITE_ID = 1
 
 ADMINS = (
     ('Ed Summers', 'ed.summers@gmail.com'),
