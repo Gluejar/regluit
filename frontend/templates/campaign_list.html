@@ -75,7 +75,7 @@
                         </ul>
                 </div>
                 <div class="content-block-content">
-					{% if request.META.HTTP_HOST == "unglue.it" %}
+					{% if is_preview == 1 %}
 					<div class="preview_content">
 					We're not running campaigns during our alpha phase.<br /><br />
 					After we've implemented a few more features and improved the site based on <a href="/feedback">your feedback</a>, you'll see a list of active campaigns here.<br /><br />

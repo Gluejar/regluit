@@ -69,9 +69,11 @@
         </div>
     </div>
 
+{% if is_preview == 1 %}
 <div class="preview_top">
 Welcome to the alpha version of Unglue.It.  This site is a preview of our full functionality; some things (including pledging) aren't quite working yet.  If something seems broken or confusing -- or if you find something you love! -- please give us <a href="/feedback">feedback</a>.  Thank you for your interest, and have fun.
 </div>
+{% endif %}
     {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}
 </div>

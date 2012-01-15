@@ -72,6 +72,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
+    'regluit.context_processors.is_preview',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -206,3 +207,7 @@ UNGLUEIT_RECOMMENDED_USERNAME = 'recommended'
 TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
 import djcelery
 djcelery.setup_loader()
+
+# this suppresses functionality that should not be visible on the alpha site
+# change to 0 if you want to see it on your local machine
+IS_PREVIEW = 1
