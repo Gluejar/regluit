@@ -66,9 +66,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `django-admin.py collectstatic --settings regluit.settings.prod`
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
-1. `sudo a2enmod ssl`
-1. 'sudo a2ensite default-ssl`
-1. edit /etc/apache2/sites-available/default-ssl to use correct ssl certificate if necessary
+1. `sudo a2enmod ssl rewrite`
 1. `sudo /etc/init.d/apache2 restart`
 1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
 1. `sudo cp deploy/celeryd /etc/init.d/celeryd`
