@@ -177,7 +177,7 @@ var $j = jQuery.noConflict();
     <div id="js-slide">
     	<div class="js-main">
         	<div class="jsmodule">
-            <h3><span>Top ungluing campaigns</span></h3>
+            <h3><span>{% if is_preview %}Most wishlisted{% else %}Top ungluing campaigns{% endif %}</span></h3>
             <div class="jsmod-content">
                 <div id="js-slideshow">
                     <div class="slides_container">
