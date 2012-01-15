@@ -1,2 +1,8 @@
+# Hi Robot, welcome to UnglueIt :-)
+{% ifequal request.META.HTTP_HOST "unglue.it" %}
+User-agent: *
+Disallow: /nothing--please-crawl-us
+{% else %}
 User-agent: *
 Disallow: /
+{% endifequal %}
