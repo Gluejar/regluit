@@ -2,6 +2,32 @@
 
 @import "variables.less";
 
+/* remove before beta */
+.preview {
+	border: solid 3px @alert;
+	.one-border-radius(7px);
+    clear:both;
+    padding: 5px 10px;
+    font-size:13px;
+    line-height: 17px;
+    
+    a {
+    	color: @call-to-action;
+    }
+}
+
+.preview_top {
+	.preview;
+	width: 934px;
+    margin:10px auto 0 auto;
+}
+
+.preview_content {
+	.preview;
+	width: 80%;
+	margin: 10px auto;
+}
+
 /* Local variables */
 .utilityheaders {
     text-transform:uppercase;
@@ -64,6 +90,7 @@ body{
 		margin-bottom: 0;
 		text-align: center;
 		margin-left: -67px;
+		line-height: normal;
 	}
 }
 
@@ -279,6 +306,16 @@ a.readon {
         
         &:hover{
             text-decoration:underline;
+        }
+        
+        &.comingsoon:hover {
+        	text-decoration: none;
+        	cursor: default;
+        	
+    		&:after {
+	        	content: " Coming soon!";
+    	    	color: @call-to-action;
+    	    }
         }
     }
     

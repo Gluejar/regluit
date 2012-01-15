@@ -46,6 +46,50 @@
   border: none;
   margin: 5px 0;
 }
+/* remove before beta */
+.preview {
+  border: solid 3px #e35351;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  clear: both;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 17px;
+}
+.preview a {
+  color: #8dc63f;
+}
+.preview_top {
+  border: solid 3px #e35351;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  clear: both;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 17px;
+  width: 934px;
+  margin: 10px auto 0 auto;
+}
+.preview_top a {
+  color: #8dc63f;
+}
+.preview_content {
+  border: solid 3px #e35351;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  clear: both;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 17px;
+  width: 80%;
+  margin: 10px auto;
+}
+.preview_content a {
+  color: #8dc63f;
+}
 /* Local variables */
 .utilityheaders {
   text-transform: uppercase;
@@ -94,6 +138,7 @@ body {
   margin-bottom: 0;
   text-align: center;
   margin-left: -67px;
+  line-height: normal;
 }
 #feedback p a {
   color: white;
@@ -296,6 +341,14 @@ a.readon span {
 }
 #js-leftcol a:hover {
   text-decoration: underline;
+}
+#js-leftcol a.comingsoon:hover {
+  text-decoration: none;
+  cursor: default;
+}
+#js-leftcol a.comingsoon:hover:after {
+  content: " Coming soon!";
+  color: #8dc63f;
 }
 #js-leftcol .jsmod-content {
   border: solid 1px #edf3f4;

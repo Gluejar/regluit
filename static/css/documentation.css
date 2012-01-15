@@ -144,6 +144,10 @@
 .block-intro-text div#active {
   display: inherit;
 }
+body {
+  font-size: 13px;
+  line-height: 16px;
+}
 /* Learn More area (not already styles by learnmore.less) */
 .user-block {
   width: 100%;

@@ -28,7 +28,7 @@
 <body>
 
 <div id="feedback">
-<p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}">Feedback</a></p>
+<p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
 <div id="js-page-wrap">
     <div id="js-header">
@@ -67,6 +67,9 @@
         </div>
     </div>
 
+<div class="preview_top">
+Welcome to the alpha version of Unglue.It.  This site is a preview of our full functionality; some things (including pledging) aren't quite working yet.  If something seems broken or confusing -- or if you find something you love! -- please give us <a href="/feedback">feedback</a>.  Thank you for your interest, and have fun.
+</div>
     {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}
 </div>

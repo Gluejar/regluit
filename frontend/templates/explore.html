@@ -9,11 +9,11 @@
                             <ul class="menu level2">
                                 <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
-                                <li><a href="{% url campaign_list 'pledges' %}"><span>Most pledges</span></a></li>
-                                <li><a href="{% url campaign_list 'pledged' %}"><span>Biggest campaigns</span></a></li>
-                                <li><a href="{% url unglued_list 'recent' %}"><span>Recently unglued</span></a></li>
-                                <li><a href="{% url campaign_list 'ending' %}"><span>Ending Soon</span></a></li>
-                                <li class="last"><a href="{% url campaign_list 'newest' %}"><span>Just Listed</span></a></li>
+                                <li><a href="{% url campaign_list 'pledges' %}" class="comingsoon"><span>Most pledges</span></a></li>
+                                <li><a href="{% url campaign_list 'pledged' %}" class="comingsoon"><span>Biggest campaigns</span></a></li>
+                                <li><a href="{% url unglued_list 'recent' %}" class="comingsoon"><span>Recently unglued</span></a></li>
+                                <li><a href="{% url campaign_list 'ending' %}" class="comingsoon"><span>Ending Soon</span></a></li>
+                                <li class="last"><a href="{% url campaign_list 'newest' %}" class="comingsoon"><span>Just Listed</span></a></li>
                             </ul>
                         </li>
                         <li class="parent">
