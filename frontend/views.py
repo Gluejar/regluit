@@ -63,15 +63,24 @@ def home(request):
     works=[]
     works2=[]
     count=ending.count()
-    while i<12 and count>0:
-        if i<6:
-            works.append(ending[j].work)
-        else:
-            works2.append(ending[j].work)
-        i += 1
-        j += 1
-        if j == count:
-            j = 0
+
+	# on the preview site there are no active campaigns, so we should show most-wished books instead
+    is_preview = settings.IS_PREVIEW
+    if is_preview:
+    	# django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
+    	worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
+    	works = worklist[:6]
+    	works2 = worklist[6:12]
+    else:
+        while i<12 and count>0:
+            if i<6:
+                works.append(ending[j].work)
+            else:
+                works2.append(ending[j].work)
+            i += 1
+            j += 1
+            if j == count:
+                j = 0
     events = models.Wishes.objects.order_by('-created')[0:2]
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 

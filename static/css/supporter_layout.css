@@ -127,7 +127,7 @@ span.user-name, span.user-date, span.user-short-info {
 .user-block2 .user-short-info {
   padding-right: 10px;
 }
-span.user-name, span.user-name a, a {
+span.user-name, span.user-name a {
   font-size: 12px;
   color: #3d4e53;
 }
@@ -189,6 +189,7 @@ input.profile-save {
   display: block;
   text-indent: -100000px;
   border: none;
+  cursor: pointer;
 }
 #loadgr {
   background: url("/static/images/supporter_icons/goodreads_square.png") left center no-repeat;
@@ -213,7 +214,7 @@ input.profile-save {
 .weareonthat {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
-a.my-setting {
+span.my-setting {
   background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;
   -moz-border-radius: 7px;
   -webkit-border-radius: 7px;
@@ -223,8 +224,10 @@ a.my-setting {
   display: block;
   padding: 0 0 0 10px;
   font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }
-a.my-setting.active {
+span.my-setting.active {
   background: #d6dde0 url("/static/images/header/collspane.png") 90% center no-repeat;
 }
 .badges.listspage {
@@ -326,6 +329,9 @@ ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
 }
 div.content-block-content {
   padding-left: 10px;
+}
+.empty-wishlist {
+  margin-top: 10px;
 }
 .js-news-text {
   float: left;

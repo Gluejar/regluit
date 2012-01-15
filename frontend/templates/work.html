@@ -197,26 +197,40 @@ jQuery(document).ready(function(){
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
                         
-                        {% if work.claim.count %}
                         <h4> Rights Information </h4>
-                        <p> This work has been claimed by:</p>
-                        <ul>
-                        {% for claim in work.claim.all %}
-                            <li>{{ claim.rights_holder.rights_holder_name }}  </li>
-                        {% endfor %}
-                        </ul>
-                        {% endif %}
-                        {% if not user.is_anonymous %}
-                        {% if request.user.rights_holder.all.count %}
-                        <h4> Claim this work:</h4>
-                        <form method="GET" action="{% url claim %}">
-                            {% csrf_token %}
-                            {{ claimform.user }}
-                            {{ claimform.work }}
-                            {{ claimform.rights_holder }}
-                            <input type="submit" name="submit" value="Claim" id="submit">
-                        </form>
-                        {% endif %}
+                        {% if work.claim.count %}
+                  	      <p> This work has been claimed by:</p>
+                    	    <ul>
+                        	{% for claim in work.claim.all %}
+                            	<li>{{ claim.rights_holder.rights_holder_name }}  </li>
+                        	{% endfor %}
+                        	</ul>
+                        	{% if request.user.rights_holder.all.count %}
+	                        	Should someone else should be authorized to run campaigns for this work?  Select a rights holder:<br /><br />
+                        
+	    	                    <form method="GET" action="{% url claim %}">
+    	    	                    {% csrf_token %}
+        	    	                {{ claimform.user }}
+            	    	            {{ claimform.work }}
+                	    	        {{ claimform.rights_holder }}
+                    	    	    <input type="submit" name="submit" value="Claim" id="submit">
+                     		   </form><br />
+	
+	                        {% endif %}
+    	                    	Need to talk to us about claim status?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
+                        {% else %}
+	                        {% if request.user.rights_holder.all.count %}
+	                        Is this work yours?  Claim it: <br /><br />
+	    	                    <form method="GET" action="{% url claim %}">
+    	    	                    {% csrf_token %}
+        	    	                {{ claimform.user }}
+            	    	            {{ claimform.work }}
+                	    	        {{ claimform.rights_holder }}
+                    	    	    <input type="submit" name="submit" value="Claim" id="submit">
+                     		   </form><br />
+                        	{% else %}
+    	                    	Are you the rights holder for this work?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
+                        	{% endif %}
                         {% endif %}
 
                         {% if work.subjects.all.count > 0 %}
