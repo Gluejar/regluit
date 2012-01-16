@@ -1,4 +1,4 @@
-<div class="thewholebook listview tabs {% if status == 'SUCCESSFUL' %}tabs-1{% else %}{% if status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}">
+<div class="thewholebook listview tabs {% if status == 'SUCCESSFUL' or work.first_pdf_url or work.first_epub_url %}tabs-1{% else %}{% if status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}">
 <div class="listview book-list">
     <div class="listview panelback side2">
             <div class="greenpanel2">
@@ -124,21 +124,25 @@
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
           <span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.wished_by.count }}</span></span>
         {% else %}
+        {% if work.first_pdf_url or work.first_epub_url %}
+          <span class="rounded"><span class="grey"><span class="panelnope">Loved by&nbsp;</span>{{ work.wished_by.count }}</span></span>
+        {% else %}
+        
           <div class="booklist-status-img">
             <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
           </div>
                     <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
-	    {% endif %}
+	    {% endif %}{% endif %}
     </div>
     <div class="listview panelfront side1 ebooks">
-        {% if work.first_epub_url %}
+        {% if work.first_epub_url and work.first_pdf_url %}
         <span class="listview boolist-ebook">
+        {% if work.first_epub_url %}
             <a href="{{ work.first_epub_url }}">epub</a>
-        </span>
         {% endif %}
         {% if work.first_pdf_url %}
-        <span class="listview boolist-ebook">
             <a href="{{ work.first_pdf_url }}">pdf</a>
+        {% endif %} 
         </span>
         {% endif %}
     </div>

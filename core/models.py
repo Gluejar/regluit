@@ -288,7 +288,10 @@ class Work(models.Model):
         if campaign:
             status = campaign.status
         else:
-            status = "No campaign yet"
+            if self.first_ebook() or self.first_epub():
+                status = "Available"
+            else:
+            	status = "No campaign yet"
         return status
 
     def percent_unglued(self):
