@@ -2,6 +2,32 @@
 
 @import "variables.less";
 
+/* remove before beta */
+.preview {
+	border: solid 3px @alert;
+	.one-border-radius(7px);
+    clear:both;
+    padding: 5px 10px;
+    font-size:13px;
+    line-height: 17px;
+    
+    a {
+    	color: @call-to-action;
+    }
+}
+
+.preview_top {
+	.preview;
+	width: 934px;
+    margin:10px auto 0 auto;
+}
+
+.preview_content {
+	.preview;
+	width: 80%;
+	margin: 10px auto;
+}
+
 /* Local variables */
 .utilityheaders {
     text-transform:uppercase;
@@ -59,11 +85,12 @@ body{
 		bottom:0;
 		width:160px;
 		height:26px;
-		.border-radius(32px, 32px, 32px, 32px);
+		.one-border-radius(32px);
 		background: @call-to-action;
 		margin-bottom: 0;
 		text-align: center;
 		margin-left: -67px;
+		line-height: normal;
 	}
 }
 
@@ -280,6 +307,16 @@ a.readon {
         &:hover{
             text-decoration:underline;
         }
+        
+        &.comingsoon:hover {
+        	text-decoration: none;
+        	cursor: default;
+        	
+    		&:after {
+	        	content: " Coming soon!";
+    	    	color: @call-to-action;
+    	    }
+        }
     }
     
     .jsmod-content {
@@ -288,11 +325,12 @@ a.readon {
     }
 
     ul {
-        &.level1 > li > a {
+        &.level1 > li > a, &.level1 > li > span {
             border-bottom:1px solid @pale-blue;
             border-top:1px solid @pale-blue; 
             .utilityheaders;
             padding:10px;
+            
         }
 
         &.level2 li {
@@ -300,6 +338,7 @@ a.readon {
             
             img {
             	vertical-align: middle;
+            	.one-border-radius(5px);
             }
             
             .ungluer-name {
@@ -423,4 +462,8 @@ div.content-block-content {
       padding:1px;
       background-color:@pale-blue;
     }
+}
+
+a.nounderline {
+	text-decoration: none;
 }

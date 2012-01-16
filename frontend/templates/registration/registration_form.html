@@ -3,24 +3,18 @@
 {% block title %}Register for an account{% endblock %}
 
 {% block doccontent %}
-<div id="registration">
-
 <h3>Sign up for a Unglue It account:</h3>
 
-<table>
     <form method='post' action=''>{% csrf_token %}
         {{ form }}
-        <tr><td></td><td><input type="submit" value="Send activation email" /></td>
+        <input type="submit" value="Send activation email" />
     </form>
-</table>
 
-<p>
-<br>
-<br>
-<h3>Or use an account you already have:</h3> 
-<a href="/socialauth/login/google"><img src="{{ STATIC_URL }}/images/auth/google_64.png"</a>
-</p>
-
+<div>
+<div class="google_signup">
+	<h3>Or use an account you already have:</h3> 
+	<a href="/socialauth/login/google?next=/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"><div>Sign in with Google</div></a>
+</div>
 </div>
 
 {% endblock %}

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 
 from regluit.core.models import Campaign
 from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -30,9 +30,7 @@ urlpatterns = patterns(
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
-    url(r"^unglued/(?P<facet>\w*)$", 
-        ListView.as_view( model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list"), 
-        name='unglued_list'),
+    url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),
     url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
     url(r"^goodreads/auth/$", "goodreads_auth", name="goodreads_auth"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
@@ -57,10 +55,12 @@ urlpatterns = patterns(
     url(r"^donate/$", DonateView.as_view(), name="donate"),
     url('^404testing/$', direct_to_template, {'template': '404.html'}),
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
-    url('^robots.txt$', direct_to_template, {'template': 'robots.txt'}),
+    url('^robots.txt$', direct_to_template, {'template': 'robots.txt', 'mimetype': 'text/plain'}),
     url(r"^emailshare/$", "emailshare", name="emailshare"),
     url(r"^feedback/$", "feedback", name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
     url(r"^press/$", TemplateView.as_view(template_name="press.html"),
         name="press"),
+    url(r"^about/$", TemplateView.as_view(template_name="about.html"),
+        name="about"),
 )

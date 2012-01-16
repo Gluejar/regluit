@@ -2,9 +2,8 @@ from regluit.settings.common import *
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-IS_PREVIEW = True
 
-SITE_ID = 1
+SITE_ID = 2
 
 ADMINS = (
     ('Ed Summers', 'ed.summers@gmail.com'),
@@ -18,10 +17,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'unglueit',
-        'USER': 'root',
-        'PASSWORD': 'unglue1t',
-        'HOST': 'production.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'NAME': 'please',
+        'USER': 'please',
+        'PASSWORD': 'unglueit',
+        'HOST': 'gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }
@@ -47,8 +46,8 @@ TWITTER_CONSUMER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
 TWITTER_CONSUMER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
 # facebook auth
-FACEBOOK_APP_ID = '211951285561911'
-FACEBOOK_API_SECRET = '42efef7e540b80479dbbb69490cd902a'
+FACEBOOK_APP_ID = '242881179080779'
+FACEBOOK_API_SECRET = '5eae483a0e92113d884c427b578ef23a'
 
 # google auth
 GOOGLE_OAUTH2_CLIENT_ID = '989608723367.apps.googleusercontent.com'
@@ -95,7 +94,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 
 # BASE_URL is a hard-coding of the domain name for site and used for PayPal IPN
 # Next step to try https
-BASE_URL = 'http://unglueit.com'
+BASE_URL = 'http://please.unglueit.com'
 
 # use redis for production queue
 BROKER_TRANSPORT = "redis"
@@ -122,3 +121,5 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
+
+IS_PREVIEW = False

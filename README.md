@@ -38,10 +38,10 @@ Production Deployment
 
 Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
 
-1. create an ubuntu natty ec2 instance using ami-1aad5273
+1. create an ubuntu LTS ec2 instance
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
+1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
@@ -61,12 +61,12 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `pip install -r requirements.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
 1. `django-admin.py syncdb --migrate --settings regluit.settings.prod`
+1. `mkdir /var/www/static`
+1. `chown ubuntu:ubuntu /var/www/static`
 1. `django-admin.py collectstatic --settings regluit.settings.prod`
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
-1. `sudo a2enmod ssl`
-1. 'sudo a2ensite default-ssl`
-1. edit /etc/apache2/sites-available/default-ssl to use correct ssl certificate if necessary
+1. `sudo a2enmod ssl rewrite`
 1. `sudo /etc/init.d/apache2 restart`
 1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
 1. `sudo cp deploy/celeryd /etc/init.d/celeryd`

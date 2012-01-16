@@ -5,28 +5,35 @@
                     <ul class="menu level1">
 
                         <li class="first parent">
-                            <a href="#"><span>Show me...</span></a>
+                            <span>Show me...</span>
                             <ul class="menu level2">
+                            {% if is_preview %}
                                 <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
-                                <li><a href="{% url campaign_list 'pledges' %}"><span>Most pledges</span></a></li>
-                                <li><a href="{% url campaign_list 'pledged' %}"><span>Biggest campaigns</span></a></li>
                                 <li><a href="{% url unglued_list 'recent' %}"><span>Recently unglued</span></a></li>
-                                <li><a href="{% url campaign_list 'ending' %}"><span>Ending Soon</span></a></li>
-                                <li class="last"><a href="{% url campaign_list 'newest' %}"><span>Just Listed</span></a></li>
+                                <li class="last"><a href="{% url work_list 'new' %}"><span>Newly Wished</span></a></li>
+                            {% else %}
+                                <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
+                                <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
+                                <li><a href="{% url campaign_list 'pledges' %}" class="comingsoon"><span>Most pledges</span></a></li>
+                                <li><a href="{% url campaign_list 'pledged' %}" class="comingsoon"><span>Biggest campaigns</span></a></li>
+                                <li><a href="{% url unglued_list 'recent' %}" class="comingsoon"><span>Recently unglued</span></a></li>
+                                <li><a href="{% url campaign_list 'ending' %}" class="comingsoon"><span>Ending Soon</span></a></li>
+                                <li class="last"><a href="{% url campaign_list 'newest' %}" class="comingsoon"><span>Just Listed</span></a></li>
+                            {% endif %}
                             </ul>
                         </li>
                         <li class="parent">
-                            <a href="#"><span>Ungluers</span></a>
+                            <span>Ungluers</span>
                             <ul class="menu level2">
                             {% for ungluer in ungluers %}
                                 <li class="first"><a href="{% url supporter supporter_username=ungluer %}">
 									{% if ungluer.profile.pic_url %}
-										<img src="{{ungluer.profile.pic_url}}" height="30" width="30" alt="{{ungluer}}" title="{{ungluer}}" />
+										<img src="{{ungluer.profile.pic_url}}" height="30" width="30" alt="{{ungluer}}" title="{{ungluer}}" /></a>
 									{% else %}
-										<img src="/static/images/header/avatar.png" height="30" width="30" alt="Generic Ungluer Avatar" />
+										<img src="/static/images/header/avatar.png" height="30" width="30" alt="Generic Ungluer Avatar" /></a>
 									{% endif %}
-                                	<span class="ungluer-name">{{ungluer|truncatechars:20}}</span>
+                                	<a href="{% url supporter supporter_username=ungluer %}"><span class="ungluer-name">{{ungluer|truncatechars:20}}</span>
                                 </a></li>
                             {% endfor %}
                             </ul>

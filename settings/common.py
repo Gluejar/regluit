@@ -72,6 +72,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
+    'regluit.context_processors.is_preview',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -201,8 +202,12 @@ GOODREADS_API_SECRET = ""
 UNGLUEIT_MINIMUM_TARGET = '1000' # in US Dollars
 UNGLUEIT_LONGEST_DEADLINE = '180' # number of days allowed for a campaign
 UNGLUEIT_SHORTEST_DEADLINE = '7' # minimum number of days allowed for a campaign
-UNGLUEIT_RECOMMENDED_USERNAME = 'recommended'
+UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
 
 TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
 import djcelery
 djcelery.setup_loader()
+
+# this suppresses functionality that should not be visible on the alpha site
+# change to 0 if you want to see it on your local machine
+IS_PREVIEW = True

@@ -17,6 +17,34 @@
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
 #js-page-wrap {
   overflow: hidden;
 }
@@ -27,9 +55,9 @@
   margin-bottom: 10px;
 }
 #js-leftcol .jsmodule.rounded .jsmod-content {
-  -moz-border-radius: 20px 20px 20px 20px;
-  -webkit-border-radius: 20px 20px 20px 20px;
-  border-radius: 20px 20px 20px 20px;
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
   background: #edf3f4;
   color: #3d4e53;
   padding: 10px 20px;
@@ -221,9 +249,9 @@ ul.tabs li a:hover, ul.tabs li.active a {
 }
 #js-rightcol h3.jsmod-title {
   background: #a7c1ca;
-  -moz-border-radius: 10px 10px 10px 10px;
-  -webkit-border-radius: 10px 10px 10px 10px;
-  border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
   padding: 10px;
   height: auto;
   font-style: normal;
@@ -241,9 +269,9 @@ ul.tabs li a:hover, ul.tabs li.active a {
 }
 .js-rightcol-pad {
   border: 1px solid #d6dde0;
-  -moz-border-radius: 10px 10px 10px 10px;
-  -webkit-border-radius: 10px 10px 10px 10px;
-  border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
   padding: 10px;
 }
 #js-maincol {
@@ -333,9 +361,9 @@ ul.social li.embed:hover span {
 #widgetcode {
   display: none;
   border: 1px solid #d6dde0;
-  -moz-border-radius: 10px 10px 10px 10px;
-  -webkit-border-radius: 10px 10px 10px 10px;
-  border-radius: 10px 10px 10px 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
   padding: 10px;
 }
 ul.support li {

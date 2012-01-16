@@ -53,7 +53,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% ifequal supporter request.user %}
                             <div class="user-block1">
                             <div class="block-inner">
-                            <a class="my-setting" href="#">My Settings</a>
+                            <span class="my-setting">My Settings</a>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -92,27 +92,27 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="user-block4">
                                 <div class="social">
                                 {% if supporter.profile.home_url %}
-                                   <a href="{{ supporter.profile.home_url }}">
+                                   <a href="{{ supporter.profile.home_url }}" class="nounderline">
                                        <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
                                    </a>
                                 {% endif %}
                                 {% if supporter.profile.facebook_id %}
-									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}">
+									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}" class="nounderline">
 										<img src="/static/images/supporter_icons/facebook_square.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
 									</a>
                                 {% endif %}
                                 {% if supporter.profile.twitter_id %}
-									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}">
+									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}" class="nounderline">
 										<img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
 									</a>
                                 {% endif %}
                                 {% if supporter.profile.goodreads_user_link %}
-									<a href="{{supporter.profile.goodreads_user_link}}">
+									<a href="{{supporter.profile.goodreads_user_link}}" class="nounderline">
 										<img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
 									</a>
                                 {% endif %}
                                 {% if supporter.profile.librarything_id %}
-									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}">
+									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
 										<img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
 									</a>
                                  {% endif %}
@@ -125,7 +125,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
-                                <h3><a class="profile-edit" href="#">Your Tagline</a></h3> (140 characters max)
+                                <h3 class="title">Your Tagline</h3> (140 characters max)
                                     {{ profile_form.tagline.errors }}
                                     {{ profile_form.tagline }}
 
@@ -239,16 +239,13 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% ifequal wishlist.works.all.count 0 %}
                     {% ifequal request.user supporter %}
                     <div class="empty-wishlist">
-                        Your wishlist is currently empty.<br><br>
-                        Go ahead and <span class="bounce-search">find</span> some books to give to the world, and add them to your Wishlist!<br><br>
-                        We double dog dare you...
+                        Your wishlist is currently empty.<br /><br />
+                        Why not <span class="bounce-search">find</span> your favorite books, and add them to your Wishlist?<br /><br />
+                        We'd also love to hear your <a href="/feedback">feedback</a>.
                     </div>
                     {% else %}
                     <div class="empty-wishlist">
-                        It looks like {{ supporter.username }} is just
-                        getting started, and hasn't added anything to their
-                        wishlist just yet.<br><br>
-                        Nudge, nudge, say no more. 
+                        It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
                     {% endifequal %}
                     {% else %}
                     {% paginate 20 works %}

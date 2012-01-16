@@ -17,6 +17,34 @@
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
 .block-inner {
   padding-right: 10px;
 }
@@ -78,9 +106,9 @@
 img.user-avatar {
   float: left;
   margin-right: 10px;
-  -moz-border-radius: 7px 7px 7px 7px;
-  -webkit-border-radius: 7px 7px 7px 7px;
-  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
 }
 .social {
   width: 100%;
@@ -99,7 +127,7 @@ span.user-name, span.user-date, span.user-short-info {
 .user-block2 .user-short-info {
   padding-right: 10px;
 }
-span.user-name, span.user-name a, a {
+span.user-name, span.user-name a {
   font-size: 12px;
   color: #3d4e53;
 }
@@ -110,9 +138,9 @@ span.user-status-title {
 }
 span.rounded {
   border: 1px solid #d4d4d4;
-  -moz-border-radius: 7px 7px 7px 7px;
-  -webkit-border-radius: 7px 7px 7px 7px;
-  border-radius: 7px 7px 7px 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
   padding: 1px;
   color: #fff;
   margin: 0 8px 0 0;
@@ -121,9 +149,9 @@ span.rounded {
 span.rounded > span {
   padding: 7px 7px;
   min-width: 15px;
-  -moz-border-radius: 5px 5px 5px 5px;
-  -webkit-border-radius: 5px 5px 5px 5px;
-  border-radius: 5px 5px 5px 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   text-align: center;
   display: inline-block;
 }
@@ -161,6 +189,7 @@ input.profile-save {
   display: block;
   text-indent: -100000px;
   border: none;
+  cursor: pointer;
 }
 #loadgr {
   background: url("/static/images/supporter_icons/goodreads_square.png") left center no-repeat;
@@ -185,16 +214,20 @@ input.profile-save {
 .weareonthat {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
-a.my-setting {
+span.my-setting {
   background: #d6dde0 url("/static/images/header/explane.png") 90% center no-repeat;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
   border-radius: 7px;
   height: 50px;
   line-height: 50px;
   display: block;
   padding: 0 0 0 10px;
   font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
 }
-a.my-setting.active {
+span.my-setting.active {
   background: #d6dde0 url("/static/images/header/collspane.png") 90% center no-repeat;
 }
 .badges.listspage {
@@ -296,6 +329,9 @@ ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
 }
 div.content-block-content {
   padding-left: 10px;
+}
+.empty-wishlist {
+  margin-top: 10px;
 }
 .js-news-text {
   float: left;

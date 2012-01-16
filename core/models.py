@@ -474,7 +474,7 @@ class Wishes(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     source = models.CharField(max_length=15, blank=True)
     wishlist  = models.ForeignKey('Wishlist')
-    work = models.ForeignKey('Work')
+    work = models.ForeignKey('Work', related_name='wishes')
     class Meta:
         db_table = 'core_wishlist_works'
 

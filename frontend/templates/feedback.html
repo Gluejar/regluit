@@ -4,24 +4,24 @@
 
 {% block doccontent %}
 
-	<p>Love something? Hate something? Found something broken or confusing?  We're so glad you're telling us!</p>
+	<p>Love something? Hate something? Found something broken or confusing?  Thanks for telling us!</p>
 
-	To: support@gluejar.com<br />
+	To: support@gluejar.com<br /><br />
     <form method="POST" action="/feedback/">
         {% csrf_token %}
 		{{ form.sender.label_tag }}</br>
 		{{ form.sender.errors }}
-		{{ form.sender }}</br>
+		{{ form.sender }}</br><br />
 		{{ form.subject.label_tag }}</br>
 		{{ form.subject.errors }}
-		{{ form.subject }}</br>
+		{{ form.subject }}</br><br />
 		{{ form.message.label_tag }}</br>
 		{{ form.message.errors }}
-		{{ form.message }}</br>
+		{{ form.message }}</br><br />
 		{{ form.notarobot.errors }}
 		{{ form.non_field_errors }}
 		Please prove you're not a robot. {{num1}} + {{num2}} =
-		{{ form.notarobot }}</br />
+		{{ form.notarobot }}</br /><br />
 		{{ form.answer }}
 		{{ form.num1 }}
 		{{ form.num2 }}

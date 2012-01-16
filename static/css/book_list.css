@@ -17,6 +17,34 @@
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
 /* Cross-browser language */
 /* rows in listview should alternate colors */
 .row1 .book-list.listview {
@@ -227,9 +255,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
   right: 31px;
 }
 .listview.icons .booklist-status-img {
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
   background-color: #fff;
   margin-top: 4px;
   height: 37px;

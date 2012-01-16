@@ -63,15 +63,24 @@ def home(request):
     works=[]
     works2=[]
     count=ending.count()
-    while i<12 and count>0:
-        if i<6:
-            works.append(ending[j].work)
-        else:
-            works2.append(ending[j].work)
-        i += 1
-        j += 1
-        if j == count:
-            j = 0
+
+	# on the preview site there are no active campaigns, so we should show most-wished books instead
+    is_preview = settings.IS_PREVIEW
+    if is_preview:
+    	# django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
+    	worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
+    	works = worklist[:6]
+    	works2 = worklist[6:12]
+    else:
+        while i<12 and count>0:
+            if i<6:
+                works.append(ending[j].work)
+            else:
+                works2.append(ending[j].work)
+            i += 1
+            j += 1
+            if j == count:
+                j = 0
     events = models.Wishes.objects.order_by('-created')[0:2]
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
@@ -200,6 +209,31 @@ class WorkListView(ListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+class UngluedListView(ListView):
+    template_name = "unglued_list.html"
+    context_object_name = "work_list"
+    
+    def work_set_counts(self,work_set):
+        counts={}
+        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        return counts
+
+    def get_queryset(self):
+        facet = self.kwargs['facet']
+        if (facet == 'popular'):
+            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).annotate(wished=Count('wishlists')).filter(ebook_count__gt=0).order_by('-wished')
+        else:
+            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
+
+    def get_context_data(self, **kwargs):
+            context = super(UngluedListView, self).get_context_data(**kwargs)
+            qs=self.get_queryset()
+            context['counts'] = self.work_set_counts(qs)
+            context['ungluers'] = userlists.work_list_users(qs,5)
+            context['facet'] =self.kwargs['facet']
+            return context
+
         
 class CampaignListView(ListView):
     template_name = "campaign_list.html"
@@ -1200,7 +1234,11 @@ def feedback(request):
             sender = form.cleaned_data['sender']
             recipient = 'support@gluejar.com'
             page = form.cleaned_data['page']
-            message = "<<<This feedback is about "+page+". Original user message follows: >>>"+message
+            if request.user.is_anonymous():
+            	ungluer = "(not logged in)"
+            else:
+            	ungluer = request.user.username
+            message = "<<<This feedback is about "+page+". Original user message (from "+sender+"; ungluer name "+ungluer+") follows: >>>"+message
             send_mail(subject, message, sender, [recipient])
             
             return render(request, "thanks.html", {"page":page}) 

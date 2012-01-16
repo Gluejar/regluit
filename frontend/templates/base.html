@@ -5,6 +5,8 @@
 {% url regluit.frontend.views.edit_user as editurl %}
 {% url rightsholders as rhtoolsurl %}
 {% url faq as faqurl %}
+{% url about as abouturl %}
+{% url press as pressurl %}
 {% url rh_admin as adminurl %}
 {% load truncatechars %}
 
@@ -17,6 +19,8 @@
 	{% block base_js %}
 	<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
     {% endblock %}
+    {% block extra_js %}
+    {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
     {% block extra_head %}
@@ -26,7 +30,7 @@
 <body>
 
 <div id="feedback">
-<p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}">Feedback</a></p>
+<p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
 <div id="js-page-wrap">
     <div id="js-header">
@@ -54,9 +58,9 @@
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
-                    <li><a href="/stub/tour"><span>Tour</span></a></li>  
-                    <li><a href="{{faqurl}}"><span>FAQs</span></a></li>   
-                    <li><a href="/stub/Help"><span>Help</span></a></li>
+                    <li><a href="{{ faqurl }}"><span>FAQs</span></a></li>   
+                    <li><a href="{{ pressurl }}"><span>Press</span></a></li>   
+                    <li><a href="/"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
                     {% endif %}
@@ -65,6 +69,11 @@
         </div>
     </div>
 
+{% if is_preview %}
+<div class="preview_top">
+Welcome to the alpha version of Unglue.It.  This site is a preview of our full functionality; some things (including pledging) aren't turned on yet.  If something seems broken or confusing -- or if you find something you love! -- please give us <a href="/feedback">feedback</a>.  Thank you for your interest, and have fun.
+</div>
+{% endif %}
     {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}
 </div>
@@ -73,9 +82,9 @@
     <div class="column">
     <span>About unglue.it</span>
     <ul>
-    <li><a href="/stub/about">About</a></li>
+    <li><a href="{{ abouturl }}">About</a></li>
     <li><a href="http://www.gluejar.com/Blog">Blog</a></li>
-    <li><a href="/press">Press</a></li>
+    <li><a href="{{ pressurl }}">Press</a></li>
     <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
     </ul>
     </div>

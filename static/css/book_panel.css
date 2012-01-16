@@ -17,6 +17,34 @@
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
 /* Local variables */
 .greenpanelstuff {
   font-family: Arial, Helvetica, sans-serif;
@@ -42,9 +70,9 @@
   padding: 0px 0px;
   background: #FFFFFF;
   margin: 0px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
   border: 1px solid #81bb38;
 }
 /* background */
@@ -174,9 +202,9 @@ div.panelview.side2 {
   padding: 0px 0px;
   background: #FFFFFF;
   margin: 0px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
   border: 1px solid #81bb38;
 }
 .read_itbutton a {
@@ -228,9 +256,9 @@ div.panelview.side2 {
   padding: 0px 0px;
   background: #FFFFFF;
   margin: 0px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
   border: 1px solid #81bb38;
 }
 .read_itbutton_fail span {
@@ -254,9 +282,9 @@ div.panelview.side2 {
   padding: 0px 0px;
   background: #FFFFFF;
   margin: 0px;
-  -moz-border-radius: 4px 4px 4px 4px;
-  -webkit-border-radius: 4px 4px 4px 4px;
-  border-radius: 4px 4px 4px 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
   border: 1px solid #81bb38;
 }
 .Unglue_itbutton a {
