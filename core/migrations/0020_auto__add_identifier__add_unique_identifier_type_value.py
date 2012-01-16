@@ -22,29 +22,30 @@ class Migration(SchemaMigration):
         db.create_unique('core_identifier', ['type', 'value'])
         
         # migrating data
-        for work in orm.Work.objects.all():
-            if work.librarything_id:
-                identifier = orm.Identifier.objects.create(type='ltwk',value=work.librarything_id, work=work)
-                identifier.save()
-            if work.openlibrary_id:
-                identifier = orm.Identifier.objects.create(type='olwk',value=work.openlibrary_id, work=work)
-                identifier.save()
-            for edition in work.editions.all():
-                if edition.googlebooks_id:
-                    identifier = orm.Identifier.objects.create(type='goog',value=edition.googlebooks_id, work=work, edition=edition)
+        if not db.dry_run:
+            for work in orm.Work.objects.all():
+                if work.librarything_id:
+                    identifier = orm.Identifier.objects.create(type='ltwk',value=work.librarything_id, work=work)
                     identifier.save()
-                if edition.goodreads_id:
-                    identifier = orm.Identifier.objects.create(type='gdrd',value=edition.goodreads_id, work=work, edition=edition)
+                if work.openlibrary_id:
+                    identifier = orm.Identifier.objects.create(type='olwk',value=work.openlibrary_id, work=work)
                     identifier.save()
-                if edition.librarything_id:
-                    identifier = orm.Identifier.objects.create(type='thng',value=edition.librarything_id, work=work, edition=edition)
-                    identifier.save()
-                if edition.isbn_13:
-                    identifier = orm.Identifier.objects.create(type='isbn',value=edition.isbn_13, work=work, edition=edition)
-                    identifier.save()
-                if edition.oclc:
-                    identifier = orm.Identifier.objects.create(type='oclc',value=edition.oclc, work=work, edition=edition)
-                    identifier.save()
+                for edition in work.editions.all():
+                    if edition.googlebooks_id:
+                        identifier = orm.Identifier.objects.create(type='goog',value=edition.googlebooks_id, work=work, edition=edition)
+                        identifier.save()
+                    if edition.goodreads_id:
+                        identifier = orm.Identifier.objects.create(type='gdrd',value=edition.goodreads_id, work=work, edition=edition)
+                        identifier.save()
+                    if edition.librarything_id:
+                        identifier = orm.Identifier.objects.create(type='thng',value=edition.librarything_id, work=work, edition=edition)
+                        identifier.save()
+                    if edition.isbn_13:
+                        identifier = orm.Identifier.objects.create(type='isbn',value=edition.isbn_13, work=work, edition=edition)
+                        identifier.save()
+                    if edition.oclc:
+                        identifier = orm.Identifier.objects.create(type='oclc',value=edition.oclc, work=work, edition=edition)
+                        identifier.save()
                 
                
 

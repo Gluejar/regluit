@@ -54,28 +54,30 @@ class Migration(SchemaMigration):
         db.add_column('core_edition', 'librarything_id', self.gf('django.db.models.fields.CharField')(max_length=50, null=True), keep_default=False)
         
         # migrating data
-        for identifier in orm.Identifier.objects.all():
-            if identifier.type=='ltwk':
-                identifier.work.librarything_id = identifier.value
-                identifier.work.save()
-            elif identifier.type=='olwk':
-                identifier.work.openlibrary_id = identifier.value
-                identifier.work.save()
-            elif identifier.type=='goog':
-                identifier.edition.googlebooks_id = identifier.value
-                identifier.edition.save()
-            elif identifier.type=='gdrd':
-                identifier.edition.goodreads_id = identifier.value
-                identifier.edition.save()
-            elif identifier.type=='thng':
-                identifier.edition.librarything_id = identifier.value
-                identifier.edition.save()
-            elif identifier.type=='isbn':
-                identifier.edition.isbn_13 = identifier.value
-                identifier.edition.save()
-            elif identifier.type=='oclc':
-                identifier.edition.oclc = identifier.value
-                identifier.edition.save()
+        if not db.dry_run:
+
+            for identifier in orm.Identifier.objects.all():
+                if identifier.type=='ltwk':
+                    identifier.work.librarything_id = identifier.value
+                    identifier.work.save()
+                elif identifier.type=='olwk':
+                    identifier.work.openlibrary_id = identifier.value
+                    identifier.work.save()
+                elif identifier.type=='goog':
+                    identifier.edition.googlebooks_id = identifier.value
+                    identifier.edition.save()
+                elif identifier.type=='gdrd':
+                    identifier.edition.goodreads_id = identifier.value
+                    identifier.edition.save()
+                elif identifier.type=='thng':
+                    identifier.edition.librarything_id = identifier.value
+                    identifier.edition.save()
+                elif identifier.type=='isbn':
+                    identifier.edition.isbn_13 = identifier.value
+                    identifier.edition.save()
+                elif identifier.type=='oclc':
+                    identifier.edition.oclc = identifier.value
+                    identifier.edition.save()
 
 
     models = {
