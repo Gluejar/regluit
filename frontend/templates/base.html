@@ -124,21 +124,18 @@ Welcome to the alpha version of Unglue.It.  This site is a preview of our full f
 </div>
 {% block counter %}
 <script type="text/javascript">
-var sc_project=7447776; 
-var sc_invisible=1; 
-var sc_security="9ae2ba93"; 
-var sc_https=1; 
-var scJsHost = (("https:" == document.location.protocol) ?
-"https://secure." : "http://www.");
-document.write("<sc"+"ript type='text/javascript' src='" +
-scJsHost +
-"statcounter.com/counter/counter_xhtml.js'></"+"script>");</script>
-<noscript><div class="statcounter"><a title="web
-statistics" href="http://statcounter.com/free-web-stats/"
-class="statcounter"><img class="statcounter"
-src="https://c.statcounter.com/7447776/0/9ae2ba93/1/"
-alt="web statistics" /></a></div></noscript>
-{% endblock %}
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28369982-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>{% endblock %}
 </body>
 </html>
 
