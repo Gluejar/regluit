@@ -97,7 +97,7 @@ def work(request, work_id, action='display'):
     except:
 		pledged = None
     try:
-        pubdate = work.editions.all()[0].publication_date[:4]
+        pubdate = work.publication_date[:4]
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
