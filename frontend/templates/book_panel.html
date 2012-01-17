@@ -123,9 +123,15 @@
     <div class="listview panelfront side1 icons">
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
           <span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.wished_by.count }}</span></span>
-        {% else %}
-        {% if work.first_pdf_url or work.first_epub_url %}
-          <span class="rounded"><span class="grey"><span class="panelnope">Loved by&nbsp;</span>{{ work.wished_by.count }}</span></span>
+        {% else %}{% if work.first_pdf_url or work.first_epub_url %}
+            <span class="listview boolist-ebook">
+            {% if work.first_epub_url %}
+                <a href="{{ work.first_epub_url }}">EPUB</a>
+            {% endif %}
+            {% if work.first_pdf_url %}
+                <a href="{{ work.first_pdf_url }}">PDF</a>
+            {% endif %} 
+            </span>
         {% else %}
         
           <div class="booklist-status-img">
@@ -135,16 +141,6 @@
 	    {% endif %}{% endif %}
     </div>
     <div class="listview panelfront side1 ebooks">
-        {% if work.first_epub_url and work.first_pdf_url %}
-        <span class="listview boolist-ebook">
-        {% if work.first_epub_url %}
-            <a href="{{ work.first_epub_url }}">epub</a>
-        {% endif %}
-        {% if work.first_pdf_url %}
-            <a href="{{ work.first_pdf_url }}">pdf</a>
-        {% endif %} 
-        </span>
-        {% endif %}
     </div>
     <div class="unglue-this panelfront side1 none">
         <div class="unglue-this-inner1">
