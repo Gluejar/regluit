@@ -39,6 +39,7 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
+        
 
     def test_double_add(self):
         bookloader.add_by_isbn('0441012035')
@@ -75,6 +76,9 @@ class BookLoaderTests(TestCase):
         edition = tasks.populate_edition.run(edition)
         self.assertTrue(edition.work.editions.all().count() > 20)
         self.assertTrue(edition.work.subjects.all().count() > 10)
+        self.assertTrue(edition.work.publication_date)
+        edition.publication_date = None
+        self.assertTrue(edition.work.publication_date)
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works

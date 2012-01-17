@@ -406,6 +406,13 @@ class Work(models.Model):
         except IndexError:
             return ''
 
+    @property
+    def publication_date(self):
+    	for edition in Edition.objects.filter(work=self):
+    		if edition.publication_date:
+    			return edition.publication_date
+    	return ''
+
     def __unicode__(self):
         return self.title
 
