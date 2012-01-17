@@ -14,11 +14,8 @@ class Command(BaseCommand):
             isbn = isbn.strip()
             edition = bookloader.add_by_isbn(isbn)
             bookloader.add_related(isbn)
-
-            user.wishlist.add_work(edition.work, source="user")
-
-
             if edition:
-                print "loaded %s as %s" % (isbn, edition)
+                user.wishlist.add_work(edition.work, source="user")
+                print "loaded %s as %s for %s" % (isbn, edition, user)
             else:
                 print "failed to load book for %s" % isbn
