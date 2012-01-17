@@ -250,7 +250,10 @@ class Work(models.Model):
 
     @property
     def googlebooks_url(self):
-        return "http://books.google.com/books?id=%s" % self.googlebooks_id
+        if self.googlebooks_id:
+            return "http://books.google.com/books?id=%s" % self.googlebooks_id
+        else:
+            return ''
 
     @property 
     def goodreads_id(self):
@@ -323,7 +326,7 @@ class Work(models.Model):
             if self.first_ebook() or self.first_epub():
                 status = "Available"
             else:
-            	status = "No campaign yet"
+                status = "No campaign yet"
         return status
 
     def percent_unglued(self):
@@ -408,10 +411,10 @@ class Work(models.Model):
 
     @property
     def publication_date(self):
-    	for edition in Edition.objects.filter(work=self):
-    		if edition.publication_date:
-    			return edition.publication_date
-    	return ''
+        for edition in Edition.objects.filter(work=self):
+            if edition.publication_date:
+                return edition.publication_date
+        return ''
 
     def __unicode__(self):
         return self.title
@@ -451,12 +454,18 @@ class Edition(models.Model):
         return "%s (%s)" % (self.title, self.isbn_13)
 
     def cover_image_small(self):
-        server_id = random.randint(0, 9)
-        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
-
+        if self.googlebooks_id:
+            server_id = random.randint(0, 9)
+            return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+        else:
+            return ''
+            
     def cover_image_thumbnail(self):
-        server_id = random.randint(0, 9)
-        return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+        if self.googlebooks_id:
+			server_id = random.randint(0, 9)
+			return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+        else:
+            return ''
     
     @property
     def isbn_10(self):
