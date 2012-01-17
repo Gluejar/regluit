@@ -1161,7 +1161,7 @@ def work_librarything(request, work_id):
 
 def work_openlibrary(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    isbns = ["ISBN:" + e.isbn_13 for e in work.editions.filter(isbn_13__isnull=False)]
+    isbns = ["ISBN:" + i.value for i in work.identifiers.filter(type='isbn')]
     url = None
 
     if work.openlibrary_id:
