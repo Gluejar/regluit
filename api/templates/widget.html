@@ -33,7 +33,7 @@
 <!--- editions --->
 
 {% if work %}
-  {% with work.editions.all.0.googlebooks_id as googlebooks_id %}
+  {% with work.googlebooks_id as googlebooks_id %}
   {% include "book_panel.html" %}
 {% endwith %}
 {% else %}

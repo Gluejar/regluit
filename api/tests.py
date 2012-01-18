@@ -12,7 +12,7 @@ import regluit.core.isbn
 class ApiTests(TestCase):
 
     def setUp(self):
-        edition = bookloader.add_by_isbn(isbn='0441012035')
+        edition = bookloader.add_by_isbn_from_google(isbn='0441012035')
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
             work=edition.work, 
@@ -57,7 +57,8 @@ class ApiTests(TestCase):
     def test_campaign_lookup_by_isbn(self):
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__editions__isbn_13': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })
@@ -75,7 +76,8 @@ class ApiTests(TestCase):
 
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__editions__isbn_13': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })
@@ -83,11 +85,12 @@ class ApiTests(TestCase):
         self.assertEqual(j['meta']['logged_in_username'], 'test')
         self.assertEqual(j['objects'][0]['in_wishlist'], False)
 
-        w = models.Work.objects.get(editions__isbn_13=regluit.core.isbn.convert_10_to_13('0441012035')) 
+        w = models.Work.objects.get(identifiers__value=regluit.core.isbn.convert_10_to_13('0441012035'), identifiers__type='isbn') 
         self.user.wishlist.add_work(w,'test')
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__editions__isbn_13': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })

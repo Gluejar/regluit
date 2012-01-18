@@ -15,44 +15,85 @@ import regluit.core.isbn
 logger = logging.getLogger(__name__)
 
 
-def add_by_oclc(oclc):
-    logger.info("adding book by oclc %s", oclc)
-    for edition in models.Edition.objects.filter(oclc=oclc):
-        return edition
+def add_by_oclc(isbn, work=None):
+    # this is indirection in case we have a data source other than google
+    return add_by_oclc_from_google(isbn)
 
-    url = "https://www.googleapis.com/books/v1/volumes"
-    results = _get_json(url, {"q": '"OCLC%s"' % oclc})
 
-    if not results.has_key('items') or len(results['items']) == 0:
-        logger.warn("no google hits for %s" % oclc)
+def add_by_oclc_from_google(oclc):
+    if oclc:
+        logger.info("adding book by oclc %s" , oclc)
+    else:
+        return None
+    try:
+        return models.Identifier.objects.get(type='oclc', value=oclc).edition
+    except:
+        url = "https://www.googleapis.com/books/v1/volumes"
+        results = _get_json(url, {"q": '"OCLC%s"' % oclc})
+    
+        if not results.has_key('items') or len(results['items']) == 0:
+            logger.warn("no google hits for %s" , oclc)
+            return None
+    
+        try:
+            e = add_by_googlebooks_id(results['items'][0]['id'], results=results['items'][0])
+            models.Identifier(type='oclc', value=oclc, edition=e, work=e.work).save()
+            return e
+        except LookupFailure, e:
+            logger.exception("failed to add edition for %s", oclc)
+        except IntegrityError, e:
+            logger.exception("google books data for %s didn't fit our db", oclc)
         return None
 
-    try:
-        e = add_by_googlebooks_id(results['items'][0]['id'])
-        e.oclc = oclc
-        e.save()
-        return e
-    except LookupFailure, e:
-        logger.exception("failed to add edition for %s", oclc)
-    except IntegrityError, e:
-        logger.exception("google books data for %s didn't fit our db", oclc)
-    return None
-
-
 def add_by_isbn(isbn, work=None):
-    """add a book to the UnglueIt database based on ISBN. The work parameter
+    if not isbn:
+        return None
+    e = add_by_isbn_from_google(isbn, work=work)
+    if e:
+        return e
+    
+    logger.info("null came back from add_by_isbn_from_google: %s", isbn)
+
+    if not work or not work.title:
+        return None
+
+    # if there's a work with a title, we want to create stub editions and 
+    # works, even if google doesn't know about it # but if it's not valid, 
+    # forget it!
+
+    try:
+        isbn = regluit.core.isbn.ISBN(isbn)
+    except:
+        logger.exception("invalid isbn: %s", isbn)
+        return None
+    if not isbn.valid:
+        return None
+    isbn = isbn.to_string()
+    
+    # we don't know the language  ->'xx'
+    w = models.Work(title=work.title, language='xx')
+    w.save()
+    e = models.Edition(title=work.title,work=w)
+    e.save()
+    e.new = True
+    models.Identifier(type='isbn', value=isbn, work=w, edition=e).save()
+    return e
+    
+    
+def add_by_isbn_from_google(isbn, work=None):
+    """add a book to the UnglueIt database from google based on ISBN. The work parameter
     is optional, and if not supplied the edition will be associated with
     a stub work.
     """
     if not isbn:
         return None
     if len(isbn)==10:
-        isbn=regluit.core.isbn.convert_10_to_13(isbn)
+        isbn = regluit.core.isbn.convert_10_to_13(isbn)
     
     logger.info("adding book by isbn %s", isbn)
-    # save a lookup to google if we already have this isbn
-    has_isbn =  Q(isbn_13=isbn)
-    for edition in models.Edition.objects.filter(has_isbn):
+    # check if we already have this isbn
+    edition = get_edition_by_id(type='isbn',value=isbn)
+    if edition:
         edition.new = False
         return edition
 
@@ -60,58 +101,89 @@ def add_by_isbn(isbn, work=None):
     results = _get_json(url, {"q": "isbn:%s" % isbn})
 
     if not results.has_key('items') or len(results['items']) == 0:
-        logger.warn("no google hits for %s" % isbn)
+        logger.warn("no google hits for %s" , isbn)
         return None
 
     try:
-        return add_by_googlebooks_id(results['items'][0]['id'], work)
+        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0])
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", isbn)
     except IntegrityError, e:
         logger.exception("google books data for %s didn't fit our db", isbn)
     return None
 
+def get_work_by_id(type,value):
+    if value:
+        try:
+            return models.Identifier.objects.get(type=type,value=value).work
+        except models.Identifier.DoesNotExist:
+            return None
 
-def add_by_googlebooks_id(googlebooks_id, work=None):
+def get_edition_by_id(type,value):
+    if value:
+        try:
+            return models.Identifier.objects.get(type=type,value=value).edition
+        except models.Identifier.DoesNotExist:
+            return None
+
+
+def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
     """add a book to the UnglueIt database based on the GoogleBooks ID. The
     work parameter is optional, and if not supplied the edition will be 
-    associated with a stub work.
+    associated with a stub work. 
+    
     """
-
     # don't ping google again if we already know about the edition
     try:
-        e = models.Edition.objects.get(googlebooks_id=googlebooks_id)
-        return e
-    except models.Edition.DoesNotExist:
+        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+    except models.Identifier.DoesNotExist:
         pass
-
-    logger.info("loading metadata from google for %s", googlebooks_id)
-    url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
-    item  = _get_json(url)
+    
+    # if google has been queried by caller, don't call again
+    if results:
+        item =results
+    else:
+        logger.info("loading metadata from google for %s", googlebooks_id)
+        url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
+        item  = _get_json(url)
     d = item['volumeInfo']
 
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
-    language = d.get('language')
+    language = d['language']
     if work and work.language != language:
-        logger.warn("ignoring %s since it is %s instead of %s" %
+        logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
-        return
- 
-    e = models.Edition(googlebooks_id=googlebooks_id)
+        work = None
+    isbn = None
+    for i in d.get('industryIdentifiers', []):
+        if i['type'] == 'ISBN_10' and not isbn:
+            isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
+        elif i['type'] == 'ISBN_13':
+            isbn = i['identifier']
+
+    # now check to see if there's an existing Work
+    if not work:
+        work = get_work_by_id(type='isbn',value=isbn)
+    if not work:
+        work = models.Work.objects.create(title=d['title'], language=language)
+        work.new = True
+        work.save()
+
+    
+    # because this is a new google id, we have to create a new edition
+    e = models.Edition(work=work)
     e.title = d.get('title')
     e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
-   
-    for i in d.get('industryIdentifiers', []):
-        if i['type'] == 'ISBN_13':
-            e.isbn_13 = i['identifier']
-        elif i['type'] == 'ISBN_13':
-            e.isbn_13 = i['identifier']
-
     e.save()
-    e.new=True
+    e.new = True
+    
+    # create identifier where needed
+    models.Identifier(type='goog',value=googlebooks_id,edition=e,work=work).save()
+    if isbn:
+        models.Identifier.get_or_add(type='isbn',value=isbn,edition=e,work=work)
 
     for a in d.get('authors', []):
         a, created = models.Author.objects.get_or_create(name=a)
@@ -133,16 +205,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None):
                                  url=pdf.get('downloadLink', None),
                                  provider='google')
             ebook.save()            
-
-    # if we know what work the edition should be attached to, attach it
-    if work:
-        work.editions.add(e)
-
-    # otherwise we need to create a stub work
-    else:
-        w = models.Work.objects.create(title=e.title, language=language)
-        w.editions.add(e)
-
+            
     return e
 
 
@@ -156,26 +219,42 @@ def add_related(isbn):
 
     # this is the work everything will hang off
     work = edition.work
-
     new_editions = []
+    other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
         if len(other_isbn)==10:
-            other_isbn=regluit.core.isbn.convert_10_to_13(other_isbn)
-        related_edition = add_by_isbn(other_isbn, work)
-        if related_edition and related_edition.work != edition.work:
-            merge_works(edition.work, related_edition.work)
+            other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
+        related_edition = add_by_isbn(other_isbn, work=work)
+
         if related_edition:
-            new_editions.append(related_edition)
+            related_language = related_edition.work.language
+            if edition.work.language == related_language:
+                new_editions.append(related_edition)
+                if related_edition.work != edition.work:
+                    merge_works(edition.work, related_edition.work)
+            else:
+                if other_editions.has_key(related_language):
+                    other_editions[related_language].append(related_edition)
+                else:
+                    other_editions[related_language]=[related_edition]
 
+    # group the other language editions together
+    for lang_group in other_editions.itervalues():
+        if len(lang_group)>1:
+            lang_edition = lang_group[0]
+            for related_edition in lang_group[1:]:
+                if lang_edition.work != related_edition.work:
+                    merge_works(lang_edition.work, related_edition.work)
+        
     return new_editions
-
+    
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
     Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
     """
-    logger.info("looking up %s at ThingISBN" % isbn)
+    logger.info("looking up %s at ThingISBN" , isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
@@ -185,7 +264,10 @@ def thingisbn(isbn):
 def merge_works(w1, w2):
     """will merge the second work (w2) into the first (w1)
     """
-    logger.info("merging work %s into %s", w1, w2)
+    logger.info("merging work %s into %s", w2, w1)
+    for identifier in w2.identifiers.all():
+        identifier.work = w1
+        identifier.save()
     for edition in w2.editions.all():
         edition.work = w1
         edition.save()
@@ -193,7 +275,7 @@ def merge_works(w1, w2):
         campaign.work = w1
         campaign.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
-        w2source=wishlist.work_source(w2)
+        w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
     # TODO: should we decommission w2 instead of deleting it, so that we can
@@ -202,6 +284,10 @@ def merge_works(w1, w2):
 
 
 def add_openlibrary(work):
+    if work.openlibrary_lookup is not None:
+        # don't hit OL if we've visited in the past month or so
+        if datetime.datetime.now()- work.openlibrary_lookup < datetime.timedelta(days=30):
+             return
     work.openlibrary_lookup = datetime.datetime.now()
     work.save()
 
@@ -217,11 +303,11 @@ def add_openlibrary(work):
     for edition in work.editions.all():
         isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
-        e = _get_json(url, params)
+        e = _get_json(url, params, type='ol')
         if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):
             work_key = e[isbn_key]['details']['works'].pop(0)['key']
             logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
-            w = _get_json("http://openlibrary.org" + work_key)
+            w = _get_json("http://openlibrary.org" + work_key,type='ol')
             if w.has_key('subjects'):
                 found = True
                 break
@@ -235,24 +321,32 @@ def add_openlibrary(work):
         logger.info("adding subject %s to work %s", s, work.id)
         subject, created = models.Subject.objects.get_or_create(name=s)
         work.subjects.add(subject)
-
-    work.openlibrary_id = w['key']
     work.save()
+
+    models.Identifier.get_or_add(type='olwk',value=w['key'],work=work)
+    if e[isbn_key]['details'].has_key('identifiers'):
+        ids = e[isbn_key]['details']['identifiers']
+        if ids.has_key('goodreads'):
+            models.Identifier.get_or_add(type='gdrd',value=ids['goodreads'][0],work=work,edition=edition)
+        if ids.has_key('librarything'):
+            models.Identifier.get_or_add(type='ltwk',value=ids['librarything'][0],work=work)
     # TODO: add authors here once they are moved from Edition to Work
-    # TODO: add LCCN, LibraryThing, GoodReads to appropriate models
 
 
-def _get_json(url, params={}):
+def _get_json(url, params={}, type='gb'):
     # TODO: should X-Forwarded-For change based on the request from client?
     headers = {'User-Agent': settings.USER_AGENT, 
                'Accept': 'application/json',
                'X-Forwarded-For': '69.174.114.214'}
-    params['key'] = settings.GOOGLE_BOOKS_API_KEY
+    if type == 'gb':
+        params['key'] = settings.GOOGLE_BOOKS_API_KEY
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
         return json.loads(response.content)
     else:
         logger.error("unexpected HTTP response: %s" % response)
+        if response.content:
+            logger.error("response content: %s" % response.content)
         raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
 

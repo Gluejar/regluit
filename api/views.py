@@ -13,9 +13,11 @@ from tastypie.models import ApiKey
 def isbn(request,isbn):
     if len(isbn)==10:
         isbn=regluit.core.isbn.convert_10_to_13(isbn)
-    editions = models.Edition.objects.filter( Q(isbn_13 = isbn))
-    # models.Campaign.objects.filter(work__editions__isbn_13='9780811216999')
-    
+    try:
+        edition = models.Identifier.objects.get( Q(type = 'isbn', value = isbn)).edition
+        editions = [edition]
+    except models.Identifier.DoesNotExist:
+        editions = []
     return render_to_response('isbn.html', 
         {'isbn':isbn, 'editions':editions},
         context_instance=RequestContext(request)
@@ -44,23 +46,14 @@ def widget(request,isbn):
     Current implementation is to supply info for current book panel design
     """
    
-    # presumably 0 or 1 Edition will match
     if len(isbn)==10:
-        isbn=regluit.core.isbn.convert_10_to_13(isbn)
-    editions = models.Edition.objects.filter( Q(isbn_13 = isbn))
-    # if 1 edition: should be 0 or 1 corresponding Work
-    # for 1 Work, there will be a Campaign or not
-    assert len(editions) < 2
-   
-    if len(editions):
-         edition = editions[0]
-         try:
-             work = edition.work
-             campaigns = work.campaigns.all()
-         except Exception, e:
-             work = None
-             campaigns = []
-    else:
+        isbn = regluit.core.isbn.convert_10_to_13(isbn)
+    try:
+        identifier = models.Identifier.objects.get( Q( type = 'isbn', value = isbn ))
+        work = identifier.work
+        edition = identifier.edition
+        campaigns = work.campaigns.all()
+    except models.Identifer.DoesNotExist:
          edition = None
          work = None
          campaigns = []
@@ -104,10 +97,7 @@ class ApiHelpView(TemplateView):
         campaigns = models.Campaign.objects.all()
         if len(campaigns):
             c = campaigns[0]
-            try:
-                isbn = c.work.editions.all()[0].isbn_13
-            except IndexError:
-                isbn = ''
+            isbn = c.work.first_isbn_13
             context["campaign"] = campaigns[0]
             context["campaign_isbn"] = isbn
 

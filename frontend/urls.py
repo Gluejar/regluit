@@ -12,7 +12,6 @@ urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
     url(r"^supporter/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
-    url(r"^supporter2/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter_panel.html'}, name="supporter2"),
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
