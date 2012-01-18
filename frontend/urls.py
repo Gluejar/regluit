@@ -63,7 +63,7 @@ urlpatterns = patterns(
 
 if not settings.IS_PREVIEW:
     urlpatterns += patterns(
-        "regluit.payment.views",
+        "regluit.frontend.views",
         url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
         url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
         url(r"^donate/$", DonateView.as_view(), name="donate"),
