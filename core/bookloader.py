@@ -57,8 +57,10 @@ def add_by_isbn(isbn, work=None):
     if not work or not work.title:
         return None
 
-    # if there's a work with a title, we want to create stub editions and works, even if google doesn't know about it
-    # but if it's not valid, forget it!
+    # if there's a work with a title, we want to create stub editions and 
+    # works, even if google doesn't know about it # but if it's not valid, 
+    # forget it!
+
     try:
         isbn=regluit.core.isbn.ISBN(isbn)
     except:
@@ -343,6 +345,8 @@ def _get_json(url, params={}, type='gb'):
         return json.loads(response.content)
     else:
         logger.error("unexpected HTTP response: %s" % response)
+        if response.content:
+            logger.error("response content: %s" % response.content)
         raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
 
