@@ -14,10 +14,10 @@ import regluit.core.isbn
 
 logger = logging.getLogger(__name__)
 
+
 def add_by_oclc(isbn, work=None):
     # this is indirection in case we have a data source other than google
     return add_by_oclc_from_google(isbn)
-    
 
 
 def add_by_oclc_from_google(oclc):
@@ -36,7 +36,7 @@ def add_by_oclc_from_google(oclc):
             return None
     
         try:
-            e=add_by_googlebooks_id(results['items'][0]['id'], results=results['items'][0])
+            e = add_by_googlebooks_id(results['items'][0]['id'], results=results['items'][0])
             models.Identifier(type='oclc', value=oclc, edition=e, work=e.work).save()
             return e
         except LookupFailure, e:
@@ -48,7 +48,7 @@ def add_by_oclc_from_google(oclc):
 def add_by_isbn(isbn, work=None):
     if not isbn:
         return None
-    e=add_by_isbn_from_google(isbn, work=work)
+    e = add_by_isbn_from_google(isbn, work=work)
     if e:
         return e
     
@@ -62,20 +62,20 @@ def add_by_isbn(isbn, work=None):
     # forget it!
 
     try:
-        isbn=regluit.core.isbn.ISBN(isbn)
+        isbn = regluit.core.isbn.ISBN(isbn)
     except:
         logger.exception("invalid isbn: %s", isbn)
         return None
     if not isbn.valid:
         return None
-    isbn=isbn.to_string()
+    isbn = isbn.to_string()
     
     # we don't know the language  ->'xx'
-    w= models.Work(title=work.title, language='xx')
+    w = models.Work(title=work.title, language='xx')
     w.save()
-    e= models.Edition(title=work.title,work=w)
+    e = models.Edition(title=work.title,work=w)
     e.save()
-    e.new=True
+    e.new = True
     models.Identifier(type='isbn', value=isbn, work=w, edition=e).save()
     return e
     
@@ -88,7 +88,7 @@ def add_by_isbn_from_google(isbn, work=None):
     if not isbn:
         return None
     if len(isbn)==10:
-        isbn=regluit.core.isbn.convert_10_to_13(isbn)
+        isbn = regluit.core.isbn.convert_10_to_13(isbn)
     
     logger.info("adding book by isbn %s", isbn)
     # check if we already have this isbn
@@ -154,11 +154,11 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
     if work and work.language != language:
         logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
-        work=None
+        work = None
     isbn = None
     for i in d.get('industryIdentifiers', []):
         if i['type'] == 'ISBN_10' and not isbn:
-            isbn= regluit.core.isbn.convert_10_to_13(i['identifier'])
+            isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
         elif i['type'] == 'ISBN_13':
             isbn = i['identifier']
 
@@ -167,7 +167,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
         work = get_work_by_id(type='isbn',value=isbn)
     if not work:
         work = models.Work.objects.create(title=d['title'], language=language)
-        work.new=True
+        work.new = True
         work.save()
 
     
@@ -178,7 +178,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
     e.save()
-    e.new=True
+    e.new = True
     
     # create identifier where needed
     models.Identifier(type='goog',value=googlebooks_id,edition=e,work=work).save()
@@ -224,11 +224,11 @@ def add_related(isbn):
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
         if len(other_isbn)==10:
-            other_isbn=regluit.core.isbn.convert_10_to_13(other_isbn)
+            other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=work)
 
         if related_edition:
-            related_language=related_edition.work.language
+            related_language = related_edition.work.language
             if edition.work.language == related_language:
                 new_editions.append(related_edition)
                 if related_edition.work != edition.work:
@@ -275,7 +275,7 @@ def merge_works(w1, w2):
         campaign.work = w1
         campaign.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
-        w2source=wishlist.work_source(w2)
+        w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
     # TODO: should we decommission w2 instead of deleting it, so that we can
@@ -338,7 +338,7 @@ def _get_json(url, params={}, type='gb'):
     headers = {'User-Agent': settings.USER_AGENT, 
                'Accept': 'application/json',
                'X-Forwarded-For': '69.174.114.214'}
-    if type=='gb':
+    if type == 'gb':
         params['key'] = settings.GOOGLE_BOOKS_API_KEY
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
