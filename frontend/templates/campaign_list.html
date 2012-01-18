@@ -90,7 +90,7 @@
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with campaign.status as status %}
 					{% with campaign.deadline as deadline %}
-					{% with campaign.work.editions.all.0.googlebooks_id as googlebooks_id %}
+					{% with campaign.work.googlebooks_id as googlebooks_id %}
 					{% with campaign.work as work %}				
                     {% include "book_panel.html" %}
                     {% endwith %}{% endwith %}{% endwith %}{% endwith %}

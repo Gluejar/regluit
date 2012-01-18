@@ -28,7 +28,7 @@ class BookLoaderTests(TestCase):
         edition = bookloader.add_by_isbn('0441012035')
         self.assertEqual(edition.title, 'Neuromancer')
         self.assertEqual(edition.publication_date, '2004')
-        self.assertEqual(edition.publisher, 'Ace Books')
+        self.assertEqual(edition.publisher, u'Ace Hardcover')
         self.assertEqual(edition.isbn_10, '0441012035')
         self.assertEqual(edition.isbn_13, '9780441012039')
         self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
@@ -39,6 +39,7 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
+        
 
     def test_double_add(self):
         bookloader.add_by_isbn('0441012035')
@@ -48,7 +49,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.all().count(), 1)
        
     def test_missing_isbn(self):
-        e = bookloader.add_by_isbn('0139391401')
+        e = bookloader.add_by_isbn_from_google('0139391401')
         self.assertEqual(e, None)
 
     def test_thingisbn(self):
@@ -62,22 +63,22 @@ class BookLoaderTests(TestCase):
         edition = bookloader.add_by_isbn('0441012035')
         self.assertEqual(models.Edition.objects.count(), 1)
         self.assertEqual(models.Work.objects.count(), 1)
-    
+        lang=edition.work.language
         # ask for related editions to be added using the work we just created
         bookloader.add_related('0441012035')
         self.assertTrue(models.Edition.objects.count() > 15)
-        self.assertEqual(models.Work.objects.count(), 1)
-        self.assertTrue(edition.work.editions.count() > 15)
+        self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
+        self.assertTrue(edition.work.editions.count() > 10)
 
-        # all the editions in the db should be tied to the work
-        self.assertEqual(models.Edition.objects.count(),
-                edition.work.editions.count())
 
     def test_populate_edition(self):
         edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
         edition = tasks.populate_edition.run(edition)
         self.assertTrue(edition.work.editions.all().count() > 20)
         self.assertTrue(edition.work.subjects.all().count() > 10)
+        self.assertTrue(edition.work.publication_date)
+        edition.publication_date = None
+        self.assertTrue(edition.work.publication_date)
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works
@@ -159,6 +160,8 @@ class BookLoaderTests(TestCase):
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
         self.assertEqual(work.openlibrary_id, '/works/OL27258W')
+        self.assertEqual(work.goodreads_id, '14770')
+        self.assertEqual(work.librarything_id, '609')
 
 
 class SearchTests(TestCase):

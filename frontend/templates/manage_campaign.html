@@ -23,7 +23,7 @@ Please fix the following before launching your campaign:
     <div class="book-detail-info">
         <h2 class="book-name">Title: <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a></h2>
         <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
-        <h3 class="book-year">Published: {{ campaign.work.editions.all.0.publication_date }}</h3>
+        <h3 class="book-year">Published: {{ campaign.work.publication_date }}</h3>
         <h3 class="book-author">Language: {{ campaign.work.editions.all.0.language }}</h3>
         <p>Target Price: {{ campaign.pretarget }}</p>
         <p>End Date: {{ campaign.predeadline }}</p>

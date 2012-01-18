@@ -198,7 +198,7 @@ class Campaign(models.Model):
         return self
        
     def supporters(self):
-    	"""nb: returns (distinct) supporter IDs, not supporter objects"""
+        """nb: returns (distinct) supporter IDs, not supporter objects"""
         translist = self.transactions().values_list('user', flat=True).distinct()
         return translist
 
@@ -208,12 +208,29 @@ class Campaign(models.Model):
         if premiums.count() == 0:
             premiums = Premium.objects.filter(campaign__isnull=True)
         return premiums
+        
+class Identifier(models.Model):
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib
+    type = models.CharField(max_length=4, null=False)
+    value =  models.CharField(max_length=31, null=False)
+    work = models.ForeignKey("Work", related_name="identifiers", null=False)
+    edition = models.ForeignKey("Edition", related_name="identifiers", null=True)
+    
+    class Meta:
+        unique_together = ("type", "value")
+    
+    @classmethod
+    def get_or_add(klass, type='goog', value=None, edition=None, work=None):
+        try:
+            return Identifier.objects.get(type=type, value=value)
+        except Identifier.DoesNotExist:
+            i=Identifier(type=type, value=value, edition=edition, work=work)
+            i.save()
+            return i
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    openlibrary_id = models.CharField(max_length=50, null=True)
-    librarything_id = models.CharField(max_length=50, null=True)
     language = models.CharField(max_length=2, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
 
@@ -226,28 +243,46 @@ class Work(models.Model):
 
     @property
     def googlebooks_id(self):
-        # may want to denormalize this at some point to avoid an extra query
         try:
-        	return self.editions.all()[0].googlebooks_id
+            return self.identifiers.filter(type='goog')[0].value
         except IndexError:
-        	return ''
+            return ''
 
     @property
     def googlebooks_url(self):
-        return "http://books.google.com/books?id=%s" % self.googlebooks_id
+        if self.googlebooks_id:
+            return "http://books.google.com/books?id=%s" % self.googlebooks_id
+        else:
+            return ''
 
     @property 
     def goodreads_id(self):
-        for e in self.editions.filter(goodreads_id__isnull=False):
-            return e.goodreads_id
+        try:
+            return self.identifiers.filter(type='gdrd')[0].value
+        except IndexError:
+            return ''
 
     @property
     def goodreads_url(self):
         return "http://www.goodreads.com/book/show/%s" % self.goodreads_id
 
+    @property 
+    def librarything_id(self):
+        try:
+            return self.identifiers.filter(type='ltwk')[0].value
+        except IndexError:
+            return ''
+
     @property
     def librarything_url(self):
         return "http://www.librarything.com/work/%s" % self.librarything_id
+
+    @property 
+    def openlibrary_id(self):
+        try:
+            return self.identifiers.filter(type='olwk')[0].value
+        except IndexError:
+            return ''
 
     @property
     def openlibrary_url(self):
@@ -255,15 +290,15 @@ class Work(models.Model):
 
     def cover_image_small(self):
         try:
-        	return self.editions.all()[0].cover_image_small()
+            return self.editions.all()[0].cover_image_small()
         except IndexError:
-        	return "/static/images/generic_cover_larger.png"
+            return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-        	return self.editions.all()[0].cover_image_thumbnail()
+            return self.editions.all()[0].cover_image_thumbnail()
         except IndexError:
-        	return "/static/images/generic_cover_larger.png"
+            return "/static/images/generic_cover_larger.png"
         
     def author(self):
         authors = list(Author.objects.filter(editions__work=self).all())
@@ -291,7 +326,7 @@ class Work(models.Model):
             if self.first_ebook() or self.first_epub():
                 status = "Available"
             else:
-            	status = "No campaign yet"
+                status = "No campaign yet"
         return status
 
     def percent_unglued(self):
@@ -369,8 +404,17 @@ class Work(models.Model):
         return description
 
     def first_isbn_13(self):
-        for e in self.editions.filter(isbn_13__isnull=False):
-            return e.isbn_13
+        try:
+            return self.identifiers.filter(type='isbn')[0].value
+        except IndexError:
+            return ''
+
+    @property
+    def publication_date(self):
+        for edition in Edition.objects.filter(work=self):
+            if edition.publication_date:
+                return edition.publication_date
+        return ''
 
     def __unicode__(self):
         return self.title
@@ -398,42 +442,78 @@ class Subject(models.Model):
 
 
 class Edition(models.Model):
-    googlebooks_id = models.CharField(max_length=50, null=False, unique=True)
-    goodreads_id = models.CharField(max_length=50, null=True)
-    librarything_id = models.CharField(max_length=50, null=True)
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
     description = models.TextField(default='', null=True)
-    publisher = models.CharField(max_length=255)
-    publication_date = models.CharField(max_length=50)
+    publisher = models.CharField(max_length=255, null=True)
+    publication_date = models.CharField(max_length=50, null=True)
     public_domain = models.NullBooleanField(null=True)
-    isbn_13 = models.CharField(max_length=13, null=True)
-    oclc = models.CharField(max_length=25, null=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
 
     def __unicode__(self):
         return "%s (%s)" % (self.title, self.isbn_13)
 
     def cover_image_small(self):
-        server_id = random.randint(0, 9)
-        return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
-
+        if self.googlebooks_id:
+            server_id = random.randint(0, 9)
+            return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+        else:
+            return ''
+            
     def cover_image_thumbnail(self):
-        server_id = random.randint(0, 9)
-        return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+        if self.googlebooks_id:
+			server_id = random.randint(0, 9)
+			return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+        else:
+            return ''
     
     @property
     def isbn_10(self):
         return regluit.core.isbn.convert_13_to_10(self.isbn_13)
     
+    @property
+    def isbn_13(self):
+        try:
+            return self.identifiers.filter(type='isbn')[0].value
+        except IndexError:
+            return ''
+
+    @property
+    def googlebooks_id(self):
+        try:
+            return self.identifiers.filter(type='goog')[0].value
+        except IndexError:
+            return ''
+
+    @property
+    def librarything_id(self):
+        try:
+            return self.identifiers.filter(type='thng')[0].value
+        except IndexError:
+            return ''
+
+    @property
+    def oclc(self):
+        try:
+            return self.identifiers.filter(type='oclc')[0].value
+        except IndexError:
+            return ''
+
+    @property
+    def goodreads_id(self):
+        try:
+            return self.identifiers.filter(type='gdrd')[0].value
+        except IndexError:
+            return ''
+
     @classmethod
     def get_by_isbn(klass, isbn):
         if length(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
-
-        for e in Edition.objects.filter( Q(isbn_13=isbn) ):
-            return e
-        return None
+        try:
+            return Identifier.objects.get( type='isbn', value=isbn ).edition
+        except Identifier.DoesNotExist:
+            return None
 
 class Ebook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -456,9 +536,9 @@ class Wishlist(models.Model):
         
     def add_work(self, work, source):
         try:
-    	    w = Wishes.objects.get(wishlist=self,work=work)
-    	    w.source=source
-    	except:
+            w = Wishes.objects.get(wishlist=self,work=work)
+            w.source=source
+        except:
             Wishes.objects.create(source=source,wishlist=self,work=work)        
     
     def remove_work(self, work):

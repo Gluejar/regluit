@@ -97,7 +97,7 @@ def work(request, work_id, action='display'):
     except:
 		pledged = None
     try:
-        pubdate = work.editions.all()[0].publication_date[:4]
+        pubdate = work.publication_date[:4]
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
@@ -156,8 +156,8 @@ def manage_campaign(request, id):
         
 def googlebooks(request, googlebooks_id):
     try: 
-        edition = models.Edition.objects.get(googlebooks_id=googlebooks_id)
-    except models.Edition.DoesNotExist:
+        edition = models.Identifier.objects.get(type='goog',value=googlebooks_id).edition
+    except models.Identifier.DoesNotExist:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # we could populate_edition(edition) to pull in related editions here
         # but it is left out for now to lower the amount of traffic on 
@@ -817,9 +817,9 @@ def search(request):
     works=[]
     for result in results:
 		try:
-			edition = models.Edition.objects.get(googlebooks_id=result['googlebooks_id'])
-			works.append(edition.work)
-		except models.Edition.DoesNotExist: 
+			work = models.Identifier.objects.get(type='goog',value=result['googlebooks_id']).work
+			works.append(work)
+		except models.Identifier.DoesNotExist: 
 			works.append(result)
     context = {
         "q": q,
@@ -1161,7 +1161,7 @@ def work_librarything(request, work_id):
 
 def work_openlibrary(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    isbns = ["ISBN:" + e.isbn_13 for e in work.editions.filter(isbn_13__isnull=False)]
+    isbns = ["ISBN:" + i.value for i in work.identifiers.filter(type='isbn')]
     url = None
 
     if work.openlibrary_id:

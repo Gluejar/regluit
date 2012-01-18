@@ -74,10 +74,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `sudo cp deploy/celeryd.conf /etc/default/celeryd`
 1. `sudo mkdir /var/log/celery`
 1. `sudo chown celery:celery /var/log/celery`
-1. `sudo mkdir /var/run/celery`
-1. `sudo chown celery:celery /var/run/celery`
 1. `sudo /etc/init.d/celeryd start`
-
 
 OS X Develper Notes
 -------------------
