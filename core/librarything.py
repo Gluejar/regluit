@@ -201,6 +201,7 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
     """
    
     from regluit.core import bookloader
+    from regluit.core import tasks
     from itertools import islice
     
     logger.info("Entering into load_librarything_into_wishlist")
@@ -217,10 +218,11 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
             # add the librarything ids to the db since we know them now
             identifier= models.Identifier.get_or_add(type = 'thng', value = book['book_id'], edition = edition, work = edition.work)
             identifier= models.Identifier.get_or_add(type = 'ltwk', value = book['work_id'], work = edition.work)
-
+            if book['lc_call_number']:
+                identifier= models.Identifier.get_or_add(type = 'lccn', value = book['lc_call_number'], edition = edition, work = edition.work)
             user.wishlist.add_work(edition.work, 'librarything')
             if edition.new:
-                regluit.core.tasks.populate_edition.delay(edition)
+                tasks.populate_edition.delay(edition)
             logger.info("Work with isbn %s added to wishlist.", isbn)
         except Exception, e:
             logger.info ("error adding ISBN %s: %s", isbn, e)             
