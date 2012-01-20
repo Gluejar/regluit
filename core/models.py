@@ -323,7 +323,7 @@ class Work(models.Model):
         if campaign:
             status = campaign.status
         else:
-            if self.first_ebook() or self.first_epub():
+            if self.first_ebook():
                 status = "Available"
             else:
                 status = "No campaign yet"
@@ -386,9 +386,13 @@ class Work(models.Model):
             return None
 
     def first_ebook(self, ebook_format=None):
-        for ebook in Ebook.objects.filter(edition__work=self, 
-                                          format=ebook_format):
-            return ebook
+        if ebook_format:
+            for ebook in Ebook.objects.filter(edition__work=self, 
+                                              format=ebook_format):
+                return ebook
+        else:
+            for ebook in Ebook.objects.filter(edition__work=self):
+                return ebook
         return None
 
     def wished_by(self):
@@ -462,8 +466,8 @@ class Edition(models.Model):
             
     def cover_image_thumbnail(self):
         if self.googlebooks_id:
-			server_id = random.randint(0, 9)
-			return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+            server_id = random.randint(0, 9)
+            return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
         else:
             return ''
     
