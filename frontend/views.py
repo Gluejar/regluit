@@ -224,7 +224,8 @@ class UngluedListView(ListView):
         if (facet == 'popular'):
             return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).annotate(wished=Count('wishlists')).filter(ebook_count__gt=0).order_by('-wished')
         else:
-            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
+            #return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
+            return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-created')
 
     def get_context_data(self, **kwargs):
             context = super(UngluedListView, self).get_context_data(**kwargs)
