@@ -188,7 +188,8 @@ class WorkListView(ListView):
     
     def work_set_counts(self,work_set):
         counts={}
-        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        # counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        counts['unglued'] = work_set.filter(editions__ebooks__isnull=False).distinct().count()
         counts['unglueing'] = work_set.filter(campaigns__status='ACTIVE').count()
         counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
         return counts
