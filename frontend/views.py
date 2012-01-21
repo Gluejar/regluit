@@ -188,7 +188,8 @@ class WorkListView(ListView):
     
     def work_set_counts(self,work_set):
         counts={}
-        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        # counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        counts['unglued'] = work_set.filter(editions__ebooks__isnull=False).distinct().count()
         counts['unglueing'] = work_set.filter(campaigns__status='ACTIVE').count()
         counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
         return counts
@@ -224,7 +225,8 @@ class UngluedListView(ListView):
         if (facet == 'popular'):
             return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).annotate(wished=Count('wishlists')).filter(ebook_count__gt=0).order_by('-wished')
         else:
-            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
+            #return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
+            return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-created')
 
     def get_context_data(self, **kwargs):
             context = super(UngluedListView, self).get_context_data(**kwargs)
