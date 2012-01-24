@@ -35,6 +35,7 @@ urlpatterns = patterns(
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
     url(r"^goodreads/flush/$","goodreads_flush_assoc", name="goodreads_flush_assoc"),
     url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
+    url(r"^goodreads/shelves/$","goodreads_calc_shelves", name="goodreads_calc_shelves"),
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),

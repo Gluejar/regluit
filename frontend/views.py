@@ -735,31 +735,28 @@ def supporter(request, supporter_username, template_name):
         if  request.method == 'POST': 
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)
             if profile_form.is_valid():
-                if profile_form.cleaned_data['clear_facebook'] or profile_form.cleaned_data['clear_twitter'] :
+                if profile_form.cleaned_data['clear_facebook'] or profile_form.cleaned_data['clear_twitter'] or  profile_form.cleaned_data['clear_goodreads'] :
                     if profile_form.cleaned_data['clear_facebook']:
                         profile_obj.facebook_id=0
                     if profile_form.cleaned_data['clear_twitter']:
                         profile_obj.twitter_id=""
+                    if profile_form.cleaned_data['clear_goodreads']:
+                        profile_obj.goodreads_user_id = None
+                        profile_obj.goodreads_user_name = None
+                        profile_obj.goodreads_user_link = None
+                        profile_obj.goodreads_auth_token = None
+                        profile_obj.goodreads_auth_secret = None
+
                     profile_obj.save()
                 profile_form.save()
 
         else:
             profile_form= ProfileForm(instance=profile_obj)
-            
-        # for now, also calculate the Goodreads shelves of user when loading this page
-        # we should move towards calculating this only if needed (perhaps with Ajax), caching previous results, etc to speed up
-        # performance
         
         if request.user.profile.goodreads_user_id is not None:
-            gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-            goodreads_shelves = gr_client.shelves_list(user_id=request.user.profile.goodreads_user_id)
-            goodreads_shelf_load_form = GoodreadsShelfLoadingForm()
-            # load the shelves into the form
-            choices = [('all:%d' % (goodreads_shelves["total_book_count"]),'all (%d)' % (goodreads_shelves["total_book_count"]))] +  \
-                [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in goodreads_shelves["user_shelves"]]
-            goodreads_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
+            goodreads_id = request.user.profile.goodreads_user_id
         else:
-            goodreads_shelf_load_form = None                        
+            goodreads_id = None
 
         if request.user.profile.librarything_id is not None:
             librarything_id = request.user.profile.librarything_id
@@ -767,7 +764,7 @@ def supporter(request, supporter_username, template_name):
             librarything_id = None
     else:
         profile_form = ''
-        goodreads_shelf_load_form = None
+        goodreads_id = None
         librarything_id = None
 
         
@@ -783,7 +780,7 @@ def supporter(request, supporter_username, template_name):
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
             "goodreads_auth_url": reverse('goodreads_auth'),
-            "goodreads_shelf_load_form": goodreads_shelf_load_form,
+            "goodreads_id": goodreads_id,
             "librarything_id": librarything_id
     }
     
@@ -1054,6 +1051,26 @@ def goodreads_load_shelf(request):
         return HttpResponse("Error in loading shelf: %s " % (e))
         logger.info("Error in loading shelf for user %s: %s ", user, e)
 
+
+@login_required
+def goodreads_calc_shelves(request):
+
+    # we should move towards calculating this only if needed (perhaps with Ajax), caching previous results, etc to speed up
+    # performance
+    
+    if request.user.profile.goodreads_user_id is not None:
+        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        goodreads_shelves = gr_client.shelves_list(user_id=request.user.profile.goodreads_user_id)
+        #goodreads_shelf_load_form = GoodreadsShelfLoadingForm()
+        ## load the shelves into the form
+        #choices = [('all:%d' % (goodreads_shelves["total_book_count"]),'all (%d)' % (goodreads_shelves["total_book_count"]))] +  \
+        #    [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in goodreads_shelves["user_shelves"]]
+        #goodreads_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
+    else:
+        goodreads_shelf_load_form = None
+    
+    return HttpResponse(json.dumps(goodreads_shelves), content_type="application/json")
+    
 
 @require_POST
 @login_required      

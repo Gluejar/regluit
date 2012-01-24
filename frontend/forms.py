@@ -62,9 +62,10 @@ class RightsHolderForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)
+    clear_goodreads=forms.BooleanField(required=False)
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 25, 'rows': 5}),
         }

@@ -155,7 +155,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
@@ -168,15 +168,16 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </form> 
                             <div class="block block3">
                                 <h3 class="title">Import your books</h3>
-                                {% if goodreads_shelf_load_form %}
+                                {% if goodreads_id %}
                                 <form id="load_shelf_form" method="post" action="#">
                                     {% csrf_token %}
-                                    {{ goodreads_shelf_load_form.non_field_errors }}
                                     <div class="fieldWrapper">
-                                        <div id="loadgr"><span><div>{{ goodreads_shelf_load_form.goodreads_shelf_name_number.errors }}                                        
-                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number }}</div>
-                                        <input type="submit" value="Add this shelf" />
-                                        </div></span>
+                                        
+                                        <div id="loadgr"><span>
+                                         <div id="goodreads_shelves"></div>
+                                        <input id="goodreads_input" type="submit" value="Display your GoodReads shelves" />
+                                        </span>
+                                        </div>
                                     </div>
                                 </form>
                                 {% else %}
