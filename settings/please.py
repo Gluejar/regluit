@@ -20,7 +20,7 @@ DATABASES = {
         'NAME': 'please',
         'USER': 'please',
         'PASSWORD': 'unglueit',
-        'HOST': 'domU-12-31-39-14-F6-46.compute-1.internal',
+        'HOST': 'ip-10-204-97-89.ec2.internal',
         'PORT': '',
     }
 }
