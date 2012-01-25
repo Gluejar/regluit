@@ -38,7 +38,7 @@ Production Deployment
 
 Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
 
-1. create an ubuntu LTS ec2 instance
+1. create an ubuntu ec2 instance (e.g, go http://alestic.com/ to find various ubuntu images)
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
 1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
@@ -54,7 +54,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. create an Amazon RDS instance
 1. connect to it, e.g. `mysql -u root -h gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com -p`
 1. `CREATE DATABASE unglueit CHARSET utf8;`
-1. `GRANT ALL ON unglueit.\* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL`
+1. `GRANT ALL ON unglueit.\* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL;`
 1. update settings/prod.py with database credentials
 1. `virtualenv ENV`
 1. `source ENV/bin/activate`

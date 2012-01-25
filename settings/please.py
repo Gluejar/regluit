@@ -20,7 +20,7 @@ DATABASES = {
         'NAME': 'please',
         'USER': 'please',
         'PASSWORD': 'unglueit',
-        'HOST': 'gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'HOST': 'domU-12-31-39-14-F6-46.compute-1.internal',
         'PORT': '',
     }
 }
