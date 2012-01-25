@@ -1253,11 +1253,12 @@ def feedback(request):
             sender = form.cleaned_data['sender']
             recipient = 'support@gluejar.com'
             page = form.cleaned_data['page']
+            useragent = request.META['HTTP_USER_AGENT']
             if request.user.is_anonymous():
             	ungluer = "(not logged in)"
             else:
             	ungluer = request.user.username
-            message = "<<<This feedback is about "+page+". Original user message (from "+sender+"; ungluer name "+ungluer+") follows: >>>"+message
+            message = "<<<This feedback is about "+page+". Original user message follows\nfrom "+sender+", ungluer name "+ungluer+"\nwith user agent "+useragent+"\n>>>\n"+message
             send_mail(subject, message, sender, [recipient])
             
             return render(request, "thanks.html", {"page":page}) 
