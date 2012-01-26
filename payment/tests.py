@@ -9,85 +9,84 @@ from django.test import TestCase
 from django.utils import unittest
 from django.conf import settings
 from regluit.payment.manager import PaymentManager
-from regluit.payment.paypal import IPN, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED, IPN_PAY_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
-from noseselenium.cases import SeleniumTestCaseMixin
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist, Work
-from django.contrib.auth.models import User
 from regluit.payment.parameters import *
+from regluit.payment.paypal import *
 import traceback
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 import time
-from selenium import selenium, webdriver
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+import logging
 
 from decimal import Decimal as D
 import datetime
+
+def set_test_logging():
+    
+    # Setup debug logging to our console so we can watch
+    defaultLogger = logging.getLogger('')
+    defaultLogger.addHandler(logging.StreamHandler())
+    defaultLogger.setLevel(logging.DEBUG)
+    
+    # Set the selenium logger to info
+    sel = logging.getLogger("selenium")
+    sel.setLevel(logging.INFO)
 
 def loginSandbox(test, selenium):
     
     print "LOGIN SANDBOX"
     
     try:
-        selenium.open('https://developer.paypal.com/')
-        time.sleep(5)
-        test.failUnless(selenium.is_text_present('Member Log In'))
-        selenium.type('login_email', settings.PAYPAL_SANDBOX_LOGIN)
-        selenium.type('login_password', settings.PAYPAL_SANDBOX_PASSWORD)
-        time.sleep(2)
-        selenium.click('css=input[class=\"formBtnOrange\"]')
-        time.sleep(5)
-        test.failUnless(selenium.is_text_present('Test Accounts'))
+        selenium.get('https://developer.paypal.com/')
+        login_email = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("login_email"))
+        login_email.click()
+        login_email.send_keys(settings.PAYPAL_SANDBOX_LOGIN)
+        
+        login_password = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("login_password"))
+        login_password.click()
+        login_password.send_keys(settings.PAYPAL_SANDBOX_PASSWORD)
+        
+        submit_button = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_css_selector("input[class=\"formBtnOrange\"]"))
+        submit_button.click()
+    
     except:
         traceback.print_exc()
     
-def authorizeSandbox(test, selenium, url):
+def paySandbox(test, selenium, url, authorize=False):
     
-    print "AUTHORIZE SANDBOX"
+    if authorize:
+        print "AUTHORIZE SANDBOX"
+    else:
+        print "PAY SANDBOX"
     
     try:
-        selenium.open(url)
-        time.sleep(5)
-        test.failUnless(selenium.is_text_present('Your preapproved payment summary'))
-        selenium.click('loadLogin')
-        time.sleep(5)
-        selenium.type('id=login_email', settings.PAYPAL_BUYER_LOGIN)
-        selenium.type('id=login_password', settings.PAYPAL_BUYER_PASSWORD)
-        time.sleep(2)
-        selenium.click('submitLogin')
-        time.sleep(5)
-        test.failUnless(selenium.is_text_present('Review your information'))
-        selenium.click('submit.x')
-        time.sleep(10)
-        selenium.click('returnToMerchant')
-        time.sleep(15)
+        selenium.get(url)
+        login_element = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("loadLogin"))
+        login_element.click()
+        
+        email_element = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("login_email"))
+        email_element.click()
+        email_element.send_keys(settings.PAYPAL_BUYER_LOGIN)
+        
+        password_element = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("login_password"))
+        password_element.click()
+        password_element.send_keys(settings.PAYPAL_BUYER_PASSWORD)
+
+        submit_button = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("submitLogin"))
+        submit_button.click()
+
+        final_submit = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("submit.x"))
+        final_submit.click()
+        
+        return_button = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("returnToMerchant"))
+        return_button.click()
         
     except:
         traceback.print_exc()
-        
-def paySandbox(test, selenium, url):
     
-    print "PAY SANDBOX"
-    
-    try:
-        selenium.open(url)
-        time.sleep(5)
-        test.failUnless(selenium.is_text_present('Your payment summary'))
-        selenium.click('loadLogin')
-        time.sleep(5)
-        selenium.type('id=login_email', settings.PAYPAL_BUYER_LOGIN)
-        selenium.type('id=login_password', settings.PAYPAL_BUYER_PASSWORD)
-        time.sleep(2)
-        selenium.click('submitLogin')
-        time.sleep(5)
-        test.failUnless(selenium.is_text_present('Review your information'))
-        selenium.click('submit.x')
-        time.sleep(10)
-        selenium.click('returnToMerchant')
-        time.sleep(15)
-        
-    except:
-        traceback.print_exc()
     
 class PledgeTest(TestCase):
     
@@ -96,9 +95,8 @@ class PledgeTest(TestCase):
         # This is an empty array where we will store any verification errors
         # we find in our tests
 
-        self.selenium = selenium("localhost", 4444, "*firefox",
-                "http://www.google.com/")
-        self.selenium.start()
+        self.selenium = webdriver.Firefox()
+        set_test_logging()
 
     def validateRedirect(self, t, url, count):
     
@@ -107,7 +105,7 @@ class PledgeTest(TestCase):
         self.assertEqual(t.receiver_set.all().count(), count)
         self.assertEqual(t.receiver_set.all()[0].amount, t.amount)
         self.assertEqual(t.receiver_set.all()[0].currency, t.currency)
-        # self.assertNotEqual(t.reference, None)
+        # self.assertNotEqual(t.ref1Gerence, None)
         self.assertEqual(t.error, None)
         self.assertEqual(t.status, IPN_PAY_STATUS_CREATED)
         
@@ -131,6 +129,9 @@ class PledgeTest(TestCase):
         
             loginSandbox(self, self.selenium)
             paySandbox(self, self.selenium, url)
+            
+            # sleep to make sure the transaction has time to complete
+            time.sleep(10)
                     
             # by now we should have received the IPN
             # right now, for running on machine with no acess to IPN, we manually update statuses
@@ -181,7 +182,7 @@ class PledgeTest(TestCase):
         self.validateRedirect(t, url, 1)
 
     def tearDown(self):
-        self.selenium.stop()
+        self.selenium.quit()
         
 class AuthorizeTest(TestCase):
     
@@ -190,9 +191,8 @@ class AuthorizeTest(TestCase):
         # This is an empty array where we will store any verification errors
         # we find in our tests
 
-        self.selenium = selenium("localhost", 4444, "*firefox",
-                "http://www.google.com/")
-        self.selenium.start()
+        self.selenium = webdriver.Firefox()
+        set_test_logging()
     
     def validateRedirect(self, t, url):
     
@@ -221,7 +221,7 @@ class AuthorizeTest(TestCase):
         self.validateRedirect(t, url)
         
         loginSandbox(self, self.selenium)
-        authorizeSandbox(self, self.selenium, url)
+        paySandbox(self, self.selenium, url, authorize=True)
     
         # stick in a getStatus to update statuses in the absence of IPNs
         p.checkStatus()
@@ -231,7 +231,7 @@ class AuthorizeTest(TestCase):
         self.assertEqual(t.status, IPN_PAY_STATUS_ACTIVE)
         
     def tearDown(self):
-        self.selenium.stop()
+        self.selenium.quit()
         
 class TransactionTest(TestCase):
     def setUp(self):
