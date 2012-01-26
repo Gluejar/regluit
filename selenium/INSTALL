@@ -1,14 +1,13 @@
 Instructions to install xvfb + jdk
 
 1) sudo apt-get install openjdk-6-jre-headless
-2) sudo apt-get install xfonts-100dpi xfonts-75dpi xfonts-scalable xfonts-cyrillic
+2) sudo apt-get install xfonts-base xfonts-100dpi xfonts-75dpi xfonts-scalable xfonts-cyrillic
 3) sudo apt-get install xvfb
-4) sudo apt-get install xserver-xorg-core
-5) sudo apt-get install firefox
-6) sudo cp xvfb /etc/init.d/xvfb
-7) sudo chmod 755 /etc/init.d/xvfb
-8) sudo cp selenium /etc/init.d/selenium
-9) sudo chmod 755 /etc/init.d/selenium
+4) sudo apt-get install firefox
+5) sudo cp xvfb /etc/init.d/xvfb
+6) sudo chmod 755 /etc/init.d/xvfb
+7) sudo cp selenium /etc/init.d/selenium
+8) sudo chmod 755 /etc/init.d/selenium
 
 Instructions to manually restart xvfb + selenium server
 
@@ -17,5 +16,5 @@ Instructions to manually restart xvfb + selenium server
 Create a link to auto start xvfb+selenium on startup
 
 1) sudo ln -s /etc/init.d/xvfb /etc/rc2.d/S66xvfb
-2) sudo ln -d /etc/init.d/selenium /etc/rc2.d/S67selenium
+2) sudo ln -s /etc/init.d/selenium /etc/rc2.d/S67selenium
 
