@@ -20,9 +20,13 @@ import time
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 import logging
-
+import os
 from decimal import Decimal as D
 import datetime
+
+def setup_selenium():
+    # Set the display window for our xvfb
+    os.environ['DISPLAY'] = ':99'
 
 def set_test_logging():
     
@@ -95,6 +99,7 @@ class PledgeTest(TestCase):
         # This is an empty array where we will store any verification errors
         # we find in our tests
 
+        setup_selenium()
         self.selenium = webdriver.Firefox()
         set_test_logging()
 
@@ -191,6 +196,7 @@ class AuthorizeTest(TestCase):
         # This is an empty array where we will store any verification errors
         # we find in our tests
 
+        setup_selenium()
         self.selenium = webdriver.Firefox()
         set_test_logging()
     
