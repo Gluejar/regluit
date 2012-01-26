@@ -20,7 +20,7 @@ DATABASES = {
         'NAME': 'please',
         'USER': 'please2',
         'PASSWORD': 'unglueit',
-        'HOST': 'ip-10-204-97-89.ec2.internal',
+        'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }
