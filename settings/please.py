@@ -18,9 +18,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'please',
-        'USER': 'please',
+        'USER': 'please2',
         'PASSWORD': 'unglueit',
-        'HOST': 'domU-12-31-39-14-F6-46.compute-1.internal',
+        'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }
