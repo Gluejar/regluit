@@ -37,6 +37,7 @@ Production Deployment
 ---------------------
 
 Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
+Instructions for setting please are slightly different.
 
 1. create an ubuntu ec2 instance (e.g, go http://alestic.com/ to find various ubuntu images)
 1. `sudo aptitude update`
