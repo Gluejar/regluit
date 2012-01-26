@@ -43,10 +43,6 @@
 	width:25%;
 }
 
-.user-block-inner {
-
-}
-
 .user-block2 {
 	color:@medium-blue;
 	font-size:11px;
@@ -78,6 +74,7 @@
 img.user-avatar { 
 	float:left; 
 	margin-right:10px;
+	.one-border-radius(7px);
 }
 
 .social { 
@@ -104,8 +101,7 @@ span.user-short-info {
 }
 
 span.user-name,
-span.user-name a,
-a { 
+span.user-name a { 
 	font-size:12px;
 	color:@text-blue;
 }
@@ -118,7 +114,7 @@ span.user-status-title {
 
 span.rounded {
 	border:1px solid #d4d4d4;
-	.border-radius(7px, 7px, 7px, 7px);
+	.one-border-radius(7px);
 	padding:1px; 
 	color:#fff; 
 	margin:0 8px 0 0;
@@ -127,7 +123,7 @@ span.rounded {
 	> span { 
 		padding:7px 7px; 
 		min-width:15px; 
-		.border-radius(5px, 5px, 5px, 5px);
+		.one-border-radius(5px);
 		text-align:center; 
 		display:inline-block;
 		
@@ -177,6 +173,7 @@ input.profile-save {
 	display: block;
 	text-indent: -100000px;
 	border:none;
+	cursor: pointer;
 }
 
 #loadgr {
@@ -207,16 +204,18 @@ input.profile-save {
 .weareonthat {
 	background: url("@{image-base}checkmark_small.png") left center no-repeat;
 }
-a.my-setting { 
+span.my-setting { 
 	background:@blue-grey url("@{image-base}header/explane.png") 90% center no-repeat; 
-	border-radius:7px; 
+	.one-border-radius(7px); 
 	.height(50px);
 	display:block; 
 	padding:0 0 0 10px; 
 	font-size:20px;
+	font-weight: bold;
+	cursor:pointer;
 }
 
-a.my-setting.active { 
+span.my-setting.active { 
 	background:@blue-grey url("@{image-base}header/collspane.png") 90% center no-repeat;
 }
 
@@ -231,6 +230,10 @@ a.my-setting.active {
     margin-left: 10px;
     margin-top: 10px;
     width: 100%;
+    
+    ul.tabs li a:hover {
+    	text-decoration: none;
+    }
 
 	&.wantto {
 		border-bottom: 4px solid @blue-grey;
@@ -334,6 +337,10 @@ ul.tabs {
 
 div.content-block-content {
   padding-left: 10px;
+}
+
+.empty-wishlist {
+	margin-top: 10px;
 }
 
 .js-news-text {

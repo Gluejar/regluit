@@ -36,6 +36,9 @@ class Transaction(models.Model):
     # (RY is not sure what receipt is for)
     receipt = models.CharField(max_length=256, null=True)
     
+    # whether a Preapproval has been approved or not
+    approved = models.NullBooleanField(null=True)
+    
     # error message from a PayPal transaction
     error = models.CharField(max_length=256, null=True)
     

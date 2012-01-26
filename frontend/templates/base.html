@@ -5,6 +5,8 @@
 {% url regluit.frontend.views.edit_user as editurl %}
 {% url rightsholders as rhtoolsurl %}
 {% url faq as faqurl %}
+{% url about as abouturl %}
+{% url press as pressurl %}
 {% url rh_admin as adminurl %}
 {% load truncatechars %}
 
@@ -17,6 +19,8 @@
 	{% block base_js %}
 	<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
     {% endblock %}
+    {% block extra_js %}
+    {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
     {% block extra_head %}
@@ -25,6 +29,9 @@
 
 <body>
 
+<div id="feedback">
+<p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
+</div>
 <div id="js-page-wrap">
     <div id="js-header">
         <div class="js-main">
@@ -51,9 +58,9 @@
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
-                    <li><a href="/stub/tour"><span>Tour</span></a></li>  
-                    <li><a href="{{faqurl}}"><span>FAQs</span></a></li>   
-                    <li><a href="/stub/Help"><span>Help</span></a></li>
+                    <li><a href="{{ faqurl }}"><span>FAQs</span></a></li>   
+                    <li><a href="{{ pressurl }}"><span>Press</span></a></li>   
+                    <li><a href="/"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
                     {% endif %}
@@ -62,18 +69,23 @@
         </div>
     </div>
 
+{% if is_preview %}
+<div class="preview_top">
+Welcome to the alpha version of Unglue.It.  This site is a preview of our full functionality; some things (including pledging) aren't turned on yet.  If something seems broken or confusing -- or if you find something you love! -- please give us <a href="/feedback">feedback</a>.  Thank you for your interest, and have fun.
+</div>
+{% endif %}
     {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}
-
+</div>
 <div id="footer">
   <div class="js-main">
     <div class="column">
     <span>About unglue.it</span>
     <ul>
-    <li><a href="/stub/about">About</a></li>
+    <li><a href="{{ abouturl }}">About</a></li>
     <li><a href="http://www.gluejar.com/Blog">Blog</a></li>
-    <li><a href="/stub/press">Press</a></li>
-    <li><a href="/stub/newsletter">Newsletter</a></li>
+    <li><a href="{{ pressurl }}">Press</a></li>
+    <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
     </ul>
     </div>
     <div class="column">
@@ -93,8 +105,8 @@
     <div class="column">
     <span>Help</span>
     <ul>
-    <li><a href="{{faqurl}}">FAQ</a></li>
-    <li><a href="/stub/rhfaq">Rights Holder FAQ</a></li>
+    <li><a href="{{faqurl}}">General FAQ</a></li>
+    <li><a href="/faq/rightsholders/">Rights Holder FAQ</a></li>
     <li><a href="{% url api_help %}">API</a></li>
     <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
     </ul>
@@ -110,24 +122,20 @@
     </div>
 </div>
 </div>
-</div>
 {% block counter %}
 <script type="text/javascript">
-var sc_project=7447776; 
-var sc_invisible=1; 
-var sc_security="9ae2ba93"; 
-var sc_https=1; 
-var scJsHost = (("https:" == document.location.protocol) ?
-"https://secure." : "http://www.");
-document.write("<sc"+"ript type='text/javascript' src='" +
-scJsHost +
-"statcounter.com/counter/counter_xhtml.js'></"+"script>");</script>
-<noscript><div class="statcounter"><a title="web
-statistics" href="http://statcounter.com/free-web-stats/"
-class="statcounter"><img class="statcounter"
-src="https://c.statcounter.com/7447776/0/9ae2ba93/1/"
-alt="web statistics" /></a></div></noscript>
-{% endblock %}
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-28369982-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>{% endblock %}
 </body>
 </html>
 

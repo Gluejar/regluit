@@ -62,9 +62,10 @@ class RightsHolderForm(forms.ModelForm):
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)
+    clear_goodreads=forms.BooleanField(required=False)
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads'
         widgets = {
             'tagline': forms.Textarea(attrs={'cols': 25, 'rows': 5}),
         }
@@ -201,3 +202,22 @@ class EmailShareForm(forms.Form):
 	# we can't rely on POST or GET since the emailshare view handles both
 	# and may iterate several times as it catches user errors, losing URL info
 	next = forms.CharField(widget=forms.HiddenInput())
+	
+class FeedbackForm(forms.Form):
+	sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}))
+	subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}))
+	message = forms.CharField(widget=forms.Textarea())
+	page = forms.CharField(widget=forms.HiddenInput())
+	notarobot = forms.IntegerField(label="Please prove you're not a robot")
+	answer = forms.IntegerField(widget=forms.HiddenInput())
+	num1 = forms.IntegerField(widget=forms.HiddenInput())
+	num2 = forms.IntegerField(widget=forms.HiddenInput())
+	
+	def clean(self):
+		cleaned_data = self.cleaned_data
+		notarobot = str(cleaned_data.get("notarobot"))
+		answer = str(cleaned_data.get("answer"))
+		if notarobot!=answer:
+			raise forms.ValidationError(_("Whoops, try that sum again."))
+			
+		return cleaned_data

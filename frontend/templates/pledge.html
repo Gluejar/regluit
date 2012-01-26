@@ -9,7 +9,7 @@
 {% block doccontent %}
 
 <h2>Campaign: {{campaign.name}}</h2>
-    <p>Wonderful:  We're glad that you would like to support this campaign.</p>
+    <div class="thank-you">Thank you!</div>
             	
             	<div class="book-detail">
                 	<div class="book-detail-img"><a href="#">
@@ -18,7 +18,7 @@
                     <div class="book-detail-info">
                     	<h2 class="book-name">{{ work.title }}</h2>
                         <h3 class="book-author">{{ work.author }}</h3>
-                        <h3 class="book-year">{{ work.editions.all.0.publication_date }}</h3>
+                        <h3 class="book-year">{{ work.publication_date }}</h3>
                         <div class="find-book">
                         	<label>Find it here</label>
                         	<!-- todo: these should be a real thing -->

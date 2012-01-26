@@ -53,7 +53,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% ifequal supporter request.user %}
                             <div class="user-block1">
                             <div class="block-inner">
-                            <a class="my-setting" href="#">My Settings</a>
+                            <span class="my-setting">My Settings</a>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -92,27 +92,27 @@ how do I integrate the your wishlist thing with the tabs thing?
                             <div class="user-block4">
                                 <div class="social">
                                 {% if supporter.profile.home_url %}
-                                   <a href="{{ supporter.profile.home_url }}">
+                                   <a href="{{ supporter.profile.home_url }}" class="nounderline">
                                        <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
                                    </a>
                                 {% endif %}
                                 {% if supporter.profile.facebook_id %}
-									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}">
+									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}" class="nounderline">
 										<img src="/static/images/supporter_icons/facebook_square.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
 									</a>
                                 {% endif %}
                                 {% if supporter.profile.twitter_id %}
-									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}">
+									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}" class="nounderline">
 										<img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
 									</a>
                                 {% endif %}
                                 {% if supporter.profile.goodreads_user_link %}
-									<a href="{{supporter.profile.goodreads_user_link}}">
+									<a href="{{supporter.profile.goodreads_user_link}}" class="nounderline">
 										<img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
 									</a>
                                 {% endif %}
                                 {% if supporter.profile.librarything_id %}
-									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}">
+									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
 										<img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
 									</a>
                                  {% endif %}
@@ -125,7 +125,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
-                                <h3><a class="profile-edit" href="#">Your Tagline</a></h3> (140 characters max)
+                                <h3 class="title">Your Tagline</h3> (140 characters max)
                                     {{ profile_form.tagline.errors }}
                                     {{ profile_form.tagline }}
 
@@ -155,7 +155,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
@@ -168,15 +168,16 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </form> 
                             <div class="block block3">
                                 <h3 class="title">Import your books</h3>
-                                {% if goodreads_shelf_load_form %}
+                                {% if goodreads_id %}
                                 <form id="load_shelf_form" method="post" action="#">
                                     {% csrf_token %}
-                                    {{ goodreads_shelf_load_form.non_field_errors }}
                                     <div class="fieldWrapper">
-                                        <div id="loadgr"><span><div>{{ goodreads_shelf_load_form.goodreads_shelf_name_number.errors }}                                        
-                                        {{ goodreads_shelf_load_form.goodreads_shelf_name_number }}</div>
-                                        <input type="submit" value="Add this shelf" />
-                                        </div></span>
+                                        
+                                        <div id="loadgr"><span>
+                                         <div id="goodreads_shelves"></div>
+                                        <input id="goodreads_input" type="submit" value="Display your GoodReads shelves" />
+                                        </span>
+                                        </div>
                                     </div>
                                 </form>
                                 {% else %}
@@ -239,16 +240,13 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% ifequal wishlist.works.all.count 0 %}
                     {% ifequal request.user supporter %}
                     <div class="empty-wishlist">
-                        Your wishlist is currently empty.<br><br>
-                        Go ahead and <span class="bounce-search">find</span> some books to give to the world, and add them to your Wishlist!<br><br>
-                        We double dog dare you...
+                        Your wishlist is currently empty.<br /><br />
+                        Why not <span class="bounce-search">find</span> your favorite books, and add them to your Wishlist?<br /><br />
+                        We'd also love to hear your <a href="/feedback">feedback</a>.
                     </div>
                     {% else %}
                     <div class="empty-wishlist">
-                        It looks like {{ supporter.username }} is just
-                        getting started, and hasn't added anything to their
-                        wishlist just yet.<br><br>
-                        Nudge, nudge, say no more. 
+                        It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
                     {% endifequal %}
                     {% else %}
                     {% paginate 20 works %}
@@ -256,7 +254,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.editions.all.0.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}					
                     {% include "book_panel.html" %}
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
@@ -273,12 +271,4 @@ how do I integrate the your wishlist thing with the tabs thing?
     </div>
     </div>
 
-{% endblock %}
-
-{% block counter %}
-<div class="statcounter"><a title="web
-statistics" href="http://statcounter.com/free-web-stats/"
-class="statcounter"><img class="statcounter"
-src="https://c.statcounter.com/7447776/0/9ae2ba93/1/"
-alt="web statistics" /></a></div>
 {% endblock %}

@@ -14,6 +14,82 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+/* remove before beta */
+.preview {
+  border: solid 3px #e35351;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  clear: both;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 17px;
+}
+.preview a {
+  color: #8dc63f;
+}
+.preview_top {
+  border: solid 3px #e35351;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  clear: both;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 17px;
+  width: 934px;
+  margin: 10px auto 0 auto;
+}
+.preview_top a {
+  color: #8dc63f;
+}
+.preview_content {
+  border: solid 3px #e35351;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  clear: both;
+  padding: 5px 10px;
+  font-size: 13px;
+  line-height: 17px;
+  width: 80%;
+  margin: 10px auto;
+}
+.preview_content a {
+  color: #8dc63f;
+}
 /* Local variables */
 .utilityheaders {
   text-transform: uppercase;
@@ -35,12 +111,52 @@ body {
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Arial, Helvetica, sans-serif;
   color: #3d4e53;
 }
+#feedback {
+  /* remove after alpha? */
+
+  position: fixed;
+  top: 50%;
+  left: 0;
+  z-index: 500;
+}
+#feedback p {
+  /* see http://scottgale.com/blog/css-vertical-text/2010/03/01/ */
+
+  writing-mode: tb-rl;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  white-space: nowrap;
+  display: block;
+  bottom: 0;
+  width: 160px;
+  height: 26px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  background: #8dc63f;
+  margin-bottom: 0;
+  text-align: center;
+  margin-left: -67px;
+  line-height: normal;
+}
+#feedback p a {
+  color: white;
+  font-size: 24px;
+  font-weight: normal;
+}
+#feedback p a:hover {
+  color: #3d4e53;
+}
 a {
   font-weight: bold;
   font-size: 13px;
   text-decoration: none;
   cursor: pointer;
   color: #6994a3;
+}
+a:hover {
+  text-decoration: underline;
 }
 img {
   border: none;
@@ -226,13 +342,21 @@ a.readon span {
 #js-leftcol a:hover {
   text-decoration: underline;
 }
+#js-leftcol a.comingsoon:hover {
+  text-decoration: none;
+  cursor: default;
+}
+#js-leftcol a.comingsoon:hover:after {
+  content: " Coming soon!";
+  color: #8dc63f;
+}
 #js-leftcol .jsmod-content {
   border: solid 1px #edf3f4;
   -moz-border-radius: 0 0 10px 10px;
   -webkit-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-#js-leftcol ul.level1 > li > a {
+#js-leftcol ul.level1 > li > a, #js-leftcol ul.level1 > li > span {
   border-bottom: 1px solid #edf3f4;
   border-top: 1px solid #edf3f4;
   text-transform: uppercase;
@@ -249,6 +373,9 @@ a.readon span {
 }
 #js-leftcol ul.level2 li img {
   vertical-align: middle;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 #js-leftcol ul.level2 li .ungluer-name {
   height: 30px;
@@ -359,4 +486,7 @@ div.content-block-content .cols3 .column {
   margin: 5px;
   padding: 1px;
   background-color: #edf3f4;
+}
+a.nounderline {
+  text-decoration: none;
 }

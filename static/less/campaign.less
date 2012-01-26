@@ -1,10 +1,5 @@
 @import "variables.less";
 
-.mediaborder {
-	padding: 5px;
-	border: solid 5px #EDF3F4;
-}
-
 .shareclass(@sharewhere) {
 	background:url("@{image-base}icons/@{sharewhere}.png") 10px center no-repeat;
 	cursor: pointer;
@@ -14,11 +9,11 @@
 	}
 		
 	&:hover {
-	background:@call-to-action url("@{image-base}icons/@{sharewhere}-hover.png") 10px center no-repeat;
-			
-	span {
-		color: #fff;
-		}
+		background:@call-to-action url("@{image-base}icons/@{sharewhere}-hover.png") 10px center no-repeat;
+	
+		span {
+			color: #fff;
+			}
 	}
 }
 
@@ -34,7 +29,7 @@
 	margin-bottom:10px;
 
 	&.rounded .jsmod-content {
-		   .border-radius(20px, 20px, 20px, 20px);
+		   .one-border-radius(20px);
 			background:@pale-blue;
 			color: @text-blue;
 			padding:10px 20px;
@@ -151,6 +146,10 @@
 				padding:0;
 				cursor:pointer;
 			}
+			
+			&.modify input {
+				background:url("@{image-base}btn_bg_grey.png") 0 0 no-repeat;
+			}
 		}
 	}
 	
@@ -238,6 +237,10 @@ ul.tabs {
 			.border-radius(7px, 7px, 0, 0);
 			background:@blue-grey;
 			color:@text-blue;
+			
+			&:hover {
+				text-decoration: none;
+			}
 		}
 		
 		a:hover, &.active a {
@@ -255,7 +258,7 @@ ul.tabs {
 	
 	h3.jsmod-title {
 		background:@medium-blue-grey;
-		.border-radius(10px, 10px, 10px, 10px);
+		.one-border-radius(10px);
 		padding:10px;
 		height:auto;
 		font-style:normal;
@@ -277,7 +280,7 @@ ul.tabs {
 
 .js-rightcol-pad {
 	border:1px solid @blue-grey;
-	.border-radius(10px, 10px, 10px, 10px);
+	.one-border-radius(10px);
 	padding:10px;
 } 
 
@@ -309,36 +312,37 @@ div.content-block-content {
 	}
 }
 
-ul.social li {
-	padding:5px 0 5px 30px;
-	.height(28px);
-	
-	a {
-		padding-left: 10px;
+ul.social {
+	a:hover {
+		text-decoration: none;
 	}
 
-	&.facebook {
-		.shareclass("facebook");
-	}
+	li {
+		padding:5px 0 5px 30px;
+		.height(28px);
 	
-	&.twitter {
-		.shareclass("twitter");
-	}
+		&.facebook {
+			.shareclass("facebook");
+		}
 	
-	&.email {
-		.shareclass("email");
-	}
+		&.twitter {
+			.shareclass("twitter");
+		}
 	
-	&.embed {
-		.shareclass("embed");
-	}
+		&.email {
+			.shareclass("email");
+		}
 	
+		&.embed {
+			.shareclass("embed");
+		}
+	}
 }
 
 #widgetcode {
 	display: none;
 	border:1px solid @blue-grey;
-	.border-radius(10px, 10px, 10px, 10px);
+	.one-border-radius(10px);
 	padding:10px;
 }
 
@@ -428,6 +432,10 @@ a{ color:#3d4e53; font-size:12px;}
     a:hover {
     	text-decoration: underline;
     }
+}
+
+.thank-you {
+	font-size: 20px;
 }
 
 .work_supporter {

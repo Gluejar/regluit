@@ -1,0 +1,20 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %}Pledge Completed{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+{% endblock %}
+
+{% block doccontent %}
+
+    <div class="thank-you">Thank you!</div>
+    
+    <div>You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</div>
+    <div>If the campaign, which is slated to end at {{campaign.deadline}} reaches its target of ${{campaign.target}},
+    your PayPal account will be charged soon after the deadline.</div>
+    <div>Tell your friends about this campaign!</div>
+
+{% endblock %}
+
+

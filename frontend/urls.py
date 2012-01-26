@@ -3,16 +3,16 @@ from django.views.generic.simple import direct_to_template
 from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, FAQView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
     url(r"^supporter/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
-    url(r"^supporter2/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter_panel.html'}, name="supporter2"),
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
@@ -23,21 +23,19 @@ urlpatterns = patterns(
     url(r"^rightsholders/claim/$", "claim", name="claim"), 
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"),
     url(r"^campaign_admin/$", "campaign_admin", name="campaign_admin"),    
-    url(r"^faq/$", FAQView.as_view(), {'location':'faq'}, name="faq"), 
-    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view()), 
+    url(r"^faq/$", FAQView.as_view(), {'location':'faq', 'sublocation':'all'}, name="faq"), 
+    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}), 
+    url(r"^faq/(?P<location>\w*)/(?P<sublocation>\w*)/$", FAQView.as_view()), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
-    url(r"^unglued/(?P<facet>\w*)$", 
-        ListView.as_view( model=Campaign,template_name="campaign_list.html", context_object_name="campaign_list"), 
-        name='unglued_list'),
-    url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
+    url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),
     url(r"^goodreads/auth/$", "goodreads_auth", name="goodreads_auth"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
     url(r"^goodreads/flush/$","goodreads_flush_assoc", name="goodreads_flush_assoc"),
     url(r"^goodreads/load_shelf/$","goodreads_load_shelf", name="goodreads_load_shelf"),
-    url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
+    url(r"^goodreads/shelves/$","goodreads_calc_shelves", name="goodreads_calc_shelves"),
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
@@ -47,13 +45,29 @@ urlpatterns = patterns(
     #may want to deprecate the following
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
-    url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
+    url(r"^pledge/cancel/$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
+    url(r"^pledge/complete/$", PledgeCompleteView.as_view(), name="pledge_complete"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
-    url(r"^donate/$", DonateView.as_view(), name="donate"),
     url('^404testing/$', direct_to_template, {'template': '404.html'}),
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
-    url('^robots.txt$', direct_to_template, {'template': 'robots.txt'}),
+    url('^robots.txt$', direct_to_template, {'template': 'robots.txt', 'mimetype': 'text/plain'}),
     url(r"^emailshare/$", "emailshare", name="emailshare"),
+    url(r"^feedback/$", "feedback", name="feedback"),
+    url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
+    url(r"^press/$", TemplateView.as_view(template_name="press.html"),
+        name="press"),
+    url(r"^about/$", TemplateView.as_view(template_name="about.html"),
+        name="about"),
 )
+
+if not settings.IS_PREVIEW:
+    urlpatterns += patterns(
+        "regluit.frontend.views",
+        url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
+        url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
+        url(r"^donate/$", DonateView.as_view(), name="donate"),
+        url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
+)
+

@@ -106,9 +106,9 @@ class MyZotero(Zotero2):
                     logger.info("Work with isbn %s added to wishlist.", isbn)
             except Exception, e:
                 logger.info ("error adding ISBN %s: %s", isbn, e)            
-        
-        
-if __name__ == '__main__':        
+
+
+def get_unglue_collection():
     zot = MyZotero()
     #zot.compare_keys(24,7,3)
     to_unglue = list(zot.items_in_unglue_it_collection())
@@ -117,3 +117,18 @@ if __name__ == '__main__':
         print b
     #zot.upload_to_unglue_it('RaymondYee',5000)
     #print zot.get_all_items()
+        
+def hello_world():
+    zot = Zotero(user_id, user_key)
+    items = zot.top()
+    for item in items:
+        try:
+            print 'Author: %s | Title: %s' % (item['creators'][0]['lastName'] if item['creators'] else '', item['title'])
+        except Exception, e:
+            print "Error: %s " % (e)
+    
+        
+if __name__ == '__main__':
+    get_unglue_collection()
+
+

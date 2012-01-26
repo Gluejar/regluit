@@ -13,6 +13,45 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
 /* variables and mixins used in multiple less files go here */
 .header-text {
   height: 36px;
@@ -27,6 +66,45 @@
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
 }
 .user-block-hide {
   float: left;
@@ -65,7 +143,10 @@
 }
 .block-intro-text div#active {
   display: inherit;
-  height: 75px;
+}
+body {
+  font-size: 13px;
+  line-height: 16px;
 }
 /* Learn More area (not already styles by learnmore.less) */
 .user-block {
@@ -119,12 +200,12 @@
   margin-top: 50px;
   background: #edf3f4;
   border: 1px solid #d6dde0;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
 }
 .have-right #js-rightcol .jsmodule {
   border-bottom: 1px solid #3c4e52;
@@ -155,39 +236,40 @@
 }
 .doc ul li {
   margin-bottom: 7px;
-  -moz-border-radius: 14px 14px 14px 14px;
-  -webkit-border-radius: 14px 14px 14px 14px;
-  border-radius: 14px 14px 14px 14px;
-  -moz-border-radius: 14px 14px 14px 14px;
-  -webkit-border-radius: 14px 14px 14px 14px;
-  border-radius: 14px 14px 14px 14px;
+  -moz-border-radius: 14px;
+  -webkit-border-radius: 14px;
+  border-radius: 14px;
+  -moz-border-radius: 14px;
+  -webkit-border-radius: 14px;
+  border-radius: 14px;
   padding: 10px;
   background: #edf3f4;
 }
 .doc div.inset {
   background: #edf3f4;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
   padding: 10px;
   font-style: italic;
 }
 dt {
   margin: 7px 0px 7px -7px;
-  -moz-border-radius: 14px 14px 14px 14px;
-  -webkit-border-radius: 14px 14px 14px 14px;
-  border-radius: 14px 14px 14px 14px;
-  -moz-border-radius: 14px 14px 14px 14px;
-  -webkit-border-radius: 14px 14px 14px 14px;
-  border-radius: 14px 14px 14px 14px;
+  -moz-border-radius: 14px;
+  -webkit-border-radius: 14px;
+  border-radius: 14px;
+  -moz-border-radius: 14px;
+  -webkit-border-radius: 14px;
+  border-radius: 14px;
   padding: 10px 0px 10px 7px;
   background: #edf3f4;
 }
 dd {
   margin: 0;
+  padding-bottom: 7px;
 }
 .doc ol li {
   margin-bottom: 7px;
@@ -197,4 +279,72 @@ dd {
 }
 .collapse ul {
   display: none;
+}
+/* items on press page */
+.spacer {
+  clear: both;
+  height: 0px;
+}
+.presstoc {
+  overflow: auto;
+  clear: both;
+  padding-bottom: 10px;
+}
+.presstoc div {
+  float: left;
+  padding-right: 15px;
+  margin-bottom: 7px;
+}
+.presstoc div.pressemail {
+  border: solid 2px #3d4e53;
+  padding: 5px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  max-width: 678px;
+  margin-top: 7px;
+}
+.pressarticles div {
+  margin-bottom: 10px;
+}
+.pressvideos > div {
+  margin-bottom: 15px;
+  padding-bottom: 7px;
+  border-bottom: solid 1px #3d4e53;
+  float: left;
+}
+.pressvideos iframe {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.pressimages {
+  clear: both;
+}
+.pressimages .outer {
+  clear: both;
+}
+.pressimages .outer div {
+  float: left;
+  width: 25%;
+  padding-bottom: 10px;
+}
+.pressimages .outer div.text {
+  width: 75%;
+}
+.pressimages .outer div p {
+  margin: 0 auto;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+.pressimages .screenshot {
+  width: 150px;
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+  padding: 5px;
+  border: solid 5px #EDF3F4;
 }

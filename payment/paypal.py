@@ -694,7 +694,16 @@ class PreapprovalDetails(PaypalEnvelopeRequest):
           self.status = self.response.get("status", None)
           self.amount = self.response.get("maxTotalAmountOfAllPayments", None)
           self.currency = self.response.get("currencyCode", None)
-          self.approved = self.response.get("approved", None)
+          
+          # a bit uncertain about how well PayPal sticks to a standard case
+          approved = self.response.get("approved", 'None')    
+          if approved.lower() == 'true':
+            self.approved = True
+          elif approved.lower() == 'false':
+            self.approved = False
+          else:
+            self.approved = None
+          
           self.expiration = self.response.get("endingDate", None)
           self.date = self.response.get("startingDate", None)
           
@@ -737,6 +746,15 @@ class IPN( object ):
         self.transaction_type = request.POST.get('transaction_type', None)
         self.reason_code = request.POST.get('reason_code', None)
         self.trackingId = request.POST.get('tracking_id', None)
+        
+        # a bit uncertain about how well PayPal sticks to a standard case
+        approved = request.POST.get("approved", 'None')    
+        if approved.lower() == 'true':
+          self.approved = True
+        elif approved.lower() == 'false':
+          self.approved = False
+        else:
+          self.approved = None        
         
         self.process_transactions(request)
         

@@ -83,9 +83,36 @@ def get_or_create(session, model, defaults=None, **kwargs):
 Base = declarative_base()
 
 class GutenbergText(object):
+    """ 
+    CREATE TABLE `GutenbergText` (
+      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `etext_id` int(10) unsigned NOT NULL,
+      `title` varchar(1024) DEFAULT NULL,
+      `friendly_title` varchar(1024) DEFAULT NULL,
+      `lang` char(5) DEFAULT NULL,
+      `rights` varchar(512) DEFAULT NULL,
+      `created` date DEFAULT NULL,
+      `creator` varchar(1024) DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      KEY `etext_id` (`etext_id`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=37874 DEFAULT CHARSET=utf8;    
+    """
     pass
 
 class GutenbergFile(object):
+    """
+    CREATE TABLE `GutenbergFile` (
+      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `about` varchar(300) NOT NULL DEFAULT '',
+      `format` varchar(256) DEFAULT NULL,
+      `extent` int(11) unsigned DEFAULT NULL,
+      `modified` date DEFAULT NULL,
+      `is_format_of` int(11) DEFAULT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `about_index` (`about`),
+      KEY `is_format_of` (`is_format_of`)
+    ) ENGINE=MyISAM AUTO_INCREMENT=463211 DEFAULT CHARSET=utf8;    
+    """
     pass
 
 class WikipediaLink(Base):
@@ -171,11 +198,13 @@ class GluejarDB(object):
     def rollback(self):
         self.session.rollback()
     def gutenberg_texts(self):
+        """generator for all records in the GutenbergText table"""
         items = self.session.query(GutenbergText).all()
         for item in items:
             yield item
     def filtered_wikipedia_links(self):
         """generate wikipedia links that are in the main Wikipedia namespace"""
+        # eliminate pages in the TO_FILTER namespace
         TO_FILTER = ['File:%', 'Portal:%', 'Portal talk:%', "Talk:%",
                      'Template:%', 'Template talk:%', 'User:%','User talk:%',
                      'Wikipedia:%', 'Wikipedia talk:%']
@@ -742,14 +771,21 @@ def suite():
 
 
 if __name__ == '__main__':
+    
+    #walk through and parse catalogs
     #walk_through_catalog(fname='/Users/raymondyee/D/Document/Gluejar/gutenberg/catalog_texts.rdf',max=100)
     #walk_through_catalog(fname='/Users/raymondyee/D/Document/Gluejar/gutenberg/catalog_files.rdf',max=1000)
+    
     #load_texts_to_db(max=10)
     #load_files_to_db(max=None)
     #load_wikipedia_external_links_into_db(None)
     #map_wikipedia_links_to_freebase_ids(None, page_size=10)
+
+    # in between:  here we have to do some manual work in Google Refine
+
     #map_refine_fb_links_to_openlibrary_work_ids(max=None)
     #compute_ol_title_from_work_id(max=1000)
+    
     export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
     import_gutenberg_json(fname="gutenberg_openlibrary.json")
     #unittest.main()

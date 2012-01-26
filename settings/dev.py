@@ -3,6 +3,12 @@ from regluit.settings.common import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+# if you're doing development work, you'll want this to be zero
+IS_PREVIEW = False
+
+# SITE_ID for your particular site -- must be configured in /core/fixtures/initial_data.json
+SITE_ID = 3
+
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),
 )
@@ -109,3 +115,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 INTERNAL_IPS = ('127.0.0.1',)
 
 CELERYD_LOG_LEVEL = "INFO"
+
+# this suppresses functionality that should not be visible on the alpha site
+# change to 0 if you want to see it on your local machine
+IS_PREVIEW = False

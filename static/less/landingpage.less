@@ -92,9 +92,14 @@
 	float: right;
 	.height(24px);
 	width: 24px;
-	.border-radius(12px, 12px, 12px, 12px); 
-	border: solid 4px @text-blue;
+	.one-border-radius(24px); 
+	-moz-box-shadow: -1px 1px @text-blue;
+	-webkit-box-shadow: -1px 1px @text-blue;
+	box-shadow: -1px 1px @text-blue;
+	border: solid 3px white;
 	text-align: center;
+	color: white;
+	background: @text-blue;
 	font-size: 17px;
 	z-index:5000;
 	margin-top: -12px;
@@ -110,7 +115,7 @@
 		width: 208px;
 		background:@pale-blue; 
 		border:1px solid @blue-grey; 
-		.border-radius(12px, 12px, 12px, 12px); 
+		.one-border-radius(12px); 
 		margin-bottom:10px; 
 		padding:0 10px 10px 10px;
 		
@@ -120,7 +125,7 @@
 		}
 		
 		input {
-			.border-radius(32px, 32px, 32px, 32px);
+			.one-border-radius(32px);
 			border: none;
 			.height(36px);
 			width:90%;
@@ -187,6 +192,10 @@ ul.ungluingwhat {
 	
 	div.user-avatar { 
 		width:43px;
+		
+		img {
+			.one-border-radius(5px);
+		}
 	}
 	
 	.user-book-thumb { 
@@ -219,7 +228,7 @@ ul.ungluingwhat {
 
 div.typo2 { 
 	background:@pale-blue; 
-	.border-radius(12px, 12px, 12px, 12px); 
+	.one-border-radius(12px); 
 	padding:10px; 
 	font-style:italic;
 }
@@ -300,7 +309,7 @@ h2.page-heading {
 	
 	#js-search { 
 		//background:url("@{image-base}andingpage/bg-search.png") 0 0 no-repeat; 
-		.border-radius(64px, 64px, 64px, 64px);
+		.one-border-radius(64px);
 		background-color: @call-to-action;
 		width:628px; 
 		height:80px; 
@@ -401,17 +410,7 @@ h3.module-title {
 }
 
 .google_signup {
-	padding: 14px 0;
-	
-	div {
-		.height(32px);
-		float: left;
-		padding-left:5px;
-	}
-	
-	img {
-		float: left;
-	}
+	.google_signup_div;
 }
 
 #js-slideshow { 

@@ -2,6 +2,11 @@
 @import "variables.less";
 @import "learnmore.less";
 
+body {
+	font-size: 13px;
+	line-height: 16px;
+}
+
 /* Learn More area (not already styles by learnmore.less) */
 .user-block {
 	width:100%; clear:both;
@@ -64,7 +69,7 @@
 	margin-top:50px;
 	background:@pale-blue;
 	border:1px solid @blue-grey;
-	.border-radius(12px, 12px, 12px, 12px);
+	.one-border-radius(12px);
 	
 	.jsmodule {
 		border-bottom:1px solid #3c4e52;
@@ -102,7 +107,7 @@
 
 	li {
 		margin-bottom:7px;
-		.border-radius(14px, 14px, 14px, 14px);
+		.one-border-radius(14px);
 		padding:10px;
 		background:@pale-blue;
 	}
@@ -110,20 +115,21 @@
 
 .doc div.inset {
 	background:@pale-blue;
-	.border-radius(12px, 12px, 12px, 12px);
+	.one-border-radius(12px);
 	padding:10px;
 	font-style:italic;
 }
 
 dt {
 	margin:7px 0px 7px -7px;
-	.border-radius(14px, 14px, 14px, 14px);
+	.one-border-radius(14px);
 	padding:10px 0px 10px 7px;
 	background:@pale-blue;
 }
 
 dd {
 	margin: 0;
+	padding-bottom: 7px;
 }
 
 .doc ol li {
@@ -136,4 +142,74 @@ dd {
 
 .collapse ul {
 	display: none;
+}
+
+/* items on press page */
+.spacer {
+	clear:both;
+	height:0px;
+}
+
+.presstoc {
+	div {
+		float: left;
+		padding-right: 15px;
+		margin-bottom: 7px;
+		
+		&.pressemail {
+			border: solid 2px @text-blue;
+			padding: 5px;
+			.one-border-radius(7px);
+			max-width: 678px;
+			margin-top: 7px;
+		}
+	}
+	overflow: auto;
+	clear: both;
+	padding-bottom: 10px;
+}
+
+.pressarticles div {
+	margin-bottom: 10px;
+}
+
+.pressvideos {
+	> div {
+		margin-bottom: 15px;
+		padding-bottom: 7px;
+		border-bottom: solid 1px @text-blue;
+		float: left;
+	}
+	
+	iframe {
+		.mediaborder;
+	}
+}
+
+.pressimages {
+	.outer {
+		clear: both;
+		
+		div {
+			float: left;
+			width: 25%;
+			padding-bottom: 10px;
+
+			&.text {
+				width: 75%;
+			}
+						
+			p { 
+				margin: 0 auto;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+		}
+	}
+	clear: both;
+	
+	.screenshot {
+		width: 150px;
+		.mediaborder;
+	}
 }

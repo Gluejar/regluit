@@ -38,10 +38,10 @@ Production Deployment
 
 Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
 
-1. create an ubuntu natty ec2 instance using ami-1aad5273
+1. create an ubuntu ec2 instance (e.g, go http://alestic.com/ to find various ubuntu images)
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
+1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
@@ -54,32 +54,32 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. create an Amazon RDS instance
 1. connect to it, e.g. `mysql -u root -h gluejardb.cboagmr25pjs.us-east-1.rds.amazonaws.com -p`
 1. `CREATE DATABASE unglueit CHARSET utf8;`
-1. `GRANT ALL ON unglueit.\* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL`
+1. `GRANT ALL ON unglueit.\* TO ‘unglueit’@’ip-10-244-250-168.ec2.internal’ IDENTIFIED BY 'unglueit' REQUIRE SSL;`
 1. update settings/prod.py with database credentials
 1. `virtualenv ENV`
 1. `source ENV/bin/activate`
 1. `pip install -r requirements.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
 1. `django-admin.py syncdb --migrate --settings regluit.settings.prod`
+1. `sudo mkdir /var/www/static`
+1. `sudo chown ubuntu:ubuntu /var/www/static`
 1. `django-admin.py collectstatic --settings regluit.settings.prod`
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
-1. `sudo a2enmod ssl`
-1. 'sudo a2ensite default-ssl`
-1. edit /etc/apache2/sites-available/default-ssl to use correct ssl certificate if necessary
+1. `sudo a2enmod ssl rewrite`
+1. `cd /home/ubuntu`
+1. copy SSL server key to `/etc/ssl/private/server.key`
+1. copy SSL certificate to `/etc/ssl/certs/server.crt`
 1. `sudo /etc/init.d/apache2 restart`
-1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
+1. `sudo adduser --no-create-home celery --disabled-password --disabled-login` (just enter return for all?)
 1. `sudo cp deploy/celeryd /etc/init.d/celeryd`
 1. `sudo chmod 755 /etc/init.d/celeryd`
 1. `sudo cp deploy/celeryd.conf /etc/default/celeryd`
 1. `sudo mkdir /var/log/celery`
 1. `sudo chown celery:celery /var/log/celery`
-1. `sudo mkdir /var/run/celery`
-1. `sudo chown celery:celery /var/run/celery`
 1. `sudo /etc/init.d/celeryd start`
 
-
-OS X Develper Notes
+OS X Developer Notes
 -------------------
 
 To run regluit on OS X you should have XCode installed

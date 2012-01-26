@@ -13,6 +13,45 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
 /* variables and mixins used in multiple less files go here */
 .header-text {
   height: 36px;
@@ -27,6 +66,45 @@
   border-width: 1px 0px;
   border-style: solid none;
   border-color: #FFFFFF;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 32px;
+  line-height: 32px;
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
 }
 .user-block-hide {
   float: left;
@@ -65,7 +143,6 @@
 }
 .block-intro-text div#active {
   display: inherit;
-  height: 75px;
 }
 #expandable {
   display: none;
@@ -141,14 +218,19 @@
   height: 24px;
   line-height: 24px;
   width: 24px;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
-  border: solid 4px #3d4e53;
+  -moz-border-radius: 24px;
+  -webkit-border-radius: 24px;
+  border-radius: 24px;
+  -moz-border-radius: 24px;
+  -webkit-border-radius: 24px;
+  border-radius: 24px;
+  -moz-box-shadow: -1px 1px #3d4e53;
+  -webkit-box-shadow: -1px 1px #3d4e53;
+  box-shadow: -1px 1px #3d4e53;
+  border: solid 3px white;
   text-align: center;
+  color: white;
+  background: #3d4e53;
   font-size: 17px;
   z-index: 5000;
   margin-top: -12px;
@@ -163,12 +245,12 @@
   width: 208px;
   background: #edf3f4;
   border: 1px solid #d6dde0;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
   margin-bottom: 10px;
   padding: 0 10px 10px 10px;
 }
@@ -177,12 +259,12 @@
   padding-bottom: 10px;
 }
 #js-rightcol .jsmodule input, #js-rightcol2 .jsmodule input {
-  -moz-border-radius: 32px 32px 32px 32px;
-  -webkit-border-radius: 32px 32px 32px 32px;
-  border-radius: 32px 32px 32px 32px;
-  -moz-border-radius: 32px 32px 32px 32px;
-  -webkit-border-radius: 32px 32px 32px 32px;
-  border-radius: 32px 32px 32px 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
   border: none;
   height: 36px;
   line-height: 36px;
@@ -238,6 +320,14 @@ ul.ungluingwhat li > div {
 ul.ungluingwhat div.user-avatar {
   width: 43px;
 }
+ul.ungluingwhat div.user-avatar img {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
 ul.ungluingwhat .user-book-thumb {
   width: 29px;
 }
@@ -262,12 +352,12 @@ ul.ungluingwhat .user-book-info a.user-book-name {
 }
 div.typo2 {
   background: #edf3f4;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
-  -moz-border-radius: 12px 12px 12px 12px;
-  -webkit-border-radius: 12px 12px 12px 12px;
-  border-radius: 12px 12px 12px 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  border-radius: 12px;
   padding: 10px;
   font-style: italic;
 }
@@ -338,12 +428,12 @@ h2.page-heading {
   margin-top: 55px;
 }
 #js-maincontainer-bot-block #js-search {
-  -moz-border-radius: 64px 64px 64px 64px;
-  -webkit-border-radius: 64px 64px 64px 64px;
-  border-radius: 64px 64px 64px 64px;
-  -moz-border-radius: 64px 64px 64px 64px;
-  -webkit-border-radius: 64px 64px 64px 64px;
-  border-radius: 64px 64px 64px 64px;
+  -moz-border-radius: 64px;
+  -webkit-border-radius: 64px;
+  border-radius: 64px;
+  -moz-border-radius: 64px;
+  -webkit-border-radius: 64px;
+  border-radius: 64px;
   background-color: #8dc63f;
   width: 628px;
   height: 80px;
@@ -438,6 +528,18 @@ h3.module-title {
 }
 .google_signup {
   padding: 14px 0;
+  padding: 14px 0;
+}
+.google_signup div {
+  height: 32px;
+  line-height: 32px;
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup img {
+  float: left;
 }
 .google_signup div {
   height: 32px;

@@ -2,28 +2,19 @@
 {% block title %}login{% endblock %}
 {% block doccontent %}
 
-<div id="registration">
-
 {% if form.errors %}
 <p class="errorlist">Your username and password didn't match. Please try again.</p>
 {% endif %}
 
-<h3>Login to your account:</h3>
+<h3>Sign in to your account</h3>
 
 {% include "login_form.html" %}
-<p>
-<br>
-<br>
-<h3>Or, login with:</h3> 
-<a href="/socialauth/login/google?next=http://{{request.get_host}}{{ next }}"><img src="{{ STATIC_URL }}/images/auth/google_64.png"</a>
-</p>
-
-<p>
-<br>
-<br>
+<br />
 <a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="{% url registration_register %}">Need an account</a>?
-</p>
 
+<br /><br />
+<div class="google_signup">
+	<a href="/socialauth/login/google?next=/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next=/">Sign in with Google</a></div>
 </div>
 
 {% endblock %}

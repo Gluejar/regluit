@@ -4,6 +4,7 @@ import json
 import urllib
 import logging
 import datetime 
+from random import randint
 from re import sub
 from itertools import islice
 from decimal import Decimal as D
@@ -39,10 +40,11 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm
+from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.payment.manager import PaymentManager
-from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -61,15 +63,24 @@ def home(request):
     works=[]
     works2=[]
     count=ending.count()
-    while i<12 and count>0:
-        if i<6:
-            works.append(ending[j].work)
-        else:
-            works2.append(ending[j].work)
-        i += 1
-        j += 1
-        if j == count:
-            j = 0
+
+	# on the preview site there are no active campaigns, so we should show most-wished books instead
+    is_preview = settings.IS_PREVIEW
+    if is_preview:
+    	# django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
+    	worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
+    	works = worklist[:6]
+    	works2 = worklist[6:12]
+    else:
+        while i<12 and count>0:
+            if i<6:
+                works.append(ending[j].work)
+            else:
+                works2.append(ending[j].work)
+            i += 1
+            j += 1
+            if j == count:
+                j = 0
     events = models.Wishes.objects.order_by('-created')[0:2]
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
@@ -82,7 +93,11 @@ def work(request, work_id, action='display'):
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     try:
-        pubdate = work.editions.all()[0].publication_date[:4]
+	    pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
+    except:
+		pledged = None
+    try:
+        pubdate = work.publication_date[:4]
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
@@ -111,6 +126,7 @@ def work(request, work_id, action='display'):
             'base_url': base_url,
             'editions': editions,
             'pubdate': pubdate,
+            'pledged':pledged,
         })
 
 def manage_campaign(request, id):
@@ -140,8 +156,8 @@ def manage_campaign(request, id):
         
 def googlebooks(request, googlebooks_id):
     try: 
-        edition = models.Edition.objects.get(googlebooks_id=googlebooks_id)
-    except models.Edition.DoesNotExist:
+        edition = models.Identifier.objects.get(type='goog',value=googlebooks_id).edition
+    except models.Identifier.DoesNotExist:
         edition = bookloader.add_by_googlebooks_id(googlebooks_id)
         # we could populate_edition(edition) to pull in related editions here
         # but it is left out for now to lower the amount of traffic on 
@@ -172,7 +188,8 @@ class WorkListView(ListView):
     
     def work_set_counts(self,work_set):
         counts={}
-        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        # counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        counts['unglued'] = work_set.filter(editions__ebooks__isnull=False).distinct().count()
         counts['unglueing'] = work_set.filter(campaigns__status='ACTIVE').count()
         counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
         return counts
@@ -193,6 +210,32 @@ class WorkListView(ListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+class UngluedListView(ListView):
+    template_name = "unglued_list.html"
+    context_object_name = "work_list"
+    
+    def work_set_counts(self,work_set):
+        counts={}
+        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
+        return counts
+
+    def get_queryset(self):
+        facet = self.kwargs['facet']
+        if (facet == 'popular'):
+            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).annotate(wished=Count('wishlists')).filter(ebook_count__gt=0).order_by('-wished')
+        else:
+            #return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
+            return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-created')
+
+    def get_context_data(self, **kwargs):
+            context = super(UngluedListView, self).get_context_data(**kwargs)
+            qs=self.get_queryset()
+            context['counts'] = self.work_set_counts(qs)
+            context['ungluers'] = userlists.work_list_users(qs,5)
+            context['facet'] =self.kwargs['facet']
+            return context
+
         
 class CampaignListView(ListView):
     template_name = "campaign_list.html"
@@ -271,20 +314,23 @@ class PledgeView(FormView):
                    
         if not self.embedded:
             
-            return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
+            return_url = None
+            cancel_url = None
+            
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, anonymous=anonymous)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
             
-            #redirect the page back to campaign page on success
-            return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
+            return_url = None
+            cancel_url = None
+            
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, anonymous=anonymous)
+                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)
         
         if url:
             logger.info("PledgeView paypal: " + url)
@@ -294,6 +340,138 @@ class PledgeView(FormView):
             response = t.reference
             logger.info("PledgeView paypal: Error " + str(t.reference))
             return HttpResponse(response)
+
+class PledgeCompleteView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
+    
+    Possible things to implement:
+    
+    after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
+study other confirmation emails for their contents
+after pledging, supporters are returned to a thank-you screen
+should have prominent "thank you" or "congratulations" message
+should have prominent share options
+should suggest other works for supporters to explore (on what basis?)
+link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
+should note that a confirmation email has been sent to $email from $sender
+should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
+    
+    """
+    
+    template_name="pledge_complete.html"
+    
+    def get_context_data(self):
+        # pick up all get and post parameters and display
+        context = super(PledgeCompleteView, self).get_context_data()
+
+        output = "pledge complete"
+        output += self.request.method + "\n" + str(self.request.REQUEST.items())
+        context["output"] = output
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+        
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # work and campaign in question
+        try:
+            campaign = transaction.campaign
+            work = campaign.work
+        except Exception, e:
+            campaign = None
+            work = None
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = True
+        else:
+            correct_transaction_type = False
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["work"] = work
+        context["campaign"] = campaign
+        
+        return context        
+                
+    
+class PledgeCancelView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+    template_name="pledge_cancel.html"
+    
+    def get_context_data(self):
+        context = super(PledgeCancelView, self).get_context_data()
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+        
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # work and campaign in question
+        try:
+            campaign = transaction.campaign
+            work = campaign.work
+        except Exception, e:
+            campaign = None
+            work = None
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = True
+        else:
+            correct_transaction_type = False
+            
+        # status?
+
+        # give the user an opportunity to approved the transaction again
+        # provide a URL to click on.
+        # https://www.sandbox.paypal.com/?cmd=_ap-preapproval&preapprovalkey=PA-6JV656290V840615H
+        try_again_url = '%s?cmd=_ap-preapproval&preapprovalkey=%s' % (settings.PAYPAL_PAYMENT_HOST, transaction.preapproval_key)
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["try_again_url"] = try_again_url
+        context["work"] = work
+        context["campaign"] = campaign
+        
+        return context
+    
     
 class DonateView(FormView):
     template_name="donate.html"
@@ -557,31 +735,28 @@ def supporter(request, supporter_username, template_name):
         if  request.method == 'POST': 
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)
             if profile_form.is_valid():
-                if profile_form.cleaned_data['clear_facebook'] or profile_form.cleaned_data['clear_twitter'] :
+                if profile_form.cleaned_data['clear_facebook'] or profile_form.cleaned_data['clear_twitter'] or  profile_form.cleaned_data['clear_goodreads'] :
                     if profile_form.cleaned_data['clear_facebook']:
                         profile_obj.facebook_id=0
                     if profile_form.cleaned_data['clear_twitter']:
                         profile_obj.twitter_id=""
+                    if profile_form.cleaned_data['clear_goodreads']:
+                        profile_obj.goodreads_user_id = None
+                        profile_obj.goodreads_user_name = None
+                        profile_obj.goodreads_user_link = None
+                        profile_obj.goodreads_auth_token = None
+                        profile_obj.goodreads_auth_secret = None
+
                     profile_obj.save()
                 profile_form.save()
 
         else:
             profile_form= ProfileForm(instance=profile_obj)
-            
-        # for now, also calculate the Goodreads shelves of user when loading this page
-        # we should move towards calculating this only if needed (perhaps with Ajax), caching previous results, etc to speed up
-        # performance
         
         if request.user.profile.goodreads_user_id is not None:
-            gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-            goodreads_shelves = gr_client.shelves_list(user_id=request.user.profile.goodreads_user_id)
-            goodreads_shelf_load_form = GoodreadsShelfLoadingForm()
-            # load the shelves into the form
-            choices = [('all:%d' % (goodreads_shelves["total_book_count"]),'all (%d)' % (goodreads_shelves["total_book_count"]))] +  \
-                [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in goodreads_shelves["user_shelves"]]
-            goodreads_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
+            goodreads_id = request.user.profile.goodreads_user_id
         else:
-            goodreads_shelf_load_form = None                        
+            goodreads_id = None
 
         if request.user.profile.librarything_id is not None:
             librarything_id = request.user.profile.librarything_id
@@ -589,7 +764,7 @@ def supporter(request, supporter_username, template_name):
             librarything_id = None
     else:
         profile_form = ''
-        goodreads_shelf_load_form = None
+        goodreads_id = None
         librarything_id = None
 
         
@@ -605,7 +780,7 @@ def supporter(request, supporter_username, template_name):
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
             "goodreads_auth_url": reverse('goodreads_auth'),
-            "goodreads_shelf_load_form": goodreads_shelf_load_form,
+            "goodreads_id": goodreads_id,
             "librarything_id": librarything_id
     }
     
@@ -641,9 +816,9 @@ def search(request):
     works=[]
     for result in results:
 		try:
-			edition = models.Edition.objects.get(googlebooks_id=result['googlebooks_id'])
-			works.append(edition.work)
-		except models.Edition.DoesNotExist: 
+			work = models.Identifier.objects.get(type='goog',value=result['googlebooks_id']).work
+			works.append(work)
+		except models.Identifier.DoesNotExist: 
 			works.append(result)
     context = {
         "q": q,
@@ -746,7 +921,8 @@ class FAQView(TemplateView):
 	template_name = "faq.html"
 	def get_context_data(self, **kwargs):
 		location = self.kwargs["location"]
-		return {'location': location}
+		sublocation = self.kwargs["sublocation"]
+		return {'location': location, 'sublocation': sublocation}
 
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
@@ -876,6 +1052,26 @@ def goodreads_load_shelf(request):
         logger.info("Error in loading shelf for user %s: %s ", user, e)
 
 
+@login_required
+def goodreads_calc_shelves(request):
+
+    # we should move towards calculating this only if needed (perhaps with Ajax), caching previous results, etc to speed up
+    # performance
+    
+    if request.user.profile.goodreads_user_id is not None:
+        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
+        goodreads_shelves = gr_client.shelves_list(user_id=request.user.profile.goodreads_user_id)
+        #goodreads_shelf_load_form = GoodreadsShelfLoadingForm()
+        ## load the shelves into the form
+        #choices = [('all:%d' % (goodreads_shelves["total_book_count"]),'all (%d)' % (goodreads_shelves["total_book_count"]))] +  \
+        #    [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"],s["book_count"])) for s in goodreads_shelves["user_shelves"]]
+        #goodreads_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
+    else:
+        goodreads_shelf_load_form = None
+    
+    return HttpResponse(json.dumps(goodreads_shelves), content_type="application/json")
+    
+
 @require_POST
 @login_required      
 @csrf_exempt
@@ -984,7 +1180,7 @@ def work_librarything(request, work_id):
 
 def work_openlibrary(request, work_id):
     work = get_object_or_404(models.Work, id=work_id)
-    isbns = ["ISBN:" + e.isbn_13 for e in work.editions.filter(isbn_13__isnull=False)]
+    isbns = ["ISBN:" + i.value for i in work.identifiers.filter(type='isbn')]
     url = None
 
     if work.openlibrary_id:
@@ -1043,3 +1239,44 @@ def emailshare(request):
         form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
 
     return render(request, "emailshare.html", {'form':form})    
+    
+def feedback(request):
+    num1 = randint(0,10)
+    num2 = randint(0,10)
+    sum = num1 + num2
+	
+    if request.method == 'POST':
+        form=FeedbackForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+            sender = form.cleaned_data['sender']
+            recipient = 'support@gluejar.com'
+            page = form.cleaned_data['page']
+            useragent = request.META['HTTP_USER_AGENT']
+            if request.user.is_anonymous():
+            	ungluer = "(not logged in)"
+            else:
+            	ungluer = request.user.username
+            message = "<<<This feedback is about "+page+". Original user message follows\nfrom "+sender+", ungluer name "+ungluer+"\nwith user agent "+useragent+"\n>>>\n"+message
+            send_mail(subject, message, sender, [recipient])
+            
+            return render(request, "thanks.html", {"page":page}) 
+            
+        else:
+        	num1 = request.POST['num1']
+        	num2 = request.POST['num2']
+        
+    else:
+    	if request.user.is_authenticated():
+    		sender=request.user.email;
+    	else:
+    		sender=''
+    	try:
+	    	page = request.GET['page']
+    	except:
+	    	page='/'
+        form = FeedbackForm(initial={"sender":sender, "subject": "Feedback on page "+page, "page":page, "num1":num1, "num2":num2, "answer":sum})
+        
+    return render(request, "feedback.html", {'form':form, 'num1':num1, 'num2':num2})    
+        

@@ -1,16 +1,13 @@
 {% extends "registration/registration_base.html" %}
 {% block title %}Activation complete{% endblock %}
 {% block doccontent %}
-<div id="registration">
-{% if request.user.is_authenticated %}
-Your password has been changed.
-{% else %}
-Thanks, your activation is complete!  You may now sign in using the username and password you set at registration:
-
-
+<div>
+<p>Thanks, your activation is complete!  You may now sign in using the username and password you set at registration:</p>
 {% include "login_form.html" %}
-{% endif %}
-<a href="{% url auth_password_reset %}">Already forgot</a> your password? 
+</div>
+<br />
+<div>
+<a href="{% url auth_password_reset %}">Forgot</a> your password? 
 </div>
 {% endblock %}
 

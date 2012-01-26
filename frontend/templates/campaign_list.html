@@ -75,15 +75,22 @@
                         </ul>
                 </div>
                 <div class="content-block-content">
+					{% if is_preview == 1 %}
+					<div class="preview_content">
+					We're not running campaigns during our alpha phase.<br /><br />
+					After we've implemented a few more features and improved the site based on <a href="/feedback">your feedback</a>, you'll see a list of active campaigns here.<br /><br />
+					If you're a rights holder and you'd like us to run campaigns to unglue your works, please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.  Want more info?  We have a <a href="/faq/rightsholders">rights holder FAQ</a>.
+					</div>
+					{% else %}
                     {% ifequal campaign_list.count 0 %}
-                    There aren't any ungluing campaigns active. Poor Unglueman has nothing to do.
+                    There aren't any ungluing campaigns active yet.  If you're a rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
                     {% paginate 20 campaign_list %}
                     {% for campaign in campaign_list %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with campaign.status as status %}
 					{% with campaign.deadline as deadline %}
-					{% with campaign.work.editions.all.0.googlebooks_id as googlebooks_id %}
+					{% with campaign.work.googlebooks_id as googlebooks_id %}
 					{% with campaign.work as work %}				
                     {% include "book_panel.html" %}
                     {% endwith %}{% endwith %}{% endwith %}{% endwith %}
@@ -94,6 +101,7 @@
                         {% show_pages %}
                     </div>
                     {% endifequal %}
+                    {% endif %}
                 </div>
             </div>    
         </div>
