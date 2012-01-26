@@ -61,14 +61,17 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `pip install -r requirements.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
 1. `django-admin.py syncdb --migrate --settings regluit.settings.prod`
-1. `mkdir /var/www/static`
-1. `chown ubuntu:ubuntu /var/www/static`
+1. `sudo mkdir /var/www/static`
+1. `sudo chown ubuntu:ubuntu /var/www/static`
 1. `django-admin.py collectstatic --settings regluit.settings.prod`
 1. `sudo ln -s /opt/regluit/deploy/regluit.conf /etc/apache2/sites-available/regluit`
 1. `sudo a2ensite regluit`
 1. `sudo a2enmod ssl rewrite`
+1. `cd /home/ubuntu`
+1. copy SSL server key to `/etc/ssl/private/server.key`
+1. copy SSL certificate to `/etc/ssl/certs/server.crt`
 1. `sudo /etc/init.d/apache2 restart`
-1. `sudo adduser --no-create-home celery --disabled-password --disabled-login`
+1. `sudo adduser --no-create-home celery --disabled-password --disabled-login` (just enter return for all?)
 1. `sudo cp deploy/celeryd /etc/init.d/celeryd`
 1. `sudo chmod 755 /etc/init.d/celeryd`
 1. `sudo cp deploy/celeryd.conf /etc/default/celeryd`
@@ -76,7 +79,7 @@ Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi,
 1. `sudo chown celery:celery /var/log/celery`
 1. `sudo /etc/init.d/celeryd start`
 
-OS X Develper Notes
+OS X Developer Notes
 -------------------
 
 To run regluit on OS X you should have XCode installed
