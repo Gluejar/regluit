@@ -163,13 +163,21 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
             isbn = i['identifier']
 
     # now check to see if there's an existing Work
-    if not work:
+    if isbn and not work:
         work = get_work_by_id(type='isbn',value=isbn)
     if not work:
         work = models.Work.objects.create(title=d['title'], language=language)
         work.new = True
         work.save()
 
+
+    # going off to google can take some time, so we want to make sure this edition has not
+    # been created in another thread while we were waiting
+    try:
+        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+    except models.Identifier.DoesNotExist:
+        pass
+    
     
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
