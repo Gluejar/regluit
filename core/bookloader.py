@@ -223,11 +223,15 @@ def add_related(isbn):
     """
     # make sure the seed edition is there
     logger.info("adding related editions for %s", isbn)
+    
+    new_editions = []
+
     edition = add_by_isbn(isbn)
+    if edition is None:
+        return new_editions
 
     # this is the work everything will hang off
     work = edition.work
-    new_editions = []
     other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
