@@ -24,6 +24,14 @@
     }
   },
   {
+    "pk": 4, 
+    "model": "sites.site", 
+    "fields": {
+      "domain": "ry-dev.dyndns.org", 
+      "name": "ry-dev development"
+    }
+  },  
+  {
     "pk": 1, 
     "model": "core.premium", 
     "fields": {
