@@ -105,7 +105,7 @@ def add_by_isbn_from_google(isbn, work=None):
         return None
 
     try:
-        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0])
+        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0], isbn=isbn)
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", isbn)
     except IntegrityError, e:
@@ -127,10 +127,10 @@ def get_edition_by_id(type,value):
             return None
 
 
-def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
+def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     """add a book to the UnglueIt database based on the GoogleBooks ID. The
     work parameter is optional, and if not supplied the edition will be 
-    associated with a stub work. 
+    associated with a stub work. isbn can be passed because sometimes passed data won't include it 
     
     """
     # don't ping google again if we already know about the edition
@@ -155,12 +155,13 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
         logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
         work = None
-    isbn = None
-    for i in d.get('industryIdentifiers', []):
-        if i['type'] == 'ISBN_10' and not isbn:
-            isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
-        elif i['type'] == 'ISBN_13':
-            isbn = i['identifier']
+    # isbn = None
+    if not isbn: 
+        for i in d.get('industryIdentifiers', []):
+            if i['type'] == 'ISBN_10' and not isbn:
+                isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
+            elif i['type'] == 'ISBN_13':
+                isbn = i['identifier']
 
     # now check to see if there's an existing Work
     if isbn and not work:
