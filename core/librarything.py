@@ -119,7 +119,7 @@ class LibraryThing(object):
             try:
                 book_data["lc_call_number"] = cols[2].xpath('.//span')[0].text
             except Exception, e:
-                logger.info("book lc call number exception: %s %s", book_data["title"], e)
+                logger.info("no lc call number for: %s %s", book_data["title"], e)
                 book_data["lc_call_number"] = None
                 
             # subject
@@ -197,7 +197,7 @@ class LibraryThing(object):
 
 def load_librarything_into_wishlist(user, lt_username, max_books=None):
     """
-    Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
+    Load a specified LibraryThing shelf (by default:  all the books from the LibraryThing account associated with user)
     """
    
     from regluit.core import bookloader
@@ -212,6 +212,8 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
         isbn = book["isbn"]  # grab the first one
         logger.info("%d %s %s", i, book["title"]["title"], isbn)
         try:
+            if not isbn:
+                continue
             edition = bookloader.add_by_isbn(isbn)
             if not edition:
                 continue
