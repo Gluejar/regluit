@@ -151,6 +151,8 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
     language = d['language']
+    if len(language)>2:
+        language= language[0:2]
     if work and work.language != language:
         logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
