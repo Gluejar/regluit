@@ -13,8 +13,8 @@ class Command(BaseCommand):
         for isbn in open(filename):
             isbn = isbn.strip()
             edition = bookloader.add_by_isbn(isbn)
-            bookloader.add_related(isbn)
             if edition:
+                bookloader.add_related(isbn)
                 user.wishlist.add_work(edition.work, source="user")
                 print "loaded %s as %s for %s" % (isbn, edition, user)
             else:
