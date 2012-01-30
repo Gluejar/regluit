@@ -21,13 +21,15 @@
   padding: 14px 0;
 }
 .google_signup_div div {
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup_div img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .actionbuttons {
   width: auto;
@@ -132,13 +134,15 @@
   padding: 14px 0;
 }
 #login .google_signup div {
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 #login .google_signup img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .actionbutton {
   width: auto;

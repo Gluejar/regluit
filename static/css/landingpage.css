@@ -21,15 +21,17 @@
   padding: 14px 0;
 }
 .google_signup_div div {
-  height: 32px;
-  line-height: 32px;
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup_div img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .actionbuttons {
   width: auto;
@@ -75,15 +77,17 @@
   padding: 14px 0;
 }
 .google_signup_div div {
-  height: 32px;
-  line-height: 32px;
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup_div img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .actionbuttons {
   width: auto;
@@ -189,7 +193,6 @@
 }
 .user-block1 a.readon {
   float: left;
-  margin-top: 10px;
 }
 .user-block2 {
   color: #6994a3;
@@ -293,7 +296,7 @@
   width: 100%;
   display: block;
   clear: both;
-  padding-top: 10px;
+  padding: 10px 0 5px 16px;
 }
 .js-rightcol-padd {
   padding: 0;
@@ -522,7 +525,7 @@ h2.page-heading {
   font-weight: normal;
 }
 h3.module-title {
-  padding: 14px 0;
+  padding: 10px 0 0 0;
   font-size: 17px;
   font-weight: normal;
 }
@@ -531,26 +534,30 @@ h3.module-title {
   padding: 14px 0;
 }
 .google_signup div {
-  height: 32px;
-  line-height: 32px;
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .google_signup div {
-  height: 32px;
-  line-height: 32px;
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 #js-slideshow {
   padding: 0 30px;

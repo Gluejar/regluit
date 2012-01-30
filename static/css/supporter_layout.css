@@ -21,13 +21,15 @@
   padding: 14px 0;
 }
 .google_signup_div div {
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup_div img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .actionbuttons {
   width: auto;
@@ -162,13 +164,13 @@ span.rounded > span:hover .hovertext {
   display: inline;
 }
 span.blue {
-  background: #a7d26a url("/static/images/header-button-blue.png") left bottom repeat-x;
+  background: #a7d26a url("/static/images/header-button-undefined.png") left bottom repeat-x;
 }
 span.orange {
-  background: #eabc7c url("/static/images/header-button-orange.png") left bottom repeat-x;
+  background: #eabc7c url("/static/images/header-button-undefined.png") left bottom repeat-x;
 }
 span.grey {
-  background: #bacfd6 url("/static/images/header-button-grey.png") left bottom repeat-x;
+  background: #bacfd6 url("/static/images/header-button-undefined.png") left bottom repeat-x;
 }
 div.check-list {
   float: left;
