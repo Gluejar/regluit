@@ -6,7 +6,8 @@ class Command(BaseCommand):
     
     def handle(self, **options):
         print "Number of Works without identifiers: ", models.Work.objects.filter(identifiers__isnull=True).count()
-        for w in models.Work.objects.filter(identifiers__isnull=True)[0:20]:
+        print "Last 20 Works without identifiers: " 
+        for w in models.Work.objects.filter(identifiers__isnull=True).order_by('-created')[0:20]:
             print "id: %d | title: %s  | created: %s" % (w.id, w.title, w.created)
             
         print "Number of Identifiers not tied to Works (should be 0): ",  \
