@@ -6,6 +6,9 @@ TEMPLATE_DEBUG = DEBUG
 # if you're doing development work, you'll want this to be zero
 IS_PREVIEW = False
 
+# SITE_ID for your particular site -- must be configured in /core/fixtures/initial_data.json
+SITE_ID = 3
+
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),
 )

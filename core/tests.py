@@ -40,6 +40,9 @@ class BookLoaderTests(TestCase):
         # work
         self.assertTrue(edition.work)
         
+        # locale in language
+        edition = bookloader.add_by_isbn('9787500676911')
+        self.assertEqual(edition.work.language, 'zh')
 
     def test_double_add(self):
         bookloader.add_by_isbn('0441012035')

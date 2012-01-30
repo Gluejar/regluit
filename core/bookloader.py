@@ -105,7 +105,7 @@ def add_by_isbn_from_google(isbn, work=None):
         return None
 
     try:
-        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0])
+        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0], isbn=isbn)
     except LookupFailure, e:
         logger.exception("failed to add edition for %s", isbn)
     except IntegrityError, e:
@@ -127,10 +127,10 @@ def get_edition_by_id(type,value):
             return None
 
 
-def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
+def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     """add a book to the UnglueIt database based on the GoogleBooks ID. The
     work parameter is optional, and if not supplied the edition will be 
-    associated with a stub work. 
+    associated with a stub work. isbn can be passed because sometimes passed data won't include it 
     
     """
     # don't ping google again if we already know about the edition
@@ -151,25 +151,36 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
     language = d['language']
+    if len(language)>2:
+        language= language[0:2]
     if work and work.language != language:
         logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
         work = None
-    isbn = None
-    for i in d.get('industryIdentifiers', []):
-        if i['type'] == 'ISBN_10' and not isbn:
-            isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
-        elif i['type'] == 'ISBN_13':
-            isbn = i['identifier']
+    # isbn = None
+    if not isbn: 
+        for i in d.get('industryIdentifiers', []):
+            if i['type'] == 'ISBN_10' and not isbn:
+                isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
+            elif i['type'] == 'ISBN_13':
+                isbn = i['identifier']
 
     # now check to see if there's an existing Work
-    if not work:
+    if isbn and not work:
         work = get_work_by_id(type='isbn',value=isbn)
     if not work:
         work = models.Work.objects.create(title=d['title'], language=language)
         work.new = True
         work.save()
 
+
+    # going off to google can take some time, so we want to make sure this edition has not
+    # been created in another thread while we were waiting
+    try:
+        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+    except models.Identifier.DoesNotExist:
+        pass
+    
     
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
@@ -215,11 +226,15 @@ def add_related(isbn):
     """
     # make sure the seed edition is there
     logger.info("adding related editions for %s", isbn)
+    
+    new_editions = []
+
     edition = add_by_isbn(isbn)
+    if edition is None:
+        return new_editions
 
     # this is the work everything will hang off
     work = edition.work
-    new_editions = []
     other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13

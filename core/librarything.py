@@ -119,7 +119,7 @@ class LibraryThing(object):
             try:
                 book_data["lc_call_number"] = cols[2].xpath('.//span')[0].text
             except Exception, e:
-                logger.info("book lc call number exception: %s %s", book_data["title"], e)
+                logger.info("no lc call number for: %s %s", book_data["title"], e)
                 book_data["lc_call_number"] = None
                 
             # subject
@@ -131,6 +131,9 @@ class LibraryThing(object):
             # isbn
             try:
                 book_data["isbn"] = cols[4].xpath('.//span')[0].text
+                # check for &nbsp
+                if book_data["isbn"] == u'\xA0':
+                    book_data["isbn"] = None
             except Exception, e:
                 book_data["isbn"] = None
             
@@ -143,6 +146,8 @@ class LibraryThing(object):
         # we can vary viewstyle to get different info
         
         IMPLEMENTED_STYLES = [1,5]
+        COLLECTION = 2 # set to get All Collections
+        
         if view_style not in IMPLEMENTED_STYLES:
             raise NotImplementedError()
         style_parser = getattr(self,"viewstyle_%s" % view_style)
@@ -151,8 +156,8 @@ class LibraryThing(object):
         cookies = None
         
         while next_page:
-            url = "http://www.librarything.com/catalog_bottom.php?view=%s&viewstyle=%d&offset=%d" % (self.username,
-                                        view_style, offset)
+            url = "http://www.librarything.com/catalog_bottom.php?view=%s&viewstyle=%d&collection=%d&offset=%d" % (self.username,
+                                        view_style, COLLECTION, offset)
             logger.info("url: %s", url)
             if cookies is None:
                 r = requests.get(url)
@@ -163,6 +168,7 @@ class LibraryThing(object):
                 raise LibraryThingException("Error accessing %s: %s" % (url, e))
                 logger.info("Error accessing %s: %s", url, e)
             etree = html.fromstring(r.content)
+            #logger.info("r.content %s", r.content)
             cookies = r.cookies  # retain the cookies
             
             # look for a page bar
@@ -197,7 +203,7 @@ class LibraryThing(object):
 
 def load_librarything_into_wishlist(user, lt_username, max_books=None):
     """
-    Load a specified Goodreads shelf (by default:  all the books from the Goodreads account associated with user)
+    Load a specified LibraryThing shelf (by default:  all the books from the LibraryThing account associated with user)
     """
    
     from regluit.core import bookloader
@@ -212,6 +218,8 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
         isbn = book["isbn"]  # grab the first one
         logger.info("%d %s %s", i, book["title"]["title"], isbn)
         try:
+            if not isbn:
+                continue
             edition = bookloader.add_by_isbn(isbn)
             if not edition:
                 continue
