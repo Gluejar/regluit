@@ -158,10 +158,14 @@ def googlebooks(request, googlebooks_id):
     try: 
         edition = models.Identifier.objects.get(type='goog',value=googlebooks_id).edition
     except models.Identifier.DoesNotExist:
-        edition = bookloader.add_by_googlebooks_id(googlebooks_id)
-        # we could populate_edition(edition) to pull in related editions here
-        # but it is left out for now to lower the amount of traffic on 
-        # googlebooks, librarything and openlibrary
+        try:
+            edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+            if edition.new:
+                # add related editions asynchronously
+                tasks.populate_edition.delay(edition)
+        except bookloader.LookupFailure:
+            logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+            return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
     work_url = reverse('work', kwargs={'work_id': edition.work.id})
@@ -836,10 +840,14 @@ def wishlist(request):
     remove_work_id = request.POST.get('remove_work_id', None)
     add_work_id = request.POST.get('add_work_id', None)
     if googlebooks_id:
-        edition = bookloader.add_by_googlebooks_id(googlebooks_id)
-        # add related editions asynchronously
-        tasks.populate_edition.delay(edition)
-        request.user.wishlist.add_work(edition.work,'user')
+        try:
+            edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+            if edition.new:
+                # add related editions asynchronously
+                tasks.populate_edition.delay(edition)
+            request.user.wishlist.add_work(edition.work,'user')
+        except bookloader.LookupFailure:
+            logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
