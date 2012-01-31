@@ -839,6 +839,8 @@ def wishlist(request):
     googlebooks_id = request.POST.get('googlebooks_id', None)
     remove_work_id = request.POST.get('remove_work_id', None)
     add_work_id = request.POST.get('add_work_id', None)
+    logger.info("about to print again...")
+    logger.info("googlebooks_id %s, remove_work_id %s, add_work_id %s " %( googlebooks_id, remove_work_id, add_work_id))
     if googlebooks_id:
         try:
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
@@ -848,7 +850,11 @@ def wishlist(request):
             request.user.wishlist.add_work(edition.work,'user')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+        except Exception, e:
+            logger.warning("Error in wishlist adding %s" % (e))          
         # TODO: redirect to work page, when it exists
+        return HttpResponseRedirect('/')
+        
         return HttpResponseRedirect('/')
     elif remove_work_id:
         work = models.Work.objects.get(id=int(remove_work_id))
