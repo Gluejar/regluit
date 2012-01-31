@@ -23,4 +23,4 @@ class Command(BaseCommand):
         print "Number of Works that have editions->identifiers that don't lead back to the same work (should be 0): ", models.Work.objects.filter(~Q(editions__identifiers__work__id = F('id'))).count()
         # check that for all Identifier pairs with an Edition that Edition<->Work foreign key relationships ties the same Edition/Work
         print "Number of Identifier pairs with an Edition in which Edition<->Work foreign key relationships does not tie the same Edition/Work (should be 0): ",  \
-           models.Identifier.objects.filter(edition__isnull=False).filter(~Q(edition__work__id = F('edition__work__id'))).count()
+           models.Identifier.objects.filter(edition__isnull=False).filter(~Q(edition__work__id = F('work__id'))).count()
