@@ -147,6 +147,14 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
         item  = _get_json(url)
     d = item['volumeInfo']
+    
+    title = d['title']
+    if len(title)==0:
+        # need a title to make an edition record; some crap records in GB. use title from parent if available
+        if work:
+            title=work.title
+        else:
+            return None
 
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
@@ -169,7 +177,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     if isbn and not work:
         work = get_work_by_id(type='isbn',value=isbn)
     if not work:
-        work = models.Work.objects.create(title=d['title'], language=language)
+        work = models.Work.objects.create(title=title, language=language)
         work.new = True
         work.save()
 
@@ -184,7 +192,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
-    e.title = d.get('title')
+    e.title = title
     e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
