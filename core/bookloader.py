@@ -29,8 +29,11 @@ def add_by_oclc_from_google(oclc):
         return models.Identifier.objects.get(type='oclc', value=oclc).edition
     except:
         url = "https://www.googleapis.com/books/v1/volumes"
-        results = _get_json(url, {"q": '"OCLC%s"' % oclc})
-    
+        try:
+            results = _get_json(url, {"q": '"OCLC%s"' % oclc})
+        except LookupFailure, e:
+            logger.exception("lookup failure for %s", oclc)
+            return None
         if not results.has_key('items') or len(results['items']) == 0:
             logger.warn("no google hits for %s" , oclc)
             return None
@@ -48,7 +51,12 @@ def add_by_oclc_from_google(oclc):
 def add_by_isbn(isbn, work=None):
     if not isbn:
         return None
-    e = add_by_isbn_from_google(isbn, work=work)
+    try:
+        e = add_by_isbn_from_google(isbn, work=work)
+    except LookupFailure:
+        logger.exception("failed google lookup for %s", isbn)
+        # try again some other time
+        return None
     if e:
         return e
     
@@ -147,6 +155,14 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
         item  = _get_json(url)
     d = item['volumeInfo']
+    
+    title = d['title']
+    if len(title)==0:
+        # need a title to make an edition record; some crap records in GB. use title from parent if available
+        if work:
+            title=work.title
+        else:
+            return None
 
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
@@ -169,7 +185,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     if isbn and not work:
         work = get_work_by_id(type='isbn',value=isbn)
     if not work:
-        work = models.Work.objects.create(title=d['title'], language=language)
+        work = models.Work.objects.create(title=title, language=language)
         work.new = True
         work.save()
 
@@ -177,14 +193,18 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # going off to google can take some time, so we want to make sure this edition has not
     # been created in another thread while we were waiting
     try:
-        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        # whoa nellie, somebody else created an edition while we were working.
+        if work.new:
+            work.delete()
+        return e
     except models.Identifier.DoesNotExist:
         pass
     
     
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
-    e.title = d.get('title')
+    e.title = title
     e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
@@ -318,15 +338,21 @@ def add_openlibrary(work):
     for edition in work.editions.all():
         isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
-        e = _get_json(url, params, type='ol')
+        try:
+            e = _get_json(url, params, type='ol')
+        except LookupFailure:
+            logger.exception("OL lookup failed for  %s", isbn_key)
+            e = {}
         if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):
             work_key = e[isbn_key]['details']['works'].pop(0)['key']
             logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
-            w = _get_json("http://openlibrary.org" + work_key,type='ol')
-            if w.has_key('subjects'):
-                found = True
-                break
-
+            try:
+                w = _get_json("http://openlibrary.org" + work_key,type='ol')
+                if w.has_key('subjects'):
+                    found = True
+                    break
+            except LookupFailure:
+                logger.exception("OL lookup failed for  %s", work_key)
     if not found:
         logger.warn("unable to find work %s at openlibrary", work.id)
         return 
