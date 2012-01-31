@@ -29,8 +29,11 @@ def add_by_oclc_from_google(oclc):
         return models.Identifier.objects.get(type='oclc', value=oclc).edition
     except:
         url = "https://www.googleapis.com/books/v1/volumes"
-        results = _get_json(url, {"q": '"OCLC%s"' % oclc})
-    
+        try:
+            results = _get_json(url, {"q": '"OCLC%s"' % oclc})
+        except LookupFailure, e:
+            logger.exception("lookup failure for %s", oclc)
+            return None
         if not results.has_key('items') or len(results['items']) == 0:
             logger.warn("no google hits for %s" , oclc)
             return None
@@ -48,7 +51,12 @@ def add_by_oclc_from_google(oclc):
 def add_by_isbn(isbn, work=None):
     if not isbn:
         return None
-    e = add_by_isbn_from_google(isbn, work=work)
+    try:
+        e = add_by_isbn_from_google(isbn, work=work)
+    except LookupFailure:
+        logger.exception("failed google lookup for %s", isbn)
+        # try again some other time
+        return None
     if e:
         return e
     
@@ -326,15 +334,21 @@ def add_openlibrary(work):
     for edition in work.editions.all():
         isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
-        e = _get_json(url, params, type='ol')
+        try:
+            e = _get_json(url, params, type='ol')
+        except LookupFailure:
+            logger.exception("OL lookup failed for  %s", isbn_key)
+            e = {}
         if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):
             work_key = e[isbn_key]['details']['works'].pop(0)['key']
             logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
-            w = _get_json("http://openlibrary.org" + work_key,type='ol')
-            if w.has_key('subjects'):
-                found = True
-                break
-
+            try:
+                w = _get_json("http://openlibrary.org" + work_key,type='ol')
+                if w.has_key('subjects'):
+                    found = True
+                    break
+            except LookupFailure:
+                logger.exception("OL lookup failed for  %s", work_key)
     if not found:
         logger.warn("unable to find work %s at openlibrary", work.id)
         return 
