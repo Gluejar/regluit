@@ -193,7 +193,11 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # going off to google can take some time, so we want to make sure this edition has not
     # been created in another thread while we were waiting
     try:
-        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        # whoa nellie, somebody else created an edition while we were working.
+        if work.new:
+            work.delete()
+        return e
     except models.Identifier.DoesNotExist:
         pass
     
