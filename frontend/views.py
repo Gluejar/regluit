@@ -201,9 +201,11 @@ class WorkListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.annotate(wished=Count('wishlists')).order_by('-wished')
+            return models.Work.objects.filter(wishlists__isnull=False).distinct().annotate(wished=Count('wishlists')).order_by('-wished')
         elif (facet == 'recommended'):
             return models.Work.objects.filter(wishlists__user=recommended_user)
+        elif (facet == 'new'):
+            return models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created')
         else:
             return models.Work.objects.all().order_by('-created')
 
@@ -839,8 +841,7 @@ def wishlist(request):
     googlebooks_id = request.POST.get('googlebooks_id', None)
     remove_work_id = request.POST.get('remove_work_id', None)
     add_work_id = request.POST.get('add_work_id', None)
-    logger.info("about to print again...")
-    logger.info("googlebooks_id %s, remove_work_id %s, add_work_id %s " %( googlebooks_id, remove_work_id, add_work_id))
+
     if googlebooks_id:
         try:
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
@@ -853,8 +854,6 @@ def wishlist(request):
         except Exception, e:
             logger.warning("Error in wishlist adding %s" % (e))          
         # TODO: redirect to work page, when it exists
-        return HttpResponseRedirect('/')
-        
         return HttpResponseRedirect('/')
     elif remove_work_id:
         work = models.Work.objects.get(id=int(remove_work_id))
