@@ -143,7 +143,9 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     """
     # don't ping google again if we already know about the edition
     try:
-        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        edition = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        edition.new = False
+        return edition
     except models.Identifier.DoesNotExist:
         pass
     
@@ -182,8 +184,12 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
                 isbn = i['identifier']
 
     # now check to see if there's an existing Work
+    if work:
+        work.new = False
     if isbn and not work:
         work = get_work_by_id(type='isbn',value=isbn)
+        if work:
+            work.new = False
     if not work:
         work = models.Work.objects.create(title=title, language=language)
         work.new = True
@@ -194,6 +200,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # been created in another thread while we were waiting
     try:
         e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        e.new = False
         # whoa nellie, somebody else created an edition while we were working.
         if work.new:
             work.delete()
