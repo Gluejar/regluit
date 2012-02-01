@@ -164,13 +164,13 @@ span.rounded > span:hover .hovertext {
   display: inline;
 }
 span.blue {
-  background: #a7d26a;
+  background: #a7d26a url("/static/images/header-button-undefined.png") left bottom repeat-x;
 }
 span.orange {
-  background: #eabc7c;
+  background: #eabc7c url("/static/images/header-button-undefined.png") left bottom repeat-x;
 }
 span.grey {
-  background: #bacfd6;
+  background: #bacfd6 url("/static/images/header-button-undefined.png") left bottom repeat-x;
 }
 div.check-list {
   float: left;

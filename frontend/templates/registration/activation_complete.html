@@ -3,7 +3,9 @@
 {% block doccontent %}
 <div>
 <p>Thanks, your activation is complete!  You may now sign in using the username and password you set at registration:</p>
+{% with 'welcome' as next %}
 {% include "login_form.html" %}
+{% endwith %}
 </div>
 <br />
 <div>
