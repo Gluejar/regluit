@@ -18,6 +18,9 @@ def list_popular():
     print ungluers
    
 def list_new():
-    works1 = models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created')
-    print works1.count()
+    w1 = models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created')
+    w0 = [w for w in  models.Work.objects.order_by('-created') if w.wishlists.count()]
     
+    print w1.count()
+    print len(w0)
+    print w0 == w1
