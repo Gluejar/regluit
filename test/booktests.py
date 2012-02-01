@@ -1,6 +1,11 @@
-from regluit.core import librarything, bookloader
+from regluit.core import librarything, bookloader, models
 import itertools
 import django
+
+from django.db.models import Q, F
+from regluit.core import bookloader
+import warnings
+import datetime
 
 def ry_lt_books():
     """return parsing of rdhyee's LibraryThing collection"""
@@ -26,3 +31,83 @@ def ry_wish_list_equal_loadable_lt_books():
     # assume only one user -- and that we have run a LT book loading process for that user
     ry = django.contrib.auth.models.User.objects.all()[0]
     return set([ed.work for ed in filter(None, editions)]) == set(ry.wishlist.works.all())
+
+def clear_works_editions_ebooks():
+    models.Ebook.objects.all().delete()
+    models.Work.objects.all().delete()
+    models.Edition.objects.all().delete()
+    
+def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, url, format, license, lang, publication_date):
+    
+    # let's start with instantiating the relevant Work and Edition if they don't already exist
+    
+    works = models.Work.objects.filter(Q(identifiers__type='olwk') & Q(identifiers__value=ol_work_id))
+    
+    try:
+        work = models.Identifier.objects.get(type='olwk',value=ol_work_id).work
+    except models.Identifier.DoesNotExist: # create a new work
+        work = models.Work()
+        work.title = title
+        work.language = lang
+        work.openlibrary_lookup = None
+        work.save()
+        
+        work_id = models.Identifier.get_or_add(type='olwk',value=ol_work_id, work=work)
+
+    # Now pull out any existing Gutenberg editions tied to the work with the proper Gutenberg ID
+    try:
+        edition = models.Identifier.objects.get( type='gtbg', value=gutenberg_etext_id ).edition    
+    except models.Identifier.DoesNotExist:
+        edition = models.Edition()
+        edition.title = title
+        edition.work = work
+        
+        edition.save()
+        edition_id = models.Identifier.get_or_add(type='gtbg',value=gutenberg_etext_id, edition=edition, work=work)
+        
+    # check to see whether the Edition hasn't already been loaded first
+    # search by url
+    ebooks = models.Ebook.objects.filter(url=url)
+    
+    # format: what's the controlled vocab?  -- from Google -- alternative would be mimetype
+    
+    if len(ebooks):  
+        ebook = ebooks[0]
+    elif len(ebooks) == 0: # need to create new ebook
+        ebook = models.Ebook()
+
+    if len(ebooks) > 1:
+        warnings.warn("There is more than one Ebook matching url {0}".format(url))
+        
+        
+    ebook.format = format
+    ebook.provider = 'gutenberg'
+    ebook.url =  url
+    ebook.rights = license
+        
+    # is an Ebook instantiable without a corresponding Edition? (No, I think)
+    
+    ebook.edition = edition
+    ebook.save()
+    
+    return ebook
+    
+    # get associated info from OL
+    # book_loader.add_openlibrary(work)
+                    
+
+def load_moby_dick():
+    """Let's try this out for Moby Dick"""
+    
+    title = "Moby Dick"
+    ol_work_id = "/works/OL102749W"
+    gutenberg_etext_id = 2701
+    epub_url = "http://www.gutenberg.org/cache/epub/2701/pg2701.epub"
+    license = 'http://www.gutenberg.org/license'
+    lang = 'en'
+    format = 'epub'
+    publication_date = datetime.datetime(2001,7,1)        
+    
+    result = load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, epub_url, format, license, lang, publication_date)
+    return result
+            
