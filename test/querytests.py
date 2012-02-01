@@ -1,26 +1,39 @@
 from regluit.core import models
-from django.db.models import Q, Count, Sum
-from regluit.core import userlists
+from django.db.models import Count
 
 from itertools import izip
 
 def list_popular():
-    work_set = models.Work.objects.annotate(wished=Count('wishlists')).order_by('-wished')
-    print work_set
+    """Compare calculating popular works using QuerySets + distinct() and order_by() with an alternate approach """
     
-    counts={}
-    counts['unglued'] = work_set.filter(editions__ebooks__isnull=False).distinct().count()
-    counts['unglueing'] = work_set.filter(campaigns__status='ACTIVE').count()
-    counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
-    print counts
+    w1 = models.Work.objects.filter(wishlists__isnull=False). \
+             distinct().annotate(wished=Count('wishlists')).order_by('-wished', 'id')
+
+    # create a list of tuples of Works + the wishlist count, filter by non-zero wishlist counts, sort the list by descending
+    # number of wishlists + Work.id and then blot out the wishlist count
     
-    ungluers = userlists.work_list_users(work_set,5)
-    print ungluers
-   
+    w0 = map (lambda x: x[0],
+             sorted(
+                     filter(lambda x: x[1] > 0,
+                             [(w, w.wishlists.count()) for w in models.Work.objects.all()]
+                           ) ,
+                      key=lambda x: (-x[1],x[0].id)
+                    )
+             )
+
+    print w1.count()
+    print len(w0)
+    print list(w1.all()) == w0
+    
+    print "difference: ", filter(lambda item: item[1][0] != item[1][1], enumerate(izip(w0,w1)))
+    
 def list_new():
-    w1 = models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created')
-    w0 = [w for w in  models.Work.objects.order_by('-created') if w.wishlists.count()]
+    """Compare calculating new works using QuerySets + distinct() and order_by() with an alternate approach """
+    w1 = models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created', 'id')
+    w0 = [w for w in  models.Work.objects.order_by('-created', 'id') if w.wishlists.count()]
     
     print w1.count()
     print len(w0)
-    print w0 == w1
+    print list(w1.all()) == w0
+    
+    print "difference: ", filter(lambda item: item[1][0] != item[1][1], enumerate(izip(w0,w1)))
