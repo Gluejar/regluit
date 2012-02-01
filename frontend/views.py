@@ -207,13 +207,13 @@ class WorkListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.filter(wishlists__isnull=False).distinct().annotate(wished=Count('wishlists')).order_by('-wished')
+            return models.Work.objects.filter(wishlists__isnull=False).distinct().annotate(wished=Count('wishlists')).order_by('-wished', 'id')
         elif (facet == 'recommended'):
             return models.Work.objects.filter(wishlists__user=recommended_user)
         elif (facet == 'new'):
-            return models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created')
+            return models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created', 'id')
         else:
-            return models.Work.objects.all().order_by('-created')
+            return models.Work.objects.all().order_by('-created', 'id')
 
     def get_context_data(self, **kwargs):
             context = super(WorkListView, self).get_context_data(**kwargs)
