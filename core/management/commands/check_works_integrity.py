@@ -10,7 +10,10 @@ class Command(BaseCommand):
         print "Last 20 Works without identifiers: " 
         for w in models.Work.objects.filter(identifiers__isnull=True).order_by('-created')[0:20]:
             print "id: %d | title: %s  | created: %s" % (w.id, w.title, w.created)
-            
+
+        # models.Work.objects.filter(identifiers__isnull=True).filter(editions__isnull=False)[0].identifiers.all()       
+        print "Number of editions that are currently tied to Works w/o identifiers ", \
+            models.Edition.objects.filter(work__identifiers__isnull=True).count()
         print "Number of Identifiers not tied to Works (should be 0): ",  \
             models.Identifier.objects.filter(work__isnull=True).count()
         print "Number of Editions not tied to a Work (should be 0): ", models.Edition.objects.filter(work__isnull=True).count()
