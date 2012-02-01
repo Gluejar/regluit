@@ -76,7 +76,7 @@ jQuery(document).ready(function(){
                         <div>
                           <div class="pubinfo">
                             <h3 class="book-author">{{ work.author }}</h3>
-                            <h3 class="book-year">{{ pubdate }}</h3>
+                            <h3 class="book-year">{{ pubdate }}</h3> {{activetab}}
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
@@ -160,16 +160,16 @@ jQuery(document).ready(function(){
                 {% get_comment_count for work as comment_count %}
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1 active"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                        <li class="tabs2"><a href="#">Comments ({{comment_count}})</a></li>
-                        <li class="tabs3"><a href="#">Supporters</a></li>
-                        <li class="tabs4"><a href="#">Details</a></li>
+                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
+                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments ({{comment_count}})</a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}"><a href="#">Supporters</a></li>
+                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Details</a></li>
                     </ul>
                         
                 </div>
                 
                 <div class="content-block-content">
-                       <div id="tabs-1" class="tabs">
+                       <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
                         <p><br>
                         {% if status == 'ACTIVE' %}
@@ -189,13 +189,13 @@ jQuery(document).ready(function(){
                         </p>
                     </div>
                     </div>
-                    <div id="tabs-2" class="tabs">
+                    <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
                     <div class="tabs-content">
                        {% render_comment_list for work %}
                        {% if user.is_authenticated %}{% render_comment_form for work %}{% endif %}
                     </div>
                     </div>
-                    <div id="tabs-3" class="tabs">
+                    <div id="tabs-3" class="tabs {% if activetab == '3' %}active{% endif %}">
                     <div class="tabs-content">
                         {% for supporter in work.wished_by %}
                           <div class="work_supporter_nocomment">
@@ -213,7 +213,7 @@ jQuery(document).ready(function(){
                         {% endfor %}
                     </div>
                     </div>
-                    <div id="tabs-4" class="tabs">
+                    <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' %}
                         <h4>Last campaign details</h4>

@@ -113,6 +113,11 @@ def work(request, work_id, action='display'):
     wishers = work.wished_by().count()
     base_url = request.build_absolute_uri("/")[:-1]
     
+    try:
+        activetab = request.GET['tab']
+    except:
+	    activetab = '1';
+    
     #may want to deprecate the following
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
@@ -127,6 +132,7 @@ def work(request, work_id, action='display'):
             'editions': editions,
             'pubdate': pubdate,
             'pledged':pledged,
+            'activetab': activetab,
         })
 
 def manage_campaign(request, id):
