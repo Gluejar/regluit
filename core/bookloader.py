@@ -86,7 +86,103 @@ def add_by_isbn(isbn, work=None):
     e.new = True
     models.Identifier(type='isbn', value=isbn, work=w, edition=e).save()
     return e
+
+def get_google_isbn_results(isbn):
+    url = "https://www.googleapis.com/books/v1/volumes"
+    try:
+        results = _get_json(url, {"q": "isbn:%s" % isbn})
+    except LookupFailure:
+        logger.exception("lookup failure for %s", isbn)
+        return None
+    if not results.has_key('items') or len(results['items']) == 0:
+        logger.warn("no google hits for %s" , isbn)
+        return None
+    else:
+        return results
+        
+def add_ebooks(item, edition):
+    access_info = item.get('accessInfo')
+    if access_info:
+        edition.public_domain = item.get('public_domain', None)
+        epub = access_info.get('epub')
+        if epub and epub.get('downloadLink'):
+            ebook = models.Ebook(edition=edition, format='epub',
+                                 url=epub.get('downloadLink'),
+                                 provider='google')
+            try:
+                ebook.save()
+            except IntegrityError:
+                pass
+                
+            
+        pdf = access_info.get('pdf')
+        if pdf and pdf.get('downloadLink'):
+            ebook = models.Ebook(edition=edition, format='pdf',
+                                 url=pdf.get('downloadLink', None),
+                                 provider='google')
+            try:
+                ebook.save()
+            except IntegrityError:
+                pass
+
+
+def update_edition(edition):
+    try:
+        isbn=edition.identifiers.filter(type='isbn')[0].value
+    except models.Identifier.DoesNotExist:
+        return edition
+
+    results=get_google_isbn_results(isbn)
+    if not results:
+        return edition
+    item=results['items'][0]
+    googlebooks_id=item['id']
+    d = item['volumeInfo']
+    if d.has_key('title'):
+        title = d['title']
+    else:
+        title=''
+    if len(title)==0:
+        # need a title to make an edition record; some crap records in GB. use title from parent if available
+        title=edition.work.title
+
+    # check for language change
+    language = d['language']
+    if len(language)>2:
+        language= language[0:2]
+    if edition.work.language != language:
+        logger.info("reconnecting %s since it is %s instead of %s" %(googlebooks_id, language, edition.work.language))
+        old_work=edition.work
+        new_work = models.Work(title=title, language=language)
+        new_work.save()
+        edition.work = new_work
+        edition.save()
+        for identifier in edition.identifiers.all():
+            logger.info("moving identifier %s" % identifier.value)
+            identifier.work=new_work
+            identifier.save()
+        if old_work.editions.count()==0:
+            #a dangling work; make sure nothing else is attached!
+            merge_works(new_work,old_work)    
     
+    # update the edition
+    edition.title = title
+    edition.description = d.get('description')
+    edition.publisher = d.get('publisher')
+    edition.publication_date = d.get('publishedDate', '')
+    edition.save()
+    
+    # create identifier if needed
+    models.Identifier.get_or_add(type='goog',value=googlebooks_id,edition=edition,work=edition.work)
+
+    for a in d.get('authors', []):
+        a, created = models.Author.objects.get_or_create(name=a)
+        a.editions.add(edition)
+    
+    add_ebooks(item, edition)
+            
+    return edition
+
     
 def add_by_isbn_from_google(isbn, work=None):
     """add a book to the UnglueIt database from google based on ISBN. The work parameter
@@ -99,27 +195,25 @@ def add_by_isbn_from_google(isbn, work=None):
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
     
     logger.info("adding book by isbn %s", isbn)
+
     # check if we already have this isbn
     edition = get_edition_by_id(type='isbn',value=isbn)
     if edition:
         edition.new = False
         return edition
 
-    url = "https://www.googleapis.com/books/v1/volumes"
-    results = _get_json(url, {"q": "isbn:%s" % isbn})
-
-    if not results.has_key('items') or len(results['items']) == 0:
-        logger.warn("no google hits for %s" , isbn)
+    results=get_google_isbn_results(isbn)
+    if results:
+        try:
+            return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0], isbn=isbn)
+        except LookupFailure, e:
+            logger.exception("failed to add edition for %s", isbn)
+        except IntegrityError, e:
+            logger.exception("google books data for %s didn't fit our db", isbn)
         return None
-
-    try:
-        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0], isbn=isbn)
-    except LookupFailure, e:
-        logger.exception("failed to add edition for %s", isbn)
-    except IntegrityError, e:
-        logger.exception("google books data for %s didn't fit our db", isbn)
-    return None
-
+    else:
+        return None
+        
 def get_work_by_id(type,value):
     if value:
         try:
@@ -158,7 +252,10 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         item  = _get_json(url)
     d = item['volumeInfo']
     
-    title = d['title']
+    if d.has_key('title'):
+        title = d['title']
+    else:
+        title=''
     if len(title)==0:
         # need a title to make an edition record; some crap records in GB. use title from parent if available
         if work:
@@ -227,22 +324,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         a, created = models.Author.objects.get_or_create(name=a)
         a.editions.add(e)
 
-    access_info = item.get('accessInfo')
-    if access_info:
-        e.public_domain = item.get('public_domain', None)
-        epub = access_info.get('epub')
-        if epub and epub.get('downloadLink'):
-            ebook = models.Ebook(edition=e, format='epub',
-                                 url=epub.get('downloadLink'),
-                                 provider='google')
-            ebook.save()
-            
-        pdf = access_info.get('pdf')
-        if pdf and pdf.get('downloadLink'):
-            ebook = models.Ebook(edition=e, format='pdf',
-                                 url=pdf.get('downloadLink', None),
-                                 provider='google')
-            ebook.save()            
+    add_ebooks(item, e)
             
     return e
 

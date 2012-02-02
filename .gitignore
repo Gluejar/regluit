@@ -8,3 +8,4 @@ ENV
 .DS_Store
 build
 deploy/last-update
+logs/*
