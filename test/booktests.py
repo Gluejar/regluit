@@ -1,4 +1,4 @@
-from regluit.core import librarything, bookloader, models
+from regluit.core import librarything, bookloader, models, tasks
 import itertools
 import django
 
@@ -37,21 +37,19 @@ def clear_works_editions_ebooks():
     models.Work.objects.all().delete()
     models.Edition.objects.all().delete()
     
-def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, url, format, license, lang, publication_date):
+def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date):
     
     # let's start with instantiating the relevant Work and Edition if they don't already exist
     
-    works = models.Work.objects.filter(Q(identifiers__type='olwk') & Q(identifiers__value=ol_work_id))
-    
     try:
         work = models.Identifier.objects.get(type='olwk',value=ol_work_id).work
-    except models.Identifier.DoesNotExist: # create a new work
-        work = models.Work()
-        work.title = title
-        work.language = lang
-        work.openlibrary_lookup = None
-        work.save()
-        
+    except models.Identifier.DoesNotExist: # try to find an Edition with the seed_isbn and use that work to hang off of
+        sister_edition = bookloader.add_by_isbn(seed_isbn)
+        if sister_edition.new:
+            # add related editions asynchronously
+            tasks.populate_edition.delay(sister_edition)
+        work = sister_edition.work
+        # attach the olwk identifier to this work
         work_id = models.Identifier.get_or_add(type='olwk',value=ol_work_id, work=work)
 
     # Now pull out any existing Gutenberg editions tied to the work with the proper Gutenberg ID
@@ -91,10 +89,12 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, url, format, l
     ebook.save()
     
     return ebook
-    
-    # get associated info from OL
-    # book_loader.add_openlibrary(work)
-                    
+               
+def load_penguin_moby_dick():
+    seed_isbn = '9780142000083'
+    ed = bookloader.add_by_isbn(seed_isbn)
+    if ed.new:
+        ed = tasks.populate_edition.delay(ed)
 
 def load_moby_dick():
     """Let's try this out for Moby Dick"""
@@ -106,8 +106,9 @@ def load_moby_dick():
     license = 'http://www.gutenberg.org/license'
     lang = 'en'
     format = 'epub'
-    publication_date = datetime.datetime(2001,7,1)        
+    publication_date = datetime.datetime(2001,7,1)
+    seed_isbn = '9780142000083' # http://www.amazon.com/Moby-Dick-Whale-Penguin-Classics-Deluxe/dp/0142000086
     
-    result = load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, epub_url, format, license, lang, publication_date)
-    return result
+    ebook = load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
+    return ebook
             
