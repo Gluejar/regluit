@@ -138,7 +138,10 @@ def update_edition(edition):
     item=results['items'][0]
     googlebooks_id=item['id']
     d = item['volumeInfo']
-    title = d['title']
+    if d.has_key('title'):
+        title = d['title']
+    else:
+        title=''
     if len(title)==0:
         # need a title to make an edition record; some crap records in GB. use title from parent if available
         title=edition.work.title
@@ -249,7 +252,10 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         item  = _get_json(url)
     d = item['volumeInfo']
     
-    title = d['title']
+    if d.has_key('title'):
+        title = d['title']
+    else:
+        title=''
     if len(title)==0:
         # need a title to make an edition record; some crap records in GB. use title from parent if available
         if work:
