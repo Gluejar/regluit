@@ -116,6 +116,8 @@ def work(request, work_id, action='display'):
     
     try:
         activetab = request.GET['tab']
+        if activetab not in ['1', '2', '3', '4']:
+        	activetab = '1';
     except:
 	    activetab = '1';
     
