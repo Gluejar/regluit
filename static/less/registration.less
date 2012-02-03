@@ -54,15 +54,14 @@
 			border: 1px solid @blue-grey;
 			.height(18px);
 			margin-bottom: 16px;
-			
-			&:focus {
-				border: 1px solid @call-to-action;
-				outline: none;
-			}
-			
+						
 			&[type=submit] {
 				text-decoration: capitalize;
 				.actionbuttons;
+			}
+			
+			&:focus {
+				border: solid 1px @call-to-action;
 			}
 		}
 		

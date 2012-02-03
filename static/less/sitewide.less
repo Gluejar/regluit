@@ -110,6 +110,20 @@ img {
     border:none;
 }
 
+input, textarea {
+	border: 2px solid @blue-grey;
+	.one-border-radius(5px);
+	
+	&:focus {
+		border: 2px solid @call-to-action;
+		outline: none;
+	}
+}
+
+.js-search input {
+	.one-border-radius(0);
+}
+
 h2 {
     &.content-heading {
         padding:15px;

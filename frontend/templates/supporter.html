@@ -17,6 +17,7 @@
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 <script type="text/javascript" src="/static/js/import_books.js"></script>
 
+<script type="text/javascript" src="/static/js/counter.js"></script>
 {% endblock %}
 
 {% comment %}
@@ -125,9 +126,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
-                                <h3 class="title">Your Tagline</h3> (140 characters max)
+                                <h3 class="title">Your Tagline</h3>
                                     {{ profile_form.tagline.errors }}
-                                    {{ profile_form.tagline }}
+                                    {{ profile_form.tagline }}<br />
+                                <span id="count_display">140</span> characters remaining<br /><br />
 
                             </div>
                                      <input class="profile-save" type="submit" name="submit" value="Update" id="submit">

@@ -12,6 +12,7 @@
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+<script type="text/javascript" src="/static/js/counter.js"></script>
 
 <script>
 jQuery(document).ready(function(){
@@ -76,7 +77,7 @@ jQuery(document).ready(function(){
                         <div>
                           <div class="pubinfo">
                             <h3 class="book-author">{{ work.author }}</h3>
-                            <h3 class="book-year">{{ pubdate }}</h3> {{activetab}}
+                            <h3 class="book-year">{{ pubdate }}</h3>
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
@@ -192,7 +193,9 @@ jQuery(document).ready(function(){
                     <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
                     <div class="tabs-content">
                        {% render_comment_list for work %}
-                       {% if user.is_authenticated %}{% render_comment_form for work %}{% endif %}
+                       {% if user.is_authenticated %}
+                           {% render_comment_form for work %}
+                       {% endif %}
                     </div>
                     </div>
                     <div id="tabs-3" class="tabs {% if activetab == '3' %}active{% endif %}">

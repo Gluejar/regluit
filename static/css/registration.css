@@ -103,10 +103,6 @@
   line-height: 18px;
   margin-bottom: 16px;
 }
-#login form input:focus {
-  border: 1px solid #8dc63f;
-  outline: none;
-}
 #login form input[type=submit] {
   text-decoration: capitalize;
   width: auto;
@@ -123,6 +119,9 @@
   padding: 0 15px;
   border: none;
   margin: 5px 0;
+}
+#login form input:focus {
+  border: solid 1px #8dc63f;
 }
 #login form span.helptext {
   display: block;

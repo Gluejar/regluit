@@ -72,10 +72,14 @@
 .user-block-hide input {
   float: left;
   margin: 3px 10px 0 0;
+  width: 45%;
 }
 .user-block-hide label {
   float: left;
   width: 90%;
+}
+.user-block-hide textarea {
+  width: 95%;
 }
 .user-block1 {
   float: left;
