@@ -5,6 +5,7 @@ import json
 from pprint import pprint
 from itertools import islice, izip, repeat
 import logging
+from xml.etree import ElementTree
 
 
 
@@ -44,6 +45,8 @@ SURFACING_WORK_OLID = 'OL675829W'
 SURFACING_EDITION_OLID = 'OL8075248M'
 SURFACING_ISBN = '9780446311076'
 
+USER_AGENT = "rdhyee-test"
+
 # http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
 def grouper(iterable, page_size):
     page= []
@@ -76,6 +79,16 @@ def to_list(s):
         return [s]
     else:
         return s
+    
+def thingisbn(isbn):
+    """given an ISBN return a list of related edition ISBNs, according to 
+    Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
+    """
+    logger.info("looking up %s at ThingISBN" , isbn)
+    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
+    xml = requests.get(url, headers={"User-Agent": USER_AGENT}).content
+    doc = ElementTree.fromstring(xml)
+    return [e.text for e in doc.findall('isbn')]
 
 def hathi_bib(id, id_type='isbn', detail_level='brief'):
     url = "http://catalog.hathitrust.org/api/volumes/brief/%s/%s.json"  % (id_type, id)
@@ -88,7 +101,7 @@ def hathi_bib(id, id_type='isbn', detail_level='brief'):
 class GoogleBooks(object):
     def __init__(self, key):
         self.key = key
-    def isbn (self, isbn):
+    def isbn (self, isbn, glossed=True):
         url = "https://www.googleapis.com/books/v1/volumes"
         try:
             results = self._get_json(url, {"q": "isbn:%s" % isbn})
@@ -99,7 +112,10 @@ class GoogleBooks(object):
             logger.warn("no google hits for %s" , isbn)
             return None
         else:
-            return self._get_item(results)
+            if glossed:
+                return self._get_item(results)
+            else:
+                return results
     def _get_item(self, results):
         if len(results):
 
@@ -107,9 +123,10 @@ class GoogleBooks(object):
             item = results['items'][0]
             
             d = item['volumeInfo']
-            title = d.get('title', None)
+            title = d.get('title')
             language = d.get('language')
             identifiers = d.get('industryIdentifiers', [])
+            ratings_count = d.get('ratingsCount')
 
             # flip [{u'identifier': u'159059858X', u'type': u'ISBN_10'}, {u'identifier': u'9781590598580', u'type': u'ISBN_13'}] to
             #    {u'ISBN_13': u'9781590598580', u'ISBN_10': u'159059858X'}
@@ -118,8 +135,12 @@ class GoogleBooks(object):
             isbn = identifiers.get('ISBN_13') or identifiers.get('ISBN_10')
             if isbn:
                 isbn = isbn_mod.ISBN(isbn).to_string('13')
+                
+            published_date = d.get('publishedDate')
+            publisher = d.get('publisher')
             
-            data = {'title':title, 'language':language, 'isbn':isbn, 'google_books_id': google_books_id}
+            data = {'title':title, 'language':language, 'isbn':isbn, 'google_books_id': google_books_id,
+                    'ratings_count':ratings_count, 'published_date':published_date, 'publisher':publisher}
         else:
             data = None
         return data
@@ -321,9 +342,7 @@ class OpenLibrary(object):
                 
                 work_ids = list(cls.works([(isbn_val,'isbn')]))
                 if len(work_ids):
-                    print "work_ids", work_ids
                     work_id = work_ids[0][0]
-                    print "work_id", work_id
                 else: # can't find a work_id
                     raise StopIteration()
             except isbn_mod.ISBNException:
@@ -335,7 +354,7 @@ class OpenLibrary(object):
         
         for page in grouper(editions, page_size):
             query = list(izip(page, repeat('olid')))
-            print query
+            #print query
             k = cls.read(query)      
             for edition in page:
                 # k['olid:OL8075248M']['records'].values()[0]['data']['identifiers']['isbn_13'][0]
@@ -652,6 +671,7 @@ class OpenLibraryTest(TestCase):
         gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
         fb_isbn_set = set(fb.xisbn(book_id=surfacing_fb_id))
         ol_isbn_set = set(OpenLibrary.xisbn(isbn_val=book_isbn))
+        lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
         
         print "Freebase set: ", len(fb_isbn_set), fb_isbn_set
         print "OpenLibrary set: ", len(ol_isbn_set), ol_isbn_set
@@ -659,9 +679,15 @@ class OpenLibraryTest(TestCase):
         print "in fb but not ol", len(fb_isbn_set - ol_isbn_set), fb_isbn_set - ol_isbn_set
         print "in ol but not fb", len(ol_isbn_set - fb_isbn_set), ol_isbn_set - fb_isbn_set
         
+        # compare thingisbn with ol
+        print "thingisbn set:", len(lt_isbn_set), lt_isbn_set
+        print "in both ol and lt", len(lt_isbn_set & ol_isbn_set), lt_isbn_set & ol_isbn_set
+        print "in lt but not ol", len(lt_isbn_set - ol_isbn_set), lt_isbn_set - ol_isbn_set
+        print "in ol but not lt", len(ol_isbn_set - lt_isbn_set), ol_isbn_set - lt_isbn_set        
+        
         # run through the intersection set and query Google Books
-        for isbn in fb_isbn_set & ol_isbn_set:
-            print isbn, gb.isbn(isbn)
+        for (i, isbn) in enumerate(fb_isbn_set & ol_isbn_set & lt_isbn_set):
+            print i, isbn, gb.isbn(isbn)
         
 
 class WorkMapperTest(TestCase):
@@ -682,14 +708,19 @@ class GoogleBooksTest(TestCase):
         self.assertEqual(item['isbn'], '9781590598580')
         self.assertEqual(item['language'], 'en')
         
-
+class thingISBNTest(TestCase):
+    def test_lt_isbn(self):
+        isbns = thingisbn(SURFACING_ISBN)
+        # convert to isbn-13
+        isbns = map(lambda x: isbn_mod.ISBN(x).to_string('13'), isbns)
+        print isbns
         
 def suite():
     
     #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(OpenLibraryTest('test_xisbn')) 
+    suites.addTest(OpenLibraryTest('test_xisbn'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     
