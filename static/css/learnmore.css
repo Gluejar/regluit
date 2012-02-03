@@ -68,8 +68,15 @@
 .user-block-hide .quicktour.last {
   padding-right: 0px;
   width: 270px;
-  background: url("/static/images/landingpage/signmeup-arrow.png") no-repeat center bottom;
-  padding-bottom: 42px;
+}
+.user-block-hide .quicktour.last .signup {
+  color: #8dc63f;
+  font-weight: bold;
+  margin-top: 10px;
+}
+.user-block-hide .quicktour.last .signup img {
+  margin-left: 5px;
+  vertical-align: middle;
 }
 .user-block-hide .movingrightalong {
   background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;

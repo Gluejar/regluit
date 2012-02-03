@@ -92,6 +92,9 @@
 #js-leftcol .jsmodule.rounded .jsmod-content span.spacer {
   visibility: none;
 }
+#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers {
+  cursor: pointer;
+}
 .book-detail {
   float: left;
   width: 100%;
