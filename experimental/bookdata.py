@@ -14,9 +14,9 @@ import sys, os
 # and not just in the context of the regluit Django app
 
 try:
-    from regluit.core import isbn
+    from regluit.core import isbn as isbn_mod
 except:
-    import isbn
+    import isbn as isbn_mod
 
 try:
     import unittest
@@ -33,6 +33,8 @@ import freebase
 import logging
 logger = logging.getLogger(__name__)
 
+GOOGLE_BOOKS_KEY = "AIzaSyCewoH_s2LmrxWD5XNwed3izNnA3dUqMlo"
+
 MASHUPBOOK_ISBN_13 = '9781590598580'
 MASHUPBOOK_ISBN_10 = '159059858X'
 MASHUPBOOK_OLID = 'OL13439114M'
@@ -40,6 +42,7 @@ RY_OLID = 'OL4264806A'
 
 SURFACING_WORK_OLID = 'OL675829W'
 SURFACING_EDITION_OLID = 'OL8075248M'
+SURFACING_ISBN = '9780446311076'
 
 # http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
 def grouper(iterable, page_size):
@@ -82,9 +85,63 @@ def hathi_bib(id, id_type='isbn', detail_level='brief'):
     else:
         raise Exception("Hathi Bib API response: %s " % (httplib.responses[r.status_code]) )
         
-# http://openlibrary.org/developers/api
+class GoogleBooks(object):
+    def __init__(self, key):
+        self.key = key
+    def isbn (self, isbn):
+        url = "https://www.googleapis.com/books/v1/volumes"
+        try:
+            results = self._get_json(url, {"q": "isbn:%s" % isbn})
+        except LookupFailure:
+            logger.exception("lookup failure for %s", isbn)
+            return None
+        if not results.has_key('items') or len(results['items']) == 0:
+            logger.warn("no google hits for %s" , isbn)
+            return None
+        else:
+            return self._get_item(results)
+    def _get_item(self, results):
+        if len(results):
+
+            google_books_id = results['items'][0]['id']
+            item = results['items'][0]
+            
+            d = item['volumeInfo']
+            title = d.get('title', None)
+            language = d.get('language')
+            identifiers = d.get('industryIdentifiers', [])
+
+            # flip [{u'identifier': u'159059858X', u'type': u'ISBN_10'}, {u'identifier': u'9781590598580', u'type': u'ISBN_13'}] to
+            #    {u'ISBN_13': u'9781590598580', u'ISBN_10': u'159059858X'}
+            identifiers = dict([(id["type"],id["identifier"]) for id in d.get('industryIdentifiers', [])])
+            
+            isbn = identifiers.get('ISBN_13') or identifiers.get('ISBN_10')
+            if isbn:
+                isbn = isbn_mod.ISBN(isbn).to_string('13')
+            
+            data = {'title':title, 'language':language, 'isbn':isbn, 'google_books_id': google_books_id}
+        else:
+            data = None
+        return data
+    def _get_json(self, url, params={}, type='gb'):
+        # lifted (with slight mod) from https://github.com/Gluejar/regluit/blob/master/core/bookloader.py
+        # TODO: should X-Forwarded-For change based on the request from client?
+        headers = {'User-Agent': 'raymond.yee@gmail.com', 
+                   'Accept': 'application/json',
+                   'X-Forwarded-For': '69.174.114.214'}
+        if type == 'gb':
+            params['key'] = self.key
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200:
+            return json.loads(response.content)
+        else:
+            logger.error("unexpected HTTP response: %s" % response)
+            if response.content:
+                logger.error("response content: %s" % response.content)
+            raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
 class OpenLibrary(object):
+    """http://openlibrary.org/developers/api"""
     @classmethod
     def books(cls, id, id_type="isbn", format="json", callback=None, jscmd=None):
         # http://openlibrary.org/dev/docs/api/books
@@ -245,6 +302,55 @@ class OpenLibrary(object):
                 raise OpenLibraryException("OpenLibrary API response: %s " % (httplib.responses[r.status_code]) )
         else:
             return None
+    @classmethod
+    def xisbn(cls,isbn_val=None, work_id=None, page_size=5):
+        
+        isbns = set()
+        
+        if isbn_val is None and work_id is None:
+            raise Exception("One of isbn or work_id must be specified")
+        elif isbn_val is not None and work_id is not None:
+            raise Exception("Only only of isbn or work_id can be specified")
+            
+        if isbn_val is not None:
+            # figure out the work_id and then pass back all the ISBNs from the manifestations of the work
+            try:
+                isbn_val = isbn_mod.ISBN(isbn_val).to_string('13')
+                isbns.add(isbn_val)
+                yield isbn_val
+                
+                work_ids = list(cls.works[(isbn_val,'isbn')])
+                if len(work_ids):
+                    work_id = work_ids[0]
+                    print "work_id", work_id
+                else: # can't find a work_id
+                    raise StopIteration()
+            except isbn_mod.ISBNException:
+                raise StopIteration()
+ 
+        # by this point we have a work_id
+         
+        editions = cls.editions(work_olid=work_id)
+        
+        for page in grouper(editions, page_size):
+            query = list(izip(page, repeat('olid')))
+            print query
+            k = cls.read(query)      
+            for edition in page:
+                # k['olid:OL8075248M']['records'].values()[0]['data']['identifiers']['isbn_13'][0]
+                identifiers =  k['olid:{0}'.format(edition)]['records'].values()[0]['data']['identifiers']
+                isbn = identifiers.get('isbn_13',[None])[0] or identifiers.get('isbn_10',[None])[0]
+                if isbn:
+                    try:
+                        isbn = isbn_mod.ISBN(isbn).to_string('13')
+                        if isbn not in isbns:
+                            isbns.add(isbn)
+                            yield isbn
+                    except isbn_mod.ISBNException:
+                        print "Problem with isbn %s for edition %s " % (isbn, edition)
+                    except Exception as e:
+                        raise e
+        
  
 
 class FreebaseBooks(object):
@@ -345,7 +451,7 @@ class FreebaseBooks(object):
         elif isbn_val is not None and book_id is not None:
             raise Exception("Only only of isbn or book_id can be specified")
         elif isbn_val is not None:
-            isbn_val = isbn.ISBN(isbn_val).to_string('13')
+            isbn_val = isbn_mod.ISBN(isbn_val).to_string('13')
             MQL = """[{
   "type": "/book/book_edition",
   "isbn": {
@@ -377,7 +483,7 @@ class WorkMapper(object):
         print "fb_id: ", fb_id
         fb = FreebaseBooks()
         work_ids = set()
-        # grab all ISBNs correponding to Freebase fb_id and comput the OpenLibrary work ID
+        # grab all ISBNs correponding to Freebase fb_id and compute the OpenLibrary work ID
         # if complete_search is False, stop at first work id
         for work_id_list in OpenLibrary.works(izip(fb.xisbn(book_id=fb_id), repeat('isbn'))):
             for work_id in work_id_list:
@@ -417,6 +523,9 @@ def ol_practice():
     # let's get the Work ID for one of the editions
     pprint(OpenLibrary.works(SURFACING_EDITION_OLID,id_type='olid'))
 
+
+class LookupFailure(Exception):
+    pass
         
 class FreebaseBooksTest(TestCase):
     def test_books_iter(self):
@@ -495,7 +604,7 @@ class OpenLibraryTest(TestCase):
     def test_works0(self):
         self.assertEqual(OpenLibrary.works0(SURFACING_EDITION_OLID,id_type='olid')[0], 'OL675829W')
     def test_works(self):
-        ids = [(MASHUPBOOK_ISBN_10, 'isbn'), (SURFACING_EDITION_OLID,'olid'), ('233434','isbn')]
+        ids =[(MASHUPBOOK_ISBN_10, 'isbn'), (SURFACING_EDITION_OLID,'olid'), ('233434','isbn')]
         resp = list(OpenLibrary.works(ids))
         self.assertEqual(resp, [['OL10306321W'], ['OL675829W'], []])
     def test_json_for_olid(self):
@@ -531,23 +640,43 @@ class OpenLibraryTest(TestCase):
     
         work = OpenLibrary.json_for_olid(id,follow_redirect=False)
         self.assertEqual(work["type"]["key"], "/type/redirect")
+    def test_xisbn(self):
+        work_id = SURFACING_WORK_OLID
+        book_isbn = '9780446311076'
+        
+        for isbn in islice(OpenLibrary.xisbn(work_id=work_id),5):
+            print isbn
+        
+        #for isbn in islice(OpenLibrary.xisbn(isbn_val=book_isbn),5):
+        #    print isbn
+        
 
 class WorkMapperTest(TestCase):
     def test_freebase_book_to_openlibrary_work(self):
         id = '/en/moby-dick'
-        id = '/en/wuthering_heights'
+        #id = '/en/wuthering_heights'
         work_ids = list(WorkMapper.freebase_book_to_openlibrary_work(id, complete_search=True))
         print work_ids
     def test_work_info_from_openlibrary(self):
         editions = list(OpenLibrary.editions(SURFACING_WORK_OLID))
         print editions, len(editions)
+
+class GoogleBooksTest(TestCase):
+    def test_isbn(self):
+        isbn_num = MASHUPBOOK_ISBN_13
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        item = gb.isbn(isbn_num)
+        self.assertEqual(item['isbn'], '9781590598580')
+        self.assertEqual(item['language'], 'en')
+        
+
         
 def suite():
     
-    #testcases = [WorkMapperTest]
+    #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(OpenLibraryTest('test_json_for_olid')) 
+    suites.addTest(OpenLibraryTest('test_xisbn')) 
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     

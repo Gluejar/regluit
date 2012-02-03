@@ -22,7 +22,7 @@ from itertools import islice, chain, izip
 import time
 
 import re
-from itertools import islice
+from itertools import islice, izip
 import logging
 
 from google.refine import refine
@@ -528,7 +528,7 @@ def compute_ol_title_from_work_id(max=None):
 def export_gutenberg_to_ol_mapping(max=None,fname=None):
     SQL = """SELECT mw.gutenberg_etext_id, gt.title as gt_title, mw.olid, olw.title as ol_title, mw.freebase_id, gf.about 
   FROM MappedWork mw LEFT JOIN GutenbergText gt 
-  ON mw.gutenberg_etext_id = gt.etext_id LEFT JOIN OpenLibraryWork olw ON olw.id=mw.olid LEFT JOIN GutenbergFile gf ON gf.is_format_of = gt.id 
+  ON mw.gutenberg_etext_id = gt.etext_id LEFT JOIN OpenLibraryWork olw ON olw.id=mw.olid LEFT JOIN GutenbergFile gf ON gf.is_format_of = gt.etext_id 
   WHERE gf.format = 'application/epub+zip';"""
 
     headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "about")
@@ -550,10 +550,22 @@ def export_gutenberg_to_ol_mapping(max=None,fname=None):
         f.close()
 
 def import_gutenberg_json(fname):
+    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "about")
+    
     f = open(fname)
-    m = json.load(f)
-    print m
-    return m
+    records = json.load(f)
+    for record in records:
+        print [record[h] for h in headers]
+    return records
+
+def calc_seed_isbn(gutenberg_ids, max=None):
+    """ For each element of the gutenberg_ids, return an good seed ISBN"""
+    db = GluejarDB()
+    for (i, g_id) in enumerate(islice(gutenberg_ids, max)):
+        mappings = db.session.query(MappedWork).filter_by(gutenberg_etext_id = g_id)
+        for mapping in mappings.all():
+            yield {'fb': mapping.freebase_id, 'olid': mapping.olid}
+
 
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -760,12 +772,18 @@ class FreebaseToOpenLibraryMappingTest(unittest.TestCase):
         pass
     def test_OpenLib_setup(self):
         pass
-    
+
+class ISBNSeedTest(unittest.TestCase):
+    def test_isbnseed(self):
+        gutenberg_ids = ['2701']
+        for (g_id, val) in izip(gutenberg_ids, calc_seed_isbn(gutenberg_ids)):
+            print g_id, val
+   
 def suite():
     
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(DatabaseTest('test_mapping_error')) 
+    suites.addTest(ISBNSeedTest('test_isbnseed')) 
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites
 
@@ -786,13 +804,13 @@ if __name__ == '__main__':
     #map_refine_fb_links_to_openlibrary_work_ids(max=None)
     #compute_ol_title_from_work_id(max=1000)
     
-    export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
-    import_gutenberg_json(fname="gutenberg_openlibrary.json")
+    #export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
+    #import_gutenberg_json(fname="gutenberg_openlibrary.json")
     #unittest.main()
 
     suites = suite()
     #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))
-    #unittest.TextTestRunner().run(suites)
+    unittest.TextTestRunner().run(suites)
     
 
         
