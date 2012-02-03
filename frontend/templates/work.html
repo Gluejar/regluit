@@ -46,17 +46,19 @@ jQuery(document).ready(function(){
                         {% else %}{% if status == 'WITHDRAWN' %}
                             Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
                         {% else %}{% if wishers == 1 %}
-                            {{ wishers }} Ungluer is WISHING
+                            <span class="findtheungluers">{{ wishers }} Ungluer is WISHING</span>
                         {% else %}
-                            {{ wishers }} Ungluers are WISHING
+                            <span class="findtheungluers">{{ wishers }} Ungluers are WISHING</span>
                         {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                     {% endif %}
                 {% else %}
+                	<span class="findtheungluers">
                     {% if wishers == 1 %}
                         {{ wishers }} Ungluer is WISHING
                     {% else %}
                         {{ wishers }} Ungluers are WISHING
                     {% endif %}
+                    </span>
                 {% endif %}{% endif %}
                     </span>
                     <span class="spacer">&nbsp;<br />&nbsp;</span>
@@ -163,7 +165,7 @@ jQuery(document).ready(function(){
                     <ul class="tabs">
                         <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
                         <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments ({{comment_count}})</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}"><a href="#">Supporters</a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters</a></li>
                         <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Details</a></li>
                     </ul>
                         
