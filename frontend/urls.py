@@ -60,6 +60,7 @@ urlpatterns = patterns(
         name="press"),
     url(r"^about/$", TemplateView.as_view(template_name="about.html"),
         name="about"),
+    url(r"^comments/$", "comment", name="comment"),
 )
 
 if not settings.IS_PREVIEW:
