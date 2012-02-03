@@ -319,9 +319,10 @@ class OpenLibrary(object):
                 isbns.add(isbn_val)
                 yield isbn_val
                 
-                work_ids = list(cls.works[(isbn_val,'isbn')])
+                work_ids = list(cls.works([(isbn_val,'isbn')]))
                 if len(work_ids):
-                    work_id = work_ids[0]
+                    print "work_ids", work_ids
+                    work_id = work_ids[0][0]
                     print "work_id", work_id
                 else: # can't find a work_id
                     raise StopIteration()
@@ -642,13 +643,25 @@ class OpenLibraryTest(TestCase):
         self.assertEqual(work["type"]["key"], "/type/redirect")
     def test_xisbn(self):
         work_id = SURFACING_WORK_OLID
+        surfacing_fb_id = '/m/05p_vg'
         book_isbn = '9780446311076'
         
-        for isbn in islice(OpenLibrary.xisbn(work_id=work_id),5):
-            print isbn
-        
-        #for isbn in islice(OpenLibrary.xisbn(isbn_val=book_isbn),5):
+        #for isbn in islice(OpenLibrary.xisbn(work_id=work_id),5):
         #    print isbn
+        fb = FreebaseBooks()
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        fb_isbn_set = set(fb.xisbn(book_id=surfacing_fb_id))
+        ol_isbn_set = set(OpenLibrary.xisbn(isbn_val=book_isbn))
+        
+        print "Freebase set: ", len(fb_isbn_set), fb_isbn_set
+        print "OpenLibrary set: ", len(ol_isbn_set), ol_isbn_set
+        print "in both", len(fb_isbn_set & ol_isbn_set), fb_isbn_set & ol_isbn_set
+        print "in fb but not ol", len(fb_isbn_set - ol_isbn_set), fb_isbn_set - ol_isbn_set
+        print "in ol but not fb", len(ol_isbn_set - fb_isbn_set), ol_isbn_set - fb_isbn_set
+        
+        # run through the intersection set and query Google Books
+        for isbn in fb_isbn_set & ol_isbn_set:
+            print isbn, gb.isbn(isbn)
         
 
 class WorkMapperTest(TestCase):
