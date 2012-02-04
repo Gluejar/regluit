@@ -37,4 +37,13 @@
 			$j('#tabs-1').hide(200);
 			$j('#tabs-3').hide(200);
 		});
+		$j('.findtheungluers').click(function(){
+			$j('#tabs').find('.active').removeClass('active');
+			$j('#supporters').addClass('active');
+			$j('.content-block-content').find('.active').removeClass('active');
+			$j('#tabs-3').addClass('active').show(300);
+			$j('#tabs-2').hide(200);
+			$j('#tabs-1').hide(200);
+			$j('#tabs-4').hide(200);
+		});
 	});

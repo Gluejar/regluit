@@ -14,7 +14,7 @@
     {% endif %}
   {% endfor %}
   
-  <input type="hidden" name="next" value="{{ request.get_full_path }}#" />
+  <input type="hidden" name="next" value="{{ request.get_full_path }}?tab=2" />
   <p class="submit">
     <input type="submit" name="post" class="submit-post" value="{% trans "Post" %}" />
   </p>

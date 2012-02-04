@@ -20,6 +20,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.contrib.comments import Comment
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
@@ -115,6 +116,8 @@ def work(request, work_id, action='display'):
     
     try:
         activetab = request.GET['tab']
+        if activetab not in ['1', '2', '3', '4']:
+        	activetab = '1';
     except:
 	    activetab = '1';
     
@@ -1299,3 +1302,6 @@ def feedback(request):
         
     return render(request, "feedback.html", {'form':form, 'num1':num1, 'num2':num2})    
         
+def comment(request):
+    latest_comments = Comment.objects.all()[:20]
+    return render(request, "comments.html", {'latest_comments': latest_comments})

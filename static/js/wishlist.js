@@ -7,12 +7,19 @@ $j(document).ready(function() {
             var span = $j(element).find("span");
             var gb_id = span.attr('id')
             if (!gb_id) return;
+            
+            // give immediate feedback that action is in progress
+            newSpan = $j('<span>Adding...</span>').hide();
+            span.replaceWith(newSpan);
+            newSpan.show();
+            
+            // actually perform action
             jQuery.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
-                span.fadeOut();
-                var newSpan = $j('<span class="on-wishlist">On Wishlist!</span>').hide();
-                span.replaceWith(newSpan);
-                newSpan.fadeIn('slow');
-                newSpan.removeAttr("id");
+                newSpan.fadeOut();
+                var nextSpan = $j('<span class="on-wishlist">On Wishlist!</span>').hide();
+                newSpan.replaceWith(nextSpan);
+                nextSpan.fadeIn('slow');
+                nextSpan.removeAttr("id");
             });
         });
     });
@@ -45,10 +52,17 @@ $j(document).ready(function() {
         $j(element).click(function() {
             var span = $j(element).find("span");
             var work_id = span.attr('id')
+            
+            // provide feedback
+            var newSpan = $j('<span>Removing...</span>').hide();
+            span.replaceWith(newSpan);
+            newSpan.show();
+            
+            // perform action
             jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
-                span.parent().fadeOut();
+                newSpan.parent().fadeOut();
                 var newDiv = $j('<div class="add-wishlist-workpage"><span class="'+work_id+'">Add to Wishlist</span></div>').hide();
-                span.parent().replaceWith(newDiv);
+                newSpan.parent().replaceWith(newDiv);
                 newDiv.fadeIn('slow');
             });
         });
@@ -64,12 +78,18 @@ $k(document).delegate(".add-wishlist-workpage span", "click", function() {
     var span = $k(this);
     var work_id = span.attr("class");
     if (!work_id) return;
+
+    // give immediate feedback that action is in progress
+    newSpan = $j('<span>Adding...</span>').hide();
+    span.replaceWith(newSpan);
+    newSpan.show();
+
     jQuery.post('/wishlist/', {'add_work_id': work_id}, function(data) {
-    	span.fadeOut();
-        var newSpan = $k('<span class="on-wishlist">On Wishlist!</span>').hide();
-        span.replaceWith(newSpan);
-        newSpan.fadeIn('slow');
-        newSpan.removeAttr("id");
+    	newSpan.fadeOut();
+        var nextSpan = $k('<span class="on-wishlist">On Wishlist!</span>').hide();
+        newSpan.replaceWith(nextSpan);
+        nextSpan.fadeIn('slow');
+        nextSpan.removeAttr("id");
     });
 });
 
