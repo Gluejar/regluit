@@ -81,11 +81,6 @@ class BookLoaderTests(TestCase):
         bookloader.add_related('0441012035')
         self.assertTrue(models.Edition.objects.count() > 15)
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
-        print "edition.work.editions.count()", edition.work.editions.count()
-        print "edition.title ", edition.title
-        print "edition.work.title ", edition.work.title
-        for (i,ed) in enumerate(edition.work.editions.all()):
-            print i, ed.id, ed.title, ed.isbn_13
         self.assertTrue(edition.work.editions.count() > 10)
 
 
