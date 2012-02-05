@@ -192,11 +192,15 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('isbn_13'))
         self.assertTrue(r.has_key('googlebooks_id'))
 
-        more_results = search.gluejar_search('melville', page=2)
-        self.assertTrue(results[0]['isbn_13'] != more_results[0]['isbn_13'])
+    def test_pagination(self):
+        r1 = search.gluejar_search('melville', page=1)
+        r2 = search.gluejar_search('melville', page=2)
+        isbns1 = set([r['isbn_13'] for r in r1])
+        isbns2 = set([r['isbn_13'] for r in r2])
+        self.assertTrue(isbns1 != isbns2)
 
     def test_googlebooks_search(self):
-        response = search.googlebooks_search('melville', '69.243.24.29')
+        response = search.googlebooks_search('melville', '69.243.24.29', 1)
         self.assertEqual(len(response['items']), 10)
 
 
