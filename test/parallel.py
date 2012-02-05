@@ -16,7 +16,6 @@ We will take this in steps by first writing toy models and filling them out
 
 """
 def doubler(n):
-    result = 2*n
     return 2*n
 
 def negator(n):
@@ -25,9 +24,6 @@ def negator(n):
 def tripler(n):
     return 3*n
 
-def totaler(n, results):
-    result = doubler(n) + negator(n) + tripler(n)
-    results.put((n, result))
 
 
 class Consumer(multiprocessing.Process):
@@ -53,11 +49,11 @@ class Consumer(multiprocessing.Process):
         return
 
 
-class Task(object):
+class NetTask(object):
     def __init__(self, n):
         self.n = n
     def __call__(self):
-        time.sleep(0.1) # pretend to take some time to do the work
+        #time.sleep(0.1) # pretend to take some time to do the work
         result = doubler(self.n) + negator(self.n) + tripler(self.n)
         return (self.n, result)
     def __str__(self):
@@ -81,7 +77,7 @@ def main():
     
     # create a separate process for each totaler operation
     for k in xrange(n_tasks):
-        tasks.put(Task(k))
+        tasks.put(NetTask(k))
         
     # Add a poison pill for each consumer
     for i in xrange(num_consumers):
