@@ -81,7 +81,7 @@ class BookLoaderTests(TestCase):
         bookloader.add_related('0441012035')
         self.assertTrue(models.Edition.objects.count() > 15)
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
-        self.assertTrue(edition.work.editions.count() > 10)
+        self.assertTrue(edition.work.editions.count() > 9)
 
 
     def test_populate_edition(self):
