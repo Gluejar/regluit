@@ -2,11 +2,11 @@ import json
 import requests
 import regluit.core.isbn
 
-def gluejar_search(q, user_ip='69.243.24.29'):
+def gluejar_search(q, user_ip='69.243.24.29', page=1):
     """normalizes results from the google books search suitable for gluejar
     """
     results = []
-    search_result=googlebooks_search(q, user_ip)
+    search_result=googlebooks_search(q, user_ip, page)
     if 'items' in search_result.keys():
         for item in search_result['items']:
             v = item['volumeInfo']
@@ -48,9 +48,11 @@ def gluejar_search(q, user_ip='69.243.24.29'):
     return results 
 
 
-def googlebooks_search(q, user_ip):
+def googlebooks_search(q, user_ip, page):
     # XXX: need to pass IP address of user in from the frontend 
     headers = {'X-Forwarded-For': user_ip}
+    start = (page - 1) * 10 
+    params = {'q': q, 'startIndex': start, 'maxResults': 10}
     r = requests.get('https://www.googleapis.com/books/v1/volumes', 
-            params={'q': q}, headers=headers)
+            params=params, headers=headers)
     return json.loads(r.content)

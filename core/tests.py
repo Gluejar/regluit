@@ -192,6 +192,9 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('isbn_13'))
         self.assertTrue(r.has_key('googlebooks_id'))
 
+        more_results = search.gluejar_search('melville', page=2)
+        self.assertTrue(results[0]['isbn_13'] != more_results[0]['isbn_13'])
+
     def test_googlebooks_search(self):
         response = search.googlebooks_search('melville', '69.243.24.29')
         self.assertEqual(len(response['items']), 10)
