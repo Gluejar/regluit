@@ -81,7 +81,7 @@ class BookLoaderTests(TestCase):
         bookloader.add_related('0441012035')
         self.assertTrue(models.Edition.objects.count() > 15)
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
-        self.assertTrue(edition.work.editions.count() > 10)
+        self.assertTrue(edition.work.editions.count() > 9)
 
 
     def test_populate_edition(self):
@@ -192,8 +192,15 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('isbn_13'))
         self.assertTrue(r.has_key('googlebooks_id'))
 
+    def test_pagination(self):
+        r1 = search.gluejar_search('melville', page=1)
+        r2 = search.gluejar_search('melville', page=2)
+        isbns1 = set([r['isbn_13'] for r in r1])
+        isbns2 = set([r['isbn_13'] for r in r2])
+        self.assertTrue(isbns1 != isbns2)
+
     def test_googlebooks_search(self):
-        response = search.googlebooks_search('melville', '69.243.24.29')
+        response = search.googlebooks_search('melville', '69.243.24.29', 1)
         self.assertEqual(len(response['items']), 10)
 
 
