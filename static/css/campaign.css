@@ -474,6 +474,7 @@ a {
 .on-wishlist span.on-wishlist,
 .create-account span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
+  cursor: default;
 }
 .add-wishlist span, .add-wishlist-workpage span, .create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;

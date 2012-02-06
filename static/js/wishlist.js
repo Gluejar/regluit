@@ -77,7 +77,7 @@ var $k = jQuery.noConflict();
 $k(document).delegate(".add-wishlist-workpage span", "click", function() {
     var span = $k(this);
     var work_id = span.attr("class");
-    if (!work_id) return;
+    if (!work_id || work_id === "on-wishlist") return;
 
     // give immediate feedback that action is in progress
     newSpan = $j('<span>Adding...</span>').hide();
