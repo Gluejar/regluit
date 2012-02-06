@@ -1,0 +1,15 @@
+if [ -z "$1" ]; then
+echo "`basename $0` {start|stop}"
+exit
+fi
+
+case "$1" in
+start)
+export DISPLAY=:99
+java -jar /opt/regluit/selenium/selenium-server-standalone-2.5.0.jar > /opt/regluit/logs/selenium-rc.log 2>&1 &
+;;
+
+stop)
+killall java
+;;
+esac
