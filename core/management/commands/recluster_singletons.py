@@ -7,18 +7,31 @@ This script goes through all singleton works and attempts to add_related. 'xx' w
 from django.core.management.base import BaseCommand
 from django.db.models import Count
 from regluit.core import models, bookloader
+from itertools import islice
 
 class Command(BaseCommand):
     help = "add and merge editions for singleton works"
-    args = "<language>"
+    args = "<language> <max>"
+    
 
-    def handle(self, language, **options):
+    def handle(self, language, max, **options):
         print "Number of singleton Works with language = %s: %s" % (language, models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count())
         
-        for work in models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language):
+        try:
+            max = int(max)
+        except:
+            max = None
+        
+        for (i, work) in enumerate(islice(models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language),max)):
             #check that there's still only one edition
+            print "%d %s id:%s #editions:%d #isbn:%s -->" % (i, work, work.id,  work.editions.count(), work.first_isbn_13()),
             if work.editions.count() != 1:
+                print
                 continue
-            new_editions = bookloader.add_related( work.first_isbn_13() )
-            print "clustered %s editions for work %s" % (len(new_editions),work )
+            if work.first_isbn_13():
+                new_editions = bookloader.add_related( work.first_isbn_13() )
+                print "clustered %s editions for work %s" % (len(new_editions),work ), \
+                      "| Corresponding works : ", [(w.id, w.language, w.editions.count()) for w in set([ed.work for ed in new_editions])]
+            else:
+                print "no ISBN for this work and therefore no new editions"
         print "Updated Number of singleton Works with language = %s: %s" % (language,models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count() )
