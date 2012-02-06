@@ -56,6 +56,31 @@
 	background:@hex url(@url) left bottom repeat-x;	
 }
 
+.rounded {
+	border:1px solid #d4d4d4;
+	.one-border-radius(7px);
+	padding:1px; 
+	color:#fff; 
+	margin:0 8px 0 0;
+	display:inline-block;
+	
+	> span { 
+		padding:7px 7px; 
+		min-width:15px; 
+		.one-border-radius(5px);
+		text-align:center; 
+		display:inline-block;
+		
+		.hovertext {
+			display: none;
+		}
+			
+		&:hover .hovertext {
+			display: inline;
+		}
+	}
+}
+
 .height(@x) {
 	height:@x; 
 	line-height:@x; 
