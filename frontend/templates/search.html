@@ -8,6 +8,31 @@
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
+<script type="text/javascript" src="/static/js/jquery.endless-scroll.js"></script>
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+var page = 1;
+$j(document).ready(function() {
+    $j(document).endlessScroll({
+        bottomPixels: 250,
+        fireOnce: false,
+        fireDelay: false,
+        insertAfter: "#results-bottom",
+        loader: '<img src="/static/images/loading.gif">',
+        callback: function(p) {
+            page += 1;
+            var url = "?q={{ q }}&page=" + page;
+            $j.get(url, function(html) {
+                var view = $j(".listview").length > 0 ? "list" : "panel";
+                var results = $j(html).find(".book");
+                $j("#results").append(results);
+                if (view === "list") toggleList();
+                else togglePanel();
+            });
+        }
+    });
+});
+</script>
 {% endblock %}
 
 {% block title %}Google Books search results{% endblock %}
@@ -38,9 +63,9 @@
                             </li>
                         </ul>
                 </div>
-                <div class="content-block-content">
+                <div id="results" class="content-block-content">
                     {% for work in results %}
-                    <div class="{% cycle 'row1' 'row2' %}">
+                    <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
@@ -57,9 +82,9 @@
                             </form>
                         </div>
                     </div>
-
                     {% endfor %}
                 </div>
+                <div id="results-bottom"></div>
             </div>    
         </div>
         </div>

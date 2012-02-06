@@ -251,7 +251,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
                     {% endifequal %}
                     {% else %}
-                    {% paginate 20 works %}
+                    {% lazy_paginate 20 works %}
                     {% for work in works %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
@@ -263,7 +263,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endfor %}
                     <br>
                     <div class="pagination content-block-heading">
-                        {% show_pages %}
+                        {% show_more %}
                     </div>
                     {% endifequal %}
                 </div>

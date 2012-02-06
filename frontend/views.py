@@ -820,14 +820,15 @@ def edit_user(request):
 
 def search(request):
     q = request.GET.get('q', None)
-    results = gluejar_search(q, request.META['REMOTE_ADDR'])
+    page = int(request.GET.get('page', 1))
+    results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
         ungluers = userlists.other_users(request.user, 5)
     else:
         ungluers = userlists.other_users(None, 5)
-            
+
     works=[]
     for result in results:
         try:
