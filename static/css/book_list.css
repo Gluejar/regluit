@@ -13,7 +13,7 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
-.rounded {
+.roundedspan {
   border: 1px solid #d4d4d4;
   -moz-border-radius: 7px;
   -webkit-border-radius: 7px;
@@ -23,7 +23,7 @@
   margin: 0 8px 0 0;
   display: inline-block;
 }
-.rounded > span {
+.roundedspan > span {
   padding: 7px 7px;
   min-width: 15px;
   -moz-border-radius: 5px;
@@ -32,10 +32,10 @@
   text-align: center;
   display: inline-block;
 }
-.rounded > span .hovertext {
+.roundedspan > span .hovertext {
   display: none;
 }
-.rounded > span:hover .hovertext {
+.roundedspan > span:hover .hovertext {
   display: inline;
 }
 .mediaborder {
