@@ -7,32 +7,44 @@
                 $j(".user-block-hide").slideToggle(300);
             }
         );
-        $j('.tabs1').click(function(){
-            $j('.tabs').find('.active').removeClass('active');
+
+		// caching selections to speed up response
+        var tabs = $j('.tabs');
+        var tabsId = $j('#tabs');
+        var tabs1 = $j('.tabs1');
+        var tabs2 = $j('.tabs2');
+        var tabs3 = $j('.tabs3');
+        var contentBlockContent = $j('#content-block-content');
+        var tabsDash1 = $j('.tabs-1');
+        var tabsDash2 = $j('.tabs-2');
+        var tabsDash3 = $j('.tabs-3');
+        
+        tabs1.click(function(){
+            tabs.find('.active').removeClass('active');
             $j('li.tabs1').addClass('active');
-            $j('.content-block-content').find('.active').removeClass('active');
-            $j('.tabs-1').addClass('active').show(300);
-            $j('.tabs-2').hide(200);
-            $j('.tabs-3').hide(200);
-            $j('#tabs').removeClass('wantto').removeClass('ungluing').addClass('unglued');
+            contentBlockContent.find('.active').removeClass('active');
+            tabsDash1.addClass('active').show(300);
+            tabsDash2.hide(200);
+            tabsDash3.hide(200);
+            tabsId.removeClass('wantto').removeClass('ungluing').addClass('unglued');
         });
-        $j('.tabs2').click(function(){
-            $j('.tabs').find('.active').removeClass('active');
+        tabs2.click(function(){
+            tabs.find('.active').removeClass('active');
             $j('li.tabs2').addClass('active');
-            $j('.content-block-content').find('.active').removeClass('active');
-            $j('.tabs-2').addClass('active').show(300);
-            $j('.tabs-1').hide(200);
-            $j('.tabs-3').hide(200);
-            $j('#tabs').removeClass('unglued').removeClass('wantto').addClass('ungluing');
+            contentBlockContent.find('.active').removeClass('active');
+            tabsDash2.addClass('active').show(300);
+            tabsDash1.hide(200);
+            tabsDash3.hide(200);
+            tabsId.removeClass('unglued').removeClass('wantto').addClass('ungluing');
         });
-        $j('.tabs3').click(function(){
-            $j('.tabs').find('.active').removeClass('active');
+        tabs3.click(function(){
+            tabs.find('.active').removeClass('active');
             $j('li.tabs3').addClass('active');
-            $j('.content-block-content').find('.active').removeClass('active');
-            $j('.tabs-3').addClass('active').show(300);
-            $j('.tabs-2').hide(200);
-            $j('.tabs-1').hide(200);
-            $j('#tabs').removeClass('unglued').removeClass('ungluing').addClass('wantto');
+            contentBlockContent.find('.active').removeClass('active');
+            tabsDash3.addClass('active').show(300);
+            tabsDash2.hide(200);
+            tabsDash1.hide(200);
+            tabsId.removeClass('unglued').removeClass('ungluing').addClass('wantto');
             });
         $j('.empty-wishlist span.bounce-search').click(function(){
             $j('div.js-search-inner').effect("bounce", 500, function() {

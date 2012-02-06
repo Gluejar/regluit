@@ -11,8 +11,7 @@ comments rss?
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script type="text/javascript" src="/static/js/jquery-1.6.3.min.js"></script>
-<script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src={{ jquery_ui_home }}></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
@@ -53,8 +52,8 @@ comments rss?
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
-            <div class="content-block">
-                <div class="content-block-content">
+            <div id="content-block">
+                <div id="content-block-content">
                 <div style="height:46px;"></div>
 					{% for comment in latest_comments %}
 					{% with comment.content_object.id as id %}

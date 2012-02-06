@@ -458,7 +458,7 @@ a.readon span {
   float: right;
   width: 725px;
 }
-div.content-block {
+div#content-block {
   overflow: hidden;
   background: url("/static/images/bg.png") 100% -223px no-repeat;
   padding: 0 0 0 7px;
@@ -472,12 +472,12 @@ div.content-block {
   text-decoration: underline;
   font-weight: normal;
 }
-div.content-block-content {
+div#content-block-content {
   width: 100%;
   overflow: hidden;
   padding-left: 10px;
 }
-div.content-block-content .cols3 .column {
+div#content-block-content .cols3 .column {
   width: 33.33%;
   float: left;
 }
