@@ -10,14 +10,15 @@ from regluit.core import models, bookloader
 
 class Command(BaseCommand):
     help = "add and merge editions for singleton works"
-    
-    def handle(self, **options):
-        print "Number of singleton Works with language!=xx: %s" % models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1).exclude(language='xx').count()
+    args = "<language>"
+
+    def handle(self, language, **options):
+        print "Number of singleton Works with language = %s: %s" % (language, models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count())
         
-        for work in models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1).exclude(language='xx'):
+        for work in models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language):
             #check that there's still only one edition
             if work.editions.count() != 1:
                 continue
             new_editions = bookloader.add_related( work.first_isbn_13() )
             print "clustered %s editions for work %s" % (len(new_editions),work )
-        print "Updated Number of singleton Works with language!=xx: %s" % models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1).exclude(language='xx').count()
+        print "Updated Number of singleton Works with language = %s: %s" % (language,models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count() )
