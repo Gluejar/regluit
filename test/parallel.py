@@ -1,6 +1,7 @@
 import multiprocessing
 import time
 import sys
+import random
 
 """
 Task:  for each of the 900 or so Gutenberg ids, calculate seed isbn(s)
@@ -15,15 +16,26 @@ ability to persist jobs, suspend, restart
 We will take this in steps by first writing toy models and filling them out
 
 """
+
 def doubler(n):
+    #time.sleep(random.uniform(0,0.1))
+    print "in doubler %s " % (n)
     return 2*n
 
 def negator(n):
+    #time.sleep(random.uniform(0,0.1))
+    print "in negator %s " % (n)
     return -n
 
 def tripler(n):
+    #time.sleep(random.uniform(0,0.1))
+    print "in tripler %s " % (n)
     return 3*n
 
+
+doubler_pool = multiprocessing.Pool(1) #use one core for now
+negator_pool = multiprocessing.Pool(1)
+tripler_pool = multiprocessing.Pool(1)
 
 
 class Consumer(multiprocessing.Process):
@@ -53,9 +65,17 @@ class NetTask(object):
     def __init__(self, n):
         self.n = n
     def __call__(self):
-        #time.sleep(0.1) # pretend to take some time to do the work
-        result = doubler(self.n) + negator(self.n) + tripler(self.n)
-        return (self.n, result)
+        print "NetTask %s" % (self.n)
+        print doubler_pool, negator_pool, tripler_pool
+        
+        async_results = [doubler_pool.apply_async(doubler, (self.n,)),
+                         negator_pool.apply_async(negator, (self.n,)),
+                         tripler_pool.apply_async(tripler, (self.n,))]
+        
+        print async_results
+        print "NetTask about to return async_results for %s" % (self.n)
+        return (self.n, async_results)
+        #return (self.n, sum(r.get() for r in async_results))
     def __str__(self):
         return 'Totaler (%d)' % (self.n)
         
@@ -63,17 +83,35 @@ def main():
     
     # generate a queue to hold the results
     tasks = multiprocessing.JoinableQueue()
-    results = multiprocessing.Queue()
+    results_queue = multiprocessing.Queue()
     
+    random.seed()
+
     # Start consumers
     num_consumers = multiprocessing.cpu_count()
     print 'Creating %d consumers' % num_consumers
-    consumers = [ Consumer(tasks, results)
+    consumers = [ Consumer(tasks, results_queue)
                   for i in xrange(num_consumers) ]
     for w in consumers:
         w.start()    
+
+    TO_CALC = 10
+    results = []
+    
+    for n in range(TO_CALC):
+        async_results = [doubler_pool.apply_async(doubler, (n,)), negator_pool.apply_async(negator, (n,)), tripler_pool.apply_async(tripler, (n,)),]
+        results.append(async_results)
         
-    n_tasks = 10
+    for result in results:
+        print(sum(r.get() for r in result))
+     
+    ## -------    
+    #
+    #doubler_pool = None
+    #negator_pool = None
+    #tripler_pool = None      
+        
+    n_tasks = 2
     
     # create a separate process for each totaler operation
     for k in xrange(n_tasks):
@@ -88,7 +126,7 @@ def main():
     net_results = {}
     
     while results_so_far < n_tasks:
-        result = results.get()
+        result = results_queue.get()
         net_results[result[0]] = result[1]
         print result
         results_so_far += 1
