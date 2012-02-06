@@ -67,7 +67,7 @@ class ProfileForm(forms.ModelForm):
         model = UserProfile
         fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads'
         widgets = {
-            'tagline': forms.Textarea(attrs={'cols': 25, 'rows': 5}),
+            'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
 
 class UserData(forms.Form):
@@ -204,7 +204,7 @@ class EmailShareForm(forms.Form):
 	next = forms.CharField(widget=forms.HiddenInput())
 	
 class FeedbackForm(forms.Form):
-	sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}))
+	sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}), label="Your email")
 	subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}))
 	message = forms.CharField(widget=forms.Textarea())
 	page = forms.CharField(widget=forms.HiddenInput())

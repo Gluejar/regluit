@@ -20,10 +20,11 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.contrib.comments import Comment
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
@@ -64,13 +65,13 @@ def home(request):
     works2=[]
     count=ending.count()
 
-	# on the preview site there are no active campaigns, so we should show most-wished books instead
+    # on the preview site there are no active campaigns, so we should show most-wished books instead
     is_preview = settings.IS_PREVIEW
     if is_preview:
-    	# django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
-    	worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
-    	works = worklist[:6]
-    	works2 = worklist[6:12]
+        # django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
+        worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
+        works = worklist[:6]
+        works2 = worklist[6:12]
     else:
         while i<12 and count>0:
             if i<6:
@@ -93,9 +94,9 @@ def work(request, work_id, action='display'):
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     try:
-	    pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
+        pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
-		pledged = None
+        pledged = None
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
@@ -113,6 +114,13 @@ def work(request, work_id, action='display'):
     wishers = work.wished_by().count()
     base_url = request.build_absolute_uri("/")[:-1]
     
+    try:
+        activetab = request.GET['tab']
+        if activetab not in ['1', '2', '3', '4']:
+        	activetab = '1';
+    except:
+	    activetab = '1';
+    
     #may want to deprecate the following
     if action == 'setup_campaign':
         return render(request, 'setup_campaign.html', {'work': work})
@@ -127,6 +135,7 @@ def work(request, work_id, action='display'):
             'editions': editions,
             'pubdate': pubdate,
             'pledged':pledged,
+            'activetab': activetab,
         })
 
 def manage_campaign(request, id):
@@ -158,10 +167,14 @@ def googlebooks(request, googlebooks_id):
     try: 
         edition = models.Identifier.objects.get(type='goog',value=googlebooks_id).edition
     except models.Identifier.DoesNotExist:
-        edition = bookloader.add_by_googlebooks_id(googlebooks_id)
-        # we could populate_edition(edition) to pull in related editions here
-        # but it is left out for now to lower the amount of traffic on 
-        # googlebooks, librarything and openlibrary
+        try:
+            edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+            if edition.new:
+                # add related editions asynchronously
+                tasks.populate_edition.delay(edition)
+        except bookloader.LookupFailure:
+            logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+            return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
     work_url = reverse('work', kwargs={'work_id': edition.work.id})
@@ -197,11 +210,13 @@ class WorkListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.annotate(wished=Count('wishlists')).order_by('-wished')
+            return models.Work.objects.filter(wishlists__isnull=False).distinct().annotate(wished=Count('wishlists')).order_by('-wished', 'id')
         elif (facet == 'recommended'):
             return models.Work.objects.filter(wishlists__user=recommended_user)
+        elif (facet == 'new'):
+            return models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created', 'id')
         else:
-            return models.Work.objects.all().order_by('-created')
+            return models.Work.objects.all().order_by('-created', 'id')
 
     def get_context_data(self, **kwargs):
             context = super(WorkListView, self).get_context_data(**kwargs)
@@ -805,21 +820,22 @@ def edit_user(request):
 
 def search(request):
     q = request.GET.get('q', None)
-    results = gluejar_search(q, request.META['REMOTE_ADDR'])
+    page = int(request.GET.get('page', 1))
+    results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
         ungluers = userlists.other_users(request.user, 5)
     else:
         ungluers = userlists.other_users(None, 5)
-            
+
     works=[]
     for result in results:
-		try:
-			work = models.Identifier.objects.get(type='goog',value=result['googlebooks_id']).work
-			works.append(work)
-		except models.Identifier.DoesNotExist: 
-			works.append(result)
+        try:
+            work = models.Identifier.objects.get(type='goog',value=result['googlebooks_id']).work
+            works.append(work)
+        except models.Identifier.DoesNotExist: 
+            works.append(result)
     context = {
         "q": q,
         "results": works,
@@ -835,11 +851,18 @@ def wishlist(request):
     googlebooks_id = request.POST.get('googlebooks_id', None)
     remove_work_id = request.POST.get('remove_work_id', None)
     add_work_id = request.POST.get('add_work_id', None)
+
     if googlebooks_id:
-        edition = bookloader.add_by_googlebooks_id(googlebooks_id)
-        # add related editions asynchronously
-        tasks.populate_edition.delay(edition)
-        request.user.wishlist.add_work(edition.work,'user')
+        try:
+            edition = bookloader.add_by_googlebooks_id(googlebooks_id)
+            if edition.new:
+                # add related editions asynchronously
+                tasks.populate_edition.delay(edition)
+            request.user.wishlist.add_work(edition.work,'user')
+        except bookloader.LookupFailure:
+            logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+        except Exception, e:
+            logger.warning("Error in wishlist adding %s" % (e))          
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
@@ -918,11 +941,11 @@ class CampaignFormView(FormView):
             return HttpResponse(response)
 
 class FAQView(TemplateView):
-	template_name = "faq.html"
-	def get_context_data(self, **kwargs):
-		location = self.kwargs["location"]
-		sublocation = self.kwargs["sublocation"]
-		return {'location': location, 'sublocation': sublocation}
+    template_name = "faq.html"
+    def get_context_data(self, **kwargs):
+        location = self.kwargs["location"]
+        sublocation = self.kwargs["sublocation"]
+        return {'location': location, 'sublocation': sublocation}
 
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
@@ -1244,7 +1267,7 @@ def feedback(request):
     num1 = randint(0,10)
     num2 = randint(0,10)
     sum = num1 + num2
-	
+    
     if request.method == 'POST':
         form=FeedbackForm(request.POST)
         if form.is_valid():
@@ -1255,28 +1278,31 @@ def feedback(request):
             page = form.cleaned_data['page']
             useragent = request.META['HTTP_USER_AGENT']
             if request.user.is_anonymous():
-            	ungluer = "(not logged in)"
+                ungluer = "(not logged in)"
             else:
-            	ungluer = request.user.username
+                ungluer = request.user.username
             message = "<<<This feedback is about "+page+". Original user message follows\nfrom "+sender+", ungluer name "+ungluer+"\nwith user agent "+useragent+"\n>>>\n"+message
             send_mail(subject, message, sender, [recipient])
             
             return render(request, "thanks.html", {"page":page}) 
             
         else:
-        	num1 = request.POST['num1']
-        	num2 = request.POST['num2']
+            num1 = request.POST['num1']
+            num2 = request.POST['num2']
         
     else:
-    	if request.user.is_authenticated():
-    		sender=request.user.email;
-    	else:
-    		sender=''
-    	try:
-	    	page = request.GET['page']
-    	except:
-	    	page='/'
+        if request.user.is_authenticated():
+            sender=request.user.email;
+        else:
+            sender=''
+        try:
+            page = request.GET['page']
+        except:
+            page='/'
         form = FeedbackForm(initial={"sender":sender, "subject": "Feedback on page "+page, "page":page, "num1":num1, "num2":num2, "answer":sum})
         
     return render(request, "feedback.html", {'form':form, 'num1':num1, 'num2':num2})    
         
+def comment(request):
+    latest_comments = Comment.objects.all()[:20]
+    return render(request, "comments.html", {'latest_comments': latest_comments})

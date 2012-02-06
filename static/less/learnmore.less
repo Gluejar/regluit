@@ -22,8 +22,17 @@
 		&.last {
 			padding-right:0px;
 			width:270px;
-			background: url("@{image-base}landingpage/signmeup-arrow.png") no-repeat center bottom;
-			padding-bottom: 42px;
+			
+			.signup {
+				color: @call-to-action;
+				font-weight: bold;
+				margin-top: 10px;
+				
+				img {
+					margin-left: 5px;
+					vertical-align: middle;
+				}
+			}
 		}
 	}
 	

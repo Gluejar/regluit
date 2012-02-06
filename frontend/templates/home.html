@@ -8,7 +8,7 @@
 
 {% block base_js %}
 
-<script src="/static/js/jquery-1.6.3.min.js"></script>
+<script src={{ jquery_home }}></script>
 
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
@@ -101,7 +101,7 @@ var $j = jQuery.noConflict();
                         		<h2 class="page-heading">Give ebooks to the world.</h2>
                         	</div>
                             <div class="jsmod-content">
-                            	<img src="/static/images/landingpage/icon-group.png" alt="How does it work?" title="How does it work?" height="269" width="268" />
+                            	<a href="{{ faqurl }}#crowdfunding"><img src="/static/images/landingpage/icon-group.png" alt="How does it work?" title="How does it work?" height="269" width="268" /></a>
                             </div>
                         </div>
                     </div>

@@ -30,12 +30,17 @@
 	input { 
 		float:left; 
 		margin:3px 10px 0 0;
+		width: 45%;
 	}
 	
 	label {
 		float:left; 
 		width:90%;
 	}	
+	
+	textarea {
+		width:95%;
+	}
 }
 
 .user-block1 {
@@ -113,29 +118,7 @@ span.user-status-title {
 }
 
 span.rounded {
-	border:1px solid #d4d4d4;
-	.one-border-radius(7px);
-	padding:1px; 
-	color:#fff; 
-	margin:0 8px 0 0;
-	display:inline-block;
-	
-	> span { 
-		padding:7px 7px; 
-		min-width:15px; 
-		.one-border-radius(5px);
-		text-align:center; 
-		display:inline-block;
-		
-		.hovertext {
-			display: none;
-		}
-			
-		&:hover .hovertext {
-			display: inline;
-		}
-	}
-	
+	.roundedspan;
 }
 
 span.blue {
@@ -316,26 +299,13 @@ ul.tabs {
 	}
 }
 
-/*
-.book-list span.rounded {
-	
-	> span { 
-		.height(15px); 
-	
-		a { 
-			text-transform:capitalize;
-		}
-	}
-}
-*/
-
 .listview .rounded {
 	// cancelling out styles that would otherwise apply
 	line-height: normal;
 	margin-right: 0;
 }
 
-div.content-block-content {
+div#content-block-content {
   padding-left: 10px;
 }
 

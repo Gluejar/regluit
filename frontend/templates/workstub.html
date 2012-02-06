@@ -22,7 +22,7 @@
 		</div>
         <div id="js-maincol">
         <div class="js-maincol-inner">
-        	<div class="content-block">
+        	<div id="content-block">
             	<div class="book-detail">
                 	<div class="book-detail-img">
                 		<a href="#"><img src="http://{{ imagebase }}/{{ image }}" alt="{{ title }}" title="{{ title }}" width="131" height="192" /></a>
@@ -43,7 +43,7 @@
                 </div>
                 <div id="tabs" class="content-block-heading">
                 </div>
-                <div class="content-block-content">
+                <div id="content-block-content">
                		<div id="tabs-1" class="tabs">
                     <div class="tabs-content">
                     	{% if request.user.is_anonymous %}

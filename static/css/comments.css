@@ -1,0 +1,49 @@
+.comments {
+  clear: both;
+  padding: 5px;
+  margin: 0 5px 0 0;
+  width: 95%;
+}
+.comments.row1 {
+  background: #f6f9f9;
+}
+.comments.row2 {
+  background: #fff;
+}
+.comments div {
+  float: left;
+}
+.comments div img {
+  margin: 0 5px;
+}
+.comments .image img {
+  height: 100px;
+}
+.comments:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+.comments .nonavatar {
+  width: 620px;
+}
+.comments .nonavatar span {
+  padding-right: 5px;
+}
+.comments .nonavatar span.text:before {
+  content: "\201C";
+  font-size: 17px;
+  font-weight: bold;
+}
+.comments .nonavatar span.text:after {
+  content: "\201D";
+  font-size: 17px;
+  font-weight: bold;
+}
+.comments .avatar {
+  float: right;
+  margin: 0 auto;
+  padding-top: 5px;
+}

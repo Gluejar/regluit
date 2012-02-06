@@ -29,8 +29,11 @@ def add_by_oclc_from_google(oclc):
         return models.Identifier.objects.get(type='oclc', value=oclc).edition
     except:
         url = "https://www.googleapis.com/books/v1/volumes"
-        results = _get_json(url, {"q": '"OCLC%s"' % oclc})
-    
+        try:
+            results = _get_json(url, {"q": '"OCLC%s"' % oclc})
+        except LookupFailure, e:
+            logger.exception("lookup failure for %s", oclc)
+            return None
         if not results.has_key('items') or len(results['items']) == 0:
             logger.warn("no google hits for %s" , oclc)
             return None
@@ -48,7 +51,12 @@ def add_by_oclc_from_google(oclc):
 def add_by_isbn(isbn, work=None):
     if not isbn:
         return None
-    e = add_by_isbn_from_google(isbn, work=work)
+    try:
+        e = add_by_isbn_from_google(isbn, work=work)
+    except LookupFailure:
+        logger.exception("failed google lookup for %s", isbn)
+        # try again some other time
+        return None
     if e:
         return e
     
@@ -78,7 +86,103 @@ def add_by_isbn(isbn, work=None):
     e.new = True
     models.Identifier(type='isbn', value=isbn, work=w, edition=e).save()
     return e
+
+def get_google_isbn_results(isbn):
+    url = "https://www.googleapis.com/books/v1/volumes"
+    try:
+        results = _get_json(url, {"q": "isbn:%s" % isbn})
+    except LookupFailure:
+        logger.exception("lookup failure for %s", isbn)
+        return None
+    if not results.has_key('items') or len(results['items']) == 0:
+        logger.warn("no google hits for %s" , isbn)
+        return None
+    else:
+        return results
+        
+def add_ebooks(item, edition):
+    access_info = item.get('accessInfo')
+    if access_info:
+        edition.public_domain = item.get('public_domain', None)
+        epub = access_info.get('epub')
+        if epub and epub.get('downloadLink'):
+            ebook = models.Ebook(edition=edition, format='epub',
+                                 url=epub.get('downloadLink'),
+                                 provider='google')
+            try:
+                ebook.save()
+            except IntegrityError:
+                pass
+                
+            
+        pdf = access_info.get('pdf')
+        if pdf and pdf.get('downloadLink'):
+            ebook = models.Ebook(edition=edition, format='pdf',
+                                 url=pdf.get('downloadLink', None),
+                                 provider='google')
+            try:
+                ebook.save()
+            except IntegrityError:
+                pass
+
+
+def update_edition(edition):
+    try:
+        isbn=edition.identifiers.filter(type='isbn')[0].value
+    except models.Identifier.DoesNotExist:
+        return edition
+
+    results=get_google_isbn_results(isbn)
+    if not results:
+        return edition
+    item=results['items'][0]
+    googlebooks_id=item['id']
+    d = item['volumeInfo']
+    if d.has_key('title'):
+        title = d['title']
+    else:
+        title=''
+    if len(title)==0:
+        # need a title to make an edition record; some crap records in GB. use title from parent if available
+        title=edition.work.title
+
+    # check for language change
+    language = d['language']
+    if len(language)>2:
+        language= language[0:2]
+    if edition.work.language != language:
+        logger.info("reconnecting %s since it is %s instead of %s" %(googlebooks_id, language, edition.work.language))
+        old_work=edition.work
+        new_work = models.Work(title=title, language=language)
+        new_work.save()
+        edition.work = new_work
+        edition.save()
+        for identifier in edition.identifiers.all():
+            logger.info("moving identifier %s" % identifier.value)
+            identifier.work=new_work
+            identifier.save()
+        if old_work.editions.count()==0:
+            #a dangling work; make sure nothing else is attached!
+            merge_works(new_work,old_work)    
     
+    # update the edition
+    edition.title = title
+    edition.description = d.get('description')
+    edition.publisher = d.get('publisher')
+    edition.publication_date = d.get('publishedDate', '')
+    edition.save()
+    
+    # create identifier if needed
+    models.Identifier.get_or_add(type='goog',value=googlebooks_id,edition=edition,work=edition.work)
+
+    for a in d.get('authors', []):
+        a, created = models.Author.objects.get_or_create(name=a)
+        a.editions.add(edition)
+    
+    add_ebooks(item, edition)
+            
+    return edition
+
     
 def add_by_isbn_from_google(isbn, work=None):
     """add a book to the UnglueIt database from google based on ISBN. The work parameter
@@ -91,27 +195,25 @@ def add_by_isbn_from_google(isbn, work=None):
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
     
     logger.info("adding book by isbn %s", isbn)
+
     # check if we already have this isbn
     edition = get_edition_by_id(type='isbn',value=isbn)
     if edition:
         edition.new = False
         return edition
 
-    url = "https://www.googleapis.com/books/v1/volumes"
-    results = _get_json(url, {"q": "isbn:%s" % isbn})
-
-    if not results.has_key('items') or len(results['items']) == 0:
-        logger.warn("no google hits for %s" , isbn)
+    results=get_google_isbn_results(isbn)
+    if results:
+        try:
+            return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0], isbn=isbn)
+        except LookupFailure, e:
+            logger.exception("failed to add edition for %s", isbn)
+        except IntegrityError, e:
+            logger.exception("google books data for %s didn't fit our db", isbn)
         return None
-
-    try:
-        return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0])
-    except LookupFailure, e:
-        logger.exception("failed to add edition for %s", isbn)
-    except IntegrityError, e:
-        logger.exception("google books data for %s didn't fit our db", isbn)
-    return None
-
+    else:
+        return None
+        
 def get_work_by_id(type,value):
     if value:
         try:
@@ -127,15 +229,17 @@ def get_edition_by_id(type,value):
             return None
 
 
-def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
+def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     """add a book to the UnglueIt database based on the GoogleBooks ID. The
     work parameter is optional, and if not supplied the edition will be 
-    associated with a stub work. 
+    associated with a stub work. isbn can be passed because sometimes passed data won't include it 
     
     """
     # don't ping google again if we already know about the edition
     try:
-        return models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        edition = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        edition.new = False
+        return edition
     except models.Identifier.DoesNotExist:
         pass
     
@@ -147,33 +251,64 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
         url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
         item  = _get_json(url)
     d = item['volumeInfo']
+    
+    if d.has_key('title'):
+        title = d['title']
+    else:
+        title=''
+    if len(title)==0:
+        # need a title to make an edition record; some crap records in GB. use title from parent if available
+        if work:
+            title=work.title
+        else:
+            return None
 
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
     language = d['language']
+    if len(language)>2:
+        language= language[0:2]
     if work and work.language != language:
         logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))
         work = None
-    isbn = None
-    for i in d.get('industryIdentifiers', []):
-        if i['type'] == 'ISBN_10' and not isbn:
-            isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
-        elif i['type'] == 'ISBN_13':
-            isbn = i['identifier']
+    # isbn = None
+    if not isbn: 
+        for i in d.get('industryIdentifiers', []):
+            if i['type'] == 'ISBN_10' and not isbn:
+                isbn = regluit.core.isbn.convert_10_to_13(i['identifier'])
+            elif i['type'] == 'ISBN_13':
+                isbn = i['identifier']
 
     # now check to see if there's an existing Work
-    if not work:
+    if work:
+        work.new = False
+    if isbn and not work:
         work = get_work_by_id(type='isbn',value=isbn)
+        if work:
+            work.new = False
     if not work:
-        work = models.Work.objects.create(title=d['title'], language=language)
+        work = models.Work.objects.create(title=title, language=language)
         work.new = True
         work.save()
 
+
+    # going off to google can take some time, so we want to make sure this edition has not
+    # been created in another thread while we were waiting
+    try:
+        e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
+        e.new = False
+        # whoa nellie, somebody else created an edition while we were working.
+        if work.new:
+            work.delete()
+        return e
+    except models.Identifier.DoesNotExist:
+        pass
+    
     
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
-    e.title = d.get('title')
+    e.title = title
     e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
@@ -189,22 +324,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None):
         a, created = models.Author.objects.get_or_create(name=a)
         a.editions.add(e)
 
-    access_info = item.get('accessInfo')
-    if access_info:
-        e.public_domain = item.get('public_domain', None)
-        epub = access_info.get('epub')
-        if epub and epub.get('downloadLink'):
-            ebook = models.Ebook(edition=e, format='epub',
-                                 url=epub.get('downloadLink'),
-                                 provider='google')
-            ebook.save()
-            
-        pdf = access_info.get('pdf')
-        if pdf and pdf.get('downloadLink'):
-            ebook = models.Ebook(edition=e, format='pdf',
-                                 url=pdf.get('downloadLink', None),
-                                 provider='google')
-            ebook.save()            
+    add_ebooks(item, e)
             
     return e
 
@@ -215,11 +335,15 @@ def add_related(isbn):
     """
     # make sure the seed edition is there
     logger.info("adding related editions for %s", isbn)
+    
+    new_editions = []
+
     edition = add_by_isbn(isbn)
+    if edition is None:
+        return new_editions
 
     # this is the work everything will hang off
     work = edition.work
-    new_editions = []
     other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
@@ -303,15 +427,21 @@ def add_openlibrary(work):
     for edition in work.editions.all():
         isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
-        e = _get_json(url, params, type='ol')
+        try:
+            e = _get_json(url, params, type='ol')
+        except LookupFailure:
+            logger.exception("OL lookup failed for  %s", isbn_key)
+            e = {}
         if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):
             work_key = e[isbn_key]['details']['works'].pop(0)['key']
             logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
-            w = _get_json("http://openlibrary.org" + work_key,type='ol')
-            if w.has_key('subjects'):
-                found = True
-                break
-
+            try:
+                w = _get_json("http://openlibrary.org" + work_key,type='ol')
+                if w.has_key('subjects'):
+                    found = True
+                    break
+            except LookupFailure:
+                logger.exception("OL lookup failed for  %s", work_key)
     if not found:
         logger.warn("unable to find work %s at openlibrary", work.id)
         return 

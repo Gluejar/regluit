@@ -10,10 +10,11 @@
       {% ifequal field.name "name" %}<div><input id="id_name" type="hidden" name="name" value="" /></div>{% endifequal %}
       {% ifequal field.name "email" %}<div><input id="id_email" type="hidden" name="email" value="" /></div>{% endifequal %}
       {% ifequal field.name "url" %}<div><input id="id_url" type="hidden" name="url" value="" /></div>{% endifequal %}
-      {% ifequal field.name "comment" %}<p{% if field.errors %} class="error"{% endif %}>Add your comment:<br /> <textarea id="id_comment" rows="4" cols="60" name="comment"></textarea></p>{% endifequal %}
+      {% ifequal field.name "comment" %}<p{% if field.errors %} class="error"{% endif %}>Add your comment (<span id="count_display">3000</span> characters remaining):<br /> <textarea id="id_comment" rows="4" name="comment" onKeyUp="counter(this, 3000)" onBlur="counter(this,3000)"></textarea></p>{% endifequal %}
     {% endif %}
   {% endfor %}
-  <input type="hidden" name="next" value="{{ request.get_full_path }}#" />
+  
+  <input type="hidden" name="next" value="{{ request.get_full_path }}?tab=2" />
   <p class="submit">
     <input type="submit" name="post" class="submit-post" value="{% trans "Post" %}" />
   </p>

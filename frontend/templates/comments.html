@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% comment %}
+realtime updating?
+comments rss?
+{% endcomment %}
+
+{% block title %} Comments {% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/comments.css" />
+{% endblock %}
+{% block extra_head %}
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src={{ jquery_ui_home }}></script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/toggle.js"></script>
+<script type="text/javascript" src="/static/js/tabs.js"></script>
+{% endblock %}
+{% block topsection %}
+
+<div id="js-topsection">
+    <div class="js-main">
+        <div class="js-topnews">
+            <div class="js-topnews1">
+                <div class="js-topnews2">
+                    <div class="js-topnews3">
+                        <div class="user-block">
+                            <div class="user-block1">
+                            	<div class="block-intro-text"><span class="special-user-name">Latest Comments</span></div>
+                            </div>
+                            <div class="user-block2"><span class="user-short-info">With your help we're raising money to buy the right to give these books to the world.</span>
+                            </div>
+                            <div class="user-block3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="main-container">
+    <div class="js-main">
+        <div id="js-leftcol">
+            {% include "explore.html" %}
+        </div>
+
+        <div id="js-maincol-fr">
+        <div class="js-maincol-inner">
+            <div id="content-block">
+                <div id="content-block-content">
+                <div style="height:46px;"></div>
+					{% for comment in latest_comments %}
+					{% with comment.content_object.id as id %}
+						<div class="comments {% cycle 'row1' 'row2' %}">
+						  <div class="nonavatar">
+   							<div class="image">
+      							<a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}"></a>
+   							</div>
+							  {% with comment.user as user %}
+      						  <span><a href={% url supporter supporter_username=user %}>{{ comment.name }}</a> on <a href="{% url work id %}">{{ comment.content_object.title }}</a></span><br/>
+  						  	  
+					    	  <span class="text">{{ comment.comment }}</span>
+   						   </div>
+   						   
+						   <div class="avatar">
+						   	  <a href={% url supporter supporter_username=user %}>
+         						{% if supporter.profile.pic_url %}
+            						<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
+         						{% else %}
+            						<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+         						{% endif %}
+   						  	  {% endwith %}
+         					  </a>
+      					   </div>
+					</div>
+   					{% endwith %}
+					{% endfor %}
+
+                </div>
+            </div>    
+        </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

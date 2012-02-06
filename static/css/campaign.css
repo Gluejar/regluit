@@ -13,6 +13,31 @@
   border-style: solid none;
   border-color: #FFFFFF;
 }
+.roundedspan {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+.roundedspan > span {
+  padding: 7px 7px;
+  min-width: 15px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+}
+.roundedspan > span .hovertext {
+  display: none;
+}
+.roundedspan > span:hover .hovertext {
+  display: inline;
+}
 .mediaborder {
   padding: 5px;
   border: solid 5px #EDF3F4;
@@ -21,13 +46,15 @@
   padding: 14px 0;
 }
 .google_signup_div div {
-  height: 32px;
-  line-height: 32px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
 .google_signup_div img {
   float: left;
+  height: 24px;
+  width: 24px;
 }
 .actionbuttons {
   width: auto;
@@ -89,6 +116,9 @@
 }
 #js-leftcol .jsmodule.rounded .jsmod-content span.spacer {
   visibility: none;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers {
+  cursor: pointer;
 }
 .book-detail {
   float: left;
@@ -202,8 +232,20 @@
 #tabs ul.book-list-view {
   margin-bottom: 4px !important;
 }
-#tabs-2, #tabs-3, #tabs-4 {
+#tabs-1,
+#tabs-2,
+#tabs-3,
+#tabs-4 {
   display: none;
+}
+#tabs-1.active,
+#tabs-2.active,
+#tabs-3.active,
+#tabs-4.active {
+  display: inherit;
+}
+#tabs-2 textarea {
+  width: 95%;
 }
 ul.tabs {
   float: left;
@@ -281,11 +323,11 @@ ul.tabs li a:hover, ul.tabs li.active a {
   width: 470px;
   margin: 0 10px;
 }
-#js-maincol div.content-block {
+#js-maincol div#content-block {
   background: none;
   padding: 0;
 }
-div.content-block-content {
+div#content-block-content {
   padding-left: 5px;
 }
 .tabs-content {
@@ -384,6 +426,7 @@ ul.support li:hover {
 }
 ul.support li:hover a {
   color: #fff;
+  text-decoration: none;
 }
 .work_supporter_nocomment {
   height: 50px;
@@ -431,6 +474,7 @@ a {
 .on-wishlist span.on-wishlist,
 .create-account span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
+  cursor: default;
 }
 .add-wishlist span, .add-wishlist-workpage span, .create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
