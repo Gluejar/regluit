@@ -30,8 +30,10 @@ class Command(BaseCommand):
                 continue
             if work.first_isbn_13():
                 new_editions = bookloader.add_related( work.first_isbn_13() )
+                corresponding_works =  set([ed.work for ed in new_editions])
                 print "clustered %s editions for work %s" % (len(new_editions),work ), \
-                      "| Corresponding works : ", [(w.id, w.language, w.editions.count()) for w in set([ed.work for ed in new_editions])]
+                      "| Corresponding works : ", [(w.id, w.language, w.editions.count()) for w in corresponding_works], \
+                      "#corresponding_works:%s" % (len(corresponding_works))
             else:
                 print "no ISBN for this work and therefore no new editions"
         print "Updated Number of singleton Works with language = %s: %s" % (language,models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count() )
