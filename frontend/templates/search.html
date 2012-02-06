@@ -46,7 +46,7 @@ $j(document).ready(function() {
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
-            <div class="content-block">
+            <div id="content-block">
                 <div class="content-block-heading">
                     <h2 class="content-heading">Google Books search results</span></h2>
                         <ul class="book-list-view">
@@ -63,7 +63,7 @@ $j(document).ready(function() {
                             </li>
                         </ul>
                 </div>
-                <div id="results" class="content-block-content">
+                <div id="content-block-content"><div id="results">
                     {% for work in results %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
@@ -83,7 +83,7 @@ $j(document).ready(function() {
                         </div>
                     </div>
                     {% endfor %}
-                </div>
+                </div></div>
                 <div id="results-bottom"></div>
             </div>    
         </div>

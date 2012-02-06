@@ -115,7 +115,3 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 INTERNAL_IPS = ('127.0.0.1',)
 
 CELERYD_LOG_LEVEL = "INFO"
-
-# this suppresses functionality that should not be visible on the alpha site
-# change to 0 if you want to see it on your local machine
-IS_PREVIEW = False

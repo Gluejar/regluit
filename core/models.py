@@ -227,6 +227,9 @@ class Identifier(models.Model):
             i=Identifier(type=type, value=value, edition=edition, work=work)
             i.save()
             return i
+    
+    def __unicode__(self):
+        return u'{0}:{1}'.format(self.type, self.value)
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)

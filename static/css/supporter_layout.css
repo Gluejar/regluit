@@ -346,7 +346,7 @@ ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
   line-height: normal;
   margin-right: 0;
 }
-div.content-block-content {
+div#content-block-content {
   padding-left: 10px;
 }
 .empty-wishlist {

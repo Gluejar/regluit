@@ -323,11 +323,11 @@ ul.tabs li a:hover, ul.tabs li.active a {
   width: 470px;
   margin: 0 10px;
 }
-#js-maincol div.content-block {
+#js-maincol div#content-block {
   background: none;
   padding: 0;
 }
-div.content-block-content {
+div#content-block-content {
   padding-left: 5px;
 }
 .tabs-content {
@@ -474,6 +474,7 @@ a {
 .on-wishlist span.on-wishlist,
 .create-account span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
+  cursor: default;
 }
 .add-wishlist span, .add-wishlist-workpage span, .create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
