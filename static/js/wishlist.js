@@ -1,6 +1,6 @@
 var $j = jQuery.noConflict();
 
-$j(document).ready(function() {
+$j('#content-block').ready(function() {
 
     $j(".add-wishlist").each(function (index, element) {
         $j(element).click(function() {
@@ -18,7 +18,7 @@ $j(document).ready(function() {
                 newSpan.fadeOut();
                 var nextSpan = $j('<span class="on-wishlist">On Wishlist!</span>').hide();
                 newSpan.replaceWith(nextSpan);
-                nextSpan.fadeIn('slow');
+                nextSpan.fadeIn('fast');
                 nextSpan.removeAttr("id");
             });
         });
@@ -77,7 +77,7 @@ var $k = jQuery.noConflict();
 $k(document).delegate(".add-wishlist-workpage span", "click", function() {
     var span = $k(this);
     var work_id = span.attr("class");
-    if (!work_id) return;
+    if (!work_id || work_id === "on-wishlist") return;
 
     // give immediate feedback that action is in progress
     newSpan = $j('<span>Adding...</span>').hide();

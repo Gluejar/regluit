@@ -10,7 +10,7 @@
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script type="text/javascript" src="/static/js/jquery-ui-1.8.16.custom.min.js"></script>
+<script type="text/javascript" src={{ jquery_ui_home }}></script>
 
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
@@ -216,7 +216,7 @@ how do I integrate the your wishlist thing with the tabs thing?
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
-            <div class="content-block">
+            <div id="content-block">
                 <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
@@ -238,7 +238,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </li>
                         </ul>
                 </div>
-                <div class="content-block-content">
+                <div id="content-block-content">
                     {% ifequal wishlist.works.all.count 0 %}
                     {% ifequal request.user supporter %}
                     <div class="empty-wishlist">

@@ -303,13 +303,13 @@ ul.tabs {
 	width:470px;
 	margin:0 10px;
 
-	div.content-block { 
+	div#content-block { 
 		background: none;
 		padding:0;
 	}
 }
 
-div.content-block-content {
+div#content-block-content {
   padding-left: 5px;
 }
 
@@ -403,9 +403,6 @@ ul.support li {
 a{ color:#3d4e53; font-size:12px;}
 
 .add-wishlist, .add-wishlist-workpage, &.remove-wishlist-workpage, .remove-wishlist, &.on-wishlist, &.create-account {
-	//margin-right: 10px;
-	//padding-right: 10px;
-	//width: 136px;
 	float: right;
 	cursor: pointer;
             
@@ -417,6 +414,7 @@ a{ color:#3d4e53; font-size:12px;}
         
         &.on-wishlist {
     		background:url("@{image-base}checkmark_small.png") left center no-repeat;
+    		cursor: default;
         }
 	}
 }
