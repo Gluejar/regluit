@@ -9,12 +9,6 @@ IS_PREVIEW = False
 # SITE_ID for your particular site -- must be configured in /core/fixtures/initial_data.json
 SITE_ID = 3
 
-# use the ones from google for greater speed
-# but in me.py set to /static/js/jquery-1.6.3.min.js, /static/js/jquery-ui-1.8.16.custom.min.js
-# if you want to allow offline development
-JQUERY_HOME = "https://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"
-JQUERY_UI_HOME = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"
-
 ADMINS = (
     ('Ed Summers', 'ehs@pobox.com'),
 )

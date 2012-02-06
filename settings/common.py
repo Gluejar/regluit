@@ -211,5 +211,7 @@ djcelery.setup_loader()
 # this suppresses functionality that should not be visible on the alpha site
 # change to 0 if you want to see it on your local machine
 IS_PREVIEW = True
-JQUERY_HOME = "https://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"
-JQUERY_UI_HOME = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"
+
+# set once instead of in all the templates
+JQUERY_HOME = "/static/js/jquery-1.6.3.min.js"
+JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
