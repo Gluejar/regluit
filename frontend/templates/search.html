@@ -63,7 +63,7 @@ $j(document).ready(function() {
                             </li>
                         </ul>
                 </div>
-                <div id="results" id="content-block-content">
+                <div id="content-block-content"><div id="results">
                     {% for work in results %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
@@ -83,7 +83,7 @@ $j(document).ready(function() {
                         </div>
                     </div>
                     {% endfor %}
-                </div>
+                </div></div>
                 <div id="results-bottom"></div>
             </div>    
         </div>
