@@ -12,13 +12,13 @@ $j(document).ready(function() {
 });
 
 function toggleList() {
-    $j('.panelview').addClass("listview").removeClass("panelview");
+    $j('div.panelview').addClass("listview").removeClass("panelview");
     $j(this).css({opacity: 1});
     $j('#toggle-panel').css({opacity: .2});
 }
 
 function togglePanel() {
-    $j('.listview').addClass("panelview").removeClass("listview");
+    $j('div.listview').addClass("panelview").removeClass("listview");
     $j(this).css({opacity: 1});
     $j('#toggle-list').css({opacity: .2});
 }

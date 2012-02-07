@@ -489,6 +489,10 @@ a {
   float: left;
   padding-bottom: 5px;
 }
+.editions .image {
+  width: 60px;
+  overflow: hidden;
+}
 .editions .metadata {
   display: block;
   overflow: hidden;

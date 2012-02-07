@@ -1,6 +1,10 @@
 {% extends "base.html" %}
 {% load truncatechars %}
 
+{% block extra_js %}
+	<script type="text/javascript" src={{ jquery_ui_home }}></script>
+{% endblock %}
+
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
@@ -19,6 +23,7 @@
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/highlight_signup.js"></script>
 
 <script src="/static/js/slides.min.jquery.js"></script>
 <script>
@@ -123,7 +128,7 @@ var $j = jQuery.noConflict();
             </div>
             <div id="js-rightcol">
             <div class="js-rightcol-padd">
-            	<div class="jsmodule">
+            	<div class="jsmodule" id="mainlogin">
                 	<h3 class="module-title">Start Ungluing Now!</h3>
                     <div class="jsmod-content">
                       <form action='/accounts/register/' method='post'>{% csrf_token %}

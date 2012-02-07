@@ -1,6 +1,6 @@
 @import "variables.less";
 
-.user-block-hide { 
+#user-block-hide { 
 	float: left;
 	width:100%; 
 	clear:both;
@@ -45,11 +45,33 @@
 	}	
 }
 
-.block-intro-text div {
+#block-intro-text div {
 	display: none;
 	line-height: 25px;
 	
 	&#active {
 		display: inherit;
 	}
+}
+
+.signuptoday {
+    a {
+        background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
+        padding-right: 17px;
+    	color: white;
+        
+        &:hover {
+        	text-decoration: none;
+        }
+    }
+                    
+	.one-border-radius(32px);
+    background-color: @call-to-action;
+    padding:0 15px;
+    .height(36px);
+    float: left;
+    clear: both;
+    margin: 10px 0;
+    cursor: pointer;
+    font-style: normal;
 }

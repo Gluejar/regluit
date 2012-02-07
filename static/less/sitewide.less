@@ -158,6 +158,13 @@ h3 {
     }
 }
 
+input[type="submit"] {
+	background: @call-to-action;
+	color: white;
+	font-weight: bold;
+	padding: 0.5em 1em;
+}
+
 .js-page-wrap {
     position: relative;
     min-height: 100%;
@@ -177,7 +184,7 @@ ul.menu{
 }
 
 /* Learn More menu */
-.block-intro-text {
+#block-intro-text {
 	padding-right: 10px;
 
 	span.def {
@@ -185,7 +192,7 @@ ul.menu{
 	}
 }
 
-a.readon {
+a#readon {
     background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
     color:#fff;
     text-transform:capitalize;

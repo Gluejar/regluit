@@ -272,7 +272,18 @@ jQuery(document).ready(function(){
 
                         <h4>Editions</h4>
                         {% for edition in editions %}
-                            <div class="editions"><div><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div><div class="metadata">{{edition.publisher}}<br />{{edition.publication_date}}<br /><a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">This edition on Google Books</a></div></div>
+                            <div class="editions"><div class="image"><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div>
+                            <div class="metadata">{{edition.publisher}}<br />
+                            	{{edition.publication_date}}<br />
+                            	{% with edition.isbn_13 as isbn %}
+                            		{% if isbn %}
+                            			ISBN: {{ isbn }}<br />
+                            		{% else %}
+                            			No ISBN available<br />
+                            		{% endif %}
+                            	{% endwith %}
+                            	See <a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
+                            </div>
                         {% endfor %}
                     </div>
                     </div>
