@@ -9,15 +9,12 @@
         );
 
 		// caching selections to speed up response
-        var tabs = $j('.tabs');
+        var tabs = $j('ul.tabs');
         var tabsId = $j('#tabs');
         var tabs1 = $j('.tabs1');
         var tabs2 = $j('.tabs2');
         var tabs3 = $j('.tabs3');
         var contentBlockContent = $j('#content-block-content');
-        var tabsDash1 = $j('.tabs-1');
-        var tabsDash2 = $j('.tabs-2');
-        var tabsDash3 = $j('.tabs-3');
         
         tabs1.click(function(){
             tabs.find('.active').removeClass('active');

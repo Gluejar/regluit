@@ -2,7 +2,7 @@ var $j = jQuery.noConflict();
 
 $j('#content-block').ready(function() {
 
-    $j(".add-wishlist").each(function (index, element) {
+    $j("div.add-wishlist").each(function (index, element) {
         $j(element).click(function() {
             var span = $j(element).find("span");
             var gb_id = span.attr('id')
@@ -24,7 +24,7 @@ $j('#content-block').ready(function() {
         });
     });
 
-    $j(".remove-wishlist").each(function (index, element) {
+    $j("div.remove-wishlist").each(function (index, element) {
         $j(element).click(function() {
             var span = $j(element).find("span");
             var work_id = span.attr('id')
@@ -35,7 +35,7 @@ $j('#content-block').ready(function() {
         });
     });
 
-    $j(".create-account").each(function (index, element) {
+    $j("div.create-account").each(function (index, element) {
         $j(element).click(function() {
             var span = $j(element).find("span");
             var work_url = span.attr('title')
@@ -48,7 +48,7 @@ $j('#content-block').ready(function() {
 	// so: slightly different versions ahoy
 	// note also that we don't have the Django ORM here so we can't readily get from work.id to googlebooks_id
 	// we're going to have to tell /wishlist/ that we're feeding it a different identifier
-    $j(".remove-wishlist-workpage").each(function (index, element) {
+    $j("div.remove-wishlist-workpage").each(function (index, element) {
         $j(element).click(function() {
             var span = $j(element).find("span");
             var work_id = span.attr('id')
@@ -74,7 +74,7 @@ var $k = jQuery.noConflict();
 // can't bind this to document ready because the .add-wishlist-workpage div doesn't exist until remove-wishlist is executed
 // need to use delegate and listen for it
 // fyi delegate will be deprecated in favor of live() in jquery 1.7 (this was written for 1.6.3)
-$k(document).delegate(".add-wishlist-workpage span", "click", function() {
+$k(document).delegate("div.add-wishlist-workpage span", "click", function() {
     var span = $k(this);
     var work_id = span.attr("class");
     if (!work_id || work_id === "on-wishlist") return;

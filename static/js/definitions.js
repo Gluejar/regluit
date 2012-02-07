@@ -6,7 +6,7 @@
 			function() {
 				$j(this).toggleClass("active");
 				$j("#user-block-hide").slideToggle(300);
-				$j("a#readon").toggleClass("down");
+				$j("#readon").toggleClass("down");
 			}
 		);
 	});
