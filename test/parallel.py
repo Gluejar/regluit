@@ -33,9 +33,6 @@ def tripler(n):
     return 3*n
 
 
-doubler_pool = multiprocessing.Pool(1) #use one core for now
-negator_pool = multiprocessing.Pool(1)
-tripler_pool = multiprocessing.Pool(1)
 
 
 class Consumer(multiprocessing.Process):
@@ -66,24 +63,44 @@ class NetTask(object):
         self.n = n
     def __call__(self):
         print "NetTask %s" % (self.n)
+        global doubler_pool, negator_pool, tripler_pool
         print doubler_pool, negator_pool, tripler_pool
         
         async_results = [doubler_pool.apply_async(doubler, (self.n,)),
                          negator_pool.apply_async(negator, (self.n,)),
                          tripler_pool.apply_async(tripler, (self.n,))]
-        
         print async_results
         print "NetTask about to return async_results for %s" % (self.n)
         return (self.n, async_results)
         #return (self.n, sum(r.get() for r in async_results))
     def __str__(self):
         return 'Totaler (%d)' % (self.n)
+
+def pooler():
+    
+    global doubler_pool, negator_pool, tripler_pool
+    
+    TO_CALC = 10
+    results = []
+    
+    for n in range(TO_CALC):
+        async_results = [doubler_pool.apply_async(doubler, (n,)), negator_pool.apply_async(negator, (n,)), tripler_pool.apply_async(tripler, (n,)),]
+        results.append(async_results)
+        
+    for result in results:
+        print(sum(r.get() for r in result))
         
 def main():
     
     # generate a queue to hold the results
     tasks = multiprocessing.JoinableQueue()
     results_queue = multiprocessing.Queue()
+    
+    global doubler_pool, negator_pool, tripler_pool
+    
+    doubler_pool = multiprocessing.Pool(1) #use one core for now
+    negator_pool = multiprocessing.Pool(1)
+    tripler_pool = multiprocessing.Pool(1)
     
     random.seed()
 
@@ -95,21 +112,8 @@ def main():
     for w in consumers:
         w.start()    
 
-    TO_CALC = 10
-    results = []
-    
-    for n in range(TO_CALC):
-        async_results = [doubler_pool.apply_async(doubler, (n,)), negator_pool.apply_async(negator, (n,)), tripler_pool.apply_async(tripler, (n,)),]
-        results.append(async_results)
-        
-    for result in results:
-        print(sum(r.get() for r in result))
-     
-    ## -------    
-    #
-    #doubler_pool = None
-    #negator_pool = None
-    #tripler_pool = None      
+    # demonstrate that we can do stuff with the pools
+    pooler() 
         
     n_tasks = 2
     
