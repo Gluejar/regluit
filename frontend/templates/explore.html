@@ -7,12 +7,11 @@
                         <li class="first parent">
                             <span>Show me...</span>
                             <ul class="menu level2">
-                            {% if request.user.is_anonymous %}
-                                <li class="first"><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>
-                            {% else %}
+                            {% if not request.user.is_anonymous %}
                                 <li class="first"><a href="/"><span>My Wishlist</span></a></li>
-                                <li><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>    
                             {% endif %}
+                                <li><a href="{% url comment %}"><span>Latest Comments</span></a></li>    
+                                <li><a href="{% url work_list 'recommended' %}"><span>Recommended</span></a></li>    
                             {% if is_preview %}
                                 <li><a href="{% url work_list 'popular' %}"><span>Popular</span></a></li>
                                 <li><a href="{% url unglued_list 'recent' %}"><span>Recently unglued</span></a></li>

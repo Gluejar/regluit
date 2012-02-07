@@ -9,7 +9,7 @@ $j('#content-block').ready(function() {
             if (!gb_id) return;
             
             // give immediate feedback that action is in progress
-            newSpan = $j('<span>Adding...</span>').hide();
+            newSpan = $j('<span style="font-weight: bold;">Adding...</span>').hide();
             span.replaceWith(newSpan);
             newSpan.show();
             
@@ -80,7 +80,7 @@ $k(document).delegate(".add-wishlist-workpage span", "click", function() {
     if (!work_id || work_id === "on-wishlist") return;
 
     // give immediate feedback that action is in progress
-    newSpan = $j('<span>Adding...</span>').hide();
+    newSpan = $j('<span style="font-weight: bold;">Adding...</span>').hide();
     span.replaceWith(newSpan);
     newSpan.show();
 

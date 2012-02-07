@@ -172,14 +172,14 @@
   border: none;
   margin: 5px 0;
 }
-.user-block-hide {
+#user-block-hide {
   float: left;
   width: 100%;
   clear: both;
   border-top: solid 1px #8ac3d7;
   margin-top: 20px;
 }
-.user-block-hide .quicktour {
+#user-block-hide .quicktour {
   width: 270px;
   float: left;
   font-style: italic;
@@ -187,35 +187,62 @@
   font-size: 13px;
   margin-top: 20px;
 }
-.user-block-hide .quicktour .highlight {
+#user-block-hide .quicktour .highlight {
   font-weight: bold;
 }
-.user-block-hide .quicktour.last {
+#user-block-hide .quicktour.last {
   padding-right: 0px;
   width: 270px;
 }
-.user-block-hide .quicktour.last .signup {
+#user-block-hide .quicktour.last .signup {
   color: #8dc63f;
   font-weight: bold;
   margin-top: 10px;
 }
-.user-block-hide .quicktour.last .signup img {
+#user-block-hide .quicktour.last .signup img {
   margin-left: 5px;
   vertical-align: middle;
 }
-.user-block-hide .movingrightalong {
+#user-block-hide .movingrightalong {
   background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
   height: 100px;
   width: 75px;
   float: left;
   margin-top: 20px;
 }
-.block-intro-text div {
+#block-intro-text div {
   display: none;
   line-height: 25px;
 }
-.block-intro-text div#active {
+#block-intro-text div#active {
   display: inherit;
+}
+.signuptoday {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  background-color: #8dc63f;
+  padding: 0 15px;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  float: left;
+  clear: both;
+  margin: 10px 0;
+  cursor: pointer;
+  font-style: normal;
+}
+.signuptoday a {
+  background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
+  padding-right: 17px;
+  color: white;
+}
+.signuptoday a:hover {
+  text-decoration: none;
 }
 #expandable {
   display: none;
@@ -245,22 +272,22 @@
   font-size: 17px;
   font-weight: bold;
 }
-.user-block {
+#user-block {
   width: 100%;
   clear: both;
 }
-.user-block1, .user-block2 {
+#user-block1, .user-block2 {
   float: left;
 }
-.user-block1 {
+#user-block1 {
   width: 70%;
 }
-.user-block1 .block-intro-text {
+#user-block1 #block-intro-text {
   float: left;
   width: 70%;
   font-size: 20px;
 }
-.user-block1 a.readon {
+#user-block1 a#readon {
   float: left;
 }
 .user-block2 {

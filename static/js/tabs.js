@@ -1,10 +1,10 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
-        $j('.user-block-hide').hide();
-        $j('.user-block1 span').click(
+        $j('#user-block-hide').hide();
+        $j('#user-block1 span').click(
             function() {
                 $j(this).toggleClass("active");
-                $j(".user-block-hide").slideToggle(300);
+                $j("#user-block-hide").slideToggle(300);
             }
         );
 

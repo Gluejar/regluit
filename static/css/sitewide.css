@@ -231,6 +231,12 @@ h3.jsmod-title span {
   padding: 26px 40px 27px 20px;
   display: block;
 }
+input[type="submit"] {
+  background: #8dc63f;
+  color: white;
+  font-weight: bold;
+  padding: 0.5em 1em;
+}
 .js-page-wrap {
   position: relative;
   min-height: 100%;
@@ -247,13 +253,13 @@ ul.menu {
   margin: 0;
 }
 /* Learn More menu */
-.block-intro-text {
+#block-intro-text {
   padding-right: 10px;
 }
-.block-intro-text span.def {
+#block-intro-text span.def {
   font-style: italic;
 }
-a.readon {
+a#readon {
   background: url("/static/images/learnmore-downarrow.png") right center no-repeat;
   color: #fff;
   text-transform: capitalize;
@@ -262,10 +268,10 @@ a.readon {
   font-size: 13px;
   font-weight: bold;
 }
-a.readon.down {
+a#readon.down {
   background: url("/static/images/learnmore-uparrow.png") right center no-repeat;
 }
-a.readon span {
+a#readon span {
   -moz-border-radius: 32px 0 0 32px;
   -webkit-border-radius: 32px 0 0 32px;
   border-radius: 32px 0 0 32px;

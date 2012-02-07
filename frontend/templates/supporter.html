@@ -52,7 +52,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <div class="js-topnews3">
                         <div class="user-block">
                             {% ifequal supporter request.user %}
-                            <div class="user-block1">
+                            <div id="user-block1">
                             <div class="block-inner">
                             <span class="my-setting">My Settings</a>
                             </div>
@@ -68,7 +68,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
                             {% else %}
-                            <div class="user-block1">
+                            <div id="user-block1">
                             <div class="block-inner">
                             	{% if supporter.profile.pic_url %}
                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
@@ -121,7 +121,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                         </div>
                         {% ifequal supporter request.user %}
-                        <div class="user-block-hide">
+                        <div id="user-block-hide">
                         <form method="POST" action="">
                             {% csrf_token %}
                             <div class="block block1">
@@ -220,8 +220,8 @@ how do I integrate the your wishlist thing with the tabs thing?
                 <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
-                        <li class="tabs2"><a href="#">Being Unglued</a></li>
-                        <li class="tabs3 active"><a href="#">Want to Unglue</a></li>
+                        <li class="tabs2"><a href="#">Active</a></li>
+                        <li class="tabs3 active"><a href="#">Wishlisted</a></li>
                     </ul>
     
                         <ul class="book-list-view">

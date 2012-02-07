@@ -58,7 +58,10 @@
         {{ form.preapproval_amount.errors }}
         {{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount }}
         {{ form.anonymous.errors }}
+        {% comment %}
+        not supported yet; don't display
         {{ form.anonymous.label_tag }}: {{ form.anonymous }}	
+        {% endcomment %}
        <input type="submit" value="Pledge" />
     
         <ul class="support menu">

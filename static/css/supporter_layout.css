@@ -79,34 +79,34 @@
   width: 100%;
   clear: both;
 }
-.user-block-hide {
+#user-block-hide {
   float: left;
   width: 100%;
   clear: both;
   padding-top: 10px;
 }
-.user-block-hide .block {
+#user-block-hide .block {
   float: left;
 }
-.user-block-hide .block1, .user-block-hide .block3 {
+#user-block-hide .block1, #user-block-hide .block3 {
   width: 25%;
 }
-.user-block-hide .block2 {
+#user-block-hide .block2 {
   width: 50%;
 }
-.user-block-hide input {
+#user-block-hide input {
   float: left;
   margin: 3px 10px 0 0;
   width: 45%;
 }
-.user-block-hide label {
+#user-block-hide label {
   float: left;
   width: 90%;
 }
-.user-block-hide textarea {
+#user-block-hide textarea {
   width: 95%;
 }
-.user-block1 {
+#user-block1 {
   float: left;
   width: 25%;
 }
@@ -314,7 +314,7 @@ ul.tabs li {
   line-height: 46px;
   margin-right: 2px;
 }
-ul.tabs li.tabs1, ul.tabs li.tabs2 {
+ul.tabs li.tabs1, ul.tabs li.tabs2, ul.tabs li.tabs3 {
   width: 112px;
 }
 ul.tabs li a {
