@@ -19,6 +19,7 @@ from urllib import urlencode
 from pprint import pprint
 
 from itertools import islice, chain, izip
+from operator import or_
 import time
 
 import re
@@ -36,7 +37,12 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import UniqueConstraint
 from sqlalchemy.sql.expression import ClauseElement
 
-from bookdata import WorkMapper, OpenLibrary
+from bookdata import WorkMapper, OpenLibrary, FreebaseBooks, GoogleBooks, GOOGLE_BOOKS_KEY, thingisbn
+
+try:
+    from regluit.core import isbn as isbn_mod
+except:
+    import isbn as isbn_mod
 
 logging.basicConfig(filename='gutenberg.log')
 logger = logging.getLogger(__name__)
@@ -526,12 +532,16 @@ def compute_ol_title_from_work_id(max=None):
     db.commit_db()        
 
 def export_gutenberg_to_ol_mapping(max=None,fname=None):
-    SQL = """SELECT mw.gutenberg_etext_id, gt.title as gt_title, mw.olid, olw.title as ol_title, mw.freebase_id, gf.about 
+    SQL = """SELECT mw.gutenberg_etext_id, gt.title as gt_title, mw.olid, olw.title as ol_title, mw.freebase_id, gf.about as 'url', gf.format, gt.rights, gt.lang, DATE_FORMAT(gt.created, "%Y-%m-%d") as 'created'
   FROM MappedWork mw LEFT JOIN GutenbergText gt 
   ON mw.gutenberg_etext_id = gt.etext_id LEFT JOIN OpenLibraryWork olw ON olw.id=mw.olid LEFT JOIN GutenbergFile gf ON gf.is_format_of = gt.etext_id 
   WHERE gf.format = 'application/epub+zip';"""
 
-    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "about")
+    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "url", "format", "rights", "lang", "created")
+    
+    # getting the right fields?
+    # (title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date)
+    
     db = GluejarDB()
     output = []
 
@@ -550,7 +560,7 @@ def export_gutenberg_to_ol_mapping(max=None,fname=None):
         f.close()
 
 def import_gutenberg_json(fname):
-    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "about")
+    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "url", "format", "rights", "lang", "created")
     
     f = open(fname)
     records = json.load(f)
@@ -558,7 +568,7 @@ def import_gutenberg_json(fname):
         print [record[h] for h in headers]
     return records
 
-def calc_seed_isbn(gutenberg_ids, max=None):
+def gutenberg_ol_fb_mappings(gutenberg_ids, max=None):
     """ For each element of the gutenberg_ids, return an good seed ISBN"""
     db = GluejarDB()
     for (i, g_id) in enumerate(islice(gutenberg_ids, max)):
@@ -566,6 +576,61 @@ def calc_seed_isbn(gutenberg_ids, max=None):
         for mapping in mappings.all():
             yield {'fb': mapping.freebase_id, 'olid': mapping.olid}
 
+def seed_isbn(olwk_ids, freebase_id):
+        
+    lt_clusters = []
+    lt_unrecognized = set()
+    
+    fb = FreebaseBooks()
+    gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+    
+    fb_isbn_set = set(fb.xisbn(book_id=freebase_id))
+    
+    ol_isbn_set = reduce(or_,[set(OpenLibrary.xisbn(work_id=olwk_id)) for olwk_id in olwk_ids])
+    
+    #lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
+    
+    print "Freebase set: ", len(fb_isbn_set), fb_isbn_set
+    print "OpenLibrary set: ", len(ol_isbn_set), ol_isbn_set
+    print "in both", len(fb_isbn_set & ol_isbn_set), fb_isbn_set & ol_isbn_set
+    print "in fb but not ol", len(fb_isbn_set - ol_isbn_set), fb_isbn_set - ol_isbn_set
+    print "in ol but not fb", len(ol_isbn_set - fb_isbn_set), ol_isbn_set - fb_isbn_set
+    
+    # loop through union set and ask thingisbn to cluster
+    
+    to_cluster = (fb_isbn_set | ol_isbn_set)
+    print to_cluster, len(to_cluster)
+    
+    while len (to_cluster):
+        seed = to_cluster.pop()
+        # I need to worry about invalid ISBNs here
+        cluster = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(seed)))
+        # is there anything in the cluster
+        if len(cluster) == 0:
+            lt_unrecognized.add(seed)
+        else:
+            # check that seed is in the cluster
+            assert seed in cluster
+            lt_clusters.append(cluster)
+            to_cluster -= cluster
+                
+    # print out the clusters
+    print "clusters "
+    for (i, lt_cluster) in enumerate(lt_clusters):
+        print i, lt_cluster, len(lt_cluster)
+    print "unrecognized by LT", lt_unrecognized, len(lt_unrecognized)
+    
+    # figure out new ISBNs found by LT
+    new_isbns = (reduce(or_,lt_clusters) | lt_unrecognized) - (fb_isbn_set | ol_isbn_set)
+    print "new isbns from LT", new_isbns, len(new_isbns)
+        
+    gbooks_data = {}
+    
+    # then pass to Google books to get info, including language
+    for (i, isbn) in enumerate((reduce(or_,lt_clusters) | lt_unrecognized)):
+        gbooks_data[isbn] = gb.isbn(isbn)
+        print i, isbn, gbooks_data[isbn]
+        
 
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -776,7 +841,7 @@ class FreebaseToOpenLibraryMappingTest(unittest.TestCase):
 class ISBNSeedTest(unittest.TestCase):
     def test_isbnseed(self):
         gutenberg_ids = ['2701']
-        for (g_id, val) in izip(gutenberg_ids, calc_seed_isbn(gutenberg_ids)):
+        for (g_id, val) in izip(gutenberg_ids, gutenberg_ol_fb_mappings(gutenberg_ids)):
             print g_id, val
    
 def suite():
@@ -806,11 +871,17 @@ if __name__ == '__main__':
     
     #export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
     #import_gutenberg_json(fname="gutenberg_openlibrary.json")
+
+    SURFACING_WORK_OLID = 'OL675829W'
+    surfacing_fb_id = '/m/05p_vg'
+    book_isbn = '9780446311076'
+    print seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_id=surfacing_fb_id)
+    
     #unittest.main()
 
     suites = suite()
     #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))
-    unittest.TextTestRunner().run(suites)
+    #unittest.TextTestRunner().run(suites)
     
 
         
