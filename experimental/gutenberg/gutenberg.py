@@ -17,9 +17,10 @@ import httplib
 from urlparse import urljoin
 from urllib import urlencode
 from pprint import pprint
+from collections import defaultdict
 
 from itertools import islice, chain, izip
-from operator import or_
+import operator
 import time
 
 import re
@@ -576,7 +577,7 @@ def gutenberg_ol_fb_mappings(gutenberg_ids, max=None):
         for mapping in mappings.all():
             yield {'fb': mapping.freebase_id, 'olid': mapping.olid}
 
-def seed_isbn(olwk_ids, freebase_id):
+def seed_isbn(olwk_ids, freebase_id, lang='en'):
         
     lt_clusters = []
     lt_unrecognized = set()
@@ -586,7 +587,7 @@ def seed_isbn(olwk_ids, freebase_id):
     
     fb_isbn_set = set(fb.xisbn(book_id=freebase_id))
     
-    ol_isbn_set = reduce(or_,[set(OpenLibrary.xisbn(work_id=olwk_id)) for olwk_id in olwk_ids])
+    ol_isbn_set = reduce(operator.or_,[set(OpenLibrary.xisbn(work_id=olwk_id)) for olwk_id in olwk_ids])
     
     #lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
     
@@ -621,7 +622,7 @@ def seed_isbn(olwk_ids, freebase_id):
     print "unrecognized by LT", lt_unrecognized, len(lt_unrecognized)
     
     # figure out new ISBNs found by LT
-    new_isbns = (reduce(or_,lt_clusters) | lt_unrecognized) - (fb_isbn_set | ol_isbn_set)
+    new_isbns = (reduce(operator.or_,lt_clusters) | lt_unrecognized) - (fb_isbn_set | ol_isbn_set)
     print "new isbns from LT", new_isbns, len(new_isbns)
         
     gbooks_data = {}
@@ -630,8 +631,28 @@ def seed_isbn(olwk_ids, freebase_id):
     for (i, isbn) in enumerate((reduce(or_,lt_clusters) | lt_unrecognized)):
         gbooks_data[isbn] = gb.isbn(isbn)
         print i, isbn, gbooks_data[isbn]
-        
+    
+    # subcluster the lt_clusters by language
+    
+    lt_clusters_by_lang = []
+    
+    for lt_cluster in lt_clusters:
+        lang_map = defaultdict(list)
+        for id in lt_cluster:
+            lang_of_id = gbooks_data.get(id).get('language') if gbooks_data.get(id) is not None else None
+            lang_map[lang_of_id].append((id))
+        lt_clusters_by_lang.append(lang_map)        
+    
+    # return a dict with elements that are easy to turn into json
+    return {'gbooks_data':gbooks_data, 'lt_clusters':map(tuple,lt_clusters), 'lt_unrecognized':tuple(lt_unrecognized),
+            'fb_isbns':tuple(fb_isbn_set), 'ol_isbns':tuple(ol_isbn_set), 'lt_clusters_by_lang':lt_clusters_by_lang}    
 
+def surfacing_seed_isbn():
+    SURFACING_WORK_OLID = 'OL675829W'
+    surfacing_fb_id = '/m/05p_vg'
+    book_isbn = '9780446311076'
+    return seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_id=surfacing_fb_id)    
+    
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
         if main_or_sandbox == 'main':
@@ -872,10 +893,7 @@ if __name__ == '__main__':
     #export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
     #import_gutenberg_json(fname="gutenberg_openlibrary.json")
 
-    SURFACING_WORK_OLID = 'OL675829W'
-    surfacing_fb_id = '/m/05p_vg'
-    book_isbn = '9780446311076'
-    print seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_id=surfacing_fb_id)
+    print surfacing_seed_isbn()
     
     #unittest.main()
 
