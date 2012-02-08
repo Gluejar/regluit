@@ -26,6 +26,7 @@ import time
 import re
 from itertools import islice, izip
 import logging
+import random
 
 from google.refine import refine
 
@@ -45,7 +46,7 @@ try:
 except:
     import isbn as isbn_mod
 
-logging.basicConfig(filename='gutenberg.log')
+logging.basicConfig(filename='gutenberg.log', level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def filter_none(d):
@@ -578,7 +579,10 @@ def gutenberg_ol_fb_mappings(gutenberg_ids, max=None):
             yield {'fb': mapping.freebase_id, 'olid': mapping.olid}
 
 def seed_isbn(olwk_ids, freebase_id, lang='en'):
-        
+    
+    random.seed()
+    
+    logger.info("seed_isbn input: olwk_ids, freebase_id, lang: %s %s %s", olwk_ids, freebase_id, lang)
     lt_clusters = []
     lt_unrecognized = set()
     
@@ -591,21 +595,20 @@ def seed_isbn(olwk_ids, freebase_id, lang='en'):
     
     #lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
     
-    print "Freebase set: ", len(fb_isbn_set), fb_isbn_set
-    print "OpenLibrary set: ", len(ol_isbn_set), ol_isbn_set
-    print "in both", len(fb_isbn_set & ol_isbn_set), fb_isbn_set & ol_isbn_set
-    print "in fb but not ol", len(fb_isbn_set - ol_isbn_set), fb_isbn_set - ol_isbn_set
-    print "in ol but not fb", len(ol_isbn_set - fb_isbn_set), ol_isbn_set - fb_isbn_set
+    logger.debug("Freebase set: %d %s", len(fb_isbn_set), fb_isbn_set)
+    logger.debug("OpenLibrary set: %d %s", len(ol_isbn_set), ol_isbn_set)
+    logger.debug("in both fb and ol: %d %s", len(fb_isbn_set & ol_isbn_set), fb_isbn_set & ol_isbn_set)
+    logger.debug("in fb but not ol: %d %s", len(fb_isbn_set - ol_isbn_set), fb_isbn_set - ol_isbn_set)
+    logger.debug("in ol but not fb: %d %s", len(ol_isbn_set - fb_isbn_set), ol_isbn_set - fb_isbn_set)
     
     # loop through union set and ask thingisbn to cluster
     
     to_cluster = (fb_isbn_set | ol_isbn_set)
-    print to_cluster, len(to_cluster)
+    logger.debug("to cluster: %s, %d", to_cluster, len(to_cluster))
     
     while len (to_cluster):
         seed = to_cluster.pop()
-        # I need to worry about invalid ISBNs here
-        cluster = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(seed)))
+        cluster = set(filter(None, map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(seed))))
         # is there anything in the cluster
         if len(cluster) == 0:
             lt_unrecognized.add(seed)
@@ -616,21 +619,21 @@ def seed_isbn(olwk_ids, freebase_id, lang='en'):
             to_cluster -= cluster
                 
     # print out the clusters
-    print "clusters "
+    logger.debug("clusters")
     for (i, lt_cluster) in enumerate(lt_clusters):
-        print i, lt_cluster, len(lt_cluster)
-    print "unrecognized by LT", lt_unrecognized, len(lt_unrecognized)
+        logger.debug("%d %s %d", i, lt_cluster, len(lt_cluster))
+    logger.debug("unrecognized by LT %s %d", lt_unrecognized, len(lt_unrecognized))
     
     # figure out new ISBNs found by LT
     new_isbns = (reduce(operator.or_,lt_clusters) | lt_unrecognized) - (fb_isbn_set | ol_isbn_set)
-    print "new isbns from LT", new_isbns, len(new_isbns)
+    logger.debug( "new isbns from LT %s %d", new_isbns, len(new_isbns))
         
     gbooks_data = {}
     
     # then pass to Google books to get info, including language
-    for (i, isbn) in enumerate((reduce(or_,lt_clusters) | lt_unrecognized)):
+    for (i, isbn) in enumerate((reduce(operator.or_,lt_clusters) | lt_unrecognized)):
         gbooks_data[isbn] = gb.isbn(isbn)
-        print i, isbn, gbooks_data[isbn]
+        logger.debug("%d %s %s", i, isbn, gbooks_data[isbn])
     
     # subcluster the lt_clusters by language
     
@@ -643,15 +646,39 @@ def seed_isbn(olwk_ids, freebase_id, lang='en'):
             lang_map[lang_of_id].append((id))
         lt_clusters_by_lang.append(lang_map)        
     
+    # boil the candidate down to a single ISBN:  take a random ISBN from the list of all ISBNs in the requested
+    # language subcluster within the largest cluster that has such a language subcluster.
+    # Return None if there is no matching sub-language
+    # cluster in the largest cluster
+    
+    candidate_subclusters = filter(lambda x: x[0] is not None,
+                                   [(c.get(lang), len(reduce(operator.add,c.values()))) for c in lt_clusters_by_lang]
+                            )
+    logger.debug("candidate_subclusters: %s", candidate_subclusters)
+    if len(candidate_subclusters):
+        candidate_seed_isbn = random.sample(
+            max(candidate_subclusters, key=lambda x:x[1])[0], 1)[0]
+    else:
+        candidate_seed_isbn = None
+    
     # return a dict with elements that are easy to turn into json
-    return {'gbooks_data':gbooks_data, 'lt_clusters':map(tuple,lt_clusters), 'lt_unrecognized':tuple(lt_unrecognized),
-            'fb_isbns':tuple(fb_isbn_set), 'ol_isbns':tuple(ol_isbn_set), 'lt_clusters_by_lang':lt_clusters_by_lang}    
+    
+    logger.info("seed_isbn output: olwk_ids, freebase_id, lang, candidate_seed: %s %s %s %s", olwk_ids, freebase_id, lang,
+                candidate_seed_isbn)
+    
+    details = {candidate_seed_isbn: candidate_seed_isbn, 'gbooks_data':gbooks_data, 'lt_clusters':map(tuple,lt_clusters),
+            'lt_unrecognized':tuple(lt_unrecognized),
+            'fb_isbns':tuple(fb_isbn_set), 'ol_isbns':tuple(ol_isbn_set), 'lt_clusters_by_lang':lt_clusters_by_lang}
+    return (candidate_seed_isbn, details)
 
 def surfacing_seed_isbn():
     SURFACING_WORK_OLID = 'OL675829W'
     surfacing_fb_id = '/m/05p_vg'
     book_isbn = '9780446311076'
     return seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_id=surfacing_fb_id)    
+    
+def moby_dick_seed_isbn():
+    return seed_isbn(olwk_ids=('OL102749W',), freebase_id='/en/moby-dick')
     
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
