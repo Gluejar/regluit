@@ -14,7 +14,7 @@
         var contentBlockContent = $j('#content-block-content');
 
 		tabs1.click(function(){
-			tabs.find('div.active').removeClass('active');
+			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
 			contentBlockContent.find('div.active').removeClass('active');
 			tabId1.addClass('active').show(300);
@@ -23,7 +23,7 @@
 			tabId4.hide(200);
 		});
 		tabs2.click(function(){
-			tabs.find('div.active').removeClass('active');
+			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
 			contentBlockContent.find('div.active').removeClass('active');
 			tabId2.addClass('active').show(300);
@@ -32,7 +32,7 @@
 			tabId4.hide(200);
 		});
 		tabs3.click(function(){
-			tabs.find('div.active').removeClass('active');
+			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
 			contentBlockContent.find('div.active').removeClass('active');
 			tabId3.addClass('active').show(300);
@@ -41,7 +41,7 @@
 			tabId4.hide(200);
 		});
 		tabs4.click(function(){
-			tabs.find('div.active').removeClass('active');
+			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
 			contentBlockContent.find('div.active').removeClass('active');
 			tabId4.addClass('active').show(300);
@@ -50,7 +50,7 @@
 			tabId3.hide(200);
 		});
 		$j('.findtheungluers').click(function(){
-			tabs.find('div.active').removeClass('active');
+			tabs.find('.active').removeClass('active');
 			$j('#supporters').addClass('active');
 			contentBlockContent.find('div.active').removeClass('active');
 			tabId3.addClass('active').show(300);

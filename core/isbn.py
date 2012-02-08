@@ -36,8 +36,12 @@ def convert_10_to_13(isbn):
 def strip(s):
     """Strips away any - or spaces.  If the remaining string is of length 10 or 13 with digits only in anything but the last
     check digit (which may be X), then return '' -- otherwise return the remaining string"""
-    s = s.replace("-", "").replace(" ", "").upper();
-    match = re.search(r'^(\d{9}|\d{12})(\d|X)$', s)
+    try:
+        s = s.replace("-", "").replace(" ", "").upper()
+        match = re.search(r'^(\d{9}|\d{12})(\d|X)$', s)
+    except:
+        return None
+    
     if not match:
         return None
     else:
@@ -55,10 +59,19 @@ class ISBNException(Exception):
 class ISBN(object):
     def __init__(self, input_isbn):
         self.input_isbn = input_isbn
+        self.error = None
+        
         stripped_isbn = strip(input_isbn)
             
-        if stripped_isbn is None:
-            raise(ISBNException("Input_isbn %s does not seem to be a valid ISBN" % (input_isbn)))
+        if stripped_isbn is None or len(stripped_isbn) not in (10,13):
+            self.error = "input_isbn does not seem to be a valid ISBN"
+            self.__type = None
+            self.__valid = False
+            self.__isbn10 = None
+            self.__valid_10 = None
+            self.__isbn13 = None
+            self.__valid_13 = None
+
         elif len(stripped_isbn) == 10:
             self.__type = '10'
             self.__isbn10 = stripped_isbn
@@ -72,13 +85,16 @@ class ISBN(object):
         elif len(stripped_isbn) == 13:
             # Assume ISBN 13 all have to begin with 978 or 979 and only 978 ISBNs can possibly have ISBN-10 counterpart
             
-            if stripped_isbn[0:3] not in ['978','979']:
-                raise (ISBNException("ISBN 13 must begin with 978 or 979 not %s " % (stripped_isbn[0:3])))
-                
             self.__type = '13'
             self.__isbn13 = stripped_isbn
-            self.__valid_13 = stripped_isbn[0:12] + check_digit_13(stripped_isbn[0:12])
-            self.__valid = (self.__isbn13 == self.__valid_13)
+            
+            if stripped_isbn[0:3] not in ['978','979']:
+                self.error = "ISBN 13 must begin with 978 or 979 not %s " % (stripped_isbn[0:3])
+                self.__valid = False
+                self.__valid_13  = None
+            else:
+                self.__valid_13 = stripped_isbn[0:12] + check_digit_13(stripped_isbn[0:12])
+                self.__valid = (self.__isbn13 == self.__valid_13)
             
             # now check to see whether the isbn starts with 978 -- only then convert to ISBN -10
             if self.__isbn13[0:3] == '978':
@@ -87,9 +103,6 @@ class ISBN(object):
             else:
                 self.__isbn10 = None
                 self.__valid_10 = None
-            
-        else:
-            raise(ISBNException("Parsed ISBN %s is of the wrong length" % (stripped_isbn)))
 
     @property
     def type(self):
@@ -108,9 +121,11 @@ class ISBN(object):
             self.__valid = True
             return self
     def to_string(self, type='13', hyphenate=False):
+        if not self.__valid:
+            return None
         if type == '10' or type == 10:
             if self.__isbn10 is None:
-                raise (ISBNException("No ISBN-10 exists for %s" % (self.__isbn13)))
+                return None
             if hyphenate:
                 s = self.__isbn10
                 return "%s-%s-%s-%s" % (s[0], s[1:4], s[4:9], s[9])
@@ -125,7 +140,11 @@ class ISBN(object):
     def __unicode__(self):
         return unicode(self.to_string(type=self.type,hyphenate=False))
     def __str__(self):
-        return self.to_string(type=self.type,hyphenate=False)
+        s = self.to_string(type=self.type,hyphenate=False)
+        if s is not None:
+            return s
+        else:
+            return ''
     def __eq__(self, other):
         """ both equal if both valid checksums and ISBN 13 equal """
         if isinstance(other, ISBN):
