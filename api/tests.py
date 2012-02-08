@@ -10,9 +10,11 @@ from regluit.core import bookloader, models
 import regluit.core.isbn
 
 class ApiTests(TestCase):
-
+    work_id=None
+    
     def setUp(self):
         edition = bookloader.add_by_isbn_from_google(isbn='0441012035')
+        self.work_id=edition.work.id
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
             work=edition.work, 
@@ -41,10 +43,9 @@ class ApiTests(TestCase):
         j = json.loads(r.content)
         self.assertEqual(len(j['objects']), 1)
         self.assertEqual(j['objects'][0]['name'], 'Neuromancer')
-        self.assertEqual(j['objects'][0]['work'], '/api/v1/work/1/')
-
-    def test_campaign(self):
-        r = self.client.get('/api/v1/campaign/1/', data={
+        self.assertEqual(j['objects'][0]['work'], '/api/v1/work/%s/' % self.work_id)
+        resource_uri=j['objects'][0]['resource_uri']
+        r = self.client.get( resource_uri, data={
             'format': 'json', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
@@ -52,7 +53,7 @@ class ApiTests(TestCase):
         self.assertEqual(r.status_code, 200)
         j = json.loads(r.content)
         self.assertEqual(j['name'], 'Neuromancer')
-        self.assertEqual(j['work'], '/api/v1/work/1/')
+        self.assertEqual(j['work'], '/api/v1/work/%s/' % self.work_id)
 
     def test_campaign_lookup_by_isbn(self):
         r = self.client.get('/api/v1/campaign/', data={

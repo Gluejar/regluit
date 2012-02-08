@@ -22,16 +22,16 @@ class WishlistTests(TestCase):
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(r.status_code, 302)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
-
+        wished= self.user.wishlist.works.all()[0]
         # test the work page
-        r = self.client.get("/work/1/")
+        r = self.client.get("/work/%s/" % wished.id)
         self.assertEqual(r.status_code, 200)
         anon_client = Client()
-        r = anon_client.get("/work/1/")
+        r = anon_client.get("/work/%s/" % wished.id)
         self.assertEqual(r.status_code, 200)
 
         # remove the book
-        r = self.client.post("/wishlist/", {"remove_work_id": "1"}, 
+        r = self.client.post("/wishlist/", {"remove_work_id": wished.id}, 
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(self.user.wishlist.works.all().count(), 0)
 
