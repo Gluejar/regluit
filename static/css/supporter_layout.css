@@ -106,6 +106,10 @@
 #user-block-hide textarea {
   width: 95%;
 }
+#user-block-hide[type=checkbox] {
+  float: none;
+  width: auto;
+}
 #user-block1 {
   float: left;
   width: 25%;
