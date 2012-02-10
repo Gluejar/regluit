@@ -17,7 +17,7 @@ import httplib
 from urlparse import urljoin
 from urllib import urlencode
 from pprint import pprint
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 from itertools import islice, chain, izip
 import operator
@@ -90,20 +90,35 @@ def get_or_create(session, model, defaults=None, **kwargs):
 
 Base = declarative_base()
 
+class SeedISBN(object):
+    """
+        CREATE TABLE `SeedISBN` (
+      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `gutenberg_etext_id` int(11) DEFAULT NULL,
+      `seed_isbn` char(13) DEFAULT NULL,
+      `results` mediumtext,
+      `calculated` timestamp NULL DEFAULT NULL,
+      `error` text,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    """
+    pass
+
+
 class GutenbergText(object):
     """ 
-    CREATE TABLE `GutenbergText` (
-      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-      `etext_id` int(10) unsigned NOT NULL,
-      `title` varchar(1024) DEFAULT NULL,
-      `friendly_title` varchar(1024) DEFAULT NULL,
-      `lang` char(5) DEFAULT NULL,
-      `rights` varchar(512) DEFAULT NULL,
-      `created` date DEFAULT NULL,
-      `creator` varchar(1024) DEFAULT NULL,
-      PRIMARY KEY (`id`),
-      KEY `etext_id` (`etext_id`)
-    ) ENGINE=MyISAM AUTO_INCREMENT=37874 DEFAULT CHARSET=utf8;    
+        CREATE TABLE `GutenbergText` (
+          `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+          `etext_id` int(10) unsigned NOT NULL,
+          `title` varchar(1024) DEFAULT NULL,
+          `friendly_title` varchar(1024) DEFAULT NULL,
+          `lang` char(5) DEFAULT NULL,
+          `rights` varchar(512) DEFAULT NULL,
+          `created` date DEFAULT NULL,
+          `creator` varchar(1024) DEFAULT NULL,
+          PRIMARY KEY (`id`),
+          KEY `etext_id` (`etext_id`)
+        ) ENGINE=MyISAM AUTO_INCREMENT=37874 DEFAULT CHARSET=utf8;    
     """
     pass
 
@@ -197,6 +212,9 @@ class GluejarDB(object):
 
         gutenbergfile = Table('GutenbergFile', metadata, autoload=True)
         mapper(GutenbergFile, gutenbergfile)
+        
+        seedisbn = Table('SeedISBN', metadata, autoload=True)
+        mapper(SeedISBN, seedisbn)
         
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -534,6 +552,16 @@ def compute_ol_title_from_work_id(max=None):
     db.commit_db()        
 
 def export_gutenberg_to_ol_mapping(max=None,fname=None):
+ 
+    output = list(gutenberg_to_ol_mapping(max=max))
+    
+    if fname is not None:
+        f = open(fname, "wb")
+        f.write(json.dumps(output))
+        f.close()
+    
+    return output
+def gutenberg_to_ol_mapping(max=None):
     SQL = """SELECT mw.gutenberg_etext_id, gt.title as gt_title, mw.olid, olw.title as ol_title, mw.freebase_id, gf.about as 'url', gf.format, gt.rights, gt.lang, DATE_FORMAT(gt.created, "%Y-%m-%d") as 'created'
   FROM MappedWork mw LEFT JOIN GutenbergText gt 
   ON mw.gutenberg_etext_id = gt.etext_id LEFT JOIN OpenLibraryWork olw ON olw.id=mw.olid LEFT JOIN GutenbergFile gf ON gf.is_format_of = gt.etext_id 
@@ -545,21 +573,14 @@ def export_gutenberg_to_ol_mapping(max=None,fname=None):
     # (title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date)
     
     db = GluejarDB()
-    output = []
 
     resp = enumerate(islice(db.session.query(*headers).from_statement(SQL).all(),None))
     
     # what choice of serialization at this point?  JSON for now, but not the best for a large file
     for (i,r) in resp:
-        print r, type(r), dict(izip(headers,r))
-        output.append(dict(izip(headers,r)))
+        #print r, type(r), dict(izip(headers,r))
+        yield dict(izip(headers,r))
     
-    #print json.dumps(output)
-    
-    if fname is not None:
-        f = open(fname, "wb")
-        f.write(json.dumps(output))
-        f.close()
 
 def import_gutenberg_json(fname):
     headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "url", "format", "rights", "lang", "created")
@@ -578,19 +599,18 @@ def gutenberg_ol_fb_mappings(gutenberg_ids, max=None):
         for mapping in mappings.all():
             yield {'fb': mapping.freebase_id, 'olid': mapping.olid}
 
-def seed_isbn(olwk_ids, freebase_id, lang='en'):
+def seed_isbn(olwk_ids, freebase_ids, lang='en'):
     
     random.seed()
     
-    logger.info("seed_isbn input: olwk_ids, freebase_id, lang: %s %s %s", olwk_ids, freebase_id, lang)
+    logger.info("seed_isbn input: olwk_ids, freebase_ids, lang: %s %s %s", olwk_ids, freebase_ids, lang)
     lt_clusters = []
     lt_unrecognized = set()
     
     fb = FreebaseBooks()
     gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
     
-    fb_isbn_set = set(fb.xisbn(book_id=freebase_id))
-    
+    fb_isbn_set = reduce(operator.or_,[set(fb.xisbn(book_id=freebase_id)) for freebase_id in freebase_ids])
     ol_isbn_set = reduce(operator.or_,[set(OpenLibrary.xisbn(work_id=olwk_id)) for olwk_id in olwk_ids])
     
     #lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
@@ -631,7 +651,8 @@ def seed_isbn(olwk_ids, freebase_id, lang='en'):
     gbooks_data = {}
     
     # then pass to Google books to get info, including language
-    for (i, isbn) in enumerate((reduce(operator.or_,lt_clusters) | lt_unrecognized)):
+    all_isbns = (reduce(operator.or_,lt_clusters) | lt_unrecognized)
+    for (i, isbn) in enumerate(all_isbns):
         gbooks_data[isbn] = gb.isbn(isbn)
         logger.debug("%d %s %s", i, isbn, gbooks_data[isbn])
     
@@ -663,22 +684,74 @@ def seed_isbn(olwk_ids, freebase_id, lang='en'):
     
     # return a dict with elements that are easy to turn into json
     
-    logger.info("seed_isbn output: olwk_ids, freebase_id, lang, candidate_seed: %s %s %s %s", olwk_ids, freebase_id, lang,
+    logger.info("seed_isbn output: olwk_ids, freebase_ids, lang, candidate_seed: %s %s %s %s", olwk_ids, freebase_ids, lang,
                 candidate_seed_isbn)
     
-    details = {candidate_seed_isbn: candidate_seed_isbn, 'gbooks_data':gbooks_data, 'lt_clusters':map(tuple,lt_clusters),
-            'lt_unrecognized':tuple(lt_unrecognized),
-            'fb_isbns':tuple(fb_isbn_set), 'ol_isbns':tuple(ol_isbn_set), 'lt_clusters_by_lang':lt_clusters_by_lang}
+    details = {'olwk_ids':olwk_ids, 'freebase_ids':freebase_ids, 'lang':lang,
+               'candidate_seed_isbn': candidate_seed_isbn,
+               'gbooks_data':gbooks_data, 'lt_clusters':map(tuple,lt_clusters),
+               'lt_unrecognized':tuple(lt_unrecognized),
+               'fb_isbns':tuple(fb_isbn_set),
+               'ol_isbns':tuple(ol_isbn_set),
+               'lt_clusters_by_lang':lt_clusters_by_lang,
+               'len_all_isbns': len(all_isbns)}
     return (candidate_seed_isbn, details)
+
+def report_on_seed_isbn(seed_isbn_result):
+    s = seed_isbn_result
+    report = OrderedDict([
+        ("seed isbn",  s[0]),
+        ("the Google info we have on the seed isbn", s[1]['gbooks_data'].get(s[0])),
+        ("lang", s[1]['lang']),
+        ("Freebase ids", s[1]['fb_isbns']),
+        ("number of OL ids",  len(s[1]['olwk_ids'])),
+        ("total number of ISBNs from pooling FB + OL + LT", s[1]['len_all_isbns']),
+        ("number of FB isbns", len(s[1]['fb_isbns'])),
+        ("number of OL isbns", len(s[1]['ol_isbns'])),
+        ("number of LT isbns", sum(map(len, s[1]['lt_clusters']))),
+        ("number of isbns not recognized by LT", len(s[1]['lt_unrecognized'])),
+        ("number of Google Books isbns", len(s[1]['gbooks_data'])),
+        ("number of Google Books isbns not recognized", len(filter(lambda x: x is None,s[1]['gbooks_data'].values()))),
+        ("size of clusters and their respective subclusters", [(len(reduce(operator.add, c.values())),
+              [(lang,len(isbns)) for (lang, isbns) in c.items()])
+            for c in s[1]['lt_clusters_by_lang']]),
+        ("size of the sub-cluster including the seed isbn", len(filter(lambda x: s[0] in x,
+                reduce(operator.add , [c.values() for c in s[1]['lt_clusters_by_lang']]))[0]) \
+                if s[0] is not None else None)
+    ])
+    return report
 
 def surfacing_seed_isbn():
     SURFACING_WORK_OLID = 'OL675829W'
     surfacing_fb_id = '/m/05p_vg'
     book_isbn = '9780446311076'
-    return seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_id=surfacing_fb_id)    
+    return seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_ids=(surfacing_fb_id,))    
+    
+def ry_mashups_seed_isbn():
+    olid = "OL10306321W"
+    fb_id = "/en/pro_web_2_0_mashups_remixing_data_and_web_services"
+    return seed_isbn(olwk_ids=(olid,), freebase_ids=(fb_id,))
     
 def moby_dick_seed_isbn():
-    return seed_isbn(olwk_ids=('OL102749W',), freebase_id='/en/moby-dick')
+    return seed_isbn(olwk_ids=('OL102749W',), freebase_ids=('/en/moby-dick',))
+
+def calc_seed_isbns(ids=None, max=None, override=False):
+    # if ids specified, work through them
+    # loop through all Gutenberg ids, see whethether the seed_isbn has been calculated -- and if not, do so.
+    
+    # collate all the ol work ids for a given gutenberg id
+    
+    gluejar_db = GluejarDB()
+    gutenberg_done = set([gluejar_db.session.query(SeedISBN.gutenberg_etext_id).all()])
+    
+    if ids is None:
+        gutenberg_with_ol = defaultdict(set)
+        for mapping in gutenberg_to_ol_mapping(max=max):
+            logger.debug(mapping)
+            gutenberg_with_ol[mapping["gutenberg_etext_id"]].add(mapping["olid"])
+        ids = gutenberg_
+        
+    return gutenberg_with_ol
     
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -920,10 +993,12 @@ if __name__ == '__main__':
     #export_gutenberg_to_ol_mapping(fname="gutenberg_openlibrary.json")
     #import_gutenberg_json(fname="gutenberg_openlibrary.json")
 
-    print surfacing_seed_isbn()
+    #print surfacing_seed_isbn()
     
     #unittest.main()
 
+    calc_seed_isbns()
+    
     suites = suite()
     #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))
     #unittest.TextTestRunner().run(suites)
