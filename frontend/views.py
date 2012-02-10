@@ -90,7 +90,14 @@ def stub(request):
     return render(request,'stub.html', {'path': path})
 
 def work(request, work_id, action='display'):
-    work = get_object_or_404(models.Work, id=work_id)
+    try:
+    	work = models.Work.objects.get(id = work_id)
+    except models.Work.DoesNotExist:
+    	try:
+    		work = models.WasWork.objects.get(was = work_id).work
+    	except models.WasWork.DoesNotExist:
+    		raise Http404
+
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     try:

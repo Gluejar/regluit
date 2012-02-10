@@ -2,6 +2,7 @@ from decimal import Decimal as D
 from datetime import datetime, timedelta
 
 from django.test import TestCase
+from django.test.client import Client
 from django.utils import unittest
 from django.db import IntegrityError
 from django.contrib.auth.models import User
@@ -147,7 +148,6 @@ class BookLoaderTests(TestCase):
         )
         comment2.save()
         
-
         # now add related edition to make sure Works get merged
         bookloader.add_related('1458776204')
         self.assertEqual(models.Work.objects.count(), 1)
@@ -158,6 +158,13 @@ class BookLoaderTests(TestCase):
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
         self.assertEqual(Comment.objects.for_model(w3).count(), 2)
+        
+        anon_client = Client()
+        r = anon_client.get("/work/%s/" % w3.pk)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % e2.work.pk)
+        self.assertEqual(r.status_code, 200)
+
     
     def test_ebook(self):
         edition = bookloader.add_by_oclc('1246014')

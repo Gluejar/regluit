@@ -522,6 +522,11 @@ class Edition(models.Model):
         except Identifier.DoesNotExist:
             return None
 
+class WasWork(models.Model):
+	work = models.ForeignKey('Work')
+	was = models.IntegerField(unique = True)
+	
+	
 class Ebook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25)
