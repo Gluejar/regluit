@@ -25,12 +25,35 @@
 	
 	.block2 {
 		width:50%;
+		
+		div {
+			float: left;
+			max-width: 340px;
+		}		
 	}
 
 	input { 
 		float:left; 
 		margin:3px 10px 0 0;
 		width: 45%;
+		
+		&[type=checkbox] {
+			float: none;
+			width: auto;
+		}
+		
+		&#librarything_input, &#goodreads_input {
+			width: auto;
+			cursor: pointer;
+			background: @pale-blue;
+			color: @text-blue;
+			cursor: pointer;
+		}
+		
+		&.profile-save {
+			width: 116px;
+			cursor: pointer;
+		}		
 	}
 	
 	label {
@@ -41,6 +64,7 @@
 	textarea {
 		width:95%;
 	}
+	
 }
 
 #user-block1 {
@@ -135,7 +159,7 @@ span.grey {
 
 div.check-list { 
 	float: left; 
-	width:100%; 
+	//width:100%; 
 	padding-bottom:7px;
 }
 
