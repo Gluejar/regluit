@@ -515,7 +515,7 @@ class Edition(models.Model):
 
     @classmethod
     def get_by_isbn(klass, isbn):
-        if length(isbn)==10:
+        if len(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
         try:
             return Identifier.objects.get( type='isbn', value=isbn ).edition
