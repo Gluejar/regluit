@@ -8,6 +8,7 @@ from xml.etree import ElementTree
 from django.db.models import Q
 from django.conf import settings
 from django.db import IntegrityError
+from django.contrib.comments.models import Comment
 
 from regluit.core import models
 import regluit.core.isbn
@@ -392,6 +393,9 @@ def merge_works(w1, w2):
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
+    for comment in Comment.objects.for_model(w2):
+        comment.object_pk = w1.pk
+        comment.save()
     for edition in w2.editions.all():
         edition.work = w1
         edition.save()
