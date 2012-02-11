@@ -69,7 +69,7 @@ def home(request):
     is_preview = settings.IS_PREVIEW
     if is_preview:
         # django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
-        worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
+        worklist = models.Work.objects.order_by('-num_wishes')
         works = worklist[:6]
         works2 = worklist[6:12]
     else:
@@ -118,7 +118,7 @@ def work(request, work_id, action='display'):
     else:
         premiums = None
         
-    wishers = work.wished_by().count()
+    wishers = work.num_wishes
     base_url = request.build_absolute_uri("/")[:-1]
     
     try:
@@ -217,11 +217,11 @@ class WorkListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.filter(wishlists__isnull=False).distinct().annotate(wished=Count('wishlists')).order_by('-wished', 'id')
+            return models.Work.objects.order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
             return models.Work.objects.filter(wishlists__user=recommended_user)
         elif (facet == 'new'):
-            return models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created', 'id')
+            return models.Work.objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
             return models.Work.objects.all().order_by('-created', 'id')
 
@@ -245,7 +245,7 @@ class UngluedListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).annotate(wished=Count('wishlists')).filter(ebook_count__gt=0).order_by('-wished')
+            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-num_wishes')
         else:
             #return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-created')
@@ -726,7 +726,7 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
-    works = wishlist.works.all()
+    works = wishlist.works.all().order_by('-num_wishes')
     fromsupport = 1
     backed = 0
     backing = 0

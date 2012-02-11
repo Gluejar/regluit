@@ -314,11 +314,14 @@ class WishlistTest(TestCase):
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
         edition = bookloader.add_by_isbn('0441012035')
         work = edition.work
+        num_wishes=work.num_wishes
         user.wishlist.add_work(work, 'test')
         self.assertEqual(user.wishlist.works.count(), 1)
+        self.assertEqual(work.num_wishes, num_wishes+1)
         user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
-
+        self.assertEqual(work.num_wishes, num_wishes)
+        
 class CeleryTaskTest(TestCase):
 
     def test_single_fac(self):
