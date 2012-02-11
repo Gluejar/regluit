@@ -27,12 +27,14 @@ import re
 from itertools import islice, izip
 import logging
 import random
+import json
 
 from google.refine import refine
 
 from datetime import datetime
 
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Sequence, Boolean, not_, and_, DateTime
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.declarative import declarative_base
@@ -90,19 +92,18 @@ def get_or_create(session, model, defaults=None, **kwargs):
 
 Base = declarative_base()
 
-class SeedISBN(object):
-    """
-        CREATE TABLE `SeedISBN` (
-      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-      `gutenberg_etext_id` int(11) DEFAULT NULL,
-      `seed_isbn` char(13) DEFAULT NULL,
-      `results` mediumtext,
-      `calculated` timestamp NULL DEFAULT NULL,
-      `error` text,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    """
-    pass
+class SeedISBN(Base):
+    
+    __tablename__ = 'SeedISBN'
+    __table_args__ = {'mysql_engine':'InnoDB'} 
+
+    #column definitions
+    calculated = Column(u'calculated', DateTime, default=datetime.utcnow())
+    error = Column(u'error', Text())
+    gutenberg_etext_id = Column(u'gutenberg_etext_id', Integer(11), index=True)
+    id = Column(u'id', Integer(11), primary_key=True, nullable=False)
+    results = Column(u'results', MEDIUMTEXT())
+    seed_isbn = Column(u'seed_isbn', String(length=13))
 
 
 class GutenbergText(object):
@@ -201,24 +202,36 @@ class MappingError(Base):
 @singleton
 class GluejarDB(object):
     def __init__(self, user="gluejar", pw="gluejar", db="Gluejar", host="127.0.0.1", port=3306):
-        mysql_connect_path = "mysql+mysqldb://%s:%s@%s:%s/%s?charset=utf8" % (user,pw,host,port,db)
-        engine = create_engine(mysql_connect_path, echo=False)
+        self.mysql_connect_path = "mysql+mysqldb://%s:%s@%s:%s/%s?charset=utf8" % (user,pw,host,port,db)
+        self.engine = create_engine(self.mysql_connect_path, echo=False)
       
-        metadata = MetaData(engine)
-        Base.metadata.create_all(engine) 
+        self.metadata = MetaData(self.engine)
+        Base.metadata.create_all(self.engine) 
         
-        gutenbergtext = Table('GutenbergText', metadata, autoload=True)
+        gutenbergtext = Table('GutenbergText', self.metadata, autoload=True)
         mapper(GutenbergText, gutenbergtext)
 
-        gutenbergfile = Table('GutenbergFile', metadata, autoload=True)
+        gutenbergfile = Table('GutenbergFile', self.metadata, autoload=True)
         mapper(GutenbergFile, gutenbergfile)
         
-        seedisbn = Table('SeedISBN', metadata, autoload=True)
-        mapper(SeedISBN, seedisbn)
+        #seedisbn = Table('SeedISBN', self.metadata, autoload=True)
+        #mapper(SeedISBN, seedisbn)
         
-        Session = sessionmaker(bind=engine)
+        Session = sessionmaker(bind=self.engine)
         session = Session()
         self.session = session
+    def _reflect(self):
+        for table in self.metadata.tables.values():
+            print """
+class %s(Base):
+    __table__ = Table(%r, Base.metadata, autoload=True)
+
+""" % (table.name, table.name)
+    def _sqlautocode(self):
+        """
+        spit out some code to help us run sqlautocode
+        """
+        return "sqlautocode -o model.py  %s" % (self.mysql_connect_path)
     def commit_db(self):
         self.session.commit()
     def rollback(self):
@@ -610,8 +623,8 @@ def seed_isbn(olwk_ids, freebase_ids, lang='en'):
     fb = FreebaseBooks()
     gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
     
-    fb_isbn_set = reduce(operator.or_,[set(fb.xisbn(book_id=freebase_id)) for freebase_id in freebase_ids])
-    ol_isbn_set = reduce(operator.or_,[set(OpenLibrary.xisbn(work_id=olwk_id)) for olwk_id in olwk_ids])
+    fb_isbn_set = reduce(operator.or_,[set(fb.xisbn(book_id=freebase_id)) for freebase_id in freebase_ids]) if len(freebase_ids) else set()
+    ol_isbn_set = reduce(operator.or_,[set(OpenLibrary.xisbn(work_id=olwk_id)) for olwk_id in olwk_ids]) if len(olwk_ids) else set()
     
     #lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
     
@@ -645,13 +658,13 @@ def seed_isbn(olwk_ids, freebase_ids, lang='en'):
     logger.debug("unrecognized by LT %s %d", lt_unrecognized, len(lt_unrecognized))
     
     # figure out new ISBNs found by LT
-    new_isbns = (reduce(operator.or_,lt_clusters) | lt_unrecognized) - (fb_isbn_set | ol_isbn_set)
+    new_isbns = ((reduce(operator.or_,lt_clusters) if len(lt_clusters) else set())| lt_unrecognized) - (fb_isbn_set | ol_isbn_set)
     logger.debug( "new isbns from LT %s %d", new_isbns, len(new_isbns))
         
     gbooks_data = {}
     
     # then pass to Google books to get info, including language
-    all_isbns = (reduce(operator.or_,lt_clusters) | lt_unrecognized)
+    all_isbns = ((reduce(operator.or_,lt_clusters) if len(lt_clusters) else set()) | lt_unrecognized)
     for (i, isbn) in enumerate(all_isbns):
         gbooks_data[isbn] = gb.isbn(isbn)
         logger.debug("%d %s %s", i, isbn, gbooks_data[isbn])
@@ -703,7 +716,7 @@ def report_on_seed_isbn(seed_isbn_result):
         ("seed isbn",  s[0]),
         ("the Google info we have on the seed isbn", s[1]['gbooks_data'].get(s[0])),
         ("lang", s[1]['lang']),
-        ("Freebase ids", s[1]['fb_isbns']),
+        ("Freebase ids", s[1]['freebase_ids']),
         ("number of OL ids",  len(s[1]['olwk_ids'])),
         ("total number of ISBNs from pooling FB + OL + LT", s[1]['len_all_isbns']),
         ("number of FB isbns", len(s[1]['fb_isbns'])),
@@ -725,33 +738,93 @@ def surfacing_seed_isbn():
     SURFACING_WORK_OLID = 'OL675829W'
     surfacing_fb_id = '/m/05p_vg'
     book_isbn = '9780446311076'
-    return seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_ids=(surfacing_fb_id,))    
+    return seed_isbn(olwk_ids=(SURFACING_WORK_OLID,), freebase_ids=(surfacing_fb_id,), lang='en')    
     
 def ry_mashups_seed_isbn():
     olid = "OL10306321W"
     fb_id = "/en/pro_web_2_0_mashups_remixing_data_and_web_services"
-    return seed_isbn(olwk_ids=(olid,), freebase_ids=(fb_id,))
+    return seed_isbn(olwk_ids=(olid,), freebase_ids=(fb_id,), lang='en')
     
 def moby_dick_seed_isbn():
-    return seed_isbn(olwk_ids=('OL102749W',), freebase_ids=('/en/moby-dick',))
+    return seed_isbn(olwk_ids=('OL102749W',), freebase_ids=('/en/moby-dick',), lang='en')
 
-def calc_seed_isbns(ids=None, max=None, override=False):
+def calc_seed_isbns(ids=None, max=None, override=False, max_consecutive_error=3):
+
     # if ids specified, work through them
     # loop through all Gutenberg ids, see whethether the seed_isbn has been calculated -- and if not, do so.
-    
-    # collate all the ol work ids for a given gutenberg id
+
+    current_error_count = 0
     
     gluejar_db = GluejarDB()
-    gutenberg_done = set([gluejar_db.session.query(SeedISBN.gutenberg_etext_id).all()])
     
+    # pull out a set of Gutenberg text ids that already in the SeedISBN table so that we have the option of
+    # not recalculating those Gutenberg texts
+    gutenberg_done = set(map(lambda x: x[0], gluejar_db.session.query(SeedISBN.gutenberg_etext_id).all()))
+    logger.debug("gutenberg_done %s", gutenberg_done )
+    
+    # collate all the ol work ids  and Freebase ids for a given gutenberg id
     if ids is None:
-        gutenberg_with_ol = defaultdict(set)
-        for mapping in gutenberg_to_ol_mapping(max=max):
-            logger.debug(mapping)
-            gutenberg_with_ol[mapping["gutenberg_etext_id"]].add(mapping["olid"])
-        ids = gutenberg_
+        g_ids = set()
+        ol_ids = defaultdict(set)
+        fb_ids = defaultdict(set)
+        lang = {}
+        for mapping in gutenberg_to_ol_mapping():
+            g_id = mapping["gutenberg_etext_id"]
+            g_ids.add(g_id)
+            ol_ids[g_id].add(mapping["olid"])
+            fb_ids[g_id].add(mapping["freebase_id"])
+            lang[g_id] = mapping["lang"]
+        logger.debug("len(g_ids): %d", len(g_ids))
+        # turn the mapping into a series of tuples that can be fed to seed_isbn
+        if not override:
+            logger.debug("len(g_ids) before subtracting gutenberg_done: %d", len(g_ids))
+            logger.debug("len(gutenberg_done): %d", len(gutenberg_done))
+            g_ids -= gutenberg_done
+            logger.debug("len(g_ids) after subtracting gutenberg_done: %d", len(g_ids))
+            
+        ids = [(g_id, tuple(ol_ids[g_id]), tuple(fb_ids[g_id]), lang[g_id]) for g_id in g_ids]
+        logger.debug("len(ids): %d", len(ids))
         
-    return gutenberg_with_ol
+    for (i, work_id) in enumerate(islice(ids, max)):
+        if current_error_count >= max_consecutive_error:
+            break
+        (g_id, args) = (work_id[0], work_id[1:])
+        logger.info("i, g_id, args: %d %s %s", i, g_id, args)
+        (seed, created) = get_or_create(gluejar_db.session, SeedISBN, gutenberg_etext_id=g_id)
+        try:
+            s = seed_isbn(*args)
+            seed.calculated = datetime.utcnow()
+            seed.seed_isbn = s[0]
+            seed.error = None
+            seed.results = json.dumps(s)
+            current_error_count = 0
+            yield (g_id, s)
+        except Exception, e:
+            current_error_count += 1
+            seed.seed_isbn = None
+            seed.calculated = datetime.utcnow()
+            seed.error = str(e)
+            seed.results = None
+            logger.warning(str(e))
+            yield (g_id, e)
+        finally:
+            gluejar_db.commit_db() 
+
+            
+            
+def reports_in_db(max=None):
+    
+    gluejar_db = GluejarDB()
+    gutenberg_done = gluejar_db.session.query(SeedISBN).all()
+    for s in islice(gutenberg_done, max):
+        yield report_on_seed_isbn(json.loads(s.results))
+        
+def results_in_db(max=None):
+    gluejar_db = GluejarDB()
+    gutenberg_done = gluejar_db.session.query(SeedISBN).all()
+    for s in islice(gutenberg_done, max):
+        yield json.loads(s.results)    
+    
     
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -871,6 +944,9 @@ class DatabaseTest(unittest.TestCase):
 
 class ChainTest(unittest.TestCase):
     def test_chain(self):
+        """
+        Make sure that I (RY) understoo that itertools.ichain worked by actually chaining together a series of iterators into 1
+        """
         self.assertTrue(True)
         max = None
         sizes = [5, 8, 9]
@@ -997,9 +1073,14 @@ if __name__ == '__main__':
     
     #unittest.main()
 
-    calc_seed_isbns()
+    for (i,s) in enumerate(calc_seed_isbns(max=100)):
+        try:
+            print i, report_on_seed_isbn(s[1])
+        except Exception, e:
+            print i, e
+            
     
-    suites = suite()
+    #suites = suite()
     #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))
     #unittest.TextTestRunner().run(suites)
     

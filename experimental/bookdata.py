@@ -34,7 +34,7 @@ import freebase
 import logging
 logger = logging.getLogger(__name__)
 
-GOOGLE_BOOKS_KEY = "AIzaSyCewoH_s2LmrxWD5XNwed3izNnA3dUqMlo"
+GOOGLE_BOOKS_KEY = "AIzaSyDsrHCUsUFNAf65cFPSF8MZTKj8C9oMuj8"
 
 MASHUPBOOK_ISBN_13 = '9781590598580'
 MASHUPBOOK_ISBN_10 = '159059858X'
@@ -84,7 +84,7 @@ def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
     Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
     """
-    logger.info("looking up %s at ThingISBN" , isbn)
+    logger.debug("looking up %s at ThingISBN" , isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
@@ -325,20 +325,21 @@ class OpenLibrary(object):
             return None
     @classmethod
     def xisbn(cls,isbn_val=None, work_id=None, page_size=5):
-        
+        logger.debug("isbn_val, work_id, page_size: %s %s %d", isbn_val, work_id, page_size)
         isbns = set()
         
         if isbn_val is None and work_id is None:
             raise Exception("One of isbn or work_id must be specified")
         elif isbn_val is not None and work_id is not None:
-            raise Exception("Only only of isbn or work_id can be specified")
+            raise Exception("Only one of isbn or work_id can be specified")
             
         if isbn_val is not None:
             # figure out the work_id and then pass back all the ISBNs from the manifestations of the work
             try:
                 isbn_val = isbn_mod.ISBN(isbn_val).to_string('13')
-                isbns.add(isbn_val)
-                yield isbn_val
+                if isbn_val is not None:
+                    isbns.add(isbn_val)
+                    yield isbn_val
                 
                 work_ids = list(cls.works([(isbn_val,'isbn')]))
                 if len(work_ids):
@@ -363,7 +364,7 @@ class OpenLibrary(object):
                 if isbn:
                     try:
                         isbn = isbn_mod.ISBN(isbn).to_string('13')
-                        if isbn not in isbns:
+                        if isbn is not None and isbn not in isbns:
                             isbns.add(isbn)
                             yield isbn
                     except isbn_mod.ISBNException:
