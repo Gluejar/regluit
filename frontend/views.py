@@ -109,7 +109,7 @@ def work(request, work_id, action='display'):
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
+        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id})
     else:
         claimform = None
     if campaign:
