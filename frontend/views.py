@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.contrib.comments import Comment
 from django.forms import Select
 from django.forms.models import modelformset_factory
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
