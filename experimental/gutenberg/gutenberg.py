@@ -1073,7 +1073,7 @@ if __name__ == '__main__':
     
     #unittest.main()
 
-    for (i,s) in enumerate(calc_seed_isbns(max=100)):
+    for (i,s) in enumerate(calc_seed_isbns(max=1000)):
         try:
             print i, report_on_seed_isbn(s[1])
         except Exception, e:
