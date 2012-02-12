@@ -2,10 +2,14 @@ from decimal import Decimal as D
 from datetime import datetime, timedelta
 
 from django.test import TestCase
+from django.test.client import Client
 from django.utils import unittest
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.comments.models import Comment
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Work, UnglueitError
@@ -123,14 +127,44 @@ class BookLoaderTests(TestCase):
             deadline=datetime.now(),
             target=D('1000.00'),
         )
-
+        
+        # comment on the works
+        site = Site.objects.all()[0]
+        wct = ContentType.objects.get_for_model(models.Work)
+        comment1 = Comment(
+            content_type=wct,
+            object_pk=e1.work.pk,
+            comment="test comment1",
+            user=user, 
+            site=site
+        )
+        comment1.save()
+        comment2 = Comment(
+            content_type=wct,
+            object_pk=e2.work.pk,
+            comment="test comment2",
+            user=user, 
+            site=site
+        )
+        comment2.save()
+        
         # now add related edition to make sure Works get merged
         bookloader.add_related('1458776204')
         self.assertEqual(models.Work.objects.count(), 1)
+        w3 = models.Edition.get_by_isbn('1458776204').work
         
         # and that relevant Campaigns and Wishlists are updated
+        
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
+        self.assertEqual(Comment.objects.for_model(w3).count(), 2)
+        
+        anon_client = Client()
+        r = anon_client.get("/work/%s/" % w3.pk)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % e2.work.pk)
+        self.assertEqual(r.status_code, 200)
+
     
     def test_ebook(self):
         edition = bookloader.add_by_oclc('1246014')
@@ -280,11 +314,14 @@ class WishlistTest(TestCase):
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
         edition = bookloader.add_by_isbn('0441012035')
         work = edition.work
+        num_wishes=work.num_wishes
         user.wishlist.add_work(work, 'test')
         self.assertEqual(user.wishlist.works.count(), 1)
+        self.assertEqual(work.num_wishes, num_wishes+1)
         user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
-
+        self.assertEqual(work.num_wishes, num_wishes)
+        
 class CeleryTaskTest(TestCase):
 
     def test_single_fac(self):

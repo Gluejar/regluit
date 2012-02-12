@@ -54,7 +54,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% ifequal supporter request.user %}
                             <div id="user-block1">
                             <div class="block-inner">
-                            <span class="my-setting">My Settings</a>
+                            <span class="my-setting">My Profile</a>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -188,7 +188,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 {% if librarything_id %}
                                 <form id="librarything_load" method="post" action="#">
                                     {% csrf_token %}
-                                    <div id="loadlt"><input type="submit" value="Add your LibraryThing library" /></div>
+                                    <div id="loadlt"><input type="submit" id="librarything_input" value="Add your LibraryThing library" /></div>
                                 </form>
                                 {% else %}
                                 <div id="loadlt"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>

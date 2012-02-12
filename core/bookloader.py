@@ -8,6 +8,7 @@ from xml.etree import ElementTree
 from django.db.models import Q
 from django.conf import settings
 from django.db import IntegrityError
+from django.contrib.comments.models import Comment
 
 from regluit.core import models
 import regluit.core.isbn
@@ -392,6 +393,9 @@ def merge_works(w1, w2):
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
+    for comment in Comment.objects.for_model(w2):
+        comment.object_pk = w1.pk
+        comment.save()
     for edition in w2.editions.all():
         edition.work = w1
         edition.save()
@@ -402,8 +406,11 @@ def merge_works(w1, w2):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
-    # TODO: should we decommission w2 instead of deleting it, so that we can
-    # redirect from the old work URL to the new one?
+
+    models.WasWork(was=w2.pk,work=w1).save()
+    for ww in models.WasWork.objects.filter(work = w2):
+        ww.work = w1
+        ww.save()
     w2.delete()
 
 

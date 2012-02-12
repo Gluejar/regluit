@@ -94,10 +94,29 @@
 #user-block-hide .block2 {
   width: 50%;
 }
+#user-block-hide .block2 div {
+  float: left;
+  max-width: 340px;
+}
 #user-block-hide input {
   float: left;
   margin: 3px 10px 0 0;
   width: 45%;
+}
+#user-block-hide input[type=checkbox] {
+  float: none;
+  width: auto;
+}
+#user-block-hide input#librarything_input, #user-block-hide input#goodreads_input {
+  width: auto;
+  cursor: pointer;
+  background: #edf3f4;
+  color: #3d4e53;
+  cursor: pointer;
+}
+#user-block-hide input.profile-save {
+  width: 116px;
+  cursor: pointer;
 }
 #user-block-hide label {
   float: left;
@@ -203,7 +222,6 @@ span.grey {
 }
 div.check-list {
   float: left;
-  width: 100%;
   padding-bottom: 7px;
 }
 a.profile-edit {

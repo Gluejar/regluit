@@ -236,6 +236,7 @@ class Work(models.Model):
     title = models.CharField(max_length=1000)
     language = models.CharField(max_length=2, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
+    num_wishes = models.IntegerField(default=0)
 
     class Meta:
         ordering = ['title']
@@ -400,6 +401,10 @@ class Work(models.Model):
 
     def wished_by(self):
         return User.objects.filter(wishlist__works__in=[self])
+        
+    def update_num_wishes(self):
+    	self.num_wishes = Wishes.objects.filter(work=self).count()
+    	self.save()
 
     def longest_description(self):
         """get the longest description from an edition of this work
@@ -515,13 +520,18 @@ class Edition(models.Model):
 
     @classmethod
     def get_by_isbn(klass, isbn):
-        if length(isbn)==10:
+        if len(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
         try:
             return Identifier.objects.get( type='isbn', value=isbn ).edition
         except Identifier.DoesNotExist:
             return None
 
+class WasWork(models.Model):
+	work = models.ForeignKey('Work')
+	was = models.IntegerField(unique = True)
+	
+	
 class Ebook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25)
@@ -546,12 +556,14 @@ class Wishlist(models.Model):
             w = Wishes.objects.get(wishlist=self,work=work)
             w.source=source
         except:
-            Wishes.objects.create(source=source,wishlist=self,work=work)        
+            Wishes.objects.create(source=source,wishlist=self,work=work) 
+            work.update_num_wishes()       
     
     def remove_work(self, work):
         w = Wishes.objects.filter(wishlist=self, work=work)
         if w:
             w.delete()
+            work.update_num_wishes()
     
     def work_source(self, work):
         w = Wishes.objects.filter(wishlist=self, work=work)

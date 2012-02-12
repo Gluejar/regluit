@@ -1,6 +1,8 @@
 var $j = jQuery.noConflict();
 
-$j('#content-block').ready(function() {
+$j('#content-block').ready(setupWishlistControls);
+
+function setupWishlistControls() {
 
     $j("div.add-wishlist").each(function (index, element) {
         $j(element).click(function() {
@@ -67,7 +69,7 @@ $j('#content-block').ready(function() {
             });
         });
     });
-});
+}
 
 var $k = jQuery.noConflict();
 
@@ -92,4 +94,5 @@ $k(document).delegate("div.add-wishlist-workpage span", "click", function() {
         nextSpan.removeAttr("id");
     });
 });
+
 
