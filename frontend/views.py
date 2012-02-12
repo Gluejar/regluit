@@ -68,7 +68,6 @@ def home(request):
     # on the preview site there are no active campaigns, so we should show most-wished books instead
     is_preview = settings.IS_PREVIEW
     if is_preview:
-        # django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
         worklist = models.Work.objects.order_by('-num_wishes')
         works = worklist[:6]
         works2 = worklist[6:12]
