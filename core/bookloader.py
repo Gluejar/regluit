@@ -348,6 +348,7 @@ def add_related(isbn):
     other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
+        logger.debug("other_isbn: %s", other_isbn)
         if len(other_isbn)==10:
             other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=work)
@@ -357,6 +358,7 @@ def add_related(isbn):
             if edition.work.language == related_language:
                 new_editions.append(related_edition)
                 if related_edition.work != edition.work:
+                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
                     merge_works(edition.work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
@@ -366,11 +368,15 @@ def add_related(isbn):
 
     # group the other language editions together
     for lang_group in other_editions.itervalues():
+        logger.debug("lang_group (ed, work): %s", [(ed.id, ed.work.id) for ed in lang_group])
         if len(lang_group)>1:
             lang_edition = lang_group[0]
-            for related_edition in lang_group[1:]:
-                if lang_edition.work != related_edition.work:
-                    merge_works(lang_edition.work, related_edition.work)
+            logger.debug("lang_edition.id: %s", lang_edition.id)
+            # compute the distinct set of works to merge into lang_edition.work
+            works_to_merge = set([ed.work for ed in lang_group[1:]]) - set([lang_edition.work])
+            for w in works_to_merge:
+                logger.debug("merge_works path 2 %s %s", lang_edition.work.id, w.id )
+                merge_works(lang_edition.work, w)
         
     return new_editions
     
@@ -390,6 +396,10 @@ def merge_works(w1, w2):
     """will merge the second work (w2) into the first (w1)
     """
     logger.info("merging work %s into %s", w2, w1)
+    # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
+    if w1 == w2 or w1.id is None or w2.id is None:
+        return
+    
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
@@ -411,6 +421,7 @@ def merge_works(w1, w2):
     for ww in models.WasWork.objects.filter(work = w2):
         ww.work = w1
         ww.save()
+        
     w2.delete()
 
 
