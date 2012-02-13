@@ -45,7 +45,7 @@ SURFACING_WORK_OLID = 'OL675829W'
 SURFACING_EDITION_OLID = 'OL8075248M'
 SURFACING_ISBN = '9780446311076'
 
-USER_AGENT = "rdhyee-test"
+USER_AGENT = "rdhyee@gluejar.com"
 
 # http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
 def grouper(iterable, page_size):
@@ -84,12 +84,25 @@ def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to 
     Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
     """
-    logger.debug("looking up %s at ThingISBN" , isbn)
+    logger.info("looking up %s at ThingISBN" , isbn)
     url = "http://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
 
+def lt_whatwork(isbn=None, title=None, author=None):
+    """
+    "What work?" takes an ISBN and/or a title-author and returns the LibraryThing work number.
+    http://www.librarything.com/blogs/thingology/2009/03/new-api-what-work/
+    """
+    logger.info("looking up at lt_whatwork (isbn, title, author): %s %s %s" ,isbn, title, author)
+    url = "http://www.librarything.com/api/whatwork.php?"
+    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
+    xml = requests.get(url, headers={"User-Agent": USER_AGENT}).content
+    doc = ElementTree.fromstring(xml)
+    return [e.text for e in doc.findall('isbn')]
+
+    
 def hathi_bib(id, id_type='isbn', detail_level='brief'):
     url = "http://catalog.hathitrust.org/api/volumes/brief/%s/%s.json"  % (id_type, id)
     r = requests.get(url)
