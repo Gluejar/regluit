@@ -24,7 +24,7 @@ class Command(BaseCommand):
         
         for (i, work) in enumerate(islice(models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language),max)):
             #check that there's still only one edition
-            print "%d %s id:%s #editions:%d #isbn:%s -->" % (i, work, work.id,  work.editions.count(), work.first_isbn_13()),
+            print "%d %s id:%s #editions:%d #isbn:%s -->" % (i, work.title.encode('ascii','ignore'), work.id,  work.editions.count(), work.first_isbn_13()),
             if work.editions.count() != 1:
                 print
                 continue
