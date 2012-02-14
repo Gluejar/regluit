@@ -513,6 +513,8 @@ a {
 }
 .work_supporter_avatar {
   margin-right: 5px;
+}
+.work_supporter_avatar img {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
