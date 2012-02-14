@@ -14,7 +14,7 @@ $j().ready(function() {
             
         // actually perform action
         jQuery.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
-        	span.html('<span class="on-wishlist">On Wishlist!</span>');
+        	span.html('On Wishlist!').addClass('on-wishlist');
         });
     });
 
