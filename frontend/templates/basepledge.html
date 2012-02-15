@@ -1,0 +1,40 @@
+{% extends "registration/registration_base.html" %}
+{% block extra_js %}
+
+<script type="text/javascript" src="/static/js/definitions.js"></script>
+{% endblock %}
+{% block extra_extra_head %}
+<!-- extra head content in descendants goes in extra_extra_head, not extra_head, to avoid overwriting the documentation.css include -->
+{% endblock %}
+
+{% block title %}{% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block content %}
+<div id="main-container">
+	<div class="js-main">
+		<div id="js-leftcol">
+			{% include "faqmenu.html" %}
+		</div>
+		<div id="js-maincol-fr" class="have-right doc">
+			<div class="js-maincol-inner">
+				<div id="content-block">
+					<div id="js-main-container">
+            			<div class="js-main-container-inner">
+
+    
+{% block doccontent %}
+{% endblock %}
+
+						</div>
+					</div>
+			</div>
+		</div>
+	</div>
+</div>    
+
+{% endblock %}
+
+

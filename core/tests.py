@@ -12,7 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError
+from regluit.core.models import Campaign, Work, UnglueitError, Edition
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -96,6 +96,57 @@ class BookLoaderTests(TestCase):
         self.assertTrue(edition.work.publication_date)
         edition.publication_date = None
         self.assertTrue(edition.work.publication_date)
+
+    def test_merge_works_mechanics(self):
+        """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
+        w1 = Work(title="Work 1")
+        w1.save()
+        
+        w2 = Work(title="Work 2")
+        w2.save()
+        
+        e1 = Edition(work=w1)
+        e1.save()
+        
+        e2 = Edition(work=w2)
+        e2.save()
+        
+        e2a = Edition(work=w2)
+        e2a.save()
+        
+        self.assertTrue(e1)
+        self.assertTrue(e2)
+        self.assertTrue(e2a)
+        self.assertTrue(e1.work)
+        self.assertTrue(e2.work)
+        self.assertEqual(models.Work.objects.count(), 2)
+ 
+        w1_id = w1.id
+        w2_id = w2.id
+        
+        # first try to merge work 1 into itself -- should not do anything
+        bookloader.merge_works(w1,w1)
+        self.assertEqual(models.Work.objects.count(), 2)
+        
+        # merge the second work into the first
+        bookloader.merge_works(e1.work, e2.work)
+        self.assertEqual(models.Work.objects.count(),1)
+        self.assertEqual(models.WasWork.objects.count(),1)
+        
+        # getting proper view?
+        anon_client = Client()
+        r = anon_client.get("/work/%s/" % w1_id)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % w2_id)
+        self.assertEqual(r.status_code, 200)        
+        
+        # try to do it twice -- nothing should happen
+        bookloader.merge_works(e1.work, e2a.work)
+        r = anon_client.get("/work/%s/" % w1_id)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % w2_id)
+        self.assertEqual(r.status_code, 200)               
+        
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works
