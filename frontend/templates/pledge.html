@@ -4,38 +4,7 @@
 
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
-<style>
-
-#content-block .jsmod-content, .book-detail {
-	float: left;
-	width: auto;
-}
-
-#pledgesubmit {
-	float: right;
-	font-size: 17px;
-	margin: 10px;
-	cursor: pointer;
-}
-
-.pledge_amount {
-	margin-left: 10px;
-	font-size: 17px;
-}
-
-form {
-	margin-top: 10px;
-	padding-top: 10px;
-	border-top: solid 2px #d6dde0;
-}
-
-#id_preapproval_amount {
-	width: 50%;
-	line-height: 30px;
-	font-size: 16px;
-}
-
-</style>
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
 {% endblock %}
 
 {% block doccontent %}
@@ -107,15 +76,16 @@ form {
 
         	<ul class="support menu">
             	{% for premium in premiums %}
+            	<label for="{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
+                	<input type="radio" name="premium_id" value="{{premium.id}}" id="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
                     <span class="menu-item-price">
                     	${{ premium.amount }}
                     </span>
                 	<span class="menu-item-desc">
                 		{{ premium.description }}
                 	</span>
-           		</a></li>
+           		</a></li></label>
             	{% endfor %}
          	</ul>
 

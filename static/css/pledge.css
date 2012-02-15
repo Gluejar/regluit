@@ -96,3 +96,6 @@ form {
   line-height: 30px;
   font-size: 16px;
 }
+ul.support li, ul.support li:hover {
+  background-image: none;
+}
