@@ -25,13 +25,14 @@
 
     <script type="text/javascript" src="/static/js/wishlist.js"></script>
     <script type="text/javascript" src="/static/js/greenpanel.js"></script>
-    
+
+	<base target="_blank" />    
 </head>
 
 <body>
 
 <!--- editions --->
-
+<span id="content-block">
 {% if work %}
   {% with work.googlebooks_id as googlebooks_id %}
   {% include "book_panel.html" %}
@@ -39,7 +40,7 @@
 {% else %}
         <p class="classname">No work corresponding to ISBN {{isbn}} available</p>
 {% endif %}
-
+</span>
 </body>
 </html>
 
