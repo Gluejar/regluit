@@ -126,37 +126,69 @@ class GoogleBooks(object):
             return None
         else:
             if glossed:
-                return self._get_item(results)
+                return self._parse_item(results['items'][0])
             else:
                 return results
+    def query(self, q, glossed=True):
+        url = "https://www.googleapis.com/books/v1/volumes"
+        try:
+            results = self._get_json(url, {'q':q})
+        except LookupFailure:
+            logger.exception("lookup failure for %s", q)
+            return None
+        if not results.has_key('items') or len(results['items']) == 0:
+            logger.warn("no google hits for %s", q)
+            return None
+        else:
+            if glossed:
+                return [self._parse_item(item) for item in results.get('items')]
+            else:
+                return results        
+    def volumeid(self, g_id, glossed=True):
+        url = "https://www.googleapis.com/books/v1/volumes/{0}".format(g_id)
+        try:
+            item = self._get_json(url, {})
+            if glossed:
+                return self._parse_item(item)
+            else:
+                return item        
+        except LookupFailure:
+            logger.exception("lookup failure for %s", g_id)
+            return None
+        except Exception, e:
+            logger.exception("other failure in volumeid %s", e)
+            return None
+        
+
+    def _parse_item(self, item):
+        d = item['volumeInfo']
+        google_books_id = item['id']
+        title = d.get('title')
+        language = d.get('language')
+        identifiers = d.get('industryIdentifiers', [])
+        ratings_count = d.get('ratingsCount')
+
+        # flip [{u'identifier': u'159059858X', u'type': u'ISBN_10'}, {u'identifier': u'9781590598580', u'type': u'ISBN_13'}] to
+        #    {u'ISBN_13': u'9781590598580', u'ISBN_10': u'159059858X'}
+        identifiers = dict([(id["type"],id["identifier"]) for id in d.get('industryIdentifiers', [])])
+        
+        isbn = identifiers.get('ISBN_13') or identifiers.get('ISBN_10')
+        if isbn:
+            isbn = isbn_mod.ISBN(isbn).to_string('13')
+            
+        published_date = d.get('publishedDate')
+        publisher = d.get('publisher')
+        
+        data = {'title':title, 'language':language, 'isbn':isbn, 'google_books_id': google_books_id, 
+                'ratings_count':ratings_count, 'published_date':published_date, 'publisher':publisher}
+        return data        
     def _get_item(self, results):
         if len(results):
-
             google_books_id = results['items'][0]['id']
             item = results['items'][0]
-            
-            d = item['volumeInfo']
-            title = d.get('title')
-            language = d.get('language')
-            identifiers = d.get('industryIdentifiers', [])
-            ratings_count = d.get('ratingsCount')
-
-            # flip [{u'identifier': u'159059858X', u'type': u'ISBN_10'}, {u'identifier': u'9781590598580', u'type': u'ISBN_13'}] to
-            #    {u'ISBN_13': u'9781590598580', u'ISBN_10': u'159059858X'}
-            identifiers = dict([(id["type"],id["identifier"]) for id in d.get('industryIdentifiers', [])])
-            
-            isbn = identifiers.get('ISBN_13') or identifiers.get('ISBN_10')
-            if isbn:
-                isbn = isbn_mod.ISBN(isbn).to_string('13')
-                
-            published_date = d.get('publishedDate')
-            publisher = d.get('publisher')
-            
-            data = {'title':title, 'language':language, 'isbn':isbn, 'google_books_id': google_books_id,
-                    'ratings_count':ratings_count, 'published_date':published_date, 'publisher':publisher}
+            return self._parse_item(item)
         else:
-            data = None
-        return data
+            return None
     def _get_json(self, url, params={}, type='gb'):
         # lifted (with slight mod) from https://github.com/Gluejar/regluit/blob/master/core/bookloader.py
         # TODO: should X-Forwarded-For change based on the request from client?
@@ -721,6 +753,17 @@ class GoogleBooksTest(TestCase):
         item = gb.isbn(isbn_num)
         self.assertEqual(item['isbn'], '9781590598580')
         self.assertEqual(item['language'], 'en')
+    def test_query(self):
+        q = 'Bach'
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        results = gb.query(q, glossed=True)
+    def test_volumeid(self):
+        g_id = 'B0xbAAAAMAAJ'
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        results = gb.volumeid(g_id, glossed=True)
+        print results
+    
+        
         
 class thingISBNTest(TestCase):
     def test_lt_isbn(self):
@@ -734,7 +777,7 @@ def suite():
     #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(OpenLibraryTest('test_xisbn'))
+    suites.addTest(GoogleBooksTest('test_volumeid'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     

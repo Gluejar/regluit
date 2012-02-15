@@ -10,8 +10,10 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.comments.models import Comment
 
+import regluit
 from regluit.core import models
 import regluit.core.isbn
+
 
 logger = logging.getLogger(__name__)
 
@@ -486,6 +488,60 @@ def _get_json(url, params={}, type='gb'):
             logger.error("response content: %s" % response.content)
         raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
+
+def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date):
+    
+    # let's start with instantiating the relevant Work and Edition if they don't already exist
+    
+    try:
+        work = models.Identifier.objects.get(type='olwk',value=ol_work_id).work
+    except models.Identifier.DoesNotExist: # try to find an Edition with the seed_isbn and use that work to hang off of
+        sister_edition = add_by_isbn(seed_isbn)
+        if sister_edition.new:
+            # add related editions asynchronously
+            regluit.core.tasks.populate_edition.delay(sister_edition)
+        work = sister_edition.work
+        # attach the olwk identifier to this work if it's not none.
+        if ol_work_id is not None:
+            work_id = models.Identifier.get_or_add(type='olwk',value=ol_work_id, work=work)
+
+    # Now pull out any existing Gutenberg editions tied to the work with the proper Gutenberg ID
+    try:
+        edition = models.Identifier.objects.get( type='gtbg', value=gutenberg_etext_id ).edition    
+    except models.Identifier.DoesNotExist:
+        edition = models.Edition()
+        edition.title = title
+        edition.work = work
+        
+        edition.save()
+        edition_id = models.Identifier.get_or_add(type='gtbg',value=gutenberg_etext_id, edition=edition, work=work)
+        
+    # check to see whether the Edition hasn't already been loaded first
+    # search by url
+    ebooks = models.Ebook.objects.filter(url=url)
+    
+    # format: what's the controlled vocab?  -- from Google -- alternative would be mimetype
+    
+    if len(ebooks):  
+        ebook = ebooks[0]
+    elif len(ebooks) == 0: # need to create new ebook
+        ebook = models.Ebook()
+
+    if len(ebooks) > 1:
+        warnings.warn("There is more than one Ebook matching url {0}".format(url))
+        
+        
+    ebook.format = format
+    ebook.provider = 'gutenberg'
+    ebook.url =  url
+    ebook.rights = license
+        
+    # is an Ebook instantiable without a corresponding Edition? (No, I think)
+    
+    ebook.edition = edition
+    ebook.save()
+    
+    return ebook
 
 class LookupFailure(Exception):
     pass

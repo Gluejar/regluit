@@ -29,8 +29,6 @@ import logging
 import random
 import json
 
-from google.refine import refine
-
 from datetime import datetime
 
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, Text, Sequence, Boolean, not_, and_, DateTime
@@ -514,6 +512,7 @@ def map_wikipedia_links_to_freebase_ids(max=None ,page_size=5):
 
 def map_refine_fb_links_to_openlibrary_work_ids(max=None):
     
+    from google.refine import refine
     db = GluejarDB()
     refine_proj_id = "1884515736058"
     refine_obj = refine.Refine(refine.RefineServer())
@@ -587,7 +586,7 @@ def gutenberg_to_ol_mapping(max=None):
     
     db = GluejarDB()
 
-    resp = enumerate(islice(db.session.query(*headers).from_statement(SQL).all(),None))
+    resp = enumerate(islice(db.session.query(*headers).from_statement(SQL).all(),max))
     
     # what choice of serialization at this point?  JSON for now, but not the best for a large file
     for (i,r) in resp:
@@ -824,7 +823,56 @@ def results_in_db(max=None):
     gutenberg_done = gluejar_db.session.query(SeedISBN).all()
     for s in islice(gutenberg_done, max):
         yield json.loads(s.results)    
+
+def calc_and_report_seed_isbn_calc():
+    for (i,s) in enumerate(calc_seed_isbns(max=1000)):
+        try:
+            print i, report_on_seed_isbn(s[1])
+        except Exception, e:
+            print i, e    
+
+def gutenberg_and_seed_isbn(max=None, include_olid=False):
+    SQL = """SELECT mw.gutenberg_etext_id, gt.title as gt_title, mw.olid, olw.title as ol_title, mw.freebase_id, gf.about as 'url', gf.format, gt.rights, gt.lang, 
+        si.seed_isbn, 
+        DATE_FORMAT(gt.created, "%Y-%m-%d") as 'created'
+          FROM MappedWork mw LEFT JOIN GutenbergText gt 
+          ON mw.gutenberg_etext_id = gt.etext_id LEFT JOIN OpenLibraryWork olw ON olw.id=mw.olid LEFT JOIN GutenbergFile gf ON gf.is_format_of = gt.etext_id 
+          LEFT JOIN seedisbn si ON si.gutenberg_etext_id = gt.etext_id
+          WHERE gf.format = 'application/epub+zip';"""
+
+    headers = ("gutenberg_etext_id", "gt_title", "olid", "ol_title", "freebase_id", "url", "format",
+               "rights", "lang", "seed_isbn", "created")
     
+    # title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date
+    
+    db = GluejarDB()
+    ebook_data = set()
+
+    resp = enumerate(islice(db.session.query(*headers).from_statement(SQL).all(),max))
+    
+    # writing None for olid for now
+    
+    for (i, r) in resp:
+        mapping = dict(izip(headers,r))
+        olid = mapping["olid"] if include_olid else None
+        ebook_datum =  {'title':mapping["gt_title"], 'gutenberg_etext_id':mapping["gutenberg_etext_id"],
+                        'ol_work_id':olid, 'seed_isbn':mapping["seed_isbn"],
+                         'url':mapping["url"], 'format':mapping["format"],
+                         'license':mapping["rights"], 'lang':mapping["lang"],
+                         'publication_date':mapping["created"]}
+        if tuple(ebook_datum.items()) not in ebook_data:
+            ebook_data.add(tuple(ebook_datum.items()))
+            yield ebook_datum
+
+def export_to_json(obj, max=None,fname=None):
+    
+    if fname is not None:
+        f = open(fname, "wb")
+        f.write(json.dumps(obj))
+        f.close()
+    
+    return json.dumps(obj)
+
     
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -993,6 +1041,7 @@ class FreebaseTest(unittest.TestCase):
 
 class RefineTest(unittest.TestCase):
     def setUp(self):
+        from google.refine import refine
         self.refine_obj = refine.Refine(refine.RefineServer())
     def test_project_listing(self):
         # https://raw.github.com/PaulMakepeace/refine-client-py/master/refine.py
@@ -1073,11 +1122,7 @@ if __name__ == '__main__':
     
     #unittest.main()
 
-    for (i,s) in enumerate(calc_seed_isbns(max=1000)):
-        try:
-            print i, report_on_seed_isbn(s[1])
-        except Exception, e:
-            print i, e
+    print list(gutenberg_and_seed_isbn(max=10))
             
     
     #suites = suite()

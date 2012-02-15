@@ -209,6 +209,24 @@ class BookLoaderTests(TestCase):
         self.assertEqual(work.openlibrary_id, '/works/OL27258W')
         self.assertEqual(work.goodreads_id, '14770')
         self.assertEqual(work.librarything_id, '609')
+    def test_load_gutenberg_edition(self):
+        """Let's try this out for Moby Dick"""
+        
+        title = "Moby Dick"
+        ol_work_id = "/works/OL102749W"
+        gutenberg_etext_id = 2701
+        epub_url = "http://www.gutenberg.org/cache/epub/2701/pg2701.epub"
+        license = 'http://www.gutenberg.org/license'
+        lang = 'en'
+        format = 'epub'
+        publication_date = datetime(2001,7,1)
+        seed_isbn = '9780142000083' # http://www.amazon.com/Moby-Dick-Whale-Penguin-Classics-Deluxe/dp/0142000086
+        
+        ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
+        self.assertEqual(ebook.url, epub_url)
+        
+        
+        
 
 
 class SearchTests(TestCase):
