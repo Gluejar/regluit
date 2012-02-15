@@ -1,79 +1,126 @@
-{% extends "basedocumentation.html" %}
+{% extends "basepledge.html" %}
 
 {% block title %}Pledge{% endblock %}
 
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<style>
+
+#content-block .jsmod-content, .book-detail {
+	float: left;
+	width: auto;
+}
+
+#pledgesubmit {
+	float: right;
+	font-size: 17px;
+	margin: 10px;
+	cursor: pointer;
+}
+
+.pledge_amount {
+	margin-left: 10px;
+	font-size: 17px;
+}
+
+form {
+	margin-top: 10px;
+	padding-top: 10px;
+	border-top: solid 2px #d6dde0;
+}
+
+#id_preapproval_amount {
+	width: 50%;
+	line-height: 30px;
+	font-size: 16px;
+}
+
+</style>
 {% endblock %}
 
 {% block doccontent %}
-
-<h2>Campaign: {{campaign.name}}</h2>
-    <div class="thank-you">Thank you!</div>
-            	
-            	<div class="book-detail">
-                	<div class="book-detail-img"><a href="#">
-                    	<img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
-                    </div>
-                    <div class="book-detail-info">
-                    	<h2 class="book-name">{{ work.title }}</h2>
-                        <h3 class="book-author">{{ work.author }}</h3>
-                        <h3 class="book-year">{{ work.publication_date }}</h3>
-                        <div class="find-book">
-                        	<label>Find it here</label>
-                        	<!-- todo: these should be a real thing -->
-                            <div class="find-link">
-                                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
-                                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
-                                {% if not request.user.is_anonymous %}
-                                {% if request.user.profile.goodreads_user_link %}
-                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
-                                {% endif %}
-                                {% if request.user.profile.librarything_id %}
-                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
-                                {% endif %}
-                                {% endif %}
-                            </div>
-                        </div>
-                        <div class="pledged-info"><div class="pledged-group">{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}</div><div class="status"><img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" /></div></div>
-                    </div>
-                </div>
+<div style="height:10px";></div>
+<div class="book-detail">
+	<div class="book-detail-img">
+		<a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+    </div>
     
-            	<div class="jsmodule rounded">
-            	<div class="jsmod-content">
-                	Campaign in Progress: ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
-                </div>
+    <div class="book-detail-info">
+        <h2 class="book-name">{{ work.title }}</h2>
+        <h3 class="book-author">{{ work.author }}</h3>
+        <h3 class="book-year">{{ work.publication_date }}</h3>
+        
+        <div class="find-book">
+            <label>Find it here</label>
+            
+            <div class="find-link">
+                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
+                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
 
+                {% if not request.user.is_anonymous %}
+                {% if request.user.profile.goodreads_user_link %}
+                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
+                {% endif %}
+                {% if request.user.profile.librarything_id %}
+                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="pledged-info">
+        	<div class="pledged-group">
+        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
+        	</div>
+        	<div class="status">
+        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" />
+        	</div>
+        </div>
+    </div>
+</div>
+    
+<div class="jsmodule rounded pledge">
+    <div class="jsmod-content">
+        ${{ work.last_campaign.target }} needed by<br />
+        {{ work.last_campaign.deadline }}
+    </div>
+</div>
 
+<div class="jsmodule rounded">
     <div class="jsmod-content">
 	
-    {% comment %}
-    Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
-    {% endcomment %}	
+    	{% comment %}
+    	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
+    	{% endcomment %}	
 	
+    	<form method="POST" action="{% url pledge work_id=work.id %}">
+        	{% csrf_token %}
+			{{ form.non_field_errors }}
+        	{{ form.preapproval_amount.errors }}
+        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: ${{ form.preapproval_amount }}</div>
+        	{{ form.anonymous.errors }}
+        	
+        	{% comment %}
+        	not supported yet; don't display
+        	{{ form.anonymous.label_tag }}: {{ form.anonymous }}	
+        	{% endcomment %}
 
-    <form method="POST" action="{% url pledge work_id=work.id %}">
-        {% csrf_token %}
-	{{ form.non_field_errors }}
-        {{ form.preapproval_amount.errors }}
-        {{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount }}
-        {{ form.anonymous.errors }}
-        {% comment %}
-        not supported yet; don't display
-        {{ form.anonymous.label_tag }}: {{ form.anonymous }}	
-        {% endcomment %}
-       <input type="submit" value="Pledge" />
-    
-        <ul class="support menu">
-            {% for premium in premiums %}
-            <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                <input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
-                    <span class="menu-item-price">${{ premium.amount }}</span>
-                <span class="menu-item-desc">{{ premium.description }}</span>
-            </a></li>
-            {% endfor %}
-         </ul>
-    </form>
+        	<ul class="support menu">
+            	{% for premium in premiums %}
+            	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
+                    <span class="menu-item-price">
+                    	${{ premium.amount }}
+                    </span>
+                	<span class="menu-item-desc">
+                		{{ premium.description }}
+                	</span>
+           		</a></li>
+            	{% endfor %}
+         	</ul>
+
+	       <input type="submit" value="Pledge" id="pledgesubmit"/>    
+    	</form>
     </div>
 
 {% endblock %}
