@@ -130,11 +130,20 @@ def add_ebooks(item, edition):
 
 
 def update_edition(edition):
+    """
+    attempt to update data associated with input edition and return that updated edition
+    """
+
+    # if there is no ISBN associated with edition, just return the input edition
     try:
         isbn=edition.identifiers.filter(type='isbn')[0].value
     except models.Identifier.DoesNotExist:
         return edition
 
+    # do a Google Books lookup on the isbn associated with the edition (there should be either 0 or 1 isbns associated
+    # with an edition because of integrity constraint in Identifier)
+    
+    # if we get some data about this isbn back from Google, update the edition data accordingly
     results=get_google_isbn_results(isbn)
     if not results:
         return edition
@@ -151,11 +160,15 @@ def update_edition(edition):
 
     # check for language change
     language = d['language']
+    # don't track variants in main language (e.g., traditional vs simplified Chinese)
     if len(language)>2:
         language= language[0:2]
+    
+    # if the language of the edition no longer matches that of the parent work, attach edition to the    
     if edition.work.language != language:
         logger.info("reconnecting %s since it is %s instead of %s" %(googlebooks_id, language, edition.work.language))
         old_work=edition.work
+        
         new_work = models.Work(title=title, language=language)
         new_work.save()
         edition.work = new_work
