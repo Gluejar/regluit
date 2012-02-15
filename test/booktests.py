@@ -79,8 +79,11 @@ def load_gutenberg_books(fname="/Users/raymondyee/D/Document/Gluejar/Gluejar.git
             record['format'] = 'epub'
         elif record['format'] == 'application/pdf':
             record['format'] = 'pdf'
-        ebook = bookloader.load_gutenberg_edition(**record)
-        logger.info("%d loaded ebook %s %s", i, ebook, record)
+        if record['seed_isbn'] is not None:
+            ebook = bookloader.load_gutenberg_edition(**record)
+            logger.info("%d loaded ebook %s %s", i, ebook, record)
+        else:
+            logger.info("%d null seed_isbn: ebook %s", i, ebook)
 
 def cluster_status():
     """Look at the current Work, Edition instances to figure out what needs to be fixed"""
