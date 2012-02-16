@@ -5,8 +5,10 @@ import json
 from pprint import pprint
 from itertools import islice, izip, repeat
 import logging
+from xml.etree import ElementTree
+import random
 
-
+random.seed()
 
 import sys, os
 
@@ -14,9 +16,9 @@ import sys, os
 # and not just in the context of the regluit Django app
 
 try:
-    from regluit.core import isbn
+    from regluit.core import isbn as isbn_mod
 except:
-    import isbn
+    import isbn as isbn_mod
 
 try:
     import unittest
@@ -33,6 +35,8 @@ import freebase
 import logging
 logger = logging.getLogger(__name__)
 
+GOOGLE_BOOKS_KEY = "AIzaSyDsrHCUsUFNAf65cFPSF8MZTKj8C9oMuj8"
+
 MASHUPBOOK_ISBN_13 = '9781590598580'
 MASHUPBOOK_ISBN_10 = '159059858X'
 MASHUPBOOK_OLID = 'OL13439114M'
@@ -40,6 +44,10 @@ RY_OLID = 'OL4264806A'
 
 SURFACING_WORK_OLID = 'OL675829W'
 SURFACING_EDITION_OLID = 'OL8075248M'
+SURFACING_ISBN = '9780446311076'
+SURFACING_LT_WORK_ID = '18997'
+
+USER_AGENT = "rdhyee@gluejar.com"
 
 # http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
 def grouper(iterable, page_size):
@@ -73,7 +81,35 @@ def to_list(s):
         return [s]
     else:
         return s
+    
+def thingisbn(isbn):
+    """given an ISBN return a list of related edition ISBNs, according to 
+    Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
+    """
+    logger.info("looking up %s at ThingISBN" , isbn)
+    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
+    xml = requests.get(url, headers={"User-Agent": USER_AGENT}).content
+    doc = ElementTree.fromstring(xml)
+    return [e.text for e in doc.findall('isbn')]
 
+def lt_whatwork(isbn=None, title=None, author=None):
+    """
+    "What work?" takes an ISBN and/or a title-author and returns the LibraryThing work number.
+    http://www.librarything.com/blogs/thingology/2009/03/new-api-what-work/
+    """
+    logger.info("looking up at lt_whatwork (isbn, title, author): %s %s %s" ,isbn, title, author)
+    url = "http://www.librarything.com/api/whatwork.php"
+    params=dict([(k,v) for (k,v) in {'isbn':isbn, 'title':title, 'author':author}.items() if v is not None])
+    
+    xml = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}).content
+    doc = ElementTree.fromstring(xml)
+
+    work = doc.find('work')
+    if work is not None:
+        return work.text
+    else:
+        return None
+    
 def hathi_bib(id, id_type='isbn', detail_level='brief'):
     url = "http://catalog.hathitrust.org/api/volumes/brief/%s/%s.json"  % (id_type, id)
     r = requests.get(url)
@@ -82,9 +118,103 @@ def hathi_bib(id, id_type='isbn', detail_level='brief'):
     else:
         raise Exception("Hathi Bib API response: %s " % (httplib.responses[r.status_code]) )
         
-# http://openlibrary.org/developers/api
+class GoogleBooks(object):
+    def __init__(self, key):
+        self.key = key
+    def isbn (self, isbn, glossed=True):
+        url = "https://www.googleapis.com/books/v1/volumes"
+        try:
+            results = self._get_json(url, {"q": "isbn:%s" % isbn})
+        except LookupFailure:
+            logger.exception("lookup failure for %s", isbn)
+            return None
+        if not results.has_key('items') or len(results['items']) == 0:
+            logger.warn("no google hits for %s" , isbn)
+            return None
+        else:
+            if glossed:
+                return self._parse_item(results['items'][0])
+            else:
+                return results
+    def query(self, q, glossed=True):
+        url = "https://www.googleapis.com/books/v1/volumes"
+        try:
+            results = self._get_json(url, {'q':q})
+        except LookupFailure:
+            logger.exception("lookup failure for %s", q)
+            return None
+        if not results.has_key('items') or len(results['items']) == 0:
+            logger.warn("no google hits for %s", q)
+            return None
+        else:
+            if glossed:
+                return [self._parse_item(item) for item in results.get('items')]
+            else:
+                return results        
+    def volumeid(self, g_id, glossed=True):
+        url = "https://www.googleapis.com/books/v1/volumes/{0}".format(g_id)
+        try:
+            item = self._get_json(url, {})
+            if glossed:
+                return self._parse_item(item)
+            else:
+                return item        
+        except LookupFailure:
+            logger.exception("lookup failure for %s", g_id)
+            return None
+        except Exception, e:
+            logger.exception("other failure in volumeid %s", e)
+            return None
+        
+
+    def _parse_item(self, item):
+        d = item['volumeInfo']
+        google_books_id = item['id']
+        title = d.get('title')
+        language = d.get('language')
+        identifiers = d.get('industryIdentifiers', [])
+        ratings_count = d.get('ratingsCount')
+
+        # flip [{u'identifier': u'159059858X', u'type': u'ISBN_10'}, {u'identifier': u'9781590598580', u'type': u'ISBN_13'}] to
+        #    {u'ISBN_13': u'9781590598580', u'ISBN_10': u'159059858X'}
+        identifiers = dict([(id["type"],id["identifier"]) for id in d.get('industryIdentifiers', [])])
+        
+        isbn = identifiers.get('ISBN_13') or identifiers.get('ISBN_10')
+        if isbn:
+            isbn = isbn_mod.ISBN(isbn).to_string('13')
+            
+        published_date = d.get('publishedDate')
+        publisher = d.get('publisher')
+        
+        data = {'title':title, 'language':language, 'isbn':isbn, 'google_books_id': google_books_id, 
+                'ratings_count':ratings_count, 'published_date':published_date, 'publisher':publisher}
+        return data        
+    def _get_item(self, results):
+        if len(results):
+            google_books_id = results['items'][0]['id']
+            item = results['items'][0]
+            return self._parse_item(item)
+        else:
+            return None
+    def _get_json(self, url, params={}, type='gb'):
+        # lifted (with slight mod) from https://github.com/Gluejar/regluit/blob/master/core/bookloader.py
+        # TODO: should X-Forwarded-For change based on the request from client?
+        headers = {'User-Agent': 'raymond.yee@gmail.com', 
+                   'Accept': 'application/json',
+                   'X-Forwarded-For': '69.174.114.214'}
+        if type == 'gb':
+            params['key'] = self.key
+        response = requests.get(url, params=params, headers=headers)
+        if response.status_code == 200:
+            return json.loads(response.content)
+        else:
+            logger.error("unexpected HTTP response: %s" % response)
+            if response.content:
+                logger.error("response content: %s" % response.content)
+            raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
 class OpenLibrary(object):
+    """http://openlibrary.org/developers/api"""
     @classmethod
     def books(cls, id, id_type="isbn", format="json", callback=None, jscmd=None):
         # http://openlibrary.org/dev/docs/api/books
@@ -245,6 +375,55 @@ class OpenLibrary(object):
                 raise OpenLibraryException("OpenLibrary API response: %s " % (httplib.responses[r.status_code]) )
         else:
             return None
+    @classmethod
+    def xisbn(cls,isbn_val=None, work_id=None, page_size=5):
+        logger.debug("isbn_val, work_id, page_size: %s %s %d", isbn_val, work_id, page_size)
+        isbns = set()
+        
+        if isbn_val is None and work_id is None:
+            raise Exception("One of isbn or work_id must be specified")
+        elif isbn_val is not None and work_id is not None:
+            raise Exception("Only one of isbn or work_id can be specified")
+            
+        if isbn_val is not None:
+            # figure out the work_id and then pass back all the ISBNs from the manifestations of the work
+            try:
+                isbn_val = isbn_mod.ISBN(isbn_val).to_string('13')
+                if isbn_val is not None:
+                    isbns.add(isbn_val)
+                    yield isbn_val
+                
+                work_ids = list(cls.works([(isbn_val,'isbn')]))
+                if len(work_ids):
+                    work_id = work_ids[0][0]
+                else: # can't find a work_id
+                    raise StopIteration()
+            except isbn_mod.ISBNException:
+                raise StopIteration()
+ 
+        # by this point we have a work_id
+         
+        editions = cls.editions(work_olid=work_id)
+        
+        for page in grouper(editions, page_size):
+            query = list(izip(page, repeat('olid')))
+            #print query
+            k = cls.read(query)      
+            for edition in page:
+                # k['olid:OL8075248M']['records'].values()[0]['data']['identifiers']['isbn_13'][0]
+                identifiers =  k['olid:{0}'.format(edition)]['records'].values()[0]['data']['identifiers']
+                isbn = identifiers.get('isbn_13',[None])[0] or identifiers.get('isbn_10',[None])[0]
+                if isbn:
+                    try:
+                        isbn = isbn_mod.ISBN(isbn).to_string('13')
+                        if isbn is not None and isbn not in isbns:
+                            isbns.add(isbn)
+                            yield isbn
+                    except isbn_mod.ISBNException:
+                        print "Problem with isbn %s for edition %s " % (isbn, edition)
+                    except Exception as e:
+                        raise e
+        
  
 
 class FreebaseBooks(object):
@@ -345,7 +524,7 @@ class FreebaseBooks(object):
         elif isbn_val is not None and book_id is not None:
             raise Exception("Only only of isbn or book_id can be specified")
         elif isbn_val is not None:
-            isbn_val = isbn.ISBN(isbn_val).to_string('13')
+            isbn_val = isbn_mod.ISBN(isbn_val).to_string('13')
             MQL = """[{
   "type": "/book/book_edition",
   "isbn": {
@@ -377,7 +556,7 @@ class WorkMapper(object):
         print "fb_id: ", fb_id
         fb = FreebaseBooks()
         work_ids = set()
-        # grab all ISBNs correponding to Freebase fb_id and comput the OpenLibrary work ID
+        # grab all ISBNs correponding to Freebase fb_id and compute the OpenLibrary work ID
         # if complete_search is False, stop at first work id
         for work_id_list in OpenLibrary.works(izip(fb.xisbn(book_id=fb_id), repeat('isbn'))):
             for work_id in work_id_list:
@@ -417,6 +596,9 @@ def ol_practice():
     # let's get the Work ID for one of the editions
     pprint(OpenLibrary.works(SURFACING_EDITION_OLID,id_type='olid'))
 
+
+class LookupFailure(Exception):
+    pass
         
 class FreebaseBooksTest(TestCase):
     def test_books_iter(self):
@@ -495,7 +677,7 @@ class OpenLibraryTest(TestCase):
     def test_works0(self):
         self.assertEqual(OpenLibrary.works0(SURFACING_EDITION_OLID,id_type='olid')[0], 'OL675829W')
     def test_works(self):
-        ids = [(MASHUPBOOK_ISBN_10, 'isbn'), (SURFACING_EDITION_OLID,'olid'), ('233434','isbn')]
+        ids =[(MASHUPBOOK_ISBN_10, 'isbn'), (SURFACING_EDITION_OLID,'olid'), ('233434','isbn')]
         resp = list(OpenLibrary.works(ids))
         self.assertEqual(resp, [['OL10306321W'], ['OL675829W'], []])
     def test_json_for_olid(self):
@@ -531,23 +713,87 @@ class OpenLibraryTest(TestCase):
     
         work = OpenLibrary.json_for_olid(id,follow_redirect=False)
         self.assertEqual(work["type"]["key"], "/type/redirect")
+    def test_xisbn(self):
+        work_id = SURFACING_WORK_OLID
+        surfacing_fb_id = '/m/05p_vg'
+        book_isbn = '9780446311076'
+        
+        #for isbn in islice(OpenLibrary.xisbn(work_id=work_id),5):
+        #    print isbn
+        fb = FreebaseBooks()
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        fb_isbn_set = set(fb.xisbn(book_id=surfacing_fb_id))
+        ol_isbn_set = set(OpenLibrary.xisbn(isbn_val=book_isbn))
+        lt_isbn_set = set(map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(SURFACING_ISBN)))
+        
+        print "Freebase set: ", len(fb_isbn_set), fb_isbn_set
+        print "OpenLibrary set: ", len(ol_isbn_set), ol_isbn_set
+        print "in both", len(fb_isbn_set & ol_isbn_set), fb_isbn_set & ol_isbn_set
+        print "in fb but not ol", len(fb_isbn_set - ol_isbn_set), fb_isbn_set - ol_isbn_set
+        print "in ol but not fb", len(ol_isbn_set - fb_isbn_set), ol_isbn_set - fb_isbn_set
+        
+        # compare thingisbn with ol
+        print "thingisbn set:", len(lt_isbn_set), lt_isbn_set
+        print "in both ol and lt", len(lt_isbn_set & ol_isbn_set), lt_isbn_set & ol_isbn_set
+        print "in lt but not ol", len(lt_isbn_set - ol_isbn_set), lt_isbn_set - ol_isbn_set
+        print "in ol but not lt", len(ol_isbn_set - lt_isbn_set), ol_isbn_set - lt_isbn_set        
+        
+        # run through the intersection set and query Google Books
+        for (i, isbn) in enumerate(fb_isbn_set & ol_isbn_set & lt_isbn_set):
+            print i, isbn, gb.isbn(isbn)
+        
 
 class WorkMapperTest(TestCase):
     def test_freebase_book_to_openlibrary_work(self):
         id = '/en/moby-dick'
-        id = '/en/wuthering_heights'
+        #id = '/en/wuthering_heights'
         work_ids = list(WorkMapper.freebase_book_to_openlibrary_work(id, complete_search=True))
         print work_ids
     def test_work_info_from_openlibrary(self):
         editions = list(OpenLibrary.editions(SURFACING_WORK_OLID))
         print editions, len(editions)
+
+class GoogleBooksTest(TestCase):
+    def test_isbn(self):
+        isbn_num = MASHUPBOOK_ISBN_13
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        item = gb.isbn(isbn_num)
+        self.assertEqual(item['isbn'], '9781590598580')
+        self.assertEqual(item['language'], 'en')
+    def test_query(self):
+        q = 'Bach'
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        results = gb.query(q, glossed=True)
+    def test_volumeid(self):
+        g_id = 'B0xbAAAAMAAJ'
+        gb = GoogleBooks(key=GOOGLE_BOOKS_KEY)
+        results = gb.volumeid(g_id, glossed=True)
+        print results
+    
+class LibraryThingTest(TestCase):
+    def test_lt_isbn(self):
+        
+        isbns = thingisbn(SURFACING_ISBN)
+        # convert to isbn-13
+        isbns = map(lambda x: isbn_mod.ISBN(x).to_string('13'), isbns)
+        self.assertTrue(SURFACING_ISBN in isbns)
+        
+        # grab a random ISBN from the list, issue another call and then check that the new list is the same
+        isbns1 = map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(random.sample(isbns,1)[0]))
+        self.assertEqual(set(isbns), set(isbns1))
+    def test_whatwork(self):
+        work_id = lt_whatwork(isbn=SURFACING_ISBN)
+        self.assertEqual(work_id, SURFACING_LT_WORK_ID)
+        work_id = lt_whatwork(title='Hamlet', author='Shakespeare')
+        self.assertEqual(work_id, '2199')
+        
         
 def suite():
     
-    #testcases = [WorkMapperTest]
+    #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(OpenLibraryTest('test_json_for_olid')) 
+    suites.addTest(LibraryThingTest('test_whatwork'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     

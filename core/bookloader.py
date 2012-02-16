@@ -4,14 +4,17 @@ import datetime
 
 import requests
 from xml.etree import ElementTree
+from itertools import izip, islice
 
 from django.db.models import Q
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.comments.models import Comment
 
+import regluit
 from regluit.core import models
 import regluit.core.isbn
+
 
 logger = logging.getLogger(__name__)
 
@@ -128,11 +131,20 @@ def add_ebooks(item, edition):
 
 
 def update_edition(edition):
+    """
+    attempt to update data associated with input edition and return that updated edition
+    """
+
+    # if there is no ISBN associated with edition, just return the input edition
     try:
         isbn=edition.identifiers.filter(type='isbn')[0].value
     except models.Identifier.DoesNotExist:
         return edition
 
+    # do a Google Books lookup on the isbn associated with the edition (there should be either 0 or 1 isbns associated
+    # with an edition because of integrity constraint in Identifier)
+    
+    # if we get some data about this isbn back from Google, update the edition data accordingly
     results=get_google_isbn_results(isbn)
     if not results:
         return edition
@@ -149,11 +161,15 @@ def update_edition(edition):
 
     # check for language change
     language = d['language']
+    # don't track variants in main language (e.g., traditional vs simplified Chinese)
     if len(language)>2:
         language= language[0:2]
+    
+    # if the language of the edition no longer matches that of the parent work, attach edition to the    
     if edition.work.language != language:
         logger.info("reconnecting %s since it is %s instead of %s" %(googlebooks_id, language, edition.work.language))
         old_work=edition.work
+        
         new_work = models.Work(title=title, language=language)
         new_work.save()
         edition.work = new_work
@@ -496,6 +512,125 @@ def _get_json(url, params={}, type='gb'):
         if response.content:
             logger.error("response content: %s" % response.content)
         raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
+
+
+def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date):
+    
+    # let's start with instantiating the relevant Work and Edition if they don't already exist
+    
+    try:
+        work = models.Identifier.objects.get(type='olwk',value=ol_work_id).work
+    except models.Identifier.DoesNotExist: # try to find an Edition with the seed_isbn and use that work to hang off of
+        sister_edition = add_by_isbn(seed_isbn)
+        if sister_edition.new:
+            # add related editions asynchronously
+            regluit.core.tasks.populate_edition.delay(sister_edition)
+        work = sister_edition.work
+        # attach the olwk identifier to this work if it's not none.
+        if ol_work_id is not None:
+            work_id = models.Identifier.get_or_add(type='olwk',value=ol_work_id, work=work)
+
+    # Now pull out any existing Gutenberg editions tied to the work with the proper Gutenberg ID
+    try:
+        edition = models.Identifier.objects.get( type='gtbg', value=gutenberg_etext_id ).edition    
+    except models.Identifier.DoesNotExist:
+        edition = models.Edition()
+        edition.title = title
+        edition.work = work
+        
+        edition.save()
+        edition_id = models.Identifier.get_or_add(type='gtbg',value=gutenberg_etext_id, edition=edition, work=work)
+        
+    # check to see whether the Edition hasn't already been loaded first
+    # search by url
+    ebooks = models.Ebook.objects.filter(url=url)
+    
+    # format: what's the controlled vocab?  -- from Google -- alternative would be mimetype
+    
+    if len(ebooks):  
+        ebook = ebooks[0]
+    elif len(ebooks) == 0: # need to create new ebook
+        ebook = models.Ebook()
+
+    if len(ebooks) > 1:
+        warnings.warn("There is more than one Ebook matching url {0}".format(url))
+        
+        
+    ebook.format = format
+    ebook.provider = 'gutenberg'
+    ebook.url =  url
+    ebook.rights = license
+        
+    # is an Ebook instantiable without a corresponding Edition? (No, I think)
+    
+    ebook.edition = edition
+    ebook.save()
+    
+    return ebook
+
+def add_missing_isbn_to_editions(max_num=None, confirm=False):
+    """For each of the editions with Google Books ids, do a lookup and attach ISBNs.  Set confirm to True to check db changes made correctly"""
+    print "Number of editions with Google Books IDs but not ISBNs", \
+        models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()
+    
+    from regluit.experimental import bookdata
+    
+    gb = bookdata.GoogleBooks(key=settings.GOOGLE_BOOKS_API_KEY)
+    
+    new_isbns = []
+    no_isbn_found = []
+    editions_to_merge = []
+    exceptions = []
+    
+    for (i, ed) in enumerate(islice(models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn'), max_num)):
+        try:
+            g_id = ed.identifiers.get(type='goog').value
+        except Exception, e:
+            # we might get an exception if there is, for example, more than one Google id attached to this Edition
+            logger.exception("add_missing_isbn_to_editions for edition.id %s: %s", ed.id, e)
+            exceptions.append((ed.id, e))
+            continue
+        
+        # try to get ISBN from Google Books
+        try:
+            isbn = gb.volumeid(g_id)['isbn']
+            logger.info("g_id, isbn: %s %s", g_id, isbn)
+            if isbn is not None:
+                # check to see whether the isbn is actually already in the db but attached to another Edition
+                existing_isbn_ids = models.Identifier.objects.filter(type='isbn', value=isbn)
+                if len(existing_isbn_ids):
+                    # don't try to merge editions right now, just note the need to merge
+                    ed2 = existing_isbn_ids[0].edition
+                    editions_to_merge.append((ed.id, g_id, isbn, ed2.id))
+                else:
+                    new_id = models.Identifier(type='isbn', value=isbn, edition=ed, work=ed.work)
+                    new_id.save()
+                    new_isbns.append((ed.id, g_id, isbn))
+            else:
+                no_isbn_found.append((ed.id, g_id, None))
+        except Exception, e:
+            logger.exception("add_missing_isbn_to_editions for edition.id %s: %s", ed.id, e)
+            exceptions.append((ed.id, g_id, None, e))
+            
+    print "Number of editions with Google Books IDs but not ISBNs", \
+        models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()        
+    
+    ok = None
+    
+    if confirm:
+        ok = True
+        for (ed_id, g_id, isbn) in new_isbns:
+            if models.Edition.objects.get(id=ed_id).identifiers.get(type='isbn').value != isbn:
+                ok = False
+                break
+            
+    return {
+        'new_isbns': new_isbns,
+        'no_isbn_found': no_isbn_found,
+        'editions_to_merge': editions_to_merge, 
+        'exceptions': exceptions,
+        'confirm': ok
+    }
 
 
 class LookupFailure(Exception):
