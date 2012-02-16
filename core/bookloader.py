@@ -4,6 +4,7 @@ import datetime
 
 import requests
 from xml.etree import ElementTree
+from itertools import izip, islice
 
 from django.db.models import Q
 from django.conf import settings
@@ -566,6 +567,71 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
     ebook.save()
     
     return ebook
+
+def add_missing_isbn_to_editions(max_num=None, confirm=False):
+    """For each of the editions with Google Books ids, do a lookup and attach ISBNs.  Set confirm to True to check db changes made correctly"""
+    print "Number of editions with Google Books IDs but not ISBNs", \
+        models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()
+    
+    from regluit.experimental import bookdata
+    
+    gb = bookdata.GoogleBooks(key=settings.GOOGLE_BOOKS_API_KEY)
+    
+    new_isbns = []
+    no_isbn_found = []
+    editions_to_merge = []
+    exceptions = []
+    
+    for (i, ed) in enumerate(islice(models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn'), max_num)):
+        try:
+            g_id = ed.identifiers.get(type='goog').value
+        except Exception, e:
+            # we might get an exception if there is, for example, more than one Google id attached to this Edition
+            logger.exception("add_missing_isbn_to_editions for edition.id %s: %s", ed.id, e)
+            exceptions.append((ed.id, e))
+            continue
+        
+        # try to get ISBN from Google Books
+        try:
+            isbn = gb.volumeid(g_id)['isbn']
+            logger.info("g_id, isbn: %s %s", g_id, isbn)
+            if isbn is not None:
+                # check to see whether the isbn is actually already in the db but attached to another Edition
+                existing_isbn_ids = models.Identifier.objects.filter(type='isbn', value=isbn)
+                if len(existing_isbn_ids):
+                    # don't try to merge editions right now, just note the need to merge
+                    ed2 = existing_isbn_ids[0].edition
+                    editions_to_merge.append((ed.id, g_id, isbn, ed2.id))
+                else:
+                    new_id = models.Identifier(type='isbn', value=isbn, edition=ed, work=ed.work)
+                    new_id.save()
+                    new_isbns.append((ed.id, g_id, isbn))
+            else:
+                no_isbn_found.append((ed.id, g_id, None))
+        except Exception, e:
+            logger.exception("add_missing_isbn_to_editions for edition.id %s: %s", ed.id, e)
+            exceptions.append((ed.id, g_id, None, e))
+            
+    print "Number of editions with Google Books IDs but not ISBNs", \
+        models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()        
+    
+    ok = None
+    
+    if confirm:
+        ok = True
+        for (ed_id, g_id, isbn) in new_isbns:
+            if models.Edition.objects.get(id=ed_id).identifiers.get(type='isbn').value != isbn:
+                ok = False
+                break
+            
+    return {
+        'new_isbns': new_isbns,
+        'no_isbn_found': no_isbn_found,
+        'editions_to_merge': editions_to_merge, 
+        'exceptions': exceptions,
+        'confirm': ok
+    }
+
 
 class LookupFailure(Exception):
     pass

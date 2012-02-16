@@ -105,47 +105,6 @@ def cluster_status():
     
     return results
     
-def add_missing_isbn_to_editions(max_num=None):
-    """For each of the editions with Google Books ids, do a lookup and attach ISBNs"""
-    print "Number of editions with Google Books IDs but not ISBNs", \
-        models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()
-    
-    gb = bookdata.GoogleBooks(key=bookdata.GOOGLE_BOOKS_KEY)
-    
-    new_isbns = []
-    no_isbn_found = []
-    exceptions = []
-    
-    # track what changes have been made
-    for (i, ed) in enumerate(islice(models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn'), max_num)):
-        try:
-            g_id = ed.identifiers.get(type='goog').value
-        except Exception, e:
-            logger.exception("add_missing_isbn_to_editions for edition.id %s: %s", ed.id, e)
-            exceptions.append((ed.id, e))
-            continue
-        
-        try:
-            isbn = gb.volumeid(g_id)['isbn']
-            logger.info("g_id, isbn: %s %s", g_id, isbn)
-            if isbn is not None:
-                # check to see whether the isbn is actually already in the db but attached to another Edition
-                new_id = models.Identifier(type='isbn', value=isbn, edition=ed, work=ed.work)
-                new_id.save()
-                new_isbns.append((ed.id, isbn, g_id))
-            else:
-                no_isbn_found.append((ed.id, g_id))
-        except Exception, e:
-            logger.exception("add_missing_isbn_to_editions for edition.id %s: %s", ed.id, e)
-            exceptions.append((ed.id, e))
-            
-    print "Number of editions with Google Books IDs but not ISBNs", \
-        models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()        
-            
-    return {
-        'new_isbns': new_isbns,
-        'no_isbn_found': no_isbn_found,
-        'exceptions': exceptions
-    }
+
         
         
