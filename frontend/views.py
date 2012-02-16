@@ -177,7 +177,7 @@ def googlebooks(request, googlebooks_id):
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
             if edition.new:
                 # add related editions asynchronously
-                tasks.populate_edition.delay(edition)
+                tasks.populate_edition.delay(edition.isbn_13)
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
             return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
@@ -863,7 +863,7 @@ def wishlist(request):
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
             if edition.new:
                 # add related editions asynchronously
-                tasks.populate_edition.delay(edition)
+                tasks.populate_edition.delay(edition.isbn_13)
             request.user.wishlist.add_work(edition.work,'user')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
@@ -1066,7 +1066,7 @@ def goodreads_load_shelf(request):
         logger.info('Adding task to load shelf %s to user %s with %d books', shelf_name, user, expected_number_of_books)
         load_task_name = "load_goodreads_shelf_into_wishlist"
         load_task = getattr(tasks, load_task_name)
-        task_id = load_task.delay(user, shelf_name, expected_number_of_books=expected_number_of_books)
+        task_id = load_task.delay(user.id, shelf_name, expected_number_of_books=expected_number_of_books)
         
         ct = models.CeleryTask()
         ct.task_id = task_id
@@ -1119,7 +1119,7 @@ def librarything_load(request):
         logger.info('Adding task to load librarything %s to user %s', lt_username, user )
         load_task_name = "load_librarything_into_wishlist"
         load_task = getattr(tasks, load_task_name)
-        task_id = load_task.delay(user, lt_username, None)
+        task_id = load_task.delay(user.id, lt_username, None)
         
         ct = models.CeleryTask()
         ct.task_id = task_id

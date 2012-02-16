@@ -230,7 +230,7 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
                 identifier= models.Identifier.get_or_add(type = 'lccn', value = book['lc_call_number'], edition = edition, work = edition.work)
             user.wishlist.add_work(edition.work, 'librarything')
             if edition.new:
-                tasks.populate_edition.delay(edition)
+                tasks.populate_edition.delay(edition.isbn_13)
             logger.info("Work with isbn %s added to wishlist.", isbn)
         except Exception, e:
             logger.info ("error adding ISBN %s: %s", isbn, e)             

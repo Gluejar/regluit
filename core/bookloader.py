@@ -524,7 +524,7 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
         sister_edition = add_by_isbn(seed_isbn)
         if sister_edition.new:
             # add related editions asynchronously
-            regluit.core.tasks.populate_edition.delay(sister_edition)
+            regluit.core.tasks.populate_edition.delay(sister_edition.isbn_13)
         work = sister_edition.work
         # attach the olwk identifier to this work if it's not none.
         if ol_work_id is not None:

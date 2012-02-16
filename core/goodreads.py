@@ -293,7 +293,7 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             else:
                 logger.error("unable to extract goodreads id from %s", link)
             if edition.new:
-                regluit.core.tasks.populate_edition.delay(edition)
+                regluit.core.tasks.populate_edition.delay(edition.isbn_13)
 
         except Exception, e:
             logger.info ("Exception adding ISBN %s: %s", isbn, e) 
