@@ -6,8 +6,9 @@ from pprint import pprint
 from itertools import islice, izip, repeat
 import logging
 from xml.etree import ElementTree
+import random
 
-
+random.seed()
 
 import sys, os
 
@@ -44,6 +45,7 @@ RY_OLID = 'OL4264806A'
 SURFACING_WORK_OLID = 'OL675829W'
 SURFACING_EDITION_OLID = 'OL8075248M'
 SURFACING_ISBN = '9780446311076'
+SURFACING_LT_WORK_ID = '18997'
 
 USER_AGENT = "rdhyee@gluejar.com"
 
@@ -96,12 +98,17 @@ def lt_whatwork(isbn=None, title=None, author=None):
     http://www.librarything.com/blogs/thingology/2009/03/new-api-what-work/
     """
     logger.info("looking up at lt_whatwork (isbn, title, author): %s %s %s" ,isbn, title, author)
-    url = "http://www.librarything.com/api/whatwork.php?"
-    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
-    xml = requests.get(url, headers={"User-Agent": USER_AGENT}).content
+    url = "http://www.librarything.com/api/whatwork.php"
+    params=dict([(k,v) for (k,v) in {'isbn':isbn, 'title':title, 'author':author}.items() if v is not None])
+    
+    xml = requests.get(url, params=params, headers={"User-Agent": USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
-    return [e.text for e in doc.findall('isbn')]
 
+    work = doc.find('work')
+    if work is not None:
+        return work.text
+    else:
+        return None
     
 def hathi_bib(id, id_type='isbn', detail_level='brief'):
     url = "http://catalog.hathitrust.org/api/volumes/brief/%s/%s.json"  % (id_type, id)
@@ -763,21 +770,30 @@ class GoogleBooksTest(TestCase):
         results = gb.volumeid(g_id, glossed=True)
         print results
     
-        
-        
-class thingISBNTest(TestCase):
+class LibraryThingTest(TestCase):
     def test_lt_isbn(self):
+        
         isbns = thingisbn(SURFACING_ISBN)
         # convert to isbn-13
         isbns = map(lambda x: isbn_mod.ISBN(x).to_string('13'), isbns)
-        print isbns
+        self.assertTrue(SURFACING_ISBN in isbns)
+        
+        # grab a random ISBN from the list, issue another call and then check that the new list is the same
+        isbns1 = map(lambda x: isbn_mod.ISBN(x).to_string('13'), thingisbn(random.sample(isbns,1)[0]))
+        self.assertEqual(set(isbns), set(isbns1))
+    def test_whatwork(self):
+        work_id = lt_whatwork(isbn=SURFACING_ISBN)
+        self.assertEqual(work_id, SURFACING_LT_WORK_ID)
+        work_id = lt_whatwork(title='Hamlet', author='Shakespeare')
+        self.assertEqual(work_id, '2199')
+        
         
 def suite():
     
     #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(GoogleBooksTest('test_volumeid'))
+    suites.addTest(LibraryThingTest('test_whatwork'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     

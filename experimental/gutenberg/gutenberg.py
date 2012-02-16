@@ -90,6 +90,7 @@ def get_or_create(session, model, defaults=None, **kwargs):
 
 Base = declarative_base()
 
+    
 class SeedISBN(Base):
     
     __tablename__ = 'SeedISBN'

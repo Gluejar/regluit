@@ -89,14 +89,19 @@ def cluster_status():
     """Look at the current Work, Edition instances to figure out what needs to be fixed"""
     results = OrderedDict([
         ('number of Works', models.Work.objects.count()),
+        ('number of Editions', models.Edition.objects.count())
         ('number of Edition that have both Google Books id and ISBNs',
              models.Edition.objects.filter(identifiers__type='isbn').filter(identifiers__type='goog').count()),
         ('number of Editions with Google Books IDs but not ISBNs',
              models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()),
-
         ])
     
-    # Are there Edition without ISBNs?  Are they all singletons?
+    # What needs to be done to recluster editions?
+    
+    # Are there Edition without ISBNs?  Look up the corresponding ISBNs from Google Books and Are they all singletons?
+    
+    # identify Editions that should be merged (e.g., if one Edition has a Google Books ID and another Edition has one with
+    # an ISBN tied to that Google Books ID)
     
     return results
     
