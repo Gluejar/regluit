@@ -53,7 +53,7 @@ def widget(request,isbn):
         work = identifier.work
         edition = identifier.edition
         campaigns = work.campaigns.all()
-    except models.Identifer.DoesNotExist:
+    except models.Identifier.DoesNotExist:
          edition = None
          work = None
          campaigns = []

@@ -13,4 +13,4 @@ class Command(BaseCommand):
         user = User.objects.get(username=user_name)
         max_books = int(max_books)
         
-        tasks.load_librarything_into_wishlist.delay(user, lt_username, max_books)
+        tasks.load_librarything_into_wishlist.delay(user.id, lt_username, max_books)

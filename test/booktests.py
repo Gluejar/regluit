@@ -49,7 +49,7 @@ def load_penguin_moby_dick():
     seed_isbn = '9780142000083'
     ed = bookloader.add_by_isbn(seed_isbn)
     if ed.new:
-        ed = tasks.populate_edition.delay(ed)
+        ed = tasks.populate_edition.delay(ed.isbn_13)
 
 def load_gutenberg_moby_dick():
     title = "Moby Dick"

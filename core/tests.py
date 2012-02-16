@@ -90,7 +90,7 @@ class BookLoaderTests(TestCase):
 
     def test_populate_edition(self):
         edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
-        edition = tasks.populate_edition.run(edition)
+        edition = tasks.populate_edition.run(edition.isbn_13)
         self.assertTrue(edition.work.editions.all().count() > 20)
         self.assertTrue(edition.work.subjects.all().count() > 10)
         self.assertTrue(edition.work.publication_date)
