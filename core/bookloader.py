@@ -636,6 +636,7 @@ def add_missing_isbn_to_editions(max_num=None, confirm=False):
         'no_isbn_found': no_isbn_found,
         'editions_to_merge': editions_to_merge, 
         'exceptions': exceptions,
+        'google_id_not_found': google_id_not_found,
         'confirm': ok
     }
 
