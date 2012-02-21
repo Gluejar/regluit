@@ -314,7 +314,7 @@ class PledgeView(FormView):
         
         form = CampaignPledgeForm(data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
         return context
     
     def form_valid(self, form):
@@ -430,6 +430,7 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
         context["correct_transaction_type"] = correct_transaction_type
         context["work"] = work
         context["campaign"] = campaign
+        context["faqmenu"] = "complete"
         
         return context        
                 
@@ -490,6 +491,7 @@ class PledgeCancelView(TemplateView):
         context["try_again_url"] = try_again_url
         context["work"] = work
         context["campaign"] = campaign
+        context["faqmenu"] = "cancel"
         
         return context
     

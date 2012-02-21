@@ -2,6 +2,15 @@
 {% block extra_js %}
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j("#js-leftcol").ready(function() {
+  $j(".answer").hide();
+  $j(".faq").click(function() {
+    $j(this).next(".answer").toggle();
+  });
+});
+</script>
 {% endblock %}
 {% block extra_extra_head %}
 <!-- extra head content in descendants goes in extra_extra_head, not extra_head, to avoid overwriting the documentation.css include -->
@@ -16,7 +25,13 @@
 <div id="main-container">
 	<div class="js-main">
 		<div id="js-leftcol">
-			{% include "faqmenu.html" %}
+			{% if faqmenu == "pledge" %}
+			{% include "faq_pledge.html" %}
+			{% else %}{% if faqmenu == "complete" %}
+			{% include "faq_pledge_complete.html" %}
+			{% else %}{% if faqmenu == "cancel" %}
+			{% include "faq_pledge_cancel.html" %}
+			{% endif %}{% endif %}{% endif %}
 		</div>
 		<div id="js-maincol-fr" class="have-right doc">
 			<div class="js-maincol-inner">
