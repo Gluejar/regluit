@@ -23,6 +23,7 @@ from celery.task import chord
 
 from time import sleep
 from math import factorial
+from urlparse import parse_qs, urlparse
 
 
 class BookLoaderTests(TestCase):
@@ -54,7 +55,7 @@ class BookLoaderTests(TestCase):
         e = models.Edition(title=w.title,work=w)
         e.save()
         models.Identifier(type='isbn', value='9780226032030', work=w, edition=e).save()
-        bookloader.update_edition(e)
+        bookloader.update_edition(e)    
         self.assertEqual(e.work.language, 'en')
         self.assertEqual(e.title, 'Forbidden journeys')
 
@@ -223,18 +224,22 @@ class BookLoaderTests(TestCase):
         #ebook_epub = edition.ebooks.all()[0]
         ebook_epub = edition.ebooks.filter(format='epub')[0]
         self.assertEqual(ebook_epub.format, 'epub')
-        self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+        #self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+        self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['U3FXAAAAYAAJ'])
+        self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("output"), ['epub'])
         self.assertEqual(ebook_epub.provider, 'google')
         ebook_pdf = edition.ebooks.filter(format='pdf')[0]
         self.assertEqual(ebook_pdf.format, 'pdf')
-        self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
+        #self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
+        self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['U3FXAAAAYAAJ'])
+        self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
         self.assertEqual(ebook_pdf.provider, 'google')        
 
         w = edition.work
-        self.assertEqual(w.first_epub().url, "http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api")
-        self.assertEqual(w.first_pdf().url, "http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api")
-        self.assertEqual(w.first_epub_url(), "http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api")
-        self.assertEqual(w.first_pdf_url(), "http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api")
+        self.assertEqual(w.first_epub().url, ebook_epub.url)
+        self.assertEqual(w.first_pdf().url, ebook_pdf.url)
+        self.assertEqual(w.first_epub_url(), ebook_epub.url)
+        self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
