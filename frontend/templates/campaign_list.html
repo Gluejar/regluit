@@ -12,7 +12,6 @@
 <script type="text/javascript" src={{ jquery_ui_home }}></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
-<script type="text/javascript" src="/static/js/tabs.js"></script>
 {% endblock %}
 {% block topsection %}
 
@@ -23,10 +22,10 @@
                 <div class="js-topnews2">
                     <div class="js-topnews3">
                         <div class="user-block">
-                            <div class="user-block1">
-                            	<div class="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
+                            <div id="user-block1">
+                            	<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
                             </div>
-                            <div class="user-block2">With your help we're raising money to buy the right to give these books to the world.
+                            <div class="user-block2">With your help we're raising money to buy the rights to give these books to the world.
                             </div>
                             <div class="user-block3">
                                 <div class="user-block">
@@ -56,7 +55,7 @@
             <div id="content-block">
                 <div class="content-block-heading ungluing" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs2 active"><a href="#">Being Unglued</a></li>
+                        <li class="tabs2 active"><a href="#">Active</a></li>
                     </ul>
     
                         <ul class="book-list-view">

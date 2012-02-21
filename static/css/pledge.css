@@ -72,71 +72,30 @@
   border: none;
   margin: 5px 0;
 }
-#user-block-hide {
+#content-block .jsmod-content, .book-detail {
   float: left;
-  width: 100%;
-  clear: both;
-  border-top: solid 1px #8ac3d7;
-  margin-top: 20px;
+  width: auto;
 }
-#user-block-hide .quicktour {
-  width: 270px;
-  float: left;
-  font-style: italic;
-  line-height: 20px;
-  font-size: 13px;
-  margin-top: 20px;
-}
-#user-block-hide .quicktour .highlight {
-  font-weight: bold;
-}
-#user-block-hide .quicktour.last {
-  padding-right: 0px;
-  width: 270px;
-}
-#user-block-hide .quicktour.last .signup {
-  color: #8dc63f;
-  font-weight: bold;
-  margin-top: 10px;
-}
-#user-block-hide .quicktour.last .signup img {
-  margin-left: 5px;
-  vertical-align: middle;
-}
-#user-block-hide .movingrightalong {
-  background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
-  height: 100px;
-  width: 75px;
-  float: left;
-  margin-top: 20px;
-}
-#block-intro-text div {
-  display: none;
-  line-height: 25px;
-  padding-bottom: 10px;
-}
-#block-intro-text div#active {
-  display: inherit;
-}
-.signuptoday {
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  background-color: #8dc63f;
-  padding: 0 15px;
-  height: 36px;
-  line-height: 36px;
-  float: left;
-  clear: both;
-  margin: 10px 0;
+#pledgesubmit {
+  float: right;
+  font-size: 17px;
+  margin: 10px;
   cursor: pointer;
-  font-style: normal;
 }
-.signuptoday a {
-  background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
-  padding-right: 17px;
-  color: white;
+.pledge_amount {
+  margin: auto auto 10px 10px;
+  font-size: 17px;
 }
-.signuptoday a:hover {
-  text-decoration: none;
+form {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: solid 2px #d6dde0;
+}
+#id_preapproval_amount {
+  width: 50%;
+  line-height: 30px;
+  font-size: 16px;
+}
+ul.support li, ul.support li:hover {
+  background-image: none;
 }

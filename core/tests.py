@@ -2,13 +2,17 @@ from decimal import Decimal as D
 from datetime import datetime, timedelta
 
 from django.test import TestCase
+from django.test.client import Client
 from django.utils import unittest
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.comments.models import Comment
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError
+from regluit.core.models import Campaign, Work, UnglueitError, Edition
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -19,6 +23,7 @@ from celery.task import chord
 
 from time import sleep
 from math import factorial
+from urlparse import parse_qs, urlparse
 
 
 class BookLoaderTests(TestCase):
@@ -50,7 +55,7 @@ class BookLoaderTests(TestCase):
         e = models.Edition(title=w.title,work=w)
         e.save()
         models.Identifier(type='isbn', value='9780226032030', work=w, edition=e).save()
-        bookloader.update_edition(e)
+        bookloader.update_edition(e)    
         self.assertEqual(e.work.language, 'en')
         self.assertEqual(e.title, 'Forbidden journeys')
 
@@ -86,12 +91,63 @@ class BookLoaderTests(TestCase):
 
     def test_populate_edition(self):
         edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
-        edition = tasks.populate_edition.run(edition)
+        edition = tasks.populate_edition.run(edition.isbn_13)
         self.assertTrue(edition.work.editions.all().count() > 20)
         self.assertTrue(edition.work.subjects.all().count() > 10)
         self.assertTrue(edition.work.publication_date)
         edition.publication_date = None
         self.assertTrue(edition.work.publication_date)
+
+    def test_merge_works_mechanics(self):
+        """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
+        w1 = Work(title="Work 1")
+        w1.save()
+        
+        w2 = Work(title="Work 2")
+        w2.save()
+        
+        e1 = Edition(work=w1)
+        e1.save()
+        
+        e2 = Edition(work=w2)
+        e2.save()
+        
+        e2a = Edition(work=w2)
+        e2a.save()
+        
+        self.assertTrue(e1)
+        self.assertTrue(e2)
+        self.assertTrue(e2a)
+        self.assertTrue(e1.work)
+        self.assertTrue(e2.work)
+        self.assertEqual(models.Work.objects.count(), 2)
+ 
+        w1_id = w1.id
+        w2_id = w2.id
+        
+        # first try to merge work 1 into itself -- should not do anything
+        bookloader.merge_works(w1,w1)
+        self.assertEqual(models.Work.objects.count(), 2)
+        
+        # merge the second work into the first
+        bookloader.merge_works(e1.work, e2.work)
+        self.assertEqual(models.Work.objects.count(),1)
+        self.assertEqual(models.WasWork.objects.count(),1)
+        
+        # getting proper view?
+        anon_client = Client()
+        r = anon_client.get("/work/%s/" % w1_id)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % w2_id)
+        self.assertEqual(r.status_code, 200)        
+        
+        # try to do it twice -- nothing should happen
+        bookloader.merge_works(e1.work, e2a.work)
+        r = anon_client.get("/work/%s/" % w1_id)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % w2_id)
+        self.assertEqual(r.status_code, 200)               
+        
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works
@@ -123,14 +179,44 @@ class BookLoaderTests(TestCase):
             deadline=datetime.now(),
             target=D('1000.00'),
         )
-
+        
+        # comment on the works
+        site = Site.objects.all()[0]
+        wct = ContentType.objects.get_for_model(models.Work)
+        comment1 = Comment(
+            content_type=wct,
+            object_pk=e1.work.pk,
+            comment="test comment1",
+            user=user, 
+            site=site
+        )
+        comment1.save()
+        comment2 = Comment(
+            content_type=wct,
+            object_pk=e2.work.pk,
+            comment="test comment2",
+            user=user, 
+            site=site
+        )
+        comment2.save()
+        
         # now add related edition to make sure Works get merged
         bookloader.add_related('1458776204')
         self.assertEqual(models.Work.objects.count(), 1)
+        w3 = models.Edition.get_by_isbn('1458776204').work
         
         # and that relevant Campaigns and Wishlists are updated
+        
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
+        self.assertEqual(Comment.objects.for_model(w3).count(), 2)
+        
+        anon_client = Client()
+        r = anon_client.get("/work/%s/" % w3.pk)
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/work/%s/" % e2.work.pk)
+        self.assertEqual(r.status_code, 200)
+
     
     def test_ebook(self):
         edition = bookloader.add_by_oclc('1246014')
@@ -138,18 +224,22 @@ class BookLoaderTests(TestCase):
         #ebook_epub = edition.ebooks.all()[0]
         ebook_epub = edition.ebooks.filter(format='epub')[0]
         self.assertEqual(ebook_epub.format, 'epub')
-        self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+        #self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+        self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['U3FXAAAAYAAJ'])
+        self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("output"), ['epub'])
         self.assertEqual(ebook_epub.provider, 'google')
         ebook_pdf = edition.ebooks.filter(format='pdf')[0]
         self.assertEqual(ebook_pdf.format, 'pdf')
-        self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
+        #self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
+        self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['U3FXAAAAYAAJ'])
+        self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
         self.assertEqual(ebook_pdf.provider, 'google')        
 
         w = edition.work
-        self.assertEqual(w.first_epub().url, "http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api")
-        self.assertEqual(w.first_pdf().url, "http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api")
-        self.assertEqual(w.first_epub_url(), "http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api")
-        self.assertEqual(w.first_pdf_url(), "http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api")
+        self.assertEqual(w.first_epub().url, ebook_epub.url)
+        self.assertEqual(w.first_pdf().url, ebook_pdf.url)
+        self.assertEqual(w.first_epub_url(), ebook_epub.url)
+        self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
@@ -175,6 +265,24 @@ class BookLoaderTests(TestCase):
         self.assertEqual(work.openlibrary_id, '/works/OL27258W')
         self.assertEqual(work.goodreads_id, '14770')
         self.assertEqual(work.librarything_id, '609')
+    def test_load_gutenberg_edition(self):
+        """Let's try this out for Moby Dick"""
+        
+        title = "Moby Dick"
+        ol_work_id = "/works/OL102749W"
+        gutenberg_etext_id = 2701
+        epub_url = "http://www.gutenberg.org/cache/epub/2701/pg2701.epub"
+        license = 'http://www.gutenberg.org/license'
+        lang = 'en'
+        format = 'epub'
+        publication_date = datetime(2001,7,1)
+        seed_isbn = '9780142000083' # http://www.amazon.com/Moby-Dick-Whale-Penguin-Classics-Deluxe/dp/0142000086
+        
+        ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
+        self.assertEqual(ebook.url, epub_url)
+        
+        
+        
 
 
 class SearchTests(TestCase):
@@ -280,11 +388,14 @@ class WishlistTest(TestCase):
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
         edition = bookloader.add_by_isbn('0441012035')
         work = edition.work
+        num_wishes=work.num_wishes
         user.wishlist.add_work(work, 'test')
         self.assertEqual(user.wishlist.works.count(), 1)
+        self.assertEqual(work.num_wishes, num_wishes+1)
         user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
-
+        self.assertEqual(work.num_wishes, num_wishes)
+        
 class CeleryTaskTest(TestCase):
 
     def test_single_fac(self):
@@ -344,10 +455,11 @@ class ISBNTest(TestCase):
         
         isbn_python_10 = isbn.ISBN(python_10)
         isbn_python_13 = isbn.ISBN(python_13)
-        # raise exception for wrong length or invalid characters
-        self.assertRaises(isbn.ISBNException, isbn.ISBN, "978-0-M72-32978-X")
+        # return None for invalid characters
+        self.assertEqual(None, isbn.ISBN("978-0-M72-32978-X").to_string('13'))
+        self.assertEqual(isbn.ISBN("978-0-M72-32978-X").valid, False)
         # check that only ISBN 13 starting with 978 or 979 are accepted
-        self.assertRaises(isbn.ISBNException, isbn.ISBN, "111-0-M72-32978-X")
+        self.assertEqual(None, isbn.ISBN("111-0-M72-32978-X").to_string())
         
         # right type?
         self.assertEqual(isbn_python_10.type, '10')
@@ -370,7 +482,7 @@ class ISBNTest(TestCase):
         # complain if one tries to get ISBN-10 for a 979 ISBN 13
         # making up a 979 ISBN
         isbn_979 = isbn.ISBN("979-1-234-56789-0").validate()
-        self.assertRaises(isbn.ISBNException, isbn_979.to_string, '10')
+        self.assertEqual(isbn_979.to_string('10'), None)
         
         # check casting to string -- ISBN 13
         self.assertEqual(str(isbn.ISBN(python_10)), '0672329786')

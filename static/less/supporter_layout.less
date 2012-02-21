@@ -9,7 +9,7 @@
 	clear:both;
 }
 
-.user-block-hide {
+#user-block-hide {
 	float: left;
 	width:100%;
 	clear:both;
@@ -25,12 +25,39 @@
 	
 	.block2 {
 		width:50%;
+		
+		div {
+			float: left;
+			max-width: 340px;
+		}
+		
+		input {
+			margin-left: 5px;
+		}
 	}
 
 	input { 
 		float:left; 
 		margin:3px 10px 0 0;
 		width: 45%;
+		
+		&[type=checkbox] {
+			float: none;
+			width: auto;
+		}
+		
+		&#librarything_input, &#goodreads_input {
+			width: auto;
+			cursor: pointer;
+			background: @pale-blue;
+			color: @text-blue;
+			cursor: pointer;
+		}
+		
+		&.profile-save {
+			width: 116px;
+			cursor: pointer;
+		}		
 	}
 	
 	label {
@@ -41,9 +68,13 @@
 	textarea {
 		width:95%;
 	}
+	
+	select {
+		margin-bottom: 5px;
+	}	
 }
 
-.user-block1 {
+#user-block1 {
 	float:left;
 	width:25%;
 }
@@ -122,21 +153,21 @@ span.rounded {
 }
 
 span.blue {
-	.supporter-color-span(#a7d26a, blue);
+	.supporter-color-span(#a7d26a, "blue");
 }
 
 span.orange { 
-	.supporter-color-span(#eabc7c, orange);
+	.supporter-color-span(#eabc7c, "orange");
 }
 
 span.grey { 
-	.supporter-color-span(#bacfd6, grey);
+	.supporter-color-span(#bacfd6, "grey");
 }
 
 div.check-list { 
 	float: left; 
-	width:100%; 
 	padding-bottom:7px;
+	clear: both;
 }
 
 a.profile-edit { 
@@ -170,7 +201,7 @@ input.profile-save {
 	}
 	
 	div, input {
-		margin: 2px 10px 2px 36px;
+		margin: auto 10px auto 36px;
 	}
 }
 
@@ -267,7 +298,7 @@ ul.tabs {
 		.height(46px); 
 		margin-right:2px;
 		
-		&.tabs1, &.tabs2 {
+		&.tabs1, &.tabs2, &.tabs3 {
 			width:112px;
 		}
 

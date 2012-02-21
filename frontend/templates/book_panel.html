@@ -110,7 +110,7 @@
     </div>
     {% else %}{% if work in request.user.wishlist.works.all %}
     <div class="listview panelfront side1 on-wishlist">
-        <span>On Your Wishlist!</span>
+        <span>On Wishlist!</span>
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">
@@ -122,7 +122,7 @@
     </div>
     <div class="listview panelfront side1 icons">
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
-          <a href="{% url work work.id %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.wished_by.count }}</span></span></a>
+          <a href="{% url work work.id %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
         {% else %}{% if work.first_pdf_url or work.first_epub_url %}
             <span class="listview boolist-ebook">
             {% if work.first_epub_url %}

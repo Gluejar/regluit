@@ -52,9 +52,9 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <div class="js-topnews3">
                         <div class="user-block">
                             {% ifequal supporter request.user %}
-                            <div class="user-block1">
+                            <div id="user-block1">
                             <div class="block-inner">
-                            <span class="my-setting">My Settings</a>
+                            <span class="my-setting">My Profile</a>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -68,7 +68,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
                             {% else %}
-                            <div class="user-block1">
+                            <div id="user-block1">
                             <div class="block-inner">
                             	{% if supporter.profile.pic_url %}
                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
@@ -121,7 +121,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             </div>
                         </div>
                         {% ifequal supporter request.user %}
-                        <div class="user-block-hide">
+                        <div id="user-block-hide">
                         <form method="POST" action="">
                             {% csrf_token %}
                             <div class="block block1">
@@ -157,7 +157,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads {{ profile_form.clear_goodreads }}
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
@@ -177,7 +177,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                         
                                         <div id="loadgr"><span>
                                          <div id="goodreads_shelves"></div>
-                                        <input id="goodreads_input" type="submit" value="Display your GoodReads shelves" />
+                                        <input id="goodreads_input" type="submit" value="Select your GoodReads shelves" />
                                         </span>
                                         </div>
                                     </div>
@@ -188,7 +188,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 {% if librarything_id %}
                                 <form id="librarything_load" method="post" action="#">
                                     {% csrf_token %}
-                                    <div id="loadlt"><input type="submit" value="Add your LibraryThing library" /></div>
+                                    <div id="loadlt"><input type="submit" id="librarything_input" value="Add your LibraryThing library" /></div>
                                 </form>
                                 {% else %}
                                 <div id="loadlt"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
@@ -220,8 +220,8 @@ how do I integrate the your wishlist thing with the tabs thing?
                 <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
-                        <li class="tabs2"><a href="#">Being Unglued</a></li>
-                        <li class="tabs3 active"><a href="#">Want to Unglue</a></li>
+                        <li class="tabs2"><a href="#">Active</a></li>
+                        <li class="tabs3 active"><a href="#">Wishlisted</a></li>
                     </ul>
     
                         <ul class="book-list-view">

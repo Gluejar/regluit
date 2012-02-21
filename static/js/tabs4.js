@@ -3,10 +3,10 @@
 	$j(document).ready(function(){
 		// caching the selections to speed up response
 		var tabs = $j('#tabs');
-        var tabs1 = $j('.tabs1');
-        var tabs2 = $j('.tabs2');
-        var tabs3 = $j('.tabs3');
-        var tabs4 = $j('.tabs4');
+        var tabs1 = $j('li.tabs1');
+        var tabs2 = $j('li.tabs2');
+        var tabs3 = $j('li.tabs3');
+        var tabs4 = $j('li.tabs4');
         var tabId1 = $j('#tabs-1');
         var tabId2 = $j('#tabs-2');
         var tabId3 = $j('#tabs-3');
@@ -16,7 +16,7 @@
 		tabs1.click(function(){
 			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
-			contentBlockContent.find('.active').removeClass('active');
+			contentBlockContent.find('div.active').removeClass('active');
 			tabId1.addClass('active').show(300);
 			tabId2.hide(200);
 			tabId3.hide(200);
@@ -25,7 +25,7 @@
 		tabs2.click(function(){
 			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
-			contentBlockContent.find('.active').removeClass('active');
+			contentBlockContent.find('div.active').removeClass('active');
 			tabId2.addClass('active').show(300);
 			tabId1.hide(200);
 			tabId3.hide(200);
@@ -34,7 +34,7 @@
 		tabs3.click(function(){
 			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
-			contentBlockContent.find('.active').removeClass('active');
+			contentBlockContent.find('div.active').removeClass('active');
 			tabId3.addClass('active').show(300);
 			tabId2.hide(200);
 			tabId1.hide(200);
@@ -43,7 +43,7 @@
 		tabs4.click(function(){
 			tabs.find('.active').removeClass('active');
 			$j(this).addClass('active');
-			contentBlockContent.find('.active').removeClass('active');
+			contentBlockContent.find('div.active').removeClass('active');
 			tabId4.addClass('active').show(300);
 			tabId2.hide(200);
 			tabId1.hide(200);
@@ -52,7 +52,7 @@
 		$j('.findtheungluers').click(function(){
 			tabs.find('.active').removeClass('active');
 			$j('#supporters').addClass('active');
-			contentBlockContent.find('.active').removeClass('active');
+			contentBlockContent.find('div.active').removeClass('active');
 			tabId3.addClass('active').show(300);
 			tabId2.hide(200);
 			tabId1.hide(200);

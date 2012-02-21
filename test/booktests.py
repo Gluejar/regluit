@@ -1,11 +1,18 @@
-from regluit.core import librarything, bookloader, models
-import itertools
+from regluit.core import librarything, bookloader, models, tasks
+from collections import OrderedDict
+from itertools import izip, islice
 import django
 
 from django.db.models import Q, F
 from regluit.core import bookloader
 import warnings
 import datetime
+from regluit.experimental import bookdata
+from datetime import datetime
+import json
+
+import logging
+logger = logging.getLogger(__name__)
 
 def ry_lt_books():
     """return parsing of rdhyee's LibraryThing collection"""
@@ -22,7 +29,7 @@ def ry_lt_not_loaded():
     """Calculate which of the books on rdhyee's librarything list don't yield Editions"""
     books = list(ry_lt_books())
     editions = editions_for_lt(books)
-    not_loaded_books = [b for (b, ed) in itertools.izip(books, editions) if ed is None]
+    not_loaded_books = [b for (b, ed) in izip(books, editions) if ed is None]
     return not_loaded_books
 
 def ry_wish_list_equal_loadable_lt_books():
@@ -37,68 +44,14 @@ def clear_works_editions_ebooks():
     models.Work.objects.all().delete()
     models.Edition.objects.all().delete()
     
-def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, url, format, license, lang, publication_date):
-    
-    # let's start with instantiating the relevant Work and Edition if they don't already exist
-    
-    works = models.Work.objects.filter(Q(identifiers__type='olwk') & Q(identifiers__value=ol_work_id))
-    
-    try:
-        work = models.Identifier.objects.get(type='olwk',value=ol_work_id).work
-    except models.Identifier.DoesNotExist: # create a new work
-        work = models.Work()
-        work.title = title
-        work.language = lang
-        work.openlibrary_lookup = None
-        work.save()
-        
-        work_id = models.Identifier.get_or_add(type='olwk',value=ol_work_id, work=work)
+               
+def load_penguin_moby_dick():
+    seed_isbn = '9780142000083'
+    ed = bookloader.add_by_isbn(seed_isbn)
+    if ed.new:
+        ed = tasks.populate_edition.delay(ed.isbn_13)
 
-    # Now pull out any existing Gutenberg editions tied to the work with the proper Gutenberg ID
-    try:
-        edition = models.Identifier.objects.get( type='gtbg', value=gutenberg_etext_id ).edition    
-    except models.Identifier.DoesNotExist:
-        edition = models.Edition()
-        edition.title = title
-        edition.work = work
-        
-        edition.save()
-        edition_id = models.Identifier.get_or_add(type='gtbg',value=gutenberg_etext_id, edition=edition, work=work)
-        
-    # check to see whether the Edition hasn't already been loaded first
-    # search by url
-    ebooks = models.Ebook.objects.filter(url=url)
-    
-    # format: what's the controlled vocab?  -- from Google -- alternative would be mimetype
-    
-    if len(ebooks):  
-        ebook = ebooks[0]
-    elif len(ebooks) == 0: # need to create new ebook
-        ebook = models.Ebook()
-
-    if len(ebooks) > 1:
-        warnings.warn("There is more than one Ebook matching url {0}".format(url))
-        
-        
-    ebook.format = format
-    ebook.provider = 'gutenberg'
-    ebook.url =  url
-    ebook.rights = license
-        
-    # is an Ebook instantiable without a corresponding Edition? (No, I think)
-    
-    ebook.edition = edition
-    ebook.save()
-    
-    return ebook
-    
-    # get associated info from OL
-    # book_loader.add_openlibrary(work)
-                    
-
-def load_moby_dick():
-    """Let's try this out for Moby Dick"""
-    
+def load_gutenberg_moby_dick():
     title = "Moby Dick"
     ol_work_id = "/works/OL102749W"
     gutenberg_etext_id = 2701
@@ -106,8 +59,52 @@ def load_moby_dick():
     license = 'http://www.gutenberg.org/license'
     lang = 'en'
     format = 'epub'
-    publication_date = datetime.datetime(2001,7,1)        
+    publication_date = datetime(2001,7,1)
+    seed_isbn = '9780142000083' # http://www.amazon.com/Moby-Dick-Whale-Penguin-Classics-Deluxe/dp/0142000086
     
-    result = load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, epub_url, format, license, lang, publication_date)
-    return result
-            
+    ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn,
+                                              epub_url, format, license, lang, publication_date)
+    return ebook
+
+def load_gutenberg_books(fname="/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/gutenberg/g_seed_isbn.json",
+                         max_num=None):
+    
+    headers = ()
+    f = open(fname)
+    records = json.load(f)
+    f.close()
+    
+    for (i, record) in enumerate(islice(records,max_num)):
+        if record['format'] == 'application/epub+zip':
+            record['format'] = 'epub'
+        elif record['format'] == 'application/pdf':
+            record['format'] = 'pdf'
+        if record['seed_isbn'] is not None:
+            ebook = bookloader.load_gutenberg_edition(**record)
+            logger.info("%d loaded ebook %s %s", i, ebook, record)
+        else:
+            logger.info("%d null seed_isbn: ebook %s", i, ebook)
+
+def cluster_status():
+    """Look at the current Work, Edition instances to figure out what needs to be fixed"""
+    results = OrderedDict([
+        ('number of Works', models.Work.objects.count()),
+        ('number of Editions', models.Edition.objects.count())
+        ('number of Edition that have both Google Books id and ISBNs',
+             models.Edition.objects.filter(identifiers__type='isbn').filter(identifiers__type='goog').count()),
+        ('number of Editions with Google Books IDs but not ISBNs',
+             models.Edition.objects.filter(identifiers__type='goog').exclude(identifiers__type='isbn').count()),
+        ])
+    
+    # What needs to be done to recluster editions?
+    
+    # Are there Edition without ISBNs?  Look up the corresponding ISBNs from Google Books and Are they all singletons?
+    
+    # identify Editions that should be merged (e.g., if one Edition has a Google Books ID and another Edition has one with
+    # an ISBN tied to that Google Books ID)
+    
+    return results
+    
+
+        
+        

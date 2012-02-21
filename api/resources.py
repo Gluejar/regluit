@@ -88,7 +88,7 @@ class CampaignResource(ModelResource):
             wishlist_work_ids = []
 
         for o in data['objects']:
-            o.data['in_wishlist'] = o.obj.id in wishlist_work_ids
+            o.data['in_wishlist'] = o.obj.work.id in wishlist_work_ids
             # there's probably a better place up the chain (where the Campaign objects are directly available) to grab the status
             c = models.Campaign.objects.get(id=o.data["id"])
             o.data['status'] = c.status

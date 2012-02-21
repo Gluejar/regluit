@@ -2,9 +2,9 @@
     	<div class="js-main">
         	<div class="js-topnews">
                     <div class="user-block">
-                        <div class="user-block1">
+                        <div id="user-block1">
                         <div class="block-inner">
-                            <div class="block-intro-text">
+                            <div id="block-intro-text">
                             	<div><span class="def">unglue</span> (v. t.) 1. To pay an author or publisher in full, up front, for publishing a Creative Commons ebook.</div>
                             	<div><span class="def">unglue</span> (v. t.) 2. To make a digital book free to read and use, worldwide.</div>
                             	<div><span class="def">unglue</span> (v. t.) 3. To make it clearly legal for a digital book to be used, distributed, archived and preserved by libraries.</div>
@@ -12,7 +12,7 @@
                             	<div><span class="def">unglue</span> (v. t.) 5. To give your favorite books to everyone on earth.</div>
                             	<div><span class="def">unglue</span> (v. t.) 6. To reward authors and publishers for sharing books with the world.</div>
                             </div>
-                            <a class="my-setting readon nounderline"><span>Learn more</span></a>
+                            <a class="my-setting nounderline" id="readon"><span>Learn more</span></a>
                         </div>
                         </div>
                         
@@ -24,12 +24,18 @@
                         </div>
                         </div>
                     </div>
-                    <div class="user-block-hide">
+                    <div id="user-block-hide">
                         	<div class="quicktour"><span class="highlight">We all have books we love so much, we'd like to give them to the world.</span>  We want to share them, but also reward their creators. With digital books, it can be hard to do both.</div>
 	                        <div class="movingrightalong"></div>
 	                        <div class="quicktour"><span class="highlight">Unglue.it offers a win-win solution: Crowdfunding.</span> We run pledge campaigns for books; you chip in. When, together, we've reached the goal, we'll reward the book's creators and issue an unglued ebook.</div>
 	                        <div class="movingrightalong"></div>
-                        	<div class="quicktour last"><a href="https://creativecommons.org/">Creative Commons</a> licensing means everyone, everywhere can read and share the unglued book — freely and legally. <span class="highlight">You've given your favorite book to the world.</span><div class="signup">Sign up below. <img src="/static/images/landingpage/signmeup-arrow.png"></div></div>
+                        	<div class="quicktour last"><a href="https://creativecommons.org/">Creative Commons</a> licensing means everyone, everywhere can read and share the unglued book — freely and legally. <span class="highlight">You've given your favorite book to the world.</span>
+							{% if suppress_search_box %}
+                        		<div class="signup" id="highlighter">Sign up below. <img src="/static/images/landingpage/signmeup-arrow.png"></div>
+                        	{% else %}
+                        		<div class="spacer"><div class="signuptoday"><a href="{% url registration_register %}">Sign up today</a></div>
+                        	{% endif %}
+                        	</div>
                     </div>
             </div>
         </div>

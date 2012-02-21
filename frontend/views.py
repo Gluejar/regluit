@@ -23,7 +23,7 @@ from django.contrib import messages
 from django.contrib.comments import Comment
 from django.forms import Select
 from django.forms.models import modelformset_factory
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -68,8 +68,7 @@ def home(request):
     # on the preview site there are no active campaigns, so we should show most-wished books instead
     is_preview = settings.IS_PREVIEW
     if is_preview:
-        # django related fields and distinct() interact poorly, so we need to do a song and dance to get distinct works
-        worklist = models.Work.objects.annotate(num_wishes=Count('wishes')).order_by('-num_wishes')
+        worklist = models.Work.objects.order_by('-num_wishes')
         works = worklist[:6]
         works2 = worklist[6:12]
     else:
@@ -90,7 +89,14 @@ def stub(request):
     return render(request,'stub.html', {'path': path})
 
 def work(request, work_id, action='display'):
-    work = get_object_or_404(models.Work, id=work_id)
+    try:
+    	work = models.Work.objects.get(id = work_id)
+    except models.Work.DoesNotExist:
+    	try:
+    		work = models.WasWork.objects.get(was = work_id).work
+    	except models.WasWork.DoesNotExist:
+    		raise Http404
+
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     try:
@@ -102,7 +108,7 @@ def work(request, work_id, action='display'):
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work_id, 'user': request.user.id})
+        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id})
     else:
         claimform = None
     if campaign:
@@ -111,7 +117,7 @@ def work(request, work_id, action='display'):
     else:
         premiums = None
         
-    wishers = work.wished_by().count()
+    wishers = work.num_wishes
     base_url = request.build_absolute_uri("/")[:-1]
     
     try:
@@ -171,7 +177,7 @@ def googlebooks(request, googlebooks_id):
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
             if edition.new:
                 # add related editions asynchronously
-                tasks.populate_edition.delay(edition)
+                tasks.populate_edition.delay(edition.isbn_13)
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
             return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
@@ -210,11 +216,11 @@ class WorkListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.filter(wishlists__isnull=False).distinct().annotate(wished=Count('wishlists')).order_by('-wished', 'id')
+            return models.Work.objects.order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
             return models.Work.objects.filter(wishlists__user=recommended_user)
         elif (facet == 'new'):
-            return models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created', 'id')
+            return models.Work.objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
             return models.Work.objects.all().order_by('-created', 'id')
 
@@ -238,7 +244,7 @@ class UngluedListView(ListView):
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).annotate(wished=Count('wishlists')).filter(ebook_count__gt=0).order_by('-wished')
+            return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-num_wishes')
         else:
             #return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-created')
@@ -719,7 +725,7 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
-    works = wishlist.works.all()
+    works = wishlist.works.all().order_by('-num_wishes')
     fromsupport = 1
     backed = 0
     backing = 0
@@ -857,7 +863,7 @@ def wishlist(request):
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
             if edition.new:
                 # add related editions asynchronously
-                tasks.populate_edition.delay(edition)
+                tasks.populate_edition.delay(edition.isbn_13)
             request.user.wishlist.add_work(edition.work,'user')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
@@ -1060,7 +1066,7 @@ def goodreads_load_shelf(request):
         logger.info('Adding task to load shelf %s to user %s with %d books', shelf_name, user, expected_number_of_books)
         load_task_name = "load_goodreads_shelf_into_wishlist"
         load_task = getattr(tasks, load_task_name)
-        task_id = load_task.delay(user, shelf_name, expected_number_of_books=expected_number_of_books)
+        task_id = load_task.delay(user.id, shelf_name, expected_number_of_books=expected_number_of_books)
         
         ct = models.CeleryTask()
         ct.task_id = task_id
@@ -1113,7 +1119,7 @@ def librarything_load(request):
         logger.info('Adding task to load librarything %s to user %s', lt_username, user )
         load_task_name = "load_librarything_into_wishlist"
         load_task = getattr(tasks, load_task_name)
-        task_id = load_task.delay(user, lt_username, None)
+        task_id = load_task.delay(user.id, lt_username, None)
         
         ct = models.CeleryTask()
         ct.task_id = task_id
