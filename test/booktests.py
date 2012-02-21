@@ -1,6 +1,6 @@
 from regluit.core import librarything, bookloader, models, tasks
-from collections import OrderedDict
-from itertools import izip, islice
+from collections import OrderedDict, defaultdict, namedtuple
+from itertools import izip, islice, repeat
 import django
 
 from django.db.models import Q, F
@@ -14,6 +14,20 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
+def dictset(itertuple):
+    s = defaultdict(set)
+    for (k, v) in itertuple:
+        s[k].add(v)
+    return s
+
+def dictlist(itertuple):
+    d = defaultdict(list)
+    for (k, v) in itertuple:
+        d[k].append(v)
+    return d    
+    
+EdInfo = namedtuple('EdInfo', ['isbn', 'ed_id', 'ed_title', 'ed_created', 'work_id', 'work_created', 'lang'])
+    
 def ry_lt_books():
     """return parsing of rdhyee's LibraryThing collection"""
     lt = librarything.LibraryThing('rdhyee')
@@ -111,10 +125,9 @@ def cluster_status(max_num=None):
     # an ISBN tied to that Google Books ID)
 
 
-    from collections import defaultdict
     import shutil
     import time
-    from collections import namedtuple
+    import operator
     
     # let's form a key to map all the Editions into
     # (lt_work_id (or None), lang, ISBN (if lt_work_id is None or None if we don't know it), ed_id (or None) )
@@ -124,8 +137,6 @@ def cluster_status(max_num=None):
     
     backup = '/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/lt_data_back.json'
     fname = '/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/lt_data.json'
-    
-    EdInfo = namedtuple('EdInfo', ['isbn', 'ed_id', 'ed_title', 'work_id', 'lang'])
     
     shutil.copy(fname, backup)
         
@@ -139,40 +150,53 @@ def cluster_status(max_num=None):
     except Exception, e:
         print e
     
-    for (i, (isbn, ed_id, ed_title, work_id, lang)) in enumerate(
+    for (i, (isbn, ed_id, ed_title, ed_created,  work_id, work_created, lang)) in enumerate(
         islice(models.Identifier.objects.filter(type='isbn').values_list('value', 'edition__id',
-                'edition__title', 'edition__work__id', 'edition__work__language'), max_num)):
+                'edition__title', 'edition__created', 'edition__work__id',
+                'edition__work__created', 'edition__work__language'), max_num)):
         
         lt_work_id = lt.thingisbn(isbn, return_work_id=True)
         key = (lt_work_id, lang, isbn if lt_work_id is None else None, None)
         print i, isbn, lt_work_id, key
-        work_clusters[key].add(EdInfo(isbn=isbn, ed_id=ed_id, ed_title=ed_title, work_id=work_id, lang=lang))
+        work_clusters[key].add(EdInfo(isbn=isbn, ed_id=ed_id, ed_title=ed_title, ed_created=ed_created,
+                                      work_id=work_id, work_created=work_created, lang=lang))
         current_map[work_id].add(key)
     
     lt.save()
     
     # Now add the Editions without any ISBNs
     print "editions w/o isbn"
-    for (i, (ed_id, ed_title, work_id, lang)) in enumerate(
+    for (i, (ed_id, ed_title, ed_created, work_id, work_created, lang)) in enumerate(
         islice(models.Edition.objects.exclude(identifiers__type='isbn').values_list('id',
-                'title', 'work__id', 'work__language'), None)):
+                'title', 'created', 'work__id', 'work__created', 'work__language' ), None)):
         
         key = (None, lang, None, ed_id)
         print i, ed_id, ed_title, key
-        work_clusters[key].add(EdInfo(isbn=None, ed_id=ed_id, ed_title=ed_title, work_id=work_id, lang=lang))
+        work_clusters[key].add(EdInfo(isbn=None, ed_id=ed_id, ed_title=ed_title, ed_created=ed_created,
+                                      work_id=work_id, work_created=work_created, lang=lang))
         current_map[work_id].add(key)
 
     print "number of clusters", len(work_clusters)
     
-    s = {'work_clusters':work_clusters, 'current_map':current_map, 'results':results}
+    # all unglue.it Works that contain Editions belonging to more than one newly calculated cluster are "FrankenWorks"
+    franken_works = sorted([k for (k,v) in current_map.items() if len(v) > 1])
     
-    #
+    # calculate the inverse of work_clusters
+    wcp = dict(reduce(operator.add, [ list( izip([ed.ed_id for ed in eds], repeat(k))) for (k,eds) in work_clusters.items()]))
+    
+    # (I'm not completely sure of this calc -- but the datetime of the latest franken-event)
+    latest_franken_event = max([ max([min(map(lambda x: x[1], v)) for v in dictlist([(wcp[ed["id"]], (ed["id"], ed["created"].isoformat()))
+        for ed in models.Work.objects.get(id=w_id).editions.values('id', 'created')]).values()])
+         for w_id in franken_works])
+    
+    s = {'work_clusters':work_clusters, 'current_map':current_map, 'results':results, 'franken_works': franken_works,
+         'wcp':wcp, 'latest_franken_event': latest_franken_event}
+    
     print "new clusters that map over more than one existing Work", \
     [(k, len(set(([e.work_id for e in v])))) for (k,v) in s['work_clusters'].items() if len(set(([e.work_id for e in v]))) <> 1 ]
-    
-    m = current_map
+
     print "existing Works that contain editions from more than 1 new cluster", \
-        sorted([k for (k,v) in m.items() if len(v) > 1])
+        franken_works
     
     return s
 
