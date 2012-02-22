@@ -21,6 +21,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.comments import Comment
+from django.db.models import Q, F
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
@@ -727,8 +728,9 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
-    works = wishlist.works.all().order_by('-num_wishes')
     fromsupport = 1
+    
+    # badge counts
     backed = 0
     backing = 0
     transet = Transaction.objects.all().filter(user = supporter)
@@ -744,6 +746,17 @@ def supporter(request, supporter_username, template_name):
             
     wished = supporter.wishlist.works.count()
     
+	# querysets for tabs
+	# unglued tab is anything for which there has been a successful campaign OR anything with an existing ebook
+    works_unglued = wishlist.works.all().filter(Q(campaigns__status='SUCCESSFUL') | Q(editions__ebooks__isnull=False)).order_by('-num_wishes')
+    
+    # take the set complement of the unglued tab and filter it for active works to get middle tab
+    result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
+    works_active = result.filter(campaigns__status='ACTIVE')
+    
+    # everything else goes in tab 3
+    works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True))
+
     date = supporter.date_joined.strftime("%B %d, %Y")
 
     # following block to support profile admin form in supporter page
@@ -794,7 +807,9 @@ def supporter(request, supporter_username, template_name):
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
-            "works": works,
+            "works_unglued": works_unglued,
+            "works_active": works_active,
+            "works_wished": works_wished,
             "fromsupport": fromsupport,
             "backed": backed,
             "backing": backing,

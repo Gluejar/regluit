@@ -22,6 +22,10 @@
         var tabsLink3 = $j('li.tabs3');
         var contentBlockContent = $j('#content-block-content');
         
+        // on pageload we are showing only tab 3
+        tabsDash1.hide();
+        tabsDash2.hide();
+        
         tabs1.click(function(){
             tabs.find('.active').removeClass('active');
             tabsLink1.addClass('active');

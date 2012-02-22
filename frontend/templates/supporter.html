@@ -251,20 +251,55 @@ how do I integrate the your wishlist thing with the tabs thing?
                         It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
                     {% endifequal %}
                     {% else %}
-                    {% lazy_paginate 20 works %}
-                    {% for work in works %}
+
+                    {% lazy_paginate 20 works_unglued %}
+                    {% for work in works_unglued %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with "tabs-1" as tabs1 %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <br>
-                    <div class="pagination content-block-heading">
+                    <div class="pagination content-block-heading tabs-1">
                         {% show_more %}
                     </div>
+
+                    {% lazy_paginate 20 works_active %}
+                    {% for work in works_active %}
+                    <div class="{% cycle 'row1' 'row2' %}">
+                    {% with work.last_campaign_status as status %}
+					{% with work.last_campaign.deadline as deadline %}
+					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with "tabs-2" as tabs2 %}					
+                    {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    </div>
+                    {% endfor %}
+                    <br>
+                    <div class="pagination content-block-heading tabs-2">
+                        {% show_more %}
+                    </div>
+
+                    {% lazy_paginate 20 works_wished %}
+                    {% for work in works_wished %}
+                    <div class="{% cycle 'row1' 'row2' %}">
+                    {% with work.last_campaign_status as status %}
+					{% with work.last_campaign.deadline as deadline %}
+					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with "tabs-3" as tabs3 %}					
+                    {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    </div>
+                    {% endfor %}
+                    <br>
+                    <div class="pagination content-block-heading tabs-3">
+                        {% show_more %}
+                    </div>
+
                     {% endifequal %}
                 </div>
             </div>    
