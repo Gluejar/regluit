@@ -13,15 +13,15 @@ from xml.etree import ElementTree as ET
 import requests
 import oauth2 as oauth
 from django import forms
-from django.db.models import Q, Count, Sum
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.comments import Comment
-from django.db.models import Q, F
+from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
@@ -31,7 +31,6 @@ from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
@@ -730,22 +729,6 @@ def supporter(request, supporter_username, template_name):
     wishlist = supporter.wishlist
     fromsupport = 1
     
-    # badge counts
-    backed = 0
-    backing = 0
-    transet = Transaction.objects.all().filter(user = supporter)
-    
-    for transaction in transet:
-        try:
-            if(transaction.campaign.status == 'SUCCESSFUL'):
-                backed += 1
-            elif(transaction.campaign.status == 'ACTIVE'):
-                backing += 1
-        except:
-            continue
-            
-    wished = supporter.wishlist.works.count()
-    
 	# querysets for tabs
 	# unglued tab is anything for which there has been a successful campaign OR anything with an existing ebook
     works_unglued = wishlist.works.all().filter(Q(campaigns__status='SUCCESSFUL') | Q(editions__ebooks__isnull=False)).order_by('-num_wishes')
@@ -757,8 +740,13 @@ def supporter(request, supporter_username, template_name):
     # everything else goes in tab 3
     works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True))
 
+    # badge counts
+    backed = works_unglued.count()
+    backing = works_active.count()
+    wished = works_wished.count()
+    
     date = supporter.date_joined.strftime("%B %d, %Y")
-
+    
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
 
@@ -803,7 +791,6 @@ def supporter(request, supporter_username, template_name):
         goodreads_id = None
         librarything_id = None
 
-        
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
@@ -819,7 +806,7 @@ def supporter(request, supporter_username, template_name):
             "ungluers": userlists.other_users(supporter, 5 ),
             "goodreads_auth_url": reverse('goodreads_auth'),
             "goodreads_id": goodreads_id,
-            "librarything_id": librarything_id
+            "librarything_id": librarything_id,
     }
     
     return render(request, template_name, context)
@@ -1327,5 +1314,5 @@ def feedback(request):
     return render(request, "feedback.html", {'form':form, 'num1':num1, 'num2':num2})    
         
 def comment(request):
-    latest_comments = Comment.objects.all()[:20]
+    latest_comments = Comment.objects.all().order_by('-submit_date')[:20]
     return render(request, "comments.html", {'latest_comments': latest_comments})
