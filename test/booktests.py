@@ -5,8 +5,11 @@ import django
 
 from django.db.models import Q, F
 from regluit.core import bookloader
+from django.contrib.comments.models import Comment
+
 import warnings
 import datetime
+from regluit import experimental
 from regluit.experimental import bookdata
 from datetime import datetime
 import json
@@ -128,6 +131,7 @@ def cluster_status(max_num=None):
     import shutil
     import time
     import operator
+ 
     
     # let's form a key to map all the Editions into
     # (lt_work_id (or None), lang, ISBN (if lt_work_id is None or None if we don't know it), ed_id (or None) )
@@ -135,8 +139,10 @@ def cluster_status(max_num=None):
     work_clusters = defaultdict(set)
     current_map = defaultdict(set)
     
-    backup = '/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/lt_data_back.json'
-    fname = '/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/lt_data.json'
+    #backup = '/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/lt_data_back.json'
+    backup = '{0}/lt_data_back.json'.format(experimental.__path__[0])
+    #fname = '/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/lt_data.json'
+    fname = '{0}/lt_data.json'.format(experimental.__path__[0])
     
     shutil.copy(fname, backup)
         
@@ -181,28 +187,78 @@ def cluster_status(max_num=None):
     # all unglue.it Works that contain Editions belonging to more than one newly calculated cluster are "FrankenWorks"
     franken_works = sorted([k for (k,v) in current_map.items() if len(v) > 1])
     
+    # let's calculate the list of users affected if delete the Frankenworks, the number of works deleted from their wishlist
+    # specifically a list of emails to send out
+    
+    affected_works = [models.Work.objects.get(id=w_id)  for w_id in franken_works]
+    affected_wishlists = set(reduce(operator.add, [list(w.wishlists.all())  for w in affected_works])) if len(affected_works) else set()
+    
+    affected_emails = [w.user.email  for w in affected_wishlists]
+    affected_editions = reduce(operator.add, [list(w.editions.all()) for w in affected_works]) if len(affected_works) else []
+    
+    # calculate the Comments that would have to be deleted too.
+    affected_comments = reduce(operator.add, [list(Comment.objects.for_model(w)) for w in affected_works]) if len(affected_works) else []
+    
     # calculate the inverse of work_clusters
     wcp = dict(reduce(operator.add, [ list( izip([ed.ed_id for ed in eds], repeat(k))) for (k,eds) in work_clusters.items()]))
     
     # (I'm not completely sure of this calc -- but the datetime of the latest franken-event)
     latest_franken_event = max([ max([min(map(lambda x: x[1], v)) for v in dictlist([(wcp[ed["id"]], (ed["id"], ed["created"].isoformat()))
         for ed in models.Work.objects.get(id=w_id).editions.values('id', 'created')]).values()])
-         for w_id in franken_works])
+         for w_id in franken_works]) if len(franken_works) else None
+    
+    scattered_clusters = [(k, len(set(([e.work_id for e in v])))) for (k,v) in work_clusters.items() if len(set(([e.work_id for e in v]))) <> 1 ]    
     
     s = {'work_clusters':work_clusters, 'current_map':current_map, 'results':results, 'franken_works': franken_works,
-         'wcp':wcp, 'latest_franken_event': latest_franken_event}
-    
-    print "new clusters that map over more than one existing Work", \
-    [(k, len(set(([e.work_id for e in v])))) for (k,v) in s['work_clusters'].items() if len(set(([e.work_id for e in v]))) <> 1 ]
-
-    print "existing Works that contain editions from more than 1 new cluster", \
-        franken_works
+         'wcp':wcp, 'latest_franken_event': latest_franken_event, 'affected_works':affected_works,
+         'affected_comments': affected_comments, 'scattered_clusters': scattered_clusters,
+         'affected_emails': affected_emails}
     
     return s
 
-def all_editions():
-    pass
+def clean_frankenworks(s, do=False):
+    # list out the email addresses of accounts with wishlists to be affected
     
+    print "number of email addresses: ", len(s['affected_emails'])
+    print ", ".join(s['affected_emails'])
+    
+    # list the works we delete
+    print "number of FrankenWorks", len(s['franken_works'])
+    print s['franken_works']
+    
+    # delete the affected comments
+    print "deleting comments"
+    for (i, comment) in enumerate(s['affected_comments']):
+        print i, "deleting ", comment
+        if do:
+            comment.delete()
+    
+    # delete the Frankenworks
+    print "deleting Frankenworks"
+    for (i, work) in enumerate(s['affected_works']):
+        print i, "deleting ", work
+        if do:
+            work.delete()    
+    
+    # run reclustering surgically -- calculate a set of ISBNs to feed to bookloader.add_related
+    
+    # assuming x is a set
+    popisbn = lambda x: list(x)[0].isbn if len(x) else None
+    
+    # group scattered_clusters by LT work id
+    scattered_lt = dictlist([(k[0], k) for (k,v) in s['scattered_clusters']])
+    isbns = map(popisbn, [s['work_clusters'][k[0]] for k in scattered_lt.values()])
+    
+    print "running bookloader"
+    for (i, isbn) in enumerate(isbns):
+        print i, isbn
+        if do:
+            bookloader.add_related(isbn)
+    
+    
+    
+    
+  
 
         
         
