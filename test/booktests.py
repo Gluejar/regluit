@@ -177,7 +177,7 @@ def cluster_status(max_num=None):
                 'title', 'created', 'work__id', 'work__created', 'work__language' ), None)):
         
         key = (None, lang, None, ed_id)
-        print i, ed_id, ed_title, key
+        print i, ed_id, ed_title.encode('ascii','ignore'), key
         work_clusters[key].add(EdInfo(isbn=None, ed_id=ed_id, ed_title=ed_title, ed_created=ed_created,
                                       work_id=work_id, work_created=work_created, lang=lang))
         current_map[work_id].add(key)
@@ -236,7 +236,7 @@ def clean_frankenworks(s, do=False):
     # delete the Frankenworks
     print "deleting Frankenworks"
     for (i, work) in enumerate(s['affected_works']):
-        print i, "deleting ", work
+        print i, "deleting ", work.id
         if do:
             work.delete()    
     
