@@ -1,20 +1,11 @@
-<div class="thewholebook listview tabs 
-	{% if tabs1 %}
-	tabs-1
-	{% else %}{% if tabs2 %}
-	tabs-2
-	{% else %}{% if tabs3 %}
-	tabs-3
-	{% else %}
-	{% if status == 'SUCCESSFUL' or work.first_pdf_url or work.first_epub_url %}tabs-1{% else %}{% if status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-	">
+<div class="thewholebook listview tabs {% if status == 'SUCCESSFUL' or work.first_pdf_url or work.first_epub_url %}tabs-1{% else %}{% if status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}">
 <div class="listview book-list">
     <div class="listview panelback side2">
             <div class="greenpanel2">
             	<div class="greenpanel_top">
                     <div class="unglued_white">
 
-					<!-- top section: campaign info + optional action button. Varies by campaign status. -->
+					{% comment %}top section: campaign info + optional action button. Varies by campaign status.{% endcomment %}
                     {% if work.first_pdf_url or work.first_epub_url %}
                         <b>AVAILABLE!</b>
                     </div>
@@ -58,7 +49,7 @@
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </div>
 
-					<!-- status of book vis-a-vis user's wishlist -->
+					{% comment %}status of book vis-a-vis user's wishlist{% endcomment %}
 				    {% if request.user.id in work.last_campaign.supporters %}
 					    <div class="moreinfo on-wishlist">
         					<span>Pledged!</span>
@@ -82,13 +73,13 @@
                         </div>
                     {% endif %}{% endif %}{% endifequal %}{% endif %}
 
-					<!-- bibliographic data -->
+					{% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
                         <p><a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks work.googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
                         <p>{{ work.author }}</p>
                     </div>
 
-					<!-- link to work page -->
+					{% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
                             <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks work.googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                     </div>

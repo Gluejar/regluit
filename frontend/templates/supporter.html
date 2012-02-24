@@ -221,7 +221,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
                         <li class="tabs2"><a href="#">Active</a></li>
-                        <li class="tabs3 active"><a href="#">Wishlisted</a></li>
+                        <li class="tabs3"><a href="#">Wishlisted</a></li>
                     </ul>
     
                         <ul class="book-list-view">
@@ -252,52 +252,58 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endifequal %}
                     {% else %}
 
-                    {% lazy_paginate 20 works_unglued %}
+                    {% lazy_paginate 20 works_unglued using "works_unglued" %}
                     {% for work in works_unglued %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}					
-					{% with "tabs-1" as tabs1 %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <br>
                     <div class="pagination content-block-heading tabs-1">
-                        {% show_more %}
+                        {% get_pages %}
+                        {% for page in pages %}
+                        	<a href="{{ page.path }}#1">{{ page.number }}</a>
+                        {% endfor %}
                     </div>
 
-                    {% lazy_paginate 20 works_active %}
+                    {% lazy_paginate 20 works_active using "works_active" %}
                     {% for work in works_active %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}					
-					{% with "tabs-2" as tabs2 %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <br>
                     <div class="pagination content-block-heading tabs-2">
-                        {% show_more %}
+                        {% get_pages %}
+                        {% for page in pages %}
+                        	<a href="{{ page.path }}#2">{{ page.number }}</a>
+                        {% endfor %}
                     </div>
 
-                    {% lazy_paginate 20 works_wished %}
+                    {% lazy_paginate 20 works_wished using "works_wished" %}
                     {% for work in works_wished %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}					
-					{% with "tabs-3" as tabs3 %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <br>
                     <div class="pagination content-block-heading tabs-3">
-                        {% show_more %}
+                        {% get_pages %}
+                        {% for page in pages %}
+                        	<a href="{{ page.path }}#3">{{ page.number }}</a>
+                        {% endfor %}
                     </div>
 
                     {% endifequal %}
