@@ -86,7 +86,7 @@ There's a <a href="/accounts/password/reset/">forgot your password</a> link at t
 
 <dt>I never received a confirmation email after I signed up. What do I do?</dt>
 
-<dd>TBA</dd>
+<dd>Check your spam folder for mail from accounts@gluejar.com.  If that doesn't work, contact us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</dd>
 
 <dt>How do I connect my Twitter, Facebook, GoodReads, and/or LibraryThing accounts?  How can I link to my personal web site?</dt>
 
@@ -116,7 +116,7 @@ We have no functionality for these at this time.  Should we?
 {% endcomment %}
 <dt>How do I unsubscribe from or adjust which emails I receive?</dt>
 
-<dd>TBA<br /><br />
+<dd>We're in the process of building out our notification system, including ways for you to control which notifications you receive, but we haven't finished that yet.<br /><br />
 
 If you receive our newsletter, there's a link at the bottom of every message to manage your preferences.  If you don't and would like to, you can <a href="http://eepurl.com/fKLfI">sign up here</a>.
 </dd>
@@ -185,92 +185,37 @@ These need to be put in proper order.  Also this should be broken down into the 
 If you want to find an interesting campaign and don't have a specific book in mind, see the Explore sidebar (on almost any page except the FAQs) for some of our favorites.</dd>
 
 <h4>Campaign Pages</h4>
-<dt>Can a campaign be edited after launching? (combine with changing funding goal/deadline?)</dt>
+<dt>Can a campaign be edited after launching?</dt>
 
-<dd>TBA</dd>
+<dd>Yes.  In fact, rights holders are encouraged to update their supporters about the progress of the campaign. (For an example of exceptionally successful updates, check out <a href="http://www.kickstarter.com/projects/599092525/the-order-of-the-stick-reprint-drive/posts">Rich Burlew's Kickstarter campaign</a>, which grossed over a million dollars, in part because of his frequent and creative communication and improvements to the rewards being offered.)  Note that the campaign's deadline cannot be changed and its threshold may not be increased.</dd>
 
 <dt>Can campaigns be edited after funding is completed?</dt>
 
-<dd>TBA</dd>
+<dd>Yes.  Again, while the deadline and threshold cannot be changed, rights holders are encouraged to add thank-you messages for supporters and update them on the progress of ebook conversion (if needed).</dd>
 
 <dt>What is a campaign page?</dt>
 
 <dd>When a book has an active ungluing campaign, its book page turns into its campaign page.  This means that, in addition to the standard book page information, it also features rewards for different pledge tiers; a Support button; and information supplied by the rights holder about the book and the campaign.</dd>
 
 {% endif %}
-{% if sublocation == 'funding' or sublocation == 'all' %}
-<h4>Funding</h4>
-<dt>Is a Paypal account required to launch a campaign?</dt>
-<dd>TBA</dd>
+{% if sublocation == 'supporting' or sublocation == 'all' %}
+<h4>Supporting Campaigns</h4>
 
-<dt>Are a funding goal and deadline required?</dt>
-<dd>Yes.</dd>
-
-<dt>Can I change my funding goal?</dt>
-<dd>TBA</dd>
-
-<dt>Can I change my deadline?</dt>
-<dd>TBA</dd>
-
-<dt>Can funding be canceled?</dt>
-
-<dd>TBA</dd>
-
-<dt>Can I offer tax deductions to people who pledge to my campaign?</dt>
-
-<dd>TBA</dd>
-
-<dt>Are contributions refundable?</dt>
-
-<dd>TBA</dd>
-
-<dt>How do I know when I have started fundraising?</dt>
-
-<dd>TBA</dd>
-
-<dt>How do I collect money for my campaign?  (include registering & verifying info as needed)</dt>
-
-<dd>TBA</dd>
-
-<dt>Where can I check the status of my funds?</dt>
-
-<dd>TBA</dd>
-
-<dt>What happens if my campaign reaches its funding goal before its deadline?  Can campaigns raise more money than their goal?</dt>
-
-<dd>Campaigns close at midnight of the day when they hit their funding threshold.  They may continue accruing funding up to that time, including funds over their goal.</dd>
-
-<dt>Can people contribute anonymously?</dt>
-
-<dd>We intend to implement this feature, but have not yet.</dd>
-
-<dt>What happens if a supporter's credit card is declined?</dt>
-
-<dd>TBA</dd>
-
-<dt>What fees does Unglue.It charge?</dt>
-
-<dd>Unglue.It charges a 6% commission on the gross amount raised.  Rights holders may be liable for additional fees (e.g. Paypal, currency conversion, ebook conversion).  Details are spelled out in the Platform Services Agreement that rights holders must sign before launching an Unglue.It campaign.</dd>
-
-<dt>Does Paypal charge any fees?</dt>
-
-<dd>TBA</dd>
-
-<dt>Does it cost money to start a campaign on Unglue.It?</dt>
-
-<dd>No.</dd>
-
-<dt>I'm having problems verifying my account with Paypal. What do I need to do?</dt>
-
-<dd>TBA</dd>
-
-<dt>Will Paypal send me a 1099-K tax form?</dt>
+<dt>How do I pledge?  Do I need a PayPal account?</dt>
 
 <dd>TBA</dd>
 
 <dt>What happens to my pledge if a campaign does not succeed?</dt>
 
 <dd>Your credit card will only be charged when campaigns succeed.  If they do not, your pledge will expire and you will not be charged.</dd>
+
+<dt>Can people contribute anonymously?</dt>
+
+<dd>We intend to implement this feature, but have not yet.</dd>
+
+<dt>Is my contribution tax deductible?</dt>
+
+<dd>If the rights holder for the work you're supporting is a nonprofit, please contact them directly to inquire.  Unglue.It cannot offer tax deductions.</dd>
 {% endif %}
 {% if sublocation == 'premiums' or sublocation == 'all' %}
 <h4>Premiums</h4>
@@ -297,7 +242,7 @@ Rights holders are encouraged to offer additional premiums to engage supporters'
 
 <dt>Who is responsible for making sure Rights Holders deliver premiums?</dt>
 
-<dd>The rights holder. (TBA: is this correct? do we need to say more?</dd>
+<dd>The rights holder.</dd>
 
 <dt>Who creates the premiums for each campaign?</dt>
 
@@ -321,7 +266,7 @@ Rights holders are encouraged to offer additional premiums to engage supporters'
 <h4>General Questions</h4>
 <dt>So what is an unglued ebook?</dt>
 
-<dd>An unglued ebook is one that's been released under a <a href="http://creativecommons.org">Creative Commons</a> license, after obtaining permission and compensating the rights holder.<br /><br />
+<dd>An unglued ebook is an already-published book that's been rereleased under a <a href="http://creativecommons.org">Creative Commons</a> license, after obtaining permission and compensating the rights holder.<br /><br />
 
 What does this mean for you?  If you're a book lover, you can read unglued ebooks for free, on the device of your choice, in the format of your choice, and share them with all your friends.  If you're a library, you can lend them to your patrons with no checkout limits or simultaneous user restrictions, and preserve them however you think best.  If you're a rights holder, you get a guaranteed up-front payment in lieu of royalties on this edition, while retaining copyright and all interests in other editions of your work.<br /><br />
 
@@ -344,9 +289,13 @@ Unglued ebooks are a win-win solution for readers, libraries, and authors, publi
 
 <dd>No. Unglued books can be anything in copyright, whether 75 years or 7 days old, whether they sell in paperback or hardcover and or can only be found in used bookstores -- or nowhere.</dd>
 
-<dt>Does Gluejar help to fund self-published books?</dt>
+<dt>Does Unglue.It help to fund self-published books?</dt>
 
-<dd>No.</dd>{% comment %}should we provide pointers to other resources? encourage people to CC-license their own works?{% endcomment %}
+<dd>In general, no.  However, if you believe you represent a special case (for example, you own the house which has published your works), we're willing to be flexible.  Drop us a line (<a href="mailto:rights@gluejar.com">rights@gluejar.com</a>).</dd>
+
+<dt>Will Unglue.It help raise funds for books not yet written?</dt>
+
+<dd>No.  There are other crowdfunding sites devoted to new creative works, and we encourage you to investigate them.  Once your book has been published, we'd love to talk to you.</dd>
 
 {% endif %}
 {% if sublocation == 'using' or sublocation == 'all' %}
@@ -407,14 +356,10 @@ Unglue.It signs agreements concerning the copyright status of every work we ungl
 
 {% endif %}
 {% if sublocation == 'campaigns' or sublocation == 'all' %}
-<h4>Launching Campaigns</h4>
+<h4>Running Campaigns</h4>
 <dt>What do I need to create a campaign?</dt>
 
-<dd>TBA</dd>
-
-<dt>How do I launch my first campaign?</dt>
-
-<dd>TBA</dd>
+<dd>First, you need to be an authorized rights holder with a signed Platform Services Agreement on file.  Please contact <a href="mailto:rights@gluejar.com">rights@gluejar.com</a> to start this process.  Once we have your PSA on file, you'll be able to claim your works and you'll have access to tools for launching and monitoring campaigns.  We'll be happy to walk you through the process personally.</dd>
 
 <dt>Can I Unglue only one of my books?  Can I unglue all of them?</dt>
 
@@ -426,13 +371,22 @@ Unglue.It signs agreements concerning the copyright status of every work we ungl
 
 <dt>What should I include in my campaign page?</dt>
 
-<dd>Show us why we should love your book.  What makes it powerful, intriguing, moving, thought-provoking, important?  How does it capture readers' imaginations, engage their minds, or connect to their emotions?  Remind readers who loved the book why they loved it, and give people who haven't read it reasons they want to.<br /><br />
+<dd>Show the world why we should love your book.  What makes it powerful, intriguing, moving, thought-provoking, important?  How does it capture readers' imaginations, engage their minds, or connect to their emotions?  Remind readers who loved the book why they loved it, and give people who haven't read it reasons they want to.<br /><br />
 
 We strongly encourage you to include video.  You can upload it to YouTube and embed it here.  We also strongly encourage links to help readers explore further -- authors' home pages, organizations which endorse the book, positive reviews, et cetera.  Think about blurbs and awards which showcase your book.  But don't just write a catalog entry or a laundry list: be relatable, and be concise.</dd>
 
 <dt>What should I ask my supporters to do?</dt>
 
-<dd>(TBA: support campaign and share the word)</dd>
+<dd>Of course you'll want them to support your campaign financially, and make that pitch.  But they also want to feel like they're part of the excitement of the campaign and the love for your book.  Invite them to discuss the book in the Comments tab, to share the campaign via email and social media using the Share column links, and to embed the campaign widget in their blogs.  And think about other ways you can get supporters involved, too: discussions on social reading sites? A Twitter hashtag? Uploading Flickr photos or YouTube videos of themselves with your book?  (Prizes or acknowledgements for the person who photographs your book in the most unusual location?)  Think of ways you can invite them to express and share their enthusiasm, and how you can reward them (not just monetarily) for doing so.</dd>
+
+<dt>How can supporters contact me?</dt>
+
+<dd>If you'd like supporters to contact you directly, please include (or link to) your contact information in your campaign page and profile.  Make sure you're also monitoring the Comments tabs on your works' pages (whether or not they have active campaigns).</dd>
+
+<dt>What is my responsibility for answering questions from supporters and non-supporters?</dt>
+
+<dd>It's up to you.  However, our experience watching and running crowdfunding campaigns suggests that you'll do best if you're engaged, prompt, and personable.  In fact, don't just think in terms of answering questions (though you should absolutely do that) -- think about cultivating and contributing to the conversation.</dd>
+
 {% endif %}
 {% if sublocation == 'publicity' or sublocation == 'all' %}
 <h4>Publicizing Campaigns</h4>
@@ -441,11 +395,13 @@ We strongly encourage you to include video.  You can upload it to YouTube and em
 <dd>We're developing a social media toolkit for rights holders.  Please tell us what you think should be in it so we can serve you better: <a href="mailto:andromeda@gluejar.com">andromeda@gluejar.com</a>.  In the meantime we're happy to help you one-on-one, at the same address.</dd>
 
 <dt>Can I contact my supporters directly?</dt>
-<dd>TBA</dd>
+<dd>We will not provide you contact information, except as needed to fulfill premiums after successful campaigns.  Supporters may voluntarily disclose certain contact information (such as Twitter handles) on their profile pages.  We encourage you to be thoughtful in your use of this information.  Supporters have likely provided it as a way to connect with other like-minded people, not as a marketing tool, so please engage with it in that spirit.</dd>
 
 <dt>How do I get feedback from supporters or fans about my campaign?</dt>
 
-<dd>TBA</dd>
+<dd>Ask them!<br /><br />
+
+Also, pay attention to places they're talking about your campaign.  This might be the Comments tab, a hashtag on Twitter, the comments section of your blog, a forum on your web site, your Facebook page, et cetera.  Read these spaces regularly to see what people are saying, and to participate in the conversation.</dd>
 
 <dt>How do I share my campaign?</dt>
 
@@ -477,6 +433,69 @@ Need more ideas?  We're happy to work with rights holders personally to craft a 
 
 <dd>Yes. Your campaign target should include conversion costs.</dd>
 {% endif %}
+{% if sublocation == 'funding' or sublocation == 'all' %}
+<h4>Funding</h4>
+<dt>Is a PayPal account required to launch a campaign?</dt>
+<dd>Unglue.It prefers that rights holders have PayPal accounts as it will simplify the process of paying you when a campaign succeeds.  If you do not have a PayPal account, please address this with us before signing the Platform Services Agreement and we'll find a way to make sure you can be paid.</dd>
+
+<dt>Are a funding goal and deadline required?</dt>
+<dd>Yes.</dd>
+
+<dt>Can I change my funding goal?</dt>
+<dd>While a campaign is in progress you may lower, but not raise, your funding goal.</dd>
+
+<dt>Can I change my deadline?</dt>
+<dd>No.</dd>
+
+<dt>Are contributions refundable?</dt>
+
+<dd>Ungluers are free to modify or cancel their pledges before a campaign ends.  At that point, their credit cards will be charged nonrefundably.</dd>
+
+<dt>What if an ungluer contests a charge?</dt>
+
+<dd>(TBA: link to PayPal, use the word "chargeback" somewhere) Ungluers may contest charges with their credit card issuers.  Unglue.It is not liable for this and rights holders are liable for any chargebacks.  We encourage rights holders to provide clear, timely communication to their supporters throughout the campaign to ensure they remember what they pledged to and why.</dd>
+
+<dt>What happens if a supporter's credit card is declined?</dt>
+
+<dd>Rights holders are liable for these costs.</dd>
+
+<dt>Can I offer tax deductions to people who pledge to my campaign?</dt>
+
+<dd>If you are a 501(c)3 or similar, please consult your own attorneys and accountants about the tax deductibility of ungluers' contributions.  Unglue.It cannot offer tax deductions or advice.</dd>
+
+<dt>How do I know when I have started fundraising?</dt>
+
+<dd>Unglue.It will be in communication with you about when campaigns should go live.  On your <a href="/rightsholders/">rights holder dashboard</a>, you will be able to see all works you have claimed and the status of any associated campaigns.</dd>
+
+<dt>After a campaign succeeds, when and how will I be paid?</dt>
+
+<dd>After we reach the threshold price Unglue.It will issue you a closing memo, which will cover your gross and net proceeds.  Supporters' money will be put in escrow (through PayPal) until you deliver an ePub file meeting Unglue.It's quality standards, at which point payment will be released to you via your PayPal account.  If Unglue.It does not receive a suitable ePub file within 90 days, we will deduct conversion costs from your funds and release the rest to you.</dd>
+
+<dt>What happens if my campaign reaches its funding goal before its deadline?  Can campaigns raise more money than their goal?</dt>
+
+<dd>Campaigns close at midnight of the day when they hit their funding threshold.  They may continue accruing funding up to that time, including funds over their goal.</dd>
+
+<dt>What sorts of fees apply?</dt>
+
+<dd>When a campaign succeeds, you will pay Unglue.It a 6% commission on the funds raised.  PayPal also charges a small percentage in transaction fees (TBA:link).  If you do not have a suitable ePub version of your book available, you will also need to cover conversion costs; please price this into your goal for a campaign.</dd>
+
+<dt>What fees does Unglue.It charge?</dt>
+
+<dd>When a campaign succeeds, you will pay Unglue.It a 6% commission on the funds raised.  PayPal also charges a small percentage in transaction fees (TBA:link).  If you do not have a suitable ePub version of your book available, you will also need to cover conversion costs; please price this into your goal for a campaign.  Details are spelled out in the Platform Services Agreement that rights holders must sign before launching an Unglue.It campaign.</dd>
+
+<dt>Does it cost money to start a campaign on Unglue.It?</dt>
+
+<dd>No.</dd>
+
+<dt>I'm having problems verifying my account with PayPal. What do I need to do?</dt>
+
+<dd>TBA</dd>
+
+<dt>Will PayPal send me a 1099-K tax form?</dt>
+
+<dd>TBA</dd>
+
+{% endif %}
 {% if sublocation == 'rights' or sublocation == 'all' %}
 <h4>Rights</h4>
 <dt>If I am an author with my book still in print, can I still start a Campaign to unglue it?</dt>
@@ -495,8 +514,6 @@ Need more ideas?  We're happy to work with rights holders personally to craft a 
 
 <dd>Not necessarily. If you are the author and copyright holder but have a contract with a publisher, the publisher may be the authorized Rights Holder with respect to electronic rights, and they may be able to sign a licensing agreement on your behalf. Again, you must get advice about your individual contract, especially subsidiary rights clauses and exclusivity.</dd>
 
-Questions about the Unglue.it license
-
 <dt>Can I offer a book to be Unglued even if I cannot include all the illustrations from the print edition?</dt>
 
 <dd>Yes. If permission to reprint cannot not be obtained for items such as photographs, drawings, color plates, as well as quotations from lyrics and poetry, we can produce an unglued edition which leaves them out.  Please indicate the difference between the editions on your Campaign page.</dd>
@@ -509,15 +526,6 @@ Questions about the Unglue.it license
 
 <dd>No. An Unglued Ebook is released to the world. It uses a <a href="http://creativecommons.org">Creative Commons</a> license which is territory-neutral. That is, the unglued ebook can be read by anyone, anywhere in the world, subject always to the non-commercial limitations of the license.</dd>
 {% endif %}
-
-
-<dt>What is my responsibility for answering questions from supporters and non-supporters?</dt>
-
-<dd>TBA</dd>
-
-<dt>If I am unable to complete my campaign as listed, what should I do?</dt>
-
-<dd>TBA</dd>
 
 </dl>
 {% endif %}
