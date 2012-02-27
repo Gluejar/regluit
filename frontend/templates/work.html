@@ -70,7 +70,7 @@ jQuery(document).ready(function(){
         <div class="js-maincol-inner">
             <div id="content-block">
                 <div class="book-detail">
-                    <div class="book-detail-img"><a href="#">
+                    <div class="book-detail-img"><a href="{% url work_openlibrary work.id %}">
                         <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
                     </div>
                     <div class="book-detail-info">
