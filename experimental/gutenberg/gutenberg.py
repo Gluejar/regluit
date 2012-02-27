@@ -983,6 +983,64 @@ def repick_seed_isbn(max_num=None, do=False, print_progress=False):
         if print_progress:
             print i, s.gutenberg_etext_id, s.seed_isbn, lang, gt_title, seeds, current_seed_ok, new_seed_isbn
         yield (s.gutenberg_etext_id, s.seed_isbn, lang, gt_title, seeds, current_seed_ok, new_seed_isbn)
+
+def compute_similarity_measures_for_seed_isbns(max_num=None):
+    """
+    Output the current seedisbn calculations with some measures to help spot errors in mapping, including
+    the Levenshtein distance/ratio between the Gutenberg title and the title of the edition corresponding to the
+    ISBN -- and a dominance factor (the ratio of the size of the largest cluster of ISBNs
+    divided by all the number of ISBNs in all the clusters).  Idea: editions whose titles have big distances
+    and low dominance factors should be looked at more closely.
+    """
+    from Levenshtein import distance, ratio
+
+    # what proportion of all the ISBNs does the largest cluster make of all the ISBNs
+    # x is an iterable of cluster lengths
+    dominance = lambda x: float(max(x))/float(sum(x)) if len(x) else None
+    
+    gluejar_db = GluejarDB()
+    seed_isbns = gluejar_db.session.query(SeedISBN, GutenbergText.lang, GutenbergText.title).join(GutenbergText, SeedISBN.gutenberg_etext_id==GutenbergText.etext_id).all()
+    for (i, (seed_isbn, lang, gt_title)) in enumerate(islice(seed_isbns, max_num)):
+        res = json.loads(seed_isbn.results)
+        yield OrderedDict([('etext_id', seed_isbn.gutenberg_etext_id),
+               ('seed_isbn_title',seed_isbn.title),
+               ('gt_title', gt_title),
+               ('dominance', dominance([len(cluster) for cluster in res[1]['lt_clusters']])),
+               ('title_l_ratio', ratio(seed_isbn.title, gt_title) if (seed_isbn.title is not None and gt_title is not None) else None)])
+
+def output_to_csv(f, headers, rows, write_header=True, convert_values_to_unicode=True):
+    """
+    take rows, an iterable of dicts (and corresponding headers) and output as a CSV file to f
+    """
+    from unicode_csv import UnicodeDictWriter
+    cw = UnicodeDictWriter(f, headers)
+    if write_header:
+        cw.writerow(dict([(h,h) for h in headers]))    
+    for row in rows:
+        if convert_values_to_unicode:
+            row = dict([(k, unicode(v)) for (k,v) in row.items()])
+        cw.writerow(row)
+    return f
+
+
+def filtered_gutenberg_and_seed_isbn(min_l_ratio=None, min_dominance=None, max_num=None, include_olid=False):
+    # compute the similarity measures and pass through only the Gutenberg records that meet the minimum lt_ratio and dominance
+    measures = compute_similarity_measures_for_seed_isbns()
+    measures_map = dict()
+    for measure in measures:
+        measures_map[measure['etext_id']] = measure
+    
+    for item in gutenberg_and_seed_isbn(max=max_num, include_olid=include_olid):
+        g_id = item['gutenberg_etext_id']
+        accept = True
+        if min_dominance is not None and measures_map[g_id]['dominance'] is not None and measures_map[g_id]['dominance'] < min_dominance:
+            accept = False
+        if min_l_ratio is not None and measures_map[g_id]['title_l_ratio'] is not None and measures_map[g_id]['title_l_ratio'] < min_l_ratio:
+            accept = False
+        if accept:
+            yield item
+    
+    
     
     
 class FreebaseClient(object):
