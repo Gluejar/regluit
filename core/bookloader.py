@@ -107,7 +107,7 @@ def get_google_isbn_results(isbn):
 def add_ebooks(item, edition):
     access_info = item.get('accessInfo')
     if access_info:
-        edition.public_domain = item.get('public_domain', None)
+        edition.public_domain = access_info.get('publicDomain', None)
         epub = access_info.get('epub')
         if epub and epub.get('downloadLink'):
             ebook = models.Ebook(edition=edition, format='epub',

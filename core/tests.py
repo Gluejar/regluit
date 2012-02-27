@@ -234,6 +234,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['U3FXAAAAYAAJ'])
         self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
         self.assertEqual(ebook_pdf.provider, 'google')        
+        self.assertEqual(edition.public_domain, True)        
 
         w = edition.work
         self.assertEqual(w.first_epub().url, ebook_epub.url)

@@ -83,7 +83,7 @@ def load_gutenberg_moby_dick():
                                               epub_url, format, license, lang, publication_date)
     return ebook
 
-def load_gutenberg_books(fname="/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit/experimental/gutenberg/g_seed_isbn.json",
+def load_gutenberg_books(fname="{0}/gutenberg/g_seed_isbn.json".format(experimental.__path__[0]),
                          max_num=None):
     
     headers = ()
