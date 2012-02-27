@@ -731,14 +731,18 @@ def supporter(request, supporter_username, template_name):
     
 	# querysets for tabs
 	# unglued tab is anything for which there has been a successful campaign OR anything with an existing ebook
-    works_unglued = wishlist.works.all().filter(Q(campaigns__status='SUCCESSFUL') | Q(editions__ebooks__isnull=False)).order_by('-num_wishes')
+	# TO DO: this should be ordered but it's not clear how
+	## any .order_by() must not clash with .distinct()
+	## works are not guaranteed to have associated campaigns so can we sort on campaign deadline?
+	## works may be associated with multiple campaigns so what will happen if we sort on campaign deadline?
+    works_unglued = wishlist.works.all().filter(Q(campaigns__status='SUCCESSFUL') | Q(editions__ebooks__isnull=False)).distinct()
     
     # take the set complement of the unglued tab and filter it for active works to get middle tab
     result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
-    works_active = result.filter(campaigns__status='ACTIVE')
+    works_active = result.filter(campaigns__status='ACTIVE').order_by('campaigns__deadline')
     
     # everything else goes in tab 3
-    works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True))
+    works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True)).order_by('-num_wishes')
 
     # badge counts
     backed = works_unglued.count()
