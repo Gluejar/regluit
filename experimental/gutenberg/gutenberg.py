@@ -1293,7 +1293,12 @@ if __name__ == '__main__':
 
     #print list(gutenberg_and_seed_isbn(max=10))
      
-    print list(repick_seed_isbn(10))      
+    #print list(repick_seed_isbn(10))
+    
+    # output a filtered gutenberg list
+    # 0.56 and 0.7 I got by eye-balling the results in Google Refine
+    y = list(filtered_gutenberg_and_seed_isbn(min_l_ratio=0.56, min_dominance=0.7))
+    export_to_json(y,fname="g_seed_isbn.json")
     
     #suites = suite()
     #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))
