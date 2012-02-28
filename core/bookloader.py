@@ -557,7 +557,7 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
         
         
     ebook.format = format
-    ebook.provider = 'gutenberg'
+    ebook.provider = 'Project Gutenberg'
     ebook.url =  url
     ebook.rights = license
         
