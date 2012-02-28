@@ -368,7 +368,10 @@ class Work(models.Model):
                     else:
                         status = percent;
         return status;
-
+    
+    def ebooks(self):
+        return Ebook.objects.filter(edition__work=self).order_by('-created')
+    
     def first_pdf(self):
         return self.first_ebook('pdf')
 
@@ -391,20 +394,18 @@ class Work(models.Model):
 
     def first_ebook(self, ebook_format=None):
         if ebook_format:
-            for ebook in Ebook.objects.filter(edition__work=self, 
-                                              format=ebook_format):
+            for ebook in self.ebooks().filter(format=ebook_format):
                 return ebook
         else:
-            for ebook in Ebook.objects.filter(edition__work=self):
+            for ebook in self.ebooks():
                 return ebook
-        return None
 
     def wished_by(self):
         return User.objects.filter(wishlist__works__in=[self])
         
     def update_num_wishes(self):
-    	self.num_wishes = Wishes.objects.filter(work=self).count()
-    	self.save()
+        self.num_wishes = Wishes.objects.filter(work=self).count()
+        self.save()
 
     def longest_description(self):
         """get the longest description from an edition of this work
@@ -528,18 +529,56 @@ class Edition(models.Model):
             return None
 
 class WasWork(models.Model):
-	work = models.ForeignKey('Work')
-	was = models.IntegerField(unique = True)
-	
-	
+    work = models.ForeignKey('Work')
+    was = models.IntegerField(unique = True)
+    moved = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, null=True)
+    
+    
 class Ebook(models.Model):
+    FORMAT_CHOICES = (('PDF','PDF'),( 'EPUB','EPUB'), ('HTML','HTML'), ('TEXT','TEXT'), ('MOBI','MOBI'))
+    RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
+            ('CC BY-NC-ND','CC BY-NC-ND'), 
+            ('CC BY-ND','CC BY-ND'), 
+            ('CC BY','CC BY'), 
+            ('CC BY-NC','CC BY-NC'),
+            ( 'CC BY-NC-SA','CC BY-NC-SA'),
+            ( 'CC BY-SA','CC BY-SA'),
+            ( 'CC0','CC0'),
+        )
+    url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
-    format = models.CharField(max_length=25)
-    url = models.CharField(max_length=1024)
+    format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
-    rights = models.CharField(max_length=255, null=True)
+    
+    # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
+    rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES)
     edition = models.ForeignKey('Edition', related_name='ebooks')
+    user = models.ForeignKey(User, null=True)
 
+    def set_provider(self):
+        self.provider=Ebook.infer_provider(self.url)
+        return self.provider
+    
+    @classmethod
+    def infer_provider(klass, url):
+        if not url:
+            return None
+        # provider derived from url. returns provider value. remember to call save() afterward
+        if url.startswith('http://books.google.com/'):
+            provider='Google Books'
+        elif url.startswith('http://www.gutenberg.org/'):
+            provider='Project Gutenberg'
+        elif url.startswith('http://www.archive.org/'):
+            provider='Internet Archive'
+        elif url.startswith('http://hdl.handle.net/2027/') or url.startswith('http://babel.hathitrust.org/'):
+            provider='Hathitrust'
+        elif re.match('http://\w\w\.wikisource\.org/', url):
+            provider='Wikisource'
+        else:
+            provider=None
+        return provider
+    
     def __unicode__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
 
