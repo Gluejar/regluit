@@ -227,20 +227,24 @@ class BookLoaderTests(TestCase):
         #self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
         self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['U3FXAAAAYAAJ'])
         self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("output"), ['epub'])
-        self.assertEqual(ebook_epub.provider, 'google')
+        self.assertEqual(ebook_epub.provider, 'Google Books')
+        self.assertEqual(ebook_epub.set_provider(), 'Google Books')
         ebook_pdf = edition.ebooks.filter(format='pdf')[0]
         self.assertEqual(ebook_pdf.format, 'pdf')
         #self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
         self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['U3FXAAAAYAAJ'])
         self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
-        self.assertEqual(ebook_pdf.provider, 'google')        
-        self.assertEqual(edition.public_domain, True)        
+        self.assertEqual(ebook_pdf.provider, 'Google Books')        
+        self.assertEqual(edition.public_domain, True)  
 
         w = edition.work
         self.assertEqual(w.first_epub().url, ebook_epub.url)
         self.assertEqual(w.first_pdf().url, ebook_pdf.url)
         self.assertEqual(w.first_epub_url(), ebook_epub.url)
         self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
+
+        ebook_pdf.url='http://en.wikisource.org/wiki/Frankenstein'      
+        self.assertEqual(ebook_pdf.set_provider(), 'Wikisource')
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
