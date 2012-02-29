@@ -255,71 +255,71 @@ how do I integrate the your wishlist thing with the tabs thing?
                 </div>
                 <div id="content-block-content">
                     {% ifequal wishlist.works.all.count 0 %}
-                    {% ifequal request.user supporter %}
-                    <div class="empty-wishlist">
-                        Your wishlist is currently empty.<br /><br />
-                        Why not <span class="bounce-search">find</span> your favorite books, and add them to your Wishlist?<br /><br />
-                        We'd also love to hear your <a href="/feedback">feedback</a>.
-                    </div>
+                        {% ifequal request.user supporter %}
+                        <div class="empty-wishlist">
+                            Your wishlist is currently empty.<br /><br />
+                            Why not <span class="bounce-search">find</span> your favorite books, and add them to your Wishlist?<br /><br />
+                            We'd also love to hear your <a href="/feedback">feedback</a>.
+                        </div>
+                        {% else %}
+                        <div class="empty-wishlist">
+                            It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
+                        {% endifequal %}
                     {% else %}
-                    <div class="empty-wishlist">
-                        It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
-                    {% endifequal %}
-                    {% else %}
 
-                    {% lazy_paginate 20 works_unglued using "works_unglued" %}
-                    {% for work in works_unglued %}
-                    <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
-                    {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                    </div>
-                    {% endfor %}
-                    <br>
-                    <div class="pagination content-block-heading tabs-1">
-                        {% get_pages %}
-                        {% for page in pages %}
-                        	<a href="{{ page.path }}#1">{{ page.number }}</a>
+                        {% lazy_paginate 20 works_unglued using "works_unglued" %}
+                        {% for work in works_unglued %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}					
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
                         {% endfor %}
-                    </div>
-
-                    {% lazy_paginate 20 works_active using "works_active" %}
-                    {% for work in works_active %}
-                    <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
-                    {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                    </div>
-                    {% endfor %}
-                    <br>
-                    <div class="pagination content-block-heading tabs-2">
-                        {% get_pages %}
-                        {% for page in pages %}
-                        	<a href="{{ page.path }}#2">{{ page.number }}</a>
+                        <br>
+                        <div class="pagination content-block-heading tabs-1">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#1">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
+    
+                        {% lazy_paginate 20 works_active using "works_active" %}
+                        {% for work in works_active %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}					
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
                         {% endfor %}
-                    </div>
-
-                    {% lazy_paginate 20 works_wished using "works_wished" %}
-                    {% for work in works_wished %}
-                    <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
-                    {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                    </div>
-                    {% endfor %}
-                    <br>
-                    <div class="pagination content-block-heading tabs-3">
-                        {% get_pages %}
-                        {% for page in pages %}
-                        	<a href="{{ page.path }}#3">{{ page.number }}</a>
+                        <br>
+                        <div class="pagination content-block-heading tabs-2">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#2">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
+    
+                        {% lazy_paginate 20 works_wished using "works_wished" %}
+                        {% for work in works_wished %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}					
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
                         {% endfor %}
-                    </div>
+                        <br>
+                        <div class="pagination content-block-heading tabs-3">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#3">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
 
                     {% endifequal %}
                 </div>
