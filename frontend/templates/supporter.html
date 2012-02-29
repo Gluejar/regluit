@@ -20,13 +20,28 @@
 <script type="text/javascript" src="/static/js/counter.js"></script>
 {% endblock %}
 
+{% block extra_js %}
+<script>
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+	var highlighter = $j('#loadlt');
+	var target = $j('#connectlt');
+    highlighter.click(function(){
+       target.css({"background": "#8dc63f"}).animate(
+           {backgroundColor: "white"}, 1500
+       );
+    });
+});
+</script>
+{% endblock %}
+
 {% comment %}
 To do:
 create topsection file for inclusion in multiple contexts, if needed
 figure out how to configure date display 
     decide if we're even including date joined in profile
 Goodreads 
-    be sure words display correctly
+    be sure words display correctlydja
     do I need both add-wishlist and remove-wishlist classes? do they differ?
 better alignment on I am ungluing & badges
 
@@ -155,14 +170,14 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
-                                <div class="check-list">
+                                <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}
                                     <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
-                                <div class="check-list">
+                                <div class="check-list" id="connectlt">
                                     <label>{% if supporter.profile.librarything_id %}Change{% else %}Add{% endif %} your LibraryThing User ID:</label>
                                     {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
                                 </div>
