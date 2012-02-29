@@ -126,7 +126,7 @@
         {% else %}{% if work.first_ebook %}
             <span class="listview boolist-ebook">
             {% for ebook in work.ebooks|slice:":3" %}
-            <a href="ebook.url">{{ ebook.format }}</a> 
+            <a href="{{ebook.url}}">{{ ebook.format }}</a> 
             {% endfor %}
             </span>
         {% else %}
