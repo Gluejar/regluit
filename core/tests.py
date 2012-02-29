@@ -151,8 +151,8 @@ class BookLoaderTests(TestCase):
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works
-        e1 = bookloader.add_by_isbn('0465019358')
-        e2 = bookloader.add_by_isbn('1458776204')
+        e1 = bookloader.add_by_isbn('0385722133')
+        e2 = bookloader.add_by_isbn('0385504187')
         self.assertTrue(e1)
         self.assertTrue(e2)
         self.assertTrue(e1.work)
@@ -201,9 +201,9 @@ class BookLoaderTests(TestCase):
         comment2.save()
         
         # now add related edition to make sure Works get merged
-        bookloader.add_related('1458776204')
+        bookloader.add_related('0385722133')
         self.assertEqual(models.Work.objects.count(), 1)
-        w3 = models.Edition.get_by_isbn('1458776204').work
+        w3 = models.Edition.get_by_isbn('0385722133').work
         
         # and that relevant Campaigns and Wishlists are updated
         
