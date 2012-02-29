@@ -52,10 +52,10 @@
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div id="content-block">
-                <div class="content-block-heading ungluing" id="tabs">
+                <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
-                        <li class="tabs2 active"><a href="#">Active</a></li>
+                        <li class="tabs2"><a href="#">Active</a></li>
                         <li class="tabs3"><a href="#">Unglue It!</a></li>
                     </ul>
                                     <div class="badges listspage">
@@ -82,20 +82,59 @@
                     {% ifequal work_list.count 0 %}
                     There aren't any works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
                     {% else %}
-                    {% paginate 20 work_list %}
-                    {% for work in work_list %}
-                    <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
-                    {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                    </div>
-                    {% endfor %}
-                    <br>
-                    <div class="pagination content-block-heading">
-                        {% show_pages %}
-                    </div>
+                        {% lazy_paginate 20 works_unglued using "works_unglued" %}
+                        {% for work in works_unglued %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}					
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
+                        {% endfor %}
+                        <br>
+                        <div class="pagination content-block-heading tabs-1">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#1">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
+    
+                        {% lazy_paginate 20 works_active using "works_active" %}
+                        {% for work in works_active %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}					
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
+                        {% endfor %}
+                        <br>
+                        <div class="pagination content-block-heading tabs-2">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#2">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
+    
+                        {% lazy_paginate 20 works_wished using "works_wished" %}
+                        {% for work in works_wished %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}					
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
+                        {% endfor %}
+                        <br>
+                        <div class="pagination content-block-heading tabs-3">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#3">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
                     {% endifequal %}
                 </div>
             </div>    
