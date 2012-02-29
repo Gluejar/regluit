@@ -221,14 +221,6 @@ class WorkListView(ListView):
     template_name = "work_list.html"
     context_object_name = "work_list"
     
-    def work_set_counts(self,work_set):
-        counts={}
-        # counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
-        counts['unglued'] = work_set.filter(editions__ebooks__isnull=False).distinct().count()
-        counts['unglueing'] = work_set.filter(campaigns__status='ACTIVE').count()
-        counts['wished'] = work_set.count() - counts['unglued'] - counts['unglueing']
-        return counts
-
     def get_queryset(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
@@ -243,9 +235,17 @@ class WorkListView(ListView):
     def get_context_data(self, **kwargs):
             context = super(WorkListView, self).get_context_data(**kwargs)
             qs=self.get_queryset()
-            context['counts'] = self.work_set_counts(qs)
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
+            context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
+            context['works_active'] = qs.filter(campaigns__status='ACTIVE',editions__ebooks__isnull=True)
+            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False,campaigns__status='ACTIVE')
+            
+            counts={}
+            counts['unglued'] = context['works_unglued'].count()
+            counts['unglueing'] = context['works_active'].count()
+            counts['wished'] = context['works_wished'].count()
+            context['counts'] = counts
             return context
 
 class UngluedListView(ListView):
@@ -743,15 +743,11 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
-    fromsupport = 1
     
-	# querysets for tabs
-	# unglued tab is anything for which there has been a successful campaign OR anything with an existing ebook
-	# TO DO: this should be ordered but it's not clear how
-	## .order_by() may clash with .distinct() and this should be fixed
-	## works are not guaranteed to have associated campaigns so can we sort on campaign deadline?
-	## works may be associated with multiple campaigns so what will happen if we sort on campaign deadline?
-    works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).order_by('-num_wishes').distinct()
+    # querysets for tabs
+    # unglued tab is anything with an existing ebook
+    ## .order_by() may clash with .distinct() and this should be fixed
+    works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
     
     # take the set complement of the unglued tab and filter it for active works to get middle tab
     result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
@@ -817,7 +813,6 @@ def supporter(request, supporter_username, template_name):
             "works_unglued": works_unglued,
             "works_active": works_active,
             "works_wished": works_wished,
-            "fromsupport": fromsupport,
             "backed": backed,
             "backing": backing,
             "wished": wished,
