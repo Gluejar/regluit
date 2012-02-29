@@ -281,7 +281,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <div class="pagination content-block-heading tabs-1">
                         {% get_pages %}
                         {% for page in pages %}
-                        	<a href="{{ page.path }}#1">{{ page.number }}</a>
+                        	<a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
 
@@ -299,7 +299,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <div class="pagination content-block-heading tabs-2">
                         {% get_pages %}
                         {% for page in pages %}
-                        	<a href="{{ page.path }}#2">{{ page.number }}</a>
+                        	<a href="{{ page.path }}#2" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
 
@@ -317,7 +317,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                     <div class="pagination content-block-heading tabs-3">
                         {% get_pages %}
                         {% for page in pages %}
-                        	<a href="{{ page.path }}#3">{{ page.number }}</a>
+                        	<a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
 
