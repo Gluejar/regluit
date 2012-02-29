@@ -11,6 +11,7 @@ import random
 random.seed()
 
 import sys, os
+import json
 
 # a kludge to allow for isbn.py to be imported 
 # and not just in the context of the regluit Django app
@@ -436,15 +437,14 @@ class FreebaseBooks(object):
             self.freebase.login(username,password)
     def books(self):
         MQL = u"""[{
-  "type": "/book/book",
-  "id":   null,
-  "key": [{
-    "namespace": "/wikipedia/en",
-    "value":     null,
-    "type":      "/type/key"
-  }]
-}]
-""".replace("\n"," ")
+                "type": "/book/book",
+                "id":   null,
+                "key": [{
+                  "namespace": "/wikipedia/en",
+                  "value":     null,
+                  "type":      "/type/key"
+                }]
+              }]""".replace("\n"," ")
         query = json.loads(MQL)
         resp = self.freebase.mqlreaditer(query)
         for r in resp:
@@ -452,18 +452,17 @@ class FreebaseBooks(object):
 
     def book_editions(self):
         MQL = u"""[{
-  "type":        "/book/book_edition",
-  "id":          null,
-  "isbn":        [{}],
-  "ISBN":        [{}],
-  "LCCN":        [{}],
-  "OCLC_number": [{}],
-  "openlibrary_id": [{}],
-  "book": {
-    "id":   null,
-    "name": null
-  }
-}]""".replace("\n"," ")
+        "type":        "/book/book_edition",
+        "id":          null,
+        "isbn":        [{}],
+        "ISBN":        [{}],
+        "LCCN":        [{}],
+        "OCLC_number": [{}],
+        "openlibrary_id": [{}],
+        "book": {
+          "id":   null,
+          "name": null
+        }}]""".replace("\n"," ")
         query = json.loads(MQL)
         resp = self.freebase.mqlreaditer(query)
         for r in resp:
@@ -471,18 +470,17 @@ class FreebaseBooks(object):
 
     def editions_for_book(self, book_id):
         MQL = u"""[{
-  "type":        "/book/book_edition",
-  "id":          null,
-  "isbn":        [{}],
-  "ISBN":        [{}],
-  "LCCN":        [{}],
-  "OCLC_number": [{}],
-  "openlibrary_id": [{}],
-  "book": {
-    "id":   null,
-    "name": null
-  }
-}]""".replace("\n"," ")
+        "type":        "/book/book_edition",
+        "id":          null,
+        "isbn":        [{}],
+        "ISBN":        [{}],
+        "LCCN":        [{}],
+        "OCLC_number": [{}],
+        "openlibrary_id": [{}],
+        "book": {
+          "id":   null,
+          "name": null
+        }}]""".replace("\n"," ")
         query = json.loads(MQL)
         query[0]["book"]["id"] = book_id
         resp = self.freebase.mqlreaditer(query)
@@ -491,18 +489,17 @@ class FreebaseBooks(object):
             
     def book_edition_by_id(self,id,id_type):
         MQL = u"""[{
-  "type":        "/book/book_edition",
-  "id":          null,
-  "isbn":        [{}],
-  "ISBN":        [{}],
-  "LCCN":        [{}],
-  "OCLC_number": [{}],
-  "openlibrary_id": [{}],
-  "book": {
-    "id":   null,
-    "name": null
-  }
-}]""".replace("\n"," ")
+        "type":        "/book/book_edition",
+        "id":          null,
+        "isbn":        [{}],
+        "ISBN":        [{}],
+        "LCCN":        [{}],
+        "OCLC_number": [{}],
+        "openlibrary_id": [{}],
+        "book": {
+          "id":   null,
+          "name": null
+        }}]""".replace("\n"," ")
         query = json.loads(MQL)
         if id_type == 'isbn':
             query[0][id_type][0].setdefault('name', id)
@@ -526,18 +523,18 @@ class FreebaseBooks(object):
         elif isbn_val is not None:
             isbn_val = isbn_mod.ISBN(isbn_val).to_string('13')
             MQL = """[{
-  "type": "/book/book_edition",
-  "isbn": {
-    "name": null
-  },
-  "book": {
-    "editions": [{
-      "isbn": {
-        "name": null
-      }
-    }]
-  }
-}]""".replace("\n"," ")
+                "type": "/book/book_edition",
+                "isbn": {
+                  "name": null
+                },
+                "book": {
+                  "editions": [{
+                    "isbn": {
+                      "name": null
+                    }
+                  }]
+                }
+              }]""".replace("\n"," ")
             query = json.loads(MQL)
             query[0]["book"]["editions"][0]["isbn"]["name"] = isbn_val
             resp = self.freebase.mqlreaditer(query)
@@ -565,7 +562,91 @@ class WorkMapper(object):
                     yield work_id
                     if not complete_search:
                         raise StopIteration()    
+
+class LibraryThing(object):
+    """
+    Provide cached access to thingisbn and LT whatwork interface.  Allow for a cache file to be loaded and saved
+    """
+    def __init__(self, fname=None):
+        self.__isbn_to_work_id = {}
+        self.fname = fname
+    def __del__(self):
+        self.save()
+    def thingisbn(self, isbn, return_work_id=False):
+        """ if return_work_id is True, we won't try to calculate all the relevant isbns"""
+        # first, normalize the isbn
+        isbn = isbn_mod.ISBN(isbn).to_string('13')
+        if isbn is None: return []
+        
+        # check to see whether we have isbn already
+        if isbn in self.__isbn_to_work_id:
+            # return all isbns with the work id
+            # print "%s already cached" % (isbn)
+            work_id = self.__isbn_to_work_id.get(isbn)
+
+            if return_work_id:
+                return work_id            
+            if work_id is not None:
+                return [k for (k, v) in self.__isbn_to_work_id.items() if v == work_id]
+            else:
+                return []
+        else:
+            # if isbn is not already cached, do look up and cache the results and return the results
+            print "calling thingisbn for %s" % (isbn)
+            results = [isbn_mod.ISBN(k).to_string('13') for k in thingisbn (isbn)]
+            if len(results):
+                # look up the librarything work id
+                work_id = self.whatwork(isbn)
+                
+                if work_id is not None: # which should be the case since results is not zero-length
+                    self.__isbn_to_work_id.update(dict([(isbn_mod.ISBN(result).to_string('13'), work_id) for result in results]))
+                else:
+                    logger.exception("work_id should not be None for isbn %s", isbn)
+                    return []
+            else:
+                self.__isbn_to_work_id[isbn] = None  # mark as not recognized by LT
+                work_id = None
+                
+            if return_work_id:
+                return work_id
+            else:
+                return results
+                    
+    def whatwork(self, isbn=None, title=None, author=None):
+        # if isbn is not None and title, author None then look up results, otherwise just pass along to lt_whatwork
+        # first, normalize the isbn
+        isbn = isbn_mod.ISBN(isbn).to_string('13')
+        if isbn is not None and (title is None and author is None):
+            if isbn in self.__isbn_to_work_id:
+                work_id = self.__isbn_to_work_id.get(isbn)
+            else:
+                work_id = lt_whatwork(isbn=isbn)
+                self.__isbn_to_work_id[isbn] = work_id
+            return work_id
+        else:
+            return lt_whatwork(isbn=isbn, title=title, author=author)
+    def load(self):
+        try:
+            f = open(self.fname)
+            input_data = json.load(f)
+            f.close()
             
+            if isinstance(input_data, dict):
+                self.__isbn_to_work_id = input_data
+                return True
+            else:
+                return False
+        except Exception, e:
+            print e
+    def save(self):
+        if self.fname is not None:
+            f = open(self.fname, "w")
+            json.dump(self.__isbn_to_work_id, f)
+            f.close()
+            return True
+        else:
+            return False
+ 
 
 def look_up_my_zotero_books_in_hathi():
     from regluit.experimental.zotero_books import MyZotero
@@ -786,6 +867,17 @@ class LibraryThingTest(TestCase):
         self.assertEqual(work_id, SURFACING_LT_WORK_ID)
         work_id = lt_whatwork(title='Hamlet', author='Shakespeare')
         self.assertEqual(work_id, '2199')
+    def test_cache(self):
+
+        lt = LibraryThing()
+        res = lt.thingisbn(SURFACING_ISBN)
+        
+        res2 = lt.thingisbn(SURFACING_ISBN)
+        self.assertEqual(set(res), set(res2))
+        
+        self.assertEqual(lt.whatwork(SURFACING_ISBN), SURFACING_LT_WORK_ID)
+
+        self.assertEqual(lt.thingisbn(SURFACING_ISBN, return_work_id=True), SURFACING_LT_WORK_ID)
         
         
 def suite():
@@ -793,7 +885,7 @@ def suite():
     #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
     testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    suites.addTest(LibraryThingTest('test_whatwork'))
+    suites.addTest(LibraryThingTest('test_cache'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
     return suites    
     

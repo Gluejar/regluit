@@ -42,6 +42,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
+from regluit.frontend.forms import EbookForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -91,13 +92,29 @@ def stub(request):
 
 def work(request, work_id, action='display'):
     try:
-    	work = models.Work.objects.get(id = work_id)
+        work = models.Work.objects.get(id = work_id)
     except models.Work.DoesNotExist:
-    	try:
-    		work = models.WasWork.objects.get(was = work_id).work
-    	except models.WasWork.DoesNotExist:
-    		raise Http404
+        try:
+            work = models.WasWork.objects.get(was = work_id).work
+        except models.WasWork.DoesNotExist:
+            raise Http404
 
+    if request.method == 'POST' and not request.user.is_anonymous():
+        activetab = '4'
+        ebook_form= EbookForm( data = request.POST)
+        if ebook_form.is_valid():
+            ebook_form.save()
+            alert = 'Thanks for adding an ebook to unglue.it!'
+        else: 
+            alert = ebook_form.errors
+    else:
+        alert=''
+        try:
+            activetab = request.GET['tab']
+            if activetab not in ['1', '2', '3', '4']:
+                activetab = '1';
+        except:
+            activetab = '1';
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
     try:
@@ -110,6 +127,9 @@ def work(request, work_id, action='display'):
         pubdate = 'unknown'
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id})
+        for edition in editions:
+            #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
+            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ) )
     else:
         claimform = None
     if campaign:
@@ -121,12 +141,6 @@ def work(request, work_id, action='display'):
     wishers = work.num_wishes
     base_url = request.build_absolute_uri("/")[:-1]
     
-    try:
-        activetab = request.GET['tab']
-        if activetab not in ['1', '2', '3', '4']:
-        	activetab = '1';
-    except:
-	    activetab = '1';
     
     #may want to deprecate the following
     if action == 'setup_campaign':
@@ -143,6 +157,7 @@ def work(request, work_id, action='display'):
             'pubdate': pubdate,
             'pledged':pledged,
             'activetab': activetab,
+            'alert':alert
         })
 
 def manage_campaign(request, id):

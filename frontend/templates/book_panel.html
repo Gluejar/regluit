@@ -6,17 +6,17 @@
                     <div class="unglued_white">
 
 					{% comment %}top section: campaign info + optional action button. Varies by campaign status.{% endcomment %}
-                    {% if work.first_pdf_url or work.first_epub_url %}
+                    {% if work.first_ebook %}
                         <b>AVAILABLE!</b>
                     </div>
-                    <div class="read_itbutton">{% if work.first_epub_url %}<a href="{{ work.first_epub_url }}">{% else %}<a href="{{ work.first_pdf_url }}">{% endif %}Read it Now</a></div>
+                    <div class="read_itbutton">{% if work.first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
 
                     {% else %}{% if status == 'SUCCESSFUL' %} 
                     	<b>UNGLUED!</b>
                         <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
                         <p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
                     </div>
-                    <div class="read_itbutton">{% if work.first_epub_url %}<a href="{{ work.first_epub_url }}">{% else %}<a href="{{ work.first_pdf_url }}">{% endif %}Read it Now</a></div>
+                    <div class="read_itbutton">{% if work.first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
                     
                     {% else %}{% if status == 'ACTIVE' %}
                     	<b>UNGLUE IT!</b>
@@ -123,14 +123,11 @@
     <div class="listview panelfront side1 icons">
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
           <a href="{% url work work.id %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
-        {% else %}{% if work.first_pdf_url or work.first_epub_url %}
+        {% else %}{% if work.first_ebook %}
             <span class="listview boolist-ebook">
-            {% if work.first_epub_url %}
-                <a href="{{ work.first_epub_url }}">EPUB</a>
-            {% endif %}
-            {% if work.first_pdf_url %}
-                <a href="{{ work.first_pdf_url }}">PDF</a>
-            {% endif %} 
+            {% for ebook in work.ebooks|slice:":3" %}
+            <a href="ebook.url">{{ ebook.format }}</a> 
+            {% endfor %}
             </span>
         {% else %}
         
