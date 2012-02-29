@@ -157,7 +157,7 @@ jQuery(document).ready(function(){
                             {% if work.first_ebook %}
                                 <span class="boolist-ebook">
                                 {% for ebook in work.ebooks %}
-                                <a href="ebook.url">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                <a href="{{ ebook.url }}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
                                 {% endfor %}
                                 </span>
                             {% endif %}
@@ -295,7 +295,7 @@ jQuery(document).ready(function(){
                                     {% if edition.ebooks %}
                                         <h5>eBooks for this Edition</h5>
                                         {% for ebook in edition.ebooks.all %}
-                                            <a href="ebook.url">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                            <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
                                         {% endfor %}
                                     {% endif %}
                                     <h5>Add an eBook for this Edition</h5>
