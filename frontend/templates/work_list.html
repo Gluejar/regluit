@@ -95,9 +95,11 @@
                         <br>
                         <div class="pagination content-block-heading tabs-1">
                             {% get_pages %}
+                            {{ pages.previous }}
                             {% for page in pages %}
-                                <a href="{{ page.path }}#1">{{ page.number }}</a>
+                                <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
+                            {{ pages.next }}
                         </div>
     
                         {% lazy_paginate 20 works_active using "works_active" %}
@@ -113,9 +115,11 @@
                         <br>
                         <div class="pagination content-block-heading tabs-2">
                             {% get_pages %}
+                            {{ pages.previous }}
                             {% for page in pages %}
-                                <a href="{{ page.path }}#2">{{ page.number }}</a>
+                                <a href="{{ page.path }}#2" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
+                            {{ pages.next }}
                         </div>
     
                         {% lazy_paginate 20 works_wished using "works_wished" %}
@@ -131,9 +135,11 @@
                         <br>
                         <div class="pagination content-block-heading tabs-3">
                             {% get_pages %}
+                            {{ pages.previous }}
                             {% for page in pages %}
-                                <a href="{{ page.path }}#3">{{ page.number }}</a>
+                                <a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
+                            {{ pages.next }}
                         </div>
                     {% endifequal %}
                 </div>
