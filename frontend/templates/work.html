@@ -137,13 +137,6 @@ jQuery(document).ready(function(){
                         <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png" /></div>
                         </div>
                         <div class="btn_wishlist" id="wishlist_actions">
-                            {% if work.first_ebook %}
-                                <span class="boolist-ebook">
-                                {% for ebook in work.ebooks %}
-                                <a href="ebook.url">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
-                                {% endfor %}
-                                </span>
-                            {% endif %}
                             {% if request.user.is_anonymous %}
                                 <div class="create-account">
                                     <span title="{% url work work.id %}">Login to Add</span>
@@ -158,9 +151,16 @@ jQuery(document).ready(function(){
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
-                                    <span id="{{ work.googlebooks_id }}">Add to {% if work.first_ebook %}Enjoying{% else %}Wishlist{% endif %}</span>
+                                    <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
+                            {% if work.first_ebook %}
+                                <span class="boolist-ebook">
+                                {% for ebook in work.ebooks %}
+                                <a href="ebook.url">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                {% endfor %}
+                                </span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
