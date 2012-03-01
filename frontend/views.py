@@ -238,8 +238,8 @@ class WorkListView(ListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
-            context['works_active'] = qs.filter(campaigns__status='ACTIVE',editions__ebooks__isnull=True).distinct()
-            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').distinct()
+            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct().order_by('-campaigns__status', 'campaigns__deadline')
+            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct().order_by('-num_wishes')
             
             counts={}
             counts['unglued'] = context['works_unglued'].count()
