@@ -1,7 +1,6 @@
 import re
 import sys
 import json
-import urllib
 import logging
 import datetime 
 from random import randint
@@ -32,8 +31,8 @@ from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
 from django.shortcuts import render, render_to_response, get_object_or_404
+from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
-
 from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
@@ -1222,7 +1221,7 @@ def work_librarything(request, work_id):
         url = "http://www.librarything.com/isbn/%s" % isbn
     else:
         term = work.title + " " + work.author()
-        q = urllib.urlencode({'searchtpe': 'work', 'term': term})
+        q = urlencode({'searchtpe': 'work', 'term': term})
         url = "http://www.librarything.com/search.php?" + q
     return HttpResponseRedirect(url)
 
@@ -1243,7 +1242,7 @@ def work_openlibrary(request, work_id):
             url = "http://openlibrary.org" + j[first]['key'] 
     # fall back to doing a search on openlibrary
     if not url:
-        q = urllib.urlencode({'q': work.title + " " + work.author()})
+        q = urlencode({'q': work.title + " " + work.author()})
         url = "http://openlibrary.org/search?" + q
     return HttpResponseRedirect(url)
 
@@ -1255,7 +1254,7 @@ def work_goodreads(request, work_id):
     elif isbn:
         url = "http://www.goodreads.com/book/isbn/%s" % isbn
     else:
-        q = urllib.urlencode({'query': work.title + " " + work.author()})
+        q = urlencode({'query': work.title + " " + work.author()})
         url = "http://www.goodreads.com/search?" + q
     return HttpResponseRedirect(url)
 
