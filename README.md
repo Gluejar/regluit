@@ -80,6 +80,15 @@ Instructions for setting please are slightly different.
 1. `sudo chown celery:celery /var/log/celery`
 1. `sudo /etc/init.d/celeryd start`
 
+Updating Production
+--------------------
+
+1. Study the latest changes in the master branch, especially keep in mind how
+it has [changed from what's in production](https://github.com/Gluejar/regluit/compare/production...master).
+1. Update the production branch accordingly.  If everything in `master` is ready to be moved into `production`, you can just merge `master` into `production`. Otherwise, you can grab specific parts.  (How to do so is something that should probably be described in greater detail.)
+1. Login to unglue.it and run [`/opt/regluit/deploy/update-prod`](https://github.com/Gluejar/regluit/blob/master/deploy/update-prod)
+
+
 OS X Developer Notes
 -------------------
 
