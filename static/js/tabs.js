@@ -22,17 +22,17 @@
         var tabsLink3 = $j('li.tabs3');
         var contentBlockContent = $j('#content-block-content');
         
-        // on pageload we are showing only the active tab
+        // on pageload we are showing only the Wishlisted tab, not Unglued or Active, by default
         if(location.hash == "#1") {
-	        tabsDash2.hide();
+	    tabsDash2.hide();
     	    tabsDash3.hide();
             tabsLink1.addClass('active');
     	} else if(location.hash =="#2") {
-	        tabsDash1.hide();
+	    tabsDash1.hide();
     	    tabsDash3.hide();    	
             tabsLink2.addClass('active');
     	} else {
-	        tabsDash1.hide();
+	    tabsDash1.hide();
     	    tabsDash2.hide();
             tabsLink3.addClass('active');
     	}
