@@ -112,7 +112,7 @@ def add_ebooks(item, edition):
         if epub and epub.get('downloadLink'):
             ebook = models.Ebook(edition=edition, format='epub',
                                  url=epub.get('downloadLink'),
-                                 provider='google')
+                                 provider='Google Books')
             try:
                 ebook.save()
             except IntegrityError:
@@ -123,7 +123,7 @@ def add_ebooks(item, edition):
         if pdf and pdf.get('downloadLink'):
             ebook = models.Ebook(edition=edition, format='pdf',
                                  url=pdf.get('downloadLink', None),
-                                 provider='google')
+                                 provider='Google Books')
             try:
                 ebook.save()
             except IntegrityError:
@@ -408,7 +408,7 @@ def thingisbn(isbn):
     return [e.text for e in doc.findall('isbn')]
 
 
-def merge_works(w1, w2):
+def merge_works(w1, w2, user=None):
     """will merge the second work (w2) into the first (w1)
     """
     logger.info("merging work %s into %s", w2, w1)
@@ -433,7 +433,7 @@ def merge_works(w1, w2):
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
 
-    models.WasWork(was=w2.pk,work=w1).save()
+    models.WasWork(was=w2.pk, work=w1, user=user).save()
     for ww in models.WasWork.objects.filter(work = w2):
         ww.work = w1
         ww.save()
@@ -557,7 +557,7 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
         
         
     ebook.format = format
-    ebook.provider = 'gutenberg'
+    ebook.provider = 'Project Gutenberg'
     ebook.url =  url
     ebook.rights = license
         

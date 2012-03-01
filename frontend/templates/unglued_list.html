@@ -8,8 +8,11 @@
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
 {% endblock %}
 {% block extra_head %}
+<script>
+location.hash = "#1";
+</script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-=<script type="text/javascript" src={{ jquery_ui_home }}></script>
+<script type="text/javascript" src={{ jquery_ui_home }}></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
@@ -51,7 +54,7 @@
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div id="content-block">
-                <div class="content-block-heading ungluing" id="tabs">
+                <div class="content-block-heading unglued" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
                     </ul>
@@ -77,7 +80,7 @@
                     {% ifequal work_list.count 0 %}
                     There aren't any works in this list. Why don't you add some?
                     {% else %}
-                    {% paginate 20 work_list %}
+                    {% lazy_paginate 20 work_list using "work_list" %}
                     {% for work in work_list %}
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
@@ -88,8 +91,11 @@
                     </div>
                     {% endfor %}
                     <br>
-                    <div class="pagination content-block-heading">
-                        {% show_pages %}
+                    <div class="pagination content-block-heading tabs-1">
+                        {% get_pages %}
+                        {% for page in pages %}
+                            <a href="{{ page.path }}#1">{{ page.number }}</a>
+                        {% endfor %}
                     </div>
                     {% endifequal %}
                 </div>
