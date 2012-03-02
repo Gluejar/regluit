@@ -82,7 +82,6 @@ def home(request):
             if j == count:
                 j = 0
     events = models.Wishes.objects.order_by('-created')[0:2]
-    activetab = "2"
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
@@ -240,6 +239,8 @@ class WorkListView(ListView):
             context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct().order_by('-campaigns__status', 'campaigns__deadline')
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct().order_by('-num_wishes')
             
+            context['activetab'] = "#3"
+            
             counts={}
             counts['unglued'] = context['works_unglued'].count()
             counts['unglueing'] = context['works_active'].count()
@@ -270,6 +271,7 @@ class UngluedListView(ListView):
             context['counts'] = self.work_set_counts(qs)
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
+            context['activetab'] = "#1"
             return context
 
         
@@ -821,6 +823,7 @@ def supporter(request, supporter_username, template_name):
             "goodreads_auth_url": reverse('goodreads_auth'),
             "goodreads_id": goodreads_id,
             "librarything_id": librarything_id,
+            "activetab": "#3"
     }
     
     return render(request, template_name, context)

@@ -384,6 +384,11 @@ a#readon span {
 #welcome {
   overflow: hidden;
 }
+#locationhash {
+  /* used solely to contain template variables for tabs.js; should not display */
+
+  display: none;
+}
 /* Explore column */
 #js-leftcol {
   float: left;

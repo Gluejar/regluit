@@ -8,9 +8,6 @@
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
 {% endblock %}
 {% block extra_head %}
-<script>
-location.hash = "#1";
-</script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src={{ jquery_ui_home }}></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
@@ -18,7 +15,7 @@ location.hash = "#1";
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 {% endblock %}
 {% block topsection %}
-
+<div id="locationhash">{{ activetab }}</div>
 <div id="js-topsection">
     <div class="js-main">
         <div class="js-topnews">

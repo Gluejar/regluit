@@ -23,18 +23,27 @@
         var contentBlockContent = $j('#content-block-content');
         
         // on pageload we are showing only the Active tab, not Unglued or Wishlisted
-        if(location.hash == "#1") {
+        if (location.hash == "#1" || location.hash == "#2" || location.hash == "#3") {
+        	tab = location.hash;
+        } else {
+        	tab = $j('#locationhash').html();
+        }
+        
+        $j('#test1').html(location.hash).css('color', 'red');
+        $j('#test2').html(tab);
+        
+        if(tab == "#1") {
 	        tabsDash2.hide();
     	    tabsDash3.hide();
             tabsLink1.addClass('active');
-    	} else if(location.hash =="#3") {
-	        tabsDash1.hide();
-    	    tabsDash2.hide();
-            tabsLink3.addClass('active');
-    	} else {
+    	} else if(tab =="#2") {
 	        tabsDash1.hide();
     	    tabsDash3.hide();    	
             tabsLink2.addClass('active');
+    	} else {
+	        tabsDash1.hide();
+    	    tabsDash2.hide();
+            tabsLink3.addClass('active');
     	}
         
         tabs1.click(function(){
