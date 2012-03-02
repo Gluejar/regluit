@@ -28,10 +28,7 @@
         } else {
         	tab = $j('#locationhash').html();
         }
-        
-        $j('#test1').html(location.hash).css('color', 'red');
-        $j('#test2').html(tab);
-        
+
         if(tab == "#1") {
 	        tabsDash2.hide();
     	    tabsDash3.hide();

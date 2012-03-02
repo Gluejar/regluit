@@ -91,7 +91,7 @@
                     <div class="pagination content-block-heading tabs-1">
                         {% get_pages %}
                         {% for page in pages %}
-                            <a href="{{ page.path }}#1">{{ page.number }}</a>
+                            <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
                     {% endifequal %}
