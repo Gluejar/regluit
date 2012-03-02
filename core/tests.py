@@ -151,8 +151,8 @@ class BookLoaderTests(TestCase):
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works
-        e1 = bookloader.add_by_isbn('0465019358')
-        e2 = bookloader.add_by_isbn('1458776204')
+        e1 = bookloader.add_by_isbn('0385722133')
+        e2 = bookloader.add_by_isbn('0385504187')
         self.assertTrue(e1)
         self.assertTrue(e2)
         self.assertTrue(e1.work)
@@ -201,9 +201,9 @@ class BookLoaderTests(TestCase):
         comment2.save()
         
         # now add related edition to make sure Works get merged
-        bookloader.add_related('1458776204')
+        bookloader.add_related('0385722133')
         self.assertEqual(models.Work.objects.count(), 1)
-        w3 = models.Edition.get_by_isbn('1458776204').work
+        w3 = models.Edition.get_by_isbn('0385722133').work
         
         # and that relevant Campaigns and Wishlists are updated
         
@@ -227,19 +227,24 @@ class BookLoaderTests(TestCase):
         #self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
         self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['U3FXAAAAYAAJ'])
         self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("output"), ['epub'])
-        self.assertEqual(ebook_epub.provider, 'google')
+        self.assertEqual(ebook_epub.provider, 'Google Books')
+        self.assertEqual(ebook_epub.set_provider(), 'Google Books')
         ebook_pdf = edition.ebooks.filter(format='pdf')[0]
         self.assertEqual(ebook_pdf.format, 'pdf')
         #self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=U3FXAAAAYAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
         self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['U3FXAAAAYAAJ'])
         self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
-        self.assertEqual(ebook_pdf.provider, 'google')        
+        self.assertEqual(ebook_pdf.provider, 'Google Books')        
+        self.assertEqual(edition.public_domain, True)  
 
         w = edition.work
         self.assertEqual(w.first_epub().url, ebook_epub.url)
         self.assertEqual(w.first_pdf().url, ebook_pdf.url)
         self.assertEqual(w.first_epub_url(), ebook_epub.url)
         self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
+
+        ebook_pdf.url='http://en.wikisource.org/wiki/Frankenstein'      
+        self.assertEqual(ebook_pdf.set_provider(), 'Wikisource')
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it

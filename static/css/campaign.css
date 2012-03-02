@@ -508,6 +508,9 @@ a {
 .editions a:hover {
   text-decoration: underline;
 }
+.show_more_edition {
+  cursor: pointer;
+}
 .thank-you {
   font-size: 20px;
 }
@@ -525,4 +528,16 @@ a {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
+}
+.more_edition {
+  display: none;
+  clear: both;
+  padding-bottom: 10px;
+  padding-left: 60px;
+}
+.show_more_edition:hover {
+  text-decoration: underline;
+}
+.show_more_edition {
+  text-align: right;
 }

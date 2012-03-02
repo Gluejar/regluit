@@ -11,14 +11,29 @@ from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook
 from regluit.core.lookups import OwnerLookup
 
 import logging
 
 logger = logging.getLogger(__name__)
 
-
+class EbookForm(forms.ModelForm):
+    class Meta:
+        model = Ebook
+        exclude = 'created'
+        widgets = { 
+                'edition': forms.HiddenInput, 
+                'user': forms.HiddenInput, 
+                'provider': forms.HiddenInput, 
+                'url': forms.TextInput(attrs={'size' : 60}),
+            }
+    def clean_provider(self):
+        new_provider= Ebook.infer_provider(self.data['url'])
+        if not new_provider:
+            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books."))
+        return new_provider
+        
 def UserClaimForm ( user_instance, *args, **kwargs ):
     class ClaimForm(forms.ModelForm):
         i_agree=forms.BooleanField()
@@ -194,30 +209,30 @@ class CampaignAdminForm(forms.Form):
     pass
     
 class EmailShareForm(forms.Form):
-	recipient = forms.EmailField()
-	sender = forms.EmailField(widget=forms.HiddenInput())
-	subject = forms.CharField(max_length=100)
-	message = forms.CharField(widget=forms.Textarea())
-	# allows us to return user to original page by passing it as hidden form input
-	# we can't rely on POST or GET since the emailshare view handles both
-	# and may iterate several times as it catches user errors, losing URL info
-	next = forms.CharField(widget=forms.HiddenInput())
-	
+    recipient = forms.EmailField()
+    sender = forms.EmailField(widget=forms.HiddenInput())
+    subject = forms.CharField(max_length=100)
+    message = forms.CharField(widget=forms.Textarea())
+    # allows us to return user to original page by passing it as hidden form input
+    # we can't rely on POST or GET since the emailshare view handles both
+    # and may iterate several times as it catches user errors, losing URL info
+    next = forms.CharField(widget=forms.HiddenInput())
+    
 class FeedbackForm(forms.Form):
-	sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}), label="Your email")
-	subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}))
-	message = forms.CharField(widget=forms.Textarea())
-	page = forms.CharField(widget=forms.HiddenInput())
-	notarobot = forms.IntegerField(label="Please prove you're not a robot")
-	answer = forms.IntegerField(widget=forms.HiddenInput())
-	num1 = forms.IntegerField(widget=forms.HiddenInput())
-	num2 = forms.IntegerField(widget=forms.HiddenInput())
-	
-	def clean(self):
-		cleaned_data = self.cleaned_data
-		notarobot = str(cleaned_data.get("notarobot"))
-		answer = str(cleaned_data.get("answer"))
-		if notarobot!=answer:
-			raise forms.ValidationError(_("Whoops, try that sum again."))
-			
-		return cleaned_data
+    sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}), label="Your email")
+    subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}))
+    message = forms.CharField(widget=forms.Textarea())
+    page = forms.CharField(widget=forms.HiddenInput())
+    notarobot = forms.IntegerField(label="Please prove you're not a robot")
+    answer = forms.IntegerField(widget=forms.HiddenInput())
+    num1 = forms.IntegerField(widget=forms.HiddenInput())
+    num2 = forms.IntegerField(widget=forms.HiddenInput())
+    
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        notarobot = str(cleaned_data.get("notarobot"))
+        answer = str(cleaned_data.get("answer"))
+        if notarobot!=answer:
+            raise forms.ValidationError(_("Whoops, try that sum again."))
+            
+        return cleaned_data

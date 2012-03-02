@@ -113,7 +113,7 @@ div.book-list.listview div.book-name .title {
   overflow: hidden;
   height: 19px;
   line-height: 19px;
-  padding-bottom: 5px;
+  margin-bottom: 5px;
   font-weight: bold;
 }
 div.book-list.listview div.book-name .listview.author {

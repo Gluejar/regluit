@@ -19,7 +19,7 @@ from urllib import urlencode
 from pprint import pprint
 from collections import defaultdict, OrderedDict
 
-from itertools import islice, chain, izip
+from itertools import islice, chain, izip, repeat
 import operator
 import time
 
@@ -64,7 +64,8 @@ def grouper(iterable, page_size):
         if len(page) == page_size:
             yield page
             page= []
-    yield page
+    if len(page):
+        yield page
     
 def singleton(cls):
     instances = {}
@@ -103,6 +104,8 @@ class SeedISBN(Base):
     id = Column(u'id', Integer(11), primary_key=True, nullable=False)
     results = Column(u'results', MEDIUMTEXT())
     seed_isbn = Column(u'seed_isbn', String(length=13))
+    title = Column(u'title', Text())
+    title_error = Column(u'title_error', Text())
 
 
 class GutenbergText(object):
@@ -710,8 +713,34 @@ def seed_isbn(olwk_ids, freebase_ids, lang='en'):
                'len_all_isbns': len(all_isbns)}
     return (candidate_seed_isbn, details)
 
+def candidate_subcluster_from_lt_clusters_by_lang(lang, lt_clusters_by_lang):
+    """
+    Boil the candidate down to a single ISBN:  take a random ISBN from the list of all ISBNs in the requested
+    language subcluster within the largest cluster that has such a language subcluster.
+    Return None if there is no matching sub-language
+    Try to find an ISBN that has good overlap with Freebase and OpenLibrary   
+    """
+    candidate_subclusters = filter(lambda x: x[0] is not None,
+                                   [(c.get(lang), len(reduce(operator.add,c.values()))) for c in lt_clusters_by_lang]
+                            )
+
+    if len(candidate_subclusters):
+        candidate_subcluster = max(candidate_subclusters, key=lambda x:x[1])
+    else:
+        candidate_subcluster = []
+        
+    return candidate_seed_isbn
+
 def report_on_seed_isbn(seed_isbn_result):
+    """
+    return a dictionary interpreting the output of the seed isbn calculation
+    """
     s = seed_isbn_result
+    
+    # what proportion of all the ISBNS does the largest cluster make of all the ISBNs
+    # x is an iterable of cluster lengths
+    dominance = lambda x: float(max(x))/float(sum(x)) if len(x) else None
+    
     report = OrderedDict([
         ("seed isbn",  s[0]),
         ("the Google info we have on the seed isbn", s[1]['gbooks_data'].get(s[0])),
@@ -730,7 +759,8 @@ def report_on_seed_isbn(seed_isbn_result):
             for c in s[1]['lt_clusters_by_lang']]),
         ("size of the sub-cluster including the seed isbn", len(filter(lambda x: s[0] in x,
                 reduce(operator.add , [c.values() for c in s[1]['lt_clusters_by_lang']]))[0]) \
-                if s[0] is not None else None)
+                if s[0] is not None else None),
+        ("dominance of largest cluster", dominance([len(cluster) for cluster in s[1]['lt_clusters']]))
     ])
     return report
 
@@ -813,7 +843,9 @@ def calc_seed_isbns(ids=None, max=None, override=False, max_consecutive_error=3)
             
             
 def reports_in_db(max=None):
-    
+    """
+    a generator of all the Gutenberg seed isbn calculations 
+    """
     gluejar_db = GluejarDB()
     gutenberg_done = gluejar_db.session.query(SeedISBN).all()
     for s in islice(gutenberg_done, max):
@@ -874,6 +906,142 @@ def export_to_json(obj, max=None,fname=None):
     
     return json.dumps(obj)
 
+def calc_titles_for_seed_isbns(max_num=None, do=False):
+    """
+    For the seedisbns, calculate the titles
+    """
+    db = GluejarDB()
+
+    # title is Null and title_error is Null
+    #titles_to_calc = db.session.query(SeedISBN).filter(and_(SeedISBN.title==None, SeedISBN.title_error==None)).all()
+    titles_to_calc = db.session.query(SeedISBN, GutenbergText.lang, GutenbergText.title). \
+        join(GutenbergText, SeedISBN.gutenberg_etext_id==GutenbergText.etext_id).  \
+        filter(and_(SeedISBN.title==None, SeedISBN.title_error==None)).all()
+
+    page_size = 5
+    
+    for page in grouper(islice(titles_to_calc, max_num), page_size):
+        query = list(izip([edition.seed_isbn for (edition, lang, gt_title) in page], repeat('isbn')))
+        try:
+            res = OpenLibrary.read(query)
+        except Exception, e:
+            print e
+            
+        for (edition, lang, gt_title) in page:
+            title_error = None
+            try:
+                title = res.get('isbn:{0}'.format(edition.seed_isbn))['records'].values()[0]['data']['title']
+            except Exception, e:
+                title = None
+                title_error = str(e)
+            if do and title is not None:
+                edition.title = title
+                edition.title_error = title_error
+                db.commit_db()
+            yield (edition.seed_isbn, title)
+
+ 
+def repick_seed_isbn(max_num=None, do=False, print_progress=False):
+    """
+    Let's try to get ISBNs in the cluster that are in OpenLibrary, Freebase, and Librarything if possible
+    """
+    gluejar_db = GluejarDB()
+    gutenberg_done = gluejar_db.session.query(SeedISBN, GutenbergText.lang, GutenbergText.title).join(GutenbergText, SeedISBN.gutenberg_etext_id==GutenbergText.etext_id).all()
+    # need to join with GutenbergText table to get lang and Gutenberg title
+    for (i, (s, lang, gt_title)) in enumerate(islice(gutenberg_done, max_num)):
+        # calculate the dominant cluster
+        results = json.loads(s.results)
+        candidate_subclusters = filter(lambda x: x[0] is not None,
+                               [(c.get(lang), len(reduce(operator.add,c.values()))) for c in results[1]['lt_clusters_by_lang']]
+                        )
+            
+        # remember that the cluster is the first element in the tuple and a length in the 2nd element
+        if len(candidate_subclusters):
+            candidate_subcluster = set(max(candidate_subclusters, key=lambda x:x[1])[0])
+        else:
+            candidate_subcluster = set([])
+            
+        # confirm that the current seed isbn is in the candidate subcluster
+        current_seed_ok = s.seed_isbn in candidate_subcluster
+            
+        # see whether we can get a seed isbn that, in addition to LibraryThing,
+        # is recognized by OpenLibrary and Freebase too...2nd priority
+        # is just OL, 3rd is Freebase and the 4th) just LT
+        fb_isbns = set(results[1]['fb_isbns'])
+        ol_isbns = set(results[1]['ol_isbns'])
+        
+        seeds = (candidate_subcluster & fb_isbns & ol_isbns) or (candidate_subcluster & ol_isbns) or \
+            (candidate_subcluster & fb_isbns) or candidate_subcluster
+        
+        new_seed_isbn = None
+        
+        if do and len(seeds):
+            new_seed_isbn = seeds.pop()
+            s.seed_isbn = new_seed_isbn
+            gluejar_db.commit_db()
+                
+        if print_progress:
+            print i, s.gutenberg_etext_id, s.seed_isbn, lang, gt_title, seeds, current_seed_ok, new_seed_isbn
+        yield (s.gutenberg_etext_id, s.seed_isbn, lang, gt_title, seeds, current_seed_ok, new_seed_isbn)
+
+def compute_similarity_measures_for_seed_isbns(max_num=None):
+    """
+    Output the current seedisbn calculations with some measures to help spot errors in mapping, including
+    the Levenshtein distance/ratio between the Gutenberg title and the title of the edition corresponding to the
+    ISBN -- and a dominance factor (the ratio of the size of the largest cluster of ISBNs
+    divided by all the number of ISBNs in all the clusters).  Idea: editions whose titles have big distances
+    and low dominance factors should be looked at more closely.
+    """
+    from Levenshtein import distance, ratio
+
+    # what proportion of all the ISBNs does the largest cluster make of all the ISBNs
+    # x is an iterable of cluster lengths
+    dominance = lambda x: float(max(x))/float(sum(x)) if len(x) else None
+    
+    gluejar_db = GluejarDB()
+    seed_isbns = gluejar_db.session.query(SeedISBN, GutenbergText.lang, GutenbergText.title).join(GutenbergText, SeedISBN.gutenberg_etext_id==GutenbergText.etext_id).all()
+    for (i, (seed_isbn, lang, gt_title)) in enumerate(islice(seed_isbns, max_num)):
+        res = json.loads(seed_isbn.results)
+        yield OrderedDict([('etext_id', seed_isbn.gutenberg_etext_id),
+               ('seed_isbn_title',seed_isbn.title),
+               ('gt_title', gt_title),
+               ('dominance', dominance([len(cluster) for cluster in res[1]['lt_clusters']])),
+               ('title_l_ratio', ratio(seed_isbn.title, gt_title) if (seed_isbn.title is not None and gt_title is not None) else None)])
+
+def output_to_csv(f, headers, rows, write_header=True, convert_values_to_unicode=True):
+    """
+    take rows, an iterable of dicts (and corresponding headers) and output as a CSV file to f
+    """
+    from unicode_csv import UnicodeDictWriter
+    cw = UnicodeDictWriter(f, headers)
+    if write_header:
+        cw.writerow(dict([(h,h) for h in headers]))    
+    for row in rows:
+        if convert_values_to_unicode:
+            row = dict([(k, unicode(v)) for (k,v) in row.items()])
+        cw.writerow(row)
+    return f
+
+
+def filtered_gutenberg_and_seed_isbn(min_l_ratio=None, min_dominance=None, max_num=None, include_olid=False):
+    # compute the similarity measures and pass through only the Gutenberg records that meet the minimum lt_ratio and dominance
+    measures = compute_similarity_measures_for_seed_isbns()
+    measures_map = dict()
+    for measure in measures:
+        measures_map[measure['etext_id']] = measure
+    
+    for item in gutenberg_and_seed_isbn(max=max_num, include_olid=include_olid):
+        g_id = item['gutenberg_etext_id']
+        accept = True
+        if min_dominance is not None and measures_map[g_id]['dominance'] is not None and measures_map[g_id]['dominance'] < min_dominance:
+            accept = False
+        if min_l_ratio is not None and measures_map[g_id]['title_l_ratio'] is not None and measures_map[g_id]['title_l_ratio'] < min_l_ratio:
+            accept = False
+        if accept:
+            yield item
+    
+    
+    
     
 class FreebaseClient(object):
     def __init__(self, username=None, password=None, main_or_sandbox='main'):
@@ -1123,8 +1291,14 @@ if __name__ == '__main__':
     
     #unittest.main()
 
-    print list(gutenberg_and_seed_isbn(max=10))
-            
+    #print list(gutenberg_and_seed_isbn(max=10))
+     
+    #print list(repick_seed_isbn(10))
+    
+    # output a filtered gutenberg list
+    # 0.56 and 0.7 I got by eye-balling the results in Google Refine
+    y = list(filtered_gutenberg_and_seed_isbn(min_l_ratio=0.56, min_dominance=0.7))
+    export_to_json(y,fname="g_seed_isbn.json")
     
     #suites = suite()
     #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))

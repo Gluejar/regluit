@@ -19,7 +19,14 @@ jQuery(document).ready(function(){
     jQuery('#embed').click(function(){
         jQuery('div#widgetcode').toggle();
     });
+    jQuery('.show_more_edition').click(function(){
+        jQuery(this).html('less...');
+        jQuery(this).next().toggle();
+    });
 });
+
+
+
 </script>
 {% endblock %}
 
@@ -31,7 +38,7 @@ jQuery(document).ready(function(){
             <div class="jsmodule rounded">
                 <div class="jsmod-content{% if status == 'ACTIVE' %} active{{ work.percent_unglued}}{% endif %}">
                     <span>
-                {% if work.first_epub_url or work.first_pdf_url %}
+                {% if work.first_ebook %}
                     AVAILABLE!
                 {% else %}{% if work.last_campaign %}
                     {% if status == 'ACTIVE' %}
@@ -70,7 +77,7 @@ jQuery(document).ready(function(){
         <div class="js-maincol-inner">
             <div id="content-block">
                 <div class="book-detail">
-                    <div class="book-detail-img"><a href="#">
+                    <div class="book-detail-img"><a href="{% url work_openlibrary work.id %}">
                         <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
                     </div>
                     <div class="book-detail-info">
@@ -106,7 +113,7 @@ jQuery(document).ready(function(){
                             </div>
                         </div>
                         <div class="pledged-info"><div class="pledged-group">
-                        {% if work.first_epub_url or work.first_pdf_url %}
+                        {% if work.first_ebook %}
                             {% if wishers == 1 %}
                                 1 Ungluer is
                             {% else %}
@@ -127,19 +134,9 @@ jQuery(document).ready(function(){
                             {% endif %} wished for this Work
                         {% endif %}{% endif %}
                         </div>
-                        <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_epub_url or work.first_pdf_url %}6{%else%}{{ work.percent_unglued }}{%endif%}.png" /></div>
+                        <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png" /></div>
                         </div>
                         <div class="btn_wishlist" id="wishlist_actions">
-                            {% if work.first_epub_url or work.first_pdf_url %}
-                                <span class="boolist-ebook">
-                                {% if work.first_epub_url %}
-                                    <a href="{{ work.first_epub_url }}">EPUB</a>
-                                {% endif %}
-                                {% if work.first_pdf_url %}
-                                    <a href="{{ work.first_pdf_url }}">PDF</a>
-                                {% endif %} 
-                                </span>
-                            {% endif %}
                             {% if request.user.is_anonymous %}
                                 <div class="create-account">
                                     <span title="{% url work work.id %}">Login to Add</span>
@@ -154,9 +151,16 @@ jQuery(document).ready(function(){
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
-                                    <span id="{{ work.googlebooks_id }}">Add to {% if work.first_epub_url or work.first_pdf_url %}Enjoying{% else %}Wishlist{% endif %}</span>
+                                    <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
+                            {% if work.first_ebook %}
+                                <span class="boolist-ebook">
+                                {% for ebook in work.ebooks %}
+                                <a href="{{ ebook.url }}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                {% endfor %}
+                                </span>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -224,7 +228,7 @@ jQuery(document).ready(function(){
                         <h4>Last campaign details</h4>
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
-                        
+ 
                         <h4> Rights Information </h4>
                         {% if work.claim.count %}
                   	      <p> This work has been claimed by:</p>
@@ -271,10 +275,11 @@ jQuery(document).ready(function(){
                         {% endif %}
 
                         <h4>Editions</h4>
+                       {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
                             <div class="editions"><div class="image"><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div>
-                            <div class="metadata">{{edition.publisher}}<br />
-                            	{{edition.publication_date}}<br />
+                            <div class="metadata" id="edition_{{edition.id}}">Publisher: {{edition.publisher}}<br />
+                            	Published: {{edition.publication_date}}<br />
                             	{% with edition.isbn_13 as isbn %}
                             		{% if isbn %}
                             			ISBN: {{ isbn }}<br />
@@ -284,6 +289,26 @@ jQuery(document).ready(function(){
                             	{% endwith %}
                             	See <a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
                             </div>
+                            {% if edition.ebook_form %}
+                                <div class="show_more_edition" >more...</div>
+                                <div class="more_edition">
+                                    {% if edition.ebooks %}
+                                        <h5>eBooks for this Edition</h5>
+                                        {% for ebook in edition.ebooks.all %}
+                                            <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                        {% endfor %}
+                                    {% endif %}
+                                    <h5>Add an eBook for this Edition</h5>
+                                    <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
+                                	<form method="POST" action="#edition_{{edition.id}}">
+    	    	                    {% csrf_token %}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider }}
+    	    	                    URL: {{ edition.ebook_form.url }}<br />
+    	    	                    File Format: {{ edition.ebook_form.format }}&nbsp;&nbsp;&nbsp;
+    	    	                    License: {{ edition.ebook_form.rights }}<br />
+    	    	                    <input type="submit" name="add_ebook" value="add ebook" id="submit" />
+                                    </form>
+                                </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
                     </div>

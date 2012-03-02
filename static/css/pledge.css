@@ -99,3 +99,12 @@ form {
 ul.support li, ul.support li:hover {
   background-image: none;
 }
+.faq, .answer {
+  text-transform: none !important;
+}
+.faq {
+  cursor: pointer;
+}
+.faq:hover {
+  text-decoration: underline;
+}
