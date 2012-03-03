@@ -17,7 +17,7 @@ def run_google_rc():
         def test_google_rc(self):
             sel = self.selenium
             sel.open("/")
-            sel.type("id=lst-ib", "Bach")
+            sel.type("//input[@type='text']", "Bach")
             sel.click("name=btnG")
             time.sleep(3)
             try: self.failUnless(sel.is_text_present("Wikipedia"))
