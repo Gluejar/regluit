@@ -296,26 +296,18 @@ span.my-setting.active {
   margin-left: 10px;
   margin-top: 10px;
   width: 100%;
+  border-bottom: 4px solid #d6dde0;
 }
 #tabs ul.tabs li a:hover {
   text-decoration: none;
-}
-#tabs.wantto {
-  border-bottom: 4px solid #d6dde0;
 }
 #tabs.wantto ul.tabs li.tabs3.active a {
   background: #d6dde0;
   color: #3d4e53;
 }
-#tabs.ungluing {
-  border-bottom: 4px solid #eabc7c;
-}
 #tabs.ungluing ul.tabs li.tabs2.active a {
   background: #eabc7c;
   color: #fff;
-}
-#tabs.unglued {
-  border-bottom: 4px solid #8dc63f;
 }
 #tabs.unglued ul.tabs li.tabs1.active a {
   background: #8dc63f;
@@ -355,15 +347,15 @@ ul.tabs li a {
   background: #6994a3;
   color: #fff;
 }
-ul.tabs li.tabs1 a:hover, ul.tabs li.active a {
+ul.tabs li.tabs1 a:hover, ul.tabs li.tabs1.active a {
   background: #8dc63f;
   color: #ffffff;
 }
-ul.tabs li.tabs2 a:hover, ul.tabs li.active a {
+ul.tabs li.tabs2 a:hover, ul.tabs li.tabs2.active a {
   background: #eabc7c;
   color: #fff;
 }
-ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
+ul.tabs li.tabs3 a:hover, ul.tabs li.tabs3.active a {
   background: #d6dde0;
   color: #3d4e53;
 }
