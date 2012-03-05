@@ -305,12 +305,13 @@ class Work(models.Model):
             return "/static/images/generic_cover_larger.png"
         
     def author(self):
+        # note: if you want this to be a real list, use distinct()
+        # perhaps should change this to vote on authors.
         authors = list(Author.objects.filter(editions__work=self).all())
-        if len(authors) == 1:
-            return authors[0].name
-        elif len(authors) > 1:
-            return authors[0].name + ' et al.'
-        return ''
+        try:
+        	return authors[0]
+        except:
+        	return ''
         
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
