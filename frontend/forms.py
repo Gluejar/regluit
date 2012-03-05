@@ -34,6 +34,14 @@ class EbookForm(forms.ModelForm):
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books."))
         return new_provider
         
+    def clean_url(self):
+        url = self.data["url"]
+        try:
+            Ebook.objects.get(url=url)
+        except Ebook.DoesNotExist:
+            return url
+        raise forms.ValidationError(_("There's already an ebook with that url."))
+        
 def UserClaimForm ( user_instance, *args, **kwargs ):
     class ClaimForm(forms.ModelForm):
         i_agree=forms.BooleanField()
