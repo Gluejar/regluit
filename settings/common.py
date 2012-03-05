@@ -164,7 +164,7 @@ LOGGING = {
 # django-registration
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
-ACCOUNT_ACTIVATION_DAYS = 7
+ACCOUNT_ACTIVATION_DAYS = 30
 
 # django-socialauth
 AUTHENTICATION_BACKENDS = (

@@ -13,14 +13,13 @@ we need the share options and also something like the home page slide show to gi
 
 {% block doccontent %}
 
-    <div class="thank-you">Thank you!</div>
-    
-    <div>You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</div>
-    <div>If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline}},
-    your PayPal account will be charged.</div>
-    <div>Tell your friends about this campaign!</div>
+    <p class="thank-you">Thank you!</p>
+    <p>You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
+    <p>If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline}},
+    your PayPal account will be charged for your pledge amount of ${{transaction.amount}}.</p>
+    <div>Please tell your friends about this campaign:</div>
             <div class="jsmodule">
-                <h3 class="jsmod-title"><span>Share</span></h3>
+                <!--<h3 class="jsmod-title"><span>Share</span></h3>-->
                 <div class="jsmod-content">
                     <ul class="social menu">
                         <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>

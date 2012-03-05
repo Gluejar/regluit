@@ -512,7 +512,8 @@ a {
   cursor: pointer;
 }
 .thank-you {
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: bold;
 }
 .work_supporter {
   height: auto;
