@@ -150,12 +150,12 @@
   clear: both;
   display: block;
 }
-.book-detail-img {
+#book-detail-img {
   float: left;
   margin-right: 10px;
   width: 151px;
 }
-.book-detail-img img {
+#book-detail-img img {
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
@@ -228,8 +228,11 @@
 .book-detail-info .find-link {
   float: right;
 }
-.book-detail-info .find-link a {
-  padding: 0 0 0 4px;
+.book-detail-info .find-link img {
+  padding: 2px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 .book-detail-info .pledged-info {
   padding: 0;

@@ -15,18 +15,29 @@
 <script type="text/javascript" src="/static/js/counter.js"></script>
 
 <script>
-jQuery(document).ready(function(){
-    jQuery('#embed').click(function(){
-        jQuery('div#widgetcode').toggle();
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    $j('#embed').click(function(){
+        $j('div#widgetcode').toggle();
     });
-    jQuery('.show_more_edition').click(function(){
-        jQuery(this).html('less...');
-        jQuery(this).next().toggle();
+    $j('.show_more_edition').click(function(){
+        $j(this).html('less...');
+        $j(this).next().toggle();
     });
 });
+</script>
 
-
-
+<script>
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+	var img = $j('#book-detail-img');
+	var googimg = $j('#find-google img');
+    img.mouseover(function(){
+       googimg.css({"background": "#8dc63f"}).animate(
+           {backgroundColor: "white"}, 1500
+       );
+    });
+});
 </script>
 {% endblock %}
 
@@ -77,8 +88,8 @@ jQuery(document).ready(function(){
         <div class="js-maincol-inner">
             <div id="content-block">
                 <div class="book-detail">
-                    <div class="book-detail-img"><a href="{% url work_openlibrary work.id %}">
-                        <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+                    <div id="book-detail-img"><a href="{{ work.googlebooks_url }}">
+                        <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
                     </div>
                     <div class="book-detail-info">
                       <div class="layout">
@@ -100,7 +111,7 @@ jQuery(document).ready(function(){
                         <div class="find-book">
                             <label>Find it:</label>
                             <div class="find-link">
-                                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
+                                <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
                                 {% if not request.user.is_anonymous %}
                                 {% if request.user.profile.goodreads_user_link %}
