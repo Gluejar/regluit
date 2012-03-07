@@ -16,7 +16,7 @@ class UnglueitError(RuntimeError):
     pass
 
 class CeleryTask(models.Model):
-    created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now())
+    created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.utcnow())
     task_id = models.CharField(max_length=255)
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 

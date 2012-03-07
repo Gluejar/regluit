@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'regluit.api',
     'regluit.core',
     'regluit.payment',
+    'regluit.utils',
     'registration',
     'social_auth',
     'tastypie',
