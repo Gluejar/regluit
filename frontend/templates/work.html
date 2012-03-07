@@ -197,7 +197,7 @@ jQuery(document).ready(function(){
                     </div>
                     </div>
                     <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
-                    <h3>Why unglue this?  Join the discussion.</h3>
+                    <h3>Why unglue this?  Have your say.</h3>
                     <div class="tabs-content">
                        {% render_comment_list for work %}
                        {% if user.is_authenticated %}
@@ -294,12 +294,12 @@ jQuery(document).ready(function(){
                                 <div class="show_more_edition" >more...</div>
                                 <div class="more_edition">
                                     {% if edition.ebooks %}
-                                        <h5>eBooks for this Edition</h5>
+                                        <h5>eBooks for this Edition:</h5>
                                         {% for ebook in edition.ebooks.all %}
                                             <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
                                         {% endfor %}
                                     {% endif %}
-                                    <h5>Add an eBook for this Edition</h5>
+                                    <h5>Add an eBook for this Edition:</h5>
                                     <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
                                 	<form method="POST" action="#edition_{{edition.id}}">
     	    	                    {% csrf_token %}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider }}

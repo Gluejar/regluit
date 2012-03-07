@@ -744,23 +744,55 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
+    works = []
+    works2 = []
+    works_unglued = []
+    works_active = []
+    works_wished = []
+    is_preview = settings.IS_PREVIEW
     
-    # querysets for tabs
-    # unglued tab is anything with an existing ebook
-    ## .order_by() may clash with .distinct() and this should be fixed
-    works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
+    if (wishlist.works.all()):
+        # querysets for tabs
+        # unglued tab is anything with an existing ebook
+        ## .order_by() may clash with .distinct() and this should be fixed
+        works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
+        
+        # take the set complement of the unglued tab and filter it for active works to get middle tab
+        result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
+        works_active = result.filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).order_by('-campaigns__status', 'campaigns__deadline').distinct()
+        
+        # everything else goes in tab 3
+        works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True)).order_by('-num_wishes')
+        
+        # badge counts
+        backed = works_unglued.count()
+        backing = works_active.count()
+        wished = works_wished.count()
     
-    # take the set complement of the unglued tab and filter it for active works to get middle tab
-    result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
-    works_active = result.filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).order_by('-campaigns__status', 'campaigns__deadline').distinct()
-    
-    # everything else goes in tab 3
-    works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True)).order_by('-num_wishes')
-
-    # badge counts
-    backed = works_unglued.count()
-    backing = works_active.count()
-    wished = works_wished.count()
+    else:
+        ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+        count = ending.count()
+        i = 0
+        j = 0
+        
+        if is_preview:
+            worklist = Work.objects.order_by('-num_wishes')
+            works = worklist[:4]
+            works2 = worklist[4:8]
+        else:
+            while i<8 and count>0:
+                if i<4:
+                    works.append(ending[j].work)
+                else:
+                    works2.append(ending[j].work)
+                i += 1
+                j += 1
+                if j == count:
+                    j = 0
+                    
+        backed = 0
+        backing = 0
+        wished = 0
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -814,6 +846,9 @@ def supporter(request, supporter_username, template_name):
             "works_unglued": works_unglued,
             "works_active": works_active,
             "works_wished": works_wished,
+            "works": works,
+            "works2": works2,
+            "is_preview": is_preview,
             "backed": backed,
             "backing": backing,
             "wished": wished,

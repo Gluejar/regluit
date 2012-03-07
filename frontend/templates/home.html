@@ -7,6 +7,7 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
 {% endblock %}
 
@@ -26,23 +27,7 @@
 <script type="text/javascript" src="/static/js/highlight_signup.js"></script>
 
 <script src="/static/js/slides.min.jquery.js"></script>
-<script>
-var $j = jQuery.noConflict();
-	$j(function(){
-		$j('#js-slideshow').slides({
-			preload: true,
-			preloadImage: '/static/images/landingpage/loading.gif',
-			hoverPause: true,
-			generateNextPrev: true,
-			next: 'next',
-			prev: 'prev',
-			pagination: true,
-			generatePagination: false,
-			slideSpeed: 600,
-			autoHeight: true
-		});
-	});
-</script>
+<script src="/static/js/slideshow.js"></script>
 
 <script type="text/javascript" src="/static/js/watermark_init.js"></script>
 <script type="text/javascript" src="/static/js/watermark_change.js"></script>

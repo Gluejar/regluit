@@ -1,13 +1,5 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
-        $j('#user-block-hide').hide();
-        $j('#user-block1 span').click(
-            function() {
-                $j(this).toggleClass("active");
-                $j("#user-block-hide").slideToggle(300);
-            }
-        );
-
 		// caching selections to speed up response
         var tabs = $j('ul.tabs');
         var tabsId = $j('#tabs');
