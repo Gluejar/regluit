@@ -244,14 +244,13 @@ span.my-setting.active {
     margin-left: 10px;
     margin-top: 10px;
     width: 100%;
+	border-bottom: 4px solid @blue-grey;
     
     ul.tabs li a:hover {
     	text-decoration: none;
     }
 
 	&.wantto {
-		border-bottom: 4px solid @blue-grey;
-		
 		ul.tabs li.tabs3.active a {
 			background: @blue-grey;
 			color: @text-blue;
@@ -259,8 +258,6 @@ span.my-setting.active {
 	}
 
 	&.ungluing {
-		border-bottom: 4px solid #eabc7c;
-
 		ul.tabs li.tabs2.active a {
 			background: #eabc7c;
 			color: #fff;
@@ -268,8 +265,6 @@ span.my-setting.active {
 	}
 
 	&.unglued {
-		border-bottom: 4px solid @green;
-
 		ul.tabs li.tabs1.active a {
 			background: @green;
 			color: #fff;
@@ -313,17 +308,17 @@ ul.tabs {
 			color:#fff;
 		}
 		
-		&.tabs1 a:hover, &.active a {
+		&.tabs1 a:hover, &.tabs1.active a {
 			background:@green;
 			color:#fff
 		} 
 
-		&.tabs2 a:hover, &.active a {
+		&.tabs2 a:hover, &.tabs2.active a {
 			background:#eabc7c;
 			color:#fff;
 		} 
 
-		&.tabs3 a:hover, &.active a {
+		&.tabs3 a:hover, &.tabs3.active a {
 			background:@blue-grey;
 			color:@text-blue;
 		} 
@@ -421,4 +416,16 @@ div#content-block-content {
 		display:block;
 	}
 
+}
+
+#js-slide .jsmodule {
+	width: 660px !important;
+	
+	.slides_control {
+		height: 325px !important;
+	}
+}
+
+#js-maincontainer-bot-block {
+	padding-left: 16px;
 }

@@ -5,6 +5,7 @@
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
 {% endblock %}
@@ -14,11 +15,40 @@
 <script type="text/javascript" src={{ jquery_ui_home }}></script>
 
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/import_books.js"></script>
+<script type="text/javascript" src="/static/js/counter.js"></script>
+
+{% ifequal supporter request.user %}
+<!-- we only need to be able to toggle the profile edit area in this case -->
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+    $j(document).ready(function(){
+        $j('#user-block-hide').hide();
+        $j('#user-block1 span').click(function() {
+                $j(this).toggleClass("active");
+                $j("#user-block-hide").slideToggle(300);
+        });
+    });
+</script>
+{% endifequal %}
+
+{% if works %}
+<!-- when the user's wishlist is empty, views.py gives us works for a slideshow -->
+<script src="/static/js/slides.min.jquery.js"></script>
+<script src="/static/js/slideshow.js"></script>
+
+<!-- toggle to panelview instead of listview default so slideshow will look right -->
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+	$j(document).ready(function($) { 
+        $('.listview').addClass("panelview").removeClass("listview");
+    });    
+</script>  
+{% else %}
+<!-- we only need these when there's stuff on the user's wishlist -->
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
-<script type="text/javascript" src="/static/js/import_books.js"></script>
-
-<script type="text/javascript" src="/static/js/counter.js"></script>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -56,7 +86,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
 {% endcomment %}
 
 {% block topsection %}
-
+<div id="locationhash">{{ activetab }}</div>
 <div id="js-topsection">
     <div class="js-main">
         <div class="js-topnews">
@@ -236,7 +266,11 @@ there's no tab for seeing ALL my books, only the filters! huh.
                         <li class="tabs2"><a href="#">Active</a></li>
                         <li class="tabs3"><a href="#">Wishlisted</a></li>
                     </ul>
-    
+                
+                		{% if not works %}
+                		{% comment %}
+                		don't let people toggle views if we're doing the slideshow -- it'll look weird
+                		{% endcomment %}
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -250,14 +284,54 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 </a>
                             </li>
                         </ul>
+                        {% endif %}
                 </div>
                 <div id="content-block-content">
                     {% ifequal wishlist.works.all.count 0 %}
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
-                            Your wishlist is currently empty.<br /><br />
-                            Why not <span class="bounce-search">find</span> your favorite books, and add them to your Wishlist?<br /><br />
-                            We'd also love to hear your <a href="/feedback">feedback</a>.
+                        
+                        	<div>You haven't wishlisted anything yet.  Can we help?<br /><br /></div>
+                        	
+                		    <div id="js-slide">
+ 	   							<div class="js-main">
+        							<div class="jsmodule">
+            							<h3><span>{% if is_preview %}Most wishlisted{% else %}Top ungluing campaigns{% endif %}</span></h3>
+            							<div class="jsmod-content">
+                							<div id="js-slideshow">
+                    							<div class="slides_container">
+                        							<div class="slide-page slide-page1">
+                        								{% for work in works %}
+                        								<div class="spacer">
+                        									{% include "book_panel.html" %}
+                        								</div>
+                        								{% endfor %}
+                        							</div>
+                        							<div class="slide-page slide-page2">
+                        								{% for work in works2 %}
+                        								<div class="spacer">
+                        									{% include "book_panel.html" %}
+                        								</div>
+                        								{% endfor %}
+                        							</div>
+                    							</div>
+                							</div>	
+            							</div>
+            						</div>
+        						</div>
+    						</div>
+
+		                    <div id="js-maincontainer-bot-block">
+        		                <div id="js-search">
+                		        	<label>What book would you give to the world? </label>
+				        		        <form action="{% url search %}" method="get">
+                						    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
+                						    <input type="submit" class="greenbutton" value="Search">
+               							</form>
+                		        </div>
+                		    </div>
+                		    
+                            <br /><br /><hr />We'd also love to hear your <a href="/feedback">feedback</a>.
                         </div>
                         {% else %}
                         <div class="empty-wishlist">
@@ -275,7 +349,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
-                    <br>
                     <div class="pagination content-block-heading tabs-1">
                         {% get_pages %}
                         {% for page in pages %}
@@ -293,7 +366,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
-                    <br>
                     <div class="pagination content-block-heading tabs-2">
                         {% get_pages %}
                         {% for page in pages %}
@@ -311,7 +383,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
-                    <br>
                     <div class="pagination content-block-heading tabs-3">
                         {% get_pages %}
                         {% for page in pages %}

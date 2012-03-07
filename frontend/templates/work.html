@@ -15,18 +15,29 @@
 <script type="text/javascript" src="/static/js/counter.js"></script>
 
 <script>
-jQuery(document).ready(function(){
-    jQuery('#embed').click(function(){
-        jQuery('div#widgetcode').toggle();
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    $j('#embed').click(function(){
+        $j('div#widgetcode').toggle();
     });
-    jQuery('.show_more_edition').click(function(){
-        jQuery(this).html('less...');
-        jQuery(this).next().toggle();
+    $j('.show_more_edition').click(function(){
+        $j(this).html('less...');
+        $j(this).next().toggle();
     });
 });
+</script>
 
-
-
+<script>
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+	var img = $j('#book-detail-img');
+	var googimg = $j('#find-google img');
+    img.mouseover(function(){
+       googimg.css({"background": "#8dc63f"}).animate(
+           {backgroundColor: "white"}, 1500
+       );
+    });
+});
 </script>
 {% endblock %}
 
@@ -77,8 +88,8 @@ jQuery(document).ready(function(){
         <div class="js-maincol-inner">
             <div id="content-block">
                 <div class="book-detail">
-                    <div class="book-detail-img"><a href="{% url work_openlibrary work.id %}">
-                        <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+                    <div id="book-detail-img"><a href="{{ work.googlebooks_url }}">
+                        <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
                     </div>
                     <div class="book-detail-info">
                       <div class="layout">
@@ -100,7 +111,7 @@ jQuery(document).ready(function(){
                         <div class="find-book">
                             <label>Find it:</label>
                             <div class="find-link">
-                                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
+                                <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
                                 {% if not request.user.is_anonymous %}
                                 {% if request.user.profile.goodreads_user_link %}
@@ -197,6 +208,7 @@ jQuery(document).ready(function(){
                     </div>
                     </div>
                     <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
+                    <h3>Why unglue this?  Have your say.</h3>
                     <div class="tabs-content">
                        {% render_comment_list for work %}
                        {% if user.is_authenticated %}
@@ -298,7 +310,7 @@ jQuery(document).ready(function(){
                                             <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
                                         {% endfor %}
                                     {% endif %}
-                                    <h5>Add an eBook for this Edition</h5>
+                                    <h5>Add an eBook for this Edition:</h5>
                                     <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
                                 	<form method="POST" action="#edition_{{edition.id}}">
     	    	                    {% csrf_token %}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider }}
