@@ -309,9 +309,9 @@ class Work(models.Model):
         # perhaps should change this to vote on authors.
         authors = list(Author.objects.filter(editions__work=self).all())
         try:
-        	return authors[0]
+            return authors[0].name
         except:
-        	return ''
+            return ''
         
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups

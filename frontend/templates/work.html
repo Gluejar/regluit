@@ -289,12 +289,12 @@ jQuery(document).ready(function(){
                             		{% endif %}
                             	{% endwith %}
                             	See <a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
-                            </div>
-                            {% if edition.ebook_form %}
+                            </div>{{work.last_campaign_status}}
+                            {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
                                 <div class="show_more_edition" >more...</div>
                                 <div class="more_edition">
-                                    {% if edition.ebooks %}
-                                        <h5>eBooks for this Edition:</h5>
+                                    {% if edition.ebooks.count %}
+                                        <h5>eBooks for this Edition</h5>
                                         {% for ebook in edition.ebooks.all %}
                                             <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
                                         {% endfor %}
@@ -309,7 +309,7 @@ jQuery(document).ready(function(){
     	    	                    <input type="submit" name="add_ebook" value="add ebook" id="submit" />
                                     </form>
                                 </div>
-                            {% endif %}
+                            {% endifnotequal %}{% endif %}
                         {% endfor %}
                     </div>
                     </div>
