@@ -1,19 +1,24 @@
 import json
 import logging
-import datetime
 
 import requests
 from xml.etree import ElementTree
 from itertools import izip, islice
+
+from datetime import timedelta
 
 from django.db.models import Q
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.comments.models import Comment
 
+
 import regluit
 from regluit.core import models
+from regluit.utils.localdatetime import now
 import regluit.core.isbn
+
+
 
 
 logger = logging.getLogger(__name__)
@@ -444,9 +449,9 @@ def merge_works(w1, w2, user=None):
 def add_openlibrary(work):
     if work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
-        if datetime.datetime.now()- work.openlibrary_lookup < datetime.timedelta(days=30):
+        if now()- work.openlibrary_lookup < timedelta(days=30):
              return
-    work.openlibrary_lookup = datetime.datetime.now()
+    work.openlibrary_lookup = now()
     work.save()
 
     # find the first ISBN match in OpenLibrary

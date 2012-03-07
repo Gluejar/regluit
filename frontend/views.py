@@ -2,7 +2,9 @@ import re
 import sys
 import json
 import logging
-import datetime 
+from datetime import timedelta
+from regluit.utils.localdatetime import now, date_today
+
 from random import randint
 from re import sub
 from itertools import islice
@@ -359,7 +361,7 @@ class PledgeView(FormView):
             
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
-            expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+            expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
         else:  # embedded view -- which we're not actively using right now.
@@ -595,7 +597,7 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
-                    new_campaign.deadline = datetime.date.today() + datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+                    new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
                     new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
@@ -962,7 +964,7 @@ class CampaignFormView(FormView):
         work_id = campaign.work.id
         
         # set the expiry date based on the campaign deadline
-        expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+        expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
         
         if not self.embedded:
             
@@ -998,15 +1000,15 @@ class InfoPageView(TemplateView):
             
     def get_context_data(self, **kwargs):
         users = User.objects
-        users.today = users.filter(date_joined__range = (datetime.date.today(), datetime.datetime.now()))
-        users.days7 = users.filter(date_joined__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
-        users.year = users.filter(date_joined__year = datetime.date.today().year)
-        users.month = users.year.filter(date_joined__month = datetime.date.today().month)
+        users.today = users.filter(date_joined__range = (date_today(), now()))
+        users.days7 = users.filter(date_joined__range = (date_today()-timedelta(days=7), now()))
+        users.year = users.filter(date_joined__year = date_today().year)
+        users.month = users.year.filter(date_joined__month = date_today().month)
         works = models.Work.objects
-        works.today = works.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
-        works.days7 = works.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
-        works.year = works.filter(created__year = datetime.date.today().year)
-        works.month = works.year.filter(created__month = datetime.date.today().month)
+        works.today = works.filter(created__range = (date_today(), now()))
+        works.days7 = works.filter(created__range = (date_today()-timedelta(days=7), now()))
+        works.year = works.filter(created__year = date_today().year)
+        works.month = works.year.filter(created__month = date_today().month)
         works.wishedby2 = works.filter(num_wishes__gte = 2)
         works.wishedby20 = works.filter(num_wishes__gte = 20)
         works.wishedby5 = works.filter(num_wishes__gte = 5)
@@ -1014,15 +1016,15 @@ class InfoPageView(TemplateView):
         works.wishedby10 = works.filter(num_wishes__gte = 10)
         works.wishedby100 = works.filter(num_wishes__gte = 100)
         ebooks = models.Ebook.objects
-        ebooks.today = ebooks.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
-        ebooks.days7 = ebooks.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
-        ebooks.year = ebooks.filter(created__year = datetime.date.today().year)
-        ebooks.month = ebooks.year.filter(created__month = datetime.date.today().month)
+        ebooks.today = ebooks.filter(created__range = (date_today(), now()))
+        ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
+        ebooks.year = ebooks.filter(created__year = date_today().year)
+        ebooks.month = ebooks.year.filter(created__month = date_today().month)
         wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
-        wishlists.today = wishlists.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
-        wishlists.days7 = wishlists.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
-        wishlists.year = wishlists.filter(created__year = datetime.date.today().year)
-        wishlists.month = wishlists.year.filter(created__month = datetime.date.today().month)
+        wishlists.today = wishlists.filter(created__range = (date_today(), now()))
+        wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
+        wishlists.year = wishlists.filter(created__year = date_today().year)
+        wishlists.month = wishlists.year.filter(created__month = date_today().month)
         return {
             'users': users, 
             'works': works,

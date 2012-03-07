@@ -1,6 +1,7 @@
 import re
 import random
-import datetime
+from regluit.utils.localdatetime import now, date_today
+from datetime import timedelta
 from decimal import Decimal
 
 from django.db import models
@@ -16,7 +17,7 @@ class UnglueitError(RuntimeError):
     pass
 
 class CeleryTask(models.Model):
-    created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now())
+    created = models.DateTimeField(auto_now_add=True, default=now())
     task_id = models.CharField(max_length=255)
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
@@ -114,10 +115,10 @@ class Campaign(models.Model):
         if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
             self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
             may_launch = False
-        if self.deadline.date()-datetime.date.today() > datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+        if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             may_launch = False  
-        elif self.deadline.date()-datetime.date.today() < datetime.timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+        elif self.deadline.date()- date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
             self.problems.append(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
             may_launch = False  
         return may_launch
@@ -126,10 +127,9 @@ class Campaign(models.Model):
     def update_success(self):
         """  updates the campaign's status. returns true if updated
         """
-        now = datetime.datetime.utcnow()
         if not self.status=='ACTIVE':
             return False
-        elif self.deadline < now:
+        elif self.deadline < now():
             if self.current_total >= self.target:
                 self.status = 'SUCCESSFUL'
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
