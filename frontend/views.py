@@ -776,7 +776,7 @@ def supporter(request, supporter_username, template_name):
         j = 0
         
         if is_preview:
-            worklist = Work.objects.order_by('-num_wishes')
+            worklist = models.Work.objects.order_by('-num_wishes')
             works = worklist[:4]
             works2 = worklist[4:8]
         else:
