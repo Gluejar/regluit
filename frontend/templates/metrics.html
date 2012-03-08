@@ -1,0 +1,83 @@
+{% extends "basedocumentation.html" %}
+{% block title %} Metrics {% endblock %}
+{% block doccontent %}
+
+<h2>Users</h2>
+<dl>
+<dt> How many ungluers have registered?</dt>
+<dd> 
+    <ul>
+        <li>{{ users.today.count }} have registered today. They are 
+            <ul>{% for user in users.today %}
+                <li><a href="{% url supporter user.username %}">{{user.username}}</a></li>
+            {% endfor %}</ul>
+          <br />{{ wishlists.today.count }} of them have 1 or more items on a wishlist. 
+        </li>
+        <li>{{ users.days7.count }} have registered in the past 7 days.
+            <br />{{ wishlists.days7.count }} of them have 1 or more items on a wishlist. 
+        </li>
+        <li>{{ users.month.count }} have registered in this month.
+            <br />{{ wishlists.month.count }} of them have 1 or more items on a wishlist. 
+        </li>
+        <li>{{ users.all.count }} have registered in total.
+            <br />{{ wishlists.all.count }} of them have 1 or more items on a wishlist. 
+        </li>
+    </ul>
+</dd>
+</dl>
+<h2>Works</h2>
+<dl>
+<dt> How many works have been added to Unglue.it?</dt>
+<dd> 
+    <ul>
+        <li>{{ works.today.count }} have been added today. They are 
+            <ul>{% for work in users_today %}
+                <li><a href="{% url work work.id %}">{{work.title}}</a></li>
+            {% endfor %}</ul>
+        </li>
+        <li>{{ works.days7.count }} have been added in the past 7 days.
+        </li>
+        <li>{{ works.month.count }} have been added in this month.
+        </li>
+        <li>{{ works.all.count }} have been added in total.
+        </li>
+    </ul>
+</dd>
+<dt> How often have the works been wished?</dt>
+<dd> 
+    <ul>
+        <li>{{ works.wishedby50.count }} have been wished by more than 50 ungluers. 
+        </li>
+        <li>{{ works.wishedby20.count }} have been wished by more than 20 ungluers. 
+        </li>
+        <li>{{ works.wishedby10.count }} have been wished by more than 10 ungluers. 
+        </li>
+        <li>{{ works.wishedby5.count }} have been wished by more than 5 ungluers. 
+        </li>
+        <li>{{ works.wishedby2.count }} have been wished by more than 2 ungluers. 
+        </li>
+    </ul>
+</dd>
+</dl>
+<h2>Ebooks</h2>
+<dl>
+<dt> How many ebooks have been added to Unglue.it?</dt>
+<dd> 
+    <ul>
+        <li>{{ ebooks.today.count }} have been added today. They are 
+            <ul>{% for work in users_today %}
+                <li><a href="{% url work ebook.edition.work.id %}">{{ebook.edition.work.title}}</a></li>
+            {% endfor %}</ul>
+        </li>
+        <li>{{ ebooks.days7.count }} have been added in the past 7 days.
+        </li>
+        <li>{{ ebooks.month.count }} have been added in this month.
+        </li>
+        <li>{{ ebooks.all.count }} have been added in total.
+        </li>
+    </ul>
+</dd>
+</dl>
+
+{% endblock %}
+

@@ -53,34 +53,36 @@ from regluit.payment.models import Transaction
 
 logger = logging.getLogger(__name__)
 
+def slideshow(max):
+    ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+    count = ending.count()
+    is_preview = settings.IS_PREVIEW
+    i = 0
+    j = 0
+        
+    if is_preview:
+        # on the preview site there are no active campaigns, so we should show most-wished books instead
+        worklist = models.Work.objects.order_by('-num_wishes')[:count]
+    else:
+    	worklist = []
+        while i<max and count>0:
+        	worklist.append(ending[j].work)
+        	i += 1
+        	j += 1
+        	if j == count:
+        	    j = 0
+                
+    return worklist
 
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
-    ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
-    j=0
-    i=0
-    works=[]
-    works2=[]
-    count=ending.count()
 
-    # on the preview site there are no active campaigns, so we should show most-wished books instead
-    is_preview = settings.IS_PREVIEW
-    if is_preview:
-        worklist = models.Work.objects.order_by('-num_wishes')
-        works = worklist[:6]
-        works2 = worklist[6:12]
-    else:
-        while i<12 and count>0:
-            if i<6:
-                works.append(ending[j].work)
-            else:
-                works2.append(ending[j].work)
-            i += 1
-            j += 1
-            if j == count:
-                j = 0
+    worklist = slideshow(12)
+    works = worklist[:6]
+    works2 = worklist[6:12]
+
     events = models.Wishes.objects.order_by('-created')[0:2]
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
@@ -769,30 +771,14 @@ def supporter(request, supporter_username, template_name):
         backing = works_active.count()
         wished = works_wished.count()
     
-    else:
-        ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
-        count = ending.count()
-        i = 0
-        j = 0
-        
-        if is_preview:
-            worklist = models.Work.objects.order_by('-num_wishes')
-            works = worklist[:4]
-            works2 = worklist[4:8]
-        else:
-            while i<8 and count>0:
-                if i<4:
-                    works.append(ending[j].work)
-                else:
-                    works2.append(ending[j].work)
-                i += 1
-                j += 1
-                if j == count:
-                    j = 0
-                    
+    else:           
         backed = 0
         backing = 0
         wished = 0
+        
+        worklist = slideshow(8)
+        works = worklist[:4]
+        works2 = worklist[4:8]
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -1001,6 +987,49 @@ class CampaignFormView(FormView):
             response = t.reference
             logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
+
+class InfoPageView(TemplateView):
+    
+    def get_template_names(self, **kwargs):
+        if self.kwargs['template_name']:
+            return (self.kwargs['template_name'])
+        else:
+            return ('metrics.html')
+            
+    def get_context_data(self, **kwargs):
+        users = User.objects
+        users.today = users.filter(date_joined__range = (datetime.date.today(), datetime.datetime.now()))
+        users.days7 = users.filter(date_joined__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        users.year = users.filter(date_joined__year = datetime.date.today().year)
+        users.month = users.year.filter(date_joined__month = datetime.date.today().month)
+        works = models.Work.objects
+        works.today = works.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
+        works.days7 = works.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        works.year = works.filter(created__year = datetime.date.today().year)
+        works.month = works.year.filter(created__month = datetime.date.today().month)
+        works.wishedby2 = works.filter(num_wishes__gte = 2)
+        works.wishedby20 = works.filter(num_wishes__gte = 20)
+        works.wishedby5 = works.filter(num_wishes__gte = 5)
+        works.wishedby50 = works.filter(num_wishes__gte = 50)
+        works.wishedby10 = works.filter(num_wishes__gte = 10)
+        works.wishedby100 = works.filter(num_wishes__gte = 100)
+        ebooks = models.Ebook.objects
+        ebooks.today = ebooks.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
+        ebooks.days7 = ebooks.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        ebooks.year = ebooks.filter(created__year = datetime.date.today().year)
+        ebooks.month = ebooks.year.filter(created__month = datetime.date.today().month)
+        wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
+        wishlists.today = wishlists.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
+        wishlists.days7 = wishlists.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        wishlists.year = wishlists.filter(created__year = datetime.date.today().year)
+        wishlists.month = wishlists.year.filter(created__month = datetime.date.today().month)
+        return {
+            'users': users, 
+            'works': works,
+            'ebooks': ebooks,
+            'wishlists': wishlists,
+        }
+
 
 class FAQView(TemplateView):
     template_name = "faq.html"
