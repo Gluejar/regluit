@@ -988,6 +988,49 @@ class CampaignFormView(FormView):
             logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
 
+class InfoPageView(TemplateView):
+    
+    def get_template_names(self, **kwargs):
+        if self.kwargs['template_name']:
+            return (self.kwargs['template_name'])
+        else:
+            return ('metrics.html')
+            
+    def get_context_data(self, **kwargs):
+        users = User.objects
+        users.today = users.filter(date_joined__range = (datetime.date.today(), datetime.datetime.now()))
+        users.days7 = users.filter(date_joined__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        users.year = users.filter(date_joined__year = datetime.date.today().year)
+        users.month = users.year.filter(date_joined__month = datetime.date.today().month)
+        works = models.Work.objects
+        works.today = works.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
+        works.days7 = works.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        works.year = works.filter(created__year = datetime.date.today().year)
+        works.month = works.year.filter(created__month = datetime.date.today().month)
+        works.wishedby2 = works.filter(num_wishes__gte = 2)
+        works.wishedby20 = works.filter(num_wishes__gte = 20)
+        works.wishedby5 = works.filter(num_wishes__gte = 5)
+        works.wishedby50 = works.filter(num_wishes__gte = 50)
+        works.wishedby10 = works.filter(num_wishes__gte = 10)
+        works.wishedby100 = works.filter(num_wishes__gte = 100)
+        ebooks = models.Ebook.objects
+        ebooks.today = ebooks.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
+        ebooks.days7 = ebooks.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        ebooks.year = ebooks.filter(created__year = datetime.date.today().year)
+        ebooks.month = ebooks.year.filter(created__month = datetime.date.today().month)
+        wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
+        wishlists.today = wishlists.filter(created__range = (datetime.date.today(), datetime.datetime.now()))
+        wishlists.days7 = wishlists.filter(created__range = (datetime.date.today()-datetime.timedelta(days=7), datetime.datetime.now()))
+        wishlists.year = wishlists.filter(created__year = datetime.date.today().year)
+        wishlists.month = wishlists.year.filter(created__month = datetime.date.today().month)
+        return {
+            'users': users, 
+            'works': works,
+            'ebooks': ebooks,
+            'wishlists': wishlists,
+        }
+
+
 class FAQView(TemplateView):
     template_name = "faq.html"
     def get_context_data(self, **kwargs):
