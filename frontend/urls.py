@@ -7,7 +7,7 @@ from django.conf import settings
 
 from regluit.core.models import Campaign
 from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -61,6 +61,7 @@ urlpatterns = patterns(
     url(r"^about/$", TemplateView.as_view(template_name="about.html"),
         name="about"),
     url(r"^comments/$", "comment", name="comment"),
+    url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
 )
 
 if not settings.IS_PREVIEW:
