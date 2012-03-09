@@ -1,5 +1,5 @@
 import json
-import datetime
+from regluit.utils.localdatetime import now
 from decimal import Decimal
 
 from django.test import TestCase
@@ -19,7 +19,7 @@ class ApiTests(TestCase):
             name=edition.work.title,
             work=edition.work, 
             description='Test Campaign',
-            deadline=datetime.datetime.now(),
+            deadline=now(),
             target=Decimal('1000.00'),
         )
         self.user = User.objects.create_user('test', 'test@example.com', 'testpass')

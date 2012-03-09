@@ -34,3 +34,9 @@ except AttributeError, e:
     
 now = lambda: _now()
 
+# provide a replacement for datetime.date.today()
+# this will be timezone naive -- is that what we really want?
+
+date_today = lambda: _now().date()
+
+

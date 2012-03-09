@@ -9,7 +9,7 @@ from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, Cancel
 from regluit.payment.paypal import RefundPayment
 import uuid
 import traceback
-from datetime import datetime
+from regluit.utils.localdatetime import now
 from dateutil.relativedelta import relativedelta
 import logging
 from decimal import Decimal as D
@@ -154,10 +154,10 @@ class PaymentManager( object ):
                 past_days = DEFAULT_DAYS_TO_CHECK
         
             try:
-                ref_date = datetime.utcnow() - relativedelta(days=int(past_days))
+                ref_date = now() - relativedelta(days=int(past_days))
                 payment_transactions = Transaction.objects.filter(date_payment__gte=ref_date)
             except:
-                ref_date = datetime.utcnow()
+                ref_date = now()
                 payment_transactions = Transaction.objects.filter(date_payment__isnull=False)
                 
             logger.info(payment_transactions)
@@ -486,7 +486,7 @@ class PaymentManager( object ):
             return False
         
         # mark this transaction as executed
-        transaction.date_executed = datetime.utcnow()
+        transaction.date_executed = now()
         transaction.save()
         
         p = Execute(transaction)            
@@ -540,7 +540,7 @@ class PaymentManager( object ):
         transaction.create_receivers(receiver_list)
         
         # Mark as payment attempted so we will poll this periodically for status changes
-        transaction.date_payment = datetime.utcnow()
+        transaction.date_payment = now()
         transaction.save()
         
         p = Pay(transaction)
@@ -833,7 +833,7 @@ class PaymentManager( object ):
                                        campaign=campaign,
                                        list=list,
                                        user=user,
-                                       date_payment=datetime.utcnow(),
+                                       date_payment=now(),
                                        anonymous=anonymous
                                        )
     
