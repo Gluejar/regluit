@@ -124,7 +124,7 @@ class Campaign(models.Model):
         return may_launch
 
     
-    def update_success(self):
+    def update_status(self):
         """  updates the campaign's status. returns true if updated
         """
         if not self.status=='ACTIVE':
