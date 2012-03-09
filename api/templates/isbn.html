@@ -30,7 +30,7 @@
             
             <!-- related work -->
             {% if edition.work %}
-                <p class="classname">Related work: {{edition.work.id}} | {{edition.work.title}} | first author: {{edition.work.authors.all.0.name}} <br/>
+                <p class="classname">Related work: {{edition.work.id}} | {{edition.work.title}} | first author: {{edition.work.authors.all.0.name}} <br />
                    All authors: {{edition.work.authors.all}} </p>
             {% endif %}
             
@@ -38,7 +38,7 @@
             {% if edition.work.campaigns.all %}
                 <ul id="id">
                     {% for campaign in edition.work.campaigns.all %}
-                        <li>Campaign: id:{{campaign.id}} | name:{{campaign.name}} | desc:{{campaign.description}} <br/>
+                        <li>Campaign: id:{{campaign.id}} | name:{{campaign.name}} | desc:{{campaign.description}} <br />
                             target:{{campaign.target}} created:{{campaign.created}} deadline:{{campaign.deadline}}</li>
                     {% endfor %}
                 </ul>

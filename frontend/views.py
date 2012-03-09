@@ -128,10 +128,10 @@ def work(request, work_id, action='display'):
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id})
+        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
         for edition in editions:
             #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ) )
+            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
     if campaign:
@@ -916,13 +916,26 @@ def wishlist(request):
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
-        work = models.Work.objects.get(id=int(remove_work_id))
+        try:
+            work = models.Work.objects.get(id=int(remove_work_id))
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = work_id).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
         request.user.wishlist.remove_work(work)
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
-        work = models.Work.objects.get(pk=add_work_id)
+        try:
+            work = models.Work.objects.get(pk=add_work_id)
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = work_id).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
+
         request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   

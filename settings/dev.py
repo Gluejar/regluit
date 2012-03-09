@@ -115,3 +115,10 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 INTERNAL_IPS = ('127.0.0.1',)
 
 CELERYD_LOG_LEVEL = "INFO"
+
+#  an optional setting to change regluit.utils.localdatetime._now -- setting it to None will cause
+#  a default _now() to be computed in regluit.utils.localdatetime
+
+LOCALDATETIME_NOW = None
+
+

@@ -22,15 +22,21 @@ datetime.datetime(2012, 3, 8, 14, 1, 54, 650679)
 
 import datetime
 import django
+from django.conf import settings
 
 # for Django 1.3.x, return a timestamp naive now()
 # for Django 1.4 should switch to django.utils.timezone.now()
 # see https://code.djangoproject.com/browser/django/trunk/django/utils/timezone.py?rev=17642#L232
 
-try:
-    _now = django.utils.timezone.now
-except AttributeError, e:
-    _now = datetime.datetime.now
+# if there is a LOCALDATETIME_NOW in the Django settings, use that to be _now
+
+if hasattr(settings, 'LOCALDATETIME_NOW') and settings.LOCALDATETIME_NOW is not None:
+    _now = settings.LOCALDATETIME_NOW
+else:
+    try:
+        _now = django.utils.timezone.now
+    except AttributeError, e:
+        _now = datetime.datetime.now
     
 now = lambda: _now()
 

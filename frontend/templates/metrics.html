@@ -7,10 +7,10 @@
 <dt> How many ungluers have registered?</dt>
 <dd> 
     <ul>
-        <li>{{ users.today.count }} have registered today. They are 
+        <li>{{ users.today.count }} have registered today. {% if users.today.count %}They are 
             <ul>{% for user in users.today %}
                 <li><a href="{% url supporter user.username %}">{{user.username}}</a></li>
-            {% endfor %}</ul>
+            {% endfor %}</ul>{% endif %}
           <br />{{ wishlists.today.count }} of them have 1 or more items on a wishlist. 
         </li>
         <li>{{ users.days7.count }} have registered in the past 7 days.
@@ -30,10 +30,10 @@
 <dt> How many works have been added to Unglue.it?</dt>
 <dd> 
     <ul>
-        <li>{{ works.today.count }} have been added today. They are 
-            <ul>{% for work in users_today %}
+        <li>{{ works.today.count }} have been added today. {% if works.today.count %}They are 
+            <ul>{% for work in works.today %}
                 <li><a href="{% url work work.id %}">{{work.title}}</a></li>
-            {% endfor %}</ul>
+            {% endfor %}</ul>{% endif %}
         </li>
         <li>{{ works.days7.count }} have been added in the past 7 days.
         </li>
@@ -64,10 +64,10 @@
 <dt> How many ebooks have been added to Unglue.it?</dt>
 <dd> 
     <ul>
-        <li>{{ ebooks.today.count }} have been added today. They are 
-            <ul>{% for work in users_today %}
+        <li>{{ ebooks.today.count }} have been added today. {% if ebooks.today.count %}They are 
+            <ul>{% for ebook in ebooks.today %}
                 <li><a href="{% url work ebook.edition.work.id %}">{{ebook.edition.work.title}}</a></li>
-            {% endfor %}</ul>
+            {% endfor %}</ul>{% endif %}
         </li>
         <li>{{ ebooks.days7.count }} have been added in the past 7 days.
         </li>
