@@ -63,7 +63,7 @@ comments rss?
       							<a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}"></a>
    							</div>
 							  {% with comment.user as user %}
-      						  <span><a href={% url supporter supporter_username=user %}>{{ comment.name }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span><br/>
+      						  <span><a href={% url supporter supporter_username=user %}>{{ comment.name }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span><br />
   						  	  
 					    	  <span class="text">{{ comment.comment|linebreaksbr }}</span>
    						   </div>
