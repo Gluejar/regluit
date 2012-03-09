@@ -31,7 +31,7 @@
 <dd> 
     <ul>
         <li>{{ works.today.count }} have been added today. They are 
-            <ul>{% for work in users_today %}
+            <ul>{% for work in works.today %}
                 <li><a href="{% url work work.id %}">{{work.title}}</a></li>
             {% endfor %}</ul>
         </li>
@@ -65,7 +65,7 @@
 <dd> 
     <ul>
         <li>{{ ebooks.today.count }} have been added today. They are 
-            <ul>{% for work in users_today %}
+            <ul>{% for ebook in ebooks.today %}
                 <li><a href="{% url work ebook.edition.work.id %}">{{ebook.edition.work.title}}</a></li>
             {% endfor %}</ul>
         </li>
