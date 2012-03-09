@@ -213,6 +213,8 @@ $j(document).ready(function(){
                        {% render_comment_list for work %}
                        {% if user.is_authenticated %}
                            {% render_comment_form for work %}
+                       {% else %}
+                       <p>You must be <a href="{% url auth_login %}?next={{ request.path }}">logged in</a> to comment.</p>
                        {% endif %}
                     </div>
                     </div>
