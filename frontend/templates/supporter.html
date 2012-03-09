@@ -92,7 +92,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             {% ifequal supporter request.user %}
                             <div id="user-block1">
                             <div class="block-inner">
-                            <span class="my-setting">My Profile</a>
+                            <span class="my-setting">My Profile</span>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -181,21 +181,21 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.twitter_id %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br/> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
                                     {% else %}
                                     <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br/> or disconnect Facebook: {{ profile_form.clear_facebook }}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
                                     {% else %}
                                     <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
                                 <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
