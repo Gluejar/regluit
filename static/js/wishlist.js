@@ -41,7 +41,7 @@ $j().ready(function() {
 	// we're going to have to tell /wishlist/ that we're feeding it a different identifier
     contentblock.on("click", "div.remove-wishlist-workpage", function () {
         var span = $j(this).find("span");
-        var work_id = span.attr('id')
+        var work_id = span.attr('id').substring(1)
             
         // provide feedback
         span.html('Removing...');
