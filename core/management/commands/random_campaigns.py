@@ -1,6 +1,7 @@
 from decimal import Decimal
 from random import randint, randrange
-from datetime import datetime, timedelta
+from datetime import timedelta
+from regluit.utils.localdatetime import now
 from decimal import Decimal as D
 
 from django.core.management.base import BaseCommand
@@ -27,7 +28,7 @@ class Command(BaseCommand):
             campaign.paypal_receiver = settings.PAYPAL_TEST_RH_EMAIL
 
             # random deadline between 5 days from now and 180 days from now
-            now = datetime.now()
+            now = now()
             campaign.deadline = random_date(now + timedelta(days=5),
                                             now + timedelta(days=180))
 
