@@ -6,7 +6,7 @@
 <p> If you change your username, the web address for your profile page will change as well.</p>
 
 <p> <b>Your current username:</b> {{ user.username }}</p>
-<form method="POST" action="">
+<form method="POST" action="#">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" name="submit" value="Change username" id="submit">

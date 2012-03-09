@@ -6,7 +6,7 @@
 <div id="registration">
 <h1>Create a new profile for {{ user }} </h1>
  
-<form method="POST" action="">
+<form method="POST" action="#">
     {% csrf_token %}
     {{ form }}
     <input type="submit" name="submit" value="Save" id="submit">
