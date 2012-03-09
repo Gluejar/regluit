@@ -158,11 +158,11 @@ $j(document).ready(function(){
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
-                                    <span id="{{ work.id }}">Remove This</span>
+                                    <span id="w{{ work.id }}">Remove This</span>
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
-                                    <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
+                                    <span id="w{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
                             {% if work.first_ebook %}
