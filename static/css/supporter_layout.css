@@ -273,7 +273,7 @@ input.profile-save {
   display: inline-block;
   vertical-align: middle;
 }
-#loadgr div, #loadgr input {
+#goodreads_shelves, #loadgr input {
   margin: auto 10px auto 36px;
 }
 #loadlt {
