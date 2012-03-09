@@ -1,5 +1,6 @@
 from decimal import Decimal as D
 from datetime import datetime, timedelta
+from regluit.utils.localdatetime import now
 
 from django.test import TestCase
 from django.test.client import Client
@@ -169,14 +170,14 @@ class BookLoaderTests(TestCase):
             name=e1.work.title,
             work=e2.work, 
             description='Test Campaign 1',
-            deadline=datetime.now(),
+            deadline=now(),
             target=D('1000.00'),
         )
         c2 = models.Campaign.objects.create(
             name=e2.work.title,
             work=e2.work, 
             description='Test Campaign 2',
-            deadline=datetime.now(),
+            deadline=now(),
             target=D('1000.00'),
         )
         
@@ -359,14 +360,14 @@ class CampaignTests(TestCase):
         # should not let me suspend a campaign that hasn't been initialized
         self.assertRaises(UnglueitError, c1.suspend, "for testing")
         # UNSUCCESSFUL
-        c3 = Campaign(target=D('1000.00'),deadline=datetime.utcnow() - timedelta(days=1),work=w)
+        c3 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w)
         c3.save()
         c3.activate()
         self.assertTrue(c3.update_status())
         self.assertEqual(c3.status, 'UNSUCCESSFUL')
             
         # SUCCESSFUL
-        c4 = Campaign(target=D('1000.00'),deadline=datetime.utcnow() - timedelta(days=1),work=w)
+        c4 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w)
         c4.save()
         c4.activate()
         t = Transaction()
