@@ -23,15 +23,15 @@
             <label>Find it here</label>
             
             <div class="find-link">
-                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
-                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
+                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
+                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary"></a>
 
                 {% if not request.user.is_anonymous %}
                 {% if request.user.profile.goodreads_user_link %}
-                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
+                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads" alt="Find on GoodReads"></a>
                 {% endif %}
                 {% if request.user.profile.librarything_id %}
-                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
+                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                 {% endif %}
                 {% endif %}
             </div>
@@ -42,7 +42,7 @@
         		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
         	</div>
         	<div class="status">
-        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" />
+        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
         	</div>
         </div>
     </div>
