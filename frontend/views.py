@@ -128,10 +128,10 @@ def work(request, work_id, action='display'):
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id})
+        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
         for edition in editions:
             #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ) )
+            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
     if campaign:
