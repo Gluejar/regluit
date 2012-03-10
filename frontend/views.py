@@ -1317,11 +1317,15 @@ def work_openlibrary(request, work_id):
     elif len(isbns) > 0:
         isbns = ",".join(isbns)
         u = 'http://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
-        j = json.loads(requests.get(u).content)
-        # as long as there were some matches get the first one and route to it
-        if len(j.keys()) > 0:
-            first = j.keys()[0]
-            url = "http://openlibrary.org" + j[first]['key'] 
+        try:
+            j = json.loads(requests.get(u).content)
+            # as long as there were some matches get the first one and route to it
+            if len(j.keys()) > 0:
+                first = j.keys()[0]
+                url = "http://openlibrary.org" + j[first]['key'] 
+        except ValueError:
+            # fail at openlibrary
+            logger.warning("failed to get OpenLibrary json at %s" % u)          
     # fall back to doing a search on openlibrary
     if not url:
         q = urlencode({'q': work.title + " " + work.author()})
