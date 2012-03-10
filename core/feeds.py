@@ -24,6 +24,5 @@ class SupporterWishlistFeed(Feed):
 		# we're not getting a link object existing later in the system when
 		# we need it to; why not?
 
-    def items(self):
-        andromeda = User.objects.filter(username="andromeda2")[0]
-        return andromeda.wishlist.works.all().order_by('-id')[:5]    
+    def items(self, obj):
+        return obj.wishlist.works.all().order_by('-id')[:5]    
