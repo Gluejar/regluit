@@ -266,15 +266,19 @@ input.profile-save {
 }
 #loadgr {
   background: url("/static/images/supporter_icons/goodreads_square.png") left center no-repeat;
-  min-height: 32px;
-  margin-bottom: 12px;
+  min-height: 33px;
+  margin: 12px auto;
 }
 #loadgr span {
   display: inline-block;
   vertical-align: middle;
 }
-#goodreads_shelves, #loadgr input {
+#loadgr input {
   margin: auto 10px auto 36px;
+}
+#loadgr #goodreads_shelves {
+  margin: auto 10px auto 36px;
+  display: block;
 }
 #loadlt {
   background: url("/static/images/supporter_icons/librarything_square.png") left center no-repeat;
