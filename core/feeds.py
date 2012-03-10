@@ -21,8 +21,5 @@ class SupporterWishlistFeed(Feed):
     def item_link(self, item):
         return "/work/%s" % item.id
 
-		# we're not getting a link object existing later in the system when
-		# we need it to; why not?
-
     def items(self, obj):
         return obj.wishlist.works.all().order_by('-id')[:5]    
