@@ -19,7 +19,7 @@ $j(document).ready(function() {
         fireOnce: false,
         fireDelay: false,
         insertAfter: "#results-bottom",
-        loader: '<img src="/static/images/loading.gif">',
+        loader: '<img src="/static/images/loading.gif" alt="loading..." />',
         callback: function(p) {
             page += 1;
             var url = "?q={{ q }}&page=" + page;
@@ -55,12 +55,12 @@ $j(document).ready(function() {
                             <li>View As:</li>
                             <li class="view-list">
                                 <a href="#" id="toggle-list">
-                                <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" />
+                                <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" alt="use list view" />
                                 </a>
                             </li>
                             <li class="view-list">
                                 <a href="#" id="toggle-panel">
-                                <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" />
+                                <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" alt="use panel view" />
                                 </a>
                             </li>
                         </ul>

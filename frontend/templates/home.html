@@ -13,7 +13,7 @@
 
 {% block base_js %}
 
-<script src={{ jquery_home }}></script>
+<script src="{{ jquery_home }}"></script>
 
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
@@ -50,26 +50,26 @@
                       <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
-                        <input id="id_username" type="text" class="required" name="username" maxlength="30" size="30" />
+                        <input id="id_username_pop" type="text" class="required" name="username" maxlength="30" size="30" />
                         </div>
                         <div class="email">
                     	<label>Email</label>
-                        <input id="id_email" type="text" class="required" name="email" maxlength="75" size="30" />
+                        <input id="id_email_pop" type="text" class="required" name="email" maxlength="75" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password</label>
-                        <input id="id_password1" type="password" class="required" name="password1" size="30" />
+                        <input id="id_password1_pop" type="password" class="required" name="password1" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password (again):</label>
-                        <input id="id_password2" type="password" class="required" name="password2" size="30" />
+                        <input id="id_password2_pop" type="password" class="required" name="password2" size="30" />
                         </div>
 						<div class="button">
                         	<input type="submit" class="signup" value="sign up" />
                         </div>
                         </form>
                         <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                     </div>
                     <div id="js-maincontainer-faq">
                     	<div class="js-maincontainer-faq-inner">
-                        	Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.</a>
+                        	Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.
                         </div>
                     </div>
             </div>
@@ -119,26 +119,27 @@
                       <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
-                        <input id="id_username" type="text" class="required" name="username" maxlength="30" size="30" />
+                        <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
                         </div>
                         <div class="email">
                     	<label>Email</label>
-                        <input id="id_email" type="text" class="required" name="email" maxlength="75" size="30" />
+                        <input id="id_email_main" type="text" class="required" name="email" maxlength="75" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password</label>
-                        <input id="id_password1" type="password" class="required" name="password1" size="30" />
+                        <input id="id_password1_main" type="password" class="required" name="password1" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password (again):</label>
-                        <input id="id_password2" type="password" class="required" name="password2" size="30" />
+                        <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
                         </div>
 						<div class="button">
                         	<input type="submit" class="signup" value="sign up" />
                         </div>
                         <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
+                      </form>
                     </div>
                 </div>
                 <div class="jsmodule">
