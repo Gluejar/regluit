@@ -6,7 +6,7 @@ $j().ready(function() {
 	
     contentblock.on("click", "div.add-wishlist", function () {
         var span = $j(this).find("span");
-        var gb_id = span.attr('id')
+        var gb_id = span.attr('id').substring(1)
         if (!gb_id) return;
             
         // give immediate feedback that action is in progress
@@ -21,7 +21,7 @@ $j().ready(function() {
     contentblock.on("click", "div.remove-wishlist", function() {
         var span = $j(this).find("span");
         var book = $j(this).closest('.thewholebook');
-        var work_id = span.attr('id')
+        var work_id = span.attr('id').substring(1)
         span.html('Removing...');
         jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
             book.fadeOut();
@@ -41,7 +41,7 @@ $j().ready(function() {
 	// we're going to have to tell /wishlist/ that we're feeding it a different identifier
     contentblock.on("click", "div.remove-wishlist-workpage", function () {
         var span = $j(this).find("span");
-        var work_id = span.attr('id')
+        var work_id = span.attr('id').substring(1)
             
         // provide feedback
         span.html('Removing...');

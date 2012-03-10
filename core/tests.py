@@ -362,7 +362,7 @@ class CampaignTests(TestCase):
         c3 = Campaign(target=D('1000.00'),deadline=datetime.utcnow() - timedelta(days=1),work=w)
         c3.save()
         c3.activate()
-        self.assertTrue(c3.update_success())
+        self.assertTrue(c3.update_status())
         self.assertEqual(c3.status, 'UNSUCCESSFUL')
             
         # SUCCESSFUL
@@ -376,7 +376,7 @@ class CampaignTests(TestCase):
         t.approved = True
         t.campaign = c4
         t.save()        
-        self.assertTrue(c4.update_success())        
+        self.assertTrue(c4.update_status())        
         self.assertEqual(c4.status, 'SUCCESSFUL')
         
         # WITHDRAWN

@@ -111,14 +111,14 @@ $j(document).ready(function(){
                         <div class="find-book">
                             <label>Find it:</label>
                             <div class="find-link">
-                                <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" align="" title="Find on Google Books" /></a>
-                                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary"></a>
+                                <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
+                                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
                                 {% if not request.user.is_anonymous %}
                                 {% if request.user.profile.goodreads_user_link %}
-                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"></a>
+                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
                                 {% endif %}
                                 {% if request.user.profile.librarything_id %}
-                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" /></a>
+                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                                 {% endif %}
                                 {% endif %}
                             </div>
@@ -145,7 +145,7 @@ $j(document).ready(function(){
                             {% endif %} wished for this Work
                         {% endif %}{% endif %}
                         </div>
-                        <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png" /></div>
+                        <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png"  title="book list status" alt="book list status" /></div>
                         </div>
                         <div class="btn_wishlist" id="wishlist_actions">
                             {% if request.user.is_anonymous %}
@@ -158,11 +158,11 @@ $j(document).ready(function(){
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
-                                    <span id="{{ work.id }}">Remove This</span>
+                                    <span id="w{{ work.id }}">Remove This</span>
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
-                                    <span id="{{ work.googlebooks_id }}">Add to Wishlist</span>
+                                    <span id="w{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
                             {% if work.first_ebook %}
@@ -259,7 +259,7 @@ $j(document).ready(function(){
         	    	                {{ claimform.user }}
             	    	            {{ claimform.work }}
                 	    	        {{ claimform.rights_holder }}
-                    	    	    <input type="submit" name="submit" value="Claim" id="submit">
+                    	    	    <input type="submit" name="submit" value="Claim">
                      		   </form><br />
 	
 	                        {% endif %}
@@ -272,7 +272,7 @@ $j(document).ready(function(){
         	    	                {{ claimform.user }}
             	    	            {{ claimform.work }}
                 	    	        {{ claimform.rights_holder }}
-                    	    	    <input type="submit" name="submit" value="Claim" id="submit">
+                    	    	    <input type="submit" name="submit" value="Claim" >
                      		   </form><br />
                         	{% else %}
     	                    	Are you the rights holder for this work?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
@@ -291,7 +291,7 @@ $j(document).ready(function(){
                         <h4>Editions</h4>
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
-                            <div class="editions"><div class="image"><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&printsec=frontcover&img=1&zoom=5" /></div>
+                            <div class="editions"><div class="image"><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&amp;printsec=frontcover&amp;img=1&amp;zoom=5" title="edition cover" alt="edition cover" /></div>
                             <div class="metadata" id="edition_{{edition.id}}">Publisher: {{edition.publisher}}<br />
                             	Published: {{edition.publication_date}}<br />
                             	{% with edition.isbn_13 as isbn %}
@@ -319,7 +319,7 @@ $j(document).ready(function(){
     	    	                    URL: {{ edition.ebook_form.url }}<br />
     	    	                    File Format: {{ edition.ebook_form.format }}&nbsp;&nbsp;&nbsp;
     	    	                    License: {{ edition.ebook_form.rights }}<br />
-    	    	                    <input type="submit" name="add_ebook" value="add ebook" id="submit" />
+    	    	                    <input type="submit" name="add_ebook" value="add ebook" />
                                     </form>
                                 </div>
                             {% endifnotequal %}{% endif %}
@@ -338,11 +338,11 @@ $j(document).ready(function(){
                 <div class="jsmod-content">
                     <ul class="social menu">
                         <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
-                        <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&text=I'm%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
+                        <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
                         {% if request.user.is_authenticated %}<a href="{% url emailshare %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                         <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
-                        <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                     </ul>
+                        <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                 </div>
             </div>
             {% if status == 'ACTIVE' %}

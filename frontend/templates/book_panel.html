@@ -61,7 +61,7 @@
 				    {% else %}
                     {% ifequal supporter request.user %}
                         <div class="moreinfo remove-wishlist">
-                            <span id="{{ work.id }}">Remove This</span>
+                            <span id="p{{ work.id }}">Remove This</span>
                         </div>
                     {% else %}{% if request.user.is_anonymous %}
                         <div class="moreinfo create-account">
@@ -73,7 +73,7 @@
                         </div>
                     {% else %}
                         <div class="moreinfo add-wishlist">
-                        <span id="{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        <span id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
                         </div>
                     {% endif %}{% endif %}{% endifequal %}{% endif %}
 
@@ -106,7 +106,7 @@
     {% else %}
     {% ifequal supporter request.user %}
     <div class="listview panelfront side1 remove-wishlist">
-        <span id="{{ work.id }}">Remove This</span>
+        <span id="l{{ work.id }}">Remove This</span>
     </div>
     {% else %}{% if request.user.is_anonymous %}
     <div class="listview panelfront side1 create-account">
@@ -118,7 +118,7 @@
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">
-        <span id="{{ googlebooks_id }}">Add to Wishlist</span>
+        <span id="l{{ googlebooks_id }}">Add to Wishlist</span>
     </div>
     {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">
