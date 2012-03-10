@@ -380,6 +380,12 @@ ul.tabs li.tabs3 a:hover, ul.tabs li.tabs3.active a {
   background: #d6dde0;
   color: #3d4e53;
 }
+#rss {
+  height: 46px;
+}
+#rss img {
+  padding: 16px 0 0 14px;
+}
 .listview .rounded {
   line-height: normal;
   margin-right: 0;
