@@ -10,7 +10,10 @@ from django.db.models.query_utils import Q
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-import datetime
+from datetime import timedelta
+from regluit.utils.localdatetime import now, isoformat
+import dateutil
+
 import dateutil.parser
 import hashlib
 import httplib
@@ -601,16 +604,16 @@ class Preapproval( PaypalEnvelopeRequest ):
             cancel_url = settings.BASE_URL + CANCEL_URL
           
           # set the expiration date for the preapproval if not passed in
-          now = datetime.datetime.utcnow()
+          now_val = now()
           if expiry is None:
-            expiry = now + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD )
-          transaction.date_authorized = now
+            expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+          transaction.date_authorized = now_val
           transaction.date_expired = expiry
           transaction.save()
           
           data = {
-                  'endingDate': expiry.isoformat(),
-                  'startingDate': now.isoformat(),
+                  'endingDate': isoformat(expiry),
+                  'startingDate': isoformat(now_val),
                   'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
                   'maxNumberOfPayments':1,
                   'maxAmountPerPayment': '%.2f' % transaction.amount,
@@ -703,9 +706,16 @@ class PreapprovalDetails(PaypalEnvelopeRequest):
             self.approved = False
           else:
             self.approved = None
+
+          try:
+            self.expiration = dateutil.parser.parse(self.response.get("endingDate"))
+          except:
+            self.expiration = None
           
-          self.expiration = self.response.get("endingDate", None)
-          self.date = self.response.get("startingDate", None)
+          try:
+            self.date = dateutil.parser.parse(self.response.get("startingDate", None))
+          except:
+            self.date = None
           
       except:
           self.errorMessage = "Error: ServerError"

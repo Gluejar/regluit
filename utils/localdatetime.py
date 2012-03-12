@@ -110,6 +110,15 @@ def make_naive(value, timezone):
         value = timezone.normalize(value)
     return value.replace(tzinfo=None)
 
+def isoformat(value):
+    """
+    if value is naive, assume it's in the default_timezone
+    """
+    if is_naive(value):
+        return make_aware(value, get_default_timezone()).isoformat()
+    else:
+        return value.isoformat()
+
 def as_utc_naive(value):
     """
     if value is naive, assume it's in the default time zone, then convert to UTC but make naive 
