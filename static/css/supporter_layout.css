@@ -386,6 +386,10 @@ ul.tabs li.tabs3 a:hover, ul.tabs li.tabs3.active a {
 #rss img {
   padding: 16px 0 0 14px;
 }
+#rss span {
+  margin-left: 3px;
+  font-size: 12px;
+}
 .listview .rounded {
   line-height: normal;
   margin-right: 0;
