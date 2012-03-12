@@ -23,6 +23,7 @@ import logging
 import os
 from decimal import Decimal as D
 from regluit.utils.localdatetime import now
+from datetime import timedelta
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -278,7 +279,7 @@ class TransactionTest(TestCase):
         
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'),deadline=now() + datetime.timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
         c.save()
         
         t = Transaction()
