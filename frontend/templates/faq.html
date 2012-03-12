@@ -8,16 +8,17 @@
 <dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
 
 <dd>Please email us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  Especially during our alpha phase, we want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
-
+</dl>
 {% if location == 'basics' or location == 'faq' %}
 <h3>Basics</h3>
 {% if sublocation == 'howitworks' or sublocation == 'all' %}
 <h4>How It Works</h4>
+<dl>
 <dt>What is Unglue.It?</dt>
 
 <dd><a href="/">Unglue.It</a> is a a place for individuals and institutions to join together to give their favorite ebooks to the world.  We work with rights holders to determine fair compensation for releasing a free, legal edition of their traditionally published books, under a <a href="http://creativecommons.org">Creative Commons</a> license.  Then everyone chips in to raise that sum.  When the threshold is reached, we pay the rights holders; they issue an unglued digital edition; and you're free to read and share it, with everyone, on the device of your choice, worldwide.</dd>
 
-<a name="crowdfunding"></a><dt>What is Crowdfunding?</dt>
+<a id="crowdfunding"></a><dt>What is Crowdfunding?</dt>
 
 <dd>Crowdfunding is collectively pooling donations (or pledges) to support some cause.  Using the internet to coordinate means that complete strangers can work together, drawn by a common cause.  This also means the number of donors can be vast, so individual donations can be as large or as small as people are comfortable with, and still add up to enough to do something amazing.<br /><br />
 Want to see some examples?  The <a href="http://buyindiaalibrary.wordpress.com/">Buy India a Library</a> project (cofounded by an Unglue.It team member) crowdfunded donations -- mostly small ones, around $20 -- to build a school library in India.  <a href="http://www.kickstarter.com/">Kickstarter</a> lets artists and inventors solicit funds to make their projects a reality.  For instance, webcomic artist Rich Burlew sought $57,750 to reprint his comics in paper form -- and raised <a href="http://www.kickstarter.com/projects/599092525/the-order-of-the-stick-reprint-drive">close to a million</a>.<br /><br />
@@ -77,7 +78,7 @@ If you believe you are a rights holder and would like to discuss ungluing your w
 <dt>Is there a widget that can be put on my own site to share my favorite books or campaigns?</dt>
 
 <dd>Yes!  Every book page has an "Embed" option.  Click that and copy/paste the HTML code wherever you like.</dd>
-
+</dl>
 {% comment %}
 What is Open Access or Creative Commons versus PD?
 TBA
@@ -85,17 +86,18 @@ TBA
 {% endif %}
 {% if sublocation == 'account' or sublocation == 'all' %}
 <h4>Your Account</h4>
+<dl>
 <dt>I forgot my password. What do I do?</dt> 
-
+<dd>
 There's a <a href="/accounts/password/reset/">forgot your password</a> link at the bottom of the <a href="/accounts/login/">sign in page</a>.  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
-
+</dd>
 <dt>I never received an activation email after I signed up, or my activation email isn't working. What do I do?</dt>
 
 <dd>Check your spam folder for mail from accounts@gluejar.com.  If that doesn't work, contact us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</dd>
 
 <dt>How do I connect my Twitter, Facebook, GoodReads, and/or LibraryThing accounts?  How can I link to my personal web site?</dt>
 
-Click on "My Profile" near the top of your user profile page.  (If you're logged in, your profile page is <a href="/">here</a>.)  Some new options will appear.  You can enter your personal URL and your LibraryThing username here. There are one-click options to connect your Twitter, Facebook, and GoodReads accounts.  (You'll be asked to log in to those accounts, if you aren't logged in already.)  Make sure to click on "Save Settings".
+<dd>Click on "My Profile" near the top of your user profile page.  (If you're logged in, your profile page is <a href="/">here</a>.)  Some new options will appear.  You can enter your personal URL and your LibraryThing username here. There are one-click options to connect your Twitter, Facebook, and GoodReads accounts.  (You'll be asked to log in to those accounts, if you aren't logged in already.)  Make sure to click on "Save Settings".</dd>
 
 <dt>Why should I connect those accounts?</dt>
 
@@ -129,10 +131,11 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 <dt>Is my personal information shared?</dt>
 
 <dd>Short version: no.  You may share information with Rights Holders so they can deliver premiums to you, but this is not required.  For the long version, please read our <a href="/privacy/">privacy policy</a>.
+</dl>
 {% endif %}
 {% if sublocation == 'company' or sublocation == 'all' %}
 <h4>The Company</h4>
-
+<dl>
 <dt>How can I contact Unglue.It?</dt>
 
 <dd>For support requests, <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  For general inquiries, use our Ask Questions Frequently account, <a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a>.  For rights inquiries, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
@@ -148,6 +151,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 <dt>Why does Unglue.It exist?</dt>
 
 <dd>Because legal stickiness means you can't reliably lend or share your ebooks, borrow them from the library, or read them on the device of your choice.  Because -- like public radio -- ebooks are expensive to create but cheap to distribute, so covering their fixed costs and reasonable profit up front can be an appealing system for authors, publishers, readers, and libraries.  Because we all have books we love so much we'd like to give them to the world.</dd>
+</dl>
 {% endif %}
 {% endif %}
 
@@ -155,7 +159,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 <h3>Campaigns</h3>
 {% if sublocation == 'overview' or sublocation == 'all' %}
 <h4>Overview</h4>
-
+<dl>
 {% comment %}
 These need to be put in proper order.  Also this should be broken down into the general FAQ and the RH FAQ; only the basic create/manage campaign, and the supporter mechanisms of interacting with campaigns, should be in the basic FAQ; more technical questions about running campaigns should be in the RH FAQ.
 
@@ -182,8 +186,9 @@ These need to be put in proper order.  Also this should be broken down into the 
 
 <dd>If you're looking for a specific book, search for it.  The book's page becomes a campaign page when its campaign starts.  Your bookmarks and widgets for that book will still work.<br /><br />
 If you want to find an interesting campaign and don't have a specific book in mind, see the Explore sidebar (on almost any page except the FAQs) for some of our favorites.</dd>
-
+</dl>
 <h4>Campaign Pages</h4>
+<dl>
 <dt>Can a campaign be edited after launching?</dt>
 
 <dd>Yes.  In fact, rights holders are encouraged to update their supporters about the progress of the campaign. (For an example of exceptionally successful updates, check out <a href="http://www.kickstarter.com/projects/599092525/the-order-of-the-stick-reprint-drive/posts">Rich Burlew's Kickstarter campaign</a>, which grossed over a million dollars, in part because of his frequent and creative communication and improvements to the rewards being offered.)  Note that the campaign's deadline cannot be changed and its threshold may not be increased.</dd>
@@ -195,11 +200,11 @@ If you want to find an interesting campaign and don't have a specific book in mi
 <dt>What is a campaign page?</dt>
 
 <dd>When a book has an active ungluing campaign, its book page turns into its campaign page.  This means that, in addition to the standard book page information, it also features rewards for different pledge tiers; a Support button; and information supplied by the rights holder about the book and the campaign.</dd>
-
+</dl>
 {% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
 <h4>Supporting Campaigns</h4>
-
+<dl>
 <dt>How do I pledge?  Do I need a PayPal account?</dt>
 
 <dd>There's a Support button on all campaign pages, or you can just click on the premium you'd like to receive.  You'll be asked to select your premium and specify your pledge amount, and then you'll be taken to PayPal to complete the transaction.  While you may certainly use your PayPal account if you have one, you do not need one; you can use your credit card normally.</dd>
@@ -227,10 +232,11 @@ If you want to find an interesting campaign and don't have a specific book in mi
 <dt>Is my contribution tax deductible?</dt>
 
 <dd>If the rights holder for the work you're supporting is a nonprofit, please contact them directly to inquire.  Unglue.It cannot offer tax deductions.</dd>
+</dl>
 {% endif %}
 {% if sublocation == 'premiums' or sublocation == 'all' %}
 <h4>Premiums</h4>
-
+<dl>
 <dt>What are premiums?</dt>
 
 <dd>Premiums are bonuses people get for supporting a successful campaign, to thank them and incentivize them to pledge.  If you've ever gotten a tote bag from NPR, you know what we're talking about.</dd>
@@ -254,7 +260,7 @@ Rights holders are encouraged to offer additional premiums to engage supporters'
 <dt>Is there a minimum or maximum for how much a premium can cost?</dt>
 
 <dd>There's a $1 minimum and a $2000 maximum (this is the largest transaction we can authorize through PayPal).</dd>
-
+</dl>
 {% endif %}
 {% endif %}
 
@@ -262,6 +268,7 @@ Rights holders are encouraged to offer additional premiums to engage supporters'
 <h3>Unglued Ebooks</h3>
 {% if sublocation == 'general' or sublocation == 'all' %}
 <h4>General Questions</h4>
+<dl>
 <dt>So what is an unglued ebook?</dt>
 
 <dd>An unglued ebook is an already-published book that's been rereleased under a <a href="http://creativecommons.org">Creative Commons</a> license, after obtaining permission and compensating the rights holder.<br /><br />
@@ -294,10 +301,11 @@ Unglued ebooks are a win-win solution for readers, libraries, and authors, publi
 <dt>Will Unglue.It help raise funds for books not yet written?</dt>
 
 <dd>No.  There are other crowdfunding sites devoted to new creative works, and we encourage you to investigate them.  Once your book has been published, we'd love to talk to you.</dd>
-
+</dl>
 {% endif %}
 {% if sublocation == 'using' or sublocation == 'all' %}
 <h4>Using Your Unglued Ebook</h4>
+<dl>
 <dt>What can I do, legally, with an unglued ebook?  What can I NOT do?</dt>
 <dd>All unglued ebooks are released under a Creative Commons license.  Unless otherwise specified for specific books, we use the <a href="creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons Attribution-NonCommercial-NoDerivatives license (CC BY-NC-ND) license</a>.  (TBA: improve with input from CC site)<br /><br />
 
@@ -307,7 +315,7 @@ You <b>cannot</b>: sell them, or otherwise use them commercially, without permis
 
 <dt>Are the unglued ebooks compatible with my device?  Do I need to own an ereader, like a Kindle or a Nook, to read them?</dt>
  
-<dd>Unglued ebooks are distributed with NO DRM, so they'll work on Kindle, iPad, Kobo, Nook, Android, Mac, Windows, Linux... you get the idea.  Whether you have an ereader, a tablet, a desktop or laptop computer, or a smartphone, there are reading apps that work for you.  And if the ePub format isn't best for your device, you're free to shift unglued books to a format that works better for you. (TBA: I think ePub does NOT work on Kindle so we need to address that, & how people can deal)</dd>
+<dd>Unglued ebooks are distributed with NO DRM, so they'll work on Kindle, iPad, Kobo, Nook, Android, Mac, Windows, Linux... you get the idea.  Whether you have an ereader, a tablet, a desktop or laptop computer, or a smartphone, there are reading apps that work for you.  Ebook editions issued through unglue.it will be available in EPUB, MOBI, and/or PDF to make it easy for you. If the  format available today don't work in the future, anyone will be able to shift unglued books to a formats that will continue to work for our chldren's children. </dd>
 
 <dt>Do I need to have a library card to read an unglued ebook?</dt>
 
@@ -325,9 +333,11 @@ Just don't sell, adapt, or abridge it.  Unglued ebooks are only licensed for non
 <dt>Will I be able to dowload an unglued ebook directly from Unglue.It?</dt>
 
 <dd>Unglue.It will provide links to places where you can find unglued and public domain ebooks. We will not host them ourselves.  We encourage you to look for them at bookstores, libraries, literary blogs, social reading sites, and all kinds of places people go to read and talk about books.</dd>
+</dl>
 {% endif %}
 {% if sublocation == 'copyright' or sublocation == 'all' %}
 <h4>Ungluing and Copyright</h4>
+<dl>
 <dt>Why does an unglued book have to be in copyright?</dt>
 
 <dd>Because books out of copyright are already free for you to copy, remix, and share!  If a book is in the (TBA: link) public domain, it's already unglued.</dd>
@@ -337,6 +347,7 @@ Just don't sell, adapt, or abridge it.  Unglued ebooks are only licensed for non
 <dd>Unfortunately, it can be complicated -- which is why Unglue.It wants to simplify things, by making unglued ebooks unambiguously legal to use in certain ways.  The laws governing copyright and the public domain vary by country, so a book can be copyrighted in one place and not in another. (TBA: link, library copyright slider; other?)  In the United States, the Library Copyright Slider gives a quick estimate. (TBA: more links for people who want to learn more?)<br /><br />
 
 Unglue.It signs agreements concerning the copyright status of every work we unglue, so you can be confident when reading and sharing an unglued ebook.</dd>
+</dl>
 {% endif %}
 {% endif %}
 
@@ -344,17 +355,19 @@ Unglue.It signs agreements concerning the copyright status of every work we ungl
 <h3>For Rights Holders</h3>
 {% if sublocation == 'authorization' or sublocation == 'all' %}
 <h4>Becoming Authorized</h4>
+<dl>
 <dt>What do I need to do to become an authorized Rights Holder on Unglue.it?</dt>
 
 <dd>Contact Amanda Mecke, <a href="mailto:amecke@gluejar.com">amecke@gluejar.com</a>, to discuss signing our Platform Services Agreement. This is the first step in being able to make an offer to license, set a monetary goal, and run a campaign on Unglue.it.</dd>
 
 <dt>Do I need to know the exact titles I might want to unglue before I sign the Platform Services Agreement?</dt>
 
-<dd>No. You only need to agree to the terms under which you will use Unglue.it to raise money to release an ebook using the <a href="http://creativecommons.org">Creative Commons</a> license. You can decide which specific titles you wish to make available for licensing later. You can run campaigns for as many, or as few, titles at a time as you like.</dt>
-
+<dd>No. You only need to agree to the terms under which you will use Unglue.it to raise money to release an ebook using the <a href="http://creativecommons.org">Creative Commons</a> license. You can decide which specific titles you wish to make available for licensing later. You can run campaigns for as many, or as few, titles at a time as you like.</dd>
+</dl>
 {% endif %}
 {% if sublocation == 'campaigns' or sublocation == 'all' %}
 <h4>Running Campaigns</h4>
+<dl>
 <dt>What do I need to create a campaign?</dt>
 
 <dd>First, you need to be an authorized rights holder with a signed Platform Services Agreement on file.  Please contact <a href="mailto:rights@gluejar.com">rights@gluejar.com</a> to start this process.  Once we have your PSA on file, you'll be able to claim your works and you'll have access to tools for launching and monitoring campaigns.  We'll be happy to walk you through the process personally.</dd>
@@ -400,10 +413,11 @@ We strongly encourage you to include video.  You can upload it to YouTube and em
 <dt>What is my responsibility for answering questions from supporters and non-supporters?</dt>
 
 <dd>It's up to you.  However, our experience watching and running crowdfunding campaigns suggests that you'll do best if you're engaged, prompt, and personable.  In fact, don't just think in terms of answering questions (though you should absolutely do that) -- think about cultivating and contributing to the conversation.</dd>
-
+</dl>
 {% endif %}
 {% if sublocation == 'publicity' or sublocation == 'all' %}
 <h4>Publicizing Campaigns</h4>
+<dl>
 <dt>I need help using social media channels to publicize my campaign.</dt>
 
 <dd>We're developing a social media toolkit for rights holders.  Please tell us what you think should be in it so we can serve you better: <a href="mailto:andromeda@gluejar.com">andromeda@gluejar.com</a>.  In the meantime we're happy to help you one-on-one, at the same address.</dd>
@@ -432,9 +446,11 @@ Need more ideas?  We're happy to work with rights holders personally to craft a 
 <dt>How can I get press coverage or social media buzz for my campaign?</dt>
 
 <dd>We're developing a social media toolkit to help you with this; stay tuned.  We're also happy to work with you one-on-one.  Email <a href="mailto:support@gluejar.com">support@gluejar.com</a>.
+</dl>
 {% endif %}
 {% if sublocation == 'conversion' or sublocation == 'all' %}
 <h4>Ebook Conversion</h4>
+<dl>
 <dt>I am a copyright holder. Do I need to already have a digital file for a book I want to nominate for a pledge drive?</dt>
 
 <dd>No. You may run campaigns for any of your books, even those that exist only in print copies or are out of print.  Any print book can be scanned to create a digital file that can then become an ePub unglued ebook.</dd>
@@ -508,10 +524,11 @@ Need more ideas?  We're happy to work with rights holders personally to craft a 
 <dt>Will PayPal send me a 1099-K tax form?</dt>
 
 <dd>TBA</dd>
-
+</dl>
 {% endif %}
 {% if sublocation == 'rights' or sublocation == 'all' %}
 <h4>Rights</h4>
+<dl>
 <dt>If I am an author with my book still in print, can I still start a Campaign to unglue it?</dt>
 
 <dd>This depends entirely on your original contract with your publisher. You should seek independent advice about your royalty clauses and the "Subsidiary Rights" clauses of your contract. The Authors' Guild provides guidance for its members.</dd>
@@ -567,8 +584,8 @@ Does a Creative Commons license mean the Rights Holders doesn't get paid?
 
 No. An Unglued Ebook is pre-paid. A CC BY NC ND license means no one else can sell or adapt the ebook for profit. The Rights Holder can set as high a fee as wanted as a fundraising goal, instead of waiting decades for royalties.
 
-<dt>How do I keep track of my contributors and the fulfillment of premiums?</dt>
+How do I keep track of my contributors and the fulfillment of premiums?
 
-<dd>TBA</dd>
+TBA
 
 {% endcomment %}
