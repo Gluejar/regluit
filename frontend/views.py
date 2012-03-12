@@ -1359,13 +1359,30 @@ def emailshare(request):
     else:
         try:
             next = request.GET['next']
+            work_id = next.split('/')[-2]
+            work_id = int(work_id)
+            book = models.Work.objects.get(pk=work_id)
+            title = book.title
+            # if title requires unicode let's ignore it for now
+            try:
+            	title = ', '+str(title)+', '
+            except:
+            	title = ' '
+            try:
+            	status = book.last_campaign().status
+            except:
+            	status = None
+            
+            # customize the call to action depending on campaign status
+            if status == 'ACTIVE':
+                message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+            else:
+	        	message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'
+            form = EmailShareForm(initial={'next':next, 'subject': 'Come see one of my favorite books on Unglue.It', 'message': message})
         except:
             next = ''
-        if request.user.is_authenticated():
-            sender = request.user.email
-        else:
             sender = ''
-        form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
+            form = EmailShareForm(initial={'next':next, 'subject': 'Come join me on Unglue.It', 'message':"I'm ungluing books on Unglue.It.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
 
     return render(request, "emailshare.html", {'form':form})    
     
