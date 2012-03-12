@@ -28,10 +28,19 @@ jQuery(document).ready(function($) {
                 // say waiting
                 $('#goodreads_input').attr('value', 'Loading....');
                 var sel = $('<select id="id_goodreads_shelf_name_number" name="goodreads_shelf_name_number"></select>').appendTo('#goodreads_shelves');
-                $('<option value="' + 'all:' + json.total_book_count + '">' + 'all (' + json.total_book_count +')' + '</option>').appendTo(sel);
+                if (json.total_book_count === 1) {
+	                $('<option value="' + 'all:' + json.total_book_count + '">' + 'all (' + json.total_book_count +' book)' + '</option>').appendTo(sel);
+	            } else {
+	                $('<option value="' + 'all:' + json.total_book_count + '">' + 'all (' + json.total_book_count +' books)' + '</option>').appendTo(sel);
+	            }
                 for (var i = 0; i < json.user_shelves.length; i++) {
-                    $('<option value="' + json.user_shelves[i].name + ':' + json.user_shelves[i].book_count + '">' + json.user_shelves[i].name +
-                         ' (' + json.user_shelves[i].book_count + ')' + '</option>').appendTo(sel);
+                	if (json.user_shelves[i].book_count === 1) {
+	                    $('<option value="' + json.user_shelves[i].name + ':' + json.user_shelves[i].book_count + '">' + json.user_shelves[i].name +
+    	                     ' (' + json.user_shelves[i].book_count + ' book)' + '</option>').appendTo(sel);
+    	            } else {
+	                    $('<option value="' + json.user_shelves[i].name + ':' + json.user_shelves[i].book_count + '">' + json.user_shelves[i].name +
+    	                     ' (' + json.user_shelves[i].book_count + ' books)' + '</option>').appendTo(sel);
+    	            }
                 }
                 $('#load_gr_shelves_list').attr('id','load_shelf_form');
                 $('#goodreads_input').attr('value', 'Add this shelf');
