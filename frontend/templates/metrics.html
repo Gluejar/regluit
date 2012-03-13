@@ -13,6 +13,9 @@
             {% endfor %}</ul>{% endif %}
           <br />{{ wishlists.today.count }} of them have 1 or more items on a wishlist. 
         </li>
+        <li>{{ users.yesterday.count }} registered yesterday.
+            <br />{{ wishlists.yesterday.count }} of them have 1 or more items on a wishlist. 
+        </li>
         <li>{{ users.days7.count }} have registered in the past 7 days.
             <br />{{ wishlists.days7.count }} of them have 1 or more items on a wishlist. 
         </li>
@@ -22,6 +25,12 @@
         <li>{{ users.all.count }} have registered in total.
             <br />{{ wishlists.all.count }} of them have 1 or more items on a wishlist. 
         </li>
+    </ul>
+    <ul>
+        <li> {{ users.gr.count }} ungluers are connected to GoodReads.</li>
+        <li> {{ users.lt.count }} ungluers are connected to LibraryThing.</li>
+        <li> {{ users.fb.count }} ungluers are connected to FaceBook.</li>
+        <li> {{ users.tw.count }} ungluers are connected to Twitter.</li>
     </ul>
 </dd>
 </dl>
@@ -34,6 +43,8 @@
             <ul>{% for work in works.today %}
                 <li><a href="{% url work work.id %}">{{work.title}}</a></li>
             {% endfor %}</ul>{% endif %}
+        </li>
+        <li>{{ works.yesterday.count }} were added yesterday.
         </li>
         <li>{{ works.days7.count }} have been added in the past 7 days.
         </li>
@@ -68,6 +79,8 @@
             <ul>{% for ebook in ebooks.today %}
                 <li><a href="{% url work ebook.edition.work.id %}">{{ebook.edition.work.title}}</a></li>
             {% endfor %}</ul>{% endif %}
+        </li>
+        <li>{{ ebooks.yesterday.count }} were added yesterday.
         </li>
         <li>{{ ebooks.days7.count }} have been added in the past 7 days.
         </li>
