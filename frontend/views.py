@@ -80,9 +80,11 @@ def slideshow(max):
 
 def next(request):
 	if request.COOKIES.has_key('next'):
-		return HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+		response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+		response.delete_cookie('next')
+		return response
 	else:
-		return HttpResponseRedirect('/').delete_cookie('next')
+		return HttpResponseRedirect('/')
 
 def home(request):
     if request.user.is_authenticated():
