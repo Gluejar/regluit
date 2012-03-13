@@ -64,7 +64,7 @@ def slideshow(max):
         
     if is_preview:
         # on the preview site there are no active campaigns, so we should show most-wished books instead
-        worklist = models.Work.objects.order_by('-num_wishes')[:count]
+        worklist = models.Work.objects.order_by('-num_wishes')[:max]
     else:
     	worklist = []
         while i<max and count>0:
