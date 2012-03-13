@@ -228,7 +228,7 @@ class WorkListView(ListView):
         if (facet == 'popular'):
             return models.Work.objects.order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
-            return models.Work.objects.filter(wishlists__user=recommended_user)
+            return models.Work.objects.filter(wishlists__user=recommended_user).order_by('-num_wishes')
         elif (facet == 'new'):
             return models.Work.objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
@@ -240,8 +240,8 @@ class WorkListView(ListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
-            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct().order_by('-campaigns__status', 'campaigns__deadline')
-            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct().order_by('-num_wishes')
+            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()
+            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()
             
             context['activetab'] = "#3"
             
@@ -1017,11 +1017,23 @@ class InfoPageView(TemplateView):
         users.days7 = users.filter(date_joined__range = (date_today()-timedelta(days=7), now()))
         users.year = users.filter(date_joined__year = date_today().year)
         users.month = users.year.filter(date_joined__month = date_today().month)
+        if date_today().day==1:
+            users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
+        else:
+            users.yesterday = users.month.filter(date_joined__day = date_today().day-1)
+        users.gr = users.filter(profile__goodreads_user_id__isnull = False)
+        users.lt = users.exclude(profile__librarything_id = '')
+        users.fb = users.filter(profile__facebook_id__isnull = False)
+        users.tw = users.exclude(profile__twitter_id = '')
         works = models.Work.objects
         works.today = works.filter(created__range = (date_today(), now()))
         works.days7 = works.filter(created__range = (date_today()-timedelta(days=7), now()))
         works.year = works.filter(created__year = date_today().year)
         works.month = works.year.filter(created__month = date_today().month)
+        if date_today().day==1:
+            works.yesterday = works.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        else:
+            works.yesterday = works.month.filter(created__day = date_today().day-1)
         works.wishedby2 = works.filter(num_wishes__gte = 2)
         works.wishedby20 = works.filter(num_wishes__gte = 20)
         works.wishedby5 = works.filter(num_wishes__gte = 5)
@@ -1033,11 +1045,19 @@ class InfoPageView(TemplateView):
         ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
         ebooks.year = ebooks.filter(created__year = date_today().year)
         ebooks.month = ebooks.year.filter(created__month = date_today().month)
+        if date_today().day==1:
+            ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        else:
+            ebooks.yesterday = ebooks.month.filter(created__day = date_today().day-1)
         wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
         wishlists.today = wishlists.filter(created__range = (date_today(), now()))
         wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
         wishlists.year = wishlists.filter(created__year = date_today().year)
         wishlists.month = wishlists.year.filter(created__month = date_today().month)
+        if date_today().day==1:
+            wishlists.yesterday = wishlists.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        else:
+            wishlists.yesterday = wishlists.month.filter(created__day = date_today().day-1)
         return {
             'users': users, 
             'works': works,
