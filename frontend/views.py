@@ -2,6 +2,8 @@ import re
 import sys
 import json
 import logging
+import urllib
+
 from datetime import timedelta
 from regluit.utils.localdatetime import now, date_today
 
@@ -75,6 +77,12 @@ def slideshow(max):
         	    j = 0
                 
     return worklist
+
+def next(request):
+	if request.COOKIES.has_key('next'):
+		return HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+	else:
+		return HttpResponseRedirect('/').delete_cookie('next')
 
 def home(request):
     if request.user.is_authenticated():
