@@ -4,8 +4,13 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 
 import logging
+import os
 
 
+def setup_selenium():
+    # Set the display window for our xvfb
+    os.environ['DISPLAY'] = ':99'
+    
 def set_test_logging():
     
     # Setup debug logging to our console so we can watch
@@ -19,6 +24,8 @@ def set_test_logging():
     
     
 def run_google_rc():
+    """
+    """
 
     from selenium import selenium
     import unittest, time, re
@@ -51,6 +58,7 @@ def run_google_wd():
     A google example using WebDriver
     """
     
+
     from selenium import selenium, webdriver
     from selenium.common.exceptions import NoSuchElementException
     import unittest, time, re
@@ -58,6 +66,7 @@ def run_google_wd():
     class GoogleWebDriverTest(unittest.TestCase):
     
         def setUp(self):
+            setup_selenium()
             self.verificationErrors = []
             # This is an empty array where we will store any verification errors
             # we find in our tests
@@ -76,8 +85,6 @@ def run_google_wd():
                 sel.find_element_by_xpath("//a[contains(@href,'wikipedia')]")
             except NoSuchElementException, e:
                 self.verificationErrors.append(str(e))
-            #try: self.failUnless(sel.is_text_present("Wikipedia"))
-            #except AssertionError, e: self.verificationErrors.append(str(e))
         
         def tearDown(self):
             self.selenium.quit()
