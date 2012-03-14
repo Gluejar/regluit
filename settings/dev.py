@@ -121,4 +121,14 @@ CELERYD_LOG_LEVEL = "INFO"
 
 LOCALDATETIME_NOW = None
 
+# selenium-related testing parameters
+# in Django 1.4, we'll get a URL for LiveServerTestCase https://docs.djangoproject.com/en/dev/topics/testing/#django.test.LiveServerTestCase
+# but for now, we would have to manually configure our own test server.
+LIVE_SERVER_TEST_URL = "http://127.0.0.1:8000"
+
+# username, password to pass to LIVE_SERVER_TEST_URL
+
+UNGLUEIT_TEST_USER = None
+UNGLUEIT_TEST_PASSWORD = None
+
 
