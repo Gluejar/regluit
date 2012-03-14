@@ -273,7 +273,7 @@ input.profile-save {
   display: inline-block;
   vertical-align: middle;
 }
-#loadgr input {
+#loadgr div, #loadgr input {
   margin: auto 10px auto 36px;
 }
 #loadgr #goodreads_shelves {
@@ -466,9 +466,6 @@ div#content-block-content {
 }
 #js-slide .jsmodule {
   width: 660px !important;
-}
-#js-slide .jsmodule .slides_control {
-  height: 325px !important;
 }
 #js-maincontainer-bot-block {
   padding-left: 16px;

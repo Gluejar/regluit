@@ -3,7 +3,7 @@
 {% block title %}Welcome to Unglue.It{% endblock %}
 {% block doccontent %}
 <div id="welcomesearch">
-<p>Welcome, {{user.username}}!</p>
+<p>Welcome, {{user.username}}!</p><p id="link-to-next"></p>
                         	<label>What book would you give to the world? </label>
 				                <form action="{% url search %}" method="get">
                 				    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">

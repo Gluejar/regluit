@@ -2,6 +2,8 @@ import re
 import sys
 import json
 import logging
+import urllib
+
 from datetime import timedelta
 from regluit.utils.localdatetime import now, date_today
 
@@ -59,22 +61,38 @@ def slideshow(max):
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
     is_preview = settings.IS_PREVIEW
-    i = 0
     j = 0
         
     if is_preview:
         # on the preview site there are no active campaigns, so we should show most-wished books instead
-        worklist = models.Work.objects.order_by('-num_wishes')[:count]
+        worklist = models.Work.objects.order_by('-num_wishes')[:max]
     else:
     	worklist = []
-        while i<max and count>0:
-        	worklist.append(ending[j].work)
-        	i += 1
-        	j += 1
-        	if j == count:
-        	    j = 0
-                
+    	if max > count:
+    		# add all the works with active campaigns
+        	for campaign in ending:
+        		worklist.append(campaign.work)
+        		
+        	# then fill out the rest of the list with popular but inactive works
+        	remainder = max - count
+        	remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+        	worklist.extend(remainder_works)
+        else:
+        	# if the active campaign list has more works than we can fit 
+        	# in our slideshow, it's the only source we need to draw from
+    		while j < max:
+        		worklist.append(ending[j].work)
+        		j +=1
+        		
     return worklist
+
+def next(request):
+	if request.COOKIES.has_key('next'):
+		response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+		response.delete_cookie('next')
+		return response
+	else:
+		return HttpResponseRedirect('/')
 
 def home(request):
     if request.user.is_authenticated():
@@ -1017,10 +1035,7 @@ class InfoPageView(TemplateView):
         users.days7 = users.filter(date_joined__range = (date_today()-timedelta(days=7), now()))
         users.year = users.filter(date_joined__year = date_today().year)
         users.month = users.year.filter(date_joined__month = date_today().month)
-        if date_today().day==1:
-            users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
-        else:
-            users.yesterday = users.month.filter(date_joined__day = date_today().day-1)
+        users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
         users.gr = users.filter(profile__goodreads_user_id__isnull = False)
         users.lt = users.exclude(profile__librarything_id = '')
         users.fb = users.filter(profile__facebook_id__isnull = False)
@@ -1030,10 +1045,7 @@ class InfoPageView(TemplateView):
         works.days7 = works.filter(created__range = (date_today()-timedelta(days=7), now()))
         works.year = works.filter(created__year = date_today().year)
         works.month = works.year.filter(created__month = date_today().month)
-        if date_today().day==1:
-            works.yesterday = works.filter(created__range = (date_today()-timedelta(days=1), date_today()))
-        else:
-            works.yesterday = works.month.filter(created__day = date_today().day-1)
+        works.yesterday = works.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         works.wishedby2 = works.filter(num_wishes__gte = 2)
         works.wishedby20 = works.filter(num_wishes__gte = 20)
         works.wishedby5 = works.filter(num_wishes__gte = 5)
@@ -1045,10 +1057,7 @@ class InfoPageView(TemplateView):
         ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
         ebooks.year = ebooks.filter(created__year = date_today().year)
         ebooks.month = ebooks.year.filter(created__month = date_today().month)
-        if date_today().day==1:
-            ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
-        else:
-            ebooks.yesterday = ebooks.month.filter(created__day = date_today().day-1)
+        ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
         wishlists.today = wishlists.filter(created__range = (date_today(), now()))
         wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
