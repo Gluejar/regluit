@@ -467,9 +467,6 @@ div#content-block-content {
 #js-slide .jsmodule {
   width: 660px !important;
 }
-#js-slide .jsmodule .slides_control {
-  height: 325px !important;
-}
 #js-maincontainer-bot-block {
   padding-left: 16px;
 }

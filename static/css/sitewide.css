@@ -566,3 +566,7 @@ div#content-block-content .cols3 .column {
 a.nounderline {
   text-decoration: none;
 }
+/* Without this the slideshow resizes to the wrong height when you click the controls */
+.slides_control {
+  height: 325px !important;
+}

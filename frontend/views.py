@@ -61,7 +61,6 @@ def slideshow(max):
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
     is_preview = settings.IS_PREVIEW
-    i = 0
     j = 0
         
     if is_preview:
@@ -69,13 +68,22 @@ def slideshow(max):
         worklist = models.Work.objects.order_by('-num_wishes')[:max]
     else:
     	worklist = []
-        while i<max and count>0:
-        	worklist.append(ending[j].work)
-        	i += 1
-        	j += 1
-        	if j == count:
-        	    j = 0
-                
+    	if max > count:
+    		# add all the works with active campaigns
+        	for campaign in ending:
+        		worklist.append(campaign.work)
+        		
+        	# then fill out the rest of the list with popular but inactive works
+        	remainder = max - count
+        	remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+        	worklist.extend(remainder_works)
+        else:
+        	# if the active campaign list has more works than we can fit 
+        	# in our slideshow, it's the only source we need to draw from
+    		while j < max:
+        		worklist.append(ending[j].work)
+        		j +=1
+        		
     return worklist
 
 def next(request):
