@@ -18,6 +18,7 @@ $j(document).ready(function() {
     var next = getQueryVariable('next');
     var saved_next = $j.cookie('next');
     if(next!=null) {
+        next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
         $j.cookie('next', next, {path: '/'});
     } else if(saved_next!=null){
         $j('#link-to-next').html("<a href='"+saved_next+"'> Click to continue after logging in...</a>");
