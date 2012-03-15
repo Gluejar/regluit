@@ -190,10 +190,22 @@ def support_campaign():
     # click on biggest campaign list
     biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("a[href*='/campaigns/pledged']"))
     biggest_campaign_link.click()
+    time.sleep(1)
     
     # pull up one of the campaigns to pledge to
+    # div.book-list div.title a
+    # for now, take the first book and click on the link to get to the work page
+    sel.find_elements_by_css_selector("div.book-list div.title a")[0].click()
     
-    sel.quit()
+    time.sleep(1)
+    sel.find_element_by_css_selector("input[value*='Support']").click()
+    
+    # just click Pledge without filling out amount -- should have the form validation spot the error
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
+    pledge_button.click()
+    
+                                                                                         
+    #sel.quit()
     
 
 def suites():

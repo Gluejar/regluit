@@ -329,6 +329,15 @@ class PledgeView(FormView):
     form_class = CampaignPledgeForm
     embedded = False
     
+    def get(self, request, *args, **kwargs):
+    # change https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
+    # don't automatically bind the data to the form on GET, only on POST
+    # compare with https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L34
+        form_class = self.get_form_class()
+        form = form_class()
+        
+        return self.render_to_response(self.get_context_data(form=form))    
+    
     def get_context_data(self, **kwargs):
         context = super(PledgeView, self).get_context_data(**kwargs)
         
@@ -347,11 +356,18 @@ class PledgeView(FormView):
                 preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
             except:
                 preapproval_amount = None
-            
-        logger.info("preapproval_amount, premium_id: %s %s ", preapproval_amount, premium_id)   
+              
         data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
         
-        form = CampaignPledgeForm(data)
+        form_class = self.get_form_class()
+        
+        # no validation errors, please, when we're only doing a GET
+        # to avoid validation errors, don't bind the form
+
+        if preapproval_amount is not None:
+            form = form_class(data)
+        else:
+            form = form_class()
     
         context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
         return context
@@ -360,7 +376,7 @@ class PledgeView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
-        
+                
         # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
         
