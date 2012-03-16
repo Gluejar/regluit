@@ -164,8 +164,16 @@ def support_campaign():
     from regluit.payment.tests import loginSandbox
     
     setup_selenium()
-    sel = webdriver.Firefox()
     
+    # we can experiment with different webdrivers
+    # sel = webdriver.Firefox()
+    
+    # Chrome
+    sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
+    
+    # HTMLUNIT with JS -- not successful
+    #sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+
     time.sleep(5)
     
     # find a campaign to pledge to
@@ -203,8 +211,19 @@ def support_campaign():
     # just click Pledge without filling out amount -- should have the form validation spot the error
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     pledge_button.click()
+    # check to see whether there is an error
+    error_messages = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("ul.errorlist"))
+    if len(error_messages):
+        print "yes:  Error in just hitting pledge button as expected"
+    else:
+        print "ooops:  there should be an error message when pledge button hit"
     
-                                                                                         
+    # enter a $10 pledge
+    preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
+    preapproval_amount_input.send_keys("10")
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
+    pledge_button.click()
+    
     #sel.quit()
     
 
