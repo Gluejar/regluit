@@ -479,6 +479,11 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
             correct_transaction_type = True
         else:
             correct_transaction_type = False
+            
+        # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
+        if user is not None and correct_user and correct_transaction_type and (campaign is not None) and (work is not None):
+            # ok to overwrite Wishes.source?
+            user.wishlist.add_work(work, 'pledging')
         
         context["transaction"] = transaction
         context["correct_user"] = correct_user
