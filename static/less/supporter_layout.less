@@ -192,8 +192,8 @@ input.profile-save {
 
 #loadgr {
 	background: url("@{image-base}supporter_icons/goodreads_square.png") left center no-repeat;
-	min-height: 32px;
-	margin-bottom: 12px;
+	min-height: 33px;
+	margin: 12px auto;
 	
 	span {
 		display: inline-block;
@@ -202,6 +202,11 @@ input.profile-save {
 	
 	div, input {
 		margin: auto 10px auto 36px;
+	}
+	
+	#goodreads_shelves {
+		margin: auto 10px auto 36px;
+		display: block;
 	}
 }
 
@@ -244,14 +249,13 @@ span.my-setting.active {
     margin-left: 10px;
     margin-top: 10px;
     width: 100%;
+	border-bottom: 4px solid @blue-grey;
     
     ul.tabs li a:hover {
     	text-decoration: none;
     }
 
 	&.wantto {
-		border-bottom: 4px solid @blue-grey;
-		
 		ul.tabs li.tabs3.active a {
 			background: @blue-grey;
 			color: @text-blue;
@@ -259,8 +263,6 @@ span.my-setting.active {
 	}
 
 	&.ungluing {
-		border-bottom: 4px solid #eabc7c;
-
 		ul.tabs li.tabs2.active a {
 			background: #eabc7c;
 			color: #fff;
@@ -268,8 +270,6 @@ span.my-setting.active {
 	}
 
 	&.unglued {
-		border-bottom: 4px solid @green;
-
 		ul.tabs li.tabs1.active a {
 			background: @green;
 			color: #fff;
@@ -313,20 +313,33 @@ ul.tabs {
 			color:#fff;
 		}
 		
-		&.tabs1 a:hover, &.active a {
+		&.tabs1 a:hover, &.tabs1.active a {
 			background:@green;
 			color:#fff
 		} 
 
-		&.tabs2 a:hover, &.active a {
+		&.tabs2 a:hover, &.tabs2.active a {
 			background:#eabc7c;
 			color:#fff;
 		} 
 
-		&.tabs3 a:hover, &.active a {
+		&.tabs3 a:hover, &.tabs3.active a {
 			background:@blue-grey;
 			color:@text-blue;
 		} 
+	}
+}
+
+#rss {
+	height: 46px;
+	
+	img {
+		padding: 16px 0 0 14px;
+	}
+	
+	span {
+		margin-left: 3px;
+		font-size: 12px;
 	}
 }
 
@@ -421,4 +434,12 @@ div#content-block-content {
 		display:block;
 	}
 
+}
+
+#js-slide .jsmodule {
+	width: 660px !important;	
+}
+
+#js-maincontainer-bot-block {
+	padding-left: 16px;
 }

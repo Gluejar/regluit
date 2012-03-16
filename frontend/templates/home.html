@@ -2,17 +2,18 @@
 {% load truncatechars %}
 
 {% block extra_js %}
-	<script type="text/javascript" src={{ jquery_ui_home }}></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 {% endblock %}
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
 {% endblock %}
 
 {% block base_js %}
 
-<script src={{ jquery_home }}></script>
+<script src="{{ jquery_home }}"></script>
 
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
@@ -24,28 +25,8 @@
 <script type="text/javascript" src="/static/js/definitions.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/highlight_signup.js"></script>
-
 <script src="/static/js/slides.min.jquery.js"></script>
-<script>
-var $j = jQuery.noConflict();
-	$j(function(){
-		$j('#js-slideshow').slides({
-			preload: true,
-			preloadImage: '/static/images/landingpage/loading.gif',
-			hoverPause: true,
-			generateNextPrev: true,
-			next: 'next',
-			prev: 'prev',
-			pagination: true,
-			generatePagination: false,
-			slideSpeed: 600,
-			autoHeight: true
-		});
-	});
-</script>
-
-<script type="text/javascript" src="/static/js/watermark_init.js"></script>
-<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+<script src="/static/js/slideshow.js"></script>
 <script type="text/javascript" src="/static/js/expand.js"></script>
 
 {% endblock %}
@@ -65,26 +46,26 @@ var $j = jQuery.noConflict();
                       <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
-                        <input id="id_username" type="text" class="required" name="username" maxlength="30" size="30" />
+                        <input id="id_username_pop" type="text" class="required" name="username" maxlength="30" size="30" />
                         </div>
                         <div class="email">
                     	<label>Email</label>
-                        <input id="id_email" type="text" class="required" name="email" maxlength="75" size="30" />
+                        <input id="id_email_pop" type="text" class="required" name="email" maxlength="75" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password</label>
-                        <input id="id_password1" type="password" class="required" name="password1" size="30" />
+                        <input id="id_password1_pop" type="password" class="required" name="password1" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password (again):</label>
-                        <input id="id_password2" type="password" class="required" name="password2" size="30" />
+                        <input id="id_password2_pop" type="password" class="required" name="password2" size="30" />
                         </div>
 						<div class="button">
                         	<input type="submit" class="signup" value="sign up" />
                         </div>
                         </form>
                         <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
                     </div>
                 </div>
@@ -121,7 +102,7 @@ var $j = jQuery.noConflict();
                     </div>
                     <div id="js-maincontainer-faq">
                     	<div class="js-maincontainer-faq-inner">
-                        	Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.</a>
+                        	Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.
                         </div>
                     </div>
             </div>
@@ -134,26 +115,27 @@ var $j = jQuery.noConflict();
                       <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
-                        <input id="id_username" type="text" class="required" name="username" maxlength="30" size="30" />
+                        <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
                         </div>
                         <div class="email">
                     	<label>Email</label>
-                        <input id="id_email" type="text" class="required" name="email" maxlength="75" size="30" />
+                        <input id="id_email_main" type="text" class="required" name="email" maxlength="75" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password</label>
-                        <input id="id_password1" type="password" class="required" name="password1" size="30" />
+                        <input id="id_password1_main" type="password" class="required" name="password1" size="30" />
                         </div>
                         <div class="password">
                     	<label>Password (again):</label>
-                        <input id="id_password2" type="password" class="required" name="password2" size="30" />
+                        <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
                         </div>
 						<div class="button">
                         	<input type="submit" class="signup" value="sign up" />
                         </div>
                         <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
+                      </form>
                     </div>
                 </div>
                 <div class="jsmodule">
@@ -183,7 +165,7 @@ var $j = jQuery.noConflict();
     	<div class="js-main">
         	<div class="jsmodule">
             <h3><span>{% if is_preview %}Most wishlisted{% else %}Top ungluing campaigns{% endif %}</span></h3>
-            <div class="jsmod-content">
+            <div class="jsmod-content" id="content-block">
                 <div id="js-slideshow">
                     <div class="slides_container">
                         <div class="slide-page slide-page1">

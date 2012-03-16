@@ -8,18 +8,15 @@
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
 {% endblock %}
 {% block extra_head %}
-<script>
-location.hash = "#1";
-</script>
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script type="text/javascript" src={{ jquery_ui_home }}></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 {% endblock %}
 {% block topsection %}
-
+<div id="locationhash">{{ activetab }}</div>
 <div id="js-topsection">
     <div class="js-main">
         <div class="js-topnews">
@@ -95,7 +92,7 @@ location.hash = "#1";
                     <div class="pagination content-block-heading tabs-1">
                         {% get_pages %}
                         {% for page in pages %}
-                            <a href="{{ page.path }}#1">{{ page.number }}</a>
+                            <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
                     {% endifequal %}

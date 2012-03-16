@@ -72,6 +72,23 @@
   border: none;
   margin: 5px 0;
 }
+.errors {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  border: solid #e35351 4px;
+  width: 90%;
+  padding: 5px;
+  font-weight: bold;
+  padding: 7px 0;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
 span.rounded {
   border: 1px solid #d4d4d4;
   -moz-border-radius: 7px;

@@ -5,14 +5,16 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 
+from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
-    url(r"^supporter/(?P<supporter_username>.+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
+    url(r"^next/$", "next", name="next"),
+    url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
@@ -61,6 +63,9 @@ urlpatterns = patterns(
     url(r"^about/$", TemplateView.as_view(template_name="about.html"),
         name="about"),
     url(r"^comments/$", "comment", name="comment"),
+    url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
+    url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
+    url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
 )
 
 if not settings.IS_PREVIEW:
@@ -71,4 +76,3 @@ if not settings.IS_PREVIEW:
         url(r"^donate/$", DonateView.as_view(), name="donate"),
         url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
 )
-

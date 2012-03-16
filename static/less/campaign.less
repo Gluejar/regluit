@@ -89,7 +89,7 @@
 	display:block;
 }
 
-.book-detail-img {
+#book-detail-img {
 	float: left;
 	margin-right:10px;
 	width:151px;
@@ -179,8 +179,9 @@
 	.find-link {
 		float:right;
 		
-		a {
-			padding: 0 0 0 4px;			
+		img {
+			padding: 2px;
+			.one-border-radius(5px);
 		}
 	}
 	
@@ -484,11 +485,32 @@ a{ color:#3d4e53; font-size:12px;}
   display:none;
   clear: both;
   padding-bottom: 10px;
-  padding-left: 60px;
+  padding-left: 60px;  
 }
+
 .show_more_edition:hover {
   text-decoration: underline;
 }
 .show_more_edition {
   text-align: right;
+}
+
+.errorlist {
+	list-style-type: none;
+	font-size: 14px;
+	
+	li {
+		margin-bottom: 7px;
+	}
+
+	.errorlist {
+		li {
+			.errors;
+			width: auto;
+			height: auto;
+			padding-left: 32px;
+			padding-right: 32px;
+			font-size: 12px;
+		}
+	}
 }

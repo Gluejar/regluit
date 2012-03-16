@@ -9,15 +9,15 @@
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script type="text/javascript" src={{ jquery_home }}></script>
+<script type="text/javascript" src="{{ jquery_home }}"></script>
 <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-<script type="text/javascript" src={{ jquery_ui_home }}></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 {% endblock %}
 {% block topsection %}
-
+<div id="locationhash">{{ activetab }}</div>
 <div id="js-topsection">
     <div class="js-main">
         <div class="js-topnews">

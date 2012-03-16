@@ -22,7 +22,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 import logging
 import os
 from decimal import Decimal as D
-import datetime
+from regluit.utils.localdatetime import now
+from datetime import timedelta
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -39,7 +40,7 @@ def set_test_logging():
     sel = logging.getLogger("selenium")
     sel.setLevel(logging.INFO)
 
-def loginSandbox(test, selenium):
+def loginSandbox(selenium):
     
     print "LOGIN SANDBOX"
     
@@ -158,7 +159,7 @@ class PledgeTest(TestCase):
         
             self.validateRedirect(t, url, 1)
         
-            loginSandbox(self, self.selenium)
+            loginSandbox(self.selenium)
             paySandbox(self, self.selenium, url)
             
             # sleep to make sure the transaction has time to complete
@@ -188,7 +189,7 @@ class PledgeTest(TestCase):
         
         self.validateRedirect(t, url, 2)
         
-        loginSandbox(self, self.selenium)
+        loginSandbox(self.selenium)
         paySandbox(self, self.selenium, url)
         
         # by now we should have received the IPN
@@ -252,7 +253,7 @@ class AuthorizeTest(TestCase):
         
         self.validateRedirect(t, url)
         
-        loginSandbox(self, self.selenium)
+        loginSandbox(self.selenium)
         paySandbox(self, self.selenium, url, authorize=True)
     
         # stick in a getStatus to update statuses in the absence of IPNs
@@ -278,7 +279,7 @@ class TransactionTest(TestCase):
         
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() + datetime.timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
         c.save()
         
         t = Transaction()
@@ -293,6 +294,33 @@ class TransactionTest(TestCase):
         results = p.query_campaign(campaign=c)
         self.assertEqual(results[0].amount, D('12.34'))
         self.assertEqual(c.left,c.target-D('12.34'))
+
+class BasicGuiTest(TestCase):
+    def setUp(self):
+        self.verificationErrors = []
+        # This is an empty array where we will store any verification errors
+        # we find in our tests
+
+        setup_selenium()
+        self.TEST_SERVER_URL = "http://ry-dev.dyndns.org"
+        self.selenium = webdriver.Firefox()
+        set_test_logging()
+    def testFrontPage(self):
+        sel = self.selenium
+        sel.get(self.TEST_SERVER_URL)
+        # if we click on the learn more, does the panel expand?
+        # click on a id=readon -- or the Learn More span
+        sel.find_elements_by_css_selector('a#readon')[0].click()
+        time.sleep(2.0)
+        # the learn more panel should be displayed
+        self.assertTrue(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+        # click on the panel again -- and panel should not be displayed
+        sel.find_elements_by_css_selector('a#readon')[0].click()
+        time.sleep(2.0)
+        self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+    def tearDown(self):
+        self.selenium.quit()
+        
 
 def suite():
 

@@ -1,4 +1,4 @@
-import datetime
+from datetime import timedelta
 from django import forms
 from django.db import models
 from django.contrib.auth.models import User
@@ -13,6 +13,8 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook
 from regluit.core.lookups import OwnerLookup
+
+from regluit.utils.localdatetime import date_today
 
 import logging
 
@@ -158,16 +160,16 @@ class ManageCampaignForm(forms.ModelForm):
         if self.instance:
             if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
                 raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-        if new_deadline-datetime.datetime.today() > datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+        if new_deadline-date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-        elif new_deadline-datetime.datetime.today() < datetime.timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+        elif new_deadline-date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
             raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
         return new_deadline
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
-        required=False,
-        min_value=D('1.00'), 
+        required = False,
+        min_value=D('1.00'),
         max_value=D('10000.00'), 
         decimal_places=2, 
         label="Pledge Amount",
@@ -175,6 +177,12 @@ class CampaignPledgeForm(forms.Form):
     anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the supporters list"))
 
     premium_id = forms.IntegerField(required=False)
+    
+    def clean_preapproval_amount(self):
+        data = self.cleaned_data['preapproval_amount']
+        if data is None:
+            raise forms.ValidationError(_("Please enter a pledge amount."))
+        return data
         
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -183,6 +191,7 @@ class CampaignPledgeForm(forms.Form):
             preapproval_amount = cleaned_data.get("preapproval_amount")
             premium_id =  int(cleaned_data.get("premium_id"))
             premium_amount = Premium.objects.get(id=premium_id).amount
+            logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, premium_id, premium_amount))
             if preapproval_amount < premium_amount:
                 raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
         except Exception, e:

@@ -73,6 +73,23 @@
   border: none;
   margin: 5px 0;
 }
+.errors {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  border: solid #e35351 4px;
+  width: 90%;
+  padding: 5px;
+  font-weight: bold;
+  padding: 7px 0;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
 /* remove before beta */
 .preview {
   border: solid 3px #e35351;
@@ -384,6 +401,11 @@ a#readon span {
 #welcome {
   overflow: hidden;
 }
+#locationhash {
+  /* used solely to contain template variables for tabs.js; should not display */
+
+  display: none;
+}
 /* Explore column */
 #js-leftcol {
   float: left;
@@ -543,4 +565,8 @@ div#content-block-content .cols3 .column {
 }
 a.nounderline {
   text-decoration: none;
+}
+/* Without this the slideshow resizes to the wrong height when you click the controls */
+.slides_control {
+  height: 325px !important;
 }

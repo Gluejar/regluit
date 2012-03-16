@@ -2,7 +2,11 @@ import re
 import sys
 import json
 import logging
-import datetime 
+import urllib
+
+from datetime import timedelta
+from regluit.utils.localdatetime import now, date_today
+
 from random import randint
 from re import sub
 from itertools import islice
@@ -53,36 +57,53 @@ from regluit.payment.models import Transaction
 
 logger = logging.getLogger(__name__)
 
+def slideshow(max):
+    ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+    count = ending.count()
+    is_preview = settings.IS_PREVIEW
+    j = 0
+        
+    if is_preview:
+        # on the preview site there are no active campaigns, so we should show most-wished books instead
+        worklist = models.Work.objects.order_by('-num_wishes')[:max]
+    else:
+    	worklist = []
+    	if max > count:
+    		# add all the works with active campaigns
+        	for campaign in ending:
+        		worklist.append(campaign.work)
+        		
+        	# then fill out the rest of the list with popular but inactive works
+        	remainder = max - count
+        	remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+        	worklist.extend(remainder_works)
+        else:
+        	# if the active campaign list has more works than we can fit 
+        	# in our slideshow, it's the only source we need to draw from
+    		while j < max:
+        		worklist.append(ending[j].work)
+        		j +=1
+        		
+    return worklist
+
+def next(request):
+	if request.COOKIES.has_key('next'):
+		response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+		response.delete_cookie('next')
+		return response
+	else:
+		return HttpResponseRedirect('/')
 
 def home(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
-    ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
-    j=0
-    i=0
-    works=[]
-    works2=[]
-    count=ending.count()
 
-    # on the preview site there are no active campaigns, so we should show most-wished books instead
-    is_preview = settings.IS_PREVIEW
-    if is_preview:
-        worklist = models.Work.objects.order_by('-num_wishes')
-        works = worklist[:6]
-        works2 = worklist[6:12]
-    else:
-        while i<12 and count>0:
-            if i<6:
-                works.append(ending[j].work)
-            else:
-                works2.append(ending[j].work)
-            i += 1
-            j += 1
-            if j == count:
-                j = 0
+    worklist = slideshow(12)
+    works = worklist[:6]
+    works2 = worklist[6:12]
+
     events = models.Wishes.objects.order_by('-created')[0:2]
-    activetab = "2"
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
@@ -125,10 +146,10 @@ def work(request, work_id, action='display'):
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id})
+        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
         for edition in editions:
             #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ) )
+            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
     if campaign:
@@ -225,7 +246,7 @@ class WorkListView(ListView):
         if (facet == 'popular'):
             return models.Work.objects.order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
-            return models.Work.objects.filter(wishlists__user=recommended_user)
+            return models.Work.objects.filter(wishlists__user=recommended_user).order_by('-num_wishes')
         elif (facet == 'new'):
             return models.Work.objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
@@ -237,8 +258,10 @@ class WorkListView(ListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
-            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct().order_by('-campaigns__status', 'campaigns__deadline')
-            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct().order_by('-num_wishes')
+            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()
+            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()
+            
+            context['activetab'] = "#3"
             
             counts={}
             counts['unglued'] = context['works_unglued'].count()
@@ -270,6 +293,7 @@ class UngluedListView(ListView):
             context['counts'] = self.work_set_counts(qs)
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
+            context['activetab'] = "#1"
             return context
 
         
@@ -305,6 +329,15 @@ class PledgeView(FormView):
     form_class = CampaignPledgeForm
     embedded = False
     
+    def get(self, request, *args, **kwargs):
+    # change https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
+    # don't automatically bind the data to the form on GET, only on POST
+    # compare with https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L34
+        form_class = self.get_form_class()
+        form = form_class()
+        
+        return self.render_to_response(self.get_context_data(form=form))    
+    
     def get_context_data(self, **kwargs):
         context = super(PledgeView, self).get_context_data(**kwargs)
         
@@ -323,11 +356,18 @@ class PledgeView(FormView):
                 preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
             except:
                 preapproval_amount = None
-            
-        logger.info("preapproval_amount, premium_id: %s %s ", preapproval_amount, premium_id)   
+              
         data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
         
-        form = CampaignPledgeForm(data)
+        form_class = self.get_form_class()
+        
+        # no validation errors, please, when we're only doing a GET
+        # to avoid validation errors, don't bind the form
+
+        if preapproval_amount is not None:
+            form = form_class(data)
+        else:
+            form = form_class()
     
         context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
         return context
@@ -336,7 +376,7 @@ class PledgeView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
-        
+                
         # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
         
@@ -355,7 +395,7 @@ class PledgeView(FormView):
             
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
-            expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+            expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
         else:  # embedded view -- which we're not actively using right now.
@@ -439,6 +479,11 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
             correct_transaction_type = True
         else:
             correct_transaction_type = False
+            
+        # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
+        if user is not None and correct_user and correct_transaction_type and (campaign is not None) and (work is not None):
+            # ok to overwrite Wishes.source?
+            user.wishlist.add_work(work, 'pledging')
         
         context["transaction"] = transaction
         context["correct_user"] = correct_user
@@ -591,7 +636,7 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
-                    new_campaign.deadline = datetime.date.today() + datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+                    new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
                     new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
@@ -742,23 +787,39 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
+    works = []
+    works2 = []
+    works_unglued = []
+    works_active = []
+    works_wished = []
+    is_preview = settings.IS_PREVIEW
     
-    # querysets for tabs
-    # unglued tab is anything with an existing ebook
-    ## .order_by() may clash with .distinct() and this should be fixed
-    works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
+    if (wishlist.works.all()):
+        # querysets for tabs
+        # unglued tab is anything with an existing ebook
+        ## .order_by() may clash with .distinct() and this should be fixed
+        works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
+        
+        # take the set complement of the unglued tab and filter it for active works to get middle tab
+        result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
+        works_active = result.filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).order_by('-campaigns__status', 'campaigns__deadline').distinct()
+        
+        # everything else goes in tab 3
+        works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True)).order_by('-num_wishes')
+        
+        # badge counts
+        backed = works_unglued.count()
+        backing = works_active.count()
+        wished = works_wished.count()
     
-    # take the set complement of the unglued tab and filter it for active works to get middle tab
-    result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
-    works_active = result.filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).order_by('-campaigns__status', 'campaigns__deadline').distinct()
-    
-    # everything else goes in tab 3
-    works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True)).order_by('-num_wishes')
-
-    # badge counts
-    backed = works_unglued.count()
-    backing = works_active.count()
-    wished = works_wished.count()
+    else:           
+        backed = 0
+        backing = 0
+        wished = 0
+        
+        worklist = slideshow(8)
+        works = worklist[:4]
+        works2 = worklist[4:8]
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -812,6 +873,9 @@ def supporter(request, supporter_username, template_name):
             "works_unglued": works_unglued,
             "works_active": works_active,
             "works_wished": works_wished,
+            "works": works,
+            "works2": works2,
+            "is_preview": is_preview,
             "backed": backed,
             "backing": backing,
             "wished": wished,
@@ -821,6 +885,7 @@ def supporter(request, supporter_username, template_name):
             "goodreads_auth_url": reverse('goodreads_auth'),
             "goodreads_id": goodreads_id,
             "librarything_id": librarything_id,
+            "activetab": "#3"
     }
     
     return render(request, template_name, context)
@@ -890,13 +955,26 @@ def wishlist(request):
         # TODO: redirect to work page, when it exists
         return HttpResponseRedirect('/')
     elif remove_work_id:
-        work = models.Work.objects.get(id=int(remove_work_id))
+        try:
+            work = models.Work.objects.get(id=int(remove_work_id))
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = work_id).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
         request.user.wishlist.remove_work(work)
         # TODO: where to redirect?
         return HttpResponseRedirect('/')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
-        work = models.Work.objects.get(pk=add_work_id)
+        try:
+            work = models.Work.objects.get(pk=add_work_id)
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = work_id).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
+
         request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   
@@ -938,7 +1016,7 @@ class CampaignFormView(FormView):
         work_id = campaign.work.id
         
         # set the expiry date based on the campaign deadline
-        expiry = campaign.deadline + datetime.timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+        expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
         
         if not self.embedded:
             
@@ -963,6 +1041,60 @@ class CampaignFormView(FormView):
             response = t.reference
             logger.info("CampaignFormView paypal: Error " + str(t.reference))
             return HttpResponse(response)
+
+class InfoPageView(TemplateView):
+    
+    def get_template_names(self, **kwargs):
+        if self.kwargs['template_name']:
+            return (self.kwargs['template_name'])
+        else:
+            return ('metrics.html')
+            
+    def get_context_data(self, **kwargs):
+        users = User.objects
+        users.today = users.filter(date_joined__range = (date_today(), now()))
+        users.days7 = users.filter(date_joined__range = (date_today()-timedelta(days=7), now()))
+        users.year = users.filter(date_joined__year = date_today().year)
+        users.month = users.year.filter(date_joined__month = date_today().month)
+        users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
+        users.gr = users.filter(profile__goodreads_user_id__isnull = False)
+        users.lt = users.exclude(profile__librarything_id = '')
+        users.fb = users.filter(profile__facebook_id__isnull = False)
+        users.tw = users.exclude(profile__twitter_id = '')
+        works = models.Work.objects
+        works.today = works.filter(created__range = (date_today(), now()))
+        works.days7 = works.filter(created__range = (date_today()-timedelta(days=7), now()))
+        works.year = works.filter(created__year = date_today().year)
+        works.month = works.year.filter(created__month = date_today().month)
+        works.yesterday = works.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        works.wishedby2 = works.filter(num_wishes__gte = 2)
+        works.wishedby20 = works.filter(num_wishes__gte = 20)
+        works.wishedby5 = works.filter(num_wishes__gte = 5)
+        works.wishedby50 = works.filter(num_wishes__gte = 50)
+        works.wishedby10 = works.filter(num_wishes__gte = 10)
+        works.wishedby100 = works.filter(num_wishes__gte = 100)
+        ebooks = models.Ebook.objects
+        ebooks.today = ebooks.filter(created__range = (date_today(), now()))
+        ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
+        ebooks.year = ebooks.filter(created__year = date_today().year)
+        ebooks.month = ebooks.year.filter(created__month = date_today().month)
+        ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
+        wishlists.today = wishlists.filter(created__range = (date_today(), now()))
+        wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
+        wishlists.year = wishlists.filter(created__year = date_today().year)
+        wishlists.month = wishlists.year.filter(created__month = date_today().month)
+        if date_today().day==1:
+            wishlists.yesterday = wishlists.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        else:
+            wishlists.yesterday = wishlists.month.filter(created__day = date_today().day-1)
+        return {
+            'users': users, 
+            'works': works,
+            'ebooks': ebooks,
+            'wishlists': wishlists,
+        }
+
 
 class FAQView(TemplateView):
     template_name = "faq.html"
@@ -1235,11 +1367,15 @@ def work_openlibrary(request, work_id):
     elif len(isbns) > 0:
         isbns = ",".join(isbns)
         u = 'http://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
-        j = json.loads(requests.get(u).content)
-        # as long as there were some matches get the first one and route to it
-        if len(j.keys()) > 0:
-            first = j.keys()[0]
-            url = "http://openlibrary.org" + j[first]['key'] 
+        try:
+            j = json.loads(requests.get(u).content)
+            # as long as there were some matches get the first one and route to it
+            if len(j.keys()) > 0:
+                first = j.keys()[0]
+                url = "http://openlibrary.org" + j[first]['key'] 
+        except ValueError:
+            # fail at openlibrary
+            logger.warning("failed to get OpenLibrary json at %s" % u)          
     # fall back to doing a search on openlibrary
     if not url:
         q = urlencode({'q': work.title + " " + work.author()})
@@ -1277,13 +1413,30 @@ def emailshare(request):
     else:
         try:
             next = request.GET['next']
+            work_id = next.split('/')[-2]
+            work_id = int(work_id)
+            book = models.Work.objects.get(pk=work_id)
+            title = book.title
+            # if title requires unicode let's ignore it for now
+            try:
+            	title = ', '+str(title)+', '
+            except:
+            	title = ' '
+            try:
+            	status = book.last_campaign().status
+            except:
+            	status = None
+            
+            # customize the call to action depending on campaign status
+            if status == 'ACTIVE':
+                message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+            else:
+	        	message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'
+            form = EmailShareForm(initial={'next':next, 'subject': 'Come see one of my favorite books on Unglue.It', 'message': message})
         except:
             next = ''
-        if request.user.is_authenticated():
-            sender = request.user.email
-        else:
             sender = ''
-        form = EmailShareForm(initial={'next':next, 'message':"I'm ungluing books at unglue.it.  Here's one of my favorites: "+next, "sender":sender})
+            form = EmailShareForm(initial={'next':next, 'subject': 'Come join me on Unglue.It', 'message':"I'm ungluing books on Unglue.It.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
 
     return render(request, "emailshare.html", {'form':form})    
     
