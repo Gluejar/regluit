@@ -390,6 +390,21 @@ body {
   padding: 10px;
   background: #edf3f4;
 }
+.doc ul.terms {
+  list-style: inherit;
+  list-style-position: inside;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+.doc ul.terms li {
+  -moz-border-radius: auto;
+  -webkit-border-radius: auto;
+  border-radius: auto;
+  -moz-border-radius: auto;
+  -webkit-border-radius: auto;
+  border-radius: auto;
+  background: inherit;
+}
 .doc div.inset {
   background: #edf3f4;
   -moz-border-radius: 12px;
