@@ -594,7 +594,6 @@ class Wishlist(models.Model):
     def add_work(self, work, source):
         try:
             w = Wishes.objects.get(wishlist=self,work=work)
-            w.source=source
         except:
             Wishes.objects.create(source=source,wishlist=self,work=work) 
             work.update_num_wishes()       
