@@ -467,8 +467,12 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
         try:
             if user.id == transaction.user.id:
                 correct_user = True
+            else:
+                # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
+                raise Http404
         except Exception, e:
-            pass
+            raise Http404
+            
             
         # check that the user had not already approved the transaction
         # do we need to first run PreapprovalDetails to check on the status

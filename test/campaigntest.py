@@ -161,12 +161,12 @@ def support_campaign():
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
     
     # PayPal developer sandbox
-    from regluit.payment.tests import loginSandbox
+    from regluit.payment.tests import loginSandbox, paySandbox
     
     setup_selenium()
     
     # we can experiment with different webdrivers
-    # sel = webdriver.Firefox()
+    #sel = webdriver.Firefox()
     
     # Chrome
     sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
@@ -223,6 +223,11 @@ def support_campaign():
     preapproval_amount_input.send_keys("10")
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     pledge_button.click()
+    
+    # grab the URL where sel is now?
+    
+    print  "Now trying to pay PayPal", sel.current_url
+    paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
     
     #sel.quit()
     
