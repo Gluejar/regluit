@@ -127,7 +127,11 @@
     </div>
     {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">
+    	{% ifequal status "ACTIVE" %}
+        <span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total }}</b> raised of <b>${{ work.last_campaign.target }}</b> goal</span>
+    	{% else %}
         <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
+        {% endifequal %}
     </div>
     <div class="listview panelfront side1 icons">
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
