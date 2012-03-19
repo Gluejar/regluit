@@ -7,7 +7,7 @@ from django.conf import settings
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, FAQView
+from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, FAQView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
 
 urlpatterns = patterns(
@@ -48,7 +48,8 @@ urlpatterns = patterns(
     url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
     url(r"^pledge/cancel/$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
-    url(r"^pledge/complete/$", PledgeCompleteView.as_view(), name="pledge_complete"),
+    url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
+    url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeModifyView.as_view()), name="pledge_modify"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),

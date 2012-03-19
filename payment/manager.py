@@ -714,7 +714,7 @@ class PaymentManager( object ):
         
         if amount > transaction.max_amount or expiry != transaction.date_expired:
             
-            # Increase or expiuration change, cancel and start again
+            # Increase or expiration change, cancel and start again
             self.cancel_transaction(transaction)                
                 
             # Start a new authorization for the new amount

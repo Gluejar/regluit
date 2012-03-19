@@ -330,7 +330,7 @@ class PledgeView(FormView):
     embedded = False
     
     def get(self, request, *args, **kwargs):
-    # change https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
+    # change the default behavior from https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
     # don't automatically bind the data to the form on GET, only on POST
     # compare with https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L34
         form_class = self.get_form_class()
@@ -417,21 +417,117 @@ class PledgeView(FormView):
             logger.info("PledgeView paypal: Error " + str(t.reference))
             return HttpResponse(response)
 
+class PledgeModifyView(FormView):
+    """
+    A view to handle request to change an existing pledge
+    """
+    template_name="pledge_modify.html"
+    form_class = CampaignPledgeForm
+    embedded = False
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(PledgeModifyView, self).get_context_data(**kwargs)
+        
+        # the following should be true since PledgeModifyView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user
+        
+        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        
+        try:
+            campaign = work.last_campaign()
+            premiums = campaign.effective_premiums()
+            
+            # which combination of campaign and transaction status required?
+            # Campaign must be ACTIVE
+            assert campaign.status == 'ACTIVE'
+        
+            transactions = campaign.transactions().filter(user=user, status=IPN_PAY_STATUS_ACTIVE)
+            assert transactions.count() == 1
+            transaction = transactions[0]
+            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PAY_STATUS_ACTIVE
+           
+        except Exception, e:
+            raise e
+        
+        # what stuff do we need to pull out to populate form?
+        # preapproval_amount, premium_id (which we don't have stored yet)
+        premium_id = None
+        
+        # is there a Transaction for an ACTIVE campaign for this
+        # should make sure Transaction is modifiable.
+        
+        preapproval_amount = transaction.amount      
+        data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
+        
+        form_class = self.get_form_class()
+        
+        # no validation errors, please, when we're only doing a GET
+        # to avoid validation errors, don't bind the form
+
+        if preapproval_amount is not None:
+            form = form_class(data)
+        else:
+            form = form_class()
+    
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
+        return context
+    
+    def form_valid(self, form):
+        
+        # What are the situations we need to deal with?
+        # 2 main situations:  if the new amount is less than max_amount, no need to go out to PayPal again
+        # if new amount is greater than max_amount...need to go out and get new approval.
+        # to start with, we can use the standard pledge_complete, pledge_cancel machinery
+        # might have to modify the pledge_complete, pledge_cancel because the messages are going to be
+        # different because we're modifying a pledge rather than a new one.
+        
+        work_id = self.kwargs["work_id"]
+        preapproval_amount = form.cleaned_data["preapproval_amount"]
+        anonymous = form.cleaned_data["anonymous"]
+ 
+        assert self.request.user.is_authenticated()
+        user = self.request.user       
+                
+        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
+        campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
+        assert campaign.status == 'ACTIVE'
+    
+        transactions = campaign.transactions().filter(user=user, status=IPN_PAY_STATUS_ACTIVE)
+        assert transactions.count() == 1
+        transaction = transactions[0]
+        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PAY_STATUS_ACTIVE        
+        
+        p = PaymentManager(embedded=self.embedded)
+        status, url = p.modify_transaction(transaction, preapproval_amount)
+        
+        logger.info("status: {0}, url:{1}".format(status, url))
+        
+        if status and url is not None:
+            logger.info("PledgeModifyView paypal: " + url)
+            return HttpResponseRedirect(url)
+        elif status and url is None:
+            return HttpResponse("Your modification is noted.  No need to go to PayPal")
+        else:
+            return HttpResponse("No mods made")
+
+
 class PledgeCompleteView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
     
     Possible things to implement:
     
-    after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
-study other confirmation emails for their contents
-after pledging, supporters are returned to a thank-you screen
-should have prominent "thank you" or "congratulations" message
-should have prominent share options
-should suggest other works for supporters to explore (on what basis?)
-link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
-should note that a confirmation email has been sent to $email from $sender
-should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
-    
+        after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
+    study other confirmation emails for their contents
+    after pledging, supporters are returned to a thank-you screen
+    should have prominent "thank you" or "congratulations" message
+    should have prominent share options
+    should suggest other works for supporters to explore (on what basis?)
+    link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
+    should note that a confirmation email has been sent to $email from $sender
+    should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
+        
     """
     
     template_name="pledge_complete.html"
