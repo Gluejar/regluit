@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from regluit.core.models import Campaign, Wishlist
+from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
 from decimal import Decimal
 import uuid
@@ -59,9 +59,10 @@ class Transaction(models.Model):
     date_authorized = models.DateTimeField(null=True)
     date_expired = models.DateTimeField(null=True)
     
-    # associated User and Campaign for this Transaction
+    # associated User, Campaign, and Premium for this Transaction
     user = models.ForeignKey(User, null=True)
     campaign = models.ForeignKey(Campaign, null=True)
+    premium = models.ForeignKey(Premium, null=True)
     
     # list:  makes allowance for pledging against a Wishlist:  not currently in use
     list = models.ForeignKey(Wishlist, null=True)
