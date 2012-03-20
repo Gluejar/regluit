@@ -508,9 +508,10 @@ class PledgeModifyView(FormView):
             logger.info("PledgeModifyView paypal: " + url)
             return HttpResponseRedirect(url)
         elif status and url is None:
-            return HttpResponse("Your modification is noted.  No need to go to PayPal")
+            # let's use the pledge_complete template for now and maybe look into customizing it.
+            return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
         else:
-            return HttpResponse("No mods made")
+            return HttpResponse("No modication made")
 
 
 class PledgeCompleteView(TemplateView):

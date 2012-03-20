@@ -166,10 +166,10 @@ def support_campaign():
     setup_selenium()
     
     # we can experiment with different webdrivers
-    #sel = webdriver.Firefox()
+    sel = webdriver.Firefox()
     
     # Chrome
-    sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
+    #sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
     
     # HTMLUNIT with JS -- not successful
     #sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
@@ -229,9 +229,50 @@ def support_campaign():
     print  "Now trying to pay PayPal", sel.current_url
     paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
     
+    # should be back on a pledge complete page
+    print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
+    
+    time.sleep(2)
+
+    # time out to simulate an IPN -- update all the transactions
+    pm = PaymentManager()
+    print pm.checkStatus()    
+
+    # I have no idea what the a[href*="/work/"] is not displayed....so that's why I'm going up one element.
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    
+    # change_pledge
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
+    change_pledge_button.click()
+    
+    # enter a new pledge
+    preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
+    preapproval_amount_input.clear()  # get rid of existing pledge
+    preapproval_amount_input.send_keys("5")
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    pledge_button.click()
+    
+    # 
+    
+    return sel
     #sel.quit()
     
 
+
+def berkeley_search():
+    sel = webdriver.Firefox()
+    sel.get("http://berkeley.edu")
+    search = WebDriverWait(sel,5).until(lambda d: d.find_element_by_css_selector('input[id="search_text"]'))
+    search.send_keys("quantum computing")
+    
+    return sel
+    
+    # wait for a bit and then highlight the text and fill it out with "Bach" instead
+    # I was looking at using XPath natively in Firefox....
+    # https://developer.mozilla.org/en/Introduction_to_using_XPath_in_JavaScript#Within_an_HTML_Document
+    # document.evaluate('//input[@id="search_text"]', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null ).snapshotItem(0); 
+    
 def suites():
     testcases = [GoogleWebDriverTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
