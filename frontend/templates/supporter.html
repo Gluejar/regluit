@@ -296,9 +296,11 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     							<div class="slides_container">
                         							<div class="slide-page slide-page1">
                         								{% for work in works %}
+                        								{% with work.googlebooks_id as googlebooks_id %}					
                         								<div class="spacer">
                         									{% include "book_panel.html" %}
                         								</div>
+                        								{% endwith %}
                         								{% endfor %}
                         							</div>
                         							<div class="slide-page slide-page2">

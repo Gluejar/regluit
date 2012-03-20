@@ -23,6 +23,7 @@
 </script>    
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/highlight_signup.js"></script>
 <script src="/static/js/slides.min.jquery.js"></script>
@@ -170,9 +171,11 @@
                     <div class="slides_container">
                         <div class="slide-page slide-page1">
                         	{% for work in works %}
+                        	{% with work.googlebooks_id as googlebooks_id %}					
                         	<div class="spacer">
                         	{% include "book_panel.html" %}
                         	</div>
+                        	{% endwith %}
                         	{% endfor %}
                         </div>
                         <div class="slide-page slide-page2">
