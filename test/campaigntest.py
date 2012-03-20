@@ -246,14 +246,28 @@ def support_campaign():
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
     change_pledge_button.click()
     
-    # enter a new pledge
+    # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
     preapproval_amount_input.clear()  # get rid of existing pledge
     preapproval_amount_input.send_keys("5")
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
     
-    # 
+    # return to the Work page again
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
+    change_pledge_button.click()
+
+    # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
+    preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
+    preapproval_amount_input.clear()  # get rid of existing pledge
+    preapproval_amount_input.send_keys("25")
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    pledge_button.click()
+    paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    
+    print pm.checkStatus()
     
     return sel
     #sel.quit()

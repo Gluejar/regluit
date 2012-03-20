@@ -90,10 +90,12 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
 
         email_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_email"))
         email_element.click()
+        email_element.clear()
         email_element.send_keys(settings.PAYPAL_BUYER_LOGIN)
         
         password_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_password"))
         password_element.click()
+        password_element.clear()
         password_element.send_keys(settings.PAYPAL_BUYER_PASSWORD)
 
         submit_button = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("submitLogin"))
