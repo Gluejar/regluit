@@ -79,7 +79,7 @@
             	{% for premium in premiums %}
             	<label for="{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" value="{{premium.id}}" id="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
+                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal premium_id premium.id  %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium.amount }}
                     </span>

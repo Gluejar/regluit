@@ -79,7 +79,7 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
         try:
             # Button is only visible if the login box is NOT open
             # If the login box is open, the email/pw fiels are already accessible
-            login_element = WebDriverWait(selenium, 30).until(lambda d : d.find_element_by_id("loadLogin"))
+            login_element = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("loadLogin"))
             login_element.click()
 
             # This sleep is needed for js to slide the buyer login into view.  The elements are always in the DOM

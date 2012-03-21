@@ -183,6 +183,10 @@ class CampaignPledgeForm(forms.Form):
         if data is None:
             raise forms.ValidationError(_("Please enter a pledge amount."))
         return data
+    
+    # should we do validation on the premium_id here?
+    # can see whether it corresponds to a real premium -- do that here?
+    # can also figure out moreover whether it's one of the allowed premiums for that campaign....
         
     def clean(self):
         cleaned_data = self.cleaned_data

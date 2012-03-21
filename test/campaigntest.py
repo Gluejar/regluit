@@ -151,9 +151,10 @@ def recipient_status(clist):
 
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
-def support_campaign():
+def support_campaign(do_local=True):
     """
     programatically fire up selenium to make a Pledge
+    do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
     """
     UNGLUE_IT_URL = settings.LIVE_SERVER_TEST_URL
     # unglue.it login
@@ -221,6 +222,11 @@ def support_campaign():
     # enter a $10 pledge
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
     preapproval_amount_input.send_keys("10")
+    
+    # fill out a premium -- the first one for now
+    premium_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('input[type="radio"][value="1"]'))
+    premium_button.click()
+    
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     pledge_button.click()
     
@@ -235,8 +241,13 @@ def support_campaign():
     time.sleep(2)
 
     # time out to simulate an IPN -- update all the transactions
-    pm = PaymentManager()
-    print pm.checkStatus()    
+    if do_local:
+        pm = PaymentManager()
+        print pm.checkStatus()
+    
+    # confirm that the transaction does indeed have the correct amount of money and the correct premium selected
+    transaction0 = Transaction.objects.all()[0]
+    print "transaction amount:{0}, transaction premium:{1}".format(transaction0.amount, transaction0.premium.id)
 
     # I have no idea what the a[href*="/work/"] is not displayed....so that's why I'm going up one element.
     work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
@@ -245,7 +256,7 @@ def support_campaign():
     # change_pledge
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
     change_pledge_button.click()
-    
+        
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
     preapproval_amount_input.clear()  # get rid of existing pledge
@@ -259,16 +270,39 @@ def support_campaign():
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
     change_pledge_button.click()
 
-    # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
+    # enter a new pledge, which is more than the previous amount and therefore requires a new PayPal transaction
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
     preapproval_amount_input.clear()  # get rid of existing pledge
     preapproval_amount_input.send_keys("25")
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
     paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+
+    # wait a bit to allow PayPal sandbox to be update the status of the Transaction    
+    time.sleep(10)
+
+    # Why is the status of the new transaction not being updated?
     
-    print pm.checkStatus()
+    # force a db lookup -- see whether there are 1 or 2 transactions
+    if do_local:
+        transactions = list(Transaction.objects.all())
+        print "number of transactions", Transaction.objects.count()
+        
+        # calling transactions twice make a diff?
+        transactions = list(Transaction.objects.all())
+        print "number of transactions", Transaction.objects.count()
+        
+        print "transactions before pm.checkStatus"
+        print [(t.id, t.type, t.preapproval_key, t.status, t.premium, t.amount) for t in Transaction.objects.all()]
     
+        print "checkStatus:", pm.checkStatus(transactions=transactions)
+        
+        print "number of transactions", Transaction.objects.count()
+        transactions = Transaction.objects.all()
+        print [(t.id, t.type, t.preapproval_key, t.status, t.premium, t.amount) for t in Transaction.objects.all()]
+        
+        print "checkStatus2:", pm.checkStatus(transactions=transactions)
+
     return sel
     #sel.quit()
     

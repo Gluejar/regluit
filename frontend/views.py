@@ -153,6 +153,7 @@ def work(request, work_id, action='display'):
     else:
         claimform = None
     if campaign:
+        # pull up premiums explicitly tied to the campaign or generic premiums
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
         premiums = models.Premium.objects.filter(q)
     else:
@@ -376,9 +377,18 @@ class PledgeView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
-                
-        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
+        
+        # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
+        
+        premium_id = form.cleaned_data["premium_id"]
+        # confirm that the premium_id is a valid one for the campaign in question
+        try:
+            premium = models.Premium.objects.get(id=premium_id)
+            if not (premium.campaign is None or premium.campaign == campaign):
+                 premium = None
+        except models.Premium.DoesNotExist, e:
+            premium = None
         
         p = PaymentManager(embedded=self.embedded)
                     
@@ -397,7 +407,7 @@ class PledgeView(FormView):
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
@@ -406,7 +416,7 @@ class PledgeView(FormView):
             cancel_url = None
             
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)
+                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)
         
         if url:
             logger.info("PledgeView paypal: " + url)
@@ -453,7 +463,12 @@ class PledgeModifyView(FormView):
         
         # what stuff do we need to pull out to populate form?
         # preapproval_amount, premium_id (which we don't have stored yet)
-        premium_id = None
+        if transaction.premium is not None:
+            premium_id = transaction.premium.id
+        else:
+            premium_id = None
+        
+        logger.info("premium_id: {0}".format(premium_id))
         
         # is there a Transaction for an ACTIVE campaign for this
         # should make sure Transaction is modifiable.
@@ -494,13 +509,22 @@ class PledgeModifyView(FormView):
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
         assert campaign.status == 'ACTIVE'
     
+        premium_id = form.cleaned_data["premium_id"]
+        # confirm that the premium_id is a valid one for the campaign in question
+        try:
+            premium = models.Premium.objects.get(id=premium_id)
+            if not (premium.campaign is None or premium.campaign == campaign):
+                 premium = None
+        except models.Premium.DoesNotExist, e:
+            premium = None
+    
         transactions = campaign.transactions().filter(user=user, status=IPN_PAY_STATUS_ACTIVE)
         assert transactions.count() == 1
         transaction = transactions[0]
         assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PAY_STATUS_ACTIVE        
         
         p = PaymentManager(embedded=self.embedded)
-        status, url = p.modify_transaction(transaction, preapproval_amount)
+        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium)
         
         logger.info("status: {0}, url:{1}".format(status, url))
         

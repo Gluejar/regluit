@@ -173,11 +173,12 @@ class PaymentManager( object ):
         for t in transactions:
             
             if t.date_payment is None:
-                preapproval_status = self.update_preapproval(t)            
+                preapproval_status = self.update_preapproval(t)
+                logger.info("transaction: {0}, preapproval_status: {1}".format(t, preapproval_status))
                 if not set(['status', 'currency', 'amount', 'approved']).isdisjoint(set(preapproval_status.keys())):
                     status["preapprovals"].append(preapproval_status)
             else:
-                payment_status = self.update_payment(t)                    
+                payment_status = self.update_payment(t)
                 if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
                     status["payments"].append(payment_status)
             
@@ -607,7 +608,7 @@ class PaymentManager( object ):
             logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
+    def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False, premium=None):
         '''
         authorize
         
@@ -619,6 +620,10 @@ class PaymentManager( object ):
         campaign: optional campaign object(to be set with TARGET_TYPE_CAMPAIGN)
         list: optional list object(to be set with TARGET_TYPE_LIST)
         user: optional user object
+        return_url: url to redirect supporter to after a successful PayPal transaction
+        cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
+        anonymous: whether this pledge is anonymous
+        premium: the premium selected by the supporter for this transaction
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
@@ -635,7 +640,8 @@ class PaymentManager( object ):
                                        campaign=campaign,
                                        list=list,
                                        user=user,
-                                       anonymous=anonymous
+                                       anonymous=anonymous,
+                                       premium=premium
                                        )
         
         # we might want to not allow for a return_url or cancel_url to be passed in but calculated
@@ -679,7 +685,7 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return t, None
         
-    def modify_transaction(self, transaction, amount=None, expiry=None, return_url=None, cancel_url=None):
+    def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None, return_url=None, cancel_url=None):
         '''
         modify
         
@@ -687,35 +693,34 @@ class PaymentManager( object ):
         
         amount: the new amount
         expiry: the new expiration date, or if none the current expiration date will be used
+        anonymous:  new anonymous value; if None, then keep old value
+        premium: new premium selected; if None, then keep old value
         return_url: the return URL after the preapproval(if needed)
         cancel_url: the cancel url after the preapproval(if needed)
         
-        return value: True if successful, false otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
-        '''        
+        return value: True if successful, False otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
+        '''
         
-        if not amount:
-            logger.info("Error, no amount speicified")
-            return False
-        
+        # Can only modify the amount of a preapproval for now
         if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
-            # Can only modify the amount of a preapproval for now
             logger.info("Error, attempt to modify an invalid transaction type")
             return False, None
         
+        # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
+        # then an IPN may be pending and we cannot touch it        
         if transaction.status != IPN_PAY_STATUS_ACTIVE:
-            # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
-            # then an IPN may be pending and we cannot touch it
             logger.info("Error, attempt to modify a transaction that is not active")
             return False, None
             
-        if not expiry:
-            # Use the old expiration date
+        # if any of expiry, anonymous, or premium is None, use the existing value          
+        if expiry is None:
             expiry = transaction.date_expired
+        if anonymous is None:
+            anonymous = transaction.anonymous
+        if premium is None:
+            premium = transaction.premium
         
         if amount > transaction.max_amount or expiry != transaction.date_expired:
-            
-            # Increase or expiration change, cancel and start again
-            self.cancel_transaction(transaction)                
                 
             # Start a new authorization for the new amount
             
@@ -728,27 +733,30 @@ class PaymentManager( object ):
                                     transaction.user, 
                                     return_url, 
                                     cancel_url, 
-                                    transaction.anonymous)
+                                    transaction.anonymous,
+                                    premium)
             
             if t and url:
                 # Need to re-direct to approve the transaction
-                logger.info("New authorization needed, redirectiont to url %s" % url)
+                logger.info("New authorization needed, redirection to url %s" % url)
+                self.cancel_transaction(transaction)    
                 return True, url
             else:
-                # No amount change necessary
+                # a problem in authorize
                 logger.info("Error, unable to start a new authorization")
                 return False, None
             
         elif amount <= transaction.max_amount:
-            # Change the amount but leave the preapproval alone
+            # Update transaction but leave the preapproval alone
             transaction.amount = amount
+            transaction.anonymous = anonymous
+            transaction.premium = premium
+            
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
             return True, None
-        
         else:
-            # No changes
-            logger.info("Error, no modifications requested")
+            # this shouldn't happen
             return False, None
         
         
@@ -794,7 +802,7 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False, premium=None):
         '''
         pledge
         
@@ -812,6 +820,10 @@ class PaymentManager( object ):
         campaign: optional campaign object(to be set with TARGET_TYPE_CAMPAIGN)
         list: optional list object(to be set with TARGET_TYPE_LIST)
         user: optional user object
+        return_url: url to redirect supporter to after a successful PayPal transaction
+        cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
+        anonymous: whether this pledge is anonymous
+        premium: the premium selected by the supporter for this transaction        
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
@@ -834,7 +846,8 @@ class PaymentManager( object ):
                                        list=list,
                                        user=user,
                                        date_payment=now(),
-                                       anonymous=anonymous
+                                       anonymous=anonymous,
+                                       premium=premium
                                        )
     
         t.create_receivers(receiver_list)
