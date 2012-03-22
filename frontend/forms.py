@@ -197,6 +197,7 @@ class CampaignPledgeForm(forms.Form):
             premium_amount = Premium.objects.get(id=premium_id).amount
             logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, premium_id, premium_amount))
             if preapproval_amount < premium_amount:
+                logger.info("raising form validating error")
                 raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
         except Exception, e:
             if isinstance(e, forms.ValidationError):

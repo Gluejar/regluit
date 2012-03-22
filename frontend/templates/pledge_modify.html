@@ -58,14 +58,14 @@
 <div class="jsmodule rounded">
     <div class="jsmod-content">
 	
-	<p>You modifying your current pledge.</p>
+	<p>You modifying your current pledge. form.premium_id: {{form.premium_id.value}}</p>
     	{% comment %}
     	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
     	{% endcomment %}	
 	
     	<form method="POST" action="{% url pledge_modify work_id=work.id %}">
         	{% csrf_token %}
-			{{ form.non_field_errors }}
+		{{ form.non_field_errors }}
         	{{ form.preapproval_amount.errors }}
         	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: ${{ form.preapproval_amount }}</div>
         	{{ form.anonymous.errors }}
@@ -79,7 +79,7 @@
             	{% for premium in premiums %}
             	<label for="{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal premium_id premium.id  %}checked="checked"{% endifequal %} />
+                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal form.premium_id.value premium.id %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium.amount }}
                     </span>
