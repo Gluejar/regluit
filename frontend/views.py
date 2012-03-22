@@ -141,6 +141,7 @@ def work(request, work_id, action='display'):
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
+
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
@@ -468,27 +469,28 @@ class PledgeModifyView(FormView):
         else:
             premium_id = None
         
-        logger.info("premium_id: {0}".format(premium_id))
-        
         # is there a Transaction for an ACTIVE campaign for this
         # should make sure Transaction is modifiable.
         
         preapproval_amount = transaction.amount      
         data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
         
-        form_class = self.get_form_class()
+        # initialize form with the current state of the transaction if the current values empty
+        form = kwargs['form']
         
-        # no validation errors, please, when we're only doing a GET
-        # to avoid validation errors, don't bind the form
-
-        if preapproval_amount is not None:
-            form = form_class(data)
-        else:
-            form = form_class()
+        if not(form.is_bound):
+            form_class = self.get_form_class()
+            form = form_class(initial=data)
     
         context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
         return context
     
+    
+    def form_invalid(self, form):
+        logger.info("form.non_field_errors: {0}".format(form.non_field_errors()))
+        response =  self.render_to_response(self.get_context_data(form=form))
+        return response
+        
     def form_valid(self, form):
         
         # What are the situations we need to deal with?

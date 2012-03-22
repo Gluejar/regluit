@@ -204,10 +204,11 @@ def support_campaign(do_local=True):
     # pull up one of the campaigns to pledge to
     # div.book-list div.title a
     # for now, take the first book and click on the link to get to the work page
-    sel.find_elements_by_css_selector("div.book-list div.title a")[0].click()
+    work_links = WebDriverWait(sel,10).until(lambda d: d.find_elements_by_css_selector("div.book-list div.title a"))
+    work_links[0].click()
     
-    time.sleep(1)
-    sel.find_element_by_css_selector("input[value*='Support']").click()
+    support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Support']"))
+    support_button.click()
     
     # just click Pledge without filling out amount -- should have the form validation spot the error
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
