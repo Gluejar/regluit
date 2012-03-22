@@ -151,11 +151,16 @@ def recipient_status(clist):
 
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
+
 def support_campaign(do_local=True):
     """
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
     """
+    
+    import django
+    django.db.transaction.enter_transaction_management()
+    
     UNGLUE_IT_URL = settings.LIVE_SERVER_TEST_URL
     # unglue.it login
     USER = settings.UNGLUEIT_TEST_USER
@@ -284,12 +289,10 @@ def support_campaign(do_local=True):
 
     # Why is the status of the new transaction not being updated?
     
+    django.db.transaction.commit()
+    
     # force a db lookup -- see whether there are 1 or 2 transactions
     if do_local:
-        transactions = list(Transaction.objects.all())
-        print "number of transactions", Transaction.objects.count()
-        
-        # calling transactions twice make a diff?
         transactions = list(Transaction.objects.all())
         print "number of transactions", Transaction.objects.count()
         
@@ -297,14 +300,9 @@ def support_campaign(do_local=True):
         print [(t.id, t.type, t.preapproval_key, t.status, t.premium, t.amount) for t in Transaction.objects.all()]
     
         print "checkStatus:", pm.checkStatus(transactions=transactions)
-        
-        print "number of transactions", Transaction.objects.count()
-        transactions = Transaction.objects.all()
-        print [(t.id, t.type, t.preapproval_key, t.status, t.premium, t.amount) for t in Transaction.objects.all()]
-        
-        print "checkStatus2:", pm.checkStatus(transactions=transactions)
 
-    return sel
+
+    yield sel
     #sel.quit()
     
 
