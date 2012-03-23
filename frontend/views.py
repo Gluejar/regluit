@@ -147,7 +147,7 @@ def work(request, work_id, action='display'):
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
+        claimform = UserClaimForm( request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
         for edition in editions:
             #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
             edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
@@ -733,15 +733,15 @@ def claim(request):
         data = request.GET
     else:
         data =  request.POST
-    form =  UserClaimForm(request.user, data=data)
+    form =  UserClaimForm(request.user, data=data, prefix='claim')
     if form.is_valid():
         # make sure we're not creating a duplicate claim
-        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder'], status='pending').count():
+        if not models.Claim.objects.filter(work=data['claim-work'], rights_holder=data['claim-rights_holder'], status='pending').count():
             form.save()
-        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['claim-work']}))
     else:
-        work = models.Work.objects.get(id=data['work'])
-        rights_holder = models.RightsHolder.objects.get(id=data['rights_holder'])
+        work = models.Work.objects.get(id=data['claim-work'])
+        rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
         context = {'form': form, 'work': work, 'rights_holder':rights_holder }
         return render(request, "claim.html", context)
 
