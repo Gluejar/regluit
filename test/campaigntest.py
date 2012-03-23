@@ -180,7 +180,7 @@ def support_campaign(do_local=True):
     # HTMLUNIT with JS -- not successful
     #sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
 
-    time.sleep(5)
+    time.sleep(10)
     
     # find a campaign to pledge to
     loginSandbox(sel)
