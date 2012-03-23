@@ -49,7 +49,7 @@ from regluit.frontend.forms import EbookForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PREAPPROVAL_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -450,10 +450,10 @@ class PledgeModifyView(FormView):
             # Campaign must be ACTIVE
             assert campaign.status == 'ACTIVE'
         
-            transactions = campaign.transactions().filter(user=user, status=IPN_PAY_STATUS_ACTIVE)
+            transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
             assert transactions.count() == 1
             transaction = transactions[0]
-            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PAY_STATUS_ACTIVE
+            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PREAPPROVAL_STATUS_ACTIVE
            
         except Exception, e:
             raise e
@@ -516,10 +516,10 @@ class PledgeModifyView(FormView):
         except models.Premium.DoesNotExist, e:
             premium = None
     
-        transactions = campaign.transactions().filter(user=user, status=IPN_PAY_STATUS_ACTIVE)
+        transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
         assert transactions.count() == 1
         transaction = transactions[0]
-        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PAY_STATUS_ACTIVE        
+        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PREAPPROVAL_STATUS_ACTIVE        
         
         p = PaymentManager(embedded=self.embedded)
         status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium)
@@ -817,7 +817,7 @@ def campaign_admin(request):
         # pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
         # Campaign.objects.filter(transaction__status='ACTIVE')
         
-        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_ACTIVE)
             
         # pull out Campaigns with Transactions that are INCOMPLETE
     
@@ -829,7 +829,7 @@ def campaign_admin(request):
         
         # show Campaigns with Transactions that are CANCELED
         
-        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_CANCELED)
+        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_CANCELED)
         
         return (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
                 campaigns_with_canceled_transactions)

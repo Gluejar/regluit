@@ -60,15 +60,15 @@ IPN_PAY_STATUS_REVERSALERROR = 'REVERSALERROR'
 IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
 IPN_PAY_STATUS_PENDING = 'PENDING'
 
-# particular to preapprovals -- may want to rename these constants to IPN_PREAPPROVAL_STATUS_*
+# particular to preapprovals
 # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APPreapprovalDetails
 #ACTIVE - The preapproval is active
 #CANCELED - The preapproval was explicitly canceled by the sender or by PayPal
 #DEACTIVED - The preapproval is not active; you can be reactivate it by resetting the personal identification number (PIN) or by contacting PayPal
 
-IPN_PAY_STATUS_ACTIVE = "ACTIVE"
-IPN_PAY_STATUS_CANCELED = "CANCELED"
-IPN_PAY_STATUS_DEACTIVED = "DEACTIVED"
+IPN_PREAPPROVAL_STATUS_ACTIVE = "ACTIVE"
+IPN_PREAPPROVAL_STATUS_CANCELED = "CANCELED"
+IPN_PREAPPROVAL_STATUS_DEACTIVED = "DEACTIVED"
 
 # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APIPN
 #COMPLETED - The sender's transaction has completed

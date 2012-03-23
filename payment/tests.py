@@ -265,7 +265,7 @@ class AuthorizeTest(TestCase):
         
         t = Transaction.objects.get(id=t.id)
         
-        self.assertEqual(t.status, IPN_PAY_STATUS_ACTIVE)
+        self.assertEqual(t.status, IPN_PREAPPROVAL_STATUS_ACTIVE)
         
     def tearDown(self):
         self.selenium.quit()

@@ -16,7 +16,7 @@ class Transaction(models.Model):
     #execution: e.g. EXECUTE_TYPE_CHAINED_INSTANT, EXECUTE_TYPE_CHAINED_DELAYED, EXECUTE_TYPE_PARALLEL
     execution = models.IntegerField(default=EXECUTE_TYPE_NONE, null=False)
     
-    # status: constants defined in paypal.py (e.g., IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
+    # status: constants defined in paypal.py (e.g., IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
     status = models.CharField(max_length=32, default='NONE', null=False)
     
     # amount & currency -- amount of money and its currency involved for transaction

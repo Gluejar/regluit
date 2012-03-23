@@ -1,7 +1,7 @@
 from regluit.core import models
 from regluit.payment.models import Transaction, PaymentResponse, Receiver
 from regluit.payment.manager import PaymentManager
-from regluit.payment.paypal import IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
+from regluit.payment.paypal import IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 
 from django.conf import settings
 
@@ -108,7 +108,7 @@ pm = PaymentManager()
 
 def campaign_display():
     
-    campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+    campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_ACTIVE)
     campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
     campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_COMPLETED)
     
@@ -117,7 +117,7 @@ def campaign_display():
     print "campaigns with completed transactions", campaigns_with_completed_transactions
     
 def campaigns_active():
-    return models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+    return models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_ACTIVE)
 
 def campaigns_incomplete():
     return models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
@@ -245,15 +245,19 @@ def support_campaign(do_local=True):
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
     
     time.sleep(2)
+    django.db.transaction.commit()
 
     # time out to simulate an IPN -- update all the transactions
     if do_local:
+        django.db.transaction.enter_transaction_management()
         pm = PaymentManager()
         print pm.checkStatus()
+        transaction0 = Transaction.objects.all()[0]
+        print "transaction amount:{0}, transaction premium:{1}".format(transaction0.amount, transaction0.premium.id)        
+        django.db.transaction.commit()
+        
     
-    # confirm that the transaction does indeed have the correct amount of money and the correct premium selected
-    transaction0 = Transaction.objects.all()[0]
-    print "transaction amount:{0}, transaction premium:{1}".format(transaction0.amount, transaction0.premium.id)
+    django.db.transaction.enter_transaction_management()
 
     # I have no idea what the a[href*="/work/"] is not displayed....so that's why I'm going up one element.
     work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))

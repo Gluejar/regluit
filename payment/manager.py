@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
+from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from regluit.payment.paypal import RefundPayment
 import uuid
@@ -306,7 +306,7 @@ class PaymentManager( object ):
         if authorized:
             # return only ACTIVE transactions with approved=True
             authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=IPN_PAY_STATUS_ACTIVE,
+                                                         status=IPN_PREAPPROVAL_STATUS_ACTIVE,
                                                          approved=True)
         else:
             authorized_list = []
@@ -420,7 +420,7 @@ class PaymentManager( object ):
         '''               
         
         # only allow active transactions to go through again, if there is an error, intervention is needed
-        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PAY_STATUS_ACTIVE)
+        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
         
         for t in transactions:
             
@@ -428,6 +428,11 @@ class PaymentManager( object ):
                             {'email':campaign.paypal_receiver, 'amount':D(t.amount) * (D('1.00') - D(str(settings.GLUEJAR_COMMISSION)))}]
             
             self.execute_transaction(t, receiver_list) 
+
+        # TO DO:  update campaign status
+        # Should this be done first before executing the transactions?
+        # How does the success/failure of transactions affect states of campaigns
+        
 
         return transactions
 
@@ -451,6 +456,9 @@ class PaymentManager( object ):
         for t in transactions:            
             result = self.finish_transaction(t) 
 
+        # TO DO:  update campaign status
+        
+        
         return transactions
     
     def cancel_campaign(self, campaign):
@@ -464,10 +472,12 @@ class PaymentManager( object ):
         
         '''               
         
-        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PAY_STATUS_ACTIVE)
+        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
         
         for t in transactions:            
             result = self.cancel_transaction(t) 
+
+        # TO DO:  update campaign status
 
         return transactions    
         
@@ -708,7 +718,7 @@ class PaymentManager( object ):
         
         # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
         # then an IPN may be pending and we cannot touch it        
-        if transaction.status != IPN_PAY_STATUS_ACTIVE:
+        if transaction.status != IPN_PREAPPROVAL_STATUS_ACTIVE:
             logger.info("Error, attempt to modify a transaction that is not active")
             return False, None
             
