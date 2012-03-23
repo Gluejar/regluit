@@ -164,23 +164,19 @@ def work(request, work_id, action='display'):
     base_url = request.build_absolute_uri("/")[:-1]
     
     
-    #may want to deprecate the following
-    if action == 'setup_campaign':
-        return render(request, 'setup_campaign.html', {'work': work})
-    else:
-        return render(request, 'work.html', {
-            'work': work, 
-            'premiums': premiums, 
-            'ungluers': userlists.supporting_users(work, 5), 
-            'claimform': claimform,
-            'wishers': wishers,
-            'base_url': base_url,
-            'editions': editions,
-            'pubdate': pubdate,
-            'pledged':pledged,
-            'activetab': activetab,
-            'alert':alert
-        })
+    return render(request, 'work.html', {
+        'work': work, 
+        'premiums': premiums, 
+        'ungluers': userlists.supporting_users(work, 5), 
+        'claimform': claimform,
+        'wishers': wishers,
+        'base_url': base_url,
+        'editions': editions,
+        'pubdate': pubdate,
+        'pledged':pledged,
+        'activetab': activetab,
+        'alert':alert
+    })
 
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
