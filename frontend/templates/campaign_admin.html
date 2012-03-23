@@ -22,7 +22,7 @@
 {% if campaigns_with_active_transactions %}
 <form method="post" action="#">
     {% csrf_token %}
-    <ul>
+    <ul class="terms">
 {% for campaign in campaigns_with_active_transactions %}
         <li><input type="radio" name="active_campaign" value="{{campaign.id}}" />{{campaign.id}} | {{campaign.name}} </li>
 {% endfor %}
