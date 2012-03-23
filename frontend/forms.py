@@ -14,7 +14,7 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook
 from regluit.core.lookups import OwnerLookup
 
-from regluit.utils.localdatetime import date_today
+from regluit.utils.localdatetime import now
 
 import logging
 
@@ -160,9 +160,9 @@ class ManageCampaignForm(forms.ModelForm):
         if self.instance:
             if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
                 raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-        if new_deadline-date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+        if new_deadline - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-        elif new_deadline-date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+        elif new_deadline - now() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
             raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
         return new_deadline
 
