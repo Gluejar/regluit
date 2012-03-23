@@ -67,32 +67,32 @@ def slideshow(max):
         # on the preview site there are no active campaigns, so we should show most-wished books instead
         worklist = models.Work.objects.order_by('-num_wishes')[:max]
     else:
-    	worklist = []
-    	if max > count:
-    		# add all the works with active campaigns
-        	for campaign in ending:
-        		worklist.append(campaign.work)
-        		
-        	# then fill out the rest of the list with popular but inactive works
-        	remainder = max - count
-        	remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
-        	worklist.extend(remainder_works)
+        worklist = []
+        if max > count:
+            # add all the works with active campaigns
+            for campaign in ending:
+                worklist.append(campaign.work)
+                
+            # then fill out the rest of the list with popular but inactive works
+            remainder = max - count
+            remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+            worklist.extend(remainder_works)
         else:
-        	# if the active campaign list has more works than we can fit 
-        	# in our slideshow, it's the only source we need to draw from
-    		while j < max:
-        		worklist.append(ending[j].work)
-        		j +=1
-        		
+            # if the active campaign list has more works than we can fit 
+            # in our slideshow, it's the only source we need to draw from
+            while j < max:
+                worklist.append(ending[j].work)
+                j +=1
+                
     return worklist
 
 def next(request):
-	if request.COOKIES.has_key('next'):
-		response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
-		response.delete_cookie('next')
-		return response
-	else:
-		return HttpResponseRedirect('/')
+    if request.COOKIES.has_key('next'):
+        response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+        response.delete_cookie('next')
+        return response
+    else:
+        return HttpResponseRedirect('/')
 
 def home(request):
     if request.user.is_authenticated():
@@ -164,23 +164,19 @@ def work(request, work_id, action='display'):
     base_url = request.build_absolute_uri("/")[:-1]
     
     
-    #may want to deprecate the following
-    if action == 'setup_campaign':
-        return render(request, 'setup_campaign.html', {'work': work})
-    else:
-        return render(request, 'work.html', {
-            'work': work, 
-            'premiums': premiums, 
-            'ungluers': userlists.supporting_users(work, 5), 
-            'claimform': claimform,
-            'wishers': wishers,
-            'base_url': base_url,
-            'editions': editions,
-            'pubdate': pubdate,
-            'pledged':pledged,
-            'activetab': activetab,
-            'alert':alert
-        })
+    return render(request, 'work.html', {
+        'work': work, 
+        'premiums': premiums, 
+        'ungluers': userlists.supporting_users(work, 5), 
+        'claimform': claimform,
+        'wishers': wishers,
+        'base_url': base_url,
+        'editions': editions,
+        'pubdate': pubdate,
+        'pledged':pledged,
+        'activetab': activetab,
+        'alert':alert
+    })
 
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
@@ -1546,19 +1542,19 @@ def emailshare(request):
             title = book.title
             # if title requires unicode let's ignore it for now
             try:
-            	title = ', '+str(title)+', '
+                title = ', '+str(title)+', '
             except:
-            	title = ' '
+                title = ' '
             try:
-            	status = book.last_campaign().status
+                status = book.last_campaign().status
             except:
-            	status = None
+                status = None
             
             # customize the call to action depending on campaign status
             if status == 'ACTIVE':
                 message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
             else:
-	        	message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'
+                message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'
             form = EmailShareForm(initial={'next':next, 'subject': 'Come see one of my favorite books on Unglue.It', 'message': message})
         except:
             next = ''

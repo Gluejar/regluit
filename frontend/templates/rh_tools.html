@@ -3,6 +3,7 @@
 {% block extra_extra_head %}
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
 <link href="/static/css/dj.selectable.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="{{ jquery_home }}"></script>
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/jquery.dj.selectable.js"></script>
 
@@ -118,13 +119,13 @@ Needs to be written.  What would you find helpful in a social media toolkit? <a 
 <p>Campaigns have rewards as a way to thank supporters.  unglue.it includes a standard set of rewards in all campaigns.  You are encouraged to add additional sweeteners to motivate people to donate.</p>
 
 <p>Here are the standard rewards:</p>
-<ul>
+<ul class="terms">
 <li><em>Any level</em> &#8212; The unglued ebook delivered to your inbox</li>
-<li><em>$25</em> &#8212; Your name under "supporters" in the acknowledgements section</li>
-<li><em>$50</em> &#8212; Your name &amp; link of your choice under "benefactors"</li>
-<li><em>$100</em> &#8212; Your name, link of your choice, &amp; a brief message (140 characters max) under "bibliophiles"</li>
+<li><em>$25</em> &#8212; Your username under "supporters" in the acknowledgements section</li>
+<li><em>$50</em> &#8212; Your name &amp; profile link under "benefactors"</li>
+<li><em>$100</em> &#8212; Your name, profile link, &amp; profile tagline under "bibliophiles"</li>
 </ul>
 
 <h2>More Questions</h2>
-
+<p> Check the FAQ to the left, or <a href="/feedback">Send us feedback.</a>
 {% endblock %}

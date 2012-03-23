@@ -44,8 +44,6 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", "work_openlibrary", name="work_openlibrary"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
-    #may want to deprecate the following
-    url(r"^setup/work/(?P<work_id>\d+)/$", "work", {'action':'setup_campaign'}, name="setup_campaign"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
     url(r"^pledge/cancel/$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
