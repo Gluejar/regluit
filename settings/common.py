@@ -196,6 +196,11 @@ SOUTH_TESTS_MIGRATE = True
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 
+# The amount of the transaction that Gluejar takes 
+GLUEJAR_COMMISSION = 0.06
+PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
+PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
+
 GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
 
