@@ -5,7 +5,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, get_model
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -73,6 +73,15 @@ class Premium(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description =  models.TextField(null=True, blank=False)
     limit = models.IntegerField(default = 0)
+
+    @property
+    def premium_count(self):
+        t_model=get_model('payment','Transaction')
+        return t_model.objects.filter(premium=self).count()
+    @property
+    def premium_remaining(self):
+        t_model=get_model('payment','Transaction')
+        return self.limit - t_model.objects.filter(premium=self).count()
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -213,11 +222,9 @@ class Campaign(models.Model):
         return translist
 
     def effective_premiums(self):
-        """returns either the custom premiums for Campaign or any default premiums"""
-        premiums = self.premiums.all()
-        if premiums.count() == 0:
-            premiums = Premium.objects.filter(campaign__isnull=True)
-        return premiums
+        """returns  the available premiums for the Campaign including any default premiums"""
+        q = Q(campaign=self) | Q(campaign__isnull=True)
+        return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
         
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib
