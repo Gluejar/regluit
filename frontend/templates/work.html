@@ -355,7 +355,6 @@ $j(document).ready(function(){
                         <a href="{% url pledge work_id=work.id %}?premium_id={{premium.id}}">
                             <span class="menu-item-price">${{ premium.amount }}</span>
                             <span class="menu-item-desc">{{ premium.description }}</span>
-                            {% ifequal premium.type 'CU' %}<span class="custom-premium">exclusive!</span>{% endifequal %}
                         </a></li>
                         {% endfor %}
                      </ul>

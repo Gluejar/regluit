@@ -66,12 +66,13 @@ class RightsHolder(models.Model):
         return self.rights_holder_name
     
 class Premium(models.Model):
-    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'),(u'XX', u'Inactive'))
     created =  models.DateTimeField(auto_now_add=True)  
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description =  models.TextField(null=True, blank=False)
+    limit = models.IntegerField(default = 0)
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)

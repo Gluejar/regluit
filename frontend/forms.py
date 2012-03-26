@@ -131,6 +131,18 @@ class OpenCampaignForm(forms.ModelForm):
         fields = 'name', 'work',  'managers'
         widgets = { 'work': forms.HiddenInput }
 
+class CustomPremiumForm(forms.ModelForm):
+
+    class Meta:
+        model = Premium
+        fields = 'campaign', 'amount', 'description', 'type', 'limit'
+        widgets = { 
+                'description': forms.Textarea(attrs={'cols': 80, 'rows': 2}),
+                'campaign': forms.HiddenInput,
+                'type': forms.HiddenInput(attrs={'value':'XX'}),
+                'limit': forms.TextInput(attrs={'value':'0'}),
+            }
+
 class ManageCampaignForm(forms.ModelForm):
     paypal_receiver = forms.EmailField(
         label=_("email address to collect Paypal funds"), 

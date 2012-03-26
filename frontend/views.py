@@ -45,7 +45,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -156,7 +156,7 @@ def work(request, work_id, action='display'):
     if campaign:
         # pull up premiums explicitly tied to the campaign or generic premiums
         q = Q(campaign=campaign) | Q(campaign__isnull=True)
-        premiums = models.Premium.objects.filter(q)
+        premiums = models.Premium.objects.filter(q).exclude(type='XX').order_by('amount')
     else:
         premiums = None
         
@@ -186,22 +186,59 @@ def manage_campaign(request, id):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     alerts = []   
-    if request.method == 'POST':
-        form= ManageCampaignForm(instance=campaign, data=request.POST)  
-        if form.is_valid():     
-            form.save() 
-            alerts.append(_('Campaign data has been saved'))
-        else:
-            alerts.append(_('Campaign data has NOT been saved'))
-        if 'launch' in request.POST.keys():
-            if campaign.launchable :
-                campaign.activate()
-                alerts.append(_('Campaign has been launched'))
+    if request.method == 'POST' :
+        if request.POST.has_key('add_premium') :
+            postcopy=request.POST.copy()
+            postcopy['type']='CU'
+            new_premium_form = CustomPremiumForm(data=postcopy)
+            if new_premium_form.is_valid():
+                new_premium_form.save()
+                alerts.append(_('New premium has been added'))
+                new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             else:
-                alerts.append(_('Campaign has NOT been launched'))
+                alerts.append(_('New premium has not been added'))              
+            form = ManageCampaignForm(instance=campaign)
+        elif request.POST.has_key('save') or  request.POST.has_key('launch') :
+            form= ManageCampaignForm(instance=campaign, data=request.POST)  
+            if form.is_valid():     
+                form.save() 
+                alerts.append(_('Campaign data has been saved'))
+            else:
+                alerts.append(_('Campaign data has NOT been saved'))
+            if 'launch' in request.POST.keys():
+                if campaign.launchable :
+                    campaign.activate()
+                    alerts.append(_('Campaign has been launched'))
+                else:
+                    alerts.append(_('Campaign has NOT been launched'))
+            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        elif request.POST.has_key('inactivate') :
+            if request.POST.has_key('premium_id'):
+                premiums_to_stop = request.POST['premium_id']
+                for premium_to_stop in premiums_to_stop:
+                    selected_premium = models.Premium.objects.get(id=premium_to_stop)
+                    if selected_premium.type == 'CU':
+                        selected_premium.type = 'XX'
+                        selected_premium.save()
+                        alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
+            form = ManageCampaignForm(instance=campaign)
+            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
     else:
-        form= ManageCampaignForm(instance=campaign)
-    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': campaign.problems, 'alerts': alerts})
+        form = ManageCampaignForm(instance=campaign)
+        new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        
+    # pull up premiums explicitly tied to the campaign or generic premiums
+    q = Q(campaign=campaign) | Q(campaign__isnull=True)
+    premiums = models.Premium.objects.filter(q).order_by('amount')    
+
+    return render(request, 'manage_campaign.html', {
+        'campaign': campaign, 
+        'form':form, 
+        'problems': campaign.problems, 
+        'alerts': alerts, 
+        'premiums' : premiums,
+        'premium_form' : new_premium_form,
+    })
         
 def googlebooks(request, googlebooks_id):
     try: 
