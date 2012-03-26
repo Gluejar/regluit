@@ -11,7 +11,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from datetime import timedelta
-from regluit.utils.localdatetime import now, isoformat
+from regluit.utils.localdatetime import now, zuluformat
 import dateutil
 
 import dateutil.parser
@@ -612,8 +612,8 @@ class Preapproval( PaypalEnvelopeRequest ):
           transaction.save()
           
           data = {
-                  'endingDate': isoformat(expiry),
-                  'startingDate': isoformat(now_val),
+                  'endingDate': zuluformat(expiry),
+                  'startingDate': zuluformat(now_val),
                   'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
                   'maxNumberOfPayments':1,
                   'maxAmountPerPayment': '%.2f' % transaction.amount,
@@ -622,7 +622,7 @@ class Preapproval( PaypalEnvelopeRequest ):
                   'cancelUrl': cancel_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
                   'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
-                  } 
+                  }
     
           # Is ipnNotificationUrl being computed properly
           # print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')
