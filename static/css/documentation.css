@@ -440,6 +440,18 @@ dd {
 .collapse ul {
   display: none;
 }
+.faq, .answer {
+  text-transform: none !important;
+}
+.faq a, .answer a {
+  color: #6994a3;
+}
+.faq {
+  cursor: pointer;
+}
+.faq:hover {
+  text-decoration: underline;
+}
 /* items on press page */
 .spacer {
   clear: both;

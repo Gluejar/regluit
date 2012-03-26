@@ -484,13 +484,19 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
         if user is not None and correct_user and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
-        
+            
+        worklist = slideshow(8)
+        works = worklist[:4]
+        works2 = worklist[4:8]
+
         context["transaction"] = transaction
         context["correct_user"] = correct_user
         context["correct_transaction_type"] = correct_transaction_type
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
+        context["works"] = works
+        context["works2"] = works2        
         
         return context        
                 
@@ -1413,26 +1419,35 @@ def emailshare(request):
     else:
         try:
             next = request.GET['next']
-            work_id = next.split('/')[-2]
-            work_id = int(work_id)
-            book = models.Work.objects.get(pk=work_id)
-            title = book.title
-            # if title requires unicode let's ignore it for now
-            try:
-            	title = ', '+str(title)+', '
-            except:
-            	title = ' '
-            try:
-            	status = book.last_campaign().status
-            except:
-            	status = None
-            
-            # customize the call to action depending on campaign status
-            if status == 'ACTIVE':
-                message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+            if "pledge" in request.path:
+            	work_id = next.split('=')[1]
+            	book = models.Work.objects.get(pk=int(work_id))
+            	title = book.title
+            	message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.It: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
+            	subject = "Help me unglue "+title
             else:
-	        	message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'
-            form = EmailShareForm(initial={'next':next, 'subject': 'Come see one of my favorite books on Unglue.It', 'message': message})
+            	work_id = next.split('/')[-2]
+            	work_id = int(work_id)
+            	book = models.Work.objects.get(pk=work_id)
+            	title = book.title
+            	# if title requires unicode let's ignore it for now
+            	try:
+            		title = ', '+str(title)+', '
+            	except:
+            		title = ' '
+            	try:
+            		status = book.last_campaign().status
+            	except:
+            		status = None
+            
+            	# customize the call to action depending on campaign status
+            	if status == 'ACTIVE':
+            		message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+            	else:
+            		message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'	
+            	subject = 'Come see one of my favorite books on Unglue.It'
+            	
+            form = EmailShareForm(initial={'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
             sender = ''

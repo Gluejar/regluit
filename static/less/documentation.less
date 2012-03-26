@@ -109,7 +109,7 @@ body {
 		margin-bottom:7px;
 		.one-border-radius(14px);
 		padding:10px;
-		background:@pale-blue;
+		background:@pale-blue;		
 	}
 	
 	&.terms {
@@ -154,6 +154,21 @@ dd {
 
 .collapse ul {
 	display: none;
+}
+
+.faq, .answer {
+	text-transform: none !important;
+	a {
+		color: @medium-blue;
+	}
+}
+
+.faq {
+	cursor: pointer;
+	
+	&:hover {
+		text-decoration: underline;
+	}
 }
 
 /* items on press page */

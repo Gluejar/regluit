@@ -183,6 +183,15 @@ ul.menu{
     margin:0;
 }
 
+/* add class clearfix to floats to make them self-clear */
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
 /* Learn More menu */
 #block-intro-text {
 	padding-right: 10px;
@@ -421,6 +430,10 @@ div#content-block {
     background:url(@background-header) 100% -223px no-repeat;
     padding:0 0 0 7px;
     margin-bottom: 20px;
+    
+    &.jsmodule {
+    	background: none;
+    }
 }
 
 .content-block-heading a.block-link {
