@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from regluit.core.models import Campaign, Wishlist
+from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
 from decimal import Decimal
 import uuid
@@ -16,7 +16,7 @@ class Transaction(models.Model):
     #execution: e.g. EXECUTE_TYPE_CHAINED_INSTANT, EXECUTE_TYPE_CHAINED_DELAYED, EXECUTE_TYPE_PARALLEL
     execution = models.IntegerField(default=EXECUTE_TYPE_NONE, null=False)
     
-    # status: constants defined in paypal.py (e.g., IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
+    # status: constants defined in paypal.py (e.g., IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
     status = models.CharField(max_length=32, default='NONE', null=False)
     
     # amount & currency -- amount of money and its currency involved for transaction
@@ -59,9 +59,10 @@ class Transaction(models.Model):
     date_authorized = models.DateTimeField(null=True)
     date_expired = models.DateTimeField(null=True)
     
-    # associated User and Campaign for this Transaction
+    # associated User, Campaign, and Premium for this Transaction
     user = models.ForeignKey(User, null=True)
     campaign = models.ForeignKey(Campaign, null=True)
+    premium = models.ForeignKey(Premium, null=True)
     
     # list:  makes allowance for pledging against a Wishlist:  not currently in use
     list = models.ForeignKey(Wishlist, null=True)

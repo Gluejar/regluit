@@ -60,7 +60,8 @@ def loginSandbox(selenium):
     except:
         traceback.print_exc()
     
-def paySandbox(test, selenium, url, authorize=False):
+def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep_time=20):
+    
     
     if authorize:
         print "AUTHORIZE SANDBOX"
@@ -69,42 +70,45 @@ def paySandbox(test, selenium, url, authorize=False):
     
     try:
         # We need this sleep to make sure the JS engine is finished from the sandbox loging page
-        time.sleep(20)    
+        time.sleep(sleep_time)    
 
-        selenium.get(url)
-        print "Opened URL %s" % url
+        if not already_at_url:
+            selenium.get(url)
+            print "Opened URL %s" % url
    
         try:
             # Button is only visible if the login box is NOT open
             # If the login box is open, the email/pw fiels are already accessible
-            login_element = WebDriverWait(selenium, 30).until(lambda d : d.find_element_by_id("loadLogin"))
+            login_element = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("loadLogin"))
             login_element.click()
 
             # This sleep is needed for js to slide the buyer login into view.  The elements are always in the DOM
             # so selenium can find them, but we need them in view to interact
-            time.sleep(20)
+            time.sleep(sleep_time)
         except:
             print "Ready for Login"
 
         email_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_email"))
         email_element.click()
+        email_element.clear()
         email_element.send_keys(settings.PAYPAL_BUYER_LOGIN)
         
         password_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_password"))
         password_element.click()
+        password_element.clear()
         password_element.send_keys(settings.PAYPAL_BUYER_PASSWORD)
 
         submit_button = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("submitLogin"))
         submit_button.click()
       
         # This sleep makes sure js has time to animate out the next page
-        time.sleep(20)
+        time.sleep(sleep_time)
 
         final_submit = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("submit.x"))
         final_submit.click()
        
         # This makes sure the processing of the final submit is complete
-        time.sleep(20)
+        time.sleep(sleep_time)
 
         # Don't wait too long for this, it isn't really needed.  By the time JS has gotten around to 
         # displaying this element, the redirect has usually occured       
@@ -261,7 +265,7 @@ class AuthorizeTest(TestCase):
         
         t = Transaction.objects.get(id=t.id)
         
-        self.assertEqual(t.status, IPN_PAY_STATUS_ACTIVE)
+        self.assertEqual(t.status, IPN_PREAPPROVAL_STATUS_ACTIVE)
         
     def tearDown(self):
         self.selenium.quit()

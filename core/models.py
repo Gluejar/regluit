@@ -66,12 +66,13 @@ class RightsHolder(models.Model):
         return self.rights_holder_name
     
 class Premium(models.Model):
-    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'),(u'XX', u'Inactive'))
     created =  models.DateTimeField(auto_now_add=True)  
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description =  models.TextField(null=True, blank=False)
+    limit = models.IntegerField(default = 0)
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -81,11 +82,20 @@ class CampaignAction(models.Model):
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
     
 class Campaign(models.Model):
+    LICENSE_CHOICES = (('CC BY-NC-ND','CC BY-NC-ND'), 
+            ('CC BY-ND','CC BY-ND'), 
+            ('CC BY','CC BY'), 
+            ('CC BY-NC','CC BY-NC'),
+            ( 'CC BY-NC-SA','CC BY-NC-SA'),
+            ( 'CC BY-SA','CC BY-SA'),
+            ( 'CC0','CC0'),
+        )
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = models.TextField(null=True, blank=False)
     details = models.TextField(null=True, blank=False)
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)

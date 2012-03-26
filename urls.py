@@ -10,9 +10,9 @@ urlpatterns = patterns('',
     (r'^accounts/', include('registration.backends.default.urls')),
     (r'^socialauth/', include('social_auth.urls')),
     url(r"^accounts/login/welcome/$", direct_to_template, 
-    	{'template': 'registration/welcome.html',
-    		'extra_context': {'suppress_search_box': True,} 
-		}), 
+        {'template': 'registration/welcome.html',
+            'extra_context': {'suppress_search_box': True,} 
+        }), 
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
     (r'', include('regluit.payment.urls')),

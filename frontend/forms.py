@@ -14,7 +14,7 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook
 from regluit.core.lookups import OwnerLookup
 
-from regluit.utils.localdatetime import date_today
+from regluit.utils.localdatetime import now
 
 import logging
 
@@ -131,6 +131,18 @@ class OpenCampaignForm(forms.ModelForm):
         fields = 'name', 'work',  'managers'
         widgets = { 'work': forms.HiddenInput }
 
+class CustomPremiumForm(forms.ModelForm):
+
+    class Meta:
+        model = Premium
+        fields = 'campaign', 'amount', 'description', 'type', 'limit'
+        widgets = { 
+                'description': forms.Textarea(attrs={'cols': 80, 'rows': 2}),
+                'campaign': forms.HiddenInput,
+                'type': forms.HiddenInput(attrs={'value':'XX'}),
+                'limit': forms.TextInput(attrs={'value':'0'}),
+            }
+
 class ManageCampaignForm(forms.ModelForm):
     paypal_receiver = forms.EmailField(
         label=_("email address to collect Paypal funds"), 
@@ -139,7 +151,7 @@ class ManageCampaignForm(forms.ModelForm):
     target = forms.DecimalField( min_value= D('0.00') )
     class Meta:
         model = Campaign
-        fields = 'description', 'details', 'target', 'deadline', 'paypal_receiver'
+        fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver'
         widgets = { 
                 'description': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
                 'details': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
@@ -160,11 +172,19 @@ class ManageCampaignForm(forms.ModelForm):
         if self.instance:
             if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
                 raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-        if new_deadline-date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+        if new_deadline - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-        elif new_deadline-date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+        elif new_deadline - now() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
             raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
         return new_deadline
+        
+    def clean_license(self):
+    	new_license = self.cleaned_data['license']
+        if self.instance:
+            if self.instance.status == 'ACTIVE':
+                raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
+        return new_license
+
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
@@ -183,6 +203,10 @@ class CampaignPledgeForm(forms.Form):
         if data is None:
             raise forms.ValidationError(_("Please enter a pledge amount."))
         return data
+    
+    # should we do validation on the premium_id here?
+    # can see whether it corresponds to a real premium -- do that here?
+    # can also figure out moreover whether it's one of the allowed premiums for that campaign....
         
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -193,6 +217,7 @@ class CampaignPledgeForm(forms.Form):
             premium_amount = Premium.objects.get(id=premium_id).amount
             logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, premium_id, premium_amount))
             if preapproval_amount < premium_amount:
+                logger.info("raising form validating error")
                 raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
         except Exception, e:
             if isinstance(e, forms.ValidationError):
