@@ -115,6 +115,7 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
+    'notification',
 
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
