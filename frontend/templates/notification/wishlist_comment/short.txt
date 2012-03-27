@@ -1,1 +1,1 @@
-{{ comment.user.username }} has commented on {{ content_object.title }}
+{{ comment.user.username }} has commented on {{ comment.content_object.title }}

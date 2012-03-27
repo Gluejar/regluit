@@ -65,3 +65,11 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"))
 
 signals.post_syncdb.connect(create_notice_types, sender=notification)
+
+from django.contrib.comments.signals import comment_was_posted
+def notify_comment(comment, request, **kwargs):
+    notification.send(comment.content_object.wished_by, "wishlist_comment", {}, True)
+
+comment_was_posted.connect(notify_comment)
+
+    
