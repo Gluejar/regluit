@@ -1,0 +1,8 @@
+{% with comment.content_object.id as id %}
+          {% with comment.user as user %}
+{{ comment.name }} on {{ comment.content_object.title }}
+          
+{{ comment.comment|linebreaksbr }}
+
+          {% endwith %}
+{% endwith %}
