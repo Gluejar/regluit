@@ -68,7 +68,7 @@ signals.post_syncdb.connect(create_notice_types, sender=notification)
 
 from django.contrib.comments.signals import comment_was_posted
 def notify_comment(comment, request, **kwargs):
-    notification.send(comment.content_object.wished_by, "wishlist_comment", {}, True)
+    notification.send(comment.content_object.wished_by(), "wishlist_comment", {'comment':comment}, True)
 
 comment_was_posted.connect(notify_comment)
 
