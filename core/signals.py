@@ -57,6 +57,7 @@ registration.signals.user_activated.connect(merge_emails)
 
 from django.conf import settings
 from django.utils.translation import ugettext_noop as _
+from django.db.models import signals
 
 from notification import models as notification
 
