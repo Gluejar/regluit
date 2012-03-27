@@ -222,3 +222,6 @@ IS_PREVIEW = True
 # set once instead of in all the templates
 JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
 JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+
+# a django-notification setting for whether to queue notifications or send_now (False)
+NOTIFICATION_QUEUE_ALL = True
