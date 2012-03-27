@@ -12,6 +12,7 @@ django-endless-pagination==1.1
 django-extensions==0.7.1
 django-kombu==0.9.4
 django-nose-selenium==0.7.3
+django-notification==0.2
 django-picklefield==0.1.9
 django-profiles==0.2
 https://bitbucket.org/ubernostrum/django-registration/get/tip.tar.gz
