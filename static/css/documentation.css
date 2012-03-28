@@ -453,7 +453,7 @@ dd {
   text-decoration: underline;
 }
 /* items on press page */
-.spacer {
+.press_spacer {
   clear: both;
   height: 0px;
 }
@@ -519,4 +519,7 @@ dd {
   border: solid 5px #EDF3F4;
   padding: 5px;
   border: solid 5px #EDF3F4;
+}
+p.pledge_complete {
+  margin: 7px auto;
 }

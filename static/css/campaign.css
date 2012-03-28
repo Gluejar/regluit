@@ -548,6 +548,7 @@ a {
 .thank-you {
   font-size: 18px;
   font-weight: bold;
+  margin: 20px auto;
 }
 .work_supporter {
   height: auto;

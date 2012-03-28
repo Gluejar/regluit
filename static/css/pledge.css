@@ -116,3 +116,6 @@ form.pledgeform {
 ul.support li, ul.support li:hover {
   background-image: none;
 }
+p {
+  margin: 7px auto;
+}

@@ -5,9 +5,20 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
 
 <script src="/static/js/slides.min.jquery.js"></script>
 <script src="/static/js/slideshow.js"></script>
+
+<!-- toggle to panelview state instead of listview default -->
+<script type="text/javascript">
+	jQuery(document).ready(function($) { 
+        $('.listview').addClass("panelview").removeClass("listview");
+    });    
+</script>    
+
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
 {% endblock %}
 
 {% comment %}
@@ -20,11 +31,11 @@ we need the share options and also something like the home page slide show to gi
 <div id="pledge-maincol">
 
     <p class="thank-you">Thank you!</p>
-    <p>You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
-    <p>If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline|date:"F d, Y"}},
+    <p class="pledge_complete">You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
+    <p class="pledge_complete">If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline|date:"F d, Y"}},
     your PayPal account will be charged ${{transaction.amount}}.</p>
-    <p>Please help <a href="{% url work work.id %}">{{work.title}}</a> again by telling your friends!</p>
-    <p>Looking for another campaign? Try one of these.</p>
+    <p class="pledge_complete">Please help <a href="{% url work work.id %}">{{work.title}}</a> again by telling your friends!</p>
+    <p class="pledge_complete">Looking for another campaign? Try one of these.</p>
 </div>
 
 <div id="pledge-rightcol">
