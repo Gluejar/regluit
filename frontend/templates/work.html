@@ -179,9 +179,9 @@ $j(document).ready(function(){
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments ({{comment_count}})</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters</a></li>
-                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Details</a></li>
+                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters {% if wishers > 0 %}({{ wishers }}){% endif %}</a></li>
+                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
                     </ul>
                         
                 </div>
