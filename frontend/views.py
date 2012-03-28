@@ -981,6 +981,12 @@ def supporter(request, supporter_username, template_name):
         worklist = slideshow(8)
         works = worklist[:4]
         works2 = worklist[4:8]
+        
+	# default to showing the Active tab if there are active campaigns, else show Wishlist
+    if backing > 0:
+    	activetab = "#2"
+    else:
+    	activetab = "#3"
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -1046,7 +1052,7 @@ def supporter(request, supporter_username, template_name):
             "goodreads_auth_url": reverse('goodreads_auth'),
             "goodreads_id": goodreads_id,
             "librarything_id": librarything_id,
-            "activetab": "#3"
+            "activetab": activetab
     }
     
     return render(request, template_name, context)
