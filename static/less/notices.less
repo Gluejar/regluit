@@ -1,0 +1,49 @@
+@import "variables.less";
+
+.notices_menu {
+	float: right;
+	.one-border-radius(20px);
+	background: @pale-blue;
+	padding: 10px 20px;
+	
+	a {
+		font-size: 13px;
+		font-weight: bold;
+	}
+}
+
+#js-main-container {
+	float: none !important;
+	padding-right: 15px;
+}
+
+.errorlist {
+	.errors;
+	height: auto;
+}
+
+th {
+	text-align: left;
+}
+
+tr {
+	line-height:24px;
+	
+	&.row1{
+		background: @pale-blue;
+	}
+}
+
+td {
+	padding-left: 7px;
+	padding-right: 7px;
+	
+	&#last {
+		padding: 0;
+	}
+}
+
+input[type="submit"] {
+	float: right;
+	margin-right: 0;
+}
