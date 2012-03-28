@@ -510,7 +510,7 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'faqmenu': 'pledge'})
         return context
     
     
