@@ -351,11 +351,14 @@ $j(document).ready(function(){
                 <div class="jsmod-content">
                     <ul class="support menu">
                         {% for premium in premiums %}
+            	        {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
                         <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                         <a href="{% url pledge work_id=work.id %}?premium_id={{premium.id}}">
                             <span class="menu-item-price">${{ premium.amount }}</span>
                             <span class="menu-item-desc">{{ premium.description }}</span>
+                            {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
                         </a></li>
+                        {% endif %}
                         {% endfor %}
                      </ul>
                 </div>

@@ -119,6 +119,10 @@ def isoformat(value):
     else:
         return value.isoformat()
 
+def zuluformat(value):
+    """format value in zulu format -- e.g., 2012-03-26T17:47:22.654449Z"""
+    return "{0}Z".format(as_utc_naive(value).isoformat())
+
 def as_utc_naive(value):
     """
     if value is naive, assume it's in the default time zone, then convert to UTC but make naive 

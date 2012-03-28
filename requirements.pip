@@ -19,3 +19,4 @@ freebase
 django-endless-pagination
 django-selectable
 pytz
+django-notification

@@ -155,8 +155,7 @@ def work(request, work_id, action='display'):
         claimform = None
     if campaign:
         # pull up premiums explicitly tied to the campaign or generic premiums
-        q = Q(campaign=campaign) | Q(campaign__isnull=True)
-        premiums = models.Premium.objects.filter(q).exclude(type='XX').order_by('amount')
+        premiums = campaign.effective_premiums()
     else:
         premiums = None
         
@@ -227,16 +226,12 @@ def manage_campaign(request, id):
         form = ManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
-    # pull up premiums explicitly tied to the campaign or generic premiums
-    q = Q(campaign=campaign) | Q(campaign__isnull=True)
-    premiums = models.Premium.objects.filter(q).order_by('amount')    
-
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
         'form':form, 
         'problems': campaign.problems, 
         'alerts': alerts, 
-        'premiums' : premiums,
+        'premiums' : campaign.effective_premiums(),
         'premium_form' : new_premium_form,
     })
         

@@ -1,0 +1,33 @@
+{% extends "notification/base.html" %}
+
+{% load i18n %}
+
+
+{% block head_title %}{% trans "Notices" %}{% endblock %}
+
+{% block doccontent %}
+        
+    {% if notices %}
+        <a href="{% url notification_mark_all_seen %}">{% trans "Mark all unseen notices seen" %}</a>
+        
+<br />        
+        {% for notice in notices %}
+            
+                {% if notice.is_unseen %}
+                    <div class="unseen_notice">
+                {% else %}
+                    <div class="notice">
+                {% endif %}
+                    <span class="notice_type">[{% trans notice.notice_type.display %}]</span>
+                    <span class="notice_message">{{ notice.message|safe }}</span>
+                    <span class="notice_time">{{ notice.added }}</span>
+                </div>
+<br />        
+        {% endfor %}
+        
+        
+    {% else %}
+        <p>{% trans "No notices." %}</p>
+    {% endif %}
+    
+{% endblock %}

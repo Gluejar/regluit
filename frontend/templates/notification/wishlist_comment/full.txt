@@ -1,0 +1,5 @@
+{{ comment.name }} on {{ comment.content_object.title }}
+          
+{{ comment.comment }}
+
+

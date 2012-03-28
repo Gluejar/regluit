@@ -219,6 +219,14 @@ class CampaignPledgeForm(forms.Form):
             if preapproval_amount < premium_amount:
                 logger.info("raising form validating error")
                 raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
+            try:
+                premium= Premium.objects.get(id=premium_id)
+                if premium.limit>0:
+                	if premium.limit<=premium.premium_count:
+                		raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
+            except  Premium.DoesNotExist:
+                raise forms.ValidationError(_("Sorry, that premium is not valid."))
+
         except Exception, e:
             if isinstance(e, forms.ValidationError):
                 raise e

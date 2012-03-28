@@ -115,6 +115,7 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
+    'notification',
 
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
@@ -196,6 +197,11 @@ SOUTH_TESTS_MIGRATE = True
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 
+# The amount of the transaction that Gluejar takes 
+GLUEJAR_COMMISSION = 0.06
+PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
+PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
+
 GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
 
@@ -216,3 +222,6 @@ IS_PREVIEW = True
 # set once instead of in all the templates
 JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
 JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+
+# a django-notification setting for whether to queue notifications or send_now (False)
+NOTIFICATION_QUEUE_ALL = True

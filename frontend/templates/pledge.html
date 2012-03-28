@@ -76,6 +76,7 @@
 
         	<ul class="support menu">
             	{% for premium in premiums %}
+            	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
             	<label for="{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                 	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
@@ -83,9 +84,10 @@
                     	${{ premium.amount }}
                     </span>
                 	<span class="menu-item-desc">
-                		{{ premium.description }}
+                		{{ premium.description }} {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
            		</a></li></label>
+            	{% endif %}
             	{% endfor %}
          	</ul>
 

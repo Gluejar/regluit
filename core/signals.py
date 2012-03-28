@@ -53,3 +53,27 @@ def merge_emails(sender, user, **kwargs):
         return
 
 registration.signals.user_activated.connect(merge_emails)
+
+
+from django.conf import settings
+from django.utils.translation import ugettext_noop as _
+from django.db.models import signals
+
+from notification import models as notification
+
+# create notification types (using django-notification) -- tie to syncdb
+
+def create_notice_types(app, created_models, verbosity, **kwargs):
+    notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"))
+
+signals.post_syncdb.connect(create_notice_types, sender=notification)
+
+# define the notifications and tie them to corresponding signals
+
+from django.contrib.comments.signals import comment_was_posted
+def notify_comment(comment, request, **kwargs):
+    notification.send(comment.content_object.wished_by(), "wishlist_comment", {'comment':comment}, True)
+
+comment_was_posted.connect(notify_comment)
+
+    
