@@ -30,11 +30,8 @@ def load_librarything_into_wishlist(user_id, lt_username, max_books=None):
     return librarything.load_librarything_into_wishlist(user, lt_username, max_books)
     
 @task
-def add(x,y):
-    return x+y
-
-@task
 def fac(n, sleep_interval=None):
+    # used to test celery task execution 
     if not(isinstance(n,int) and n >= 0):
         raise Exception("You can't calculate a factorial of %s " % (str(n)))
     if n <= 1:
@@ -47,3 +44,4 @@ def fac(n, sleep_interval=None):
             if sleep_interval is not None:
                 sleep(sleep_interval)
         return res
+
