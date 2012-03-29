@@ -63,7 +63,7 @@ from django.db.models import signals
 
 from notification import models as notification
 from notification.engine import send_all
-from celery.decorators import task
+from celery.task import task
 
 @task
 def emit_notifications():

@@ -1,6 +1,6 @@
 from time import sleep
 
-from celery.decorators import task
+from celery.task import task
 
 from django.contrib.auth.models import User
 
