@@ -1,24 +1,27 @@
-    {% with comment.content_object.id as id %}
-              {% with comment.user as user %}
-        <div class="comments {% cycle 'row1' 'row2' %}">
-          <div class="nonavatar">
-            <div class="image">
-                <a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}" alt="cover image" /></a>
-            </div>
-              <span><a href="{% url supporter supporter_username=user %}">{{ user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span><br />
-              
-              <span class="text">{{ comment.comment|linebreaksbr }}</span>
-           </div>
-           
-           <div class="avatar">
-              <a href="{% url supporter supporter_username=user %}">
-                {% if supporter.profile.pic_url %}
-                    <img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
-                {% else %}
-                    <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                {% endif %}
-              </a>
-           </div>
-    </div>
-              {% endwith %}
-    {% endwith %}
+{% with comment.content_object.id as id %}
+{% with comment.user as user %}
+
+<div class="comments clearfix">
+	<div class="comments_book">
+    	<a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}" alt="cover image for {{ comment.content_object.title }}" /></a>
+	</div>
+	
+	<div class="comments_info">
+		<div class="comments_graphical">
+	        <a href="{% url supporter supporter_username=user %}">
+	        	{% if supporter.profile.pic_url %}
+            		<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
+		        {% else %}
+        		    <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+		        {% endif %}
+		    </a>
+	        <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
+		</div>
+		<div class="comments_textual">
+			{{ comment.comment|linebreaksbr }}
+		</div>
+	</div>
+</div>
+
+{% endwith %}
+{% endwith %}

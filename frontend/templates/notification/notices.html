@@ -19,8 +19,10 @@
 </a>
 
     {% if notices %}
-        <a href="{% url notification_mark_all_seen %}">{% trans "Mark all unseen notices seen." %}</a>
-        
+    	<div class="notices_menu">
+	        <a href="{% url notification_mark_all_seen %}">{% trans "Mark all unseen notices seen" %}</a>
+	    </div>
+<div class="comments"></div>        
 <br />        
         {% for notice in notices %}
             
@@ -29,9 +31,7 @@
                 {% else %}
                     <div class="notice">
                 {% endif %}
-                    <span class="notice_type">[{% trans notice.notice_type.display %}]</span>
-                    <span class="notice_message">{{ notice.message|safe }}</span>
-                    <span class="notice_time">{{ notice.added }}</span>
+                    {{ notice.message|safe }}
                 </div>
 <br />        
         {% endfor %}

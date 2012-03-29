@@ -49,7 +49,7 @@ class Claim(models.Model):
     STATUSES = ((
         u'active', u'Claim has been registered and approved.'),
         (u'pending', u'Claim is pending approval.'),
-        (u'release', u'Claim has been released.'),
+        (u'release', u'Claim has not been accepted.'),
     )
     created =  models.DateTimeField(auto_now_add=True)  
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
@@ -60,7 +60,7 @@ class Claim(models.Model):
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
-    rights_holder_name = models.CharField(max_length=100, blank=True)
+    rights_holder_name = models.CharField(max_length=100, blank=False)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
     def __unicode__(self):
         return self.rights_holder_name

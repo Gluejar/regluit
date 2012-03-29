@@ -16,6 +16,7 @@
     		{% trans "See Your Notifications" %}
 		</div>
 	</a>
+<div class="comments"></div>        
 
     <div class="notice_settings">
     <p>Which notifications would you like to receive via email?</p>
@@ -47,7 +48,7 @@
         </form>
         
         {% url acct_email as email_url %}
-        <h3>Your email</h3>
+        <h4>Your email</h4>
         {% if user.email %}
             <p>
             	{{ user.email }}<br />
