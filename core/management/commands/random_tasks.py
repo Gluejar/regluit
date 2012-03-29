@@ -26,6 +26,8 @@ class Command(BaseCommand):
         d: delete all tasks
         an integer: compute factorial of the integer -- can then follow up with s to find the state 
         """
+        import django
+        django.db.transaction.enter_transaction_management()
         if action == 'c':
             for i in xrange(int(num_tasks)):
                 n = random.randint(1,1000)
@@ -56,4 +58,4 @@ class Command(BaseCommand):
                 ct.save()
             except Exception, e:
                 print e
-        
+        django.db.transaction.commit()        
