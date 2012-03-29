@@ -278,42 +278,6 @@ ul.menu {
   clear: both;
   visibility: hidden;
 }
-/* Learn More menu */
-#block-intro-text {
-  padding-right: 10px;
-}
-#block-intro-text span.def {
-  font-style: italic;
-}
-a#readon {
-  background: url("/static/images/learnmore-downarrow.png") right center no-repeat;
-  color: #fff;
-  text-transform: capitalize;
-  display: block;
-  float: right;
-  font-size: 13px;
-  font-weight: bold;
-}
-a#readon.down {
-  background: url("/static/images/learnmore-uparrow.png") right center no-repeat;
-}
-a#readon span {
-  -moz-border-radius: 32px 0 0 32px;
-  -webkit-border-radius: 32px 0 0 32px;
-  border-radius: 32px 0 0 32px;
-  background-color: #8ac3d7;
-  margin-right: 34px;
-  padding: 0 5px 0 20px;
-  height: 36px;
-  line-height: 36px;
-  display: block;
-}
-.spread_the_word {
-  height: 24px;
-  width: 24px;
-  position: top;
-  margin-left: 5px;
-}
 /* Header section */
 #js-header {
   height: 90px;
@@ -332,6 +296,7 @@ a#readon span {
 .js-topmenu ul li {
   float: left;
   padding: 0 10px;
+  position: relative;
 }
 .js-topmenu ul li a {
   color: #3d4e53;
@@ -354,6 +319,19 @@ a#readon span {
   letter-spacing: -0.05em;
   overflow: auto;
   max-width: 240px;
+}
+.js-topmenu ul li #notification_count {
+  position: absolute;
+  right: 10px;
+  top: -14px;
+  color: #e35351;
+  background-color: white;
+  border: solid 2px #e35351;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+  border-radius: 16px;
+  padding: 3px;
+  line-height: 16px;
 }
 .js-topmenu ul li.last a {
   background: url("/static/images/bg.png") right top no-repeat;
@@ -414,6 +392,42 @@ a#readon span {
   /* used solely to contain template variables for tabs.js; should not display */
 
   display: none;
+}
+/* Learn More menu */
+#block-intro-text {
+  padding-right: 10px;
+}
+#block-intro-text span.def {
+  font-style: italic;
+}
+a#readon {
+  background: url("/static/images/learnmore-downarrow.png") right center no-repeat;
+  color: #fff;
+  text-transform: capitalize;
+  display: block;
+  float: right;
+  font-size: 13px;
+  font-weight: bold;
+}
+a#readon.down {
+  background: url("/static/images/learnmore-uparrow.png") right center no-repeat;
+}
+a#readon span {
+  -moz-border-radius: 32px 0 0 32px;
+  -webkit-border-radius: 32px 0 0 32px;
+  border-radius: 32px 0 0 32px;
+  background-color: #8ac3d7;
+  margin-right: 34px;
+  padding: 0 5px 0 20px;
+  height: 36px;
+  line-height: 36px;
+  display: block;
+}
+.spread_the_word {
+  height: 24px;
+  width: 24px;
+  position: top;
+  margin-left: 5px;
 }
 /* Explore column */
 #js-leftcol {

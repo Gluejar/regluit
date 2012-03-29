@@ -193,44 +193,6 @@ ul.menu{
 	visibility: hidden;
 }
 
-/* Learn More menu */
-#block-intro-text {
-	padding-right: 10px;
-
-	span.def {
-	    font-style: italic;
-	}
-}
-
-a#readon {
-    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
-    color:#fff;
-    text-transform:capitalize;
-    display:block;
-    float:right;
-    font-size:13px;
-    font-weight:bold;
-    
-    &.down {
-	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
-    }
-
-    span {
-        .border-radius(32px, 0, 0, 32px);
-        background-color: @bright-blue;
-        margin-right:34px;
-        padding:0 5px 0 20px;
-        .height(36px);
-        display:block;        
-    }
-}
-
-.spread_the_word {
-	height: 24px;
-	width: 24px;
-	position: top;
-	margin-left:5px;
-}
 /* Header section */
 #js-header {
     height:90px;
@@ -253,6 +215,7 @@ a#readon {
         li {
             float:left;
             padding:0 10px;
+            position: relative;
             
             a {
                 color:@text-blue; 
@@ -264,9 +227,21 @@ a#readon {
                 .header-text;
                 overflow:auto;
                 //emergency backstop to prevent usernames too long for truncate filter to force header into content area
-                max-width: 240px;
+                max-width: 240px;                
             }
             
+            #notification_count {
+                position: absolute;
+                right: 10px;
+            	top: -14px;
+            	color: @alert;
+            	background-color: white;
+            	border: solid 2px @alert;
+            	.one-border-radius(16px);
+            	padding: 3px;
+            	line-height: 16px;
+            }
+
             &.last {
                 a {
                     background: url(@background-header) right top no-repeat;
@@ -336,6 +311,45 @@ a#readon {
 #locationhash {
 	/* used solely to contain template variables for tabs.js; should not display */
 	display: none;
+}
+
+/* Learn More menu */
+#block-intro-text {
+	padding-right: 10px;
+
+	span.def {
+	    font-style: italic;
+	}
+}
+
+a#readon {
+    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
+    color:#fff;
+    text-transform:capitalize;
+    display:block;
+    float:right;
+    font-size:13px;
+    font-weight:bold;
+    
+    &.down {
+	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
+    }
+
+    span {
+        .border-radius(32px, 0, 0, 32px);
+        background-color: @bright-blue;
+        margin-right:34px;
+        padding:0 5px 0 20px;
+        .height(36px);
+        display:block;        
+    }
+}
+
+.spread_the_word {
+	height: 24px;
+	width: 24px;
+	position: top;
+	margin-left:5px;
 }
 
 /* Explore column */
