@@ -1,4 +1,4 @@
-{{ comment.name }} on {{ comment.content_object.title }}
+{{ comment.user.username }} on {{ comment.content_object.title }}
           
 {{ comment.comment }}
 
