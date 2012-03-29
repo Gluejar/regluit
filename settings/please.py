@@ -118,6 +118,3 @@ LOGGING = {
 STATIC_ROOT = '/var/www/static'
 
 IS_PREVIEW = False
-
-# a django-notification setting for whether to queue notifications or send_now (False)
-NOTIFICATION_QUEUE_ALL = True

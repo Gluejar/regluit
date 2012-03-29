@@ -73,6 +73,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
     'regluit.context_processors.is_preview',
+    'regluit.context_processors.count_unseen',
 )
 
 MIDDLEWARE_CLASSES = (
