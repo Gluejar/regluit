@@ -18,27 +18,27 @@
 </div>
 </a>
 
-    {% if notices %}
-    	<div class="notices_menu">
-	        <a href="{% url notification_mark_all_seen %}">{% trans "Mark all unseen notices seen" %}</a>
-	    </div>
+{% if unseen_count > 0 %}
+    <div class="notices_menu">
+	    <a href="{% url notification_mark_all_seen %}">{% trans "Mark all notices seen" %}</a>
+	</div>
+{% endif %}
 <div class="comments"></div>        
-<br />        
-        {% for notice in notices %}
-            
-                {% if notice.is_unseen %}
-                    <div class="unseen_notice">
-                {% else %}
-                    <div class="notice">
-                {% endif %}
-                    {{ notice.message|safe }}
-                </div>
-<br />        
-        {% endfor %}
-        
-        
-    {% else %}
-        <p>{% trans "No notices." %}</p>
-    {% endif %}
+
+{% if unseen_count > 0 %}
+    {% for notice in notices %}
+        {% if notice.unseen %}
+        	{% comment %}
+        	Note: do not call is_unseen because it will mark the notification as seen,
+        	and we're leaving that up to the user.
+        	{% endcomment %}
+            <div class="notice">
+                {{ notice.message|safe }}
+            </div>
+        {% endif %}
+    {% endfor %}        
+{% else %}
+    <p>{% trans "No notices." %}</p>
+{% endif %}
     
 {% endblock %}
