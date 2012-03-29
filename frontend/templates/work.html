@@ -248,7 +248,7 @@ $j(document).ready(function(){
                   	      <p> This work has been claimed by:</p>
                     	    <ul>
                         	{% for claim in work.claim.all %}
-                            	<li>{{ claim.rights_holder.rights_holder_name }}  </li>
+                            	<li>{{ claim.rights_holder.rights_holder_name }}  <i>{{ claim.get_status_display}}</i></li>
                         	{% endfor %}
                         	</ul>
                         	{% if request.user.rights_holder.all.count %}

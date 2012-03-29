@@ -5,7 +5,7 @@
             <div class="image">
                 <a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}" alt="cover image" /></a>
             </div>
-              <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span><br />
+              <span><a href="{% url supporter supporter_username=user %}">{{ user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span><br />
               
               <span class="text">{{ comment.comment|linebreaksbr }}</span>
            </div>
