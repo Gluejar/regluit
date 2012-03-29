@@ -6,6 +6,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/lists.css">
 {% endblock %}
 {% block extra_head %}
 <script>
@@ -32,9 +33,6 @@ location.hash = "#2";
                             <div class="user-block2">With your help we're raising money to buy the rights to give these books to the world.
                             </div>
                             <div class="user-block3">
-                                <div class="user-block">
-                                <span class="rounded"><span class="orange" title="We're ungluing {{ campaign_list.count }} {% if campaign_list.count == 1 %}book{% else %}books{% endif %}."><span class="hovertext">We're ungluing&nbsp;</span>{{ campaign_list.count }}</span></span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -75,6 +73,9 @@ location.hash = "#2";
                                 </a>
                             </li>
                         </ul>
+                                <div class="badges listspage">
+                                <span class="rounded"><span class="orange" title="We're ungluing {{ campaign_list.count }} {% if campaign_list.count == 1 %}book{% else %}books{% endif %}."><span class="hovertext">We're ungluing&nbsp;</span>{{ campaign_list.count }}</span></span>
+                                </div>
                 </div>
                 <div id="content-block-content">
 					{% if is_preview == 1 %}
@@ -103,7 +104,7 @@ location.hash = "#2";
                     <div class="pagination content-block-heading tabs-1">
                         {% get_pages %}
                         {% for page in pages %}
-                            <a href="{{ page.path }}#1">{{ page.number }}</a>
+                            <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
                     {% endifequal %}

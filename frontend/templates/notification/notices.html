@@ -1,0 +1,44 @@
+{% extends "notification/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Notices" %}{% endblock %}
+
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/notices.css" />
+{% endblock %}
+
+{% block doccontent %}
+
+<h2>Notices</h2>
+        
+<a href="{% url notification_notice_settings %}">
+<div class="notices_menu">
+    {% trans "Change Settings" %}
+</div>
+</a>
+
+    {% if notices %}
+        <a href="{% url notification_mark_all_seen %}">{% trans "Mark all unseen notices seen." %}</a>
+        
+<br />        
+        {% for notice in notices %}
+            
+                {% if notice.is_unseen %}
+                    <div class="unseen_notice">
+                {% else %}
+                    <div class="notice">
+                {% endif %}
+                    <span class="notice_type">[{% trans notice.notice_type.display %}]</span>
+                    <span class="notice_message">{{ notice.message|safe }}</span>
+                    <span class="notice_time">{{ notice.added }}</span>
+                </div>
+<br />        
+        {% endfor %}
+        
+        
+    {% else %}
+        <p>{% trans "No notices." %}</p>
+    {% endif %}
+    
+{% endblock %}

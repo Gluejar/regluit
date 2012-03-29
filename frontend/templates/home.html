@@ -23,6 +23,7 @@
 </script>    
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/highlight_signup.js"></script>
 <script src="/static/js/slides.min.jquery.js"></script>
@@ -163,28 +164,8 @@
     
     <div id="js-slide">
     	<div class="js-main">
-        	<div class="jsmodule">
-            <h3><span>{% if is_preview %}Most wishlisted{% else %}Top ungluing campaigns{% endif %}</span></h3>
-            <div class="jsmod-content" id="content-block">
-                <div id="js-slideshow">
-                    <div class="slides_container">
-                        <div class="slide-page slide-page1">
-                        	{% for work in works %}
-                        	<div class="spacer">
-                        	{% include "book_panel.html" %}
-                        	</div>
-                        	{% endfor %}
-                        </div>
-                        <div class="slide-page slide-page2">
-                        	{% for work in works2 %}
-                        	<div class="spacer">
-                        	{% include "book_panel.html" %}
-                        	</div>
-                        	{% endfor %}
-                        </div>
-                    </div>
-                </div>	
-            </div>
+        	<div class="jsmodule" id="content-block">
+        	{% include "slideshow.html" %}
             </div>
         </div>
     </div>

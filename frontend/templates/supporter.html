@@ -60,6 +60,9 @@ function highlightTarget(targetdiv) {
 };
 </script>
 {% endblock %}
+{% block extra_head %}
+<link rel="alternate" type="application/atom+xml" title="feed for books from {{ supporter }}'s ungluing wishlist" href="feed" />
+{% endblock %}
 
 {% comment %}
 To do:
@@ -259,7 +262,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                         <li class="tabs3"><a href="#">Wishlisted</a></li>
                     </ul>
                     
-                    <span id="rss"><a href="feed" title="RSS feed of {{ supporter }}'s latest wishbooks" ><img src="/static/images/feedicons-standard/feed-icon-14x14.png" alt="RSS feed of {{ supporter }}'s latest wishbooks" /><span>Subscribe</span></a></span>
+                    
                 
                 		{% if not works %}
                 		{% comment %}
@@ -290,27 +293,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                 		    <div id="js-slide">
  	   							<div class="js-main">
         							<div class="jsmodule">
-            							<h3><span>{% if is_preview %}Most wishlisted{% else %}Top ungluing campaigns{% endif %}</span></h3>
-            							<div class="jsmod-content">
-                							<div id="js-slideshow">
-                    							<div class="slides_container">
-                        							<div class="slide-page slide-page1">
-                        								{% for work in works %}
-                        								<div class="spacer">
-                        									{% include "book_panel.html" %}
-                        								</div>
-                        								{% endfor %}
-                        							</div>
-                        							<div class="slide-page slide-page2">
-                        								{% for work in works2 %}
-                        								<div class="spacer">
-                        									{% include "book_panel.html" %}
-                        								</div>
-                        								{% endfor %}
-                        							</div>
-                    							</div>
-                							</div>	
-            							</div>
+        							{% include "slideshow.html" %}
             						</div>
         						</div>
     						</div>

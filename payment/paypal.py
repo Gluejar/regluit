@@ -11,7 +11,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from datetime import timedelta
-from regluit.utils.localdatetime import now, isoformat
+from regluit.utils.localdatetime import now, zuluformat
 import dateutil
 
 import dateutil.parser
@@ -60,15 +60,15 @@ IPN_PAY_STATUS_REVERSALERROR = 'REVERSALERROR'
 IPN_PAY_STATUS_PROCESSING = 'PROCESSING'
 IPN_PAY_STATUS_PENDING = 'PENDING'
 
-# particular to preapprovals -- may want to rename these constants to IPN_PREAPPROVAL_STATUS_*
+# particular to preapprovals
 # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APPreapprovalDetails
 #ACTIVE - The preapproval is active
 #CANCELED - The preapproval was explicitly canceled by the sender or by PayPal
 #DEACTIVED - The preapproval is not active; you can be reactivate it by resetting the personal identification number (PIN) or by contacting PayPal
 
-IPN_PAY_STATUS_ACTIVE = "ACTIVE"
-IPN_PAY_STATUS_CANCELED = "CANCELED"
-IPN_PAY_STATUS_DEACTIVED = "DEACTIVED"
+IPN_PREAPPROVAL_STATUS_ACTIVE = "ACTIVE"
+IPN_PREAPPROVAL_STATUS_CANCELED = "CANCELED"
+IPN_PREAPPROVAL_STATUS_DEACTIVED = "DEACTIVED"
 
 # https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_APIPN
 #COMPLETED - The sender's transaction has completed
@@ -612,8 +612,8 @@ class Preapproval( PaypalEnvelopeRequest ):
           transaction.save()
           
           data = {
-                  'endingDate': isoformat(expiry),
-                  'startingDate': isoformat(now_val),
+                  'endingDate': zuluformat(expiry),
+                  'startingDate': zuluformat(now_val),
                   'maxTotalAmountOfAllPayments': '%.2f' % transaction.amount,
                   'maxNumberOfPayments':1,
                   'maxAmountPerPayment': '%.2f' % transaction.amount,
@@ -622,7 +622,7 @@ class Preapproval( PaypalEnvelopeRequest ):
                   'cancelUrl': cancel_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
                   'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
-                  } 
+                  }
     
           # Is ipnNotificationUrl being computed properly
           # print >> sys.stderr, 'ipnNotificationUrl', settings.BASE_URL + reverse('PayPalIPN')

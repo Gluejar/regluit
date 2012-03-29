@@ -45,11 +45,11 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PAY_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PAY_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
+from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PREAPPROVAL_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -67,32 +67,32 @@ def slideshow(max):
         # on the preview site there are no active campaigns, so we should show most-wished books instead
         worklist = models.Work.objects.order_by('-num_wishes')[:max]
     else:
-    	worklist = []
-    	if max > count:
-    		# add all the works with active campaigns
-        	for campaign in ending:
-        		worklist.append(campaign.work)
-        		
-        	# then fill out the rest of the list with popular but inactive works
-        	remainder = max - count
-        	remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
-        	worklist.extend(remainder_works)
+        worklist = []
+        if max > count:
+            # add all the works with active campaigns
+            for campaign in ending:
+                worklist.append(campaign.work)
+                
+            # then fill out the rest of the list with popular but inactive works
+            remainder = max - count
+            remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+            worklist.extend(remainder_works)
         else:
-        	# if the active campaign list has more works than we can fit 
-        	# in our slideshow, it's the only source we need to draw from
-    		while j < max:
-        		worklist.append(ending[j].work)
-        		j +=1
-        		
+            # if the active campaign list has more works than we can fit 
+            # in our slideshow, it's the only source we need to draw from
+            while j < max:
+                worklist.append(ending[j].work)
+                j +=1
+                
     return worklist
 
 def next(request):
-	if request.COOKIES.has_key('next'):
-		response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
-		response.delete_cookie('next')
-		return response
-	else:
-		return HttpResponseRedirect('/')
+    if request.COOKIES.has_key('next'):
+        response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+        response.delete_cookie('next')
+        return response
+    else:
+        return HttpResponseRedirect('/')
 
 def home(request):
     if request.user.is_authenticated():
@@ -141,20 +141,21 @@ def work(request, work_id, action='display'):
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
+
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
         pubdate = 'unknown'
     if not request.user.is_anonymous():
-        claimform = UserClaimForm( request.user, data={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
+        claimform = UserClaimForm( request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
         for edition in editions:
             #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
             edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
     if campaign:
-        q = Q(campaign=campaign) | Q(campaign__isnull=True)
-        premiums = models.Premium.objects.filter(q)
+        # pull up premiums explicitly tied to the campaign or generic premiums
+        premiums = campaign.effective_premiums()
     else:
         premiums = None
         
@@ -162,23 +163,19 @@ def work(request, work_id, action='display'):
     base_url = request.build_absolute_uri("/")[:-1]
     
     
-    #may want to deprecate the following
-    if action == 'setup_campaign':
-        return render(request, 'setup_campaign.html', {'work': work})
-    else:
-        return render(request, 'work.html', {
-            'work': work, 
-            'premiums': premiums, 
-            'ungluers': userlists.supporting_users(work, 5), 
-            'claimform': claimform,
-            'wishers': wishers,
-            'base_url': base_url,
-            'editions': editions,
-            'pubdate': pubdate,
-            'pledged':pledged,
-            'activetab': activetab,
-            'alert':alert
-        })
+    return render(request, 'work.html', {
+        'work': work, 
+        'premiums': premiums, 
+        'ungluers': userlists.supporting_users(work, 5), 
+        'claimform': claimform,
+        'wishers': wishers,
+        'base_url': base_url,
+        'editions': editions,
+        'pubdate': pubdate,
+        'pledged':pledged,
+        'activetab': activetab,
+        'alert':alert
+    })
 
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
@@ -188,22 +185,55 @@ def manage_campaign(request, id):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     alerts = []   
-    if request.method == 'POST':
-        form= ManageCampaignForm(instance=campaign, data=request.POST)  
-        if form.is_valid():     
-            form.save() 
-            alerts.append(_('Campaign data has been saved'))
-        else:
-            alerts.append(_('Campaign data has NOT been saved'))
-        if 'launch' in request.POST.keys():
-            if campaign.launchable :
-                campaign.activate()
-                alerts.append(_('Campaign has been launched'))
+    if request.method == 'POST' :
+        if request.POST.has_key('add_premium') :
+            postcopy=request.POST.copy()
+            postcopy['type']='CU'
+            new_premium_form = CustomPremiumForm(data=postcopy)
+            if new_premium_form.is_valid():
+                new_premium_form.save()
+                alerts.append(_('New premium has been added'))
+                new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             else:
-                alerts.append(_('Campaign has NOT been launched'))
+                alerts.append(_('New premium has not been added'))              
+            form = ManageCampaignForm(instance=campaign)
+        elif request.POST.has_key('save') or  request.POST.has_key('launch') :
+            form= ManageCampaignForm(instance=campaign, data=request.POST)  
+            if form.is_valid():     
+                form.save() 
+                alerts.append(_('Campaign data has been saved'))
+            else:
+                alerts.append(_('Campaign data has NOT been saved'))
+            if 'launch' in request.POST.keys():
+                if campaign.launchable :
+                    campaign.activate()
+                    alerts.append(_('Campaign has been launched'))
+                else:
+                    alerts.append(_('Campaign has NOT been launched'))
+            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        elif request.POST.has_key('inactivate') :
+            if request.POST.has_key('premium_id'):
+                premiums_to_stop = request.POST['premium_id']
+                for premium_to_stop in premiums_to_stop:
+                    selected_premium = models.Premium.objects.get(id=premium_to_stop)
+                    if selected_premium.type == 'CU':
+                        selected_premium.type = 'XX'
+                        selected_premium.save()
+                        alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
+            form = ManageCampaignForm(instance=campaign)
+            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
     else:
-        form= ManageCampaignForm(instance=campaign)
-    return render(request, 'manage_campaign.html', {'campaign': campaign, 'form':form, 'problems': campaign.problems, 'alerts': alerts})
+        form = ManageCampaignForm(instance=campaign)
+        new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        
+    return render(request, 'manage_campaign.html', {
+        'campaign': campaign, 
+        'form':form, 
+        'problems': campaign.problems, 
+        'alerts': alerts, 
+        'premiums' : campaign.effective_premiums(),
+        'premium_form' : new_premium_form,
+    })
         
 def googlebooks(request, googlebooks_id):
     try: 
@@ -330,7 +360,7 @@ class PledgeView(FormView):
     embedded = False
     
     def get(self, request, *args, **kwargs):
-    # change https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
+    # change the default behavior from https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
     # don't automatically bind the data to the form on GET, only on POST
     # compare with https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L34
         form_class = self.get_form_class()
@@ -376,9 +406,18 @@ class PledgeView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
-                
-        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
+        
+        # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
+        
+        premium_id = form.cleaned_data["premium_id"]
+        # confirm that the premium_id is a valid one for the campaign in question
+        try:
+            premium = models.Premium.objects.get(id=premium_id)
+            if not (premium.campaign is None or premium.campaign == campaign):
+                 premium = None
+        except models.Premium.DoesNotExist, e:
+            premium = None
         
         p = PaymentManager(embedded=self.embedded)
                     
@@ -397,7 +436,7 @@ class PledgeView(FormView):
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
@@ -406,7 +445,7 @@ class PledgeView(FormView):
             cancel_url = None
             
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous)
+                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)
         
         if url:
             logger.info("PledgeView paypal: " + url)
@@ -417,21 +456,133 @@ class PledgeView(FormView):
             logger.info("PledgeView paypal: Error " + str(t.reference))
             return HttpResponse(response)
 
+class PledgeModifyView(FormView):
+    """
+    A view to handle request to change an existing pledge
+    """
+    template_name="pledge_modify.html"
+    form_class = CampaignPledgeForm
+    embedded = False
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(PledgeModifyView, self).get_context_data(**kwargs)
+        
+        # the following should be true since PledgeModifyView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user
+        
+        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        
+        try:
+            campaign = work.last_campaign()
+            premiums = campaign.effective_premiums()
+            
+            # which combination of campaign and transaction status required?
+            # Campaign must be ACTIVE
+            assert campaign.status == 'ACTIVE'
+        
+            transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+            assert transactions.count() == 1
+            transaction = transactions[0]
+            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PREAPPROVAL_STATUS_ACTIVE
+           
+        except Exception, e:
+            raise e
+        
+        # what stuff do we need to pull out to populate form?
+        # preapproval_amount, premium_id (which we don't have stored yet)
+        if transaction.premium is not None:
+            premium_id = transaction.premium.id
+        else:
+            premium_id = None
+        
+        # is there a Transaction for an ACTIVE campaign for this
+        # should make sure Transaction is modifiable.
+        
+        preapproval_amount = transaction.amount      
+        data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
+        
+        # initialize form with the current state of the transaction if the current values empty
+        form = kwargs['form']
+        
+        if not(form.is_bound):
+            form_class = self.get_form_class()
+            form = form_class(initial=data)
+    
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
+        return context
+    
+    
+    def form_invalid(self, form):
+        logger.info("form.non_field_errors: {0}".format(form.non_field_errors()))
+        response =  self.render_to_response(self.get_context_data(form=form))
+        return response
+        
+    def form_valid(self, form):
+        
+        # What are the situations we need to deal with?
+        # 2 main situations:  if the new amount is less than max_amount, no need to go out to PayPal again
+        # if new amount is greater than max_amount...need to go out and get new approval.
+        # to start with, we can use the standard pledge_complete, pledge_cancel machinery
+        # might have to modify the pledge_complete, pledge_cancel because the messages are going to be
+        # different because we're modifying a pledge rather than a new one.
+        
+        work_id = self.kwargs["work_id"]
+        preapproval_amount = form.cleaned_data["preapproval_amount"]
+        anonymous = form.cleaned_data["anonymous"]
+ 
+        assert self.request.user.is_authenticated()
+        user = self.request.user       
+                
+        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
+        campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
+        assert campaign.status == 'ACTIVE'
+    
+        premium_id = form.cleaned_data["premium_id"]
+        # confirm that the premium_id is a valid one for the campaign in question
+        try:
+            premium = models.Premium.objects.get(id=premium_id)
+            if not (premium.campaign is None or premium.campaign == campaign):
+                 premium = None
+        except models.Premium.DoesNotExist, e:
+            premium = None
+    
+        transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+        assert transactions.count() == 1
+        transaction = transactions[0]
+        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PREAPPROVAL_STATUS_ACTIVE        
+        
+        p = PaymentManager(embedded=self.embedded)
+        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium)
+        
+        logger.info("status: {0}, url:{1}".format(status, url))
+        
+        if status and url is not None:
+            logger.info("PledgeModifyView paypal: " + url)
+            return HttpResponseRedirect(url)
+        elif status and url is None:
+            # let's use the pledge_complete template for now and maybe look into customizing it.
+            return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
+        else:
+            return HttpResponse("No modication made")
+
+
 class PledgeCompleteView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
     
     Possible things to implement:
     
-    after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
-study other confirmation emails for their contents
-after pledging, supporters are returned to a thank-you screen
-should have prominent "thank you" or "congratulations" message
-should have prominent share options
-should suggest other works for supporters to explore (on what basis?)
-link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
-should note that a confirmation email has been sent to $email from $sender
-should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
-    
+        after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
+    study other confirmation emails for their contents
+    after pledging, supporters are returned to a thank-you screen
+    should have prominent "thank you" or "congratulations" message
+    should have prominent share options
+    should suggest other works for supporters to explore (on what basis?)
+    link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
+    should note that a confirmation email has been sent to $email from $sender
+    should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
+        
     """
     
     template_name="pledge_complete.html"
@@ -467,8 +618,12 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
         try:
             if user.id == transaction.user.id:
                 correct_user = True
+            else:
+                # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
+                raise Http404
         except Exception, e:
-            pass
+            raise Http404
+            
             
         # check that the user had not already approved the transaction
         # do we need to first run PreapprovalDetails to check on the status
@@ -484,13 +639,19 @@ should briefly note next steps (e.g. if this campaign succeeds you will be email
         if user is not None and correct_user and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
-        
+            
+        worklist = slideshow(8)
+        works = worklist[:4]
+        works2 = worklist[4:8]
+
         context["transaction"] = transaction
         context["correct_user"] = correct_user
         context["correct_transaction_type"] = correct_transaction_type
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
+        context["works"] = works
+        context["works2"] = works2        
         
         return context        
                 
@@ -606,15 +767,15 @@ def claim(request):
         data = request.GET
     else:
         data =  request.POST
-    form =  UserClaimForm(request.user, data=data)
+    form =  UserClaimForm(request.user, data=data, prefix='claim')
     if form.is_valid():
         # make sure we're not creating a duplicate claim
-        if not models.Claim.objects.filter(work=data['work'], rights_holder=data['rights_holder'], status='pending').count():
+        if not models.Claim.objects.filter(work=data['claim-work'], rights_holder=data['claim-rights_holder'], status='pending').count():
             form.save()
-        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['work']}))
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['claim-work']}))
     else:
-        work = models.Work.objects.get(id=data['work'])
-        rights_holder = models.RightsHolder.objects.get(id=data['rights_holder'])
+        work = models.Work.objects.get(id=data['claim-work'])
+        rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
         context = {'form': form, 'work': work, 'rights_holder':rights_holder }
         return render(request, "claim.html", context)
 
@@ -694,7 +855,7 @@ def campaign_admin(request):
         # pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
         # Campaign.objects.filter(transaction__status='ACTIVE')
         
-        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_ACTIVE)
+        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_ACTIVE)
             
         # pull out Campaigns with Transactions that are INCOMPLETE
     
@@ -706,7 +867,7 @@ def campaign_admin(request):
         
         # show Campaigns with Transactions that are CANCELED
         
-        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_CANCELED)
+        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_CANCELED)
         
         return (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
                 campaigns_with_canceled_transactions)
@@ -820,6 +981,12 @@ def supporter(request, supporter_username, template_name):
         worklist = slideshow(8)
         works = worklist[:4]
         works2 = worklist[4:8]
+        
+	# default to showing the Active tab if there are active campaigns, else show Wishlist
+    if backing > 0:
+    	activetab = "#2"
+    else:
+    	activetab = "#3"
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -885,7 +1052,7 @@ def supporter(request, supporter_username, template_name):
             "goodreads_auth_url": reverse('goodreads_auth'),
             "goodreads_id": goodreads_id,
             "librarything_id": librarything_id,
-            "activetab": "#3"
+            "activetab": activetab
     }
     
     return render(request, template_name, context)
@@ -1413,26 +1580,35 @@ def emailshare(request):
     else:
         try:
             next = request.GET['next']
-            work_id = next.split('/')[-2]
-            work_id = int(work_id)
-            book = models.Work.objects.get(pk=work_id)
-            title = book.title
-            # if title requires unicode let's ignore it for now
-            try:
-            	title = ', '+str(title)+', '
-            except:
-            	title = ' '
-            try:
-            	status = book.last_campaign().status
-            except:
-            	status = None
-            
-            # customize the call to action depending on campaign status
-            if status == 'ACTIVE':
-                message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+            if "pledge" in request.path:
+            	work_id = next.split('=')[1]
+            	book = models.Work.objects.get(pk=int(work_id))
+            	title = book.title
+            	message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.It: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
+            	subject = "Help me unglue "+title
             else:
-	        	message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: '+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'
-            form = EmailShareForm(initial={'next':next, 'subject': 'Come see one of my favorite books on Unglue.It', 'message': message})
+            	work_id = next.split('/')[-2]
+            	work_id = int(work_id)
+            	book = models.Work.objects.get(pk=work_id)
+            	title = book.title
+            	# if title requires unicode let's ignore it for now
+            	try:
+            		title = ', '+str(title)+', '
+            	except:
+            		title = ' '
+            	try:
+            		status = book.last_campaign().status
+            	except:
+            		status = None
+            
+            	# customize the call to action depending on campaign status
+            	if status == 'ACTIVE':
+            		message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+            	else:
+            		message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'	
+            	subject = 'Come see one of my favorite books on Unglue.It'
+            	
+            form = EmailShareForm(initial={'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
             sender = ''

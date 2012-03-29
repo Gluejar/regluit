@@ -5,7 +5,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, get_model
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -66,12 +66,22 @@ class RightsHolder(models.Model):
         return self.rights_holder_name
     
 class Premium(models.Model):
-    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'),(u'XX', u'Inactive'))
     created =  models.DateTimeField(auto_now_add=True)  
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description =  models.TextField(null=True, blank=False)
+    limit = models.IntegerField(default = 0)
+
+    @property
+    def premium_count(self):
+        t_model=get_model('payment','Transaction')
+        return t_model.objects.filter(premium=self).count()
+    @property
+    def premium_remaining(self):
+        t_model=get_model('payment','Transaction')
+        return self.limit - t_model.objects.filter(premium=self).count()
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -81,11 +91,20 @@ class CampaignAction(models.Model):
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
     
 class Campaign(models.Model):
+    LICENSE_CHOICES = (('CC BY-NC-ND','CC BY-NC-ND'), 
+            ('CC BY-ND','CC BY-ND'), 
+            ('CC BY','CC BY'), 
+            ('CC BY-NC','CC BY-NC'),
+            ( 'CC BY-NC-SA','CC BY-NC-SA'),
+            ( 'CC BY-SA','CC BY-SA'),
+            ( 'CC0','CC0'),
+        )
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = models.TextField(null=True, blank=False)
     details = models.TextField(null=True, blank=False)
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
@@ -203,11 +222,9 @@ class Campaign(models.Model):
         return translist
 
     def effective_premiums(self):
-        """returns either the custom premiums for Campaign or any default premiums"""
-        premiums = self.premiums.all()
-        if premiums.count() == 0:
-            premiums = Premium.objects.filter(campaign__isnull=True)
-        return premiums
+        """returns  the available premiums for the Campaign including any default premiums"""
+        q = Q(campaign=self) | Q(campaign__isnull=True)
+        return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
         
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib
@@ -594,7 +611,6 @@ class Wishlist(models.Model):
     def add_work(self, work, source):
         try:
             w = Wishes.objects.get(wishlist=self,work=work)
-            w.source=source
         except:
             Wishes.objects.create(source=source,wishlist=self,work=work) 
             work.update_num_wishes()       

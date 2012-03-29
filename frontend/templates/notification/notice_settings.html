@@ -1,0 +1,68 @@
+{% extends "notification/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Notification Settings" %}{% endblock %}
+
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/notices.css" />
+{% endblock %}
+
+{% block doccontent %}
+    <h2>{% trans "Settings" %}</h2>
+        
+    <a href="{% url notification_notices %}">
+		<div class="notices_menu">
+    		{% trans "See Your Notifications" %}
+		</div>
+	</a>
+
+    <div class="notice_settings">
+    <p>Which notifications would you like to receive via email?</p>
+        <form method="POST" action="">
+            {% csrf_token %}
+            <table class="notice_settings table table-striped">
+                <tr>
+                    <th>{% trans "Notification Type" %}</th>
+                    {% for header in notice_settings.column_headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in notice_settings.rows %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td>{% trans row.notice_type.display %}<br/>
+                            <span class="notice_type_description">{% trans row.notice_type.description %}</span>
+                        </td>
+                        {% for cell in row.cells %}
+                            <td>
+                                <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes"{% endif %}/>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
+                </tr>
+            </table>
+        </form>
+        
+        {% url acct_email as email_url %}
+        <h3>Your email</h3>
+        {% if user.email %}
+            <p>
+            	{{ user.email }}<br />
+            </p>
+            <p>
+                ({% blocktrans %}You can change this under <a href="{{ email_url }}">Account</a>.{% endblocktrans %})
+            </p>
+        {% else %}
+            <div class="errorlist">
+                {% blocktrans %}
+                You do not have a verified email address to which notices can be sent.
+                You can add one by going to <a href="{{ email_url }}">Account</a>.
+                {% endblocktrans %}
+            </div>
+        {% endif %}
+
+    </div>
+{% endblock %}

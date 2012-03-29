@@ -101,7 +101,7 @@ $j(document).ready(function(){
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
-                          	<div class="btn_support modify"><form action="/stub/modify_pledge" method="get"><input type="submit" value="Change Pledge"/></form></div>
+                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Change Pledge"/></form></div>
                           {% else %}
                           	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
                           {% endif %}
@@ -179,9 +179,9 @@ $j(document).ready(function(){
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments ({{comment_count}})</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters</a></li>
-                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Details</a></li>
+                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters {% if wishers > 0 %}({{ wishers }}){% endif %}</a></li>
+                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
                     </ul>
                         
                 </div>
@@ -197,7 +197,7 @@ $j(document).ready(function(){
                             {{ claim.rights_holder.rights_holder_name }} 
                             {% endif %} 
                         {% endfor %}
-                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
                         {{ work.last_campaign.description|safe }}
                         {% else %}
@@ -248,7 +248,7 @@ $j(document).ready(function(){
                   	      <p> This work has been claimed by:</p>
                     	    <ul>
                         	{% for claim in work.claim.all %}
-                            	<li>{{ claim.rights_holder.rights_holder_name }}  </li>
+                            	<li>{{ claim.rights_holder.rights_holder_name }}  <i>{{ claim.get_status_display}}</i></li>
                         	{% endfor %}
                         	</ul>
                         	{% if request.user.rights_holder.all.count %}
@@ -351,12 +351,14 @@ $j(document).ready(function(){
                 <div class="jsmod-content">
                     <ul class="support menu">
                         {% for premium in premiums %}
+            	        {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
                         <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                         <a href="{% url pledge work_id=work.id %}?premium_id={{premium.id}}">
                             <span class="menu-item-price">${{ premium.amount }}</span>
                             <span class="menu-item-desc">{{ premium.description }}</span>
-                            {% ifequal premium.type 'CU' %}<span class="custom-premium">exclusive!</span>{% endifequal %}
+                            {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
                         </a></li>
+                        {% endif %}
                         {% endfor %}
                      </ul>
                 </div>

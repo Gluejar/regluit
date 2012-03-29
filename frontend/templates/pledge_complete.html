@@ -4,6 +4,21 @@
 
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
+
+<script src="/static/js/slides.min.jquery.js"></script>
+<script src="/static/js/slideshow.js"></script>
+
+<!-- toggle to panelview state instead of listview default -->
+<script type="text/javascript">
+	jQuery(document).ready(function($) { 
+        $('.listview').addClass("panelview").removeClass("listview");
+    });    
+</script>    
+
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
 {% endblock %}
 
 {% comment %}
@@ -12,24 +27,41 @@ we need the share options and also something like the home page slide show to gi
 {% endcomment %}
 
 {% block doccontent %}
+<div class="clearfix">
+<div id="pledge-maincol">
 
     <p class="thank-you">Thank you!</p>
-    <p>You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
-    <p>If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline}},
-    your PayPal account will be charged for your pledge amount of ${{transaction.amount}}.</p>
-    <div>Please tell your friends about this campaign:</div>
-            <div class="jsmodule">
-                <!--<h3 class="jsmod-title"><span>Share</span></h3>-->
-                <div class="jsmod-content">
-                    <ul class="social menu">
-                        <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
-                        <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit"><li class="twitter"><span>Twitter</span></li></a>
-                        {% if request.user.is_authenticated %}<a href="{% url emailshare %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
-                        <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>                   
-                    </ul>
-                    <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
-                </div>
+    <p class="pledge_complete">You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
+    <p class="pledge_complete">If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline|date:"F d, Y"}},
+    your PayPal account will be charged ${{transaction.amount}}.</p>
+    <p class="pledge_complete">Please help <a href="{% url work work.id %}">{{work.title}}</a> again by telling your friends!</p>
+    <p class="pledge_complete">Looking for another campaign? Try one of these.</p>
+</div>
+
+<div id="pledge-rightcol">
+	<div class="js-rightcol-pad rounded">
+        <div class="jsmodule">
+            <div class="jsmod-content">
+                <h3 class="jsmod-title"><span>Share</span></h3>
+                <ul class="social menu">
+                    <a href="https://www.facebook.com/sharer.php?u={% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
+                    <a href="https://twitter.com/intent/tweet?url={% url work work.id|urlencode:"" %}&amp;text=I%20just%20pledged%20to%20unglue%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+                    <a href="{% url emailshare %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>
+                    <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
+                </ul>
+                
+                <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
             </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div id="js-slide">
+	<div class="jsmodule">
+		{% include "slideshow.html" %}
+	</div>
+</div>
 
 {% endblock %}
 

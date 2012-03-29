@@ -311,12 +311,12 @@ ul.tabs li a:hover, ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
 }
-#js-rightcol {
+#js-rightcol, #pledge-rightcol {
   float: right;
   width: 235px;
   margin-bottom: 20px;
 }
-#js-rightcol h3.jsmod-title {
+#js-rightcol h3.jsmod-title, #pledge-rightcol h3.jsmod-title {
   background: #a7c1ca;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
@@ -328,13 +328,18 @@ ul.tabs li a:hover, ul.tabs li.active a {
   margin: 0 0 10px 0;
   color: white;
 }
-#js-rightcol h3.jsmod-title span {
+#js-rightcol h3.jsmod-title span, #pledge-rightcol h3.jsmod-title span {
   padding: 0;
   color: #fff;
   font-style: normal;
+  height: 22px;
+  line-height: 22px;
 }
-#js-rightcol .jsmodule {
+#js-rightcol .jsmodule, #pledge-rightcol .jsmodule {
   margin-bottom: 10px;
+}
+#pledge-rightcol {
+  margin-top: 7px;
 }
 .js-rightcol-pad {
   border: 1px solid #d6dde0;
@@ -354,6 +359,11 @@ ul.tabs li a:hover, ul.tabs li.active a {
   background: none;
   padding: 0;
 }
+#pledge-maincol {
+  float: left;
+  width: 450px;
+  padding-right: 15px;
+}
 div#content-block-content {
   padding-left: 5px;
 }
@@ -371,9 +381,13 @@ ul.social a:hover {
   text-decoration: none;
 }
 ul.social li {
-  padding: 5px 0 5px 30px;
+  padding: 5px 0 5px 30px !important;
   height: 28px;
-  line-height: 28px;
+  line-height: 28px !important;
+  margin: 0 !important;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
 }
 ul.social li.facebook {
   background: url("/static/images/icons/facebook.png") 10px center no-repeat;
@@ -534,6 +548,7 @@ a {
 .thank-you {
   font-size: 18px;
   font-weight: bold;
+  margin: 20px auto;
 }
 .work_supporter {
   height: auto;
@@ -590,4 +605,7 @@ a {
 .errorlist .errorlist li li {
   list-style: none;
   border: none;
+}
+#js-slide .jsmodule {
+  width: 660px !important;
 }

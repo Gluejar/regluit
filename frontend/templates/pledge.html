@@ -18,25 +18,7 @@
         <h2 class="book-name">{{ work.title }}</h2>
         <h3 class="book-author">{{ work.author }}</h3>
         <h3 class="book-year">{{ work.publication_date }}</h3>
-        
-        <div class="find-book">
-            <label>Find it here</label>
-            
-            <div class="find-link">
-                <a class="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
-                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary"></a>
-
-                {% if not request.user.is_anonymous %}
-                {% if request.user.profile.goodreads_user_link %}
-                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads" alt="Find on GoodReads"></a>
-                {% endif %}
-                {% if request.user.profile.librarything_id %}
-                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
-                {% endif %}
-                {% endif %}
-            </div>
-        </div>
-        
+                
         <div class="pledged-info">
         	<div class="pledged-group">
         		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
@@ -62,7 +44,7 @@
     	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
     	{% endcomment %}	
 	
-    	<form method="POST" action="{% url pledge work_id=work.id %}">
+    	<form class="pledgeform" method="POST" action="{% url pledge work_id=work.id %}">
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	{{ form.preapproval_amount.errors }}
@@ -76,16 +58,18 @@
 
         	<ul class="support menu">
             	{% for premium in premiums %}
+            	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
             	<label for="{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" value="{{premium.id}}" id="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %}" />
+                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium.amount }}
                     </span>
                 	<span class="menu-item-desc">
-                		{{ premium.description }}
+                		{{ premium.description }} {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
            		</a></li></label>
+            	{% endif %}
             	{% endfor %}
          	</ul>
 
