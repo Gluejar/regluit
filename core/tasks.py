@@ -31,10 +31,12 @@ def load_librarything_into_wishlist(user_id, lt_username, max_books=None):
     
 @task
 def add(x,y):
+    """trivial task to add two numbers:  don't delete this for now -- used in tests for learning about celery"""
     return x+y
 
 @task
 def fac(n, sleep_interval=None):
+    """a task used in core.tests.CeleryTaskTest to show example of how to report progress in tasks"""
     if not(isinstance(n,int) and n >= 0):
         raise Exception("You can't calculate a factorial of %s " % (str(n)))
     if n <= 1:
