@@ -1,4 +1,6 @@
 from time import sleep
+import logging
+logger = logging.getLogger(__name__)
 
 from celery.task import task
 
@@ -45,3 +47,9 @@ def fac(n, sleep_interval=None):
                 sleep(sleep_interval)
         return res
 
+from notification.engine import send_all
+ 
+@task
+def emit_notifications():
+    logger.info('notifications emitting' )
+    send_all()

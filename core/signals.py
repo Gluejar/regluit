@@ -7,7 +7,6 @@ from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
-#from regluit.core import tasks
 
 import registration.signals
 
@@ -62,12 +61,6 @@ from django.utils.translation import ugettext_noop as _
 from django.db.models import signals
 
 from notification import models as notification
-from notification.engine import send_all
-from celery.task import task
-
-@task
-def emit_notifications():
-    send_all()
 
 # create notification types (using django-notification) -- tie to syncdb
 
@@ -79,12 +72,16 @@ signals.post_syncdb.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
 
-from django.contrib.comments.signals import comment_was_posted
+from  django.contrib.comments.signals import comment_was_posted
+
 def notify_comment(comment, request, **kwargs):
+    logger.info('comment %s notifying' % comment.pk)
     other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user.id)
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
     notification.queue(other_commenters, "coment_on_commented", {'comment':comment}, True)
     notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
-    emit_notifications.delay()
+    import regluit.core.tasks as tasks 
+    tasks.emit_notifications.delay()
+
 comment_was_posted.connect(notify_comment)
 
