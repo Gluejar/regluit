@@ -73,6 +73,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
     'regluit.context_processors.is_preview',
+    'regluit.context_processors.count_unseen',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -223,5 +224,3 @@ IS_PREVIEW = True
 JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
 JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
 
-# a django-notification setting for whether to queue notifications or send_now (False)
-NOTIFICATION_QUEUE_ALL = True

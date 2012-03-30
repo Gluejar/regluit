@@ -1,0 +1,31 @@
+{% comment %}
+Note: this is NOT intended to render notices
+
+This is a model to use as a base for notice.html templates.
+Copy/paste from here to your desired notice.html and fill in the specific content.
+Using this template will allow notices.css to apply to all notices for a uniform style.
+{% endcomment %}
+
+<div class="comments clearfix">
+	<div class="comments_book">
+		{% comment %}
+		Your cover image goes here.
+		{% endcomment %}
+	</div>
+	
+	<div class="comments_info">
+		<div class="comments_graphical">
+			{% comment %}
+			This is where you put graphics-oriented header info for the notice.
+			Examples include user avatars and campaign status icons.
+			Some text is OK.
+			{% endcomment %}
+		</div>
+		<div class="comments_textual">
+			{% comment %}
+			This is where you put the textual part of your message.
+			Examples include the text of comments, details about credit card charges, etc.
+			{% endcomment %}
+		</div>
+	</div>
+</div>

@@ -96,6 +96,7 @@
   border-radius: 20px;
   background: #edf3f4;
   padding: 10px 20px;
+  margin: -15px auto 7px 7px;
 }
 .notices_menu a {
   font-size: 13px;
@@ -123,6 +124,7 @@
   list-style: none;
   border: none;
 }
+/* notice_settings */
 th {
   text-align: left;
 }
@@ -142,4 +144,26 @@ td#last {
 input[type="submit"] {
   float: right;
   margin-right: 0;
+}
+/* comment containers */
+.comments {
+  border: solid 3px #d6dde0;
+  margin: 3px auto;
+}
+.comments .comments_book {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+  float: left;
+  margin: 5px;
+}
+.comments .comments_info {
+  float: left;
+}
+.comments .comments_info .comments_graphical {
+  border-bottom: solid 1px #d6dde0;
+  margin: 5px;
+  padding-bottom: 5px;
+}
+.comments .comments_info .comments_textual {
+  margin: auto 5px;
 }

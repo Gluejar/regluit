@@ -150,7 +150,7 @@
                                 	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username|truncatechars:20}}</a> is Wishing For</p>
                                     <a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
                                 </div>
-                                <div class="user-book-thumb"><a class="user-book-name" href="{% url work event.work.id %}"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="Very Long Book Title" /></a></div>
+                                <div class="user-book-thumb"><a class="user-book-name" href="{% url work event.work.id %}"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="{{ event.work.title }}" /></a></div>
                             </li>
                         {% endfor %}
                         </ul>
