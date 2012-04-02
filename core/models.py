@@ -26,7 +26,7 @@ class CeleryTask(models.Model):
     active = models.NullBooleanField(default=True) 
 
     def __unicode__(self):
-        return "Task %s arg:%d ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
+        return "Task %s arg:%s ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
 
     @property
     def AsyncResult(self):
