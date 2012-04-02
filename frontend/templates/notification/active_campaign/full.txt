@@ -1,1 +1,17 @@
-Congratulations, you wished for it, and now there is an Active Campaign for **WORK** to be Unglued.
+Congratulations, you wished for it, and now there is an active Campaign for {{ work.title }} to be Unglued.  If ungluers like you pledge {{ campaign.target }} by {{ campaign.deadline }}, this book will be released under a Creative Commons license for everyone to enjoy.
+
+You can help!
+
+{% comment %}
+<a href="https://{{ site.domain }}/pledge/{{ work.id }}">Pledge</a> toward ungluing.
+
+Tell your friends -- there are handy share options on the <a href="https://{{ site.domain }}/work/{{ work.id }}">campaign page</a>.  There's even a widget you can put on your blog or home page.
+
+<a href="https://{{ site.domain }}/work/{{ work.id }}?tab=2">Join the discussion</a>: share why you love {{ work.title }} and the world will too.
+
+i'm pretty sure the slashes are breaking the send
+{% endcomment %}
+
+Thank you!
+
+{{ rightsholder }} (rights holder for {{ work.title }}) and the Unglue.It Team

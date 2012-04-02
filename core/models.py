@@ -174,14 +174,17 @@ class Campaign(models.Model):
         return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
                                 completed=completed)
         
+    
     def activate(self):
+        from django.db.models.signals import post_save
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        return self   
+        post_save.send(sender=self, instance=self)
+        return self
 
     def suspend(self, reason):
         status = self.status

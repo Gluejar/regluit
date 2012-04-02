@@ -74,6 +74,7 @@ def emit_notifications():
 def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"))
     notification.create_notice_type("coment_on_commented", _("Comment on Commented Work"), _("a comment has been received on a book that you've commented on"))
+    notification.create_notice_type("active_campaign", _("New Campaign"), _("a book you've wishlisted has a newly launched campaign"))
 
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -88,3 +89,20 @@ def notify_comment(comment, request, **kwargs):
     emit_notifications.delay()
 comment_was_posted.connect(notify_comment)
 
+from regluit.core.models import Campaign
+def notify_active_campaign(sender, **kwargs):
+	# what sort of error handling do I need to do here? any?
+	# how do I both ensure that the status is active AND that it was just made active?
+	# do i need to send that with the signal?
+	# let's do the basic version for now and then ask for guidance on style, error-checking
+	# logging?
+	campaign = kwargs.get('instance')
+	print "i'm in ur function launchin ur "+campaign.name
+	work = campaign.work
+	# assumes only one active claim per campaign. safe?
+	rightsholder = work.claim.filter(status="active")[0].rights_holder.rights_holder_name
+	# is this distinct?
+	ungluers = work.wished_by()
+	notification.queue(ungluers, "active_campaign", {'campaign':campaign, 'work':work, 'rightsholder':rightsholder}, True)
+	emit_notifications.delay()
+signals.post_save.connect(notify_active_campaign, sender=Campaign)
