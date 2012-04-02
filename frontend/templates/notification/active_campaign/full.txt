@@ -2,15 +2,11 @@ Congratulations, you wished for it, and now there is an active Campaign for {{ w
 
 You can help!
 
-{% comment %}
-<a href="https://{{ site.domain }}/pledge/{{ work.id }}">Pledge</a> toward ungluing.
+<a href="{% url pledge work_id=work.id %}">Pledge</a> toward ungluing.
 
-Tell your friends -- there are handy share options on the <a href="https://{{ site.domain }}/work/{{ work.id }}">campaign page</a>.  There's even a widget you can put on your blog or home page.
+Tell your friends -- there are handy share options on the <a href="{% url work work.id %}">campaign page</a>.  There's even a widget you can put on your blog or home page.
 
-<a href="https://{{ site.domain }}/work/{{ work.id }}?tab=2">Join the discussion</a>: share why you love {{ work.title }} and the world will too.
-
-i'm pretty sure the slashes are breaking the send
-{% endcomment %}
+<a href="{% url work work.id %}?tab=2">Join the discussion</a>: share why you love {{ work.title }} and the world will too.
 
 Thank you!
 

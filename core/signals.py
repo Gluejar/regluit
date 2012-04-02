@@ -74,7 +74,7 @@ signals.post_syncdb.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
 
-from  django.contrib.comments.signals import comment_was_posted
+from django.contrib.comments.signals import comment_was_posted
 
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
@@ -92,15 +92,13 @@ def notify_active_campaign(sender, **kwargs):
 	# what sort of error handling do I need to do here? any?
 	# how do I both ensure that the status is active AND that it was just made active?
 	# do i need to send that with the signal?
-	# let's do the basic version for now and then ask for guidance on style, error-checking
 	# logging?
 	campaign = kwargs.get('instance')
-	print "i'm in ur function launchin ur "+campaign.name
 	work = campaign.work
 	# assumes only one active claim per campaign. safe?
 	rightsholder = work.claim.filter(status="active")[0].rights_holder.rights_holder_name
-	# is this distinct?
 	ungluers = work.wished_by()
 	notification.queue(ungluers, "active_campaign", {'campaign':campaign, 'work':work, 'rightsholder':rightsholder}, True)
-	emit_notifications.delay()
+	import regluit.core.tasks as tasks 
+	tasks.emit_notifications.delay()
 signals.post_save.connect(notify_active_campaign, sender=Campaign)
