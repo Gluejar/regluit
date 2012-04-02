@@ -144,17 +144,19 @@ class Campaign(models.Model):
 
     
     def update_status(self):
-        """  updates the campaign's status. returns true if updated
+        """Updates the campaign's status. returns true if updated.  Computes SUCCESSFUL or UNSUCCESSFUL only after the deadline has passed
+          
         """
         if not self.status=='ACTIVE':
             return False
-        elif self.deadline < now():
+        elif self.deadline > now():
             if self.current_total >= self.target:
                 self.status = 'SUCCESSFUL'
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
                 action.save()
+                regluit.core.signals.successful_campaign.send(sender=None,campaign=self)
             else:
-                self.status =  'UNSUCCESSFUL'
+                self.status = 'UNSUCCESSFUL'
                 action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
                 action.save()
             self.save()

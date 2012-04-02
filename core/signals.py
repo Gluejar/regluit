@@ -1,15 +1,22 @@
 from django.db.models import get_model
 from django.db.utils import DatabaseError
+from django.db.models import signals
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
+from django.dispatch import Signal
+from django.contrib.sites.models import Site
+from django.conf import settings
+from django.utils.translation import ugettext_noop as _
+
+from notification import models as notification
 
 from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
-
 import registration.signals
 
+import itertools
 import logging
 logger = logging.getLogger(__name__)
 
@@ -55,19 +62,12 @@ def merge_emails(sender, user, **kwargs):
 
 registration.signals.user_activated.connect(merge_emails)
 
-
-from django.conf import settings
-from django.utils.translation import ugettext_noop as _
-from django.db.models import signals
-
-from notification import models as notification
-
-
 # create notification types (using django-notification) -- tie to syncdb
 
 def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"))
     notification.create_notice_type("coment_on_commented", _("Comment on Commented Work"), _("a comment has been received on a book that you've commented on"))
+    notification.create_notice_type("successful_campaign", _("Successful Campaign"), _("a campaign that you have supported or followed has succeeded"))
 
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -86,3 +86,20 @@ def notify_comment(comment, request, **kwargs):
 
 comment_was_posted.connect(notify_comment)
 
+# Successful campaign signal
+# https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/db/models/signals.py
+
+successful_campaign = Signal(providing_args=["campaign"])
+
+def notify_successful_campaign(campaign, **kwargs):
+    """send notification in response to successful campaign"""
+    logger.info('received successful_campaign signal for {0}'.format(campaign))
+    # supporters and staff -- though it might be annoying for staff to be getting all these notices!
+    staff = User.objects.filter(is_staff=True)
+    supporters = (User.objects.get(id=k) for k in campaign.supporters())
+    
+    site = Site.objects.get_current()
+    notification.queue(itertools.chain(staff, supporters), "successful_campaign", {'campaign':campaign, 'site':site}, True)
+    
+# successful_campaign -> send notices    
+successful_campaign.connect(notify_successful_campaign)
