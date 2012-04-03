@@ -674,9 +674,17 @@ def facebook_extra_values(sender, user, response, details, **kwargs):
     return True
 
 def twitter_extra_values(sender, user, response, details, **kwargs):
+    import requests, urllib
+    
     twitter_id = response.get('screen_name')
     user.profile.twitter_id = twitter_id
-    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    try:
+        r = requests.get("https://api.twitter.com/1/users/profile_image?{0}".format(urllib.urlencode({'screen_name':twitter_id, 'size':'normal'})))
+        if r.status_code == 200:
+            user.profile.pic_url = r.url
+    except Exception, e:
+        logger.info(e)
+
     user.profile.save()
     return True
 
