@@ -82,23 +82,8 @@ def notify_comment(comment, request, **kwargs):
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
     notification.queue(other_commenters, "coment_on_commented", {'comment':comment}, True)
     notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
-    import regluit.core.tasks as tasks 
-    tasks.emit_notifications.delay()
+    # import regluit.core.tasks as tasks 
+    # tasks.emit_notifications().delay()
 
 comment_was_posted.connect(notify_comment)
 
-from regluit.core.models import Campaign
-def notify_active_campaign(sender, **kwargs):
-	# what sort of error handling do I need to do here? any?
-	# how do I both ensure that the status is active AND that it was just made active?
-	# do i need to send that with the signal?
-	# logging?
-	campaign = kwargs.get('instance')
-	work = campaign.work
-	# assumes only one active claim per campaign. safe?
-	rightsholder = work.claim.filter(status="active")[0].rights_holder.rights_holder_name
-	ungluers = work.wished_by()
-	notification.queue(ungluers, "active_campaign", {'campaign':campaign, 'work':work, 'rightsholder':rightsholder}, True)
-	import regluit.core.tasks as tasks 
-	tasks.emit_notifications.delay()
-signals.post_save.connect(notify_active_campaign, sender=Campaign)

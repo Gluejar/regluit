@@ -1,1 +1,1 @@
-Campaign for {{ work }} now active at Unglue.It!
+Campaign for {{ campaign.work }} now active at Unglue.It!

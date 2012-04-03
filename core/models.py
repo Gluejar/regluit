@@ -3,6 +3,7 @@ import random
 from regluit.utils.localdatetime import now, date_today
 from datetime import timedelta
 from decimal import Decimal
+from notification import models as notification
 
 from django.db import models
 from django.db.models import Q, get_model
@@ -183,7 +184,12 @@ class Campaign(models.Model):
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        post_save.send(sender=self, instance=self)
+        active_claim = self.work.claim.filter(status="active")[0]
+        ungluers = self.work.wished_by()
+        
+        notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
+        #import regluit.core.tasks as tasks 
+        #tasks.emit_notifications().delay()        
         return self
 
     def suspend(self, reason):
