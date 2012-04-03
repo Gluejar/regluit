@@ -189,7 +189,6 @@ class Campaign(models.Model):
         notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
         #import regluit.core.tasks as tasks 
         #tasks.emit_notifications().delay()        
-
         return self
 
     def suspend(self, reason):

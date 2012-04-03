@@ -87,4 +87,3 @@ def notify_comment(comment, request, **kwargs):
     # tasks.emit_notifications().delay()
 
 comment_was_posted.connect(notify_comment)
-
