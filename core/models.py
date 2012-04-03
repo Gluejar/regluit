@@ -675,8 +675,9 @@ def facebook_extra_values(sender, user, response, details, **kwargs):
 
 def twitter_extra_values(sender, user, response, details, **kwargs):
     twitter_id = response.get('screen_name')
+    profile_image_url = response.get('profile_image_url_https')
     user.profile.twitter_id = twitter_id
-    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    user.profile.pic_url = profile_image_url
     user.profile.save()
     return True
 
