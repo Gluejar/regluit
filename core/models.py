@@ -3,6 +3,7 @@ import random
 from regluit.utils.localdatetime import now, date_today
 from datetime import timedelta
 from decimal import Decimal
+from notification import models as notification
 
 from django.db import models
 from django.db.models import Q, get_model
@@ -176,7 +177,6 @@ class Campaign(models.Model):
         
     
     def activate(self):
-        from regluit.core.signals import signal_campaign_activated
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
@@ -187,7 +187,8 @@ class Campaign(models.Model):
         ungluers = self.work.wished_by()        
         notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
         #import regluit.core.tasks as tasks 
-        #tasks.emit_notifications().delay()        
+        #tasks.emit_notifications().delay() 
+        return self
 
 
     def suspend(self, reason):
