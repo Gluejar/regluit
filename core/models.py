@@ -669,7 +669,7 @@ from social_auth.backends.twitter import TwitterBackend
 def facebook_extra_values(sender, user, response, details, **kwargs):
     facebook_id = response.get('id')
     user.profile.facebook_id = facebook_id
-    user.profile.pic_url = 'http://graph.facebook.com/' + facebook_id + '/picture'
+    user.profile.pic_url = 'https://graph.facebook.com/' + facebook_id + '/picture'
     user.profile.save()
     return True
 
