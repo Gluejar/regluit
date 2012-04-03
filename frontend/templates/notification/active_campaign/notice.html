@@ -1,15 +1,15 @@
-{% with work.id as id %}
+{% with campaign.work.id as id %}
 <div class="comments clearfix">
 	<div class="comments_book">
-    	<a href="{% url work id %}"><img src="{{ work.cover_image_thumbnail }}" alt="cover image for {{ work.title }}" /></a>
+    	<a href="{% url work id %}"><img src="{{ campaign.work.cover_image_thumbnail }}" alt="cover image for {{ campaign.work.title }}" /></a>
 	</div>
 	
 	<div class="comments_info">
 		<div class="comments_graphical">
-	        <span>The rights holder, {{ rightsholder }}, has launched a campaign for <a href="{% url work id %}">{{ work.title }}</a>!</span>
+	        <span>The rights holder, {{ rightsholder }}, has launched a campaign for <a href="{% url work id %}">{{ campaign.work.title }}</a>!</span>
 		</div>
 		<div class="comments_textual">
-			<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target }} by {{ campaign.deadline|date:"M d, Y" }}, {{ work.title }} will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
+			<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target }} by {{ campaign.deadline|date:"M d, Y" }}, {{ campaign.work.title }} will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
 			<div>You can help!  <a href="{% url pledge work_id=id %}">Pledge</a> any amount, and use the sharing options on the <a href="{% url work id %}">campaign page</a> to tell your friends.</a></div>
 		</div>
 	</div>
