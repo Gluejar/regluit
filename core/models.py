@@ -184,10 +184,8 @@ class Campaign(models.Model):
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-
         active_claim = self.work.claim.filter(status="active")[0]
-        ungluers = self.work.wished_by()
-        
+        ungluers = self.work.wished_by()        
         notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
         #import regluit.core.tasks as tasks 
         #tasks.emit_notifications().delay()        
