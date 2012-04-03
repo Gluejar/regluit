@@ -123,7 +123,7 @@ class OpenCampaignForm(forms.ModelForm):
             OwnerLookup,
             label='Campaign Managers',
             widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
-            required=False,
+            required=True,
         )
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
