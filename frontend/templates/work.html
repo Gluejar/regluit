@@ -294,7 +294,7 @@ $j(document).ready(function(){
                         <h4>Editions</h4>
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
-                            <div class="editions"><div class="image"><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&amp;printsec=frontcover&amp;img=1&amp;zoom=5" title="edition cover" alt="edition cover" /></div>
+                        <div class="editions"><div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>
                             <div class="metadata" id="edition_{{edition.id}}">Publisher: {{edition.publisher}}<br />
                             	Published: {{edition.publication_date}}<br />
                             	{% with edition.isbn_13 as isbn %}
@@ -304,7 +304,7 @@ $j(document).ready(function(){
                             			No ISBN available<br />
                             		{% endif %}
                             	{% endwith %}
-                            	See <a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
+                            	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
                             </div>{{work.last_campaign_status}}
                             {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
                                 <div class="show_more_edition" >more...</div>
