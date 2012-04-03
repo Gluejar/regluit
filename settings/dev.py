@@ -79,11 +79,6 @@ PAYPAL_SANDBOX_PASSWORD = ''
 PAYPAL_BUYER_LOGIN =''
 PAYPAL_BUYER_PASSWORD = ''
 
-# The amount of the transaction that Gluejar takes 
-GLUEJAR_COMMISSION = 0.06
-PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
-PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
-
 # in live system, replace with the real Gluejar paypal email and that for our non-profit partner
 PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
 PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
@@ -115,3 +110,20 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 INTERNAL_IPS = ('127.0.0.1',)
 
 CELERYD_LOG_LEVEL = "INFO"
+
+#  an optional setting to change regluit.utils.localdatetime._now -- setting it to None will cause
+#  a default _now() to be computed in regluit.utils.localdatetime
+
+LOCALDATETIME_NOW = None
+
+# selenium-related testing parameters
+# in Django 1.4, we'll get a URL for LiveServerTestCase https://docs.djangoproject.com/en/dev/topics/testing/#django.test.LiveServerTestCase
+# but for now, we would have to manually configure our own test server.
+LIVE_SERVER_TEST_URL = "http://127.0.0.1:8000"
+
+# username, password to pass to LIVE_SERVER_TEST_URL
+
+UNGLUEIT_TEST_USER = None
+UNGLUEIT_TEST_PASSWORD = None
+
+

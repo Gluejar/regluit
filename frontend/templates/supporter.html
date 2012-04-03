@@ -5,19 +5,63 @@
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
 {% endblock %}
-{% block extra_head %}
+{% block extra_js %}
+<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script type="text/javascript" src={{ jquery_ui_home }}></script>
-
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/import_books.js"></script>
+<script type="text/javascript" src="/static/js/counter.js"></script>
+
+{% ifequal supporter request.user %}
+<!-- we only need to be able to toggle the profile edit area in this case -->
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+    $j(document).ready(function(){
+        $j('#user-block-hide').hide();
+        $j('#user-block1 span').click(function() {
+                $j(this).toggleClass("active");
+                $j("#user-block-hide").slideToggle(300);
+        });
+    });
+</script>
+{% endifequal %}
+
+{% if works %}
+<!-- when the user's wishlist is empty, views.py gives us works for a slideshow -->
+<script src="/static/js/slides.min.jquery.js"></script>
+<script src="/static/js/slideshow.js"></script>
+
+<!-- toggle to panelview instead of listview default so slideshow will look right -->
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+	$j(document).ready(function($) { 
+        $('.listview').addClass("panelview").removeClass("listview");
+    });    
+</script>  
+{% else %}
+<!-- we only need these when there's stuff on the user's wishlist -->
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
-<script type="text/javascript" src="/static/js/import_books.js"></script>
+{% endif %}
 
-<script type="text/javascript" src="/static/js/counter.js"></script>
+<!-- highlight LT/GR add functions when people click on import divs -->
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+function highlightTarget(targetdiv) {
+	var target = $j(targetdiv);
+    target.css({"background": "#8dc63f"}).animate(
+        {backgroundColor: "white"}, 1500
+    );
+};
+</script>
+{% endblock %}
+{% block extra_head %}
+<link rel="alternate" type="application/atom+xml" title="feed for books from {{ supporter }}'s ungluing wishlist" href="feed" />
 {% endblock %}
 
 {% comment %}
@@ -26,7 +70,7 @@ create topsection file for inclusion in multiple contexts, if needed
 figure out how to configure date display 
     decide if we're even including date joined in profile
 Goodreads 
-    be sure words display correctly
+    be sure words display correctlydja
     do I need both add-wishlist and remove-wishlist classes? do they differ?
 better alignment on I am ungluing & badges
 
@@ -36,14 +80,11 @@ why is there a status in regluit.payment.models.Transaction?  does it duplicate 
 
 
 there's no tab for seeing ALL my books, only the filters! huh.
-    
-Values I need:
-how do I integrate the your wishlist thing with the tabs thing?
 
 {% endcomment %}
 
 {% block topsection %}
-
+<div id="locationhash">{{ activetab }}</div>
 <div id="js-topsection">
     <div class="js-main">
         <div class="js-topnews">
@@ -54,7 +95,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                             {% ifequal supporter request.user %}
                             <div id="user-block1">
                             <div class="block-inner">
-                            <span class="my-setting">My Profile</a>
+                            <span class="my-setting">My Profile</span>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -122,7 +163,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                         </div>
                         {% ifequal supporter request.user %}
                         <div id="user-block-hide">
-                        <form method="POST" action="">
+                        <form method="POST" action="#">
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
@@ -143,26 +184,26 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.twitter_id %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br/> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
+                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
                                     {% else %}
                                     <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br/> or disconnect Facebook: {{ profile_form.clear_facebook }}
+                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
                                     {% else %}
                                     <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
-                                <div class="check-list">
+                                <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br/> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
+                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
                                     <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
-                                <div class="check-list">
+                                <div class="check-list" id="connectlt">
                                     <label>{% if supporter.profile.librarything_id %}Change{% else %}Add{% endif %} your LibraryThing User ID:</label>
                                     {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
                                 </div>
@@ -175,15 +216,12 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     {% csrf_token %}
                                     <div class="fieldWrapper">
                                         
-                                        <div id="loadgr"><span>
-                                         <div id="goodreads_shelves"></div>
-                                        <input id="goodreads_input" type="submit" value="Select your GoodReads shelves" />
-                                        </span>
+                                        <div id="loadgr"><span><span id="goodreads_shelves"></span><input id="goodreads_input" type="submit" value="Select your GoodReads shelves" /></span>
                                         </div>
                                     </div>
                                 </form>
                                 {% else %}
-                                <div id="loadgr"><div>Connect your GoodReads account to import from GoodReads.</div></div>
+                                <div id="loadgr" onclick="highlightTarget('#connectgr'); return false;"><div>Connect your GoodReads account to import from GoodReads.</div></div>
                                 {% endif %}
                                 {% if librarything_id %}
                                 <form id="librarything_load" method="post" action="#">
@@ -191,7 +229,7 @@ how do I integrate the your wishlist thing with the tabs thing?
                                     <div id="loadlt"><input type="submit" id="librarything_input" value="Add your LibraryThing library" /></div>
                                 </form>
                                 {% else %}
-                                <div id="loadlt"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
+                                <div id="loadlt" onclick="highlightTarget('#connectlt'); return false;"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
                                 {% endif %}
                             </div>
                         </div>
@@ -223,7 +261,13 @@ how do I integrate the your wishlist thing with the tabs thing?
                         <li class="tabs2"><a href="#">Active</a></li>
                         <li class="tabs3"><a href="#">Wishlisted</a></li>
                     </ul>
-    
+                    
+                    
+                
+                		{% if not works %}
+                		{% comment %}
+                		don't let people toggle views if we're doing the slideshow -- it'll look weird
+                		{% endcomment %}
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -237,19 +281,39 @@ how do I integrate the your wishlist thing with the tabs thing?
                                 </a>
                             </li>
                         </ul>
+                        {% endif %}
                 </div>
                 <div id="content-block-content">
                     {% ifequal wishlist.works.all.count 0 %}
-                    {% ifequal request.user supporter %}
-                    <div class="empty-wishlist">
-                        Your wishlist is currently empty.<br /><br />
-                        Why not <span class="bounce-search">find</span> your favorite books, and add them to your Wishlist?<br /><br />
-                        We'd also love to hear your <a href="/feedback">feedback</a>.
-                    </div>
-                    {% else %}
-                    <div class="empty-wishlist">
-                        It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
-                    {% endifequal %}
+                        {% ifequal request.user supporter %}
+                        <div class="empty-wishlist">
+                        
+                        	<div>You haven't wishlisted anything yet.  Can we help?<br /><br /></div>
+                        	
+                		    <div id="js-slide">
+ 	   							<div class="js-main">
+        							<div class="jsmodule">
+        							{% include "slideshow.html" %}
+            						</div>
+        						</div>
+    						</div>
+
+		                    <div id="js-maincontainer-bot-block">
+        		                <div id="js-search">
+                		        	<label>What book would you give to the world? </label>
+				        		        <form action="{% url search %}" method="get">
+                						    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
+                						    <input type="submit" class="greenbutton" value="Search">
+               							</form>
+                		        </div>
+                		    </div>
+                		    
+                            <br /><br /><hr />We'd also love to hear your <a href="/feedback">feedback</a>.
+                        </div>
+                        {% else %}
+                        <div class="empty-wishlist">
+                            It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
+                        {% endifequal %}
                     {% else %}
 
                     {% lazy_paginate 20 works_unglued using "works_unglued" %}
@@ -262,11 +326,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
-                    <br>
                     <div class="pagination content-block-heading tabs-1">
                         {% get_pages %}
                         {% for page in pages %}
-                        	<a href="{{ page.path }}#1">{{ page.number }}</a>
+                        	<a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
 
@@ -280,11 +343,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
-                    <br>
                     <div class="pagination content-block-heading tabs-2">
                         {% get_pages %}
                         {% for page in pages %}
-                        	<a href="{{ page.path }}#2">{{ page.number }}</a>
+                        	<a href="{{ page.path }}#2" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
 
@@ -298,11 +360,10 @@ how do I integrate the your wishlist thing with the tabs thing?
                     {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
-                    <br>
                     <div class="pagination content-block-heading tabs-3">
                         {% get_pages %}
                         {% for page in pages %}
-                        	<a href="{{ page.path }}#3">{{ page.number }}</a>
+                        	<a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
 

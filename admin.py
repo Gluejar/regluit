@@ -5,6 +5,9 @@ from django.contrib.admin.sites import AdminSite
 from regluit.core import models
 from regluit import payment
 
+from djcelery.admin import TaskState, WorkerState, TaskMonitor, WorkerMonitor, \
+      IntervalSchedule, CrontabSchedule, PeriodicTask, PeriodicTaskAdmin
+
 
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
@@ -53,6 +56,9 @@ class WishlistAdmin(ModelAdmin):
 
 class UserProfileAdmin(ModelAdmin):
     date_hierarchy = 'created'
+    
+class CeleryTaskAdmin(ModelAdmin):
+    pass
 
 class TransactionAdmin(ModelAdmin):
     date_hierarchy = 'date_created'
@@ -77,6 +83,19 @@ admin_site.register(models.Edition, EditionAdmin)
 admin_site.register(models.Ebook, EbookAdmin)
 admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
+admin_site.register(models.CeleryTask, CeleryTaskAdmin)
+
+# payments
+
 admin_site.register(payment.models.Transaction, TransactionAdmin)
 admin_site.register(payment.models.PaymentResponse, PaymentResponseAdmin)
 admin_site.register(payment.models.Receiver, ReceiverAdmin)
+
+# add the djcelery admin interface
+# https://raw.github.com/ask/django-celery/2.4/djcelery/admin.py
+
+admin_site.register(TaskState, TaskMonitor)
+admin_site.register(WorkerState, WorkerMonitor)
+admin_site.register(IntervalSchedule)
+admin_site.register(CrontabSchedule)
+admin_site.register(PeriodicTask, PeriodicTaskAdmin)

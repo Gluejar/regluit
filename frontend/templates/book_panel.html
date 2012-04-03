@@ -1,4 +1,8 @@
-<div class="thewholebook listview tabs {% if status == 'SUCCESSFUL' or work.first_pdf_url or work.first_epub_url %}tabs-1{% else %}{% if status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}">
+{% with work.first_ebook as first_ebook %}
+{% with work.last_campaign.supporters as supporters %}
+{% with work.cover_image_thumbnail as thumbnail %}
+{% with work.author as author %}
+<div class="thewholebook listview tabs {% if first_ebook %}tabs-1{% else %}{% if status == 'SUCCESSFUL' or status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}">
 <div class="listview book-list">
     <div class="listview panelback side2">
             <div class="greenpanel2">
@@ -6,17 +10,17 @@
                     <div class="unglued_white">
 
 					{% comment %}top section: campaign info + optional action button. Varies by campaign status.{% endcomment %}
-                    {% if work.first_pdf_url or work.first_epub_url %}
+                    {% if first_ebook %}
                         <b>AVAILABLE!</b>
                     </div>
-                    <div class="read_itbutton">{% if work.first_epub_url %}<a href="{{ work.first_epub_url }}">{% else %}<a href="{{ work.first_pdf_url }}">{% endif %}Read it Now</a></div>
+                    <div class="read_itbutton">{% if first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
 
                     {% else %}{% if status == 'SUCCESSFUL' %} 
                     	<b>UNGLUED!</b>
                         <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
                         <p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
                     </div>
-                    <div class="read_itbutton">{% if work.first_epub_url %}<a href="{{ work.first_epub_url }}">{% else %}<a href="{{ work.first_pdf_url }}">{% endif %}Read it Now</a></div>
+                    <div class="read_itbutton">{% if first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
                     
                     {% else %}{% if status == 'ACTIVE' %}
                     	<b>UNGLUE IT!</b>
@@ -50,14 +54,19 @@
                 </div>
 
 					{% comment %}status of book vis-a-vis user's wishlist{% endcomment %}
-				    {% if request.user.id in work.last_campaign.supporters %}
+					{% if works and activetab %}
+                        <div class="moreinfo add-wishlist">
+                        <span id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        </div>
+                    {% else %}
+				    {% if request.user.id in supporters %}
 					    <div class="moreinfo on-wishlist">
         					<span>Pledged!</span>
 					    </div>
 				    {% else %}
                     {% ifequal supporter request.user %}
                         <div class="moreinfo remove-wishlist">
-                            <span id="{{ work.id }}">Remove This</span>
+                            <span id="p{{ work.id }}">Remove This</span>
                         </div>
                     {% else %}{% if request.user.is_anonymous %}
                         <div class="moreinfo create-account">
@@ -69,40 +78,40 @@
                         </div>
                     {% else %}
                         <div class="moreinfo add-wishlist">
-                        <span id="{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        <span id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
                         </div>
-                    {% endif %}{% endif %}{% endifequal %}{% endif %}
+                    {% endif %}{% endif %}{% endifequal %}{% endif %}{% endif %}
 
 					{% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks work.googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
-                        <p>{{ work.author }}</p>
+                        <p><a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+                        <p>{{ author }}</p>
                     </div>
 
 					{% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
-                            <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks work.googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                            <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                     </div>
 
             </div>
     </div>
     <div class="listview panelfront side1 book-thumb">
-         <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks work.googlebooks_id %}{% endif %}" target="_top"><img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
+         <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top"><img src="{% if thumbnail %}{{ thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
             <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a>
         </div>
-        <div class="listview author {{ work.author }}">{{ work.author }}</div>
+        <div class="listview author {{ author }}">{{ author }}</div>
     </div>
-    {% if request.user.id in work.last_campaign.supporters %}
+    {% if request.user.id in supporters %}
     <div class="listview panelfront side1 on-wishlist">
         <span>Pledged!</span>
     </div>
     {% else %}
     {% ifequal supporter request.user %}
     <div class="listview panelfront side1 remove-wishlist">
-        <span id="{{ work.id }}">Remove This</span>
+        <span id="l{{ work.id }}">Remove This</span>
     </div>
     {% else %}{% if request.user.is_anonymous %}
     <div class="listview panelfront side1 create-account">
@@ -114,23 +123,24 @@
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">
-        <span id="{{ googlebooks_id }}">Add to Wishlist</span>
+        <span id="l{{ googlebooks_id }}">Add to Wishlist</span>
     </div>
     {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">
+    	{% ifequal status "ACTIVE" %}
+        <span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total }}</b> raised of <b>${{ work.last_campaign.target }}</b> goal</span>
+    	{% else %}
         <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
+        {% endifequal %}
     </div>
     <div class="listview panelfront side1 icons">
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
           <a href="{% url work work.id %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
-        {% else %}{% if work.first_pdf_url or work.first_epub_url %}
+        {% else %}{% if first_ebook %}
             <span class="listview boolist-ebook">
-            {% if work.first_epub_url %}
-                <a href="{{ work.first_epub_url }}">EPUB</a>
-            {% endif %}
-            {% if work.first_pdf_url %}
-                <a href="{{ work.first_pdf_url }}">PDF</a>
-            {% endif %} 
+            {% for ebook in work.ebooks|slice:":3" %}
+            <a href="{{ebook.url}}">{{ ebook.format }}</a> 
+            {% endfor %}
             </span>
         {% else %}
         
@@ -150,3 +160,7 @@
     </div>
 </div>
 </div>
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}

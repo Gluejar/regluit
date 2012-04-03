@@ -72,6 +72,23 @@
   border: none;
   margin: 5px 0;
 }
+.errors {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  border: solid #e35351 4px;
+  width: 90%;
+  padding: 5px;
+  font-weight: bold;
+  padding: 7px 0;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
 .block-inner {
   padding-right: 10px;
 }
@@ -249,8 +266,8 @@ input.profile-save {
 }
 #loadgr {
   background: url("/static/images/supporter_icons/goodreads_square.png") left center no-repeat;
-  min-height: 32px;
-  margin-bottom: 12px;
+  min-height: 33px;
+  margin: 12px auto;
 }
 #loadgr span {
   display: inline-block;
@@ -258,6 +275,10 @@ input.profile-save {
 }
 #loadgr div, #loadgr input {
   margin: auto 10px auto 36px;
+}
+#loadgr #goodreads_shelves {
+  margin: auto 10px auto 36px;
+  display: block;
 }
 #loadlt {
   background: url("/static/images/supporter_icons/librarything_square.png") left center no-repeat;
@@ -296,26 +317,18 @@ span.my-setting.active {
   margin-left: 10px;
   margin-top: 10px;
   width: 100%;
+  border-bottom: 4px solid #d6dde0;
 }
 #tabs ul.tabs li a:hover {
   text-decoration: none;
-}
-#tabs.wantto {
-  border-bottom: 4px solid #d6dde0;
 }
 #tabs.wantto ul.tabs li.tabs3.active a {
   background: #d6dde0;
   color: #3d4e53;
 }
-#tabs.ungluing {
-  border-bottom: 4px solid #eabc7c;
-}
 #tabs.ungluing ul.tabs li.tabs2.active a {
   background: #eabc7c;
   color: #fff;
-}
-#tabs.unglued {
-  border-bottom: 4px solid #8dc63f;
 }
 #tabs.unglued ul.tabs li.tabs1.active a {
   background: #8dc63f;
@@ -355,17 +368,27 @@ ul.tabs li a {
   background: #6994a3;
   color: #fff;
 }
-ul.tabs li.tabs1 a:hover, ul.tabs li.active a {
+ul.tabs li.tabs1 a:hover, ul.tabs li.tabs1.active a {
   background: #8dc63f;
   color: #ffffff;
 }
-ul.tabs li.tabs2 a:hover, ul.tabs li.active a {
+ul.tabs li.tabs2 a:hover, ul.tabs li.tabs2.active a {
   background: #eabc7c;
   color: #fff;
 }
-ul.tabs li.tabs3 a:hover, ul.tabs li.active a {
+ul.tabs li.tabs3 a:hover, ul.tabs li.tabs3.active a {
   background: #d6dde0;
   color: #3d4e53;
+}
+#rss {
+  height: 46px;
+}
+#rss img {
+  padding: 16px 0 0 14px;
+}
+#rss span {
+  margin-left: 3px;
+  font-size: 12px;
 }
 .listview .rounded {
   line-height: normal;
@@ -440,4 +463,10 @@ div#content-block-content {
   width: 37px;
   height: 25px;
   display: block;
+}
+#js-slide .jsmodule {
+  width: 660px !important;
+}
+#js-maincontainer-bot-block {
+  padding-left: 16px;
 }

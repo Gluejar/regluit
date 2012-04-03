@@ -1,10 +1,12 @@
 import re
 import random
-import datetime
+from regluit.utils.localdatetime import now, date_today
+from datetime import timedelta
 from decimal import Decimal
+from notification import models as notification
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, get_model
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -16,7 +18,7 @@ class UnglueitError(RuntimeError):
     pass
 
 class CeleryTask(models.Model):
-    created = models.DateTimeField(auto_now_add=True, default=datetime.datetime.now())
+    created = models.DateTimeField(auto_now_add=True, default=now())
     task_id = models.CharField(max_length=255)
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
@@ -25,7 +27,7 @@ class CeleryTask(models.Model):
     active = models.NullBooleanField(default=True) 
 
     def __unicode__(self):
-        return "Task %s arg:%d ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
+        return "Task %s arg:%s ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
 
     @property
     def AsyncResult(self):
@@ -48,7 +50,7 @@ class Claim(models.Model):
     STATUSES = ((
         u'active', u'Claim has been registered and approved.'),
         (u'pending', u'Claim is pending approval.'),
-        (u'release', u'Claim has been released.'),
+        (u'release', u'Claim has not been accepted.'),
     )
     created =  models.DateTimeField(auto_now_add=True)  
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
@@ -59,18 +61,28 @@ class Claim(models.Model):
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
-    rights_holder_name = models.CharField(max_length=100, blank=True)
+    rights_holder_name = models.CharField(max_length=100, blank=False)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
     def __unicode__(self):
         return self.rights_holder_name
     
 class Premium(models.Model):
-    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'))
+    PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'),(u'XX', u'Inactive'))
     created =  models.DateTimeField(auto_now_add=True)  
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description =  models.TextField(null=True, blank=False)
+    limit = models.IntegerField(default = 0)
+
+    @property
+    def premium_count(self):
+        t_model=get_model('payment','Transaction')
+        return t_model.objects.filter(premium=self).count()
+    @property
+    def premium_remaining(self):
+        t_model=get_model('payment','Transaction')
+        return self.limit - t_model.objects.filter(premium=self).count()
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -80,11 +92,20 @@ class CampaignAction(models.Model):
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
     
 class Campaign(models.Model):
+    LICENSE_CHOICES = (('CC BY-NC-ND','CC BY-NC-ND'), 
+            ('CC BY-ND','CC BY-ND'), 
+            ('CC BY','CC BY'), 
+            ('CC BY-NC','CC BY-NC'),
+            ( 'CC BY-NC-SA','CC BY-NC-SA'),
+            ( 'CC BY-SA','CC BY-SA'),
+            ( 'CC0','CC0'),
+        )
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = models.TextField(null=True, blank=False)
     details = models.TextField(null=True, blank=False)
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
@@ -114,22 +135,21 @@ class Campaign(models.Model):
         if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
             self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
             may_launch = False
-        if self.deadline.date()-datetime.date.today() > datetime.timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+        if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             may_launch = False  
-        elif self.deadline.date()-datetime.date.today() < datetime.timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+        elif self.deadline.date()- date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
             self.problems.append(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
             may_launch = False  
         return may_launch
 
     
-    def update_success(self):
+    def update_status(self):
         """  updates the campaign's status. returns true if updated
         """
-        now = datetime.datetime.utcnow()
         if not self.status=='ACTIVE':
             return False
-        elif self.deadline < now:
+        elif self.deadline < now():
             if self.current_total >= self.target:
                 self.status = 'SUCCESSFUL'
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
@@ -155,6 +175,7 @@ class Campaign(models.Model):
         return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
                                 completed=completed)
         
+    
     def activate(self):
         status = self.status
         if status != 'INITIALIZED':
@@ -162,7 +183,11 @@ class Campaign(models.Model):
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        return self   
+        active_claim = self.work.claim.filter(status="active")[0]
+        ungluers = self.work.wished_by()        
+        notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
+        return self
+
 
     def suspend(self, reason):
         status = self.status
@@ -203,11 +228,9 @@ class Campaign(models.Model):
         return translist
 
     def effective_premiums(self):
-        """returns either the custom premiums for Campaign or any default premiums"""
-        premiums = self.premiums.all()
-        if premiums.count() == 0:
-            premiums = Premium.objects.filter(campaign__isnull=True)
-        return premiums
+        """returns  the available premiums for the Campaign including any default premiums"""
+        q = Q(campaign=self) | Q(campaign__isnull=True)
+        return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
         
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib
@@ -305,12 +328,13 @@ class Work(models.Model):
             return "/static/images/generic_cover_larger.png"
         
     def author(self):
+        # note: if you want this to be a real list, use distinct()
+        # perhaps should change this to vote on authors.
         authors = list(Author.objects.filter(editions__work=self).all())
-        if len(authors) == 1:
+        try:
             return authors[0].name
-        elif len(authors) > 1:
-            return authors[0].name + ' et al.'
-        return ''
+        except:
+            return ''
         
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
@@ -368,7 +392,10 @@ class Work(models.Model):
                     else:
                         status = percent;
         return status;
-
+    
+    def ebooks(self):
+        return Ebook.objects.filter(edition__work=self).order_by('-created')
+    
     def first_pdf(self):
         return self.first_ebook('pdf')
 
@@ -391,20 +418,18 @@ class Work(models.Model):
 
     def first_ebook(self, ebook_format=None):
         if ebook_format:
-            for ebook in Ebook.objects.filter(edition__work=self, 
-                                              format=ebook_format):
+            for ebook in self.ebooks().filter(format=ebook_format):
                 return ebook
         else:
-            for ebook in Ebook.objects.filter(edition__work=self):
+            for ebook in self.ebooks():
                 return ebook
-        return None
 
     def wished_by(self):
         return User.objects.filter(wishlist__works__in=[self])
         
     def update_num_wishes(self):
-    	self.num_wishes = Wishes.objects.filter(work=self).count()
-    	self.save()
+        self.num_wishes = Wishes.objects.filter(work=self).count()
+        self.save()
 
     def longest_description(self):
         """get the longest description from an edition of this work
@@ -467,15 +492,13 @@ class Edition(models.Model):
 
     def cover_image_small(self):
         if self.googlebooks_id:
-            server_id = random.randint(0, 9)
-            return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+            return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
         if self.googlebooks_id:
-            server_id = random.randint(0, 9)
-            return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+            return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
     
@@ -528,18 +551,56 @@ class Edition(models.Model):
             return None
 
 class WasWork(models.Model):
-	work = models.ForeignKey('Work')
-	was = models.IntegerField(unique = True)
-	
-	
+    work = models.ForeignKey('Work')
+    was = models.IntegerField(unique = True)
+    moved = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, null=True)
+    
+    
 class Ebook(models.Model):
+    FORMAT_CHOICES = (('PDF','PDF'),( 'EPUB','EPUB'), ('HTML','HTML'), ('TEXT','TEXT'), ('MOBI','MOBI'))
+    RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
+            ('CC BY-NC-ND','CC BY-NC-ND'), 
+            ('CC BY-ND','CC BY-ND'), 
+            ('CC BY','CC BY'), 
+            ('CC BY-NC','CC BY-NC'),
+            ( 'CC BY-NC-SA','CC BY-NC-SA'),
+            ( 'CC BY-SA','CC BY-SA'),
+            ( 'CC0','CC0'),
+        )
+    url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
-    format = models.CharField(max_length=25)
-    url = models.CharField(max_length=1024)
+    format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
-    rights = models.CharField(max_length=255, null=True)
+    
+    # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
+    rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES)
     edition = models.ForeignKey('Edition', related_name='ebooks')
+    user = models.ForeignKey(User, null=True)
 
+    def set_provider(self):
+        self.provider=Ebook.infer_provider(self.url)
+        return self.provider
+    
+    @classmethod
+    def infer_provider(klass, url):
+        if not url:
+            return None
+        # provider derived from url. returns provider value. remember to call save() afterward
+        if url.startswith('http://books.google.com/'):
+            provider='Google Books'
+        elif url.startswith('http://www.gutenberg.org/'):
+            provider='Project Gutenberg'
+        elif url.startswith('http://www.archive.org/'):
+            provider='Internet Archive'
+        elif url.startswith('http://hdl.handle.net/2027/') or url.startswith('http://babel.hathitrust.org/'):
+            provider='Hathitrust'
+        elif re.match('http://\w\w\.wikisource\.org/', url):
+            provider='Wikisource'
+        else:
+            provider=None
+        return provider
+    
     def __unicode__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
 
@@ -554,7 +615,6 @@ class Wishlist(models.Model):
     def add_work(self, work, source):
         try:
             w = Wishes.objects.get(wishlist=self,work=work)
-            w.source=source
         except:
             Wishes.objects.create(source=source,wishlist=self,work=work) 
             work.update_num_wishes()       
@@ -607,14 +667,17 @@ from social_auth.backends.twitter import TwitterBackend
 def facebook_extra_values(sender, user, response, details, **kwargs):
     facebook_id = response.get('id')
     user.profile.facebook_id = facebook_id
-    user.profile.pic_url = 'http://graph.facebook.com/' + facebook_id + '/picture'
+    user.profile.pic_url = 'https://graph.facebook.com/' + facebook_id + '/picture'
     user.profile.save()
     return True
 
 def twitter_extra_values(sender, user, response, details, **kwargs):
+    import requests, urllib
+    
     twitter_id = response.get('screen_name')
+    profile_image_url = response.get('profile_image_url_https')
     user.profile.twitter_id = twitter_id
-    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    user.profile.pic_url = profile_image_url
     user.profile.save()
     return True
 

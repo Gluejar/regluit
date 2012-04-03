@@ -163,6 +163,7 @@ input[type="submit"] {
 	color: white;
 	font-weight: bold;
 	padding: 0.5em 1em;
+	cursor: pointer;
 }
 
 .js-page-wrap {
@@ -183,44 +184,15 @@ ul.menu{
     margin:0;
 }
 
-/* Learn More menu */
-#block-intro-text {
-	padding-right: 10px;
-
-	span.def {
-	    font-style: italic;
-	}
+/* add class clearfix to floats to make them self-clear */
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
 }
 
-a#readon {
-    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
-    color:#fff;
-    text-transform:capitalize;
-    display:block;
-    float:right;
-    font-size:13px;
-    font-weight:bold;
-    
-    &.down {
-	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
-    }
-
-    span {
-        .border-radius(32px, 0, 0, 32px);
-        background-color: @bright-blue;
-        margin-right:34px;
-        padding:0 5px 0 20px;
-        .height(36px);
-        display:block;        
-    }
-}
-
-.spread_the_word {
-	height: 24px;
-	width: 24px;
-	position: top;
-	margin-left:5px;
-}
 /* Header section */
 #js-header {
     height:90px;
@@ -243,6 +215,7 @@ a#readon {
         li {
             float:left;
             padding:0 10px;
+            position: relative;
             
             a {
                 color:@text-blue; 
@@ -254,9 +227,21 @@ a#readon {
                 .header-text;
                 overflow:auto;
                 //emergency backstop to prevent usernames too long for truncate filter to force header into content area
-                max-width: 240px;
+                max-width: 240px;                
             }
             
+            #notification_count {
+                position: absolute;
+                right: 10px;
+            	top: -14px;
+            	color: @alert;
+            	background-color: white;
+            	border: solid 2px @alert;
+            	.one-border-radius(16px);
+            	padding: 3px;
+            	line-height: 16px;
+            }
+
             &.last {
                 a {
                     background: url(@background-header) right top no-repeat;
@@ -322,6 +307,51 @@ a#readon {
 #welcome {
 	overflow: hidden;
 }
+
+#locationhash {
+	/* used solely to contain template variables for tabs.js; should not display */
+	display: none;
+}
+
+/* Learn More menu */
+#block-intro-text {
+	padding-right: 10px;
+
+	span.def {
+	    font-style: italic;
+	}
+}
+
+a#readon {
+    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
+    color:#fff;
+    text-transform:capitalize;
+    display:block;
+    float:right;
+    font-size:13px;
+    font-weight:bold;
+    
+    &.down {
+	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
+    }
+
+    span {
+        .border-radius(32px, 0, 0, 32px);
+        background-color: @bright-blue;
+        margin-right:34px;
+        padding:0 5px 0 20px;
+        .height(36px);
+        display:block;        
+    }
+}
+
+.spread_the_word {
+	height: 24px;
+	width: 24px;
+	position: top;
+	margin-left:5px;
+}
+
 /* Explore column */
 #js-leftcol {
     float:left;
@@ -415,6 +445,10 @@ div#content-block {
     background:url(@background-header) 100% -223px no-repeat;
     padding:0 0 0 7px;
     margin-bottom: 20px;
+    
+    &.jsmodule {
+    	background: none;
+    }
 }
 
 .content-block-heading a.block-link {
@@ -493,4 +527,9 @@ div#content-block-content {
 
 a.nounderline {
 	text-decoration: none;
+}
+
+/* Without this the slideshow resizes to the wrong height when you click the controls */
+.slides_control {
+	height: 325px !important;
 }

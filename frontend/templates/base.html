@@ -12,12 +12,13 @@
 
 <html>
 <head>
+    <meta charset="utf-8" />
     <title>unglue.it {% block title %}{% endblock %}</title>
     <link type="text/css" rel="stylesheet" href="/static/css/sitewide.css" />
 	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
 	{% block base_js %}
-	<script type="text/javascript" src={{ jquery_home }}></script>
+	<script type="text/javascript" src="{{ jquery_home }}"></script>
     {% endblock %}
     {% block extra_js %}
     {% endblock %}
@@ -80,47 +81,47 @@ Welcome to the alpha version of Unglue.It.  This site is a preview of our full f
 <div id="footer">
   <div class="js-main">
     <div class="column">
-    <span>About unglue.it</span>
-    <ul>
-    <li><a href="{{ abouturl }}">About</a></li>
-    <li><a href="http://www.gluejar.com/Blog">Blog</a></li>
-    <li><a href="{{ pressurl }}">Press</a></li>
-    <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
-    </ul>
+        <span>About unglue.it</span>
+        <ul>
+        <li><a href="{{ abouturl }}">About</a></li>
+        <li><a href="http://www.gluejar.com/Blog">Blog</a></li>
+        <li><a href="{{ pressurl }}">Press</a></li>
+        <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
+        </ul>
     </div>
     <div class="column">
-    <span>Your account</span>
-    <ul>
-    {% if user.is_authenticated %}
-    <li><a href="{{editurl}}">Account Settings</a></li>
-    {% endif %}
-    <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
-    <li><a href="{{privacyurl}}">Privacy</a></li>
-    <li><a href="{{termsurl}}">Terms and Conditions</a></li>
-    {% if user.is_staff %}
-    <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
-    {% endif %}
-    </ul>
+        <span>Your account</span>
+        <ul>
+        {% if user.is_authenticated %}
+        <li><a href="{{editurl}}">Account Settings</a></li>
+        {% endif %}
+        <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
+        <li><a href="{{privacyurl}}">Privacy</a></li>
+        <li><a href="{{termsurl}}">Terms and Conditions</a></li>
+        {% if user.is_staff %}
+        <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
+        {% endif %}
+        </ul>
     </div>
     <div class="column">
-    <span>Help</span>
-    <ul>
-    <li><a href="{{faqurl}}">General FAQ</a></li>
-    <li><a href="/faq/rightsholders/">Rights Holder FAQ</a></li>
-    <li><a href="{% url api_help %}">API</a></li>
-    <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
-    </ul>
+        <span>Help</span>
+        <ul>
+        <li><a href="{{faqurl}}">General FAQ</a></li>
+        <li><a href="/faq/rightsholders/">Rights Holder FAQ</a></li>
+        <li><a href="{% url api_help %}">API</a></li>
+        <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
+        </ul>
     </div>
     <div class="column">
-    <span>Contact</span>
-    <ul>
-    <li>General inquiries</li>
-    <li><a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a></li>
-    <li>Rights Holders</li>
-    <li><a href="mailto:rights@gluejar.com">rights@gluejar.com</a></li>
-    </ul>
+        <span>Contact</span>
+        <ul>
+        <li>General inquiries</li>
+        <li><a href="mailto:faq@gluejar.com">faq@gluejar.com</a></li>
+        <li>Rights Holders</li>
+        <li><a href="mailto:rights@gluejar.com">rights@gluejar.com</a></li>
+        </ul>
     </div>
-</div>
+  </div>
 </div>
 {% block counter %}
 <script type="text/javascript">

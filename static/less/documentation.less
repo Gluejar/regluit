@@ -109,7 +109,19 @@ body {
 		margin-bottom:7px;
 		.one-border-radius(14px);
 		padding:10px;
-		background:@pale-blue;
+		background:@pale-blue;		
+	}
+	
+	&.terms {
+		list-style: inherit;
+		list-style-position: inside;
+		padding-left: 1em;
+		text-indent: -1em;
+		
+		li {
+			.one-border-radius(auto);
+			background: inherit;
+		}
 	}
 }
 
@@ -144,8 +156,23 @@ dd {
 	display: none;
 }
 
+.faq, .answer {
+	text-transform: none !important;
+	a {
+		color: @medium-blue;
+	}
+}
+
+.faq {
+	cursor: pointer;
+	
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
 /* items on press page */
-.spacer {
+.press_spacer {
 	clear:both;
 	height:0px;
 }
@@ -212,4 +239,8 @@ dd {
 		width: 150px;
 		.mediaborder;
 	}
+}
+
+p.pledge_complete {
+	margin: 7px auto;
 }

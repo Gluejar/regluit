@@ -1,0 +1,13 @@
+Congratulations, you wished for it, and now there is an active Campaign for {{ campaign.work.title }} to be Unglued.  If ungluers like you pledge {{ campaign.target }} by {{ campaign.deadline }}, this book will be released under a Creative Commons license for everyone to enjoy.
+
+You can help!
+
+<a href="{% url pledge work_id=campaign.work.id %}">Pledge</a> toward ungluing.
+
+Tell your friends -- there are handy share options on the <a href="{% url work campaign.work.id %}">campaign page</a>.  There's even a widget you can put on your blog or home page.
+
+<a href="{% url work campaign.work.id %}?tab=2">Join the discussion</a>: share why you love {{ campaign.work.title }} and the world will too.
+
+Thank you!
+
+{{ active_claim.rights_holder.rights_holder_name }} (rights holder for {{ campaign.work.title }}) and the Unglue.It Team

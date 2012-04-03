@@ -1,0 +1,78 @@
+@import "variables.less";
+
+.notices_menu {
+	float: right;
+	.one-border-radius(20px);
+	background: @pale-blue;
+	padding: 10px 20px;
+	margin: -15px auto 7px 7px;
+	
+	a {
+		font-size: 13px;
+		font-weight: bold;
+	}
+}
+
+#js-main-container {
+	float: none !important;
+	padding-right: 15px;
+}
+
+.errorlist {
+	.errors;
+	height: auto;
+}
+
+/* notice_settings */
+th {
+	text-align: left;
+}
+
+tr {
+	line-height:24px;
+	
+	&.row1{
+		background: @pale-blue;
+	}
+}
+
+td {
+	padding-left: 7px;
+	padding-right: 7px;
+	
+	&#last {
+		padding: 0;
+	}
+}
+
+input[type="submit"] {
+	float: right;
+	margin-right: 0;
+}
+
+/* comment containers */
+
+.comments {
+	border: solid 3px @blue-grey;
+	margin: 3px auto;
+
+	.comments_book {
+		.mediaborder;
+		float: left;
+		margin: 5px;
+	}
+	
+	.comments_info {
+		float: left;
+	
+		.comments_graphical {
+			border-bottom: solid 1px @blue-grey;
+			margin: 5px;
+			padding-bottom: 5px;
+		}
+		
+		.comments_textual {
+			margin: auto 5px;
+		}
+	}
+}

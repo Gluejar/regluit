@@ -1,4 +1,23 @@
 {% extends "basedocumentation.html" %}
+{% block extra_css %}
+<style type="text/css">
+#id_subject, #id_recipient {
+	float: right;
+	width: 75%;
+	padding: 2px;
+}
+
+#id_message {
+	width: 75%;
+	float: right;
+}
+
+input[type=submit] {
+	float: right;
+	margin: 7px 0px auto 0px;;
+}
+</style>
+{% endblock %}
 
 {% block title %}Pledge{% endblock %}
 
@@ -7,7 +26,7 @@
     <form method="POST" action="/emailshare/">
         {% csrf_token %}
 		{{ form.as_p }}
-       <input type="submit" value="Share" />    
+        <div class="spacer"></div><input type="submit" value="Share" />    
     </form>
 
 {% endblock %}

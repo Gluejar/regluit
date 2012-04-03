@@ -72,6 +72,23 @@
   border: none;
   margin: 5px 0;
 }
+.errors {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  border: solid #e35351 4px;
+  width: 90%;
+  padding: 5px;
+  font-weight: bold;
+  padding: 7px 0;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
 /* Cross-browser language */
 /* rows in listview should alternate colors */
 .row1 .book-list.listview {
@@ -113,7 +130,7 @@ div.book-list.listview div.book-name .title {
   overflow: hidden;
   height: 19px;
   line-height: 19px;
-  padding-bottom: 5px;
+  margin-bottom: 5px;
   font-weight: bold;
 }
 div.book-list.listview div.book-name .listview.author {
@@ -166,7 +183,6 @@ div.add-wishlist, div.remove-wishlist {
   float: left;
   display: block;
   padding-right: 5px;
-  text-transform: capitalize;
 }
 div.unglue-this a {
   text-transform: uppercase;

@@ -22,7 +22,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 import logging
 import os
 from decimal import Decimal as D
-import datetime
+from regluit.utils.localdatetime import now
+from datetime import timedelta
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -39,7 +40,7 @@ def set_test_logging():
     sel = logging.getLogger("selenium")
     sel.setLevel(logging.INFO)
 
-def loginSandbox(test, selenium):
+def loginSandbox(selenium):
     
     print "LOGIN SANDBOX"
     
@@ -59,7 +60,8 @@ def loginSandbox(test, selenium):
     except:
         traceback.print_exc()
     
-def paySandbox(test, selenium, url, authorize=False):
+def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep_time=20):
+    
     
     if authorize:
         print "AUTHORIZE SANDBOX"
@@ -68,42 +70,45 @@ def paySandbox(test, selenium, url, authorize=False):
     
     try:
         # We need this sleep to make sure the JS engine is finished from the sandbox loging page
-        time.sleep(20)    
+        time.sleep(sleep_time)    
 
-        selenium.get(url)
-        print "Opened URL %s" % url
+        if not already_at_url:
+            selenium.get(url)
+            print "Opened URL %s" % url
    
         try:
             # Button is only visible if the login box is NOT open
             # If the login box is open, the email/pw fiels are already accessible
-            login_element = WebDriverWait(selenium, 30).until(lambda d : d.find_element_by_id("loadLogin"))
+            login_element = WebDriverWait(selenium, 10).until(lambda d : d.find_element_by_id("loadLogin"))
             login_element.click()
 
             # This sleep is needed for js to slide the buyer login into view.  The elements are always in the DOM
             # so selenium can find them, but we need them in view to interact
-            time.sleep(20)
+            time.sleep(sleep_time)
         except:
             print "Ready for Login"
 
         email_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_email"))
         email_element.click()
+        email_element.clear()
         email_element.send_keys(settings.PAYPAL_BUYER_LOGIN)
         
         password_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_password"))
         password_element.click()
+        password_element.clear()
         password_element.send_keys(settings.PAYPAL_BUYER_PASSWORD)
 
         submit_button = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("submitLogin"))
         submit_button.click()
       
         # This sleep makes sure js has time to animate out the next page
-        time.sleep(20)
+        time.sleep(sleep_time)
 
         final_submit = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("submit.x"))
         final_submit.click()
        
         # This makes sure the processing of the final submit is complete
-        time.sleep(20)
+        time.sleep(sleep_time)
 
         # Don't wait too long for this, it isn't really needed.  By the time JS has gotten around to 
         # displaying this element, the redirect has usually occured       
@@ -158,7 +163,7 @@ class PledgeTest(TestCase):
         
             self.validateRedirect(t, url, 1)
         
-            loginSandbox(self, self.selenium)
+            loginSandbox(self.selenium)
             paySandbox(self, self.selenium, url)
             
             # sleep to make sure the transaction has time to complete
@@ -188,7 +193,7 @@ class PledgeTest(TestCase):
         
         self.validateRedirect(t, url, 2)
         
-        loginSandbox(self, self.selenium)
+        loginSandbox(self.selenium)
         paySandbox(self, self.selenium, url)
         
         # by now we should have received the IPN
@@ -252,7 +257,7 @@ class AuthorizeTest(TestCase):
         
         self.validateRedirect(t, url)
         
-        loginSandbox(self, self.selenium)
+        loginSandbox(self.selenium)
         paySandbox(self, self.selenium, url, authorize=True)
     
         # stick in a getStatus to update statuses in the absence of IPNs
@@ -260,7 +265,7 @@ class AuthorizeTest(TestCase):
         
         t = Transaction.objects.get(id=t.id)
         
-        self.assertEqual(t.status, IPN_PAY_STATUS_ACTIVE)
+        self.assertEqual(t.status, IPN_PREAPPROVAL_STATUS_ACTIVE)
         
     def tearDown(self):
         self.selenium.quit()
@@ -278,7 +283,7 @@ class TransactionTest(TestCase):
         
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'),deadline=datetime.datetime.utcnow() + datetime.timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
         c.save()
         
         t = Transaction()
@@ -293,6 +298,33 @@ class TransactionTest(TestCase):
         results = p.query_campaign(campaign=c)
         self.assertEqual(results[0].amount, D('12.34'))
         self.assertEqual(c.left,c.target-D('12.34'))
+
+class BasicGuiTest(TestCase):
+    def setUp(self):
+        self.verificationErrors = []
+        # This is an empty array where we will store any verification errors
+        # we find in our tests
+
+        setup_selenium()
+        self.TEST_SERVER_URL = "http://ry-dev.dyndns.org"
+        self.selenium = webdriver.Firefox()
+        set_test_logging()
+    def testFrontPage(self):
+        sel = self.selenium
+        sel.get(self.TEST_SERVER_URL)
+        # if we click on the learn more, does the panel expand?
+        # click on a id=readon -- or the Learn More span
+        sel.find_elements_by_css_selector('a#readon')[0].click()
+        time.sleep(2.0)
+        # the learn more panel should be displayed
+        self.assertTrue(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+        # click on the panel again -- and panel should not be displayed
+        sel.find_elements_by_css_selector('a#readon')[0].click()
+        time.sleep(2.0)
+        self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+    def tearDown(self):
+        self.selenium.quit()
+        
 
 def suite():
 

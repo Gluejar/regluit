@@ -70,11 +70,6 @@ PAYPAL_SANDBOX_PASSWORD = ''
 PAYPAL_BUYER_LOGIN =''
 PAYPAL_BUYER_PASSWORD = ''
 
-# The amount of the transaction that Gluejar takes 
-GLUEJAR_COMMISSION = 0.06
-PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
-PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
-
 # in live system, replace with the real Gluejar paypal email and that for our non-profit partner
 PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
 PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
@@ -122,3 +117,4 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
+

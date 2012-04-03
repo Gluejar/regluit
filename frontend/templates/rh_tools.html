@@ -3,7 +3,8 @@
 {% block extra_extra_head %}
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
 <link href="/static/css/dj.selectable.css" type="text/css" media="all" rel="stylesheet" />
-<script type="text/javascript" src={{ jquery_ui_home }}></script>
+<script type="text/javascript" src="{{ jquery_home }}"></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/jquery.dj.selectable.js"></script>
 
 {% endblock %}
@@ -19,7 +20,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Campaigns You Manage</h2>
 	<dl>
 	{% for campaign in request.user.campaigns.all %}
-		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
+		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ campaign.work.id }})</dt>
 		<dd>Campaign: <a href="{% url manage_campaign campaign.id %}">{{ campaign.name }}</a><br />
 		Status: {{ campaign.status }}	<br />
 		Created: {{ campaign.created }}</dd>
@@ -30,7 +31,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
-		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
 		<dd>Author: {{claim.work.author }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
@@ -52,9 +53,13 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			{% else %}{%if claim.campaigns %}			
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
-			<p>Name: {{ campaign.name }} {{ campaign.status }}	(<a href="{% url manage_campaign campaign.id %}">manage campaign</a>)<br />
+			<p>Name: {{ campaign.name }} {{ campaign.status }}	(<a href="{% url manage_campaign campaign.id %}">manage campaign</a>) &nbsp;&nbsp;&nbsp;(campaign #{{ campaign.id }})<br />
 			Created: {{ campaign.created }}<br />
 			Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
+			<form method="POST" action="#">{% csrf_token %}
+			Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+				<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers" id="submit">
+			</form>
 			{% endfor %}
 			{% endif %}
 			{% endif %}
@@ -66,7 +71,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Rights Holders That You Administer</h2>
 	<dl>
 		{% for rights_holder in request.user.rights_holder.all %}
-		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
+		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
 		<dd>PSA #: {{ rights_holder.id }}
 		<br />contact email: {{ rights_holder.email }}</dd>
 		{% endfor %}
@@ -118,13 +123,13 @@ Needs to be written.  What would you find helpful in a social media toolkit? <a 
 <p>Campaigns have rewards as a way to thank supporters.  unglue.it includes a standard set of rewards in all campaigns.  You are encouraged to add additional sweeteners to motivate people to donate.</p>
 
 <p>Here are the standard rewards:</p>
-<ul>
+<ul class="terms">
 <li><em>Any level</em> &#8212; The unglued ebook delivered to your inbox</li>
-<li><em>$25</em> &#8212; Your name under "supporters" in the acknowledgements section</li>
-<li><em>$50</em> &#8212; Your name &amp; link of your choice under "benefactors"</li>
-<li><em>$100</em> &#8212; Your name, link of your choice, &amp; a brief message (140 characters max) under "bibliophiles"</li>
+<li><em>$25</em> &#8212; Your username under "supporters" in the acknowledgements section</li>
+<li><em>$50</em> &#8212; Your name &amp; profile link under "benefactors"</li>
+<li><em>$100</em> &#8212; Your name, profile link, &amp; profile tagline under "bibliophiles"</li>
 </ul>
 
 <h2>More Questions</h2>
-
+<p> Check the FAQ to the left, or <a href="/feedback">Send us feedback.</a>
 {% endblock %}

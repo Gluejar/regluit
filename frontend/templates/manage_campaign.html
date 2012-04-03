@@ -34,7 +34,7 @@ Please fix the following before launching your campaign:
 <form action="#" method="POST">
 {% csrf_token %}
 <p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
-<ul>
+<ul class="terms">
 <li>A synopsis of the work.</li>
 <li>Hyperlinks for the author(s), publisher making the offer, or for the work itself.</li>
 <li>Anything especially appealing about the work or author: awards, embedded video (460px max), etc.</li>
@@ -42,7 +42,7 @@ Please fix the following before launching your campaign:
 {{ form.description }}{{ form.description.errors }}
 <h3>Offer details</h2>
 <p>This will be displayed on the Details tab for your work.  It gives additional information for the highly curious.  It should include:</p>
-<ul>
+<ul class="terms">
 <li>Details about the edition being offered.</li>
 <li>Hyperlinks for the author(s), publisher making the offer, or for the work itself.</li>
 </uL>
@@ -50,6 +50,9 @@ Please fix the following before launching your campaign:
 <h3>Target Price</h2>
 <p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it.</p>
 {{ form.target }}{{ form.target.errors }}
+<h3>License being offered</h2>
+<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/">Creative Commons</a></p>
+{{ form.license }}{{ form.license.errors }}
 <h3>Ending date</h2>
 <p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
 The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
@@ -63,6 +66,38 @@ The ending date can't be more than six months away- that's a practical limit for
 
 <input type="submit" name="save" value="Save Campaign" />
 <input type="submit" name="launch" value="Launch Campaign" />
+</form>
+
+<h3>Premiums</h3>
+<div class="jsmod-content">
+    <form action="#" method="POST">
+    {% csrf_token %}
+    <ul class="support menu">
+        {% for premium in premiums %}
+        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+        <a href="{% url pledge work_id=campaign.work.id %}?premium_id={{premium.id}}">
+            <span class="menu-item-price">${{ premium.amount }}</span>
+            <span class="menu-item-desc">{{ premium.description }}</span>
+         </a> 
+           {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
+        {% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
+        {% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
+        </li>
+        {% endfor %}
+     </ul>
+     <input type="submit" name="inactivate" value="Inactivate Checked Premiums" />
+    </form>
+</div>
+<h4>Add a custom premium for this campaign</h4>
+<form action="#" method="POST">
+{% csrf_token %}
+Pledge Amount: {{ premium_form.amount }}{{ premium_form.amount.errors }}<br />
+Premium Description: {{ premium_form.description }}{{ premium_form.description.errors }}<br />
+Number Available (0 if no limit): {{ premium_form.limit }}{{ premium_form.limit.errors }}<br />
+{{ premium_form.campaign }}
+{{ premium_form.type }}{{ premium_form.type.errors }}
+<br />
+<input type="submit" name="add_premium" value="Add Premium" />
 </form>
 
 {% endif %}

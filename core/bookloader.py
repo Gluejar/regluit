@@ -1,19 +1,24 @@
 import json
 import logging
-import datetime
 
 import requests
 from xml.etree import ElementTree
 from itertools import izip, islice
+
+from datetime import timedelta
 
 from django.db.models import Q
 from django.conf import settings
 from django.db import IntegrityError
 from django.contrib.comments.models import Comment
 
+
 import regluit
 from regluit.core import models
+from regluit.utils.localdatetime import now
 import regluit.core.isbn
+
+
 
 
 logger = logging.getLogger(__name__)
@@ -112,7 +117,7 @@ def add_ebooks(item, edition):
         if epub and epub.get('downloadLink'):
             ebook = models.Ebook(edition=edition, format='epub',
                                  url=epub.get('downloadLink'),
-                                 provider='google')
+                                 provider='Google Books')
             try:
                 ebook.save()
             except IntegrityError:
@@ -123,7 +128,7 @@ def add_ebooks(item, edition):
         if pdf and pdf.get('downloadLink'):
             ebook = models.Ebook(edition=edition, format='pdf',
                                  url=pdf.get('downloadLink', None),
-                                 provider='google')
+                                 provider='Google Books')
             try:
                 ebook.save()
             except IntegrityError:
@@ -408,7 +413,7 @@ def thingisbn(isbn):
     return [e.text for e in doc.findall('isbn')]
 
 
-def merge_works(w1, w2):
+def merge_works(w1, w2, user=None):
     """will merge the second work (w2) into the first (w1)
     """
     logger.info("merging work %s into %s", w2, w1)
@@ -433,7 +438,7 @@ def merge_works(w1, w2):
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
 
-    models.WasWork(was=w2.pk,work=w1).save()
+    models.WasWork(was=w2.pk, work=w1, user=user).save()
     for ww in models.WasWork.objects.filter(work = w2):
         ww.work = w1
         ww.save()
@@ -444,9 +449,9 @@ def merge_works(w1, w2):
 def add_openlibrary(work):
     if work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
-        if datetime.datetime.now()- work.openlibrary_lookup < datetime.timedelta(days=30):
+        if now()- work.openlibrary_lookup < timedelta(days=30):
              return
-    work.openlibrary_lookup = datetime.datetime.now()
+    work.openlibrary_lookup = now()
     work.save()
 
     # find the first ISBN match in OpenLibrary
@@ -557,7 +562,7 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
         
         
     ebook.format = format
-    ebook.provider = 'gutenberg'
+    ebook.provider = 'Project Gutenberg'
     ebook.url =  url
     ebook.rights = license
         

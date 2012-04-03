@@ -10,11 +10,11 @@
 
 {% include "login_form.html" %}
 <br />
-<a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="{% url registration_register %}">Need an account</a>?
+<a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="/faq/basics/account">Trouble</a> logging in?  <a href="{% url registration_register %}">Need an account</a>?
 
 <br /><br />
 <div class="google_signup">
-	<a href="/socialauth/login/google?next=/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"></a><div>Or: <a href="/socialauth/login/google?next=/">Sign in with Google</a></div>
+	<a href="/socialauth/login/google?next=/next/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next=/next/">Sign in with Google</a></div>
 </div>
 
 {% endblock %}

@@ -4,10 +4,11 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from regluit.core.models import Work, Campaign
+from regluit.core.models import Work, Campaign, RightsHolder, Claim
 
 from decimal import Decimal as D
-import datetime
+from regluit.utils.localdatetime import now
+from datetime import timedelta
 
 class WishlistTests(TestCase):
 
@@ -64,6 +65,8 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/search/?q=sverige")
         self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/info/metrics.html")
+        self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
 
@@ -84,9 +87,15 @@ class CampaignUiTests(TestCase):
         # load a Work and a Campaign to create a Pledge page
         self.work = Work(title="test Work")
         self.work.save()
-        self.campaign = Campaign(target=D('1000.00'), deadline=datetime.datetime.utcnow() + datetime.timedelta(days=180),
+        self.campaign = Campaign(target=D('1000.00'), deadline=now() + timedelta(days=180),
                                  work=self.work)
         self.campaign.save()
+
+        rh = RightsHolder(owner = self.user, rights_holder_name = 'rights holder name')
+        rh.save()
+        cl = Claim(rights_holder = rh, work = self.work, user = self.user, status = 'active')
+        cl.save()
+
         self.campaign.activate()
 
     def test_login_required_for_pledge(self):

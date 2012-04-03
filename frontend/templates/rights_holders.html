@@ -1,9 +1,10 @@
 {% extends "basedocumentation.html" %}
-{% block base_js %}{% endblock %}
+
 {% block extra_extra_head %}
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
 {{ form.media.css }}
-<script type="text/javascript" src={{ jquery_ui_home }} ></script>
+<script type="text/javascript" src="{{ jquery_home }}"></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
 {{ form.media.js }}
 {% endblock %}
 

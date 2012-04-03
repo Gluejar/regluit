@@ -73,6 +73,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     'django.core.context_processors.request',
     'regluit.context_processors.is_preview',
+    'regluit.context_processors.count_unseen',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -107,6 +108,7 @@ INSTALLED_APPS = (
     'regluit.api',
     'regluit.core',
     'regluit.payment',
+    'regluit.utils',
     'registration',
     'social_auth',
     'tastypie',
@@ -114,6 +116,7 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
+    'notification',
 
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
@@ -164,7 +167,7 @@ LOGGING = {
 # django-registration
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
-ACCOUNT_ACTIVATION_DAYS = 7
+ACCOUNT_ACTIVATION_DAYS = 30
 
 # django-socialauth
 AUTHENTICATION_BACKENDS = (
@@ -195,6 +198,11 @@ SOUTH_TESTS_MIGRATE = True
 
 AUTH_PROFILE_MODULE = "core.UserProfile"
 
+# The amount of the transaction that Gluejar takes 
+GLUEJAR_COMMISSION = 0.06
+PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
+PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
+
 GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
 
@@ -215,3 +223,4 @@ IS_PREVIEW = True
 # set once instead of in all the templates
 JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
 JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+

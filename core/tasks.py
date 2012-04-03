@@ -1,6 +1,8 @@
 from time import sleep
+import logging
+logger = logging.getLogger(__name__)
 
-from celery.decorators import task
+from celery.task import task
 
 from django.contrib.auth.models import User
 
@@ -30,11 +32,8 @@ def load_librarything_into_wishlist(user_id, lt_username, max_books=None):
     return librarything.load_librarything_into_wishlist(user, lt_username, max_books)
     
 @task
-def add(x,y):
-    return x+y
-
-@task
 def fac(n, sleep_interval=None):
+    # used to test celery task execution 
     if not(isinstance(n,int) and n >= 0):
         raise Exception("You can't calculate a factorial of %s " % (str(n)))
     if n <= 1:
@@ -47,3 +46,21 @@ def fac(n, sleep_interval=None):
             if sleep_interval is not None:
                 sleep(sleep_interval)
         return res
+
+from django.core import mail
+
+@task
+def send_mail_task(subject, message, from_email, recipient_list,
+	        fail_silently=False, auth_user=None, auth_password=None,
+	        connection=None):
+    """a task to drop django.core.mail.send_mail into """
+    return mail.send_mail(subject, message, from_email, recipient_list, fail_silently, auth_user, auth_password, connection)
+    
+
+from notification.engine import send_all
+ 
+@task
+def emit_notifications():
+    logger.info('notifications emitting' )
+    return send_all()
+    

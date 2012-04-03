@@ -1,13 +1,5 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
-        $j('#user-block-hide').hide();
-        $j('#user-block1 span').click(
-            function() {
-                $j(this).toggleClass("active");
-                $j("#user-block-hide").slideToggle(300);
-            }
-        );
-
 		// caching selections to speed up response
         var tabs = $j('ul.tabs');
         var tabsId = $j('#tabs');
@@ -22,12 +14,18 @@
         var tabsLink3 = $j('li.tabs3');
         var contentBlockContent = $j('#content-block-content');
         
-        // on pageload we are showing only the active tab
-        if(location.hash == "#1") {
+        // on pageload we are showing only the Active tab, not Unglued or Wishlisted
+        if (location.hash == "#1" || location.hash == "#2" || location.hash == "#3") {
+        	tab = location.hash;
+        } else {
+        	tab = $j('#locationhash').html();
+        }
+
+        if(tab == "#1") {
 	        tabsDash2.hide();
     	    tabsDash3.hide();
             tabsLink1.addClass('active');
-    	} else if(location.hash =="#2") {
+    	} else if(tab =="#2") {
 	        tabsDash1.hide();
     	    tabsDash3.hide();    	
             tabsLink2.addClass('active');

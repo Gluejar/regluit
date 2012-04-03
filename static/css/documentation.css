@@ -85,6 +85,28 @@
   border: none;
   margin: 5px 0;
 }
+.errors {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  border: solid #e35351 4px;
+  width: 90%;
+  padding: 5px;
+  font-weight: bold;
+  padding: 7px 0;
+  height: 16px;
+  line-height: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
 /* variables and mixins used in multiple less files go here */
 .header-text {
   height: 36px;
@@ -171,6 +193,28 @@
   padding: 0 15px;
   border: none;
   margin: 5px 0;
+}
+.errors {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  border: solid #e35351 4px;
+  width: 90%;
+  padding: 5px;
+  font-weight: bold;
+  padding: 7px 0;
+  height: 16px;
+  line-height: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
 }
 #user-block-hide {
   float: left;
@@ -346,6 +390,21 @@ body {
   padding: 10px;
   background: #edf3f4;
 }
+.doc ul.terms {
+  list-style: inherit;
+  list-style-position: inside;
+  padding-left: 1em;
+  text-indent: -1em;
+}
+.doc ul.terms li {
+  -moz-border-radius: auto;
+  -webkit-border-radius: auto;
+  border-radius: auto;
+  -moz-border-radius: auto;
+  -webkit-border-radius: auto;
+  border-radius: auto;
+  background: inherit;
+}
 .doc div.inset {
   background: #edf3f4;
   -moz-border-radius: 12px;
@@ -381,8 +440,20 @@ dd {
 .collapse ul {
   display: none;
 }
+.faq, .answer {
+  text-transform: none !important;
+}
+.faq a, .answer a {
+  color: #6994a3;
+}
+.faq {
+  cursor: pointer;
+}
+.faq:hover {
+  text-decoration: underline;
+}
 /* items on press page */
-.spacer {
+.press_spacer {
   clear: both;
   height: 0px;
 }
@@ -448,4 +519,7 @@ dd {
   border: solid 5px #EDF3F4;
   padding: 5px;
   border: solid 5px #EDF3F4;
+}
+p.pledge_complete {
+  margin: 7px auto;
 }
