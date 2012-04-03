@@ -44,8 +44,8 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm
+from regluit.frontend.forms import ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -164,19 +164,19 @@ def work(request, work_id, action='display'):
     
     active_claims = work.claim.all().filter(status='active')
     if active_claims.count() == 1:
-    	claimstatus = 'one_active'
-    	rights_holder_name = active_claims[0].rights_holder.rights_holder_name
+        claimstatus = 'one_active'
+        rights_holder_name = active_claims[0].rights_holder.rights_holder_name
     else:
         rights_holder_name = None
-    	pending_claims = work.claim.all().filter(status='pending')
-    	pending_claims_count = pending_claims.count()
-    	if pending_claims_count > 1:
-    	  claimstatus = 'disputed'
-    	elif pending_claims_count == 1:
-    	  claimstatus = 'one_pending'
-    	  rights_holder_name = pending_claims[0].rights_holder.rights_holder_name
-    	else:
-    	  claimstatus = 'open'
+        pending_claims = work.claim.all().filter(status='pending')
+        pending_claims_count = pending_claims.count()
+        if pending_claims_count > 1:
+          claimstatus = 'disputed'
+        elif pending_claims_count == 1:
+          claimstatus = 'one_pending'
+          rights_holder_name = pending_claims[0].rights_holder.rights_holder_name
+        else:
+          claimstatus = 'open'
     
     return render(request, 'work.html', {
         'work': work, 
@@ -809,6 +809,13 @@ def rh_tools(request):
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
                 claim.can_open_new=False
+            if campaign.status == 'ACTIVE':
+                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
+                    campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
+                    if campaign.edit_managers_form.is_valid():
+                        campaign.edit_managers_form.save()
+                else:
+                    campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.status == 'active' and claim.can_open_new:
             if request.method == 'POST' and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)

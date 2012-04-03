@@ -56,6 +56,10 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<p>Name: {{ campaign.name }} {{ campaign.status }}	(<a href="{% url manage_campaign campaign.id %}">manage campaign</a>)<br />
 			Created: {{ campaign.created }}<br />
 			Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
+			<form method="POST" action="#">{% csrf_token %}
+			Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+				<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers" id="submit">
+			</form>
 			{% endfor %}
 			{% endif %}
 			{% endif %}

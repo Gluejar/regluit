@@ -131,6 +131,18 @@ class OpenCampaignForm(forms.ModelForm):
         fields = 'name', 'work',  'managers'
         widgets = { 'work': forms.HiddenInput }
 
+class EditManagersForm(forms.ModelForm):
+    managers = AutoCompleteSelectMultipleField(
+            OwnerLookup,
+            label='Campaign Managers',
+            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
+            required=True,
+        )
+    class Meta:
+        model = Campaign
+        fields = ('id', 'managers')
+        widgets = { 'id': forms.HiddenInput }
+
 class CustomPremiumForm(forms.ModelForm):
 
     class Meta:
@@ -179,7 +191,7 @@ class ManageCampaignForm(forms.ModelForm):
         return new_deadline
         
     def clean_license(self):
-    	new_license = self.cleaned_data['license']
+        new_license = self.cleaned_data['license']
         if self.instance:
             if self.instance.status == 'ACTIVE':
                 raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
@@ -222,8 +234,8 @@ class CampaignPledgeForm(forms.Form):
             try:
                 premium= Premium.objects.get(id=premium_id)
                 if premium.limit>0:
-                	if premium.limit<=premium.premium_count:
-                		raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
+                    if premium.limit<=premium.premium_count:
+                        raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
             except  Premium.DoesNotExist:
                 raise forms.ValidationError(_("Sorry, that premium is not valid."))
 
