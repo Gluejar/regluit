@@ -177,7 +177,6 @@ class Campaign(models.Model):
         
     
     def activate(self):
-        from regluit.core.signals import signal_campaign_activated
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
