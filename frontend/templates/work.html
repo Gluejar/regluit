@@ -248,22 +248,10 @@ $j(document).ready(function(){
                           <p>This work has been claimed by {{ rights_holder_name }}.  The claim has been registered and approved by Unglue.It staff.</p>
                         {% else %}
                           {% if claimstatus == 'disputed' %}
-                            <p>The rights to this work are disputed.</p>
+                            <p>Rights claims are pending.</p>
                           {% else %}
                             {% if claimstatus == 'one_pending' %}
-                              <p>This work has been claimed by {{ rights_holder_name }}.  The claim is being verified by Unglue.It staff.</p>
-                              
-                              {% if request.user.rights_holder.all.count %}
-	                            Should you be authorized to run campaigns for this work instead?  Select a rights holder:<br /><br />
-                        
-	    	                    <form method="GET" action="{% url claim %}">
-    	    	                  {% csrf_token %}
-        	    	              {{ claimform.user }}
-            	    	          {{ claimform.work }}
-                	    	      {{ claimform.rights_holder }}
-                    	    	  <input type="submit" name="submit" value="Claim">
-                     		     </form><br />
-                              {% endif %}
+                              <p>This work has been claimed by {{ rights_holder_name }}.  The claim is being verified by Unglue.It staff.</p>                              
                             {% else %}
                         	  {% if request.user.rights_holder.all.count %}
 	                        	Is this work yours?  Claim it: <br /><br />
