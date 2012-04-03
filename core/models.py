@@ -177,19 +177,21 @@ class Campaign(models.Model):
         
     
     def activate(self):
-        from django.db.models.signals import post_save
+        from regluit.core.signals import signal_campaign_activated
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
+
         active_claim = self.work.claim.filter(status="active")[0]
         ungluers = self.work.wished_by()
         
         notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
         #import regluit.core.tasks as tasks 
         #tasks.emit_notifications().delay()        
+
         return self
 
     def suspend(self, reason):

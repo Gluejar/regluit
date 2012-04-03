@@ -230,7 +230,7 @@ $j(document).ready(function(){
                                     <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                     {% endif %}
                             </div>
-                            <div class="work_supporter_name">{{supporter }}</div>
+                            <div class="work_supporter_name">{{ supporter }}</div>
                             </a>
                           </div>
                         {% endfor %}
@@ -244,15 +244,29 @@ $j(document).ready(function(){
                         {% endif %}
  
                         <h4> Rights Information </h4>
-                        {% if work.claim.count %}
-                  	      <p> This work has been claimed by:</p>
-                    	    <ul>
-                        	{% for claim in work.claim.all %}
-                            	<li>{{ claim.rights_holder.rights_holder_name }}  <i>{{ claim.get_status_display}}</i></li>
-                        	{% endfor %}
-                        	</ul>
-                        	{% if request.user.rights_holder.all.count %}
-	                        	Should someone else should be authorized to run campaigns for this work?  Select a rights holder:<br /><br />
+                        {% if claimstatus == 'one_active' %}
+                          <p>This work has been claimed by {{ rights_holder_name }}.  The claim has been registered and approved by Unglue.It staff.</p>
+                        {% else %}
+                          {% if claimstatus == 'disputed' %}
+                            <p>The rights to this work are disputed.</p>
+                          {% else %}
+                            {% if claimstatus == 'one_pending' %}
+                              <p>This work has been claimed by {{ rights_holder_name }}.  The claim is being verified by Unglue.It staff.</p>
+                              
+                              {% if request.user.rights_holder.all.count %}
+	                            Should you be authorized to run campaigns for this work instead?  Select a rights holder:<br /><br />
+                        
+	    	                    <form method="GET" action="{% url claim %}">
+    	    	                  {% csrf_token %}
+        	    	              {{ claimform.user }}
+            	    	          {{ claimform.work }}
+                	    	      {{ claimform.rights_holder }}
+                    	    	  <input type="submit" name="submit" value="Claim">
+                     		     </form><br />
+                              {% endif %}
+                            {% else %}
+                        	  {% if request.user.rights_holder.all.count %}
+	                        	Is this work yours?  Claim it: <br /><br />
                         
 	    	                    <form method="GET" action="{% url claim %}">
     	    	                    {% csrf_token %}
@@ -260,24 +274,13 @@ $j(document).ready(function(){
             	    	            {{ claimform.work }}
                 	    	        {{ claimform.rights_holder }}
                     	    	    <input type="submit" name="submit" value="Claim">
-                     		   </form><br />
-	
-	                        {% endif %}
-    	                    	Need to talk to us about claim status?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
-                        {% else %}
-	                        {% if request.user.rights_holder.all.count %}
-	                        Is this work yours?  Claim it: <br /><br />
-	    	                    <form method="GET" action="{% url claim %}">
-    	    	                    {% csrf_token %}
-        	    	                {{ claimform.user }}
-            	    	            {{ claimform.work }}
-                	    	        {{ claimform.rights_holder }}
-                    	    	    <input type="submit" name="submit" value="Claim" >
-                     		   </form><br />
-                        	{% else %}
-    	                    	Are you the rights holder for this work?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
-                        	{% endif %}
+                     		     </form><br />
+	                          {% endif %}
+                            {% endif %}
+                          {% endif %}
                         {% endif %}
+
+    	                <p>Need to talk to us about the rights status of this work?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
 
                         {% if work.subjects.all.count > 0 %}
                         <h4>Subjects</h4>

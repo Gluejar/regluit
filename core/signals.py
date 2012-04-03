@@ -9,6 +9,7 @@ from tastypie.models import create_api_key
 
 
 import registration.signals
+import django.dispatch
 
 import logging
 logger = logging.getLogger(__name__)
