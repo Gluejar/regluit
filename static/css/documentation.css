@@ -520,6 +520,35 @@ dd {
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+/* Miscellaneous */
 p.pledge_complete {
   margin: 7px auto;
+}
+a.manage {
+  background: #8dc63f;
+  color: white;
+  font-weight: bold;
+  padding: 0.5em 1em;
+  cursor: pointer;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #d6dde0;
+}
+a.manage:hover {
+  text-decoration: none;
+}
+.work_campaigns {
+  border: 1px solid #d6dde0;
+  margin: 10px auto;
+}
+.work_campaigns div {
+  float: left;
+}
+.work_campaigns div.campaign_info {
+  width: 60%;
+  margin: 5px;
 }
