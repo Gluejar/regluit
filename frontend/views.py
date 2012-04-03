@@ -162,6 +162,21 @@ def work(request, work_id, action='display'):
     wishers = work.num_wishes
     base_url = request.build_absolute_uri("/")[:-1]
     
+    active_claims = work.claim.all().filter(status='active')
+    if active_claims.count() == 1:
+    	claimstatus = 'one_active'
+    	rights_holder_name = active_claims[0].rights_holder.rights_holder_name
+    else:
+        rights_holder_name = None
+    	pending_claims = work.claim.all().filter(status='pending')
+    	pending_claims_count = pending_claims.count()
+    	if pending_claims_count > 1:
+    	  claimstatus = 'disputed'
+    	elif pending_claims_count == 1:
+    	  claimstatus = 'one_pending'
+    	  rights_holder_name = pending_claims[0].rights_holder.rights_holder_name
+    	else:
+    	  claimstatus = 'open'
     
     return render(request, 'work.html', {
         'work': work, 
@@ -172,9 +187,11 @@ def work(request, work_id, action='display'):
         'base_url': base_url,
         'editions': editions,
         'pubdate': pubdate,
-        'pledged':pledged,
+        'pledged': pledged,
         'activetab': activetab,
-        'alert':alert
+        'alert': alert,
+        'claimstatus': claimstatus,
+        'rights_holder_name': rights_holder_name,
     })
 
 def manage_campaign(request, id):
