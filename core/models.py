@@ -494,15 +494,13 @@ class Edition(models.Model):
 
     def cover_image_small(self):
         if self.googlebooks_id:
-            server_id = random.randint(0, 9)
-            return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+            return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
         if self.googlebooks_id:
-            server_id = random.randint(0, 9)
-            return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+            return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
     
@@ -671,14 +669,17 @@ from social_auth.backends.twitter import TwitterBackend
 def facebook_extra_values(sender, user, response, details, **kwargs):
     facebook_id = response.get('id')
     user.profile.facebook_id = facebook_id
-    user.profile.pic_url = 'http://graph.facebook.com/' + facebook_id + '/picture'
+    user.profile.pic_url = 'https://graph.facebook.com/' + facebook_id + '/picture'
     user.profile.save()
     return True
 
 def twitter_extra_values(sender, user, response, details, **kwargs):
+    import requests, urllib
+    
     twitter_id = response.get('screen_name')
+    profile_image_url = response.get('profile_image_url_https')
     user.profile.twitter_id = twitter_id
-    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    user.profile.pic_url = profile_image_url
     user.profile.save()
     return True
 
