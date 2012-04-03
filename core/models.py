@@ -677,14 +677,9 @@ def twitter_extra_values(sender, user, response, details, **kwargs):
     import requests, urllib
     
     twitter_id = response.get('screen_name')
+    profile_image_url = response.get('profile_image_url_https')
     user.profile.twitter_id = twitter_id
-    try:
-        r = requests.get("https://api.twitter.com/1/users/profile_image?{0}".format(urllib.urlencode({'screen_name':twitter_id, 'size':'normal'})))
-        if r.status_code == 200:
-            user.profile.pic_url = r.url
-    except Exception, e:
-        logger.info(e)
-
+    user.profile.pic_url = profile_image_url
     user.profile.save()
     return True
 
