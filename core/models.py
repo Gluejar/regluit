@@ -176,14 +176,14 @@ class Campaign(models.Model):
         
     
     def activate(self):
-        from django.db.models.signals import post_save
+        from regluit.core.signals import signal_campaign_activated
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        post_save.send(sender=self, instance=self)
+        signal_campaign_activated.send(sender=self, just_activated=True)
         return self
 
     def suspend(self, reason):

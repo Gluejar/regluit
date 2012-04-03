@@ -9,6 +9,7 @@ from tastypie.models import create_api_key
 
 
 import registration.signals
+import django.dispatch
 
 import logging
 logger = logging.getLogger(__name__)
@@ -87,18 +88,22 @@ def notify_comment(comment, request, **kwargs):
 
 comment_was_posted.connect(notify_comment)
 
+# need to have a signal specific to campaign activation
+# post_save isn't good enough as it will trigger whenever a campaign state changes
+signal_campaign_activated = django.dispatch.Signal(providing_args=["just_activated"])
 from regluit.core.models import Campaign
 def notify_active_campaign(sender, **kwargs):
-	# what sort of error handling do I need to do here? any?
-	# how do I both ensure that the status is active AND that it was just made active?
-	# do i need to send that with the signal?
-	# logging?
-	campaign = kwargs.get('instance')
-	work = campaign.work
-	# assumes only one active claim per campaign. safe?
-	rightsholder = work.claim.filter(status="active")[0].rights_holder.rights_holder_name
-	ungluers = work.wished_by()
-	notification.queue(ungluers, "active_campaign", {'campaign':campaign, 'work':work, 'rightsholder':rightsholder}, True)
-	import regluit.core.tasks as tasks 
-	tasks.emit_notifications.delay()
-signals.post_save.connect(notify_active_campaign, sender=Campaign)
+	just_activated = kwargs.get('just_activated', False)
+	print just_activated
+	if just_activated:
+	    # what sort of error handling do I need to do here? any?
+	    # logging?
+	    campaign = sender
+	    work = campaign.work
+	    # assumes only one active claim per campaign. safe?
+	    rightsholder = work.claim.filter(status="active")[0].rights_holder.rights_holder_name
+	    ungluers = work.wished_by()
+	    notification.queue(ungluers, "active_campaign", {'campaign':campaign, 'work':work, 'rightsholder':rightsholder}, True)
+	    import regluit.core.tasks as tasks 
+	    tasks.emit_notifications.delay()
+signal_campaign_activated.connect(notify_active_campaign)
