@@ -149,7 +149,7 @@ class Campaign(models.Model):
         """
         if not self.status=='ACTIVE':
             return False
-        elif self.deadline > now():
+        elif self.deadline < now():
             if self.current_total >= self.target:
                 self.status = 'SUCCESSFUL'
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 

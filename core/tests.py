@@ -329,23 +329,27 @@ class CampaignTests(TestCase):
         c = Campaign(target=D('1000.00'))
         self.assertRaises(IntegrityError, c.save)
 
-        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1))
+        c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1))
         self.assertRaises(IntegrityError, c.save)
 
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'), deadline=datetime(2012, 1, 1), work=w)
+        c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1), work=w)
         c.save()
 
     def test_campaign_status(self):
+        
+        # need a user to associate with a transaction
+        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        
         w = Work()
         w.save()
         # INITIALIZED
-        c1 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
+        c1 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c1.save()
         self.assertEqual(c1.status, 'INITIALIZED')
         # ACTIVATED
-        c2 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
+        c2 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c2.save()
         self.assertEqual(c2.status, 'INITIALIZED')
         c2.activate()
@@ -363,6 +367,8 @@ class CampaignTests(TestCase):
         c3 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w)
         c3.save()
         c3.activate()
+        self.assertEqual(c3.status, 'ACTIVE')
+        # at this point, since the deadline has passed, the status should change and be UNSUCCESSFUL
         self.assertTrue(c3.update_status())
         self.assertEqual(c3.status, 'UNSUCCESSFUL')
             
@@ -376,12 +382,13 @@ class CampaignTests(TestCase):
         t.status = 'ACTIVE'
         t.approved = True
         t.campaign = c4
+        t.user = user
         t.save()        
-        self.assertTrue(c4.update_status())        
+        self.assertTrue(c4.update_status())
         self.assertEqual(c4.status, 'SUCCESSFUL')
         
         # WITHDRAWN
-        c5 = Campaign(target=D('1000.00'),deadline=datetime(2012,1,1),work=w)
+        c5 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')        
