@@ -1,3 +1,4 @@
+import re
 import json
 import requests
 import regluit.core.isbn
@@ -32,7 +33,9 @@ def gluejar_search(q, user_ip='69.243.24.29', page=1):
     
             # cover image
             if v.has_key('imageLinks'):
-                r['cover_image_thumbnail'] = v['imageLinks'].get('thumbnail', "")
+                url = v['imageLinks'].get('thumbnail', "")
+                url = re.sub(r'http://bks[0-9]+\.books\.google\.com', 'https://encrypted.google.com', url)
+                r['cover_image_thumbnail'] = url
             else:
                 r['cover_image_thumbnail'] = "/static/images/generic_cover_larger.png"
     
