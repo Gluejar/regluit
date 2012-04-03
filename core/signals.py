@@ -83,7 +83,5 @@ def notify_comment(comment, request, **kwargs):
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
     notification.queue(other_commenters, "coment_on_commented", {'comment':comment}, True)
     notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
-    # import regluit.core.tasks as tasks 
-    # tasks.emit_notifications().delay()
 
 comment_was_posted.connect(notify_comment)
