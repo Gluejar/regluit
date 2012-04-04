@@ -302,6 +302,7 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('author'))
         self.assertTrue(r.has_key('description'))
         self.assertTrue(r.has_key('cover_image_thumbnail'))
+        self.assertTrue(r['cover_image_thumbnail'].startswith('https'))
         self.assertTrue(r.has_key('publisher'))
         self.assertTrue(r.has_key('isbn_13'))
         self.assertTrue(r.has_key('googlebooks_id'))

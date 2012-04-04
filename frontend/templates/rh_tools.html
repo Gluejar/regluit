@@ -38,7 +38,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
-		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
 		<dd>Author: {{claim.work.author }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
@@ -65,6 +65,10 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
 				Created: {{ campaign.created }}<br />
 				Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+				<form method="POST" action="#">{% csrf_token %}
+					Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers" id="submit">
+				</form>
 			</div>
 			<div>
 				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
@@ -81,7 +85,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Rights Holders That You Administer</h2>
 	<dl>
 		{% for rights_holder in request.user.rights_holder.all %}
-		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
+		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
 		<dd>PSA #: {{ rights_holder.id }}
 		<br />contact email: {{ rights_holder.email }}</dd>
 		{% endfor %}

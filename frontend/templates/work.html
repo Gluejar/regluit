@@ -11,7 +11,7 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
-<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 
 <script>
@@ -180,7 +180,8 @@ $j(document).ready(function(){
                     <ul class="tabs">
                         <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
                         <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters {% if wishers > 0 %}({{ wishers }}){% endif %}</a></li>
+                        {# the number of supporters currently commented out because they are overflowing the tab space #}
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters {# {% if wishers > 0 %}({{ wishers }}){% endif %} #}</a></li>
                         <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
                     </ul>
                         
