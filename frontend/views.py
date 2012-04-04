@@ -1683,3 +1683,12 @@ def feedback(request):
 def comment(request):
     latest_comments = Comment.objects.all().order_by('-submit_date')[:20]
     return render(request, "comments.html", {'latest_comments': latest_comments})
+
+def campaign_archive_js(request):
+    """ proxy for mailchimp js"""
+    response = HttpResponse()
+    r = requests.get(settings.CAMPAIGN_ARCHIVE_JS)
+    response.status_code = r.status_code
+    response.content = r.content
+    response["Content-Type"] = "text/javascript"
+    return response
