@@ -21,9 +21,16 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	<dl>
 	{% for campaign in request.user.campaigns.all %}
 		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
-		<dd>Campaign: <a href="{% url manage_campaign campaign.id %}">{{ campaign.name }}</a><br />
-		Status: {{ campaign.status }}	<br />
-		Created: {{ campaign.created }}</dd>
+		<div class="work_campaigns clearfix">
+		<div class="campaign_info">
+			<dd>Campaign: {{ campaign.name }}<br />
+			Campaign status: {{ campaign.status }}	<br />
+			Created: {{ campaign.created }}</dd>
+			</div>
+			<div>
+				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+			</div>
+			</div>
 	{% endfor %}
 	</dl>
 {% endif %}
@@ -31,12 +38,12 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
-		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
 		<dd>Author: {{claim.work.author }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
 			<br />Date of Claim : {{ claim.created }}
-			<br />Status: {{ claim.status }}
+			<br />Status of Claim: {{ claim.status }}
 			{% if claim.can_open_new  %}
 			<h3>Open a campaign for this work</h3>
 			<form method="POST" action="#">
@@ -53,9 +60,20 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			{% else %}{%if claim.campaigns %}			
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
-			<p>Name: {{ campaign.name }} {{ campaign.status }}	(<a href="{% url manage_campaign campaign.id %}">manage campaign</a>)<br />
-			Created: {{ campaign.created }}<br />
-			Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
+			<div class="work_campaigns clearfix">
+			<div class="campaign_info">
+				Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+				Created: {{ campaign.created }}<br />
+				Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+				<form method="POST" action="#">{% csrf_token %}
+					Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers" id="submit">
+				</form>
+			</div>
+			<div>
+				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+			</div>
+			</div>
 			{% endfor %}
 			{% endif %}
 			{% endif %}
@@ -67,7 +85,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Rights Holders That You Administer</h2>
 	<dl>
 		{% for rights_holder in request.user.rights_holder.all %}
-		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
+		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
 		<dd>PSA #: {{ rights_holder.id }}
 		<br />contact email: {{ rights_holder.email }}</dd>
 		{% endfor %}

@@ -62,4 +62,5 @@ from notification.engine import send_all
 @task
 def emit_notifications():
     logger.info('notifications emitting' )
-    send_all()
+    return send_all()
+    

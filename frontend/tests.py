@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from regluit.core.models import Work, Campaign
+from regluit.core.models import Work, Campaign, RightsHolder, Claim
 
 from decimal import Decimal as D
 from regluit.utils.localdatetime import now
@@ -90,6 +90,12 @@ class CampaignUiTests(TestCase):
         self.campaign = Campaign(target=D('1000.00'), deadline=now() + timedelta(days=180),
                                  work=self.work)
         self.campaign.save()
+
+        rh = RightsHolder(owner = self.user, rights_holder_name = 'rights holder name')
+        rh.save()
+        cl = Claim(rights_holder = rh, work = self.work, user = self.user, status = 'active')
+        cl.save()
+
         self.campaign.activate()
 
     def test_login_required_for_pledge(self):

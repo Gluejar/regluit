@@ -3,6 +3,7 @@ import random
 from regluit.utils.localdatetime import now, date_today
 from datetime import timedelta
 from decimal import Decimal
+from notification import models as notification
 
 from django.db import models
 from django.db.models import Q, get_model
@@ -176,6 +177,7 @@ class Campaign(models.Model):
         return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
                                 completed=completed)
         
+    
     def activate(self):
         status = self.status
         if status != 'INITIALIZED':
@@ -183,7 +185,11 @@ class Campaign(models.Model):
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        return self   
+        active_claim = self.work.claim.filter(status="active")[0]
+        ungluers = self.work.wished_by()        
+        notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
+        return self
+
 
     def suspend(self, reason):
         status = self.status
@@ -488,15 +494,13 @@ class Edition(models.Model):
 
     def cover_image_small(self):
         if self.googlebooks_id:
-            server_id = random.randint(0, 9)
-            return "http://bks%i.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % (server_id, self.googlebooks_id)
+            return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
         if self.googlebooks_id:
-            server_id = random.randint(0, 9)
-            return "http://bks%s.books.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % (server_id, self.googlebooks_id)
+            return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
     
@@ -665,14 +669,17 @@ from social_auth.backends.twitter import TwitterBackend
 def facebook_extra_values(sender, user, response, details, **kwargs):
     facebook_id = response.get('id')
     user.profile.facebook_id = facebook_id
-    user.profile.pic_url = 'http://graph.facebook.com/' + facebook_id + '/picture'
+    user.profile.pic_url = 'https://graph.facebook.com/' + facebook_id + '/picture'
     user.profile.save()
     return True
 
 def twitter_extra_values(sender, user, response, details, **kwargs):
+    import requests, urllib
+    
     twitter_id = response.get('screen_name')
+    profile_image_url = response.get('profile_image_url_https')
     user.profile.twitter_id = twitter_id
-    user.profile.pic_url = user.social_auth.get(provider='twitter').extra_data['profile_image_url']
+    user.profile.pic_url = profile_image_url
     user.profile.save()
     return True
 

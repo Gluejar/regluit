@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -302,6 +302,7 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('author'))
         self.assertTrue(r.has_key('description'))
         self.assertTrue(r.has_key('cover_image_thumbnail'))
+        self.assertTrue(r['cover_image_thumbnail'].startswith('https'))
         self.assertTrue(r.has_key('publisher'))
         self.assertTrue(r.has_key('isbn_13'))
         self.assertTrue(r.has_key('googlebooks_id'))
@@ -352,6 +353,12 @@ class CampaignTests(TestCase):
         c2 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c2.save()
         self.assertEqual(c2.status, 'INITIALIZED')
+        u = User.objects.create_user('claimer', 'claimer@example.com', 'claimer')
+        u.save()
+        rh = RightsHolder(owner = u, rights_holder_name = 'rights holder name')
+        rh.save()
+        cl = Claim(rights_holder = rh, work = w, user = u, status = 'active')
+        cl.save()
         c2.activate()
         self.assertEqual(c2.status, 'ACTIVE')
         # SUSPENDED
