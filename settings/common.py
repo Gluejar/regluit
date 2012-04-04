@@ -224,3 +224,5 @@ IS_PREVIEW = True
 JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
 JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
 
+# Mailchimp archive JavaScript URL
+CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=5"
