@@ -55,16 +55,19 @@ input[type="submit"] {
 .comments {
 	border: solid 3px @blue-grey;
 	margin: 3px auto;
+	
+	div {
+		float: left;
+	}
 
 	.comments_book {
 		.mediaborder;
-		float: left;
 		margin: 5px;
 	}
 	
 	.comments_info {
-		float: left;
-	
+		max-width: 500px;
+		
 		.comments_graphical {
 			border-bottom: solid 1px @blue-grey;
 			margin: 5px;
@@ -72,7 +75,7 @@ input[type="submit"] {
 		}
 		
 		.comments_textual {
-			margin: auto 5px;
+			margin: 10px 5px auto;
 		}
 	}
 }

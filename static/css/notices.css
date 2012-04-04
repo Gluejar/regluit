@@ -150,14 +150,16 @@ input[type="submit"] {
   border: solid 3px #d6dde0;
   margin: 3px auto;
 }
+.comments div {
+  float: left;
+}
 .comments .comments_book {
   padding: 5px;
   border: solid 5px #EDF3F4;
-  float: left;
   margin: 5px;
 }
 .comments .comments_info {
-  float: left;
+  max-width: 500px;
 }
 .comments .comments_info .comments_graphical {
   border-bottom: solid 1px #d6dde0;
@@ -165,5 +167,5 @@ input[type="submit"] {
   padding-bottom: 5px;
 }
 .comments .comments_info .comments_textual {
-  margin: auto 5px;
+  margin: 10px 5px auto;
 }
