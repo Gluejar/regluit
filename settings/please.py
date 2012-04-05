@@ -1,6 +1,4 @@
 from regluit.settings.common import *
-import regluit
-import datetime
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -120,24 +118,6 @@ LOGGING = {
 STATIC_ROOT = '/var/www/static'
 
 IS_PREVIEW = False
-
-# periodic tasks for celery
-# start out with nothing scheduled
-CELERYBEAT_SCHEDULE = {}
-
-# define some periodic tasks
-
-SEND_TEST_EMAIL_JOB = {
-    "task": "regluit.core.tasks.send_mail_task",
-    "schedule": datetime.timedelta(seconds=30),
-    "args": ('hi there', 'testing 1, 2, 3', 'raymond.yee@gmail.com', ['raymond.yee@gmail.com'])
-}
-
-EMIT_NOTIFICATIONS_JOB = {
-    "task": "regluit.core.tasks.emit_notifications",
-    "schedule": datetime.timedelta(seconds=60),
-    "args": ()    
-}
 
 # decide which of the period tasks to add to the schedule
 CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
