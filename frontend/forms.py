@@ -193,7 +193,7 @@ class ManageCampaignForm(forms.ModelForm):
     def clean_license(self):
         new_license = self.cleaned_data['license']
         if self.instance:
-            if self.instance.status == 'ACTIVE':
+            if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
                 raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
         return new_license
 
