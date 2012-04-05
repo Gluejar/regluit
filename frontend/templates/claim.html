@@ -10,9 +10,9 @@
 <li>Title: <a href="{% url work work.id %}">{{ work.title }}</a></li>
 <li>Author: {{ work.author }}</li>
 </ul>
-{% if work.claim.count %}
+{% if active_claims.count %}
 
-    {% for otherclaim in work.claim.all %}
+    {% for otherclaim in active_claims %}
         {% ifequal rights_holder.id otherclaim.rights_holder.id %} 
         <p><a href="{% url work work.id %}">This work</a> has already been claimed by {{ rights_holder.rights_holder_name }}</p>
         {% else %}

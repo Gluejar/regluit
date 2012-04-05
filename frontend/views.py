@@ -793,7 +793,8 @@ def claim(request):
     else:
         work = models.Work.objects.get(id=data['claim-work'])
         rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
-        context = {'form': form, 'work': work, 'rights_holder':rights_holder }
+        active_claims = work.claim.exclude(status = 'release')
+        context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
         return render(request, "claim.html", context)
 
 def rh_tools(request):
