@@ -36,7 +36,7 @@
     <form method="POST" action="{% url campaign_by_id pk=campaign.id %}"  onsubmit="test()">
         {% csrf_token %}
        {{form.as_p}}
-       <input type="submit" value="Pledge" id="pledgeBtn"/>
+       <input type="submit" value="Pledge" id="pledgeBtn" />
     </form>
     
     <!-- All associated transactions -->
