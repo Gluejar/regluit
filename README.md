@@ -30,6 +30,7 @@ to install python-setuptools in step 1:
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate --noinput`
 1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.`
+1. `django-admin.py celerybeat -l INFO` to start the celerybeat daemon to handle scheduled tasks.
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. point your browser at http://localhost:8000/
 
