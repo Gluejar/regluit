@@ -226,3 +226,23 @@ JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
 
 # Mailchimp archive JavaScript URL
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=5"
+
+# periodic tasks for celery
+# start out with nothing scheduled
+CELERYBEAT_SCHEDULE = {}
+
+# define some periodic tasks
+
+SEND_TEST_EMAIL_JOB = {
+    "task": "regluit.core.tasks.send_mail_task",
+    "schedule": datetime.timedelta(seconds=30),
+    "args": ('hi there', 'testing 1, 2, 3', 'raymond.yee@gmail.com', ['raymond.yee@gmail.com'])
+}
+
+EMIT_NOTIFICATIONS_JOB = {
+    "task": "regluit.core.tasks.emit_notifications",
+    "schedule": datetime.timedelta(seconds=60),
+    "args": ()    
+}
+
+# by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
