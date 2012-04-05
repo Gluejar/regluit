@@ -48,8 +48,8 @@ class CeleryTask(models.Model):
         
 class Claim(models.Model):
     STATUSES = ((
-        u'active', u'Claim has been registered and approved.'),
-        (u'pending', u'Claim is pending approval.'),
+        u'active', u'Claim has been accepted.'),
+        (u'pending', u'Claim is pending acceptance.'),
         (u'release', u'Claim has not been accepted.'),
     )
     created =  models.DateTimeField(auto_now_add=True)  

@@ -101,9 +101,9 @@ $j(document).ready(function(){
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
-                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Change Pledge"/></form></div>
+                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Change Pledge" /></form></div>
                           {% else %}
-                          	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
+                          	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support" /></form></div>
                           {% endif %}
                           {% endif %}
 					  </div>
@@ -246,13 +246,13 @@ $j(document).ready(function(){
  
                         <h4> Rights Information </h4>
                         {% if claimstatus == 'one_active' %}
-                          <p>This work has been claimed by {{ rights_holder_name }}.  The claim has been registered and approved by Unglue.It staff.</p>
+                          <p>This work has been claimed by {{ rights_holder_name }}.</p>
                         {% else %}
                           {% if claimstatus == 'disputed' %}
                             <p>Rights claims are pending.</p>
                           {% else %}
                             {% if claimstatus == 'one_pending' %}
-                              <p>This work has been claimed by {{ rights_holder_name }}.  The claim is being verified by Unglue.It staff.</p>                              
+                              <p>A claim for this work by {{ rights_holder_name }} is pending.</p>                              
                             {% else %}
                         	  {% if request.user.rights_holder.all.count %}
 	                        	Is this work yours?  Claim it: <br /><br />
