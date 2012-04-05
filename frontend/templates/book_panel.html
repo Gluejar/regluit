@@ -132,7 +132,7 @@
     	{% else %}{% ifequal status "INITIALIZED" %}
         <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 		{% else %}
-        <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text"></span>
+        <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
         {% endifequal %}{% endifequal %}
     </div>
     <div class="listview panelfront side1 icons">
