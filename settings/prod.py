@@ -1,4 +1,6 @@
 from regluit.settings.common import *
+import regluit
+import datetime
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
