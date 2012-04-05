@@ -80,6 +80,12 @@ Instructions for setting please are slightly different.
 1. `sudo mkdir /var/log/celery`
 1. `sudo chown celery:celery /var/log/celery`
 1. `sudo /etc/init.d/celeryd start`
+1. `sudo cp deploy/celerybeat /etc/init.d/celerybeat`
+1. `sudo chmod 755 /etc/init.d/celerybeat`
+1. `sudo cp deploy/celerybeat.conf /etc/default/celerybeat`
+1. `sudo mkdir /var/log/celerybeat`
+1. `sudo chown celery:celery /var/log/celerybeat`
+1. `sudo /etc/init.d/celerybeat start`
 
 Updating Production
 --------------------
