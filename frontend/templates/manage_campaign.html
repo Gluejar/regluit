@@ -65,7 +65,7 @@ The ending date can't be more than six months away- that's a practical limit for
 <p> To save your work, or to launch the campaign, click a button below.</p>
 
 <input type="submit" name="save" value="Save Campaign" />
-{% ifequal campign.status 'INITIALIZED' %}
+{% ifequal campaign.status 'INITIALIZED' %}
 <input type="submit" name="launch" value="Launch Campaign" />
 {% endifequal %}
 </form>
