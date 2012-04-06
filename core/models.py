@@ -233,6 +233,10 @@ class Campaign(models.Model):
         """returns  the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
+
+    def custom_premiums(self):
+        """returns only the active custoe premiums for the Campaign """
+        return Premium.objects.filter(campaign=self).filter(type='CU')
         
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib

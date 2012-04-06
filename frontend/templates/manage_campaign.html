@@ -87,7 +87,9 @@ The ending date can't be more than six months away- that's a practical limit for
         </li>
         {% endfor %}
      </ul>
+     {% if campaign.custom_premiums.count %}
      <input type="submit" name="inactivate" value="Inactivate Checked Premiums" />
+     {% endif %}
     </form>
 </div>
 <h4>Add a custom premium for this campaign</h4>
