@@ -45,7 +45,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
 			<br />Date of Claim : {{ claim.created }}
-			<br />Status of Claim: {{ claim.status }}
+			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.can_open_new  %}
 			<h3>Open a campaign for this work</h3>
 			<form method="POST" action="#">
