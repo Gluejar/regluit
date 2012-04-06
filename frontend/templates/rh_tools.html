@@ -21,16 +21,18 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	<dl>
 	{% for campaign in request.user.campaigns.all %}
 		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
-		<div class="work_campaigns clearfix">
-		<div class="campaign_info">
-			<dd>Campaign: {{ campaign.name }}<br />
+		<dd>
+			<div class="work_campaigns clearfix">
+			<div class="campaign_info">
+			Campaign: {{ campaign.name }}<br />
 			Campaign status: {{ campaign.status }}	<br />
-			Created: {{ campaign.created }}</dd>
+			Created: {{ campaign.created }}
 			</div>
 			<div>
 				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
 			</div>
 			</div>
+		</dd>
 	{% endfor %}
 	</dl>
 {% endif %}
@@ -43,7 +45,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
 			<br />Date of Claim : {{ claim.created }}
-			<br />Status of Claim: {{ claim.status }}
+			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.can_open_new  %}
 			<h3>Open a campaign for this work</h3>
 			<form method="POST" action="#">
@@ -55,7 +57,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
 				</p>
 				
-				<input type="submit" name="submit" value="Open Campaign" id="submit">
+				<input type="submit" name="submit" value="Open Campaign">
 			</form>
 			{% else %}{%if claim.campaigns %}			
 			<h3>Campaigns for this work</h3>
@@ -67,12 +69,14 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
 				<form method="POST" action="#">{% csrf_token %}
 					Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
-					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers" id="submit">
+					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
 				</form>
 			</div>
+			{% if request.user in campaign.managers.all %}
 			<div>
 				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
 			</div>
+			{% endif %}
 			</div>
 			{% endfor %}
 			{% endif %}

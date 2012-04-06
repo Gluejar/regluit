@@ -48,8 +48,8 @@ class CeleryTask(models.Model):
         
 class Claim(models.Model):
     STATUSES = ((
-        u'active', u'Claim has been registered and approved.'),
-        (u'pending', u'Claim is pending approval.'),
+        u'active', u'Claim has been accepted.'),
+        (u'pending', u'Claim is pending acceptance.'),
         (u'release', u'Claim has not been accepted.'),
     )
     created =  models.DateTimeField(auto_now_add=True)  
@@ -145,7 +145,8 @@ class Campaign(models.Model):
 
     
     def update_status(self):
-        """  updates the campaign's status. returns true if updated
+        """Updates the campaign's status. returns true if updated.  Computes SUCCESSFUL or UNSUCCESSFUL only after the deadline has passed
+          
         """
         if not self.status=='ACTIVE':
             return False
@@ -154,8 +155,9 @@ class Campaign(models.Model):
                 self.status = 'SUCCESSFUL'
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
                 action.save()
+                regluit.core.signals.successful_campaign.send(sender=None,campaign=self)
             else:
-                self.status =  'UNSUCCESSFUL'
+                self.status = 'UNSUCCESSFUL'
                 action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
                 action.save()
             self.save()
@@ -231,6 +233,10 @@ class Campaign(models.Model):
         """returns  the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
+
+    def custom_premiums(self):
+        """returns only the active custoe premiums for the Campaign """
+        return Premium.objects.filter(campaign=self).filter(type='CU')
         
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib

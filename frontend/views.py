@@ -793,7 +793,8 @@ def claim(request):
     else:
         work = models.Work.objects.get(id=data['claim-work'])
         rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
-        context = {'form': form, 'work': work, 'rights_holder':rights_holder }
+        active_claims = work.claim.exclude(status = 'release')
+        context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
         return render(request, "claim.html", context)
 
 def rh_tools(request):
@@ -817,7 +818,7 @@ def rh_tools(request):
                 else:
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.status == 'active' and claim.can_open_new:
-            if request.method == 'POST' and int(request.POST['work']) == claim.work.id :
+            if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
@@ -1683,3 +1684,12 @@ def feedback(request):
 def comment(request):
     latest_comments = Comment.objects.all().order_by('-submit_date')[:20]
     return render(request, "comments.html", {'latest_comments': latest_comments})
+
+def campaign_archive_js(request):
+    """ proxy for mailchimp js"""
+    response = HttpResponse()
+    r = requests.get(settings.CAMPAIGN_ARCHIVE_JS)
+    response.status_code = r.status_code
+    response.content = r.content
+    response["Content-Type"] = "text/javascript"
+    return response

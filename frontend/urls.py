@@ -65,6 +65,7 @@ urlpatterns = patterns(
     url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
     url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
+    url(r'^campaign_archive.js/$', "campaign_archive_js", name='campaign_archive_js'),
 )
 
 if not settings.IS_PREVIEW:
