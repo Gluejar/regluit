@@ -850,6 +850,7 @@ def rh_admin(request):
             pending_formset = PendingFormSet (queryset=pending_data)
             if form.is_valid():
                 form.save()
+                form = RightsHolderForm()
         if 'set_claim_status' in request.POST.keys():
             pending_formset = PendingFormSet (request.POST, request.FILES, queryset=pending_data)
             form = RightsHolderForm()
