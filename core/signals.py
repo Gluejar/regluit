@@ -66,7 +66,7 @@ registration.signals.user_activated.connect(merge_emails)
 # create notification types (using django-notification) -- tie to syncdb
 
 def create_notice_types(app, created_models, verbosity, **kwargs):
-    notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"))
+    notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"), default = 1)
     notification.create_notice_type("coment_on_commented", _("Comment on Commented Work"), _("a comment has been received on a book that you've commented on"))
     notification.create_notice_type("successful_campaign", _("Successful Campaign"), _("a campaign that you have supported or followed has succeeded"))
     notification.create_notice_type("active_campaign", _("New Campaign"), _("a book you've wishlisted has a newly launched campaign"))
