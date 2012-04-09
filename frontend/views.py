@@ -222,7 +222,7 @@ def manage_campaign(request, id):
             else:
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
-                if campaign.launchable :
+                if campaign.launchable and form.is_valid() :
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
                 else:
