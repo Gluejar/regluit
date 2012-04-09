@@ -165,6 +165,7 @@ input[type="submit"] {
   border-bottom: solid 1px #d6dde0;
   margin: 5px;
   padding-bottom: 5px;
+  float: none;
 }
 .comments .comments_info .comments_textual {
   margin: 10px 5px auto;
