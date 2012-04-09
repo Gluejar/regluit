@@ -541,6 +541,26 @@ a.manage {
 a.manage:hover {
   text-decoration: none;
 }
+.rh_help {
+  cursor: pointer;
+  color: #8ac3d7;
+}
+.rh_help:hover {
+  text-decoration: underline;
+}
+.rh_answer {
+  display: none;
+  padding-left: 10px;
+  margin-bottom: 7px;
+  border: solid 2px #d6dde0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-indent: 0 !important;
+}
 .work_campaigns {
   border: 1px solid #d6dde0;
   margin: 10px auto;

@@ -2,6 +2,21 @@
 
 {% block title %}Campaign Management{% endblock %}
 
+{% block extra_extra_head %}
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+	$j('span.rh_help').click(
+		function() {
+			var questionID = $j(this).attr('id');
+			var answerID = "#"+questionID+"2";
+			$j(answerID).toggle(300);
+		}
+	);
+});
+</script>
+{% endblock %}
+
 {% block doccontent %}  
 {% if campaign.not_manager %}
 <h2>You're not a manager for campaign: {{ campaign.name }}</h2>
@@ -9,7 +24,7 @@
 {% for alert in alerts %}
 <h1 class="alert">{{ alert }}</h1>
 {% empty %}
-<h1>Manage the  campaign</h1>
+<h1>Manage the campaign</h1>
 {% endfor %}
 {% for problem in problems %}
 Please fix the following before launching your campaign:
@@ -25,8 +40,8 @@ Please fix the following before launching your campaign:
         <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
         <h3 class="book-year">Published: {{ campaign.work.publication_date }}</h3>
         <h3 class="book-author">Language: {{ campaign.work.editions.all.0.language }}</h3>
-        <p>Target Price: {{ campaign.pretarget }}</p>
-        <p>End Date: {{ campaign.predeadline }}</p>
+        <p>Target Price: ${{ campaign.target }}</p>
+        <p>End Date: {{ campaign.deadline|date:"M d, Y" }}</p>
         <p>Campaign status: {{ campaign.status }}</p>
     </div>
 
@@ -36,8 +51,30 @@ Please fix the following before launching your campaign:
 <p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
 <ul class="terms">
 <li>A synopsis of the work.</li>
-<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself.</li>
-<li>Anything especially appealing about the work or author: awards, embedded video (460px max), etc.</li>
+<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself. <span class="rh_help" id="helpHyperlink">(How do I hyperlink?)</span></li>
+<div class="rh_answer" id="helpHyperlink2">
+<p>Format a hyperlink like this:</p>
+<p>&lt;a href="http://your_link_here"&gt;your link title here&lt;/a&gt;</p>
+<p>For example:</p>
+<p>&lt;a href="http://www.archive.org"&gt;the Internet Archive&lt;/a&gt;</p>
+<p>will display as <a href="http://www.archive.org">the Internet Archive</a>.</p>
+<p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
+</div>
+<li>Anything especially appealing about the work or author: awards, embedded video (460px max), etc. <span class="rh_help" id="helpEmbed">(How do I embed video?)</span></li>
+<div id="helpEmbed2" class="rh_answer">
+{% comment %}
+<p>Format a hyperlink like this:</p>
+<p>&lt;a href="http://your_link_here"&gt;your link title here&lt;/a&gt;</p>
+<p>For example:</p>
+<p>&lt;a href="http://www.archive.org"&gt;the Internet Archive&lt;/a&gt;</p>
+<p>will display as <a href="http://www.archive.org">the Internet Archive</a>.</p>
+<p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
+cover this specifically for youtube
+make sure instructions will work for https; do we need to backstop that in case they type in http rather than // ?
+what about vimeo?
+talk to Raymond about secure content...
+{% endcomment %}
+</div>
 </ul>
 {{ form.description }}{{ form.description.errors }}
 <h3>Offer details</h2>
@@ -61,10 +98,13 @@ The ending date can't be more than six months away- that's a practical limit for
 
 <h3>Paypal collection address</h2>
 <p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
-{{ form.paypal_receiver }}{{ form.paypal_receiver.errors }}
-<p> To save your work, or to launch the campaign, click a button below.</p>
+{{ form.paypal_receiver }}{{ form.paypal_receiver.errors }}</p>
 
+{% ifequal campaign.status 'ACTIVE' %}
+<input type="submit" name="save" value="Modify Campaign" />
+{% else %}
 <input type="submit" name="save" value="Save Campaign" />
+{% endifequal %}
 {% ifequal campaign.status 'INITIALIZED' %}
 <input type="submit" name="launch" value="Launch Campaign" />
 {% endifequal %}
