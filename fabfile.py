@@ -13,6 +13,10 @@ def rydev():
     env.user = 'ubuntu'
     env.key_filename = key_path    
 
+def update_prod():
+    with cd("/opt/regluit"):
+        run("./deploy/update-prod")
+
 def get_dump():
     run("./dump.sh > unglue.it.sql ")
     run("gzip -f unglue.it.sql")
