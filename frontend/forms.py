@@ -124,6 +124,7 @@ class OpenCampaignForm(forms.ModelForm):
             label='Campaign Managers',
             widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
             required=True,
+            error_messages = {'required': "You must have at least one manager for a campaign."},
         )
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
@@ -137,6 +138,7 @@ class EditManagersForm(forms.ModelForm):
             label='Campaign Managers',
             widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
             required=True,
+            error_messages = {'required': "You must have at least one manager for a campaign."},
         )
     class Meta:
         model = Campaign
