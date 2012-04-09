@@ -23,7 +23,7 @@
             {% csrf_token %}
             {{ form.as_p }}
             {% include "claim_terms.html" %}
-            <input type="submit" name="submit" value="Confirm Claim" id="submit">
+            <input type="submit" name="submit" value="Confirm Claim">
         </form>        
         {% endifequal %}
     {% endfor %}
@@ -34,9 +34,11 @@
         {% csrf_token %}
         {{ form.as_p }}
         {% include "claim_terms.html" %}
-        <input type="submit" name="submit" value="Confirm Claim" id="submit">
+        <input type="submit" name="submit" value="Confirm Claim">
     </form>
 {% endif %}
-
-
+<h3> Interfering claims  </h3>
+<p>
+When a rights holder claims a work in unglue.it, they warrant and represent that they have sufficient rights to release a Creative Commons edition of that work. Unfortunately, mistakes can occur, especially for older works with unclear contracts and hard-to-find rights holders. For that reason, rights holders also agree to respond promptly to rights inquiries, and unglue.it reserves the right to suspend campaigns when disputes over rights arise. If you have a question about claims for this work, please contact rights@gluejar.com
+</p>
 {% endblock %}

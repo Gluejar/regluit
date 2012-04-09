@@ -805,16 +805,19 @@ def rh_tools(request):
     if not claims:
         return render(request, "rh_tools.html")
     for claim in claims:
-        claim.campaigns= claim.work.campaigns.all()
+        if claim.status == 'active':
+            claim.campaigns = claim.work.campaigns.all()
+        else:
+            claim.campaigns = []
         claim.can_open_new=True
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
                 claim.can_open_new=False
-            if campaign.status == 'ACTIVE':
                 if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
                     campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
                     if campaign.edit_managers_form.is_valid():
                         campaign.edit_managers_form.save()
+                        campaign.edit_managers_form = EditManagersForm(instance=campaign, prefix=campaign.id)
                 else:
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.status == 'active' and claim.can_open_new:
@@ -847,6 +850,7 @@ def rh_admin(request):
             pending_formset = PendingFormSet (queryset=pending_data)
             if form.is_valid():
                 form.save()
+                form = RightsHolderForm()
         if 'set_claim_status' in request.POST.keys():
             pending_formset = PendingFormSet (request.POST, request.FILES, queryset=pending_data)
             form = RightsHolderForm()
