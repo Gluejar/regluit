@@ -9,7 +9,9 @@ Using this template will allow notices.css to apply to all notices for a uniform
 <div class="comments clearfix">
 	<div class="comments_book">
 		{% comment %}
-		Your cover image goes here.
+		Your cover image goes here. e.g.:
+		<a href="{% url work work.id %}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+		modify as needed for your local context variables
 		{% endcomment %}
 	</div>
 	
@@ -19,6 +21,15 @@ Using this template will allow notices.css to apply to all notices for a uniform
 			This is where you put graphics-oriented header info for the notice.
 			Examples include user avatars and campaign status icons.
 			Some text is OK.
+			e.g.:
+	        <a href="{% url supporter supporter_username=user %}">
+	        	{% if supporter.profile.pic_url %}
+            		<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
+		        {% else %}
+        		    <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+		        {% endif %}
+		    </a>
+	        <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
 			{% endcomment %}
 		</div>
 		<div class="comments_textual">

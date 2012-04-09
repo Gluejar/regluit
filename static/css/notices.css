@@ -157,9 +157,10 @@ input[type="submit"] {
   padding: 5px;
   border: solid 5px #EDF3F4;
   margin: 5px;
+  max-width: 80px;
 }
 .comments .comments_info {
-  max-width: 500px;
+  width: 590px;
 }
 .comments .comments_info .comments_graphical {
   border-bottom: solid 1px #d6dde0;

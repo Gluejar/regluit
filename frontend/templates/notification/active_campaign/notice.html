@@ -6,7 +6,7 @@
 	
 	<div class="comments_info">
 		<div class="comments_graphical">
-	        <div>The rights holder, {{ rightsholder }}, has launched a campaign for <a href="{% url work id %}">{{ campaign.work.title }}</a>!</div>
+	        <span>The rights holder, {{ rightsholder }}, has launched a campaign for <a href="{% url work id %}">{{ campaign.work.title }}</a>!</span>
 		</div>
 		<div class="comments_textual">
 			<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ campaign.work.title }}</i> will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
