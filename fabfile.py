@@ -42,6 +42,9 @@ def list_dir():
     with cd(code_dir):
         run("ls")
 
+def reboot():
+    """Reboot from the command line -- USE WITH CARE"""
+    run("sudo shutdown -r now")
 
 def host_type():
     run('uname -s')
