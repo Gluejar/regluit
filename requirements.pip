@@ -22,3 +22,4 @@ pytz
 django-notification
 boto
 fabric
+git+git://github.com/agiliq/merchant.git#egg=django-merchant
