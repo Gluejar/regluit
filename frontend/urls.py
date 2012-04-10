@@ -40,6 +40,7 @@ urlpatterns = patterns(
     url(r"^goodreads/shelves/$","goodreads_calc_shelves", name="goodreads_calc_shelves"),
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
+    url(r"^work/(?P<work_id>\d+)/preview/$", "work", {'action': 'preview'}, name="work_preview"),
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
     url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", "work_openlibrary", name="work_openlibrary"),

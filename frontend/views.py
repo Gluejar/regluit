@@ -137,6 +137,8 @@ def work(request, work_id, action='display'):
             activetab = '1';
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
+    if action == 'preview':
+        work.last_campaign_status = 'ACTIVE'
     try:
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
