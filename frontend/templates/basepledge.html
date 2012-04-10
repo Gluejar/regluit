@@ -23,20 +23,20 @@ $j("#js-leftcol").ready(function() {
 
 {% block content %}
 <div id="main-container">
-	<div class="js-main">
+	<div class="js-main pledge">
 		<div id="js-leftcol">
 			{% if faqmenu == "pledge" %}
 			{% include "faq_pledge.html" %}
-			{% else %}{% if faqmenu == "complete" %}
-			{% include "faq_pledge_complete.html" %}
 			{% else %}{% if faqmenu == "cancel" %}
 			{% include "faq_pledge_cancel.html" %}
+			{% else %}{% if faqmenu == "complete" %}
+			{% include "sidebar_pledge_complete.html" %}
 			{% endif %}{% endif %}{% endif %}
 		</div>
 		<div id="js-maincol-fr" class="have-right doc">
 			<div class="js-maincol-inner">
 				<div id="content-block">
-					<div id="js-main-container">
+					<div id="js-main-container" {% if faqmenu == "complete" %}class="pledge-container"{% endif %}>
             			<div class="js-main-container-inner">
 
     
@@ -50,6 +50,14 @@ $j("#js-leftcol").ready(function() {
 	</div>
 </div>    
 
+{% if faqmenu == "complete" %}
+	<br />
+	<div id="js-slide">
+		<div class="jsmodule pledge">
+			{% include "slideshow.html" %}
+		</div>
+	</div>
+{% endif %}
 {% endblock %}
 
 

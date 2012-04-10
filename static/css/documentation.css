@@ -521,9 +521,6 @@ dd {
   border: solid 5px #EDF3F4;
 }
 /* Miscellaneous */
-p.pledge_complete {
-  margin: 7px auto;
-}
 a.manage {
   background: #8dc63f;
   color: white;
@@ -571,4 +568,32 @@ a.manage:hover {
 .work_campaigns div.campaign_info {
   width: 60%;
   margin: 5px;
+}
+h2.thank-you {
+  font-size: 34px;
+  color: #8dc63f;
+}
+.pledge_complete {
+  font-size: 14px;
+  line-height: 17px;
+  margin-bottom: 14px;
+}
+#js-slide .jsmodule.pledge {
+  width: 960px !important;
+}
+h3 .pledge_indent {
+  margin-left: 215px;
+}
+ul.social.pledge {
+  margin-bottom: 150px;
+}
+ul.social.pledge li {
+  float: left;
+  padding-right: 30px !important;
+}
+#widgetcode {
+  float: right;
+}
+div.pledge-container {
+  width: 100%;
 }

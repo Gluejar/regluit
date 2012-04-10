@@ -657,9 +657,9 @@ class PledgeCompleteView(TemplateView):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
             
-        worklist = slideshow(8)
-        works = worklist[:4]
-        works2 = worklist[4:8]
+        worklist = slideshow(12)
+        works = worklist[:6]
+        works2 = worklist[6:12]
 
         context["transaction"] = transaction
         context["correct_user"] = correct_user
