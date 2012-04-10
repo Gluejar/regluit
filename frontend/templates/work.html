@@ -13,15 +13,17 @@
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
+<script type="text/javascript" src="/static/js/embed.js"></script>
 
 <script>
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
-    $j('#embed').click(function(){
-        $j('div#widgetcode').toggle();
-    });
     $j('.show_more_edition').click(function(){
-        $j(this).html('less...');
+        if ($j(this).html() == 'less...') {
+        	$j(this).html('more...')
+        } else {
+        	$j(this).html('less...')
+        }
         $j(this).next().toggle();
     });
 });
