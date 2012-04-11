@@ -98,7 +98,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'django.contrib.contenttypes',  
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
@@ -118,7 +118,9 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
+    'regluit.payment.templatetags',
     'notification',
+    'billing',
 
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration

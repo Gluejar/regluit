@@ -3,13 +3,19 @@ from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
+from django.contrib.sites.models import RequestSite
 from regluit.payment.parameters import *
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
+from django.template import RequestContext
+
 from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
+from regluit.payment.urls import amazon_fps_obj, fps_recur_obj
 import traceback
 
 import logging
@@ -305,7 +311,37 @@ def checkStatus(request):
         
     return HttpResponse(error_data, mimetype="text/xml")
 
+# https://raw.github.com/agiliq/merchant/master/example/app/views.py
 
+def _render(request, template, template_vars={}):
+    return render_to_response(template, template_vars, RequestContext(request))
     
+def testfps(request):
+    url_scheme = "http"
+    if request.is_secure():
+        url_scheme = "https"
+    fields = {"transactionAmount": "100",
+              "pipelineName": "SingleUse",
+              "paymentReason": "Merchant Test",
+              "paymentPage": request.build_absolute_uri(),
+              "returnURL": "%s://%s%s" % (url_scheme,
+                                          RequestSite(request).domain,
+                                          reverse("fps_return_url"))
+              }
+    # Save the fps.fields["callerReference"] in the db along with
+    # the amount to be charged or use the user's unique id as
+    # the callerReference so that the amount to be charged is known
+    # Or save the callerReference in the session and send the user
+    # to FPS and then use the session value when the user is back.
+    amazon_fps_obj.add_fields(fields)
+    fields.update({"transactionAmount": "100",
+                   "pipelineName": "Recurring",
+                   "recurringPeriod": "1 Hour",
+                   })
+    fps_recur_obj.add_fields(fields)
+    template_vars = {'title': 'Amazon Flexible Payment Service', 
+                     "fps_recur_obj": fps_recur_obj, 
+                     "fps_obj": amazon_fps_obj}
+    return _render(request, 'amazon_fps.html', template_vars)
     
     
