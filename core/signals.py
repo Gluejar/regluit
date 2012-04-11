@@ -67,7 +67,7 @@ registration.signals.user_activated.connect(merge_emails)
 
 def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"), default = 1)
-    notification.create_notice_type("coment_on_commented", _("Comment on Commented Work"), _("a comment has been received on a book that you've commented on"))
+    notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("a comment has been received on a book that you've commented on"))
     notification.create_notice_type("successful_campaign", _("Successful Campaign"), _("a campaign that you have supported or followed has succeeded"))
     notification.create_notice_type("active_campaign", _("New Campaign"), _("a book you've wishlisted has a newly launched campaign"))
 
@@ -81,7 +81,7 @@ def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
     other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user.id)
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
-    notification.queue(other_commenters, "coment_on_commented", {'comment':comment}, True)
+    notification.queue(other_commenters, "comment_on_commented", {'comment':comment}, True)
     notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
 
 comment_was_posted.connect(notify_comment)
