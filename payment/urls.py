@@ -26,11 +26,10 @@ if not settings.IS_PREVIEW:
         url(r"^testfinish", "testFinish"),
         url(r"^testrefund", "testRefund"),
         url(r"^testmodify", "testModify"),
-        url(r"^testfps", "testfps"),
     )
     urlpatterns += patterns('',
          (r'^fps/', include(amazon_fps_obj.urls)),
-         url(r'^amazon_fps/$', 'regluit.payment.views.testfps', name='app_offsite_amazon_fps'),
+         url(r'^testfps/$', 'regluit.payment.views.testfps', name='app_offsite_amazon_fps'),
     )
     
          
