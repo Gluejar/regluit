@@ -250,3 +250,7 @@ EMIT_NOTIFICATIONS_JOB = {
 }
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
+
+# Amazon credentials (for fps)
+AWS_ACCESS_KEY = ''
+AWS_SECRET_ACCESS_KEY = ''
