@@ -30,4 +30,8 @@ if not settings.IS_PREVIEW:
     )
     urlpatterns += patterns('',
          (r'^fps/', include(amazon_fps_obj.urls)),
+         url(r'^amazon_fps/$', 'regluit.payment.views.testfps', name='app_offsite_amazon_fps'),
     )
+    
+         
+     

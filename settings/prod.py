@@ -121,3 +121,7 @@ STATIC_ROOT = '/var/www/static'
 # decide which of the period tasks to add to the schedule
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
+
+# Amazon credentials (for fps)
+AWS_ACCESS_KEY = ''
+AWS_SECRET_ACCESS_KEY = ''
