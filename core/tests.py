@@ -450,6 +450,7 @@ class GoodreadsTest(TestCase):
         gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
         # test to see whether there is a book field in each of the review
+        # url for test is http://www.goodreads.com/review/list.xml?id=767708&shelf=read&page=1&per_page=20&order=a&v=2&key=[key]
         self.assertTrue(all([r.has_key("book") for r in reviews]))
 
 class LibraryThingTest(TestCase):
