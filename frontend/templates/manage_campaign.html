@@ -34,6 +34,8 @@ Please fix the following before launching your campaign:
 </ul>
 {% empty %}
 {% endfor %}
+
+Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.<br />
 <h2>The work</h2>
     <div class="book-detail-info">
         <h2 class="book-name">Title: <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a></h2>
@@ -61,21 +63,19 @@ Please fix the following before launching your campaign:
 <p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
 </div>
 <li>Anything especially appealing about the work or author: awards, embedded video (460px max), etc. <span class="rh_help" id="helpEmbed">(How do I embed video?)</span></li>
-<div id="helpEmbed2" class="rh_answer">
-{% comment %}
-<p>Format a hyperlink like this:</p>
-<p>&lt;a href="http://your_link_here"&gt;your link title here&lt;/a&gt;</p>
-<p>For example:</p>
-<p>&lt;a href="http://www.archive.org"&gt;the Internet Archive&lt;/a&gt;</p>
-<p>will display as <a href="http://www.archive.org">the Internet Archive</a>.</p>
-<p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
-cover this specifically for youtube
-make sure instructions will work for https; do we need to backstop that in case they type in http rather than // ?
-what about vimeo?
-talk to Raymond about secure content...
-{% endcomment %}
-</div>
 </ul>
+<div id="helpEmbed2" class="rh_answer">
+<p>To embed a video from YouTube:</p>
+<p>Go to the page where you watch the video.  Under the video, click "Share".</p>
+<p>A new set of options will open up.  Click the "Embed" button.</p>
+<p>This will generate some code for you to copy/paste into the box below.  It will look something like this:</p>
+<p>&lt;iframe width="444" height="301" src="<span style="color:red">http:</span>//www.youtube-nocookie.com/embed/adeDb0BRMZY?rel=0" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</p>
+<p>Copy/paste that text into the box below.  Delete the part that says "http:" (shown in red in the example).  You're done!  We'll figure out the details.</p>
+<p>Of course, if you want to include other text in addition to video, you can do that.</p>
+<p>If you'd like to change the size of the video, feel free; just don't make it more than 445px wide.  Leaving it the default size is fine, too.</p>
+<p>If you'd like to embed a video from another source, please talk to us. You certainly can; we just want to make sure we've given you the right instructions.</p>
+</div>
+<p>Make it concise and emotionally appealing.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
 {{ form.description }}{{ form.description.errors }}
 <h3>Offer details</h2>
 <p>This will be displayed on the Details tab for your work.  It gives additional information for the highly curious.  It should include:</p>

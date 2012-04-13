@@ -216,6 +216,7 @@ ul.menu{
             float:left;
             padding:0 10px;
             position: relative;
+            z-index: 50;
             
             a {
                 color:@text-blue; 
@@ -230,16 +231,33 @@ ul.menu{
                 max-width: 240px;                
             }
             
-            #notification_count {
-                position: absolute;
-                right: 10px;
-            	top: -14px;
-            	color: @alert;
-            	background-color: white;
-            	border: solid 2px @alert;
-            	.one-border-radius(16px);
-            	padding: 3px;
-            	line-height: 16px;
+            #unseen_count {
+            	height: 0;
+            	
+            	div {
+					position: absolute;
+					right: 10px;
+					top: -16px;
+					border: solid 2px;
+					.one-border-radius(5px);
+					padding: 3px;
+					line-height: 16px;
+					width: 16px;
+					cursor: pointer;
+					text-align: center;
+					
+					&#yes {
+						background-color: @call-to-action;
+						color: white;
+						border-color: @call-to-action;
+					}
+					
+					&#no {
+						border-color: @blue-grey;
+						background-color: @blue-grey;
+						color: @pale-blue;
+					}
+            	}
             }
 
             &.last {
