@@ -46,7 +46,11 @@ Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.<b
         <p>End Date: {{ campaign.deadline|date:"M d, Y" }}</p>
         <p>Campaign status: {{ campaign.status }}</p>
     </div>
-
+    {% ifequal campaign.status 'INITIALIZED' %}
+    <div>
+        <a href="{% url work_preview campaign.work.id %}" class="manage">Preview This Campaign</a>
+    </div>
+    {% endifequal %}
 <h3>Description of the work offered for ungluing</h2>
 <form action="#" method="POST">
 {% csrf_token %}
