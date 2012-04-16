@@ -9,14 +9,14 @@
 	To: support@gluejar.com<br /><br />
     <form method="POST" action="/feedback/">
         {% csrf_token %}
-		{{ form.sender.label_tag }}</br>
 		{{ form.sender.errors }}
+		{{ form.sender.label_tag }}</br>
 		{{ form.sender }}</br><br />
-		{{ form.subject.label_tag }}</br>
 		{{ form.subject.errors }}
+		{{ form.subject.label_tag }}</br>
 		{{ form.subject }}</br><br />
-		{{ form.message.label_tag }}</br>
 		{{ form.message.errors }}
+		{{ form.message.label_tag }}</br>
 		{{ form.message }}</br><br />
 		{{ form.notarobot.errors }}
 		{{ form.non_field_errors }}

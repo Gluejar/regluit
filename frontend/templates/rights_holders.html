@@ -44,8 +44,8 @@
 	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
 	<dd>PSA #: {{ claim.rights_holder.id }}</dd>
 	<dd>Date of Claim : {{ claim.created }}</dd>
-	<dd>Status: {{ claim.status }}</dd>
-	<dd> Change to:</dd> {{ claim_form.as_p }}
+	<dd>Status of Claim: {{ claim.status }}</dd>
+	<dd>Change to:</dd> {{ claim_form.as_p }}
     <input type="submit" name="set_claim_status" value="Set Claim Status" id="submit">
 {% endfor %}
 </dl>
@@ -62,7 +62,7 @@
 	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
 	<dd>PSA #: {{ claim.rights_holder.id }}</dd>
 	<dd>Date of Claim : {{ claim.created }}</dd>
-	<dd>Status: {{ claim.status }}</dd>
+	<dd>Status of Claim: {{ claim.status }}</dd>
 {% endfor %}
 </dl>
 {% endif %}

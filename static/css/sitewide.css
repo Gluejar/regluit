@@ -74,9 +74,9 @@
   margin: 5px 0;
 }
 .errors {
-  -moz-border-radius: 0 0 16px 16px;
-  -webkit-border-radius: 0 0 16px 16px;
-  border-radius: 0 0 16px 16px;
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
   border: solid #e35351 3px;
   clear: both;
   width: 90%;
@@ -271,9 +271,9 @@ ul.menu {
   margin: 0;
 }
 .errorlist {
-  -moz-border-radius: 0 0 16px 16px;
-  -webkit-border-radius: 0 0 16px 16px;
-  border-radius: 0 0 16px 16px;
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
   border: solid #e35351 3px;
   clear: both;
   width: 90%;
