@@ -73,16 +73,16 @@
   margin: 5px 0;
 }
 .errors {
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  border: solid #e35351 4px;
+  -moz-border-radius: 0 0 16px 16px;
+  -webkit-border-radius: 0 0 16px 16px;
+  border-radius: 0 0 16px 16px;
+  border: solid #e35351 3px;
+  clear: both;
   width: 90%;
-  padding: 5px;
-  font-weight: bold;
-  padding: 7px 0;
-  height: 16px;
+  height: auto;
   line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
   text-align: center;
 }
 .errors li {
@@ -577,34 +577,26 @@ a {
 .show_more_edition {
   text-align: right;
 }
-.errorlist {
+.alert > .errorlist {
   list-style-type: none;
   font-size: 14px;
+  border: none;
+  text-align: left;
+  font-weight: normal;
+  font-size: 12px;
 }
-.errorlist li {
-  margin-bottom: 7px;
+.alert > .errorlist > li {
+  margin-bottom: 14px;
 }
-.errorlist .errorlist li {
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  border: solid #e35351 4px;
-  width: 90%;
-  padding: 5px;
-  font-weight: bold;
-  padding: 7px 0;
-  height: 16px;
-  line-height: 16px;
-  text-align: center;
+.alert > .errorlist .errorlist {
+  margin-top: 7px;
+}
+.alert > .errorlist .errorlist li {
   width: auto;
   height: auto;
   padding-left: 32px;
   padding-right: 32px;
   font-size: 12px;
-}
-.errorlist .errorlist li li {
-  list-style: none;
-  border: none;
 }
 #js-slide .jsmodule {
   width: 660px !important;
