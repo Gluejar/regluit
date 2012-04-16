@@ -16,6 +16,9 @@ from django.template import RequestContext
 from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
 from regluit.payment.urls import amazon_fps_obj, fps_recur_obj
+import billing
+
+from regluit.utils.localdatetime import now
 import traceback
 
 import logging
@@ -334,11 +337,28 @@ def testfps(request):
     # Or save the callerReference in the session and send the user
     # to FPS and then use the session value when the user is back.
     amazon_fps_obj.add_fields(fields)
+    
+    # let's save this object to the model that django-merchant has set up for amazon transactions
+    # billing.models.AmazonFPSResponse.objects.all()
+    fps_transaction = billing.models.AmazonFPSResponse()
+    fps_transaction.transactionDate = now()
+    fps_transaction.transactionAmount = 100.00
+    # force a calculation of the link_url so that callerReference gets calculated
+    logger.info("amazon_fps_obj.link_url: {0}".format(amazon_fps_obj.link_url))
+    try:
+        fps_transaction.callerReference = amazon_fps_obj.fields["callerReference"]
+    except Exception, e:
+        pass
+    
+    fps_transaction.save()
+    
     fields.update({"transactionAmount": "100",
                    "pipelineName": "Recurring",
                    "recurringPeriod": "1 Hour",
                    })
     fps_recur_obj.add_fields(fields)
+    
+    
     template_vars = {'title': 'Amazon Flexible Payment Service', 
                      "fps_recur_obj": fps_recur_obj, 
                      "fps_obj": amazon_fps_obj}
