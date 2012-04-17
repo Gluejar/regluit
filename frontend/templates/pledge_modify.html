@@ -65,14 +65,12 @@
 	
     	<form method="POST" action="{% url pledge_modify work_id=work.id %}">
         	{% csrf_token %}
-		{{ form.non_field_errors }}
-        	{{ form.preapproval_amount.errors }}
-        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: ${{ form.preapproval_amount }}</div>
-        	{{ form.anonymous.errors }}
+		    {{ form.non_field_errors }}
+        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
         	
         	{% comment %}
         	not supported yet; don't display
-        	{{ form.anonymous.label_tag }}: {{ form.anonymous }}	
+        	{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}	
         	{% endcomment %}
 
         	<ul class="support menu">

@@ -3,6 +3,12 @@
 {% block title %}Campaign Management{% endblock %}
 
 {% block extra_extra_head %}
+<style type="text/css">
+textarea {
+	width: 90%;
+}
+</style>
+
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
@@ -80,29 +86,29 @@ Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.<b
 <p>If you'd like to embed a video from another source, please talk to us. You certainly can; we just want to make sure we've given you the right instructions.</p>
 </div>
 <p>Make it concise and emotionally appealing.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
-{{ form.description }}{{ form.description.errors }}
+{{ form.description.errors }}{{ form.description }}
 <h3>Offer details</h2>
 <p>This will be displayed on the Details tab for your work.  It gives additional information for the highly curious.  It should include:</p>
 <ul class="terms">
 <li>Details about the edition being offered.</li>
 <li>Hyperlinks for the author(s), publisher making the offer, or for the work itself.</li>
 </uL>
-{{ form.details }}{{ form.details.errors }}
+{{ form.details.errors }}{{ form.details }}
 <h3>Target Price</h2>
 <p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it.</p>
-{{ form.target }}{{ form.target.errors }}
+{{ form.target.errors }}{{ form.target }}
 <h3>License being offered</h2>
 <p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/">Creative Commons</a></p>
-{{ form.license }}{{ form.license.errors }}
+{{ form.license.errors }}{{ form.license }}
 <h3>Ending date</h2>
 <p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
 The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
 
-{{ form.deadline }}{{ form.deadline.errors }}
+{{ form.deadline.errors }}{{ form.deadline }}
 
 <h3>Paypal collection address</h2>
 <p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
-{{ form.paypal_receiver }}{{ form.paypal_receiver.errors }}</p>
+{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 
 {% ifequal campaign.status 'ACTIVE' %}
 <input type="submit" name="save" value="Modify Campaign" />
@@ -139,11 +145,11 @@ The ending date can't be more than six months away- that's a practical limit for
 <h4>Add a custom premium for this campaign</h4>
 <form action="#" method="POST">
 {% csrf_token %}
-Pledge Amount: {{ premium_form.amount }}{{ premium_form.amount.errors }}<br />
-Premium Description: {{ premium_form.description }}{{ premium_form.description.errors }}<br />
-Number Available (0 if no limit): {{ premium_form.limit }}{{ premium_form.limit.errors }}<br />
+Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
+Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
+Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
 {{ premium_form.campaign }}
-{{ premium_form.type }}{{ premium_form.type.errors }}
+{{ premium_form.type.errors }}{{ premium_form.type }}
 <br />
 <input type="submit" name="add_premium" value="Add Premium" />
 </form>
