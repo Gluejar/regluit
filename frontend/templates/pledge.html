@@ -59,9 +59,9 @@
         	<ul class="support menu" id="premiums_list">
             	{% for premium in premiums %}
             	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-            	<label for="{{premium.id}}">
+            	<label for="premium_{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
+                	<input type="radio" name="premium_id" id="premium_{{premium.id}}" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium.amount }}
                     </span>
