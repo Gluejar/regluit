@@ -2,6 +2,7 @@
 https://github.com/agiliq/merchant/blob/master/example/app/integrations/fps_integration.py
 """
 
+import billing
 from billing.integrations.amazon_fps_integration import AmazonFpsIntegration as Integration
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, HttpResponse
@@ -40,11 +41,67 @@ class FpsIntegration(Integration):
         # status = SC/SR, A, CE, NP, NM
         
         if dd.get('status') in ['SC', 'SR']:
-            resp = self.purchase(100, dd)
+            # check to see whether we recognize this transaction -- correlate by callerReference
+            callerReference = dd.get('callerReference')
+            if callerReference is not None:
+                try:
+                    trans = billing.models.AmazonFPSResponse.objects.get(callerReference=callerReference)
+                except billing.models.AmazonFPSResponse.DoesNotExist:
+                    return HttpResponse('callerReference not recognized')
+                except Exception, e:
+                    logger.exception("Error: {0}".format(e))
+                    return HttpResponse('Error: {0}'.format(e))
+            else:
+                logger.warning('no callerReference included')
+                return HttpResponse('no callerReference included')
+                
+            try:
+                transactionAmount = trans.transactionAmount
+                # should also have stored in the database that this is a purchase....
+                logger.info('transactionAmount: {0}; dd:{1}'.format(transactionAmount, dd))
+                resp = self.purchase(transactionAmount, dd)
+            except Exception, e:
+                logger.exception("Error: {0}".format(e))
+                return HttpResponse('Error: {0}'.format(e))
+                
+            # resp: status representing the status and response representing the response as described by boto.fps.response.FPSResponse.
+            # mystery stuff with https://github.com/boto/boto/blob/develop/boto/resultset.py and
+            #  https://github.com/boto/boto/blob/develop/boto/fps/response.py
+            
+            #In [17]: resp['response'].RequestId
+            #Out[17]: u'1f7b74a5-977a-4ffe-9436-d3c0203a6a85:0'
+            #
+            #In [18]: resp['response'].TransactionId
+            #Out[18]: u'16QVZ98TK48G3AK2QR1N1JJN8TLPE41R3NU'
+            #
+            #In [19]: resp['response'].TransactionStatus
+            #Out[19]: u'Pending'
+            #
+            #In [20]: resp['status']
+            #Out[20]: u'Pending'
+            #
+            #In [21]: resp['response'].PayResult
+            #Out[21]: ''
+            #
+            #In [22]: resp['response'].PayResponse
+            #Out[22]: ''
+            #
+            #In [23]: resp['response'].connection
+            #Out[23]: FPSConnection:fps.sandbox.amazonaws.com
+
+            # Now process the response
+            
+            trans.transactionId = resp['response'].TransactionId
+            trans.transactionStatus = resp['response'].TransactionStatus
+            trans.save()
+            
+            logger.debug("transactionId: {0}, transactionStatus: {1}".format(trans.transactionId, trans.transactionStatus ))
+            
+            
             return HttpResponseRedirect("%s?status=%s" %(reverse("testfps"),
                                 resp["status"]))
         elif dd.get('status') == 'A':
-            return HttpResponse('You canceled the transaction')
+            return HttpResponse('You cancelled the transaction')
         else:
             return HttpResponse('An unexpected status code: {0}'.format(dd.get('status')))
             

@@ -17,9 +17,12 @@ from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
 from regluit.payment.urls import amazon_fps_obj, fps_recur_obj
 import billing
+import uuid
+from decimal import Decimal as D
 
 from regluit.utils.localdatetime import now
 import traceback
+
 
 import logging
 logger = logging.getLogger(__name__)
@@ -323,10 +326,17 @@ def testfps(request):
     url_scheme = "http"
     if request.is_secure():
         url_scheme = "https"
-    fields = {"transactionAmount": "100",
+    
+    # generate a callerReference to use in our call
+    callerReference = str(uuid.uuid4())
+    # model stores TransactionAmount as string!  We won't be doing this in our long-term model
+    transactionAmount = str(D(100.00))
+    
+    fields = {"transactionAmount": transactionAmount,
               "pipelineName": "SingleUse",
               "paymentReason": "Merchant Test",
               "paymentPage": request.build_absolute_uri(),
+              "callerReference": callerReference,
               "returnURL": "%s://%s%s" % (url_scheme,
                                           RequestSite(request).domain,
                                           reverse("fps_return_url"))
@@ -343,12 +353,10 @@ def testfps(request):
     fps_transaction = billing.models.AmazonFPSResponse()
     fps_transaction.transactionDate = now()
     fps_transaction.transactionAmount = 100.00
+    fps_transaction.callerReference = callerReference
+    
     # force a calculation of the link_url so that callerReference gets calculated
     logger.info("amazon_fps_obj.link_url: {0}".format(amazon_fps_obj.link_url))
-    try:
-        fps_transaction.callerReference = amazon_fps_obj.fields["callerReference"]
-    except Exception, e:
-        pass
     
     fps_transaction.save()
     
