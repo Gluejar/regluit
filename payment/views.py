@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.sites.models import RequestSite
 from regluit.payment.parameters import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
 from django.template import RequestContext
@@ -114,12 +114,18 @@ def testAuthorize(request):
     receiver_list = [{'email': TEST_RECEIVERS[0], 'amount':20.00}, 
                      {'email': TEST_RECEIVERS[1], 'amount':10.00}]
     
+    # Set the return url for the processor
+    if settings.PAYMENT_PROCESSOR == 'amazon':
+        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
+    else:
+        return_url = None
+        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, return_url=return_url, list=None, user=None)
     
     else:
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, return_url=return_url, list=None, user=None)
     
     if url:
         logger.info("testAuthorize: " + url)
@@ -309,12 +315,7 @@ def paypalIPN(request):
     
     logger.info(str(request.POST))
     return HttpResponse("ipn")
-
-def amazonPaymentReturn(request):
-    # pick up all get and post parameters and display
-    output = "payment complete"
-    output += request.method + "\n" + str(request.REQUEST.items())
-    return HttpResponse(output)
+    
     
 def paymentcomplete(request):
     # pick up all get and post parameters and display

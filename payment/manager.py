@@ -6,13 +6,13 @@ from django.conf import settings
 from regluit.payment.parameters import *
 
 if settings.PAYMENT_PROCESSOR == 'paypal':
-    from regluit.payment.paypal import Pay
+    from regluit.payment.paypal import Pay, Execute, Preapproval
     
 elif settings.PAYMENT_PROCESSOR == 'amazon':
-    from regluit.payment.amazon import Pay
+    from regluit.payment.amazon import Pay, Execute, Preapproval
     
-from regluit.payment.paypal import Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
+from regluit.payment.paypal import IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
+from regluit.payment.paypal import IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from regluit.payment.paypal import RefundPayment
 import uuid
 import traceback
