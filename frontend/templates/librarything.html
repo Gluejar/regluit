@@ -13,7 +13,7 @@
     {% if books %}
     <ul>
     {% for book in books|slice:":50" %}
-      <li>{% if lt_api_key %}<img src="http://covers.librarything.com/devkey/{{lt_api_key}}/small/isbn/{{book.isbn}}"/>{% endif %}<img src="http://covers.openlibrary.org/b/isbn/{{book.isbn}}-S.jpg" />{{book.title.title}} | ISBN:{{book.isbn}} | Work ID:{{book.work_id}} | Book ID:{{book.book_id}}</li>
+      <li>{% if lt_api_key %}<img src="http://covers.librarything.com/devkey/{{lt_api_key}}/small/isbn/{{book.isbn}}" />{% endif %}<img src="http://covers.openlibrary.org/b/isbn/{{book.isbn}}-S.jpg" />{{book.title.title}} | ISBN:{{book.isbn}} | Work ID:{{book.work_id}} | Book ID:{{book.book_id}}</li>
     {% endfor %}
     </ul>
     {% endif %}

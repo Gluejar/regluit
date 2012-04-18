@@ -44,8 +44,8 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import  ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm
+from regluit.frontend.forms import ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -137,6 +137,8 @@ def work(request, work_id, action='display'):
             activetab = '1';
     editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
+    if action == 'preview':
+        work.last_campaign_status = 'ACTIVE'
     try:
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
@@ -162,6 +164,21 @@ def work(request, work_id, action='display'):
     wishers = work.num_wishes
     base_url = request.build_absolute_uri("/")[:-1]
     
+    active_claims = work.claim.all().filter(status='active')
+    if active_claims.count() == 1:
+        claimstatus = 'one_active'
+        rights_holder_name = active_claims[0].rights_holder.rights_holder_name
+    else:
+        rights_holder_name = None
+        pending_claims = work.claim.all().filter(status='pending')
+        pending_claims_count = pending_claims.count()
+        if pending_claims_count > 1:
+          claimstatus = 'disputed'
+        elif pending_claims_count == 1:
+          claimstatus = 'one_pending'
+          rights_holder_name = pending_claims[0].rights_holder.rights_holder_name
+        else:
+          claimstatus = 'open'
     
     return render(request, 'work.html', {
         'work': work, 
@@ -172,9 +189,11 @@ def work(request, work_id, action='display'):
         'base_url': base_url,
         'editions': editions,
         'pubdate': pubdate,
-        'pledged':pledged,
+        'pledged': pledged,
         'activetab': activetab,
-        'alert':alert
+        'alert': alert,
+        'claimstatus': claimstatus,
+        'rights_holder_name': rights_holder_name,
     })
 
 def manage_campaign(request, id):
@@ -205,7 +224,7 @@ def manage_campaign(request, id):
             else:
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
-                if campaign.launchable :
+                if campaign.launchable and form.is_valid() :
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
                 else:
@@ -510,7 +529,7 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'faqmenu': 'pledge'})
         return context
     
     
@@ -640,9 +659,9 @@ class PledgeCompleteView(TemplateView):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
             
-        worklist = slideshow(8)
-        works = worklist[:4]
-        works2 = worklist[4:8]
+        worklist = slideshow(12)
+        works = worklist[:6]
+        works2 = worklist[6:12]
 
         context["transaction"] = transaction
         context["correct_user"] = correct_user
@@ -776,7 +795,8 @@ def claim(request):
     else:
         work = models.Work.objects.get(id=data['claim-work'])
         rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
-        context = {'form': form, 'work': work, 'rights_holder':rights_holder }
+        active_claims = work.claim.exclude(status = 'release')
+        context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
         return render(request, "claim.html", context)
 
 def rh_tools(request):
@@ -787,13 +807,23 @@ def rh_tools(request):
     if not claims:
         return render(request, "rh_tools.html")
     for claim in claims:
-        claim.campaigns= claim.work.campaigns.all()
+        if claim.status == 'active':
+            claim.campaigns = claim.work.campaigns.all()
+        else:
+            claim.campaigns = []
         claim.can_open_new=True
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
                 claim.can_open_new=False
+                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
+                    campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
+                    if campaign.edit_managers_form.is_valid():
+                        campaign.edit_managers_form.save()
+                        campaign.edit_managers_form = EditManagersForm(instance=campaign, prefix=campaign.id)
+                else:
+                    campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.status == 'active' and claim.can_open_new:
-            if request.method == 'POST' and int(request.POST['work']) == claim.work.id :
+            if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
@@ -822,6 +852,7 @@ def rh_admin(request):
             pending_formset = PendingFormSet (queryset=pending_data)
             if form.is_valid():
                 form.save()
+                form = RightsHolderForm()
         if 'set_claim_status' in request.POST.keys():
             pending_formset = PendingFormSet (request.POST, request.FILES, queryset=pending_data)
             form = RightsHolderForm()
@@ -1659,3 +1690,12 @@ def feedback(request):
 def comment(request):
     latest_comments = Comment.objects.all().order_by('-submit_date')[:20]
     return render(request, "comments.html", {'latest_comments': latest_comments})
+
+def campaign_archive_js(request):
+    """ proxy for mailchimp js"""
+    response = HttpResponse()
+    r = requests.get(settings.CAMPAIGN_ARCHIVE_JS)
+    response.status_code = r.status_code
+    response.content = r.content
+    response["Content-Type"] = "text/javascript"
+    return response

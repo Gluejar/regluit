@@ -54,7 +54,14 @@
             <div class="js-topmenu">
                 <ul class="menu">
                     {% if user.is_authenticated %}
-                    <li class="first"><a href="/supporter/{{user.username}}"><span id="welcome">Welcome, {{ user.username|truncatechars:20 }}</span></a></li>
+                    <li class="first">
+                    	<a href="/supporter/{{user.username}}"><span id="welcome">Welcome, {{ user.username|truncatechars:20 }}</span></a>
+                    	{% if unseen_count %}
+                    	<a href="/notification" id="unseen_count"><div id="i_haz_notifications">{{ unseen_count }}</div></a>
+                    	{% else %}
+                    	<a href="/notification" id="unseen_count"><div id="no_notifications_for_you">0</div></a>
+                    	{% endif %}
+                    </li>
                     <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
@@ -97,7 +104,7 @@ Welcome to the alpha version of Unglue.It.  This site is a preview of our full f
         {% endif %}
         <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
         <li><a href="{{privacyurl}}">Privacy</a></li>
-        <li><a href="{{termsurl}}">Terms and Conditions</a></li>
+        <li><a href="{{termsurl}}">Terms of Use</a></li>
         {% if user.is_staff %}
         <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
         {% endif %}

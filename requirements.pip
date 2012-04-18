@@ -20,3 +20,5 @@ django-endless-pagination
 django-selectable
 pytz
 django-notification
+boto
+fabric

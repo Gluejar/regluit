@@ -5,6 +5,8 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<script type="text/javascript" src="/static/js/prefill_pledge.js"></script>
 {% endblock %}
 
 {% block doccontent %}
@@ -47,21 +49,19 @@
     	<form class="pledgeform" method="POST" action="{% url pledge work_id=work.id %}">
         	{% csrf_token %}
 			{{ form.non_field_errors }}
-        	{{ form.preapproval_amount.errors }}
-        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: ${{ form.preapproval_amount }}</div>
-        	{{ form.anonymous.errors }}
+        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
         	
         	{% comment %}
         	not supported yet; don't display
-        	{{ form.anonymous.label_tag }}: {{ form.anonymous }}	
+        	{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}	
         	{% endcomment %}
 
-        	<ul class="support menu">
+        	<ul class="support menu" id="premiums_list">
             	{% for premium in premiums %}
             	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-            	<label for="{{premium.id}}">
+            	<label for="premium_{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
+                	<input type="radio" name="premium_id" id="premium_{{premium.id}}" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium.amount }}
                     </span>
@@ -73,7 +73,7 @@
             	{% endfor %}
          	</ul>
 
-	       <input type="submit" value="Pledge" id="pledgesubmit"/>    
+	       <input type="submit" value="Pledge" id="pledgesubmit" />    
     	</form>
     </div>
 

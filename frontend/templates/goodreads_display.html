@@ -101,7 +101,7 @@
         <p>Here are some of your books that you've put on your Goodreads shelves:</p>
         <ul id="id">
         {% for review in reviews|slice:":50" %}
-            <li><img src="{{review.book.small_image_url}}"/><a href="{{review.book.link}}">{{review.book.title}}</a></li>
+            <li><img src="{{review.book.small_image_url}}" /><a href="{{review.book.link}}">{{review.book.title}}</a></li>
         {% endfor %}
         </ul>
     {% endif %}

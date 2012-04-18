@@ -21,9 +21,18 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	<dl>
 	{% for campaign in request.user.campaigns.all %}
 		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
-		<dd>Campaign: <a href="{% url manage_campaign campaign.id %}">{{ campaign.name }}</a><br />
-		Status: {{ campaign.status }}	<br />
-		Created: {{ campaign.created }}</dd>
+		<dd>
+			<div class="work_campaigns clearfix">
+			<div class="campaign_info">
+			Campaign: {{ campaign.name }}<br />
+			Campaign status: {{ campaign.status }}	<br />
+			Created: {{ campaign.created }}
+			</div>
+			<div>
+				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+			</div>
+			</div>
+		</dd>
 	{% endfor %}
 	</dl>
 {% endif %}
@@ -31,12 +40,12 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
-		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
 		<dd>Author: {{claim.work.author }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
 			<br />Date of Claim : {{ claim.created }}
-			<br />Status: {{ claim.status }}
+			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.can_open_new  %}
 			<h3>Open a campaign for this work</h3>
 			<form method="POST" action="#">
@@ -48,14 +57,27 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
 				</p>
 				
-				<input type="submit" name="submit" value="Open Campaign" id="submit">
+				<input type="submit" name="submit" value="Open Campaign">
 			</form>
 			{% else %}{%if claim.campaigns %}			
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
-			<p>Name: {{ campaign.name }} {{ campaign.status }}	(<a href="{% url manage_campaign campaign.id %}">manage campaign</a>)<br />
-			Created: {{ campaign.created }}<br />
-			Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}</p>
+			<div class="work_campaigns clearfix">
+			<div class="campaign_info">
+				Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+				Created: {{ campaign.created }}<br />
+				Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+				<form method="POST" action="#">{% csrf_token %}
+					Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
+				</form>
+			</div>
+			{% if request.user in campaign.managers.all %}
+			<div>
+				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+			</div>
+			{% endif %}
+			</div>
 			{% endfor %}
 			{% endif %}
 			{% endif %}
@@ -67,11 +89,13 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>Rights Holders That You Administer</h2>
 	<dl>
 		{% for rights_holder in request.user.rights_holder.all %}
-		<dt>Name: {{ rights_holder.rights_holder_name }}</dt>
+		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
 		<dd>PSA #: {{ rights_holder.id }}
 		<br />contact email: {{ rights_holder.email }}</dd>
 		{% endfor %}
 	</dl>
+{% else %}
+<I>If you were a registered rights holder with Unglue.It, you'd be able to see and manage your campaigns here.  If you hold electronic rights to one or more works and you'd like to be a registered rights holder, please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</I>
 {% endif %}
 <h2>How to launch an Unglue.it campaign</h2>
 
@@ -84,7 +108,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	<li>
 	The next step for a rights holder is to claim works from the Unglue.it database. Find the work by adding it to you wishlist. 
 	On the "details" tab of the work's page, you will find a form that allows you to enter a claim.
-	When you enter a claim, you will be asked to agree to terms and conditions, in which you agree that you're making the claim in good faith, and that you can substantiate that you have legal control over rights to the work.
+	When you enter a claim, you will be asked to agree to the website terms of use, in which you agree that you're making the claim in good faith, and that you can substantiate that you have legal control over rights to the work.
 	If you claim a work by mistake, please contact Unglue.it rights holder relations immediately: rights@gluejar.com
 	</li>
 	<li>

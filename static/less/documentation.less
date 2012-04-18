@@ -109,7 +109,12 @@ body {
 		margin-bottom:7px;
 		.one-border-radius(14px);
 		padding:10px;
-		background:@pale-blue;		
+		background:@pale-blue;
+	}
+	
+	&.errorlist li {
+		background: none;
+		margin-bottom: 0;
 	}
 	
 	&.terms {
@@ -146,10 +151,6 @@ dd {
 
 .doc ol li {
 	margin-bottom: 7px;
-}
-
-.errorlist li {
-	border: solid @call-to-action 4px;
 }
 
 .collapse ul {
@@ -241,6 +242,85 @@ dd {
 	}
 }
 
-p.pledge_complete {
-	margin: 7px auto;
+/* Miscellaneous */
+a.manage {
+	background: @call-to-action;
+	color: white;
+	font-weight: bold;
+	padding: 0.5em 1em;
+	cursor: pointer;
+	.one-border-radius(5px);
+	border: 1px solid @blue-grey;
+	
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.rh_help {
+	cursor: pointer;
+	color: @bright-blue;
+	
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.rh_answer {
+	display: none;
+	padding-left: 10px;
+	margin-bottom: 7px;
+	border: solid 2px @blue-grey;
+	.one-border-radius(5px);
+	text-indent: 0 !important;
+}
+
+.work_campaigns {
+	border: 1px solid @blue-grey;
+	margin: 10px auto;
+
+	div {
+		float: left;
+	
+		&.campaign_info {
+			width: 60%;
+		margin: 5px;
+		}
+	}
+}
+
+h2.thank-you {
+	font-size: 34px;
+	color: @call-to-action;
+}
+
+.pledge_complete {
+	font-size: 14px;
+	line-height: 17px;
+	margin-bottom: 14px;
+}
+
+#js-slide .jsmodule.pledge  {
+	width: 960px !important;
+}
+
+h3 .pledge_indent {
+	margin-left: 215px;
+}
+
+ul.social.pledge {
+	li {
+		float: left;
+		padding-right: 30px !important;
+	}
+	
+	margin-bottom: 150px;
+}
+
+#widgetcode {
+	float: right;
+}
+
+div.pledge-container {
+	width: 100%;
 }

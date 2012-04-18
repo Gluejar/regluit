@@ -510,17 +510,22 @@ a{ color:#3d4e53; font-size:12px;}
   text-align: right;
 }
 
-.errorlist {
+.alert > .errorlist {
 	list-style-type: none;
 	font-size: 14px;
+	border: none;
+	text-align: left;
+	font-weight: normal;
+	font-size: 12px;
 	
-	li {
-		margin-bottom: 7px;
+	> li {
+		margin-bottom: 14px;
 	}
 
 	.errorlist {
+		margin-top: 7px; 
+		
 		li {
-			.errors;
 			width: auto;
 			height: auto;
 			padding-left: 32px;

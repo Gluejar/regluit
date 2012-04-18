@@ -40,6 +40,7 @@ urlpatterns = patterns(
     url(r"^goodreads/shelves/$","goodreads_calc_shelves", name="goodreads_calc_shelves"),
     url(r"^stub/", "stub", name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", "work", name="work"),
+    url(r"^work/(?P<work_id>\d+)/preview/$", "work", {'action': 'preview'}, name="work_preview"),
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
     url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", "work_openlibrary", name="work_openlibrary"),
@@ -65,6 +66,7 @@ urlpatterns = patterns(
     url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
     url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
+    url(r'^campaign_archive.js/$', "campaign_archive_js", name='campaign_archive_js'),
 )
 
 if not settings.IS_PREVIEW:

@@ -11,17 +11,19 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
-<script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+<script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
+<script type="text/javascript" src="/static/js/embed.js"></script>
 
 <script>
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
-    $j('#embed').click(function(){
-        $j('div#widgetcode').toggle();
-    });
     $j('.show_more_edition').click(function(){
-        $j(this).html('less...');
+        if ($j(this).html() == 'less...') {
+        	$j(this).html('more...')
+        } else {
+        	$j(this).html('less...')
+        }
         $j(this).next().toggle();
     });
 });
@@ -101,9 +103,9 @@ $j(document).ready(function(){
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
-                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Change Pledge"/></form></div>
+                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Change Pledge" /></form></div>
                           {% else %}
-                          	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support"/></form></div>
+                          	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support" /></form></div>
                           {% endif %}
                           {% endif %}
 					  </div>
@@ -180,7 +182,8 @@ $j(document).ready(function(){
                     <ul class="tabs">
                         <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
                         <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters {% if wishers > 0 %}({{ wishers }}){% endif %}</a></li>
+                        {# the number of supporters currently commented out because they are overflowing the tab space #}
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Supporters {# {% if wishers > 0 %}({{ wishers }}){% endif %} #}</a></li>
                         <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
                     </ul>
                         
@@ -194,7 +197,7 @@ $j(document).ready(function(){
                         <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
                         <p>The rights holder, {% for claim in work.claim.all %}
                             {% if claim.status == 'active' %}
-                            {{ claim.rights_holder.rights_holder_name }} 
+                            {{ claim.rights_holder.rights_holder_name }}
                             {% endif %} 
                         {% endfor %}
                         , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
@@ -230,7 +233,7 @@ $j(document).ready(function(){
                                     <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                     {% endif %}
                             </div>
-                            <div class="work_supporter_name">{{supporter }}</div>
+                            <div class="work_supporter_name">{{ supporter }}</div>
                             </a>
                           </div>
                         {% endfor %}
@@ -244,15 +247,17 @@ $j(document).ready(function(){
                         {% endif %}
  
                         <h4> Rights Information </h4>
-                        {% if work.claim.count %}
-                  	      <p> This work has been claimed by:</p>
-                    	    <ul>
-                        	{% for claim in work.claim.all %}
-                            	<li>{{ claim.rights_holder.rights_holder_name }}  <i>{{ claim.get_status_display}}</i></li>
-                        	{% endfor %}
-                        	</ul>
-                        	{% if request.user.rights_holder.all.count %}
-	                        	Should someone else should be authorized to run campaigns for this work?  Select a rights holder:<br /><br />
+                        {% if claimstatus == 'one_active' %}
+                          <p>This work has been claimed by {{ rights_holder_name }}.</p>
+                        {% else %}
+                          {% if claimstatus == 'disputed' %}
+                            <p>Rights claims are pending.</p>
+                          {% else %}
+                            {% if claimstatus == 'one_pending' %}
+                              <p>A claim for this work by {{ rights_holder_name }} is pending.</p>                              
+                            {% else %}
+                        	  {% if request.user.rights_holder.all.count %}
+	                        	Is this work yours?  Claim it: <br /><br />
                         
 	    	                    <form method="GET" action="{% url claim %}">
     	    	                    {% csrf_token %}
@@ -260,24 +265,13 @@ $j(document).ready(function(){
             	    	            {{ claimform.work }}
                 	    	        {{ claimform.rights_holder }}
                     	    	    <input type="submit" name="submit" value="Claim">
-                     		   </form><br />
-	
-	                        {% endif %}
-    	                    	Need to talk to us about claim status?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
-                        {% else %}
-	                        {% if request.user.rights_holder.all.count %}
-	                        Is this work yours?  Claim it: <br /><br />
-	    	                    <form method="GET" action="{% url claim %}">
-    	    	                    {% csrf_token %}
-        	    	                {{ claimform.user }}
-            	    	            {{ claimform.work }}
-                	    	        {{ claimform.rights_holder }}
-                    	    	    <input type="submit" name="submit" value="Claim" >
-                     		   </form><br />
-                        	{% else %}
-    	                    	Are you the rights holder for this work?  Please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
-                        	{% endif %}
+                     		     </form><br />
+	                          {% endif %}
+                            {% endif %}
+                          {% endif %}
                         {% endif %}
+
+    	                <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
 
                         {% if work.subjects.all.count > 0 %}
                         <h4>Subjects</h4>
@@ -291,7 +285,7 @@ $j(document).ready(function(){
                         <h4>Editions</h4>
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
-                            <div class="editions"><div class="image"><img src="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}&amp;printsec=frontcover&amp;img=1&amp;zoom=5" title="edition cover" alt="edition cover" /></div>
+                        <div class="editions"><div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>
                             <div class="metadata" id="edition_{{edition.id}}">Publisher: {{edition.publisher}}<br />
                             	Published: {{edition.publication_date}}<br />
                             	{% with edition.isbn_13 as isbn %}
@@ -301,7 +295,7 @@ $j(document).ready(function(){
                             			No ISBN available<br />
                             		{% endif %}
                             	{% endwith %}
-                            	See <a href="http://bks{% cycle '1' '2' '3' '4' '5' '6' '7' '8' '9' %}.books.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
+                            	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
                             </div>{{work.last_campaign_status}}
                             {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
                                 <div class="show_more_edition" >more...</div>

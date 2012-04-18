@@ -46,7 +46,7 @@ class EbookForm(forms.ModelForm):
         
 def UserClaimForm ( user_instance, *args, **kwargs ):
     class ClaimForm(forms.ModelForm):
-        i_agree=forms.BooleanField()
+        i_agree=forms.BooleanField(error_messages={'required': 'You must agree to the Terms in order to claim a work.'})
         rights_holder=forms.ModelChoiceField(queryset=user_instance.rights_holder.all(), empty_label=None)
         
         class Meta:
@@ -68,10 +68,12 @@ class RightsHolderForm(forms.ModelForm):
             label='Owner',
             widget=AutoCompleteSelectWidget(OwnerLookup),
             required=True,
+            error_messages={'required': 'Please ensure the owner is a valid Unglue.It account.'},
         )
     email = forms.EmailField(
         label=_("notification email address for rights holder"), 
-        max_length=100, 
+        max_length=100,
+        error_messages={'required': 'Please enter an email address for the rights holder.'},
         )
     class Meta:
         model = RightsHolder
@@ -123,13 +125,27 @@ class OpenCampaignForm(forms.ModelForm):
             OwnerLookup,
             label='Campaign Managers',
             widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
-            required=False,
+            required=True,
+            error_messages = {'required': "You must have at least one manager for a campaign."},
         )
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
         model = Campaign
         fields = 'name', 'work',  'managers'
         widgets = { 'work': forms.HiddenInput }
+
+class EditManagersForm(forms.ModelForm):
+    managers = AutoCompleteSelectMultipleField(
+            OwnerLookup,
+            label='Campaign Managers',
+            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
+            required=True,
+            error_messages = {'required': "You must have at least one manager for a campaign."},
+        )
+    class Meta:
+        model = Campaign
+        fields = ('id', 'managers')
+        widgets = { 'id': forms.HiddenInput }
 
 class CustomPremiumForm(forms.ModelForm):
 
@@ -147,8 +163,9 @@ class ManageCampaignForm(forms.ModelForm):
     paypal_receiver = forms.EmailField(
         label=_("email address to collect Paypal funds"), 
         max_length=100, 
+        error_messages={'required': 'You must enter the email associated with your Paypal account.'},
         )
-    target = forms.DecimalField( min_value= D('0.00') )
+    target = forms.DecimalField( min_value= D('0.00'), error_messages={'required': 'Please specify a target price.'} )
     class Meta:
         model = Campaign
         fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver'
@@ -179,9 +196,9 @@ class ManageCampaignForm(forms.ModelForm):
         return new_deadline
         
     def clean_license(self):
-    	new_license = self.cleaned_data['license']
+        new_license = self.cleaned_data['license']
         if self.instance:
-            if self.instance.status == 'ACTIVE':
+            if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
                 raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
         return new_license
 
@@ -222,8 +239,8 @@ class CampaignPledgeForm(forms.Form):
             try:
                 premium= Premium.objects.get(id=premium_id)
                 if premium.limit>0:
-                	if premium.limit<=premium.premium_count:
-                		raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
+                    if premium.limit<=premium.premium_count:
+                        raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
             except  Premium.DoesNotExist:
                 raise forms.ValidationError(_("Sorry, that premium is not valid."))
 
@@ -259,21 +276,21 @@ class CampaignAdminForm(forms.Form):
     pass
     
 class EmailShareForm(forms.Form):
-    recipient = forms.EmailField()
+    recipient = forms.EmailField(error_messages={'required': 'Please specify a recipient.'})
     sender = forms.EmailField(widget=forms.HiddenInput())
-    subject = forms.CharField(max_length=100)
-    message = forms.CharField(widget=forms.Textarea())
+    subject = forms.CharField(max_length=100, error_messages={'required': 'Please specify a subject.'})
+    message = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please include a message.'})
     # allows us to return user to original page by passing it as hidden form input
     # we can't rely on POST or GET since the emailshare view handles both
     # and may iterate several times as it catches user errors, losing URL info
     next = forms.CharField(widget=forms.HiddenInput())
     
 class FeedbackForm(forms.Form):
-    sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}), label="Your email")
-    subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}))
-    message = forms.CharField(widget=forms.Textarea())
+    sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}), label="Your email", error_messages={'required': 'Please specify your email address.'})
+    subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}), error_messages={'required': 'Please specify a subject.'})
+    message = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})
     page = forms.CharField(widget=forms.HiddenInput())
-    notarobot = forms.IntegerField(label="Please prove you're not a robot")
+    notarobot = forms.IntegerField(label="Please prove you're not a robot", error_messages={'required': "You must do the sum to prove you're not a robot."})
     answer = forms.IntegerField(widget=forms.HiddenInput())
     num1 = forms.IntegerField(widget=forms.HiddenInput())
     num2 = forms.IntegerField(widget=forms.HiddenInput())
@@ -282,7 +299,7 @@ class FeedbackForm(forms.Form):
         cleaned_data = self.cleaned_data
         notarobot = str(cleaned_data.get("notarobot"))
         answer = str(cleaned_data.get("answer"))
-        if notarobot!=answer:
+        if notarobot != answer:
             raise forms.ValidationError(_("Whoops, try that sum again."))
             
         return cleaned_data

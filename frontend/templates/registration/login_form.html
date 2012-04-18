@@ -1,6 +1,6 @@
 <!-- login_form.html -->
 <form method="post" action="{% url django.contrib.auth.views.login %}">{% csrf_token %}
-    {{ form.username.label_tag }}
+    {{ form.username.label_tag }}    
     {{ form.username }}
     {{ form.password.label_tag }}
     {{ form.password }}

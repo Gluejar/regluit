@@ -74,16 +74,16 @@
   margin: 5px 0;
 }
 .errors {
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  border: solid #e35351 4px;
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
   width: 90%;
-  padding: 5px;
-  font-weight: bold;
-  padding: 7px 0;
-  height: 16px;
+  height: auto;
   line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
   text-align: center;
 }
 .errors li {
@@ -270,6 +270,23 @@ ul.menu {
   padding: 0;
   margin: 0;
 }
+.errorlist {
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
+  width: 90%;
+  height: auto;
+  line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
+  text-align: center;
+}
+.errorlist li {
+  list-style: none;
+  border: none;
+}
 /* add class clearfix to floats to make them self-clear */
 .clearfix:after {
   content: ".";
@@ -297,6 +314,7 @@ ul.menu {
   float: left;
   padding: 0 10px;
   position: relative;
+  z-index: 50;
 }
 .js-topmenu ul li a {
   color: #3d4e53;
@@ -320,18 +338,32 @@ ul.menu {
   overflow: auto;
   max-width: 240px;
 }
-.js-topmenu ul li #notification_count {
+.js-topmenu ul li #unseen_count {
+  height: 0;
+}
+.js-topmenu ul li #unseen_count div {
   position: absolute;
   right: 10px;
-  top: -14px;
-  color: #e35351;
-  background-color: white;
-  border: solid 2px #e35351;
-  -moz-border-radius: 16px;
-  -webkit-border-radius: 16px;
-  border-radius: 16px;
+  top: -16px;
+  border: solid 2px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   padding: 3px;
   line-height: 16px;
+  width: 16px;
+  cursor: pointer;
+  text-align: center;
+}
+.js-topmenu ul li #unseen_count div#i_haz_notifications {
+  background-color: #8dc63f;
+  color: white;
+  border-color: #8dc63f;
+}
+.js-topmenu ul li #unseen_count div#no_notifications_for_you {
+  border-color: #d6dde0;
+  background-color: #d6dde0;
+  color: #edf3f4;
 }
 .js-topmenu ul li.last a {
   background: url("/static/images/bg.png") right top no-repeat;

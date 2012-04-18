@@ -47,9 +47,20 @@ def fac(n, sleep_interval=None):
                 sleep(sleep_interval)
         return res
 
+from django.core import mail
+
+@task
+def send_mail_task(subject, message, from_email, recipient_list,
+	        fail_silently=False, auth_user=None, auth_password=None,
+	        connection=None):
+    """a task to drop django.core.mail.send_mail into """
+    return mail.send_mail(subject, message, from_email, recipient_list, fail_silently, auth_user, auth_password, connection)
+    
+
 from notification.engine import send_all
  
 @task
 def emit_notifications():
     logger.info('notifications emitting' )
-    send_all()
+    return send_all()
+    
