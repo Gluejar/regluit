@@ -2,9 +2,16 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-
+from django.conf import settings
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
+
+if settings.PAYMENT_PROCESSOR == 'paypal':
+    from regluit.payment.paypal import Pay
+    
+elif settings.PAYMENT_PROCESSOR == 'amazon':
+    from regluit.payment.amazon import Pay
+    
+from regluit.payment.paypal import Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
 from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
 from regluit.payment.paypal import RefundPayment
 import uuid
@@ -892,7 +899,7 @@ class PaymentManager( object ):
         else:
             t.error = p.error_string()
             t.save()
-            logger.info("Pledge Error: " + p.error_string())
+            logger.info("Pledge Error: %s" % p.error_string())
             return t, None
     
     

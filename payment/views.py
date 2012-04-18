@@ -250,20 +250,26 @@ def testPledge(request):
     else:
         receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
     
+    # Set the return url for the processor
+    if settings.PAYMENT_PROCESSOR == 'amazon':
+        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
+    else:
+        return_url = None
+        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user)
+        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=return_url)
     
     else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user)
+        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=return_url)
     
     if url:
         logger.info("testPledge: " + url)
         return HttpResponseRedirect(url)
     
     else:
-        response = t.reference
-        logger.info("testPledge: Error " + str(t.reference))
+        response = t.error
+        logger.info("testPledge: Error " + str(t.error))
         return HttpResponse(response)
 
 def runTests(request):
@@ -303,6 +309,12 @@ def paypalIPN(request):
     
     logger.info(str(request.POST))
     return HttpResponse("ipn")
+
+def amazonPaymentReturn(request):
+    # pick up all get and post parameters and display
+    output = "payment complete"
+    output += request.method + "\n" + str(request.REQUEST.items())
+    return HttpResponse(output)
     
 def paymentcomplete(request):
     # pick up all get and post parameters and display
