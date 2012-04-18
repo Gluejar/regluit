@@ -355,12 +355,12 @@ ul.menu {
   cursor: pointer;
   text-align: center;
 }
-.js-topmenu ul li #unseen_count div#yes {
+.js-topmenu ul li #unseen_count div#i_haz_notifications {
   background-color: #8dc63f;
   color: white;
   border-color: #8dc63f;
 }
-.js-topmenu ul li #unseen_count div#no {
+.js-topmenu ul li #unseen_count div#no_notifications_for_you {
   border-color: #d6dde0;
   background-color: #d6dde0;
   color: #edf3f4;
