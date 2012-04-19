@@ -50,7 +50,7 @@
     	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
     	{% endcomment %}	
 	
-    	<form class="pledgeform" method="POST" action="{% url pledge work_id=work.id %}">
+    	<form class="pledgeform" method="POST" action="{% if faqmenu == 'modify' %}{% url pledge_modify work_id=work.id %}{% else %}{% url pledge work_id=work.id %}{% endif %}">
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
