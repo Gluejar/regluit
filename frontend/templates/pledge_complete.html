@@ -32,7 +32,7 @@ we need the share options and also something like the home page slide show to gi
 
     <h2 class="thank-you">Thank you!</h2>
     
-	<p class="pledge_complete">You're now ungluing <I>{{work.title}}</I>.</p>
+	<p class="pledge_complete">You're now ungluing <a href="{% url work work.id %}">{{work.title}}</a>.</p>
 	<p class="pledge_complete">You can help even more by sharing this campaign with your friends:</p>
 	
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>

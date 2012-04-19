@@ -570,7 +570,7 @@ h2.thank-you {
   font-size: 34px;
   color: #8dc63f;
 }
-.pledge_complete {
+.pledge_complete, .pledge_complete a {
   font-size: 14px;
   line-height: 17px;
   margin-bottom: 14px;
@@ -579,7 +579,7 @@ h2.thank-you {
   width: 960px !important;
 }
 h3 .pledge_indent {
-  margin-left: 215px;
+  margin-left: 240px;
 }
 ul.social.pledge {
   margin-bottom: 150px;
