@@ -8,7 +8,7 @@ from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.sites.models import RequestSite
 from regluit.payment.parameters import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
 from django.template import RequestContext
@@ -114,12 +114,18 @@ def testAuthorize(request):
     receiver_list = [{'email': TEST_RECEIVERS[0], 'amount':20.00}, 
                      {'email': TEST_RECEIVERS[1], 'amount':10.00}]
     
+    # Set the return url for the processor
+    if settings.PAYMENT_PROCESSOR == 'amazon':
+        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
+    else:
+        return_url = None
+        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, return_url=return_url, list=None, user=None)
     
     else:
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, return_url=return_url, list=None, user=None)
     
     if url:
         logger.info("testAuthorize: " + url)
@@ -250,20 +256,26 @@ def testPledge(request):
     else:
         receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
     
+    # Set the return url for the processor
+    if settings.PAYMENT_PROCESSOR == 'amazon':
+        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
+    else:
+        return_url = None
+        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user)
+        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=return_url)
     
     else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user)
+        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=return_url)
     
     if url:
         logger.info("testPledge: " + url)
         return HttpResponseRedirect(url)
     
     else:
-        response = t.reference
-        logger.info("testPledge: Error " + str(t.reference))
+        response = t.error
+        logger.info("testPledge: Error " + str(t.error))
         return HttpResponse(response)
 
 def runTests(request):
@@ -303,6 +315,7 @@ def paypalIPN(request):
     
     logger.info(str(request.POST))
     return HttpResponse("ipn")
+    
     
 def paymentcomplete(request):
     # pick up all get and post parameters and display

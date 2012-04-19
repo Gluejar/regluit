@@ -12,6 +12,12 @@ urlpatterns = patterns(
     url(r"^paypalipn", "paypalIPN", name="PayPalIPN"),
 )
 
+# Amazon payment URLs
+urlpatterns += patterns(
+    "regluit.payment.amazon",
+     url(r"^amazonpaymentreturn", "amazonPaymentReturn", name="AmazonPaymentReturn"),
+)
+
 if not settings.IS_PREVIEW:
     urlpatterns += patterns(
         "regluit.payment.views",

@@ -65,6 +65,13 @@ GOOGLE_DISPLAY_NAME = 'unglue it!'
 # https://code.google.com/apis/console
 GOOGLE_BOOKS_API_KEY = ''
 
+# Payment processor switch
+PAYMENT_PROCESSOR = 'paypal'
+
+# Amazon FPS Credentials
+FPS_ACCESS_KEY = ''
+FPS_SECRET_KEY = ''
+
 PAYPAL_USERNAME = ''
 PAYPAL_PASSWORD =  ''
 PAYPAL_SIGNATURE = ''
