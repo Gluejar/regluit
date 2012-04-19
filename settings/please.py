@@ -18,8 +18,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'please',
-        'USER': 'please2',
-        'PASSWORD': 'unglueit',
+        'USER': 'root',
+        'PASSWORD': 'forgetn0t',
         'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
