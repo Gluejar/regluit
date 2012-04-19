@@ -9,4 +9,5 @@ django-admin.py collectstatic --noinput --settings regluit.settings.prod
 sudo /etc/init.d/apache2 restart
 sudo /etc/init.d/celeryd restart
 sudo /etc/init.d/celerybeat restart
+crontab deploy/crontab_prod.txt
 touch /opt/regluit/deploy/last-update
