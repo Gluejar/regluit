@@ -1,3 +1,10 @@
+"""
+
+a command that creates a given number of random tasks to test out celery
+
+
+"""
+
 from django.core.management.base import BaseCommand
 from regluit.core import tasks
 from regluit.core.models import CeleryTask
@@ -11,6 +18,16 @@ class Command(BaseCommand):
     args = "<num_tasks action>"
 
     def handle(self, num_tasks, action, **options):
+        """
+        actions:
+        
+        c: create num_tasks tasks
+        s: print state of existing tasks
+        d: delete all tasks
+        an integer: compute factorial of the integer -- can then follow up with s to find the state 
+        """
+        import django
+        django.db.transaction.enter_transaction_management()
         if action == 'c':
             for i in xrange(int(num_tasks)):
                 n = random.randint(1,1000)
@@ -41,4 +58,4 @@ class Command(BaseCommand):
                 ct.save()
             except Exception, e:
                 print e
-        
+        django.db.transaction.commit()        

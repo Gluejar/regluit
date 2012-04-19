@@ -41,7 +41,11 @@
 
 <div class="jsmodule rounded">
     <div class="jsmod-content">
-	
+
+	{% if faqmenu == 'modify' %}	
+	<p>You have pledged ${{preapproval_amount}}.  If you would like to modify your pledge, please use the following form.</p>
+	{% endif %}
+
     	{% comment %}
     	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
     	{% endcomment %}	
@@ -73,7 +77,7 @@
             	{% endfor %}
          	</ul>
 
-	       <input type="submit" value="Pledge" id="pledgesubmit" />    
+	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge"{% endif %} id="pledgesubmit" />    
     	</form>
     </div>
 

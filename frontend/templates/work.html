@@ -103,7 +103,7 @@ $j(document).ready(function(){
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
-                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Change Pledge" /></form></div>
+                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                           {% else %}
                           	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support" /></form></div>
                           {% endif %}

@@ -8,6 +8,10 @@ from regluit import payment
 from djcelery.admin import TaskState, WorkerState, TaskMonitor, WorkerMonitor, \
       IntervalSchedule, CrontabSchedule, PeriodicTask, PeriodicTaskAdmin
 
+from notification.admin import NoticeTypeAdmin, NoticeSettingAdmin, NoticeAdmin
+from notification.models import NoticeType, NoticeSetting, Notice, ObservedItem, NoticeQueueBatch
+
+import pickle
 
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
@@ -67,7 +71,16 @@ class PaymentResponseAdmin(ModelAdmin):
     pass
 
 class ReceiverAdmin(ModelAdmin):
-    ordering = ('email',)
+    ordering = ('email',)    
+    
+def notice_queue_batch_data(obj):
+    return pickle.loads(str(obj.pickled_data).decode("base64"))
+notice_queue_batch_data.short_description = 'unpickled_data'
+
+class NoticeQueueBatchAdmin(ModelAdmin):
+    # show the pickled data in a form humans can parse more easily
+    list_display = (notice_queue_batch_data,)
+    pass
 
 admin_site = RegluitAdmin("Admin")
 
@@ -99,3 +112,12 @@ admin_site.register(WorkerState, WorkerMonitor)
 admin_site.register(IntervalSchedule)
 admin_site.register(CrontabSchedule)
 admin_site.register(PeriodicTask, PeriodicTaskAdmin)
+
+# add the django-notification admin panel
+# https://github.com/jtauber/django-notification/blob/master/notification/admin.py
+
+admin_site.register(NoticeQueueBatch, NoticeQueueBatchAdmin)
+admin_site.register(NoticeType, NoticeTypeAdmin)
+admin_site.register(NoticeSetting, NoticeSettingAdmin)
+admin_site.register(Notice, NoticeAdmin)
+admin_site.register(ObservedItem)
