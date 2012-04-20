@@ -75,7 +75,7 @@ def testExecute(request):
             logger.info(str(t))
             
     else:
-        transactions = Transaction.objects.filter(status='ACTIVE')
+        transactions = Transaction.objects.filter(status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:
             

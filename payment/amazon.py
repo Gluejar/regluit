@@ -1,7 +1,7 @@
 from regluit.payment.parameters import *
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from regluit.payment.models import Transaction
+from regluit.payment.models import Transaction, PaymentResponse
 from django.contrib.auth.models import User
 from django.utils import simplejson as json
 from django.utils.xmlutils import SimplerXMLGenerator
@@ -19,6 +19,7 @@ import dateutil.parser
 import hashlib
 import httplib
 import traceback
+import datetime
 import uuid
 import os
 import urllib
@@ -43,7 +44,7 @@ AMAZON_STATUS_PAYMENT_MISMATCH = 'PE'
 AMAZON_STATUS_INCOMPLETE = 'NP'
 AMAZON_STATUS_NOT_REGISTERED = 'NM'
 
-AMAZON_STATUS_CANCLLED = 'Cancelled'
+AMAZON_STATUS_CANCELLED = 'Cancelled'
 AMAZON_STATUS_FAILURE = 'Failure'
 AMAZON_STATUS_PENDING = 'Pending'
 AMAZON_STATUS_RESERVED = 'Reserved'
@@ -55,8 +56,24 @@ AMAZON_IPN_STATUS_PENDING = 'PENDING'
 AMAZON_IPN_STATUS_RESERVED = 'RESERVED'
 AMAZON_IPN_STATUS_SUCCESS = 'SUCCESS'
 
+
+def ProcessIPN(request):
+    '''
+        IPN handler for amazon
+    '''
+    try:
+        print "Process Amazon IPN"
+    except:
+        traceback.print_exc()
+        
+        
+
 def amazonPaymentReturn(request):
-    
+    '''
+        This is the complete view called after the co-branded API completes.  It is called whenever the user
+        approves a preapproval or a pledge.
+
+    '''
     try:
         
         # pick up all get and post parameters and display
@@ -68,7 +85,7 @@ def amazonPaymentReturn(request):
         reference = request.GET['callerReference']
         token = request.GET['tokenID']
         status = request.GET['status']
-        
+
         # BUGUBG - Should we verify the signature here?
         #
         # Find the transaction by reference, there should only be one
@@ -82,6 +99,14 @@ def amazonPaymentReturn(request):
         if transaction.type == PAYMENT_TYPE_INSTANT:
             # Instant payments need to be executed now
             
+            # Log the authorize transaction
+            r = PaymentResponse.objects.create(api="Authorize",
+                          correlation_id = "None",
+                          timestamp = str(datetime.datetime.now()),
+                          info = str(request.GET),
+                          status=status,
+                          transaction=transaction)
+            
             if status == AMAZON_STATUS_SUCCESS_ABT or status == AMAZON_STATUS_SUCCESS_ACH or status == AMAZON_STATUS_SUCCESS_CREDIT:
                 # The above status code are unique to the return URL and are different than the pay API codes
                 
@@ -94,7 +119,17 @@ def amazonPaymentReturn(request):
                 #
                 e = Execute(transaction=transaction)
                 
-                transaction.status = e.status
+                transaction.local_status = e.status
+                
+                if e.status == AMAZON_STATUS_SUCCESS:
+                    transaction.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                    
+                elif e.status == AMAZON_STATUS_PENDING:
+                    # Amazon leaves CC transactions pending until we get the IPN
+                    transaction.status = TRANSACTION_STATUS_PENDING
+                    
+                else:
+                    transaction.status = TRANSACTION_STATUS_ERROR
                 
                 if e.success() and not e.error():
                     # Success case, save the ID
@@ -102,26 +137,43 @@ def amazonPaymentReturn(request):
                 else:
                     print "Amazon Execute returned an error, status %s" % e.status
                     # Failure case
-                    
-                # Save some context for this transaction
+
+                # Log the pay transaction
+                r = PaymentResponse.objects.create(api="Pay",
+                          correlation_id = e.correlation_id(),
+                          timestamp = e.timestamp(),
+                          info = e.envelope(),
+                          status = e.status,
+                          transaction=transaction)
    
             else:
                 transaction.status = AMAZON_STATUS_FAILURE
+            
                 
         elif transaction.type == PAYMENT_TYPE_AUTHORIZATION:
             #
-            # Future payments, we only need to store the token.  The authorization was requested with the default expidation
+            # Future payments, we only need to store the token.  The authorization was requested with the default expiration
             # date set in our settings.  When we are ready, we can call execute on this
             #
+            transaction.local_status = status
+            
             if status == AMAZON_STATUS_SUCCESS_ABT or status == AMAZON_STATUS_SUCCESS_ACH or status == AMAZON_STATUS_SUCCESS_CREDIT:
                 
                 # The above status code are unique to the return URL and are different than the pay API codes
-                transaction.status = AMAZON_STATUS_PENDING
+                transaction.status = TRANSACTION_STATUS_ACTIVE
                 transaction.approved = True
                 transaction.pay_key = token
                 
             else:
-                transaction.status = AMAZON_STATUS_FAILURE
+                transaction.status = TRANSACTION_STATUS_ERROR
+                
+            # Log the trasaction
+            r = PaymentResponse.objects.create(api="Authorize",
+                          correlation_id = "None",
+                          timestamp = str(datetime.datetime.now()),
+                          info = str(request.GET),
+                          status = status,
+                          transaction=transaction)
                 
         transaction.save()
         return HttpResponse("Success")
@@ -155,7 +207,7 @@ class AmazonRequest:
             # process the boto response if we have one.  The status codes here are only boto response codes, not
             # return_url codes
             #  
-            if self.status == AMAZON_STATUS_SUCCESS:
+            if self.status == AMAZON_STATUS_SUCCESS or self.status == AMAZON_STATUS_PENDING:
                 return True
             else:
                 return False
@@ -190,13 +242,21 @@ class AmazonRequest:
             return None
       
     def correlation_id(self):
-        return None
+        # The correlation ID is unique to each API call
+        if self.response:
+            return self.response.TransactionId
+        else:
+            return None
         
     def timestamp(self):
-        return None
+        return str(datetime.datetime.now())
     
     
 class Pay( AmazonRequest ):
+
+  '''
+    The pay function generates a redirect URL to approve the transaction
+  '''
     
   def __init__( self, transaction, return_url=None, cancel_url=None, options=None, amount=None):
       
@@ -212,7 +272,6 @@ class Pay( AmazonRequest ):
           receivers = transaction.receiver_set.all()
           
           if not amount:
-              # by setting primary_string of the first receiver to 'true', we are doing a Chained payment
               amount = 0
               for r in receivers:
                   amount += r.amount
@@ -241,7 +300,7 @@ class Pay( AmazonRequest ):
           self.errorMessage = "Error: Server Error"
       
   def api(self):
-      return None
+      return "Amazon Co-branded PAY request"
     
   def exec_status( self ):
       return None 
@@ -265,6 +324,7 @@ class Preapproval(Pay):
       # Call into our parent class
       Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, options=None, amount=amount)
   
+  
 class Execute(AmazonRequest):
     
     def __init__(self, transaction=None):
@@ -273,7 +333,8 @@ class Execute(AmazonRequest):
             
             # Use the boto class top open a connection
             self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
-          
+            self.transaction = transaction
+            
             # BUGBUG, handle multiple receivers!  For now we just send the money to ourselves
               
             self.raw_response = self.connection.pay(transaction.amount, 
@@ -299,4 +360,70 @@ class Execute(AmazonRequest):
         except:
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
+            
+    def api(self):
+        return "Amazon API Pay"
+    
+    def key(self):
+        # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
+        return self.transaction.pay_key
+
+class Finish(AmazonRequest):
+    
+    def __init__(self, transaction):
+        
+        try:
+            
+            print "Finish"
+            
+        except:
+            traceback.print_exc()
+            self.errorMessage = "Error: Server Error"          
+            
+class PaymentDetails(AmazonRequest):
+  def __init__(self, transaction=None):
+ 
+      try:
+         print "Payment Details"
+              
+      except:
+          self.errorMessage = "Error: ServerError"
+          traceback.print_exc()
+          
+            
+
+class CancelPreapproval(AmazonRequest):
+    
+    def __init__(self, transaction):
+        
+        try:
+            
+            print "Cancel Preapproval"
+            
+        except:
+            traceback.print_exc()
+            self.errorMessage = "Error: Server Error"
+            
+            
+class RefundPayment(AmazonRequest):
+    
+    def __init__(self, transaction):
+        
+        try:
+            print "Refund Payment"
+            
+        except:
+            traceback.print_exc()
+            self.errorMessage = "Error: Server Error"
+            
+            
+class PreapprovalDetails(AmazonRequest):
+  def __init__(self, transaction):
+ 
+      try:
+          print "Preapproval Details"
+          
+      except:
+          self.errorMessage = "Error: ServerError"
+          traceback.print_exc()
         

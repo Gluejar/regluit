@@ -1,7 +1,7 @@
 from regluit.payment.parameters import *
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from regluit.payment.models import Transaction
+from regluit.payment.models import Transaction, Receiver
 from django.contrib.auth.models import User
 from django.utils import simplejson as json
 from django.utils.xmlutils import SimplerXMLGenerator
@@ -104,6 +104,113 @@ IPN_TXN_STATUS_REFUNDED = 'Refunded'
 IPN_REASON_CODE_CHARGEBACK_SETTLEMENT = 'Chargeback Settlement'
 IPN_REASON_CODE_ADMIN_REVERSAL = 'Admin reversal'
 IPN_REASON_CODE_REFUND = 'Refund'
+
+def ProcessIPN(request):
+    '''
+    processIPN
+    
+    Turns a request from Paypal into an IPN, and extracts info.   We support 2 types of IPNs:
+    
+    1) Payment - Used for instant payments and to execute pre-approved payments
+    2) Preapproval - Used for comfirmation of a preapproval
+    
+    '''        
+    try:
+        ipn = IPN(request)
+    
+        if ipn.success():
+            logger.info("Valid IPN")
+            logger.info("IPN Transaction Type: %s" % ipn.transaction_type)
+            
+            if ipn.transaction_type == IPN_TYPE_PAYMENT:
+                # payment IPN. we use our unique reference for the transaction as the key
+                # is only valid for 3 hours
+                
+                uniqueID = ipn.uniqueID()
+                t = Transaction.objects.get(secret=uniqueID)
+                
+                # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
+                t.local_status = ipn.status
+                
+                for item in ipn.transactions:
+                    
+                    try:
+                        r = Receiver.objects.get(transaction=t, email=item['receiver'])
+                        logger.info(item)
+                        # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
+                        # payments, then there is no status or id for non-primary receivers.  Leave their status alone
+                        r.status = item['status_for_sender_txn']
+                        r.txn_id = item['id_for_sender_txn']
+                        r.save()
+                    except:
+                        # Log an exception if we have a receiver that is not found.  This will be hit
+                        # for delayed chained payments as there is no status or id for the non-primary receivers yet
+                        traceback.print_exc()
+                
+                t.save()
+                
+                logger.info("Final transaction status: %s" % t.status)
+                
+            elif ipn.transaction_type == IPN_TYPE_ADJUSTMENT:
+                # a chargeback, reversal or refund for an existng payment
+
+                uniqueID = ipn.uniqueID()
+                if uniqueID:
+                    t = Transaction.objects.get(secret=uniqueID)
+                else:
+                    key = ipn.pay_key
+                    t = Transaction.objects.get(pay_key=key)
+                
+                # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
+                t.local_status = ipn.status
+                
+                # Reason code indicates more details of the adjustment type
+                t.reason = ipn.reason_code
+    
+                # Update the receiver status codes
+                for item in ipn.transactions:
+                    
+                    try:
+                        r = Receiver.objects.get(transaction=t, email=item['receiver'])
+                        logger.info(item)
+                        # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
+                        # payments, then there is no status or id for non-primary receivers.  Leave their status alone
+                        r.status = item['status_for_sender_txn']
+                        r.save()
+                    except:
+                        # Log an exception if we have a receiver that is not found.  This will be hit
+                        # for delayed chained payments as there is no status or id for the non-primary receivers yet
+                        traceback.print_exc()
+                        
+                t.save()                    
+                
+                    
+            elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
+                
+                # IPN for preapproval always uses the key to ref the transaction as this is always valid
+                key = ipn.preapproval_key
+                t = Transaction.objects.get(preapproval_key=key)
+                
+                # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
+                t.local_status = ipn.status
+                
+                # capture whether the transaction has been approved
+                t.approved = ipn.approved
+                
+                t.save()
+                logger.info("IPN: Preapproval transaction: " + str(t.id) + " Status: " + ipn.status)
+                    
+            else:
+                logger.info("IPN: Unknown Transaction Type: " + ipn.transaction_type)
+            
+            
+        else:
+            logger.info("ERROR: INVALID IPN")
+            logger.info(ipn.error)
+    
+    except:
+        traceback.print_exc()
+        
 
 class PaypalError(RuntimeError):
     pass
@@ -358,7 +465,7 @@ class Pay( PaypalEnvelopeRequest ):
   
   
   
-class Execute(PaypalEnvelopeRequest):
+class Finish(PaypalEnvelopeRequest):
     
     def __init__(self, transaction=None):
         
@@ -799,4 +906,6 @@ class IPN( object ):
               self.transactions.append(transdict)
               logger.info(transdict)
                 
+
+
         
