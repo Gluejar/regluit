@@ -78,7 +78,8 @@ Instructions for setting please are slightly different.
 1. `sudo chmod 755 /etc/init.d/celeryd`
 1. `sudo cp deploy/celeryd.conf /etc/default/celeryd`
 1. `sudo mkdir /var/log/celery`
-1. `sudo chown celery:celery /var/log/celery`
+1. `sudo mkdir /var/run/celery`
+1. `sudo chown celery:celery /var/log/celery /var/run/celery`
 1. `sudo /etc/init.d/celeryd start`
 1. `sudo cp deploy/celerybeat /etc/init.d/celerybeat`
 1. `sudo chmod 755 /etc/init.d/celerybeat`
