@@ -43,7 +43,7 @@ Instructions for setting please are slightly different.
 1. create an ubuntu ec2 instance (e.g, go http://alestic.com/ to find various ubuntu images)
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
+1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix python-dev`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
