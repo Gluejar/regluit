@@ -102,12 +102,13 @@ class PaymentManager( object ):
                 payment_status['status'] = {'ours': t.status, 'theirs': p.status}
                 
                 t.status = p.status
+                t.local_status = p.local_status
                 t.save()
                 
             receivers_status = []
             
             for r in p.transactions:
-                
+                # This is only supported for paypal at this time
                 try:
                     receiver = Receiver.objects.get(transaction=t, email=r['email'])
                     
@@ -621,7 +622,7 @@ class PaymentManager( object ):
         
         # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
         # then an IPN may be pending and we cannot touch it        
-        if transaction.status != TRANSACITON_STATUS_ACTIVE:
+        if transaction.status != TRANSACTION_STATUS_ACTIVE:
             logger.info("Error, attempt to modify a transaction that is not active")
             return False, None
             
@@ -780,7 +781,7 @@ class PaymentManager( object ):
         
         if p.success() and not p.error():
             t.pay_key = p.key()
-            t.status = 'CREATED'
+            t.status = TRANSACTION_STATUS_CREATED
             t.save()
             
             if self.embedded:
