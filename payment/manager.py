@@ -203,7 +203,7 @@ class PaymentManager( object ):
 
         if pledged:
             pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
-                                                   status=TRANSACITON_STATUS_COMPLETE_PRIMARY)
+                                                   status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
         else:
             pledged_list = []
         
@@ -223,7 +223,7 @@ class PaymentManager( object ):
             
         if completed:
             completed_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=TRANSACITON_STATUS_COMPLETE_PRIMARY)
+                                                         status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
         else:
             completed_list = []            
         
@@ -686,7 +686,7 @@ class PaymentManager( object ):
         
         # First check if a payment has been made.  It is possible that some of the receivers may be incomplete
         # We need to verify that the refund API will cancel these
-        if transaction.status != TRANSACITON_STATUS_COMPLETE_PRIMARY:
+        if transaction.status != TRANSACTION_STATUS_COMPLETE_PRIMARY:
             logger.info("Refund Transaction failed, invalid transaction status")
             return False
         
