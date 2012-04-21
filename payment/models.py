@@ -16,8 +16,11 @@ class Transaction(models.Model):
     #execution: e.g. EXECUTE_TYPE_CHAINED_INSTANT, EXECUTE_TYPE_CHAINED_DELAYED, EXECUTE_TYPE_PARALLEL
     execution = models.IntegerField(default=EXECUTE_TYPE_NONE, null=False)
     
-    # status: constants defined in paypal.py (e.g., IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_CREATED)
-    status = models.CharField(max_length=32, default='NONE', null=False)
+    # status: general status constants defined in parameters.py
+    status = models.CharField(max_length=32, default='None', null=False)
+    
+    # local_status: status code specific to the payment processor
+    local_status = models.CharField(max_length=32, default='NONE', null=True)
     
     # amount & currency -- amount of money and its currency involved for transaction
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
@@ -99,6 +102,9 @@ class PaymentResponse(models.Model):
     # extra info we want to store if an error occurs such as the response message
     info = models.CharField(max_length=1024, null=True)
     
+    # local status specific to the api call
+    status = models.CharField(max_length=32, null=True)
+    
     transaction = models.ForeignKey(Transaction, null=False)
 
     def __unicode__(self):
@@ -113,6 +119,7 @@ class Receiver(models.Model):
     currency = models.CharField(max_length=10)
 
     status = models.CharField(max_length=64)
+    local_status = models.CharField(max_length=64, null=True)
     reason = models.CharField(max_length=64)
     primary = models.BooleanField()
     txn_id = models.CharField(max_length=64)

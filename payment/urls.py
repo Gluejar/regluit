@@ -9,7 +9,8 @@ fps_recur_obj = get_integration("fps")
 
 urlpatterns = patterns(
     "regluit.payment.views",
-    url(r"^paypalipn", "paypalIPN", name="PayPalIPN"),
+    url(r"^paypalipn", "handleIPN", name="HandleIPN"),
+    url(r"^amazonipn", "handleIPN", name="HandleIPN"),
 )
 
 # Amazon payment URLs
