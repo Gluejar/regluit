@@ -557,7 +557,9 @@ class PaymentDetails(PaypalEnvelopeRequest):
           self.response = json.loads( self.raw_response )
           logger.info(self.response)
           
+          self.local_status = self.response.get("status", None)
           self.status = self.response.get("status", None)
+          
           self.trackingId = self.response.get("trackingId", None)
           self.feesPayer = self.response.get("feesPayer", None)
           payment_info_list = self.response.get("paymentInfoList", None)
