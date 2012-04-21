@@ -194,7 +194,14 @@ def testModify(request):
     t = Transaction.objects.get(id=int(request.GET['transaction']))
     p = PaymentManager()
     
-    status, url = p.modify_transaction(t, amount)
+
+    # Set the return url for the processor
+    if settings.PAYMENT_PROCESSOR == 'amazon':
+        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
+    else:
+        return_url = None
+        
+    status, url = p.modify_transaction(t, amount, return_url=return_url)
     
     if url:
         logger.info("testModify: " + url)
@@ -307,7 +314,7 @@ def runTests(request):
         traceback.print_exc()
     
 @csrf_exempt
-def paypalIPN(request):
+def handleIPN(request):
     # Handler for paypal IPN notifications
     
     p = PaymentManager()
