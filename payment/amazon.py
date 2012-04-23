@@ -8,6 +8,7 @@ from datetime import timedelta
 from regluit.utils.localdatetime import now, zuluformat
 from boto import handler
 from boto.resultset import ResultSet
+from boto.exception import FPSResponseError
 import xml.sax
 
 import traceback
@@ -15,6 +16,7 @@ import datetime
 import logging
 import urlparse
 import time
+import urllib
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +75,7 @@ def ProcessIPN(request):
         
     '''
     try:
-        print "Process Amazon IPN"
+        logging.debug("Amazon IPN called")
         
         uri = request.build_absolute_uri()
         parsed_url = urlparse.urlparse(uri)
@@ -92,8 +94,8 @@ def ProcessIPN(request):
             logging.error(request.raw_post_data)
             return HttpResponseForbidden()
         
-        print "Amazon IPN POST DATA:"
-        print request.POST
+        logging.debug("Amazon IPN post data:")
+        logging.debug(request.POST)
 
         reference = request.POST['callerReference']
         type = request.POST['notificationType']
@@ -102,13 +104,20 @@ def ProcessIPN(request):
         transactionId = request.POST.get('transactionId', None)
         date = request.POST.get('transactionDate', None)
         operation = request.POST.get('operation', None)
+        status = request.POST.get('transactionStatus', None)
+        
+        logging.info("Received Amazon IPN with the following data:")
+        logging.info("type = %s" % type)
+        logging.info("operation = %s" % operation)
+        logging.info("reference = %s" % reference)
+        logging.info("status = %s" % status)
         
         # We should always find the transaction by the token
         transaction = Transaction.objects.get(secret=reference)
         
         if type == AMAZON_NOTIFICATION_TYPE_STATUS:
             
-            status = request.POST['transactionStatus']
+            
             # status update for the token, save the actual value
             transaction.local_status = status
             
@@ -178,14 +187,13 @@ def ProcessIPN(request):
 def amazonPaymentReturn(request):
     '''
         This is the complete view called after the co-branded API completes.  It is called whenever the user
-        approves a preapproval or a pledge.
+        approves a preapproval or a pledge.  This URL is set via the PAY api.
     '''
     try:
         
         # pick up all get and post parameters and display
         output = "payment complete"
         output += request.method + "\n" + str(request.REQUEST.items())
-        print output
         
         signature = request.GET['signature']
         reference = request.GET['callerReference']
@@ -198,6 +206,9 @@ def amazonPaymentReturn(request):
         # We will catch the exception if it does not exist
         #
         transaction = Transaction.objects.get(secret=reference)
+        
+        logging.info("Amazon Co-branded Return URL called for transaction id: %d" % transaction.id)
+        logging.info(request.GET)
         
         #
         # BUGBUG, for now lets map amazon status code to paypal, just to keep things uninform
@@ -276,11 +287,22 @@ def amazonPaymentReturn(request):
                           transaction=transaction)
                 
         transaction.save()
-        return HttpResponse("Success")
+        
+        # Redirect to our pledge success URL
+        return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+                                urllib.urlencode({'tid':transaction.id})) 
+        return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+        return HttpResponseRedirect(return_url)
 
     except:
+        logging.error("Amazon co-branded return-url FAILED with exception:")
         traceback.print_exc()
-        return HttpResponseBadRequest("Error")
+        
+        cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
+                                urllib.urlencode({'tid':transaction.id}))            
+        cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+            
+        return HttpResponseRedirect(cancel_url)
 
 
 class AmazonRequest:
@@ -351,6 +373,11 @@ class Pay( AmazonRequest ):
   def __init__( self, transaction, return_url=None, cancel_url=None, options=None, amount=None):
       
       try:
+          logging.debug("Amazon PAY operation for transaction ID %d" % transaction.id)
+
+          # Replace our return URL with a redirect through our internal URL
+          self.original_return_url = return_url
+          return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
           
           if not options:
               options = {}
@@ -378,15 +405,19 @@ class Pay( AmazonRequest ):
                   'currencyCode': 'USD',
                   'globalAmountLimit': str(amount),
                   'validityExpiry': str(int(time.mktime(expiry.timetuple()))), # use the preapproval date by default
-                  } 
-          
-          print "Amazon PURCHASE url request data: %s" % data
+                  }
           
           self.url = self.connection.make_url(return_url, "Test Payment", "MultiUse", str(amount), **data)
           
-          print "Amazon PURCHASE url was: %s" % self.url
+          logging.debug("Amazon PAY redirect url was: %s" % self.url)
+          
+      except FPSResponseError as (responseStatus, responseReason, body):
+          logging.error("Amazon PAY api failed with status: %s, reason: %s and data:" % (responseStatus, responseReason))
+          logging.error(body)
+          self.errorMessage = body
           
       except:
+          logging.error("Amazon PAY FAILED with exception:")
           traceback.print_exc()
           self.errorMessage = "Error: Server Error"
       
@@ -410,10 +441,18 @@ class Pay( AmazonRequest ):
   
 class Preapproval(Pay):
     
-  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
+    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
       
-      # Call into our parent class
-      Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, options=None, amount=amount)
+        # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
+        now_val = now()
+        if expiry is None:
+            expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+        transaction.date_authorized = now_val
+        transaction.date_expired = expiry
+        transaction.save()
+          
+        # Call into our parent class
+        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, options=None, amount=amount)
   
   
 class Execute(AmazonRequest):
@@ -426,6 +465,7 @@ class Execute(AmazonRequest):
     def __init__(self, transaction=None):
         
         try:
+            logging.debug("Amazon EXECUTE action for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
             self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
@@ -452,19 +492,29 @@ class Execute(AmazonRequest):
             # job of reporting the error when this occurs
             #
             
-            print "Amazon EXECUTE response was: %s" % self.raw_response
             self.response = self.raw_response[0]
-            print "RESPONSE: %s" % self.response
+            logging.debug("Amazon EXECUTE response for transaction id: %d" % transaction.id)
+            logging.debug(str(self.response))
+            
             self.status = self.response.TransactionStatus
-            print "STATUS: %s" % self.status
             
             #
             # For amazon, the transactionID is per transaction, not per receiver.  For now we will store it in the preapproval key field
             # so we can use it to refund or get status later
             #
-            transaction.preapproval_key = self.response.TransactionId    
-          
+            transaction.preapproval_key = self.response.TransactionId 
+            
+            logging.debug("Amazon EXECUTE API returning with variables:")
+            logging.debug(locals())
+               
+        except FPSResponseError as (responseStatus, responseReason, body):
+            
+            logging.error("Amazon EXECUTE api failed with status: %s, reason: %s and data:" % (responseStatus, responseReason))
+            logging.error(body)
+            self.errorMessage = body
+            
         except:
+            logging.error("Amazon EXECUTE FAILED with exception:")
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
             
@@ -497,7 +547,8 @@ class PaymentDetails(AmazonRequest):
     def __init__(self, transaction=None):
  
         try:
-          
+            logging.debug("Amazon PAYMENTDETAILS API for transaction id: %d" % transaction.id)
+            
             # Use the boto class top open a connection
             self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
             self.transaction = transaction
@@ -512,12 +563,10 @@ class PaymentDetails(AmazonRequest):
             # field is not used for amazon
             #
             self.raw_response = self.connection.get_transaction_status(transaction.preapproval_key)
-            
-            print "Amazon TRANSACTION STATUS response was: %s" % self.raw_response
-              
             self.response = self.raw_response[0]
-            print "RESPONSE: %s" % self.response
-    
+            
+            logging.debug("Amazon PAYMENTDETAILS API for transaction id: %d returned response:")
+            logging.debug(self.response)
             
             #
             # Now we need to build values to match the paypal response.
@@ -542,9 +591,17 @@ class PaymentDetails(AmazonRequest):
             # Amazon does not support receivers at this point
             self.transactions = []
             
-            print self.status
+            logging.debug("Amazon PAYMENTDETAILS API returning with variables:")
+            logging.debug(locals())
+            
+        except FPSResponseError as (responseStatus, responseReason, body):
+            
+            logging.error("Amazon PAYMENTDETAILS api failed with status: %s, reason: %s and data:" % (responseStatus, responseReason))
+            logging.error(body)
+            self.errorMessage = body
               
         except:
+            logging.error("Amazon PAYMENTDETAILS FAILED with exception:")
             self.errorMessage = "Error: ServerError"
             traceback.print_exc()
           
@@ -559,6 +616,7 @@ class CancelPreapproval(AmazonRequest):
     def __init__(self, transaction):
         
         try:
+            logging.debug("Amazon CANCELPREAPPROVAL api called for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
             self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
@@ -591,8 +649,18 @@ class CancelPreapproval(AmazonRequest):
                 #
                 self.status = AMAZON_STATUS_FAILURE
                 self.errorMessage = "%s - %s" % (fps_response.reason, body)
+                
+            logging.debug("Amazon CANCELPREAPPROVAL API returning with variables:")
+            logging.debug(locals())
+            
+        except FPSResponseError as (responseStatus, responseReason, body):
+            
+            logging.error("Amazon CANCELPREAPPROVAL api failed with status: %s, reason: %s and data:" % (responseStatus, responseReason))
+            logging.error(body)
+            self.errorMessage = body
             
         except:
+            logging.error("Amazon CANCELPREAPPROVAL FAILED with exception:")
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
             
@@ -602,6 +670,8 @@ class RefundPayment(AmazonRequest):
     def __init__(self, transaction):
         
         try:
+            logging.debug("Amazon REFUNDPAYMENT API called for transaction id: %d", transaction.id)
+            
             # Use the boto class top open a connection
             self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
             self.transaction = transaction
@@ -616,26 +686,91 @@ class RefundPayment(AmazonRequest):
             # field is not used for amazon
             #
             self.raw_response = self.connection.refund(transaction.secret, transaction.preapproval_key)
-            
-            print "Amazon TRANSACTION REFUND response was: %s" % self.raw_response
-              
             self.response = self.raw_response[0]
-            print "RESPONSE: %s" % self.response
+            
+            logging.debug("Amazon REFUNDPAYMENT response was:")
+            logging.debug(str(self.response))
+            
             self.status = self.response.TransactionStatus
-            print "STATUS: %s" % self.status
+            
+            logging.debug("Amazon REFUNDPAYMENT API returning with variables:")
+            logging.debug(locals())
+            
+        except FPSResponseError as (responseStatus, responseReason, body):
+            
+            logging.error("Amazon REFUNDPAYMENT api failed with status: %s, reason: %s and data:" % (responseStatus, responseReason))
+            logging.error(body)
+            self.errorMessage = body
             
         except:
+            logging.error("Amazon REFUNDPAYMENT FAILED with exception:")
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
             
             
 class PreapprovalDetails(AmazonRequest):
-  def __init__(self, transaction):
+    '''
+       Get details about an authorized token
+       
+       This api must set 4 different class variables to work with the code in manager.py
+       
+       status - one of the global transaction status codes
+       approved - boolean value
+       currency - not used in this API, but we can get some more info via other APIs - TODO
+       amount - not used in this API, but we can get some more info via other APIs - TODO
+       
+    '''
+    def __init__(self, transaction=None):
  
-      try:
-          print "Preapproval Details"
-          
-      except:
-          self.errorMessage = "Error: ServerError"
-          traceback.print_exc()
+        try:
+            logging.debug("Amazon PREAPPROVALDETAILS API called for transaction id: %d", transaction.id)
+            
+            # Use the boto class top open a connection
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.transaction = transaction
+            
+            
+            #
+            # We need to reference the caller reference here, we may not have a token if the return URL failed
+            #
+            self.raw_response = self.connection.get_token_by_caller_reference(transaction.secret)
+            self.response = self.raw_response
+            
+            logging.debug("Amazon PREAPPROVALDETAILS response:")
+            logging.debug(str(self.response))
+    
+            # 
+            # Look for a token, we store this in the pay_key field
+            #
+            self.pay_key = self.response.TokenId
+            self.local_status = self.response.TokenStatus
+            
+            # Possible status for the Token object are Active and Inactive
+            if self.local_status == 'Active':
+                self.status = TRANSACTION_STATUS_ACTIVE
+                self.approved = True
+            else:
+                # It is not clear here if this should be failed or cancelled, but we have no way to know
+                # the token is only active or now, so we will assume it is canceled.
+                self.status = TRANSACTION_STATUS_CANCELED
+                self.approved = False
+                
+            # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
+            self.currency = transaction.currency
+            self.amount = transaction.amount
+            
+            logging.debug("Amazon PREAPPROVALDETAILS API returning with variables:")
+            logging.debug(locals())
+            
+        except FPSResponseError as (responseStatus, responseReason, body):
+            
+            logging.error("Amazon PREAPPROVALDETAILS api failed with status: %s, reason: %s and data:" % (responseStatus, responseReason))
+            logging.error(body)
+            self.errorMessage = body
+              
+        except:
+            # If the boto API fails, it also throws an exception and we end up here
+            logging.error("Amazon PREAPPROVALDETAILS FAILED with exception:")
+            self.errorMessage = "Error: ServerError"
+            traceback.print_exc()
         

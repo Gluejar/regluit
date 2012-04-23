@@ -81,6 +81,16 @@ class PaymentManager( object ):
                 preapproval_status["approved"] = {'ours':t.approved, 'theirs':p.approved}
                 t.approved = p.approved
                 t.save()
+                
+            # In amazon FPS, we may not have a pay_key via the return URL, update here
+            try:
+                if t.pay_key != p.pay_key:
+                    preapproval_status['pay_key'] = {'ours':t.pay_key, 'theirs':p.pay_key}
+                    t.pay_key = p.pay_key
+                    t.save()
+            except:
+                # No problem, p.pay_key is not defined for paypal function
+                blah = "blah"
             
         
         return preapproval_status            
