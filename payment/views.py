@@ -28,7 +28,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
-TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
+TEST_RECEIVERS = ['raymond.yee@gmail.com', 'Buyer6_1325742408_per@gmail.com']
+#TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
 #TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
 
 

@@ -385,6 +385,13 @@ class Pay( AmazonRequest ):
               options = {}
               
           # Use the boto class top open a connection
+          # if options does not have a host key, then use settings.AMAZON_FPS_HOST if it exists
+          if options.get('host') is None:
+            try:
+                options['host'] = settings.AMAZON_FPS_HOST
+            except:
+                pass
+            
           self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, **options)
           
           receiver_list = []

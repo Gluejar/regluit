@@ -4,8 +4,8 @@ from django.conf import settings
 # django-merchant integration
 from billing import get_integration
 
-amazon_fps_obj = get_integration("fps")
-fps_recur_obj = get_integration("fps")
+amazon_fps_obj = get_integration("fps", options={'host':'fps.sandbox.amazonaws.com'})
+fps_recur_obj = get_integration("fps", options={'host':'fps.sandbox.amazonaws.com'})
 
 urlpatterns = patterns(
     "regluit.payment.views",

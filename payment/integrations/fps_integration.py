@@ -28,6 +28,7 @@ class FpsIntegration(Integration):
         dd = dict(map(lambda x: x.split("="), query.split("&")))
         
         logger.info("dd: {0}".format(dd))
+        logger.info("self.fps_connection.host: {0}".format(self.fps_connection.host))
         
 # dd: {'status': 'SC', 'signatureVersion': '2',
 #     'tokenID': 'CLDITXQAX2DM82CT184S5CDNKYDXEPXETZ5QJFKB8AX4V9ZD34BGGJ6IDNFZDSUU',
