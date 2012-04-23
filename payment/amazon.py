@@ -410,10 +410,18 @@ class Pay( AmazonRequest ):
   
 class Preapproval(Pay):
     
-  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
+    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
       
-      # Call into our parent class
-      Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, options=None, amount=amount)
+        # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
+        now_val = now()
+        if expiry is None:
+            expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+        transaction.date_authorized = now_val
+        transaction.date_expired = expiry
+        transaction.save()
+          
+        # Call into our parent class
+        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, options=None, amount=amount)
   
   
 class Execute(AmazonRequest):
@@ -513,10 +521,9 @@ class PaymentDetails(AmazonRequest):
             #
             self.raw_response = self.connection.get_transaction_status(transaction.preapproval_key)
             
-            print "Amazon TRANSACTION STATUS response was: %s" % self.raw_response
-              
+            print "Amazon TRANSACTION STATUS response was:"
+            print dir(self.raw_response[0])
             self.response = self.raw_response[0]
-            print "RESPONSE: %s" % self.response
     
             
             #
@@ -630,12 +637,57 @@ class RefundPayment(AmazonRequest):
             
             
 class PreapprovalDetails(AmazonRequest):
-  def __init__(self, transaction):
+    '''
+       Get details about an authorized token
+       
+       This api must set 4 different class variables to work with the code in manager.py
+       
+       status - one of the global transaction status codes
+       approved - boolean value
+       currency - not used in this API, but we can get some more info via other APIs - TODO
+       amount - not used in this API, but we can get some more info via other APIs - TODO
+       
+    '''
+    def __init__(self, transaction=None):
  
-      try:
-          print "Preapproval Details"
+        try:
           
-      except:
-          self.errorMessage = "Error: ServerError"
-          traceback.print_exc()
+            # Use the boto class top open a connection
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.transaction = transaction
+            
+            
+            #
+            # We need to reference the caller reference here, we may not have a token if the return URL failed
+            #
+            self.raw_response = self.connection.get_token_by_caller_reference(transaction.secret)
+            
+            print "Amazon GET TOKEN BY CALLER REFERENCE response was: "
+            print dir(self.raw_response)
+            self.response = self.raw_response
+    
+            # 
+            # Look for a token, we store this in the pay_key field
+            #
+            self.pay_key = self.response.TokenId
+            self.local_status = self.response.TokenStatus
+            
+            # Possible status for the Token object are Active and Inactive
+            if self.local_status == 'Active':
+                self.status = TRANSACTION_STATUS_ACTIVE
+                self.approved = True
+            else:
+                # It is not clear here if this should be failed or cancelled, but we have no way to know
+                # the token is only active or now, so we will assume it is canceled.
+                self.status = TRANSACTION_STATUS_CANCELED
+                self.approved = False
+                
+            # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
+            self.currency = transaction.currency
+            self.amount = transaction.amount
+              
+        except:
+            # If the boto API fails, it also throws an exception and we end up here
+            self.errorMessage = "Error: ServerError"
+            traceback.print_exc()
         
