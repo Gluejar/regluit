@@ -144,7 +144,9 @@ def ProcessIPN(request):
             elif operation == AMAZON_OPERATION_TYPE_REFUND:
                 
                 if status == AMAZON_IPN_STATUS_SUCCESS:
-                    transaction.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                    transaction.status = TRANSACTION_STATUS_REFUNDED
+                elif status == AMAZON_IPN_STATUS_PENDING:
+                    transaction.status = TRANSACTION_STATUS_PENDING
                 else:
                     transaction.status = TRANSACTION_STATUS_ERROR
                     
@@ -577,10 +579,22 @@ class PaymentDetails(AmazonRequest):
             self.local_status = self.response.StatusCode
             self.message = self.response.StatusMessage
             
+            
             if self.local_status == 'Canceled':
                 self.status = TRANSACTION_STATUS_CANCELED
+                
             elif self.local_status == 'Success':
-                self.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                #
+                # Note, there is a limitation here.  If the current status is refunded, this API will return "Success".
+                # We must be careful to not overwrite refunded status codes.  There is no way that I can find to poll
+                # to see if a transaction is refunded.  I need to investigate all of the data fields and see if we can find
+                # that information
+                #
+                if transaction.status != TRANSACTION_STATUS_REFUNDED:
+                    self.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                else:
+                    self.status = TRANSACTION_STATUS_REFUNDED
+                    
             elif self.local_status == 'PendingNetworkResponse' or self.local_status == 'PendingVerification':
                 self.status = TRANSACTION_STATUS_PENDING
             elif self.local_status == 'TransactionDenied':
