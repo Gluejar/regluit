@@ -74,7 +74,7 @@ def ProcessIPN(request):
         
     '''
     try:
-        print "Process Amazon IPN"
+        logging.debug("Amazon IPN called")
         
         uri = request.build_absolute_uri()
         parsed_url = urlparse.urlparse(uri)
@@ -93,8 +93,8 @@ def ProcessIPN(request):
             logging.error(request.raw_post_data)
             return HttpResponseForbidden()
         
-        print "Amazon IPN POST DATA:"
-        print request.POST
+        logging.debug("Amazon IPN post data:")
+        logging.debug(request.POST)
 
         reference = request.POST['callerReference']
         type = request.POST['notificationType']
@@ -103,13 +103,20 @@ def ProcessIPN(request):
         transactionId = request.POST.get('transactionId', None)
         date = request.POST.get('transactionDate', None)
         operation = request.POST.get('operation', None)
+        status = request.POST.get('transactionStatus', None)
+        
+        logging.info("Received Amazon IPN with the following data:")
+        logging.info("type = %s" % type)
+        logging.info("operation = %s" % operation)
+        logging.info("reference = %s" % reference)
+        logging.info("status = %s" % status)
         
         # We should always find the transaction by the token
         transaction = Transaction.objects.get(secret=reference)
         
         if type == AMAZON_NOTIFICATION_TYPE_STATUS:
             
-            status = request.POST['transactionStatus']
+            
             # status update for the token, save the actual value
             transaction.local_status = status
             
