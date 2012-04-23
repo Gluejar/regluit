@@ -113,19 +113,13 @@ def testAuthorize(request):
     # Note, set this to 1-5 different receivers with absolute amounts for each
     receiver_list = [{'email': TEST_RECEIVERS[0], 'amount':20.00}, 
                      {'email': TEST_RECEIVERS[1], 'amount':10.00}]
-    
-    # Set the return url for the processor
-    if settings.PAYMENT_PROCESSOR == 'amazon':
-        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
-    else:
-        return_url = None
         
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, return_url=return_url, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, return_url=None, list=None, user=None)
     
     else:
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, return_url=return_url, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, return_url=None, list=None, user=None)
     
     if url:
         logger.info("testAuthorize: " + url)
@@ -193,15 +187,8 @@ def testModify(request):
     
     t = Transaction.objects.get(id=int(request.GET['transaction']))
     p = PaymentManager()
-    
-
-    # Set the return url for the processor
-    if settings.PAYMENT_PROCESSOR == 'amazon':
-        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
-    else:
-        return_url = None
         
-    status, url = p.modify_transaction(t, amount, return_url=return_url)
+    status, url = p.modify_transaction(t, amount, return_url=None)
     
     if url:
         logger.info("testModify: " + url)
@@ -263,18 +250,12 @@ def testPledge(request):
     else:
         receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
     
-    # Set the return url for the processor
-    if settings.PAYMENT_PROCESSOR == 'amazon':
-        return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
-    else:
-        return_url = None
-        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=return_url)
+        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=None)
     
     else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=return_url)
+        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=None)
     
     if url:
         logger.info("testPledge: " + url)

@@ -16,6 +16,7 @@ import datetime
 import logging
 import urlparse
 import time
+import urllib
 
 logger = logging.getLogger(__name__)
 
@@ -186,14 +187,13 @@ def ProcessIPN(request):
 def amazonPaymentReturn(request):
     '''
         This is the complete view called after the co-branded API completes.  It is called whenever the user
-        approves a preapproval or a pledge.
+        approves a preapproval or a pledge.  This URL is set via the PAY api.
     '''
     try:
         
         # pick up all get and post parameters and display
         output = "payment complete"
         output += request.method + "\n" + str(request.REQUEST.items())
-        print output
         
         signature = request.GET['signature']
         reference = request.GET['callerReference']
@@ -206,6 +206,9 @@ def amazonPaymentReturn(request):
         # We will catch the exception if it does not exist
         #
         transaction = Transaction.objects.get(secret=reference)
+        
+        logging.info("Amazon Co-branded Return URL called for transaction id: %d" % transaction.id)
+        logging.info(request.GET)
         
         #
         # BUGBUG, for now lets map amazon status code to paypal, just to keep things uninform
@@ -284,11 +287,22 @@ def amazonPaymentReturn(request):
                           transaction=transaction)
                 
         transaction.save()
-        return HttpResponse("Success")
+        
+        # Redirect to our pledge success URL
+        return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+                                urllib.urlencode({'tid':transaction.id})) 
+        return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+        return HttpResponseRedirect(return_url)
 
     except:
+        logging.error("Amazon co-branded return-url FAILED with exception:")
         traceback.print_exc()
-        return HttpResponseBadRequest("Error")
+        
+        cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
+                                urllib.urlencode({'tid':transaction.id}))            
+        cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+            
+        return HttpResponseRedirect(cancel_url)
 
 
 class AmazonRequest:
@@ -360,6 +374,10 @@ class Pay( AmazonRequest ):
       
       try:
           logging.debug("Amazon PAY operation for transaction ID %d" % transaction.id)
+
+          # Replace our return URL with a redirect through our internal URL
+          self.original_return_url = return_url
+          return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
           
           if not options:
               options = {}
@@ -399,6 +417,7 @@ class Pay( AmazonRequest ):
           self.errorMessage = body
           
       except:
+          logging.error("Amazon PAY FAILED with exception:")
           traceback.print_exc()
           self.errorMessage = "Error: Server Error"
       
@@ -495,6 +514,7 @@ class Execute(AmazonRequest):
             self.errorMessage = body
             
         except:
+            logging.error("Amazon EXECUTE FAILED with exception:")
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
             
@@ -581,6 +601,7 @@ class PaymentDetails(AmazonRequest):
             self.errorMessage = body
               
         except:
+            logging.error("Amazon PAYMENTDETAILS FAILED with exception:")
             self.errorMessage = "Error: ServerError"
             traceback.print_exc()
           
@@ -639,6 +660,7 @@ class CancelPreapproval(AmazonRequest):
             self.errorMessage = body
             
         except:
+            logging.error("Amazon CANCELPREAPPROVAL FAILED with exception:")
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
             
@@ -681,6 +703,7 @@ class RefundPayment(AmazonRequest):
             self.errorMessage = body
             
         except:
+            logging.error("Amazon REFUNDPAYMENT FAILED with exception:")
             traceback.print_exc()
             self.errorMessage = "Error: Server Error"
             
@@ -747,6 +770,7 @@ class PreapprovalDetails(AmazonRequest):
               
         except:
             # If the boto API fails, it also throws an exception and we end up here
+            logging.error("Amazon PREAPPROVALDETAILS FAILED with exception:")
             self.errorMessage = "Error: ServerError"
             traceback.print_exc()
         
