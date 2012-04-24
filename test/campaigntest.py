@@ -152,7 +152,7 @@ def recipient_status(clist):
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
 
-def support_campaign(do_local=True):
+def support_campaign(do_local=True, backend='amazon'):
     """
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
@@ -182,9 +182,10 @@ def support_campaign(do_local=True):
     time.sleep(10)
     
     # find a campaign to pledge to
-    loginSandbox(sel)
-
-    time.sleep(2)
+    if backend == 'paypal':
+        loginSandbox(sel)
+        time.sleep(2)
+        
     print "now opening unglue.it"
     
     #sel.get("http://www.google.com")
@@ -241,8 +242,25 @@ def support_campaign(do_local=True):
     
     # grab the URL where sel is now?
     
-    print  "Now trying to pay PayPal", sel.current_url
-    paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    if backend == 'paypal':
+        print  "Now trying to pay PayPal", sel.current_url
+        paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    elif backend == 'amazon':
+        login_email = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_email"))
+        login_email.click()
+        login_email.clear()
+        login_email.send_keys('supporter1@raymondyee.net')
+        login_password = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_password"))
+        login_password.click()
+        login_password.clear()
+        login_password.send_keys('testpw__')
+        submit_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#signInSubmit"))
+        submit_button.click()
+        # sel.find_element_by_css_selector("input[type='image']")
+        credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[type='image']"))
+        credit_card_confirm.click()
+        
+        yield sel
     
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
