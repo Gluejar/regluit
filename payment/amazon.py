@@ -80,7 +80,7 @@ def ProcessIPN(request):
         uri = request.build_absolute_uri()
         parsed_url = urlparse.urlparse(uri)
         
-        connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+        connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
         
         # Check the validity of the IPN
         resp = connection.verify_signature("%s://%s%s" %(parsed_url.scheme, 
@@ -372,7 +372,7 @@ class Pay( AmazonRequest ):
     The pay function generates a redirect URL to approve the transaction
   '''
     
-  def __init__( self, transaction, return_url=None, cancel_url=None, options=None, amount=None):
+  def __init__( self, transaction, return_url=None, cancel_url=None, amount=None):
       
       try:
           logging.debug("Amazon PAY operation for transaction ID %d" % transaction.id)
@@ -380,19 +380,8 @@ class Pay( AmazonRequest ):
           # Replace our return URL with a redirect through our internal URL
           self.original_return_url = return_url
           return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
-          
-          if not options:
-              options = {}
-              
-          # Use the boto class top open a connection
-          # if options does not have a host key, then use settings.AMAZON_FPS_HOST if it exists
-          if options.get('host') is None:
-            try:
-                options['host'] = settings.AMAZON_FPS_HOST
-            except:
-                pass
             
-          self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, **options)
+          self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
           
           receiver_list = []
           receivers = transaction.receiver_set.all()
@@ -461,7 +450,7 @@ class Preapproval(Pay):
         transaction.save()
           
         # Call into our parent class
-        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, options=None, amount=amount)
+        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, amount=amount)
   
   
 class Execute(AmazonRequest):
@@ -477,7 +466,7 @@ class Execute(AmazonRequest):
             logging.debug("Amazon EXECUTE action for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             # BUGBUG, handle multiple receivers!  For now we just send the money to ourselves
@@ -559,7 +548,7 @@ class PaymentDetails(AmazonRequest):
             logging.debug("Amazon PAYMENTDETAILS API for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             if not transaction.preapproval_key:
@@ -640,7 +629,7 @@ class CancelPreapproval(AmazonRequest):
             logging.debug("Amazon CANCELPREAPPROVAL api called for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             params = {}
@@ -694,7 +683,7 @@ class RefundPayment(AmazonRequest):
             logging.debug("Amazon REFUNDPAYMENT API called for transaction id: %d", transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             if not transaction.preapproval_key:
@@ -747,7 +736,7 @@ class PreapprovalDetails(AmazonRequest):
             logging.debug("Amazon PREAPPROVALDETAILS API called for transaction id: %d", transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY)
+            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             

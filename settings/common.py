@@ -254,3 +254,11 @@ EMIT_NOTIFICATIONS_JOB = {
 # Amazon credentials (for fps)
 AWS_ACCESS_KEY = ''
 AWS_SECRET_ACCESS_KEY = ''
+
+# Amazon FPS Credentials
+FPS_ACCESS_KEY = ''
+FPS_SECRET_KEY = ''
+
+# set -- sandbox or production Amazon FPS?
+AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+#AMAZON_FPS_HOST = "fps.amazonaws.com"
