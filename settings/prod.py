@@ -23,6 +23,7 @@ DATABASES = {
         'PASSWORD': 'unglue1t',
         'HOST': 'production.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
+        'TEST_CHARSET': 'utf8',
     }
 }
 
