@@ -43,7 +43,7 @@ Instructions for setting please are slightly different.
 1. create an ubuntu ec2 instance (e.g, go http://alestic.com/ to find various ubuntu images)
 1. `sudo aptitude update`
 1. `sudo aptitude upgrade`
-1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix`
+1. `sudo aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml postfix python-dev`
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
@@ -78,7 +78,8 @@ Instructions for setting please are slightly different.
 1. `sudo chmod 755 /etc/init.d/celeryd`
 1. `sudo cp deploy/celeryd.conf /etc/default/celeryd`
 1. `sudo mkdir /var/log/celery`
-1. `sudo chown celery:celery /var/log/celery`
+1. `sudo mkdir /var/run/celery`
+1. `sudo chown celery:celery /var/log/celery /var/run/celery`
 1. `sudo /etc/init.d/celeryd start`
 1. `sudo cp deploy/celerybeat /etc/init.d/celerybeat`
 1. `sudo chmod 755 /etc/init.d/celerybeat`

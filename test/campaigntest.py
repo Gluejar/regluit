@@ -157,12 +157,11 @@ def support_campaign(do_local=True):
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
     """
-    
     import django
     django.db.transaction.enter_transaction_management()
     
     UNGLUE_IT_URL = settings.LIVE_SERVER_TEST_URL
-    # unglue.it login
+    # unglue.it login info
     USER = settings.UNGLUEIT_TEST_USER
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
     
@@ -195,7 +194,7 @@ def support_campaign(do_local=True):
     sign_in_link = WebDriverWait(sel, 100).until(lambda d : d.find_element_by_xpath("//span[contains(text(),'Sign In')]/.."))
     sign_in_link.click()
 
-    # enter login
+    # enter unglue.it login info
     input_username = WebDriverWait(sel,20).until(lambda d : d.find_element_by_css_selector("input#id_username"))
     input_username.send_keys(USER)
     sel.find_element_by_css_selector("input#id_password").send_keys(PASSWORD)
@@ -207,7 +206,6 @@ def support_campaign(do_local=True):
     time.sleep(1)
     
     # pull up one of the campaigns to pledge to
-    # div.book-list div.title a
     # for now, take the first book and click on the link to get to the work page
     work_links = WebDriverWait(sel,10).until(lambda d: d.find_elements_by_css_selector("div.book-list div.title a"))
     work_links[0].click()
@@ -215,7 +213,7 @@ def support_campaign(do_local=True):
     support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Support']"))
     support_button.click()
     
-    # just click Pledge without filling out amount -- should have the form validation spot the error
+    # just click Pledge button without filling out amount -- should have the form validation spot the error
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     pledge_button.click()
     # check to see whether there is an error
@@ -224,14 +222,19 @@ def support_campaign(do_local=True):
         print "yes:  Error in just hitting pledge button as expected"
     else:
         print "ooops:  there should be an error message when pledge button hit"
-    
-    # enter a $10 pledge
-    preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
-    preapproval_amount_input.send_keys("10")
-    
+
     # fill out a premium -- the first one for now
     premium_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('input[type="radio"][value="1"]'))
     premium_button.click()
+    
+    # now we have to replace the current preapproval amount with 10
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="10";""")
+    
+    ## enter a $10 pledge -- entering the pledge after clicking on premium is needed because clicking on premium fills in pledge amount
+    #preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
+    #preapproval_amount_input.send_keys("10")
+    
+    print "making $10 pledge"
     
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     pledge_button.click()
@@ -264,10 +267,12 @@ def support_campaign(do_local=True):
     work_url.click()
     
     # change_pledge
-    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
+    print "clicking Modify Pledge button"
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
         
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
+    print "changing pledge to $5 -- should not need to go to PayPal"
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
     preapproval_amount_input.clear()  # get rid of existing pledge
     preapproval_amount_input.send_keys("5")
@@ -277,7 +282,7 @@ def support_campaign(do_local=True):
     # return to the Work page again
     work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
     work_url.click()
-    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Change Pledge']"))
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
 
     # enter a new pledge, which is more than the previous amount and therefore requires a new PayPal transaction

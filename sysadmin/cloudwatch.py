@@ -3,6 +3,10 @@ import boto
 
 # connect up parts of the Amazon infrastructure
 
+# notes: to delete snapshots I have made of instances, one has to deregister the AMI first and then delete the snapshot
+
+GLUEJAR_ACCOUNT_ID = 439256357102
+
 ec2 = boto.connect_ec2()
 cw = boto.connect_cloudwatch()
 rds = boto.connect_rds()
@@ -17,12 +21,23 @@ def all_zones():
     
 def all_rds():
     return rds.get_all_dbinstances()
+    
+def all_snapshots(owner=GLUEJAR_ACCOUNT_ID):
+    """by default, return only snapshots owned by Gluejar  -- None returns all snapshots available to us"""
+    return ec2.get_all_snapshots(owner=owner)
 
 def instance(tag_name):
     try:
         return ec2.get_all_instances(filters={'tag:Name' : tag_name})[0].instances[0]
     except Exception, e:
         return None
+    
+def all_images(owners=(GLUEJAR_ACCOUNT_ID, )):
+    return ec2.get_all_images(owners=owners)
+    
+def stop_instances(instances):
+    return ec2.stop_instances(instance_ids=[instance.id for instance in instances])
+
 
 def console_output(instance):
     """returnn console output of instance"""
