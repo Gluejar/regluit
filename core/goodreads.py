@@ -50,9 +50,9 @@ def safe_strip(a_string):
 class GoodreadsClient(object):
     
     url = 'http://www.goodreads.com'
-    request_token_url = urljoin(url,'oauth/request_token/')
-    authorize_url = urljoin(url, '/oauth/authorize/')
-    access_token_url = urljoin(url,'/oauth/access_token/')  
+    request_token_url = urljoin(url,'oauth/request_token')
+    authorize_url = urljoin(url, '/oauth/authorize')
+    access_token_url = urljoin(url,'/oauth/access_token')  
   
     def __init__(self,key,secret,user=None, access_token=None):
         self.key = key
