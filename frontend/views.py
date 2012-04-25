@@ -1612,33 +1612,33 @@ def emailshare(request):
         try:
             next = request.GET['next']
             if "pledge" in request.path:
-            	work_id = next.split('=')[1]
-            	book = models.Work.objects.get(pk=int(work_id))
-            	title = book.title
-            	message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.It: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
-            	subject = "Help me unglue "+title
+                work_id = next.split('=')[1]
+                book = models.Work.objects.get(pk=int(work_id))
+                title = book.title
+                message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.It: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
+                subject = "Help me unglue "+title
             else:
-            	work_id = next.split('/')[-2]
-            	work_id = int(work_id)
-            	book = models.Work.objects.get(pk=work_id)
-            	title = book.title
-            	# if title requires unicode let's ignore it for now
-            	try:
-            		title = ', '+str(title)+', '
-            	except:
-            		title = ' '
-            	try:
-            		status = book.last_campaign().status
-            	except:
-            		status = None
+                work_id = next.split('/')[-2]
+                work_id = int(work_id)
+                book = models.Work.objects.get(pk=work_id)
+                title = book.title
+                # if title requires unicode let's ignore it for now
+                try:
+                    title = ', '+str(title)+', '
+                except:
+                    title = ' '
+                try:
+                    status = book.last_campaign().status
+                except:
+                    status = None
             
-            	# customize the call to action depending on campaign status
-            	if status == 'ACTIVE':
-            		message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
-            	else:
-            		message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.'	
-            	subject = 'Come see one of my favorite books on Unglue.It'
-            	
+                # customize the call to action depending on campaign status
+                if status == 'ACTIVE':
+                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+                else:
+                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.' 
+                subject = 'Come see one of my favorite books on Unglue.It'
+                
             form = EmailShareForm(initial={'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
