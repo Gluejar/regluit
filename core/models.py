@@ -187,7 +187,7 @@ class Campaign(models.Model):
         self.save()
         active_claim = self.work.claim.filter(status="active")[0]
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "active_campaign", {'campaign':self, 'active_claim':active_claim}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim}, True)
         return self
 
 

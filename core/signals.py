@@ -83,6 +83,8 @@ def notify_comment(comment, request, **kwargs):
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
     notification.queue(other_commenters, "comment_on_commented", {'comment':comment}, True)
     notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
 
 comment_was_posted.connect(notify_comment)
 
@@ -99,7 +101,9 @@ def notify_successful_campaign(campaign, **kwargs):
     supporters = (User.objects.get(id=k) for k in campaign.supporters())
     
     site = Site.objects.get_current()
-    notification.queue(itertools.chain(staff, supporters), "successful_campaign", {'campaign':campaign, 'site':site}, True)
+    notification.queue(itertools.chain(staff, supporters), "wishlist_successful", {'campaign':campaign, 'site':site}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
     
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)

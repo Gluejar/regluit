@@ -1,0 +1,7 @@
+Message! About {{ campaign.work.title}} 
+(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
+You will something.
+
+You will be also something.
+
+Give ebooks to the world; give income to authors and publishers.  Unglue.it.
