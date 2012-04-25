@@ -1624,6 +1624,7 @@ def emailshare(request):
             return HttpResponseRedirect(next)
             
     else:
+    	sender = request.user.email
         try:
             next = request.GET['next']
             if "pledge" in request.path:
@@ -1653,12 +1654,11 @@ def emailshare(request):
                 else:
                     message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.' 
                 subject = 'Come see one of my favorite books on Unglue.It'
-                
-            form = EmailShareForm(initial={'next':next, 'subject': subject, 'message': message})
+            
+            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
-            sender = ''
-            form = EmailShareForm(initial={'next':next, 'subject': 'Come join me on Unglue.It', 'message':"I'm ungluing books on Unglue.It.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
+            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': 'Come join me on Unglue.It', 'message':"I'm ungluing books on Unglue.It.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
 
     return render(request, "emailshare.html", {'form':form})    
     
