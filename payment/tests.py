@@ -123,6 +123,29 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
     
     print "Tranasction Complete"
     
+def payAmazonSandbox(sel):
+        login_email = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_email"))
+        login_email.click()
+        login_email.clear()
+        login_email.send_keys('supporter1@raymondyee.net')
+        login_password = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_password"))
+        login_password.click()
+        login_password.clear()
+        login_password.send_keys('testpw__')
+        submit_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#signInSubmit"))
+        submit_button.click()
+        time.sleep(2)
+        
+        # sel.find_element_by_css_selector("input[type='image']")
+        print "looking for credit_card_confirm", sel.current_url
+        credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
+        credit_card_confirm[0].click()
+        
+        print "looking for payment_confirm", sel.current_url
+        payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
+        time.sleep(1)
+        payment_confirm[-1].click()
+        
 class PledgeTest(TestCase):
     
     def setUp(self):

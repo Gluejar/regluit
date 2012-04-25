@@ -166,7 +166,7 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
     
     # PayPal developer sandbox
-    from regluit.payment.tests import loginSandbox, paySandbox
+    from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
     
     setup_selenium()
     
@@ -246,27 +246,8 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
         print  "Now trying to pay PayPal", sel.current_url
         paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
     elif backend == 'amazon':
-        login_email = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_email"))
-        login_email.click()
-        login_email.clear()
-        login_email.send_keys('supporter1@raymondyee.net')
-        login_password = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_password"))
-        login_password.click()
-        login_password.clear()
-        login_password.send_keys('testpw__')
-        submit_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#signInSubmit"))
-        submit_button.click()
-        time.sleep(2)
-        
-        # sel.find_element_by_css_selector("input[type='image']")
-        print "looking for credit_card_confirm", sel.current_url
-        credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
-        credit_card_confirm[0].click()
-        
-        print "looking for payment_confirm", sel.current_url
-        payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
-        time.sleep(1)
-        payment_confirm[-1].click()
+        payAmazonSandbox(sel)
+    
         
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
@@ -295,8 +276,6 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
     
-    yield sel
-    
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
     print "changing pledge to $5 -- should not need to go to PayPal"
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
@@ -317,7 +296,10 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     preapproval_amount_input.send_keys("25")
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
-    paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    if backend == 'paypal':
+        paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    elif backend == 'amazon':
+        payAmazonSandbox(sel)    
 
     # wait a bit to allow PayPal sandbox to be update the status of the Transaction    
     time.sleep(10)
