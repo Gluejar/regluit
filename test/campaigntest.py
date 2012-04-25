@@ -152,7 +152,7 @@ def recipient_status(clist):
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
 
-def support_campaign(do_local=True, backend='amazon'):
+def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon'):
     """
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
@@ -160,7 +160,7 @@ def support_campaign(do_local=True, backend='amazon'):
     import django
     django.db.transaction.enter_transaction_management()
     
-    UNGLUE_IT_URL = settings.LIVE_SERVER_TEST_URL
+    UNGLUE_IT_URL = unglue_it_url
     # unglue.it login info
     USER = settings.UNGLUEIT_TEST_USER
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
@@ -256,12 +256,18 @@ def support_campaign(do_local=True, backend='amazon'):
         login_password.send_keys('testpw__')
         submit_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#signInSubmit"))
         submit_button.click()
-        # sel.find_element_by_css_selector("input[type='image']")
-        credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[type='image']"))
-        credit_card_confirm.click()
+        time.sleep(2)
         
-        yield sel
-    
+        # sel.find_element_by_css_selector("input[type='image']")
+        print "looking for credit_card_confirm", sel.current_url
+        credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
+        credit_card_confirm[0].click()
+        
+        print "looking for payment_confirm", sel.current_url
+        payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
+        time.sleep(1)
+        payment_confirm[-1].click()
+        
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
     
@@ -288,7 +294,9 @@ def support_campaign(do_local=True, backend='amazon'):
     print "clicking Modify Pledge button"
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
-        
+    
+    yield sel
+    
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
     print "changing pledge to $5 -- should not need to go to PayPal"
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))

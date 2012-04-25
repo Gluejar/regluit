@@ -501,6 +501,9 @@ class PledgeModifyView(FormView):
             # Campaign must be ACTIVE
             assert campaign.status == 'ACTIVE'
         
+            # PayPal
+            #transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+            # Amazon
             transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
             assert transactions.count() == 1
             transaction = transactions[0]

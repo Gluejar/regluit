@@ -53,6 +53,7 @@ AMAZON_OPERATION_TYPE_CANCEL = 'CANCEL'
 def ProcessIPN(request):
     '''
         IPN handler for amazon.  Here is a litle background on amazon IPNS
+        http://docs.amazonwebservices.com/AmazonFPS/latest/FPSAdvancedGuide/APPNDX_IPN.html
         
         notificationType: Can either be TransactionStatus of TokenCancellation
         status: One of the defined IPN status codes
