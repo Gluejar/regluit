@@ -1,7 +1,7 @@
 {% extends "notification/base.html" %}
 
 {% load i18n %}
-
+{% load truncatechars %}
 {% block title %}{% trans "Notification Settings" %}{% endblock %}
 
 {% block extra_css %}
@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block doccontent %}
-    <h2>{% trans "Settings" %}</h2>
+    <h2>{% trans "Notification Settings" %}</h2>
         
     <a href="{% url notification_notices %}">
 		<div class="notices_menu">
@@ -19,19 +19,20 @@
 <div class="comments"></div>        
 
     <div class="notice_settings">
-    <p>Which notifications would you like to receive via email?</p>
         <form method="POST" action="">
             {% csrf_token %}
-            <table class="notice_settings table table-striped">
+            <h3>Comment Notifications</h3>
+            <table class="notice_settings table table-striped" width="90%">
                 <tr>
-                    <th>{% trans "Notification Type" %}</th>
+                    <th>{% trans "Notify me when..." %}</th>
                     {% for header in notice_settings.column_headers %}
                         <th>{{ header }}</th>
                     {% endfor %}
                 </tr>
                 {% for row in notice_settings.rows %}
+                  {% if row.notice_type.label|truncatechars:11 == 'comment_...' %}
                     <tr class="{% cycle 'row1' 'row2' %}">
-                        <td>{% trans row.notice_type.display %}<br/>
+                        <td>
                             <span class="notice_type_description">{% trans row.notice_type.description %}</span>
                         </td>
                         {% for cell in row.cells %}
@@ -40,6 +41,85 @@
                             </td>
                         {% endfor %}
                     </tr>
+                  {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
+                </tr>
+            </table>
+            <h3>Wishlist Notifications</h3>
+            <table class="notice_settings table table-striped" width="90%">
+                <tr>
+                    <th>{% trans "Notify me when..." %}</th>
+                    {% for header in notice_settings.column_headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in notice_settings.rows %}
+                  {% if row.notice_type.label|truncatechars:12 == 'wishlist_...' %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td>
+                            <span class="notice_type_description">{% trans row.notice_type.description %}</span>
+                        </td>
+                        {% for cell in row.cells %}
+                            <td>
+                                <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes"{% endif %}/>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
+                </tr>
+            </table>
+            <h3>Pledge Notifications</h3>
+            <table class="notice_settings table table-striped" width="90%">
+                <tr>
+                    <th>{% trans "Notify me when..." %}</th>
+                    {% for header in notice_settings.column_headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in notice_settings.rows %}
+                  {% if row.notice_type.label|truncatechars:10 == 'pledge_...' %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td>
+                            <span class="notice_type_description">{% trans row.notice_type.description %}</span>
+                        </td>
+                        {% for cell in row.cells %}
+                            <td>
+                                <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes"{% endif %}/>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
+                </tr>
+            </table>
+            <h3>Rights Holder Notifications</h3>
+            <table class="notice_settings table table-striped" width="90%">
+                <tr>
+                    <th>{% trans "Notify me when..." %}</th>
+                    {% for header in notice_settings.column_headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in notice_settings.rows %}
+                  {% if row.notice_type.label|truncatechars:10 == 'rights_...' %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td>
+                            <span class="notice_type_description">{% trans row.notice_type.description %}</span>
+                        </td>
+                        {% for cell in row.cells %}
+                            <td>
+                                <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes"{% endif %}/>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                  {% endif %}
                 {% endfor %}
                 <tr>
                     <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
@@ -47,20 +127,20 @@
             </table>
         </form>
         
-        {% url acct_email as email_url %}
-        <h4>Your email</h4>
+        
+        <h3>Your email</h3>
         {% if user.email %}
             <p>
             	{{ user.email }}<br />
             </p>
             <p>
-                ({% blocktrans %}You can change this under <a href="{{ email_url }}">Account</a>.{% endblocktrans %})
+                ({% blocktrans %}You can change this under <a href="{{ editurl }}">Account</a>.{% endblocktrans %})
             </p>
         {% else %}
             <div class="errorlist">
                 {% blocktrans %}
                 You do not have a verified email address to which notices can be sent.
-                You can add one by going to <a href="{{ email_url }}">Account</a>.
+                You can add one by going to <a href="{{ editurl }}">Account</a>.
                 {% endblocktrans %}
             </div>
         {% endif %}
