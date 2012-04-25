@@ -2,11 +2,11 @@ Congratulations, you wished for it, and now there is an active Campaign for {{ c
 
 You can help!
 
-<a href="{% url pledge work_id=campaign.work.id %}">Pledge</a> toward ungluing.
+Pledge toward ungluing. {% url pledge work_id=campaign.work.id %}
 
-Tell your friends -- there are handy share options on the <a href="{% url work campaign.work.id %}">campaign page</a>.  There's even a widget you can put on your blog or home page.
+Tell your friends -- there are handy share options on the campaign page.  There's even a widget you can put on your blog or home page. {% url work campaign.work.id %}
 
-<a href="{% url work campaign.work.id %}?tab=2">Join the discussion</a>: share why you love {{ campaign.work.title }} and the world will too.
+Join the discussion: share why you love {{ campaign.work.title }} and the world will too. {% url work campaign.work.id %}?tab=2
 
 Thank you!
 
