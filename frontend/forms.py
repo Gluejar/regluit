@@ -97,6 +97,13 @@ class ProfileForm(forms.ModelForm):
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
 
+class UserEmail(forms.Form):
+    email = forms.EmailField(
+        label=_("new email address"), 
+        max_length=100,
+        error_messages={'required': 'Please enter an email address.'},
+        )
+    
 class UserData(forms.Form):
     username = forms.RegexField(
         label=_("New Username"), 

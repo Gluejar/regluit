@@ -12,7 +12,6 @@ from re import sub
 from itertools import islice
 from decimal import Decimal as D
 from xml.etree import ElementTree as ET
-
 import requests
 import oauth2 as oauth
 from django import forms
@@ -20,7 +19,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.comments import Comment
@@ -29,6 +27,7 @@ from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
+from django.template.loader import render_to_string
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
@@ -38,11 +37,12 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from regluit.core import tasks
+from regluit.core.tasks import send_mail_task
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
+from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
@@ -1089,20 +1089,35 @@ def supporter(request, supporter_username, template_name):
     return render(request, template_name, context)
 
 def edit_user(request):
-    form=UserData()
     if not request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('auth_login'))
+        return HttpResponseRedirect(reverse('auth_login'))    
+    form=UserData()
+    emailform = UserEmail({'email':request.user.email})
     oldusername=request.user.username
+    oldemail= request.user.email
     if request.method == 'POST': 
-        # surely there's a better way to add data to the POST data?
-        postcopy=request.POST.copy()
-        postcopy['oldusername']=oldusername 
-        form = UserData(postcopy)
-        if form.is_valid(): # All validation rules pass, go and change the username
-            request.user.username=form.cleaned_data['username']
-            request.user.save()
-            return HttpResponseRedirect(reverse('home')) # Redirect after POST
-    return render(request,'registration/user_change_form.html', {'form': form},)  
+        if 'change_username' in request.POST.keys():
+            # surely there's a better way to add data to the POST data?
+            postcopy=request.POST.copy()
+            postcopy['oldusername']=oldusername 
+            form = UserData(postcopy)
+            if form.is_valid(): # All validation rules pass, go and change the username
+                request.user.username=form.cleaned_data['username']
+                request.user.save()
+                return HttpResponseRedirect(reverse('home')) # Redirect after POST
+        elif 'change_email'  in request.POST.keys():
+            emailform = UserEmail(request.POST)
+            if emailform.is_valid():
+                request.user.email=emailform.cleaned_data['email']
+                request.user.save()
+                send_mail_task.delay(
+                    'unglue.it email changed', 
+                    render_to_string('registration/email_changed.txt',{'oldemail':oldemail,'request':request}),
+                    None,
+                    [request.user.email,oldemail]
+                    )
+                return HttpResponseRedirect(reverse('home')) # Redirect after POST
+    return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  
 
 
 def search(request):
@@ -1601,7 +1616,7 @@ def emailshare(request):
             message = form.cleaned_data['message']
             sender = form.cleaned_data['sender']
             recipient = form.cleaned_data['recipient']
-            send_mail(subject, message, sender, [recipient])
+            send_mail_task.delay(subject, message, sender, [recipient])
             try:
                 next = form.cleaned_data['next']
             except:
@@ -1666,7 +1681,7 @@ def feedback(request):
             else:
                 ungluer = request.user.username
             message = "<<<This feedback is about "+page+". Original user message follows\nfrom "+sender+", ungluer name "+ungluer+"\nwith user agent "+useragent+"\n>>>\n"+message
-            send_mail(subject, message, sender, [recipient])
+            send_mail_task.delay(subject, message, sender, [recipient])
             
             return render(request, "thanks.html", {"page":page}) 
             
