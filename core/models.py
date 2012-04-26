@@ -587,6 +587,30 @@ class Ebook(models.Model):
     def set_provider(self):
         self.provider=Ebook.infer_provider(self.url)
         return self.provider
+        
+    @property
+    def rights_badge(self):
+        my_rights=self.rights
+        if not my_rights:
+            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
+        if my_rights == 'PD-US':
+            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
+        elif my_rights == 'CC0':
+            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
+        elif my_rights == 'CC BY':
+            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
+        elif my_rights == 'CC BY-NC-ND':
+            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
+        elif my_rights == 'CC BY-NC-SA':
+            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
+        elif my_rights == 'CC BY-NC':
+            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
+        elif my_rights == 'CC BY-SA':
+            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
+        elif my_rights == 'CC BY-ND':
+            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
+        else:
+            return ''
     
     @classmethod
     def infer_provider(klass, url):
