@@ -188,6 +188,22 @@ ul.menu{
 	.errors;
 }
 
+.errorlist + input {
+	border: 2px solid @alert !important;
+	
+	&:focus {
+		border: 1px solid @call-to-action !important;
+	}
+}
+
+.errorlist + textarea {
+	border: 2px solid @alert !important;
+	
+	&:focus {
+		border: 2px solid @call-to-action !important;
+	}
+}
+
 /* add class clearfix to floats to make them self-clear */
 .clearfix:after {
 	content: ".";
