@@ -1,0 +1,1 @@
+blurb for {{campaign.work.title}}

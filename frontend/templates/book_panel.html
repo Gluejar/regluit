@@ -141,7 +141,7 @@
         {% else %}{% if first_ebook %}
             <span class="listview boolist-ebook">
             {% for ebook in work.ebooks|slice:":3" %}
-            <a href="{{ebook.url}}">{{ ebook.format }}</a> 
+            <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.rights}}  {{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.rights}} {{ ebook.format }} at {{ebook.provider}}" /></a>
             {% endfor %}
             </span>
         {% else %}

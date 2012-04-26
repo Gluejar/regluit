@@ -110,9 +110,20 @@ $j(document).ready(function(){
                           {% endif %}
 					  </div>
 					  </div>
+                    {% if work.first_ebook %}
+					  <div class="get-book">
+                            <label>Get it:</label>
+                                <span class="find-link">
+                                {% for ebook in work.ebooks %}
+                                <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt=" {{ ebook.format }} at {{ebook.provider}}" title=" {{ ebook.format }} at {{ebook.provider}}" /><img src="{{ebook.rights_badge}}" height="31" width="88" alt="{{ebook.rights}}" title="{{ebook.rights}}" /></a>
+                                {% endfor %}
+                                </span>
+                        </div>
+                    {% endif %}
                         <div class="find-book">
                             <label>Find it:</label>
-                            <div class="find-link">
+                             <div class="find-link">
+
                                 <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
                                 {% if not request.user.is_anonymous %}
@@ -167,13 +178,6 @@ $j(document).ready(function(){
                                     <span id="w{{ work.googlebooks_id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
-                            {% if work.first_ebook %}
-                                <span class="boolist-ebook">
-                                {% for ebook in work.ebooks %}
-                                <a href="{{ ebook.url }}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
-                                {% endfor %}
-                                </span>
-                            {% endif %}
                         </div>
                     </div>
                 </div>

@@ -22,6 +22,19 @@ def all_zones():
 def all_rds():
     return rds.get_all_dbinstances()
     
+def all_rds_parameter_groups():
+    return rds.get_all_dbparameter_groups()
+    
+def modify_please1_pg_group():
+    """kinda ugly
+    http://stackoverflow.com/a/9085381/7782
+    After doing this, I changed please db to talk to this parameter group and rebooted db
+    """
+    pg = conn.get_all_dbparameters('mygroup')
+    pg2 = rds.get_all_dbparameters('mygroup', marker = pg.Marker)
+    pg2['tx_isolation'].value = True
+    pg2['tx_isolation'].apply(True)
+    
 def all_snapshots(owner=GLUEJAR_ACCOUNT_ID):
     """by default, return only snapshots owned by Gluejar  -- None returns all snapshots available to us"""
     return ec2.get_all_snapshots(owner=owner)
@@ -71,7 +84,6 @@ def launch_time(instance):
     
 def max_cpu(instance):
     pass
-    
     
 def stats_for_instances(instances=None):
     """return basic stats for input instances"""

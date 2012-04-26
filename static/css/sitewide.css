@@ -287,6 +287,18 @@ ul.menu {
   list-style: none;
   border: none;
 }
+.errorlist + input {
+  border: 2px solid #e35351 !important;
+}
+.errorlist + input:focus {
+  border: 1px solid #8dc63f !important;
+}
+.errorlist + textarea {
+  border: 2px solid #e35351 !important;
+}
+.errorlist + textarea:focus {
+  border: 2px solid #8dc63f !important;
+}
 /* add class clearfix to floats to make them self-clear */
 .clearfix:after {
   content: ".";

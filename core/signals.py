@@ -66,16 +66,31 @@ registration.signals.user_activated.connect(merge_emails)
 # create notification types (using django-notification) -- tie to syncdb
 
 def create_notice_types(app, created_models, verbosity, **kwargs):
-    notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("a comment has been received on one of your wishlist books"), default = 1)
-    notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("a comment has been received on a book that you've commented on"))
-    notification.create_notice_type("successful_campaign", _("Successful Campaign"), _("a campaign that you have supported or followed has succeeded"))
-    notification.create_notice_type("active_campaign", _("New Campaign"), _("a book you've wishlisted has a newly launched campaign"))
-
+    notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("A comment has been received on a book that you've commented on."))
+    notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("A comment has been received on one of your wishlist books."), default = 1)
+    notification.create_notice_type("wishlist_work_claimed", _("Rights Holder is Active"), _("A rights holder has shown up for a book that you want unglued."), default = 1)
+    notification.create_notice_type("wishlist_active", _("New Campaign"), _("A book you've wishlisted has a newly launched campaign."))
+    notification.create_notice_type("wishlist_near_target", _("Campaign Near Target"), _("A book you want is near its ungluing target."))
+    notification.create_notice_type("wishlist_near_deadline", _("Campaign Near Deadline"), _("A book you want is almost out of time."))
+    notification.create_notice_type("wishlist_premium_limited_supply", _("Only a Few Premiums Left"), _("You have a last chance for an ungluing premium you might like."))
+    notification.create_notice_type("wishlist_successful", _("Successful Campaign"), _("An ungluing campaign that you have supported or followed has succeeded."))
+    notification.create_notice_type("wishlist_unsuccessful", _("Unsuccessful Campaign"), _("An ungluing campaign that you supported didn't succeed this time."))
+    notification.create_notice_type("wishlist_updated", _("Campaign Updated"), _("An ungluing campaign you support has been updated."), default = 1)
+    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("There's a message about an ungluing campaign you're interested in."))
+    notification.create_notice_type("wishlist_price_drop", _("Campaign Price Drop"), _("An ungluing campign you're interested in has a reduced target."), default = 1)
+    notification.create_notice_type("wishlist_unglued_book_released", _("Unglued Book!"), _("Another book you wanted has been unglued!"))
+    notification.create_notice_type("pledge_you_have_pledged", _("Thanks For Your Pledge!"), _("Your ungluing pledge has been entered."))
+    notification.create_notice_type("pledge_status_change", _("Your Pledge Has Been Modified"), _("Your ungluing plegde has been modified."))
+    notification.create_notice_type("pledge_charged", _("Your Pledge has been Executed"), _("You have contributed to a successful ungluing campaign."))
+    notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You become a verified Ungue.it rights holder."))
+    notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
+    
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
 
 from django.contrib.comments.signals import comment_was_posted
+
 
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
@@ -83,6 +98,8 @@ def notify_comment(comment, request, **kwargs):
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
     notification.queue(other_commenters, "comment_on_commented", {'comment':comment}, True)
     notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
 
 comment_was_posted.connect(notify_comment)
 
@@ -99,7 +116,9 @@ def notify_successful_campaign(campaign, **kwargs):
     supporters = (User.objects.get(id=k) for k in campaign.supporters())
     
     site = Site.objects.get_current()
-    notification.queue(itertools.chain(staff, supporters), "successful_campaign", {'campaign':campaign, 'site':site}, True)
+    notification.queue(itertools.chain(staff, supporters), "wishlist_successful", {'campaign':campaign, 'site':site}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
     
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
