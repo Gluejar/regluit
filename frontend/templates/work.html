@@ -301,8 +301,8 @@ $j(document).ready(function(){
                             	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
                             </div>{{work.last_campaign_status}}
                             {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
-                                <div class="show_more_edition" >more...</div>
-                                <div class="more_edition">
+                                {% if edition.hide_details %}<div class="show_more_edition" >more...</div>{% endif %}
+                                <div {% if edition.hide_details %} class="more_edition" {% endif %}>
                                     {% if edition.ebooks.count %}
                                         <h5>eBooks for this Edition</h5>
                                         {% for ebook in edition.ebooks.all %}
@@ -312,10 +312,10 @@ $j(document).ready(function(){
                                     <h5>Add an eBook for this Edition:</h5>
                                     <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
                                 	<form method="POST" action="#edition_{{edition.id}}">
-    	    	                    {% csrf_token %}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider }}
-    	    	                    URL: {{ edition.ebook_form.url }}<br />
-    	    	                    File Format: {{ edition.ebook_form.format }}&nbsp;&nbsp;&nbsp;
-    	    	                    License: {{ edition.ebook_form.rights }}<br />
+    	    	                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
+    	    	                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
+    	    	                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+    	    	                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
     	    	                    <input type="submit" name="add_ebook" value="add ebook" />
                                     </form>
                                 </div>
