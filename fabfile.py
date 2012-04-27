@@ -29,7 +29,12 @@ def get_dump():
     run("gzip -f unglue.it.sql")
     local("scp web1:/home/ubuntu/unglue.it.sql.gz .")
     local("gunzip -f unglue.it.sql.gz")
-        
+            
+def email_addresses():
+    """list email addresses in unglue.it"""
+    with cd("/opt/regluit"):
+        run("""source ENV/bin/activate; echo "import django; print ', '.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.prod""")
+    
 def selenium():
     """setting up selenium to run in the background on RY's laptop"""
     with cd('/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit'):
