@@ -18,6 +18,9 @@ def update_prod():
     with cd("/opt/regluit"):
         run("./deploy/update-prod")
 
+def backup_db():
+    run("""TS=`date +"%Y-%m-%dT%H:%M:%S"`; /home/ubuntu/dump.sh | gzip > unglue.it.${TS}.sql.gz; scp ./unglue.it.${TS}.sql.gz  b235656@hanjin.dreamhost.com: ; rm -f unglue.it.${TS}.sql.gz""")
+
 def get_dump():
     """Dump the current db on remote server and scp it over to local machine.
     Note:  web1 has been hardcoded here to represent the name of the unglue.it server
