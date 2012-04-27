@@ -1,4 +1,6 @@
 from time import sleep
+from datetime import timedelta
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -8,6 +10,8 @@ from django.contrib.auth.models import User
 
 from regluit.core import bookloader, models
 from regluit.core import goodreads, librarything
+from regluit.utils.localdatetime import now, date_today
+
 
 @task 
 def populate_edition(isbn):
@@ -51,16 +55,28 @@ from django.core import mail
 
 @task
 def send_mail_task(subject, message, from_email, recipient_list,
-	        fail_silently=False, auth_user=None, auth_password=None,
-	        connection=None):
+            fail_silently=False, auth_user=None, auth_password=None,
+            connection=None):
     """a task to drop django.core.mail.send_mail into """
     return mail.send_mail(subject, message, from_email, recipient_list, fail_silently, auth_user, auth_password, connection)
     
 
 from notification.engine import send_all
+from notification import models as notification
  
 @task
 def emit_notifications():
     logger.info('notifications emitting' )
     return send_all()
+    
+@task
+def report_new_ebooks(created=None):   #created= creation date
+    if created:
+        period = (created, created+timedelta(days=1))
+    else:
+        period = (date_today()-timedelta(days=1), date_today())
+    works = models.Work.objects.filter(editions__ebooks__created__range = period).distinct()
+    for work in works:
+        notification.send_now(work.wished_by(), "wishlist_unglued_book_released", {'work':work}, True)
+
     

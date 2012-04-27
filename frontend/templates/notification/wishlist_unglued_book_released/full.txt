@@ -1,7 +1,26 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+{% if work.last_campaign_status == 'SUCCESSFUL' %}
+Great News, {{user.username}}!  {{ work.title }}, which you have supported on Unglue.it, is now available for download as an Unglued Ebook.  
+</p>
+{% else %}
+Good News!  {{ work.title }} which is on your wishlist is available for download as a {{ work.ebooks.0.rights.display }} ebook.  
 
-You will be also something.
+{% if work.ebooks.0.user %}
+We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link to 
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+{% endif %}
+{% endif %}
+Here are the files available for download:
+{% for ebook in work.ebooks %}
+File type: {{ ebook.format.display }}</td>
+License: {{ ebook.rights.display }}</td>
+Host Site: {{ ebook.provider }}</td>
+URL: {{ ebook.url }}
+
+{% endfor %}
+{% if work.ebooks.0.rights == 'PD-US' %}
+A public domain ebook belongs to all of us.  You can do anything you like with it.
+{% else %}
+The Creative Commons licensing terms for  allow you to redistribute the files under the the specified license terms.  There's no DRM. 
+{% endif %}
+
+Give ebooks to the world; give income to authors and publishers.  Unglue.it

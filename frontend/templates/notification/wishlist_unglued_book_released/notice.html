@@ -1,6 +1,7 @@
+{% load truncatechars %}
 <div class="comments clearfix">
 	<div class="comments_book">
-	<a href="{% url work campaign.work.id %}?tab=2"><img src="{{ campaign.work.cover_image_thumbnail }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{% url work work.id %}?tab=2"><img src="{{ work.cover_image_thumbnail }}" alt="cover image for {{ work.title }}" /></a>
 	</div>
 	
 	<div class="comments_info">
@@ -8,12 +9,42 @@
 		  
 		</div>
 		<div class="comments_textual">
-
+{% if work.last_campaign_status == 'SUCCESSFUL' %}
 <p>
-text comments
+Great News!  <a href="{% url work work.id %}">{{ work.title }}</a> which you have supported is now available for download as an Unglued Ebook.  
 </p>
+{% else %}
+Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your wishlist is available for download as a {{ work.ebooks.0.rights.display }} ebook.  
 
-<p class="classname">Give ebooks to the world; give income to authors and publishers.  Unglue.it</p>
+{% if work.ebooks.0.user %}
+We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link to 
+
+{% endif %}
+{% endif %}
+Here are the files available for download:
+<table>
+<tr>
+<th>File type</th>
+<th>License</th>
+<th>Host Site</th>
+<th>URL</th>
+</tr>
+{% for ebook in work.ebooks %}
+<tr>
+<td>{{ ebook.format.display }}</td>
+<td>{{ ebook.rights.display }}</td>
+<td>{{ ebook.provider }}</td>
+<td><a href="{{ ebook.url }}">{{ ebook.url|truncatechars:20 }}</a></td>
+</tr>
+{% endfor %}
+
+</table>
+{% if work.ebooks.0.rights == 'PD-US' %}
+A public domain ebook belongs to all of us.  You can do anything you like with it.
+{% else %}
+The Creative Commons licensing terms for  allow you to redistribute the files under the the specified license terms.  There's no DRM. 
+{% endif %}
+
 		</div>
 	</div>
 </div>

@@ -232,7 +232,7 @@ CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=154728787
 # periodic tasks for celery
 # start out with nothing scheduled
 CELERYBEAT_SCHEDULE = {}
-
+from celery.schedules import crontab
 # define some periodic tasks
 
 SEND_TEST_EMAIL_JOB = {
@@ -244,6 +244,12 @@ SEND_TEST_EMAIL_JOB = {
 EMIT_NOTIFICATIONS_JOB = {
     "task": "regluit.core.tasks.emit_notifications",
     "schedule": datetime.timedelta(seconds=60),
+    "args": ()    
+}
+
+EBOOK_NOTIFICATIONS_JOB = {
+    "task": "regluit.core.tasks.report_new_ebooks",
+    "schedule": crontab(hour=0, minute=30),
     "args": ()    
 }
 
