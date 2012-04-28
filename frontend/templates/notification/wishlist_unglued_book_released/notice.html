@@ -1,12 +1,12 @@
 {% load truncatechars %}
 <div class="comments clearfix">
 	<div class="comments_book">
-	<a href="{% url work work.id %}?tab=2"><img src="{{ work.cover_image_thumbnail }}" alt="cover image for {{ work.title }}" /></a>
+	<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
 	</div>
 	
 	<div class="comments_info">
 		<div class="comments_graphical">
-		  
+		    <span><a href="{% url work work.id %}">{{ work.title }}</a> is now available for download</span>
 		</div>
 		<div class="comments_textual">
 {% if work.last_campaign_status == 'SUCCESSFUL' %}
@@ -14,14 +14,16 @@
 Great News!  <a href="{% url work work.id %}">{{ work.title }}</a> which you have supported is now available for download as an Unglued Ebook.  
 </p>
 {% else %}
-Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your wishlist is available for download as a {{ work.ebooks.0.rights.display }} ebook.  
-
+<p>
+Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your wishlist is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
+</p>
 {% if work.ebooks.0.user %}
-We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link to 
-
+<p>
+We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link(s). 
+</p>
 {% endif %}
 {% endif %}
-Here are the files available for download:
+<p>Here are the files available for download:</p>
 <table>
 <tr>
 <th>File type</th>
@@ -31,20 +33,36 @@ Here are the files available for download:
 </tr>
 {% for ebook in work.ebooks %}
 <tr>
-<td>{{ ebook.format.display }}</td>
-<td>{{ ebook.rights.display }}</td>
+<td>{{ ebook.get_format_display }}</td>
+<td>{{ ebook.get_rights_display }}</td>
 <td>{{ ebook.provider }}</td>
-<td><a href="{{ ebook.url }}">{{ ebook.url|truncatechars:20 }}</a></td>
+<td><a href="{{ ebook.url }}">{{ ebook.url|truncatechars:30 }}</a></td>
 </tr>
 {% endfor %}
 
 </table>
+
+<p>
 {% if work.ebooks.0.rights == 'PD-US' %}
 A public domain ebook belongs to all of us.  You can do anything you like with it.
 {% else %}
-The Creative Commons licensing terms for  allow you to redistribute the files under the the specified license terms.  There's no DRM. 
+The Creative Commons licensing terms for the ebook allow you to redistribute the files under the specified license terms.  There's no DRM. 
 {% endif %}
+</p>
+<p>
+{% if work.last_campaign_status == 'SUCCESSFUL' %}
+If you have any problems with this unglued ebook, please don't hesitate to let us know at support@gluejar.com. And if you love being able to give this ebook for free to all of your friends, please consider supporting other ebooks for ungluing.
+{% else %}
+If you have any problems with these ebook files, please don't hesitate to let us know at support@gluejar.com. For example, if the file isn't what it says it is, or if the licensing or copyright status is misrepresented, we want to know as soon as possble.
+{% endif %}
+</p>
+<p>
+Thanks,
+</p>
+<p>
 
+Your Tireless Unglue.it Staff
+</p>
 		</div>
 	</div>
 </div>
