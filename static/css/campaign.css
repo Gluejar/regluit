@@ -262,7 +262,8 @@
 #tabs-1,
 #tabs-2,
 #tabs-3,
-#tabs-4 {
+#tabs-4,
+.more_ebooks {
   display: none;
 }
 #tabs-1.active,
@@ -542,7 +543,7 @@ a {
 .editions a:hover {
   text-decoration: underline;
 }
-.show_more_edition {
+.show_more_edition,.show_more_ebooks{
   cursor: pointer;
 }
 .thank-you {
@@ -571,7 +572,8 @@ a {
   padding-bottom: 10px;
   padding-left: 60px;
 }
-.show_more_edition:hover {
+.show_more_edition:hover,
+.show_more_ebooks:hover {
   text-decoration: underline;
 }
 .show_more_edition {
