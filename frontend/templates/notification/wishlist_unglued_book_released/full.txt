@@ -1,7 +1,36 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+{% if work.last_campaign_status == 'SUCCESSFUL' %}
+Great News, {{user.username}}!  {{ work.title }}, which you have supported on Unglue.it, is now available for download as an Unglued Ebook.  
+</p>
+{% else %}
+Good News, {{user.username}}!  {{ work.title }} which is on your wishlist is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
 
-You will be also something.
+{% if work.ebooks.0.user %}
+We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link(s). 
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+{% endif %}
+{% endif %}
+Here are the files available for download:
+{% for ebook in work.ebooks %}
+File type: {{ ebook.get_format_display }}
+License: {{ ebook.get_rights_display }}
+Host Site: {{ ebook.provider }}
+URL: {{ ebook.url }}
+
+{% endfor %}
+{% if work.ebooks.0.rights == 'PD-US' %}
+A public domain ebook belongs to all of us.  You can do anything you like with it.
+{% else %}
+The Creative Commons licensing terms for  allow you to redistribute the files under the specified license terms.  There's no DRM. 
+{% endif %}
+
+{% if work.last_campaign_status == 'SUCCESSFUL' %}
+If you have any problems with this unglued ebook, please don't hesitate to let us know at support@gluejar.com. And if you love being able to give this ebook for free to all of your friends, please consider supporting other ebooks for ungluing.
+{% else %}
+If you have any problems with these ebook files, please don't hesitate to let us know at support@gluejar.com. For example, if the file isn't what it says it is, or if the licensing or copyright status is misrepresented, we want to know as soon as possble.
+{% endif %}
+
+Thanks,
+
+Your Tireless Unglue.it Staff
+
+Give ebooks to the world; give income to authors and publishers.  Unglue.it

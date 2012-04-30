@@ -31,13 +31,13 @@ class EbookForm(forms.ModelForm):
                 'url': forms.TextInput(attrs={'size' : 60}),
             }
     def clean_provider(self):
-        new_provider= Ebook.infer_provider(self.data['url'])
+        new_provider= Ebook.infer_provider(self.data[self.prefix + '-url'])
         if not new_provider:
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books."))
         return new_provider
         
     def clean_url(self):
-        url = self.data["url"]
+        url = self.data[self.prefix + '-url']
         try:
             Ebook.objects.get(url=url)
         except Ebook.DoesNotExist:

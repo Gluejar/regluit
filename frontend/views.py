@@ -121,12 +121,6 @@ def work(request, work_id, action='display'):
 
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
-        ebook_form= EbookForm( data = request.POST)
-        if ebook_form.is_valid():
-            ebook_form.save()
-            alert = 'Thanks for adding an ebook to unglue.it!'
-        else: 
-            alert = ebook_form.errors
     else:
         alert=''
         try:
@@ -151,8 +145,19 @@ def work(request, work_id, action='display'):
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
         for edition in editions:
-            #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
+            edition.hide_details = 1
+            if request.method == 'POST' and not request.user.is_anonymous():
+                if request.POST.has_key('ebook_%d-edition' % edition.id):
+                    edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
+                    if edition.ebook_form.is_valid():
+                        edition.ebook_form.save()
+                        alert = 'Thanks for adding an ebook to unglue.it!'
+                    else: 
+                        edition.hide_details = 0
+                        alert = 'your submitted ebook had errors'
+            else:
+                #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
+                edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
     if campaign:

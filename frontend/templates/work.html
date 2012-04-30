@@ -27,10 +27,16 @@ $j(document).ready(function(){
         $j(this).next().toggle();
     });
 });
-</script>
-
-<script>
-var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    $j('.show_more_ebooks').click(function(){
+        if ($j(this).html() == '<br>hide downloads') {
+        	$j(this).html('<br>more downloads...')
+        } else {
+        	$j(this).html('<br>hide downloads')
+        }
+        $j(this).next().toggle();
+    });
+});
 $j(document).ready(function(){
 	var img = $j('#book-detail-img');
 	var googimg = $j('#find-google img');
@@ -115,7 +121,21 @@ $j(document).ready(function(){
                             <label>Get it:</label>
                                 <span class="find-link">
                                 {% for ebook in work.ebooks %}
+                                    {% if forloop.first %}
+                                        <span class="first_ebook">
+                                    {% endif %}
+                                    {% if forloop.counter == 2 %}
+                                        </span>
+                                        <span class="show_more_ebooks"><br />More downloads...</span>
+                                        <span class="more_ebooks">
+                                    {% endif %}
+                                    {% if not forloop.first %}
+                                        <br />
+                                    {% endif %}
                                 <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt=" {{ ebook.format }} at {{ebook.provider}}" title=" {{ ebook.format }} at {{ebook.provider}}" /><img src="{{ebook.rights_badge}}" height="31" width="88" alt="{{ebook.rights}}" title="{{ebook.rights}}" /></a>
+                                    {% if forloop.last %}
+                                        </span>
+                                    {% endif %}
                                 {% endfor %}
                                 </span>
                         </div>
@@ -300,8 +320,8 @@ $j(document).ready(function(){
                             	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
                             </div>{{work.last_campaign_status}}
                             {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
-                                <div class="show_more_edition" >more...</div>
-                                <div class="more_edition">
+                                {% if edition.hide_details %}<div class="show_more_edition" >more...</div>{% endif %}
+                                <div {% if edition.hide_details %} class="more_edition" {% endif %}>
                                     {% if edition.ebooks.count %}
                                         <h5>eBooks for this Edition</h5>
                                         {% for ebook in edition.ebooks.all %}
@@ -311,10 +331,10 @@ $j(document).ready(function(){
                                     <h5>Add an eBook for this Edition:</h5>
                                     <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
                                 	<form method="POST" action="#edition_{{edition.id}}">
-    	    	                    {% csrf_token %}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider }}
-    	    	                    URL: {{ edition.ebook_form.url }}<br />
-    	    	                    File Format: {{ edition.ebook_form.format }}&nbsp;&nbsp;&nbsp;
-    	    	                    License: {{ edition.ebook_form.rights }}<br />
+    	    	                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
+    	    	                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
+    	    	                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+    	    	                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
     	    	                    <input type="submit" name="add_ebook" value="add ebook" />
                                     </form>
                                 </div>

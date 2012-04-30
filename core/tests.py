@@ -1,6 +1,6 @@
 from decimal import Decimal as D
 from datetime import datetime, timedelta
-from regluit.utils.localdatetime import now
+from regluit.utils.localdatetime import now, date_today
 
 from django.test import TestCase
 from django.test.client import Client
@@ -28,6 +28,10 @@ from urlparse import parse_qs, urlparse
 
 
 class BookLoaderTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
+        self.client = Client()
+        self.client.login(username='core_test', password='core_test')
 
     def test_add_by_isbn(self):
         # edition
@@ -246,6 +250,12 @@ class BookLoaderTests(TestCase):
 
         ebook_pdf.url='http://en.wikisource.org/wiki/Frankenstein'      
         self.assertEqual(ebook_pdf.set_provider(), 'Wikisource')
+
+        self.user.wishlist.add_work(w, 'test')        
+        tasks.report_new_ebooks(date_today())
+        r = self.client.get("/notification/" )
+        self.assertEqual(r.status_code, 200)
+        
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it

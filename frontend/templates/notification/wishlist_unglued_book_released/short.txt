@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+{{work.title}} is available for download!
