@@ -195,7 +195,6 @@ $j(document).ready(function(){
                 <div id="content-block-content">
                        <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
-                        <p><br>
                         {% if status == 'ACTIVE' %}
                         <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
                         <p>The rights holder, {% for claim in work.claim.all %}
@@ -208,7 +207,7 @@ $j(document).ready(function(){
                         {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
-                        {{ work.longest_description|safe }}
+                        <p>{{ work.longest_description|safe }}
                         {% endif %}
                         </p>
                     </div>
