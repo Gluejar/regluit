@@ -44,7 +44,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
+from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
@@ -129,8 +129,11 @@ def work(request, work_id, action='display'):
                 activetab = '1';
         except:
             activetab = '1';
-    editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
+    if campaign and campaign.edition:
+        editions = [campaign.edition]
+    else:
+        editions = work.editions.all().order_by('-publication_date')
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
     try:
@@ -233,9 +236,9 @@ def manage_campaign(request, id):
                 new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             else:
                 alerts.append(_('New premium has not been added'))              
-            form = ManageCampaignForm(instance=campaign)
+            form = getManageCampaignForm(instance=campaign)
         elif request.POST.has_key('save') or  request.POST.has_key('launch') :
-            form= ManageCampaignForm(instance=campaign, data=request.POST)  
+            form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
                 alerts.append(_('Campaign data has been saved'))
@@ -257,10 +260,10 @@ def manage_campaign(request, id):
                         selected_premium.type = 'XX'
                         selected_premium.save()
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
-            form = ManageCampaignForm(instance=campaign)
+            form = getManageCampaignForm(instance=campaign)
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
     else:
-        form = ManageCampaignForm(instance=campaign)
+        form = getManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
     return render(request, 'manage_campaign.html', {
