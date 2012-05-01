@@ -55,13 +55,15 @@ $j(document).ready(function(){
     <div class="js-main">
     <div id="js-leftcol">
             <div class="jsmodule rounded">
-                <div class="jsmod-content{% if status == 'ACTIVE' %} active{{ work.percent_unglued}}{% endif %}">
+                <div class="jsmod-content {{ status }}">
                     <span>
                 {% if work.first_ebook %}
                     AVAILABLE!
                 {% else %}{% if work.last_campaign %}
                     {% if status == 'ACTIVE' %}
-                            Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
+                            Unglue it! <br />
+                            ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }} <br />
+                            Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
                             Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
@@ -72,19 +74,24 @@ $j(document).ready(function(){
                         {% else %}{% if status == 'WITHDRAWN' %}
                             Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
                         {% else %}{% if wishers == 1 %}
-                            <span class="findtheungluers">{{ wishers }} Ungluer is WISHING</span>
+                            <span class="findtheungluers">{{ wishers }} Ungluer is wishing</span>
                         {% else %}
-                            <span class="findtheungluers">{{ wishers }} Ungluers are WISHING</span>
-                        {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+                            <span class="findtheungluers">{{ wishers }} Ungluers are wishing</span>
+                        {% endif %}
+                        <br />
+                        You can too!
+                        {% endif %}{% endif %}{% endif %}{% endif %}
                     {% endif %}
                 {% else %}
                 	<span class="findtheungluers">
                     {% if wishers == 1 %}
-                        {{ wishers }} Ungluer is WISHING
+                        {{ wishers }} Ungluer is wishing
                     {% else %}
-                        {{ wishers }} Ungluers are WISHING
+                        {{ wishers }} Ungluers are wishing
                     {% endif %}
                     </span>
+					<br />
+					You can too!
                 {% endif %}{% endif %}
                     </span>
                     <span class="spacer">&nbsp;<br />&nbsp;</span>

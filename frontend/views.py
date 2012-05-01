@@ -137,7 +137,19 @@ def work(request, work_id, action='display'):
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
-
+        
+    countdown = ""
+    if work.last_campaign_status() == 'ACTIVE':
+        time_remaining = campaign.deadline - now()
+        if time_remaining.days:
+            countdown = "in %s days" % time_remaining.days
+        elif time_remaining.seconds > 3600:
+            countdown = "in %s hours" % time_remaining.seconds/3600
+        elif time_remaining.seconds > 60:
+            countdown = "in %s minutes" % time_remaining.seconds/60
+        else:
+            countdown = "right now"
+    	
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
@@ -199,6 +211,7 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
+        'countdown': countdown,
     })
 
 def manage_campaign(request, id):
@@ -670,9 +683,9 @@ class PledgeCompleteView(TemplateView):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
             
-        worklist = slideshow(12)
-        works = worklist[:6]
-        works2 = worklist[6:12]
+        worklist = slideshow(8)
+        works = worklist[:4]
+        works2 = worklist[4:8]
 
         context["transaction"] = transaction
         context["correct_user"] = correct_user

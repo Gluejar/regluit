@@ -37,28 +37,16 @@
 			border:none;
 			margin:0;
 			
-			&.active0, &.active1 {
-				background: #e35351;
-			}
-
-			&.active2 {
-				background: #e18551;
-			}
-
-			&.active3 {
-				background: #e5a956;
-			}
-
-			&.active4 {
-				background: #efd45e;
-			}
-
-			&.active5 {
-				background: #bbcf67;
-			}
-
-			&.active6 {
+			&.ACTIVE {
 				background: @green;
+				color: white;
+				font-size: 18px;
+				font-weight: normal;
+			}
+			
+			&.No.campaign.yet {
+				background: #e18551;
+				color: white;
 			}
 
 			span {
@@ -553,4 +541,8 @@ ul.support li {
 a {
 	color:#3d4e53;
 	font-size:12px;
+}
+
+#js-search {
+	margin: 0 15px 0 15px !important;
 }

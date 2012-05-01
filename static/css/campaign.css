@@ -109,26 +109,15 @@
   border: none;
   margin: 0;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content.active0,
-.pledge.jsmodule.rounded .jsmod-content.active0,
-#js-leftcol .jsmodule.rounded .jsmod-content.active1,
-.pledge.jsmodule.rounded .jsmod-content.active1 {
-  background: #e35351;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active2, .pledge.jsmodule.rounded .jsmod-content.active2 {
-  background: #e18551;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active3, .pledge.jsmodule.rounded .jsmod-content.active3 {
-  background: #e5a956;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active4, .pledge.jsmodule.rounded .jsmod-content.active4 {
-  background: #efd45e;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active5, .pledge.jsmodule.rounded .jsmod-content.active5 {
-  background: #bbcf67;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.active6, .pledge.jsmodule.rounded .jsmod-content.active6 {
+#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE, .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
   background: #8dc63f;
+  color: white;
+  font-size: 18px;
+  font-weight: normal;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet, .pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
+  background: #e18551;
+  color: white;
 }
 #js-leftcol .jsmodule.rounded .jsmod-content span, .pledge.jsmodule.rounded .jsmod-content span {
   display: inline-block;
@@ -609,4 +598,7 @@ ul.support li:hover a {
 a {
   color: #3d4e53;
   font-size: 12px;
+}
+#js-search {
+  margin: 0 15px 0 15px !important;
 }
