@@ -1,4 +1,5 @@
 from fabric.api import run, local, env, cd
+from regluit.sysadmin import aws
 
 # allow us to use our ssh config files (e.g., ~/.ssh/config)
 env.use_ssh_config = True
@@ -29,6 +30,27 @@ def get_dump():
     run("gzip -f unglue.it.sql")
     local("scp web1:/home/ubuntu/unglue.it.sql.gz .")
     local("gunzip -f unglue.it.sql.gz")
+    
+def build_prod_instance(ami_id='ami-a29943cb'):
+    """Build a new instance to serve as server instance for unglue.it"""
+    # http://my.safaribooksonline.com/book/-/9781449308100/2dot-ec2-recipes/id2529379
+    # default ami-a29943cb' is Ubuntu 12.04 Precise EBS boot
+    
+def ssh_fingerprint():
+    """display ssh fingerprint of /home/ubuntu/.ssh/id_rsa.pub on remote machine"""
+    run ("""ssh-keygen -l -f /home/ubuntu/.ssh/id_rsa.pub""")
+    
+def ssh_fingerprint2():
+    # http://stackoverflow.com/a/6682934/7782
+    import base64,hashlib
+    def lineToFingerprint(line):
+        key = base64.b64decode(line.strip().partition('ssh-rsa ')[2])
+        fp_plain = hashlib.md5(key).hexdigest()
+        return ':'.join(a+b for a,b in zip(fp_plain[::2], fp_plain[1::2]))
+
+def public_key_from_private_key():
+    # ssh-keygen -y -f ~/.ssh/id_rsa
+    pass
             
 def email_addresses():
     """list email addresses in unglue.it"""
