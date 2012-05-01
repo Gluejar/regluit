@@ -5,13 +5,14 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.validators import validate_email
 from django.utils.translation import ugettext_lazy as _
+from django.forms.widgets import RadioSelect
 from django.forms.extras.widgets import SelectDateWidget
 
 from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition
 from regluit.core.lookups import OwnerLookup
 
 from regluit.utils.localdatetime import now
@@ -165,50 +166,56 @@ class CustomPremiumForm(forms.ModelForm):
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
                 'limit': forms.TextInput(attrs={'value':'0'}),
             }
-
-class ManageCampaignForm(forms.ModelForm):
-    paypal_receiver = forms.EmailField(
-        label=_("email address to collect Paypal funds"), 
-        max_length=100, 
-        error_messages={'required': 'You must enter the email associated with your Paypal account.'},
-        )
-    target = forms.DecimalField( min_value= D('0.00'), error_messages={'required': 'Please specify a target price.'} )
-    class Meta:
-        model = Campaign
-        fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver'
-        widgets = { 
-                'description': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
-                'details': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
-                'deadline': SelectDateWidget
-            }
-
-    def clean_target(self):
-        new_target = self.cleaned_data['target']
-        if self.instance:
-            if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
-                raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
-        if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
-            raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
-        return new_target
-
-    def clean_deadline(self):
-        new_deadline = self.cleaned_data['deadline']
-        if self.instance:
-            if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
-                raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-        if new_deadline - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-            raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-        elif new_deadline - now() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
-            raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
-        return new_deadline
-        
-    def clean_license(self):
-        new_license = self.cleaned_data['license']
-        if self.instance:
-            if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
-                raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
-        return new_license
-
+def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
+    def get_queryset():
+        work=instance.work
+        return Edition.objects.filter(work = work)
+            
+    class ManageCampaignForm(forms.ModelForm):
+        paypal_receiver = forms.EmailField(
+            label=_("email address to collect Paypal funds"), 
+            max_length=100, 
+            error_messages={'required': 'You must enter the email associated with your Paypal account.'},
+            )
+        target = forms.DecimalField( min_value= D('0.00'), error_messages={'required': 'Please specify a target price.'} )
+        edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected')
+                
+        class Meta:
+            model = Campaign
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition'
+            widgets = { 
+                    'description': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
+                    'details': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
+                    'deadline': SelectDateWidget,
+                }
+    
+        def clean_target(self):
+            new_target = self.cleaned_data['target']
+            if self.instance:
+                if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
+                    raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
+            if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
+                raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+            return new_target
+    
+        def clean_deadline(self):
+            new_deadline = self.cleaned_data['deadline']
+            if self.instance:
+                if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
+                    raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+            if new_deadline - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+            elif new_deadline - now() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
+                raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
+            return new_deadline
+            
+        def clean_license(self):
+            new_license = self.cleaned_data['license']
+            if self.instance:
+                if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
+                    raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
+            return new_license
+    return ManageCampaignForm(instance = instance, data=data)
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(

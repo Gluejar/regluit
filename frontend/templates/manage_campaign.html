@@ -47,7 +47,7 @@ Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.<b
         <h2 class="book-name">Title: <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a></h2>
         <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
         <h3 class="book-year">Published: {{ campaign.work.publication_date }}</h3>
-        <h3 class="book-author">Language: {{ campaign.work.editions.all.0.language }}</h3>
+        <h3 class="book-author">Language: {{ campaign.work.language }}</h3>
         <p>Target Price: ${{ campaign.target }}</p>
         <p>End Date: {{ campaign.deadline|date:"M d, Y" }}</p>
         <p>Campaign status: {{ campaign.status }}</p>
@@ -58,6 +58,8 @@ Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.<b
 <h3>Description of the work offered for ungluing</h3>
 <form action="#" method="POST">
 {% csrf_token %}
+<p> Please choose the edition that most closely matches the edition to be unglued:
+{{ form.edition.errors }}{{ form.edition }}
 <p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
 <ul class="terms">
 <li>A synopsis of the work.</li>
