@@ -53,6 +53,17 @@
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                 </div>
 
+					{% comment %}link to work page{% endcomment %}
+                    <div class="moreinfo">
+                            <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                    </div>
+
+					{% comment %}bibliographic data{% endcomment %}
+                    <div class="white_text"> 
+                        <p><a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+                        <p>{{ author }}</p>
+                    </div>
+
 					{% comment %}status of book vis-a-vis user's wishlist{% endcomment %}
 					{% if works and activetab %}
                         <div class="moreinfo add-wishlist">
@@ -81,17 +92,6 @@
                         <span id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
                         </div>
                     {% endif %}{% endif %}{% endifequal %}{% endif %}{% endif %}
-
-					{% comment %}bibliographic data{% endcomment %}
-                    <div class="white_text"> 
-                        <p><a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
-                        <p>{{ author }}</p>
-                    </div>
-
-					{% comment %}link to work page{% endcomment %}
-                    <div class="moreinfo">
-                            <a href="{% if work.id %}{% url work work.id %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
-                    </div>
 
             </div>
     </div>

@@ -422,8 +422,14 @@ class PledgeView(FormView):
             form = form_class(data)
         else:
             form = form_class()
+            
+        try:
+            pubdate = work.publication_date[:4]
+        except IndexError:
+            pubdate = 'unknown'
+
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
         return context
     
     def form_valid(self, form):
