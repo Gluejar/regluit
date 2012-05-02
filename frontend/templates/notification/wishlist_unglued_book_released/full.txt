@@ -20,7 +20,7 @@ URL: {{ ebook.url }}
 {% if work.ebooks.0.rights == 'PD-US' %}
 A public domain ebook belongs to all of us.  You can do anything you like with it.
 {% else %}
-The Creative Commons licensing terms for  allow you to redistribute the files under the specified license terms.  There's no DRM. 
+The Creative Commons licensing terms for {{ work.title }} allow you to redistribute the files under the specified license terms.  There's no DRM.  For full details, see http://creativecommons.org/licenses/.
 {% endif %}
 
 {% if work.last_campaign_status == 'SUCCESSFUL' %}
