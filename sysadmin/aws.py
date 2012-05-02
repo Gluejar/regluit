@@ -29,15 +29,26 @@ def all_rds():
 def all_rds_parameter_groups():
     return rds.get_all_dbparameter_groups()
     
-def modify_please1_pg_group():
-    """kinda ugly
+def modify_rds_parameter(group_name, parameter, value, apply_immediate=False):
+    """change parameter in RDS parameter group_name to value
     http://stackoverflow.com/a/9085381/7782
-    After doing this, I changed please db to talk to this parameter group and rebooted db
+    Remember to make sure that the parameter group is actually associated with the db.
+    You will likely need to reboot db too.
     """
-    pg = conn.get_all_dbparameters('mygroup')
-    pg2 = rds.get_all_dbparameters('mygroup', marker = pg.Marker)
-    pg2['tx_isolation'].value = True
-    pg2['tx_isolation'].apply(True)
+    
+    pg = rds.get_all_dbparameters(group_name)
+    while not pg.has_key(parameter) and hasattr(pg, 'Marker'):
+        pg = rds.get_all_dbparameters(group_name, marker = pg.Marker)
+    if pg.has_key(parameter):
+        pg[parameter].value = value
+        pg[parameter].apply(immediate=apply_immediate)
+        return True
+    else:
+        return False
+
+# how I associated the param_group to a db and then rebooted db
+# rds.modify_dbinstance(id='production', param_group='production1', apply_immediately=True)
+# rds.reboot_dbinstance(id='production')
     
 def all_snapshots(owner=GLUEJAR_ACCOUNT_ID):
     """by default, return only snapshots owned by Gluejar  -- None returns all snapshots available to us"""
