@@ -10,16 +10,29 @@
 {% endblock %}
 
 {% block doccontent %}
-<div style="height:10px";></div>
+<div style="height:15px";></div>
 <div class="book-detail">
-	<div class="book-detail-img">
+	<div id="book-detail-img">
 		<a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
     </div>
     
     <div class="book-detail-info">
-        <h2 class="book-name">{{ work.title }}</h2>
-        <h3 class="book-author">{{ work.author }}</h3>
-        <h3 class="book-year">{{ work.publication_date }}</h3>
+		<div class="layout">
+			<h2 class="book-name">{{ work.title }}</h2>
+			<div>
+				<div class="pubinfo">
+					<h3 class="book-author">{{ work.author }}</h3>
+					<h3 class="book-year">{{ pubdate }}</h3>
+				</div>
+			</div>
+		</div>
+
+		<div class="jsmodule rounded pledge">
+			<div class="jsmod-content">
+				${{ work.last_campaign.target }} needed by<br />
+				{{ work.last_campaign.deadline }}
+			</div>
+		</div>
                 
         <div class="pledged-info">
         	<div class="pledged-group">
@@ -32,13 +45,6 @@
     </div>
 </div>
     
-<div class="jsmodule rounded pledge">
-    <div class="jsmod-content">
-        ${{ work.last_campaign.target }} needed by<br />
-        {{ work.last_campaign.deadline }}
-    </div>
-</div>
-
 <div class="jsmodule rounded">
     <div class="jsmod-content">
 
