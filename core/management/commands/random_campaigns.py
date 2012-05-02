@@ -28,9 +28,9 @@ class Command(BaseCommand):
             campaign.paypal_receiver = settings.PAYPAL_TEST_RH_EMAIL
 
             # random deadline between 5 days from now and 180 days from now
-            now = now()
-            campaign.deadline = random_date(now + timedelta(days=5),
-                                            now + timedelta(days=180))
+            _now = now()
+            campaign.deadline = random_date(_now + timedelta(days=5),
+                                            _now + timedelta(days=180))
 
             # randomly activate some of the campaigns
             coinflip = D(randint(0,10))
