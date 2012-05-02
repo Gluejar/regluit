@@ -30,7 +30,7 @@ $j("#js-leftcol").ready(function() {
 			{% else %}{% if faqmenu == "cancel" %}
 			{% include "faq_pledge_cancel.html" %}
 			{% else %}{% if faqmenu == "complete" %}
-			{% include "sidebar_pledge_complete.html" %}
+			{% include "explore.html" %}
 			{% endif %}{% endif %}{% endif %}
 		</div>
 		<div id="js-maincol-fr" class="have-right doc">
@@ -50,14 +50,6 @@ $j("#js-leftcol").ready(function() {
 	</div>
 </div>    
 
-{% if faqmenu == "complete" %}
-	<br />
-	<div id="js-slide">
-		<div class="jsmodule pledge">
-			{% include "slideshow.html" %}
-		</div>
-	</div>
-{% endif %}
 {% endblock %}
 
 

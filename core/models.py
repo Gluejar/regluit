@@ -115,6 +115,7 @@ class Campaign(models.Model):
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
+    edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     problems = []
     
     def __unicode__(self):
@@ -323,13 +324,13 @@ class Work(models.Model):
 
     def cover_image_small(self):
         try:
-            return self.editions.all()[0].cover_image_small()
+            return self.preferred_edition.cover_image_small()
         except IndexError:
             return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-            return self.editions.all()[0].cover_image_thumbnail()
+            return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             return "/static/images/generic_cover_larger.png"
         
@@ -351,6 +352,13 @@ class Work(models.Model):
         except IndexError:
             self._last_campaign_ = None
         return self._last_campaign_
+        
+    @property
+    def preferred_edition(self):
+        if self.last_campaign():
+            if self.last_campaign().edition:
+                return self.last_campaign().edition
+        return self.editions.all()[0]
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
@@ -494,7 +502,14 @@ class Edition(models.Model):
     work = models.ForeignKey("Work", related_name="editions", null=True)
 
     def __unicode__(self):
-        return "%s (%s)" % (self.title, self.isbn_13)
+        if self.isbn_13:
+            return "%s (ISBN %s) %s" % (self.title, self.isbn_13, self.publisher)
+        if self.oclc:
+            return "%s (OCLC %s) %s" % (self.title, self.oclc, self.publisher)
+        if self.googlebooks_id:
+            return "%s (GOOG %s) %s" % (self.title, self.googlebooks_id, self.publisher)
+        else:
+            return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
     def cover_image_small(self):
         if self.googlebooks_id:

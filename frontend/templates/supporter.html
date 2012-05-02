@@ -255,19 +255,20 @@ there's no tab for seeing ALL my books, only the filters! huh.
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div id="content-block">
+
+                {% if not works %}
+                
+                {% comment %}
+                if we're in empty-wishlist, slideshow mode, suppress tab area
+                {% endcomment %}
+
                 <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
                         <li class="tabs2"><a href="#">Active</a></li>
                         <li class="tabs3"><a href="#">Wishlisted</a></li>
                     </ul>
-                    
-                    
-                
-                		{% if not works %}
-                		{% comment %}
-                		don't let people toggle views if we're doing the slideshow -- it'll look weird
-                		{% endcomment %}
+                                        
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -281,14 +282,15 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 </a>
                             </li>
                         </ul>
-                        {% endif %}
                 </div>
+                {% endif %}
+                
                 <div id="content-block-content">
                     {% ifequal wishlist.works.all.count 0 %}
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
                         
-                        	<div>You haven't wishlisted anything yet.  Can we help?<br /><br /></div>
+                        	<div><h2 style="padding-left:35px;">Add a book to your wishlist to get started.</h2><br /><br /></div>
                         	
                 		    <div id="js-slide">
  	   							<div class="js-main">

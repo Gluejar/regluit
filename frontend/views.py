@@ -44,7 +44,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import ManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
+from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
@@ -129,15 +129,30 @@ def work(request, work_id, action='display'):
                 activetab = '1';
         except:
             activetab = '1';
-    editions = work.editions.all().order_by('-publication_date')
     campaign = work.last_campaign()
+    if campaign and campaign.edition:
+        editions = [campaign.edition]
+    else:
+        editions = work.editions.all().order_by('-publication_date')
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
     try:
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
-
+        
+    countdown = ""
+    if work.last_campaign_status() == 'ACTIVE':
+        time_remaining = campaign.deadline - now()
+        if time_remaining.days:
+            countdown = "in %s days" % time_remaining.days
+        elif time_remaining.seconds > 3600:
+            countdown = "in %s hours" % time_remaining.seconds/3600
+        elif time_remaining.seconds > 60:
+            countdown = "in %s minutes" % time_remaining.seconds/60
+        else:
+            countdown = "right now"
+    	
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
@@ -199,6 +214,7 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
+        'countdown': countdown,
     })
 
 def manage_campaign(request, id):
@@ -220,9 +236,9 @@ def manage_campaign(request, id):
                 new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             else:
                 alerts.append(_('New premium has not been added'))              
-            form = ManageCampaignForm(instance=campaign)
+            form = getManageCampaignForm(instance=campaign)
         elif request.POST.has_key('save') or  request.POST.has_key('launch') :
-            form= ManageCampaignForm(instance=campaign, data=request.POST)  
+            form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
                 alerts.append(_('Campaign data has been saved'))
@@ -244,10 +260,10 @@ def manage_campaign(request, id):
                         selected_premium.type = 'XX'
                         selected_premium.save()
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
-            form = ManageCampaignForm(instance=campaign)
+            form = getManageCampaignForm(instance=campaign)
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
     else:
-        form = ManageCampaignForm(instance=campaign)
+        form = getManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
     return render(request, 'manage_campaign.html', {
@@ -422,8 +438,14 @@ class PledgeView(FormView):
             form = form_class(data)
         else:
             form = form_class()
+            
+        try:
+            pubdate = work.publication_date[:4]
+        except IndexError:
+            pubdate = 'unknown'
+
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge'})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
         return context
     
     def form_valid(self, form):
@@ -664,9 +686,9 @@ class PledgeCompleteView(TemplateView):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
             
-        worklist = slideshow(12)
-        works = worklist[:6]
-        works2 = worklist[6:12]
+        worklist = slideshow(8)
+        works = worklist[:4]
+        works2 = worklist[4:8]
 
         context["transaction"] = transaction
         context["correct_user"] = correct_user
