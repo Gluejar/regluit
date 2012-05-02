@@ -189,7 +189,7 @@ def update_edition(edition):
     
     # update the edition
     edition.title = title
-    edition.description = d.get('description')
+    # edition.description = d.get('description')
     edition.publisher = d.get('publisher')
     edition.publication_date = d.get('publishedDate', '')
     edition.save()
@@ -331,7 +331,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
     e.title = title
-    e.description = d.get('description')
+    #e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
     e.save()

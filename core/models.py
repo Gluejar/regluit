@@ -579,7 +579,7 @@ class WasWork(models.Model):
     
     
 class Ebook(models.Model):
-    FORMAT_CHOICES = (('PDF','PDF'),( 'EPUB','EPUB'), ('HTML','HTML'), ('TEXT','TEXT'), ('MOBI','MOBI'))
+    FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
     RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
             ('CC BY-NC-ND','CC BY-NC-ND'), 
             ('CC BY-ND','CC BY-ND'), 

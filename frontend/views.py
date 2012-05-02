@@ -142,7 +142,7 @@ def work(request, work_id, action='display'):
         pledged = None
         
     countdown = ""
-    if work.last_campaign_status() == 'ACTIVE':
+    if work.last_campaign_status == 'ACTIVE':
         time_remaining = campaign.deadline - now()
         if time_remaining.days:
             countdown = "in %s days" % time_remaining.days
