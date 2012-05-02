@@ -108,12 +108,14 @@
   font-weight: bold;
   border: none;
   margin: 0;
+  line-height: 16px;
 }
 #js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE, .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
   background: #8dc63f;
   color: white;
   font-size: 18px;
   font-weight: normal;
+  line-height: 20px;
 }
 #js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet, .pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
   background: #e18551;
