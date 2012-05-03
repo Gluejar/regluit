@@ -120,7 +120,6 @@ INSTALLED_APPS = (
     'regluit.frontend.templatetags',
     'regluit.payment.templatetags',
     'notification',
-    'billing',
 
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
