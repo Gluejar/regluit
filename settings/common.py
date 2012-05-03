@@ -268,3 +268,6 @@ FPS_SECRET_KEY = ''
 # set -- sandbox or production Amazon FPS?
 AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 #AMAZON_FPS_HOST = "fps.amazonaws.com"
+
+# amazon or paypal for now.
+PAYMENT_PROCESSOR = 'amazon'
