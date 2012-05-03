@@ -15,8 +15,6 @@ from django.template import RequestContext
 
 from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
-from regluit.payment.urls import amazon_fps_obj, fps_recur_obj
-import billing
 import uuid
 from decimal import Decimal as D
 
@@ -324,54 +322,5 @@ def checkStatus(request):
 def _render(request, template, template_vars={}):
     return render_to_response(template, template_vars, RequestContext(request))
     
-def testfps(request):
-    url_scheme = "http"
-    if request.is_secure():
-        url_scheme = "https"
-    
-    # generate a callerReference to use in our call
-    callerReference = str(uuid.uuid4())
-    # model stores TransactionAmount as string!  We won't be doing this in our long-term model
-    transactionAmount = str(D(100.00))
-    
-    fields = {"transactionAmount": transactionAmount,
-              "pipelineName": "SingleUse",
-              "paymentReason": "Merchant Test",
-              "paymentPage": request.build_absolute_uri(),
-              "callerReference": callerReference,
-              "returnURL": "%s://%s%s" % (url_scheme,
-                                          RequestSite(request).domain,
-                                          reverse("fps_return_url"))
-              }
-    # Save the fps.fields["callerReference"] in the db along with
-    # the amount to be charged or use the user's unique id as
-    # the callerReference so that the amount to be charged is known
-    # Or save the callerReference in the session and send the user
-    # to FPS and then use the session value when the user is back.
-    amazon_fps_obj.add_fields(fields)
-    
-    # let's save this object to the model that django-merchant has set up for amazon transactions
-    # billing.models.AmazonFPSResponse.objects.all()
-    fps_transaction = billing.models.AmazonFPSResponse()
-    fps_transaction.transactionDate = now()
-    fps_transaction.transactionAmount = 100.00
-    fps_transaction.callerReference = callerReference
-    
-    # force a calculation of the link_url so that callerReference gets calculated
-    logger.info("amazon_fps_obj.link_url: {0}".format(amazon_fps_obj.link_url))
-    
-    fps_transaction.save()
-    
-    fields.update({"transactionAmount": "100",
-                   "pipelineName": "Recurring",
-                   "recurringPeriod": "1 Hour",
-                   })
-    fps_recur_obj.add_fields(fields)
-    
-    
-    template_vars = {'title': 'Amazon Flexible Payment Service', 
-                     "fps_recur_obj": fps_recur_obj, 
-                     "fps_obj": amazon_fps_obj}
-    return _render(request, 'amazon_fps.html', template_vars)
     
     
