@@ -1,11 +1,6 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
-# django-merchant integration
-from billing import get_integration
-
-amazon_fps_obj = get_integration("fps", options={'host':'fps.sandbox.amazonaws.com'})
-fps_recur_obj = get_integration("fps", options={'host':'fps.sandbox.amazonaws.com'})
 
 urlpatterns = patterns(
     "regluit.payment.views",
@@ -34,10 +29,5 @@ if not settings.IS_PREVIEW:
         url(r"^testrefund", "testRefund"),
         url(r"^testmodify", "testModify"),
     )
-    urlpatterns += patterns('',
-         (r'^fps/', include(amazon_fps_obj.urls)),
-         url(r'^testfps/$', 'regluit.payment.views.testfps', name='testfps'),
-    )
-    
          
      
