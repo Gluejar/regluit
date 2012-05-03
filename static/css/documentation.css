@@ -578,11 +578,8 @@ h2.thank-you {
 #js-slide .jsmodule.pledge {
   width: 960px !important;
 }
-h3 .pledge_indent {
-  margin-left: 240px;
-}
 ul.social.pledge {
-  margin-bottom: 150px;
+  margin-bottom: 100px;
 }
 ul.social.pledge li {
   float: left;

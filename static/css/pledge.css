@@ -100,13 +100,12 @@
   cursor: pointer;
 }
 .pledge_amount {
-  margin: auto auto 10px 10px;
+  padding: 10px;
   font-size: 17px;
+  background: #edf3f4;
 }
 form.pledgeform {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: solid 2px #d6dde0;
+  width: 470px;
 }
 #id_preapproval_amount {
   width: 50%;
@@ -118,4 +117,10 @@ ul.support li, ul.support li:hover {
 }
 p {
   margin: 7px auto;
+}
+.jsmodule.pledge {
+  margin: auto;
+}
+.jsmodule.pledge .jsmod-content {
+  float: right !important;
 }

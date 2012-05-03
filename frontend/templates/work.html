@@ -27,10 +27,16 @@ $j(document).ready(function(){
         $j(this).next().toggle();
     });
 });
-</script>
-
-<script>
-var $j = jQuery.noConflict();
+$j(document).ready(function(){
+    $j('.show_more_ebooks').click(function(){
+        if ($j(this).html() == '<br>hide downloads') {
+        	$j(this).html('<br>more downloads...')
+        } else {
+        	$j(this).html('<br>hide downloads')
+        }
+        $j(this).next().toggle();
+    });
+});
 $j(document).ready(function(){
 	var img = $j('#book-detail-img');
 	var googimg = $j('#find-google img');
@@ -49,13 +55,15 @@ $j(document).ready(function(){
     <div class="js-main">
     <div id="js-leftcol">
             <div class="jsmodule rounded">
-                <div class="jsmod-content{% if status == 'ACTIVE' %} active{{ work.percent_unglued}}{% endif %}">
+                <div class="jsmod-content {{ status }}">
                     <span>
                 {% if work.first_ebook %}
                     AVAILABLE!
                 {% else %}{% if work.last_campaign %}
                     {% if status == 'ACTIVE' %}
-                            Campaign in Progress: <br />${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }}
+                            Unglue it! <br />
+                            ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }} <br />
+                            Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
                             Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
@@ -66,19 +74,24 @@ $j(document).ready(function(){
                         {% else %}{% if status == 'WITHDRAWN' %}
                             Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
                         {% else %}{% if wishers == 1 %}
-                            <span class="findtheungluers">{{ wishers }} Ungluer is WISHING</span>
+                            <span class="findtheungluers">{{ wishers }} Ungluer is wishing</span>
                         {% else %}
-                            <span class="findtheungluers">{{ wishers }} Ungluers are WISHING</span>
-                        {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+                            <span class="findtheungluers">{{ wishers }} Ungluers are wishing</span>
+                        {% endif %}
+                        <br />
+                        You can too!
+                        {% endif %}{% endif %}{% endif %}{% endif %}
                     {% endif %}
                 {% else %}
                 	<span class="findtheungluers">
                     {% if wishers == 1 %}
-                        {{ wishers }} Ungluer is WISHING
+                        {{ wishers }} Ungluer is wishing
                     {% else %}
-                        {{ wishers }} Ungluers are WISHING
+                        {{ wishers }} Ungluers are wishing
                     {% endif %}
                     </span>
+					<br />
+					You can too!
                 {% endif %}{% endif %}
                     </span>
                     <span class="spacer">&nbsp;<br />&nbsp;</span>
@@ -108,18 +121,32 @@ $j(document).ready(function(){
                           	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support" /></form></div>
                           {% endif %}
                           {% endif %}
-					  </div>
+					  	</div>
 					  </div>
                     {% if work.first_ebook %}
 					  <div class="get-book">
                             <label>Get it:</label>
                                 <span class="find-link">
                                 {% for ebook in work.ebooks %}
+                                    {% if forloop.first %}
+                                        <span class="first_ebook">
+                                    {% endif %}
+                                    {% if forloop.counter == 2 %}
+                                        </span>
+                                        <span class="show_more_ebooks"><br />More downloads...</span>
+                                        <span class="more_ebooks">
+                                    {% endif %}
+                                    {% if not forloop.first %}
+                                        <br />
+                                    {% endif %}
                                 <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt=" {{ ebook.format }} at {{ebook.provider}}" title=" {{ ebook.format }} at {{ebook.provider}}" /><img src="{{ebook.rights_badge}}" height="31" width="88" alt="{{ebook.rights}}" title="{{ebook.rights}}" /></a>
+                                    {% if forloop.last %}
+                                        </span>
+                                    {% endif %}
                                 {% endfor %}
                                 </span>
                         </div>
-                    {% endif %}
+                      {% endif %}
                         <div class="find-book">
                             <label>Find it:</label>
                              <div class="find-link">
@@ -195,7 +222,6 @@ $j(document).ready(function(){
                 <div id="content-block-content">
                        <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
-                        <p><br>
                         {% if status == 'ACTIVE' %}
                         <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
                         <p>The rights holder, {% for claim in work.claim.all %}
@@ -208,7 +234,7 @@ $j(document).ready(function(){
                         {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
-                        {{ work.longest_description|safe }}
+                        <p>{{ work.longest_description|safe }}
                         {% endif %}
                         </p>
                     </div>
@@ -301,8 +327,8 @@ $j(document).ready(function(){
                             	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
                             </div>{{work.last_campaign_status}}
                             {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
-                                <div class="show_more_edition" >more...</div>
-                                <div class="more_edition">
+                                {% if edition.hide_details %}<div class="show_more_edition" >more...</div>{% endif %}
+                                <div {% if edition.hide_details %} class="more_edition" {% endif %}>
                                     {% if edition.ebooks.count %}
                                         <h5>eBooks for this Edition</h5>
                                         {% for ebook in edition.ebooks.all %}
@@ -312,10 +338,10 @@ $j(document).ready(function(){
                                     <h5>Add an eBook for this Edition:</h5>
                                     <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
                                 	<form method="POST" action="#edition_{{edition.id}}">
-    	    	                    {% csrf_token %}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider }}
-    	    	                    URL: {{ edition.ebook_form.url }}<br />
-    	    	                    File Format: {{ edition.ebook_form.format }}&nbsp;&nbsp;&nbsp;
-    	    	                    License: {{ edition.ebook_form.rights }}<br />
+    	    	                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
+    	    	                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
+    	    	                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+    	    	                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
     	    	                    <input type="submit" name="add_ebook" value="add ebook" />
                                     </form>
                                 </div>

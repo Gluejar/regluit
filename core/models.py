@@ -115,6 +115,7 @@ class Campaign(models.Model):
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
+    edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     problems = []
     
     def __unicode__(self):
@@ -182,10 +183,15 @@ class Campaign(models.Model):
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
+        try:
+            active_claim = self.work.claim.filter(status="active")[0]
+        except IndexError, e:
+            raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
+            
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        active_claim = self.work.claim.filter(status="active")[0]
+
         ungluers = self.work.wished_by()        
         notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim}, True)
         return self
@@ -323,13 +329,13 @@ class Work(models.Model):
 
     def cover_image_small(self):
         try:
-            return self.editions.all()[0].cover_image_small()
+            return self.preferred_edition.cover_image_small()
         except IndexError:
             return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-            return self.editions.all()[0].cover_image_thumbnail()
+            return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             return "/static/images/generic_cover_larger.png"
         
@@ -351,6 +357,13 @@ class Work(models.Model):
         except IndexError:
             self._last_campaign_ = None
         return self._last_campaign_
+        
+    @property
+    def preferred_edition(self):
+        if self.last_campaign():
+            if self.last_campaign().edition:
+                return self.last_campaign().edition
+        return self.editions.all()[0]
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
@@ -494,7 +507,14 @@ class Edition(models.Model):
     work = models.ForeignKey("Work", related_name="editions", null=True)
 
     def __unicode__(self):
-        return "%s (%s)" % (self.title, self.isbn_13)
+        if self.isbn_13:
+            return "%s (ISBN %s) %s" % (self.title, self.isbn_13, self.publisher)
+        if self.oclc:
+            return "%s (OCLC %s) %s" % (self.title, self.oclc, self.publisher)
+        if self.googlebooks_id:
+            return "%s (GOOG %s) %s" % (self.title, self.googlebooks_id, self.publisher)
+        else:
+            return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
     def cover_image_small(self):
         if self.googlebooks_id:
@@ -564,7 +584,7 @@ class WasWork(models.Model):
     
     
 class Ebook(models.Model):
-    FORMAT_CHOICES = (('PDF','PDF'),( 'EPUB','EPUB'), ('HTML','HTML'), ('TEXT','TEXT'), ('MOBI','MOBI'))
+    FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
     RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
             ('CC BY-NC-ND','CC BY-NC-ND'), 
             ('CC BY-ND','CC BY-ND'), 
@@ -621,7 +641,7 @@ class Ebook(models.Model):
             provider='Google Books'
         elif url.startswith('http://www.gutenberg.org/'):
             provider='Project Gutenberg'
-        elif url.startswith('http://www.archive.org/'):
+        elif url.startswith('http://www.archive.org/') or url.startswith('http://archive.org/'):
             provider='Internet Archive'
         elif url.startswith('http://hdl.handle.net/2027/') or url.startswith('http://babel.hathitrust.org/'):
             provider='Hathitrust'
