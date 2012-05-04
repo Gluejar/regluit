@@ -152,7 +152,7 @@ def recipient_status(clist):
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
 
-def support_campaign(do_local=True):
+def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon'):
     """
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
@@ -160,13 +160,13 @@ def support_campaign(do_local=True):
     import django
     django.db.transaction.enter_transaction_management()
     
-    UNGLUE_IT_URL = settings.LIVE_SERVER_TEST_URL
+    UNGLUE_IT_URL = unglue_it_url
     # unglue.it login info
     USER = settings.UNGLUEIT_TEST_USER
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
     
     # PayPal developer sandbox
-    from regluit.payment.tests import loginSandbox, paySandbox
+    from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
     
     setup_selenium()
     
@@ -182,9 +182,10 @@ def support_campaign(do_local=True):
     time.sleep(10)
     
     # find a campaign to pledge to
-    loginSandbox(sel)
-
-    time.sleep(2)
+    if backend == 'paypal':
+        loginSandbox(sel)
+        time.sleep(2)
+        
     print "now opening unglue.it"
     
     #sel.get("http://www.google.com")
@@ -241,9 +242,13 @@ def support_campaign(do_local=True):
     
     # grab the URL where sel is now?
     
-    print  "Now trying to pay PayPal", sel.current_url
-    paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    if backend == 'paypal':
+        print  "Now trying to pay PayPal", sel.current_url
+        paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    elif backend == 'amazon':
+        payAmazonSandbox(sel)
     
+        
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
     
@@ -270,7 +275,7 @@ def support_campaign(do_local=True):
     print "clicking Modify Pledge button"
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
-        
+    
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
     print "changing pledge to $5 -- should not need to go to PayPal"
     preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
@@ -291,7 +296,10 @@ def support_campaign(do_local=True):
     preapproval_amount_input.send_keys("25")
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
-    paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    if backend == 'paypal':
+        paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
+    elif backend == 'amazon':
+        payAmazonSandbox(sel)    
 
     # wait a bit to allow PayPal sandbox to be update the status of the Transaction    
     time.sleep(10)

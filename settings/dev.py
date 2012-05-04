@@ -65,6 +65,21 @@ GOOGLE_DISPLAY_NAME = 'unglue it!'
 # https://code.google.com/apis/console
 GOOGLE_BOOKS_API_KEY = ''
 
+# Payment processor switch
+PAYMENT_PROCESSOR = 'amazon'
+
+# Amazon credentials (for fps)
+AWS_ACCESS_KEY = ''
+AWS_SECRET_ACCESS_KEY = ''
+
+# Amazon FPS Credentials
+FPS_ACCESS_KEY = ''
+FPS_SECRET_KEY = ''
+
+# set -- sandbox or production Amazon FPS?
+AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+#AMAZON_FPS_HOST = "fps.amazonaws.com"
+
 PAYPAL_USERNAME = ''
 PAYPAL_PASSWORD =  ''
 PAYPAL_SIGNATURE = ''
@@ -130,4 +145,3 @@ UNGLUEIT_TEST_PASSWORD = None
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
-

@@ -2,11 +2,16 @@ from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-
+from django.conf import settings
 from regluit.payment.parameters import *
-from regluit.payment.paypal import Pay, Execute, IPN, IPN_TYPE_PAYMENT, IPN_TYPE_PREAPPROVAL, IPN_TYPE_ADJUSTMENT, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_NONE 
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_COMPLETED, CancelPreapproval, PaymentDetails, PreapprovalDetails, IPN_SENDER_STATUS_COMPLETED, IPN_TXN_STATUS_COMPLETED
-from regluit.payment.paypal import RefundPayment
+
+if settings.PAYMENT_PROCESSOR == 'paypal':
+    from regluit.payment.paypal import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
+    from regluit.payment.paypal import Pay as Execute
+    
+elif settings.PAYMENT_PROCESSOR == 'amazon':
+    from regluit.payment.amazon import Pay, Execute, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
+    
 import uuid
 import traceback
 from regluit.utils.localdatetime import now
@@ -35,6 +40,11 @@ class PaymentManager( object ):
     
     def __init__( self, embedded=False):
         self.embedded = embedded
+        
+    def processIPN(self, request):
+        
+        # Forward to our payment processor
+        return ProcessIPN(request)
 
     def update_preapproval(self, transaction):
         """Update a transaction to hold the data from a PreapprovalDetails on that transaction"""
@@ -71,6 +81,16 @@ class PaymentManager( object ):
                 preapproval_status["approved"] = {'ours':t.approved, 'theirs':p.approved}
                 t.approved = p.approved
                 t.save()
+                
+            # In amazon FPS, we may not have a pay_key via the return URL, update here
+            try:
+                if t.pay_key != p.pay_key:
+                    preapproval_status['pay_key'] = {'ours':t.pay_key, 'theirs':p.pay_key}
+                    t.pay_key = p.pay_key
+                    t.save()
+            except:
+                # No problem, p.pay_key is not defined for paypal function
+                blah = "blah"
             
         
         return preapproval_status            
@@ -92,12 +112,13 @@ class PaymentManager( object ):
                 payment_status['status'] = {'ours': t.status, 'theirs': p.status}
                 
                 t.status = p.status
+                t.local_status = p.local_status
                 t.save()
                 
             receivers_status = []
             
             for r in p.transactions:
-                
+                # This is only supported for paypal at this time
                 try:
                     receiver = Receiver.objects.get(transaction=t, email=r['email'])
                     
@@ -184,113 +205,6 @@ class PaymentManager( object ):
             
         return status
     
-        
-    def processIPN(self, request):
-        '''
-        processIPN
-        
-        Turns a request from Paypal into an IPN, and extracts info.   We support 2 types of IPNs:
-        
-        1) Payment - Used for instant payments and to execute pre-approved payments
-        2) Preapproval - Used for comfirmation of a preapproval
-        
-        '''        
-        try:
-            ipn = IPN(request)
-        
-            if ipn.success():
-                logger.info("Valid IPN")
-                logger.info("IPN Transaction Type: %s" % ipn.transaction_type)
-                
-                if ipn.transaction_type == IPN_TYPE_PAYMENT:
-                    # payment IPN. we use our unique reference for the transaction as the key
-                    # is only valid for 3 hours
-                    
-                    uniqueID = ipn.uniqueID()
-                    t = Transaction.objects.get(secret=uniqueID)
-                    
-                    # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
-                    t.status = ipn.status
-                    
-                    
-                    for item in ipn.transactions:
-                        
-                        try:
-                            r = Receiver.objects.get(transaction=t, email=item['receiver'])
-                            logger.info(item)
-                            # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
-                            # payments, then there is no status or id for non-primary receivers.  Leave their status alone
-                            r.status = item['status_for_sender_txn']
-                            r.txn_id = item['id_for_sender_txn']
-                            r.save()
-                        except:
-                            # Log an exception if we have a receiver that is not found.  This will be hit
-                            # for delayed chained payments as there is no status or id for the non-primary receivers yet
-                            traceback.print_exc()
-                    
-                    t.save()
-                    
-                    logger.info("Final transaction status: %s" % t.status)
-                    
-                elif ipn.transaction_type == IPN_TYPE_ADJUSTMENT:
-                    # a chargeback, reversal or refund for an existng payment
-
-                    uniqueID = ipn.uniqueID()
-                    if uniqueID:
-                        t = Transaction.objects.get(secret=uniqueID)
-                    else:
-                        key = ipn.pay_key
-                        t = Transaction.objects.get(pay_key=key)
-                    
-                    # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
-                    t.status = ipn.status
-                    
-                    # Reason code indicates more details of the adjustment type
-                    t.reason = ipn.reason_code
-        
-                    # Update the receiver status codes
-                    for item in ipn.transactions:
-                        
-                        try:
-                            r = Receiver.objects.get(transaction=t, email=item['receiver'])
-                            logger.info(item)
-                            # one of the IPN_SENDER_STATUS codes defined in paypal.py,  If we are doing delayed chained
-                            # payments, then there is no status or id for non-primary receivers.  Leave their status alone
-                            r.status = item['status_for_sender_txn']
-                            r.save()
-                        except:
-                            # Log an exception if we have a receiver that is not found.  This will be hit
-                            # for delayed chained payments as there is no status or id for the non-primary receivers yet
-                            traceback.print_exc()
-                            
-                    t.save()                    
-                    
-                        
-                elif ipn.transaction_type == IPN_TYPE_PREAPPROVAL:
-                    
-                    # IPN for preapproval always uses the key to ref the transaction as this is always valid
-                    key = ipn.preapproval_key
-                    t = Transaction.objects.get(preapproval_key=key)
-                    
-                    # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
-                    t.status = ipn.status
-                    
-                    # capture whether the transaction has been approved
-                    t.approved = ipn.approved
-                    
-                    t.save()
-                    logger.info("IPN: Preapproval transaction: " + str(t.id) + " Status: " + ipn.status)
-                        
-                else:
-                    logger.info("IPN: Unknown Transaction Type: " + ipn.transaction_type)
-                
-                
-            else:
-                logger.info("ERROR: INVALID IPN")
-                logger.info(ipn.error)
-        
-        except:
-            traceback.print_exc()
          
     def run_query(self, transaction_list, summary, pledged, authorized, incomplete, completed):
         '''
@@ -299,27 +213,27 @@ class PaymentManager( object ):
 
         if pledged:
             pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
-                                                   status=IPN_PAY_STATUS_COMPLETED)
+                                                   status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
         else:
             pledged_list = []
         
         if authorized:
             # return only ACTIVE transactions with approved=True
             authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=IPN_PREAPPROVAL_STATUS_ACTIVE,
+                                                         status=TRANSACTION_STATUS_ACTIVE,
                                                          approved=True)
         else:
             authorized_list = []
             
         if incomplete:
             incomplete_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=IPN_PAY_STATUS_INCOMPLETE)
+                                                         status=TRANSACTION_STATUS_INCOMPLETE)
         else:
             incomplete_list = []                      
             
         if completed:
             completed_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=IPN_PAY_STATUS_COMPLETED)
+                                                         status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
         else:
             completed_list = []            
         
@@ -331,7 +245,7 @@ class PaymentManager( object ):
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
-                    if r.status == IPN_TXN_STATUS_COMPLETED:
+                    if r.status == TRANSACTION_STATUS_COMPLETED:
                         # or IPN_SENDER_STATUS_COMPLETED
                         # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
                         pledged_amount += r.amount
@@ -420,7 +334,7 @@ class PaymentManager( object ):
         '''               
         
         # only allow active transactions to go through again, if there is an error, intervention is needed
-        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+        transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:
             
@@ -472,7 +386,7 @@ class PaymentManager( object ):
         
         '''               
         
-        transactions = Transaction.objects.filter(campaign=campaign, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+        transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACITON_STATUS_ACTIVE)
         
         for t in transactions:            
             result = self.cancel_transaction(t) 
@@ -500,7 +414,7 @@ class PaymentManager( object ):
         transaction.date_executed = now()
         transaction.save()
         
-        p = Execute(transaction)            
+        p = Finish(transaction)            
         
         # Create a response for this
         envelope = p.envelope()
@@ -554,7 +468,7 @@ class PaymentManager( object ):
         transaction.date_payment = now()
         transaction.save()
         
-        p = Pay(transaction)
+        p = Execute(transaction)
         
         # Create a response for this
         envelope = p.envelope()
@@ -718,7 +632,7 @@ class PaymentManager( object ):
         
         # Can only modify an active, pending transaction.  If it is completed, we need to do a refund.  If it is incomplete,
         # then an IPN may be pending and we cannot touch it        
-        if transaction.status != IPN_PREAPPROVAL_STATUS_ACTIVE:
+        if transaction.status != TRANSACTION_STATUS_ACTIVE:
             logger.info("Error, attempt to modify a transaction that is not active")
             return False, None
             
@@ -782,7 +696,7 @@ class PaymentManager( object ):
         
         # First check if a payment has been made.  It is possible that some of the receivers may be incomplete
         # We need to verify that the refund API will cancel these
-        if transaction.status != IPN_PAY_STATUS_COMPLETED:
+        if transaction.status != TRANSACTION_STATUS_COMPLETE_PRIMARY:
             logger.info("Refund Transaction failed, invalid transaction status")
             return False
         
@@ -877,7 +791,7 @@ class PaymentManager( object ):
         
         if p.success() and not p.error():
             t.pay_key = p.key()
-            t.status = 'CREATED'
+            t.status = TRANSACTION_STATUS_CREATED
             t.save()
             
             if self.embedded:
@@ -892,7 +806,7 @@ class PaymentManager( object ):
         else:
             t.error = p.error_string()
             t.save()
-            logger.info("Pledge Error: " + p.error_string())
+            logger.info("Pledge Error: %s" % p.error_string())
             return t, None
     
     

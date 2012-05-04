@@ -183,10 +183,15 @@ class Campaign(models.Model):
         status = self.status
         if status != 'INITIALIZED':
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
+        try:
+            active_claim = self.work.claim.filter(status="active")[0]
+        except IndexError, e:
+            raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
+            
         self.status= 'ACTIVE'
         self.left = self.target
         self.save()
-        active_claim = self.work.claim.filter(status="active")[0]
+
         ungluers = self.work.wished_by()        
         notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim}, True)
         return self
@@ -579,7 +584,7 @@ class WasWork(models.Model):
     
     
 class Ebook(models.Model):
-    FORMAT_CHOICES = (('PDF','PDF'),( 'EPUB','EPUB'), ('HTML','HTML'), ('TEXT','TEXT'), ('MOBI','MOBI'))
+    FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
     RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
             ('CC BY-NC-ND','CC BY-NC-ND'), 
             ('CC BY-ND','CC BY-ND'), 

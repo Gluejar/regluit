@@ -49,7 +49,8 @@ from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersFor
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
-from regluit.payment.paypal import Preapproval, IPN_PAY_STATUS_NONE, IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED, IPN_PREAPPROVAL_STATUS_CANCELED, IPN_TYPE_PREAPPROVAL
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE_PRIMARY, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
+from regluit.payment.paypal import Preapproval
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -142,7 +143,7 @@ def work(request, work_id, action='display'):
         pledged = None
         
     countdown = ""
-    if work.last_campaign_status() == 'ACTIVE':
+    if work.last_campaign_status == 'ACTIVE':
         time_remaining = campaign.deadline - now()
         if time_remaining.days:
             countdown = "in %s days" % time_remaining.days
@@ -543,11 +544,11 @@ class PledgeModifyView(FormView):
             # which combination of campaign and transaction status required?
             # Campaign must be ACTIVE
             assert campaign.status == 'ACTIVE'
-        
-            transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+
+            transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
             assert transactions.count() == 1
             transaction = transactions[0]
-            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PREAPPROVAL_STATUS_ACTIVE
+            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE
            
         except Exception, e:
             raise e
@@ -610,10 +611,10 @@ class PledgeModifyView(FormView):
         except models.Premium.DoesNotExist, e:
             premium = None
     
-        transactions = campaign.transactions().filter(user=user, status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+        transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
         assert transactions.count() == 1
         transaction = transactions[0]
-        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == IPN_PREAPPROVAL_STATUS_ACTIVE        
+        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE        
         
         p = PaymentManager(embedded=self.embedded)
         status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium)
@@ -929,22 +930,21 @@ def campaign_admin(request):
         # pull out Campaigns with Transactions that are ACTIVE -- and hence can be executed
         # Campaign.objects.filter(transaction__status='ACTIVE')
         
-        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_ACTIVE)
+        campaigns_with_active_transactions = models.Campaign.objects.filter(transaction__status=TRANSACTION_STATUS_ACTIVE)
             
         # pull out Campaigns with Transactions that are INCOMPLETE
     
-        campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
+        campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=TRANSACTION_STATUS_INCOMPLETE)
         
         # show all Campaigns with Transactions that are COMPLETED
     
-        campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_COMPLETED)
+        campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
         
         # show Campaigns with Transactions that are CANCELED
         
-        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_CANCELED)
+        campaigns_with_canceled_transactions = models.Campaign.objects.filter(transaction__status=TRANSACTION_STATUS_CANCELED)
         
-        return (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
-                campaigns_with_canceled_transactions)
+        return (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions, campaigns_with_canceled_transactions)
         
     form = CampaignAdminForm()
     pm = PaymentManager()

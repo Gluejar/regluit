@@ -3,20 +3,31 @@ from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
 from django.conf import settings
+from django.core.urlresolvers import reverse
+from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
+from django.contrib.sites.models import RequestSite
 from regluit.payment.parameters import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
+from django.template import RequestContext
+
 from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
+import uuid
+from decimal import Decimal as D
+
+from regluit.utils.localdatetime import now
 import traceback
+
 
 import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
-TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
+TEST_RECEIVERS = ['raymond.yee@gmail.com', 'Buyer6_1325742408_per@gmail.com']
+#TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
 #TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
 
 
@@ -63,7 +74,7 @@ def testExecute(request):
             logger.info(str(t))
             
     else:
-        transactions = Transaction.objects.filter(status='ACTIVE')
+        transactions = Transaction.objects.filter(status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:
             
@@ -101,13 +112,13 @@ def testAuthorize(request):
     # Note, set this to 1-5 different receivers with absolute amounts for each
     receiver_list = [{'email': TEST_RECEIVERS[0], 'amount':20.00}, 
                      {'email': TEST_RECEIVERS[1], 'amount':10.00}]
-    
+        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, return_url=None, list=None, user=None)
     
     else:
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, list=None, user=None)
+        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, return_url=None, list=None, user=None)
     
     if url:
         logger.info("testAuthorize: " + url)
@@ -175,8 +186,8 @@ def testModify(request):
     
     t = Transaction.objects.get(id=int(request.GET['transaction']))
     p = PaymentManager()
-    
-    status, url = p.modify_transaction(t, amount)
+        
+    status, url = p.modify_transaction(t, amount, return_url=None)
     
     if url:
         logger.info("testModify: " + url)
@@ -240,18 +251,18 @@ def testPledge(request):
     
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user)
+        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=None)
     
     else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user)
+        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=None)
     
     if url:
         logger.info("testPledge: " + url)
         return HttpResponseRedirect(url)
     
     else:
-        response = t.reference
-        logger.info("testPledge: Error " + str(t.reference))
+        response = t.error
+        logger.info("testPledge: Error " + str(t.error))
         return HttpResponse(response)
 
 def runTests(request):
@@ -283,7 +294,7 @@ def runTests(request):
         traceback.print_exc()
     
 @csrf_exempt
-def paypalIPN(request):
+def handleIPN(request):
     # Handler for paypal IPN notifications
     
     p = PaymentManager()
@@ -291,6 +302,7 @@ def paypalIPN(request):
     
     logger.info(str(request.POST))
     return HttpResponse("ipn")
+    
     
 def paymentcomplete(request):
     # pick up all get and post parameters and display
@@ -305,7 +317,10 @@ def checkStatus(request):
         
     return HttpResponse(error_data, mimetype="text/xml")
 
+# https://raw.github.com/agiliq/merchant/master/example/app/views.py
 
+def _render(request, template, template_vars={}):
+    return render_to_response(template, template_vars, RequestContext(request))
     
     
     

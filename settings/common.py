@@ -98,7 +98,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'django.contrib.contenttypes',  
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
@@ -118,6 +118,7 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
+    'regluit.payment.templatetags',
     'notification',
 
     # this must appear *after* django.frontend or else it overrides the 
@@ -254,3 +255,25 @@ EBOOK_NOTIFICATIONS_JOB = {
 }
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
+
+
+# set -- sandbox or production Amazon FPS?
+AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+#AMAZON_FPS_HOST = "fps.amazonaws.com"
+
+# amazon or paypal for now.
+PAYMENT_PROCESSOR = 'amazon'
+
+# now import AWS/FPS keys from a separate file, if it exists
+# Amazon FPS Credentials
+#FPS_ACCESS_KEY = ''
+#FPS_SECRET_KEY = ''
+
+try:
+    from regluit.settings.aws import FPS_ACCESS_KEY, FPS_SECRET_KEY
+except:
+    pass
+    
+
+
+

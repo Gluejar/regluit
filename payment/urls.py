@@ -1,9 +1,17 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
 
+
 urlpatterns = patterns(
     "regluit.payment.views",
-    url(r"^paypalipn", "paypalIPN", name="PayPalIPN"),
+    url(r"^paypalipn", "handleIPN", name="HandleIPN"),
+    url(r"^amazonipn", "handleIPN", name="HandleIPN"),
+)
+
+# Amazon payment URLs
+urlpatterns += patterns(
+    "regluit.payment.amazon",
+     url(r"^amazonpaymentreturn", "amazonPaymentReturn", name="AmazonPaymentReturn"),
 )
 
 if not settings.IS_PREVIEW:
@@ -19,5 +27,7 @@ if not settings.IS_PREVIEW:
         url(r"^checkstatus", "checkStatus"),
         url(r"^testfinish", "testFinish"),
         url(r"^testrefund", "testRefund"),
-        url(r"^testmodify", "testModify"),        
-)
+        url(r"^testmodify", "testModify"),
+    )
+         
+     

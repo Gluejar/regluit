@@ -1,4 +1,5 @@
 from fabric.api import run, local, env, cd
+from regluit.sysadmin import aws
 
 # allow us to use our ssh config files (e.g., ~/.ssh/config)
 env.use_ssh_config = True
@@ -18,8 +19,8 @@ def update_prod():
     with cd("/opt/regluit"):
         run("./deploy/update-prod")
 
-def backup_db():
-    run("""TS=`date +"%Y-%m-%dT%H:%M:%S"`; /home/ubuntu/dump.sh | gzip > unglue.it.${TS}.sql.gz; scp ./unglue.it.${TS}.sql.gz  b235656@hanjin.dreamhost.com: ; rm -f unglue.it.${TS}.sql.gz""")
+def backup_db(name='unglue.it'):
+    run("""TS=`date +"%Y-%m-%dT%H:%M:%S"`; /home/ubuntu/dump.sh | gzip > {0}.${{TS}}.sql.gz; scp ./{0}.${{TS}}.sql.gz  b235656@hanjin.dreamhost.com: ; rm -f {0}.${{TS}}.sql.gz""".format(name))
 
 def get_dump():
     """Dump the current db on remote server and scp it over to local machine.
@@ -29,6 +30,39 @@ def get_dump():
     run("gzip -f unglue.it.sql")
     local("scp web1:/home/ubuntu/unglue.it.sql.gz .")
     local("gunzip -f unglue.it.sql.gz")
+    
+def copy_dump_to_ry_dev():
+    """Dump the current db on remote server and scp it over to ry-dev.
+    Note:  web1 has been hardcoded here to represent the name of the unglue.it server
+    """
+    run("./dump.sh > unglue.it.sql ")
+    run("scp unglue.it.sql ry-dev.dyndns.org:")    
+    
+    
+def build_prod_instance(ami_id='ami-a29943cb'):
+    """Build a new instance to serve as server instance for unglue.it"""
+    # http://my.safaribooksonline.com/book/-/9781449308100/2dot-ec2-recipes/id2529379
+    # default ami-a29943cb' is Ubuntu 12.04 Precise EBS boot
+
+def ecdsa():
+    """Calculate the host ECSDA host fingerprint http://bridge.grumpy-troll.org/2011/01/openssh.html """
+    run("""ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key.pub -l""")
+    
+def ssh_fingerprint():
+    """display ssh fingerprint of /home/ubuntu/.ssh/id_rsa.pub on remote machine"""
+    run ("""ssh-keygen -l -f /home/ubuntu/.ssh/id_rsa.pub""")
+    
+def ssh_fingerprint2():
+    # http://stackoverflow.com/a/6682934/7782
+    import base64,hashlib
+    def lineToFingerprint(line):
+        key = base64.b64decode(line.strip().partition('ssh-rsa ')[2])
+        fp_plain = hashlib.md5(key).hexdigest()
+        return ':'.join(a+b for a,b in zip(fp_plain[::2], fp_plain[1::2]))
+
+def public_key_from_private_key():
+    # ssh-keygen -y -f ~/.ssh/id_rsa
+    pass
             
 def email_addresses():
     """list email addresses in unglue.it"""
