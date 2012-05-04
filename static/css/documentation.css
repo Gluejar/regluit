@@ -485,7 +485,7 @@ dd {
   border-bottom: solid 1px #3d4e53;
   float: left;
 }
-.pressvideos iframe {
+.pressvideos iframe, .pressvideos div.mediaborder {
   padding: 5px;
   border: solid 5px #EDF3F4;
   padding: 5px;

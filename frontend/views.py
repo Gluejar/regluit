@@ -224,7 +224,9 @@ def manage_campaign(request, id):
     if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
-    alerts = []   
+    alerts = []
+    activetab = '#1'
+
     if request.method == 'POST' :
         if request.POST.has_key('add_premium') :
             postcopy=request.POST.copy()
@@ -237,14 +239,17 @@ def manage_campaign(request, id):
             else:
                 alerts.append(_('New premium has not been added'))              
             form = getManageCampaignForm(instance=campaign)
-        elif request.POST.has_key('save') or  request.POST.has_key('launch') :
+            activetab = '#2'
+        elif request.POST.has_key('save') or request.POST.has_key('launch') :
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
                 alerts.append(_('Campaign data has been saved'))
+                activetab = '#2'
             else:
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
+                activetab = '#3'
                 if campaign.launchable and form.is_valid() :
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
@@ -252,6 +257,7 @@ def manage_campaign(request, id):
                     alerts.append(_('Campaign has NOT been launched'))
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         elif request.POST.has_key('inactivate') :
+            activetab = '#2'
             if request.POST.has_key('premium_id'):
                 premiums_to_stop = request.POST['premium_id']
                 for premium_to_stop in premiums_to_stop:
@@ -266,6 +272,13 @@ def manage_campaign(request, id):
         form = getManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
+    work = campaign.work
+
+    try:
+        pubdate = work.publication_date[:4]
+    except IndexError:
+        pubdate = 'unknown'
+               
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
         'form':form, 
@@ -273,6 +286,9 @@ def manage_campaign(request, id):
         'alerts': alerts, 
         'premiums' : campaign.effective_premiums(),
         'premium_form' : new_premium_form,
+        'pubdate': pubdate,
+        'work': work,
+        'activetab': activetab,
     })
         
 def googlebooks(request, googlebooks_id):

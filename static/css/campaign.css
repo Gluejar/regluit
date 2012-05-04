@@ -89,52 +89,73 @@
   list-style: none;
   border: none;
 }
-#js-page-wrap {
-  overflow: hidden;
-}
-#main-container {
-  margin-top: 20px;
-}
-#js-leftcol .jsmodule, .pledge.jsmodule {
-  margin-bottom: 10px;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content, .pledge.jsmodule.rounded .jsmod-content {
-  -moz-border-radius: 20px;
-  -webkit-border-radius: 20px;
-  border-radius: 20px;
-  background: #edf3f4;
-  color: #3d4e53;
-  padding: 10px 20px;
-  font-weight: bold;
-  border: none;
-  margin: 0;
-  line-height: 16px;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE, .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
-  background: #8dc63f;
-  color: white;
-  font-size: 18px;
-  font-weight: normal;
-  line-height: 20px;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet, .pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
-  background: #e18551;
-  color: white;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content span, .pledge.jsmodule.rounded .jsmod-content span {
-  display: inline-block;
-  vertical-align: middle;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content span.spacer, .pledge.jsmodule.rounded .jsmod-content span.spacer {
-  visibility: none;
-}
-#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers, .pledge.jsmodule.rounded .jsmod-content span.findtheungluers {
-  cursor: pointer;
-}
-.jsmodule.pledge {
+/* Campaign and manage_campaign use same tab styling, so it's factored out here */
+#tabs {
+  border-bottom: 4px solid #6994a3;
+  clear: both;
   float: left;
-  margin-left: 10px;
+  margin-top: 10px;
+  width: 100%;
 }
+#tabs ul.book-list-view {
+  margin-bottom: 4px !important;
+}
+#tabs-1,
+#tabs-2,
+#tabs-3,
+#tabs-4 {
+  display: none;
+}
+#tabs-1.active,
+#tabs-2.active,
+#tabs-3.active,
+#tabs-4.active {
+  display: inherit;
+}
+#tabs-2 textarea {
+  width: 95%;
+}
+ul.tabs {
+  float: left;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+ul.tabs li {
+  float: left;
+  height: 46px;
+  line-height: 46px;
+  padding-right: 2px;
+  width: 116px;
+  background: none;
+  margin: 0;
+  padding: 0 2px 0 0;
+}
+ul.tabs li.tabs4 {
+  padding-right: 0px;
+}
+ul.tabs li a {
+  height: 46px;
+  line-height: 46px;
+  display: block;
+  text-align: center;
+  padding: 0 10px;
+  min-width: 80px;
+  -moz-border-radius: 7px 7px 0 0;
+  -webkit-border-radius: 7px 7px 0 0;
+  border-radius: 7px 7px 0 0;
+  background: #d6dde0;
+  color: #3d4e53;
+}
+ul.tabs li a:hover {
+  text-decoration: none;
+}
+ul.tabs li a:hover, ul.tabs li.active a {
+  background: #6994a3;
+  color: #fff;
+}
+/* needed for campaign, pledge, and manage_campaign */
 .book-detail {
   float: left;
   width: 100%;
@@ -241,67 +262,51 @@
   height: 25px;
   margin-top: -12px;
 }
-#tabs {
-  border-bottom: 4px solid #6994a3;
-  clear: both;
-  float: left;
-  margin-top: 10px;
-  width: 100%;
+#js-page-wrap {
+  overflow: hidden;
 }
-#tabs ul.book-list-view {
-  margin-bottom: 4px !important;
+#main-container {
+  margin-top: 20px;
 }
-#tabs-1,
-#tabs-2,
-#tabs-3,
-#tabs-4 {
-  display: none;
+#js-leftcol .jsmodule, .pledge.jsmodule {
+  margin-bottom: 10px;
 }
-#tabs-1.active,
-#tabs-2.active,
-#tabs-3.active,
-#tabs-4.active {
-  display: inherit;
-}
-#tabs-2 textarea {
-  width: 95%;
-}
-ul.tabs {
-  float: left;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-  width: 100%;
-}
-ul.tabs li {
-  float: left;
-  height: 46px;
-  line-height: 46px;
-  padding-right: 2px;
-  width: 116px;
-}
-ul.tabs li.tabs4 {
-  padding-right: 0px;
-}
-ul.tabs li a {
-  height: 46px;
-  line-height: 46px;
-  display: block;
-  text-align: center;
-  padding: 0 10px;
-  min-width: 80px;
-  -moz-border-radius: 7px 7px 0 0;
-  -webkit-border-radius: 7px 7px 0 0;
-  border-radius: 7px 7px 0 0;
-  background: #d6dde0;
+#js-leftcol .jsmodule.rounded .jsmod-content, .pledge.jsmodule.rounded .jsmod-content {
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
+  background: #edf3f4;
   color: #3d4e53;
+  padding: 10px 20px;
+  font-weight: bold;
+  border: none;
+  margin: 0;
+  line-height: 16px;
 }
-ul.tabs li a:hover {
-  text-decoration: none;
+#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE, .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
+  background: #8dc63f;
+  color: white;
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 20px;
 }
-ul.tabs li a:hover, ul.tabs li.active a {
-  background: #6994a3;
-  color: #fff;
+#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet, .pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
+  background: #e18551;
+  color: white;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content span, .pledge.jsmodule.rounded .jsmod-content span {
+  display: inline-block;
+  vertical-align: middle;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content span.spacer, .pledge.jsmodule.rounded .jsmod-content span.spacer {
+  visibility: none;
+}
+#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers, .pledge.jsmodule.rounded .jsmod-content span.findtheungluers {
+  cursor: pointer;
+}
+.jsmodule.pledge {
+  float: left;
+  margin-left: 10px;
 }
 #js-rightcol, #pledge-rightcol {
   float: right;
