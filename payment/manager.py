@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.parameters import *
+from regluit.payment.paypal import IPN_SENDER_STATUS_COMPLETED
 
 if settings.PAYMENT_PROCESSOR == 'paypal':
     from regluit.payment.paypal import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
@@ -11,7 +12,6 @@ if settings.PAYMENT_PROCESSOR == 'paypal':
     
 elif settings.PAYMENT_PROCESSOR == 'amazon':
     from regluit.payment.amazon import Pay, Execute, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
-    
 import uuid
 import traceback
 from regluit.utils.localdatetime import now
@@ -62,6 +62,7 @@ class PaymentManager( object ):
             if t.status != p.status:
                 preapproval_status["status"] = {'ours':t.status, 'theirs':p.status}
                 t.status = p.status
+                t.local_status = p.local_status
                 t.save()
                 
             # check the currency code
@@ -213,7 +214,7 @@ class PaymentManager( object ):
 
         if pledged:
             pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
-                                                   status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
+                                                   status=TRANSACTION_STATUS_COMPLETE)
         else:
             pledged_list = []
         
@@ -233,7 +234,7 @@ class PaymentManager( object ):
             
         if completed:
             completed_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=TRANSACTION_STATUS_COMPLETE_PRIMARY)
+                                                         status=TRANSACTION_STATUS_COMPLETE)
         else:
             completed_list = []            
         
@@ -245,7 +246,10 @@ class PaymentManager( object ):
             
             for t in pledged_list:
                 for r in t.receiver_set.all():
-                    if r.status == TRANSACTION_STATUS_COMPLETED:
+                    #
+                    # Currently receivers are only used for paypal, so keep the paypal status code here
+                    #
+                    if r.status == IPN_SENDER_STATUS_COMPLETED:
                         # or IPN_SENDER_STATUS_COMPLETED
                         # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
                         pledged_amount += r.amount
@@ -337,7 +341,9 @@ class PaymentManager( object ):
         transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:
-            
+            # 
+            # Currently receivers are only used for paypal, so it is OK to leave the paypal info here
+            #
             receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':t.amount}, 
                             {'email':campaign.paypal_receiver, 'amount':D(t.amount) * (D('1.00') - D(str(settings.GLUEJAR_COMMISSION)))}]
             
@@ -356,6 +362,7 @@ class PaymentManager( object ):
         
         attempts to execute all remaining payment to non-primary receivers
 
+        This is currently only supported for paypal
         
         return value: returns a list of transactions with the status of each receiver/transaction updated
         
@@ -696,7 +703,7 @@ class PaymentManager( object ):
         
         # First check if a payment has been made.  It is possible that some of the receivers may be incomplete
         # We need to verify that the refund API will cancel these
-        if transaction.status != TRANSACTION_STATUS_COMPLETE_PRIMARY:
+        if transaction.status != TRANSACTION_STATUS_COMPLETE:
             logger.info("Refund Transaction failed, invalid transaction status")
             return False
         
