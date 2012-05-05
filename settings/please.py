@@ -128,3 +128,9 @@ CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 # Amazon credentials (for fps)
 AWS_ACCESS_KEY = ''
 AWS_SECRET_ACCESS_KEY = ''
+
+# if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
+try:
+    from regluit.settings.local import *
+except ImportError:
+    pass
