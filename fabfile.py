@@ -4,6 +4,8 @@ from regluit.sysadmin import aws
 # allow us to use our ssh config files (e.g., ~/.ssh/config)
 env.use_ssh_config = True
 
+DATA_BACKUP_ACCOUNT = 'b235656@hanjin.dreamhost.com'
+
 def rydev():
     """An example of using a function to define a host and use that definition in a command
     to run:
@@ -19,8 +21,12 @@ def update_prod():
     with cd("/opt/regluit"):
         run("./deploy/update-prod")
 
-def backup_db(name='unglue.it'):
-    run("""TS=`date +"%Y-%m-%dT%H:%M:%S"`; /home/ubuntu/dump.sh | gzip > {0}.${{TS}}.sql.gz; scp ./{0}.${{TS}}.sql.gz  b235656@hanjin.dreamhost.com: ; rm -f {0}.${{TS}}.sql.gz""".format(name))
+def backup_db(name='unglue.it', server=DATA_BACKUP_ACCOUNT):
+    """backup database on unglue.it or please with name to server"""
+    run("""TS=`date +"%Y-%m-%dT%H:%M:%S"`; /home/ubuntu/dump.sh | gzip > {0}.${{TS}}.sql.gz; scp ./{0}.${{TS}}.sql.gz  {1}: ; rm -f {0}.${{TS}}.sql.gz""".format(name, server))
+
+def list_backups(name='unglue.it', server=DATA_BACKUP_ACCOUNT):
+    local("""echo "ls -lt {0}.*" | sftp {1}""".format(name, server))
 
 def get_dump():
     """Dump the current db on remote server and scp it over to local machine.

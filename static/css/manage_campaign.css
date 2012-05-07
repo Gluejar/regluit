@@ -1,0 +1,274 @@
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.roundedspan {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+.roundedspan > span {
+  padding: 7px 7px;
+  min-width: 15px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+}
+.roundedspan > span .hovertext {
+  display: none;
+}
+.roundedspan > span:hover .hovertext {
+  display: inline;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+.errors {
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
+  width: 90%;
+  height: auto;
+  line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
+/* Campaign and manage_campaign use same tab styling, so it's factored out here */
+#tabs {
+  border-bottom: 4px solid #6994a3;
+  clear: both;
+  float: left;
+  margin-top: 10px;
+  width: 100%;
+}
+#tabs ul.book-list-view {
+  margin-bottom: 4px !important;
+}
+#tabs-1,
+#tabs-2,
+#tabs-3,
+#tabs-4 {
+  display: none;
+}
+#tabs-1.active,
+#tabs-2.active,
+#tabs-3.active,
+#tabs-4.active {
+  display: inherit;
+}
+#tabs-2 textarea {
+  width: 95%;
+}
+ul.tabs {
+  float: left;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  width: 100%;
+}
+ul.tabs li {
+  float: left;
+  height: 46px;
+  line-height: 46px;
+  padding-right: 2px;
+  width: 116px;
+  background: none;
+  margin: 0;
+  padding: 0 2px 0 0;
+}
+ul.tabs li.tabs4 {
+  padding-right: 0px;
+}
+ul.tabs li a {
+  height: 46px;
+  line-height: 46px;
+  display: block;
+  text-align: center;
+  padding: 0 10px;
+  min-width: 80px;
+  -moz-border-radius: 7px 7px 0 0;
+  -webkit-border-radius: 7px 7px 0 0;
+  border-radius: 7px 7px 0 0;
+  background: #d6dde0;
+  color: #3d4e53;
+}
+ul.tabs li a:hover {
+  text-decoration: none;
+}
+ul.tabs li a:hover, ul.tabs li.active a {
+  background: #6994a3;
+  color: #fff;
+}
+/* needed for campaign, pledge, and manage_campaign */
+.book-detail {
+  float: left;
+  width: 100%;
+  clear: both;
+  display: block;
+}
+#book-detail-img {
+  float: left;
+  margin-right: 10px;
+  width: 151px;
+}
+#book-detail-img img {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.book-detail-info {
+  float: left;
+  /* if we want to nix the explore bar, width should be 544ish */
+
+  width: 309px;
+}
+.book-detail-info h2.book-name, .book-detail-info h3.book-author, .book-detail-info h3.book-year {
+  padding: 0;
+  margin: 0;
+  line-height: normal;
+}
+.book-detail-info h2.book-name {
+  font-size: 18px;
+  text-transform: capitalize;
+  font-weight: bold;
+  color: #3d4e53;
+}
+.book-detail-info h3.book-author, .book-detail-info h3.book-year {
+  font-size: 12px;
+  font-weight: normal;
+  color: #6994a3;
+}
+.book-detail-info > div {
+  width: 100%;
+  clear: both;
+  display: block;
+  overflow: hidden;
+  border-top: 1px solid #edf3f4;
+  padding: 10px 0;
+}
+.book-detail-info > div.layout {
+  border: none;
+  padding: 0;
+}
+.book-detail-info > div.layout div.pubinfo {
+  float: left;
+  width: auto;
+  padding-bottom: 7px;
+}
+.book-detail-info > div.layout div.btn_support {
+  float: right;
+}
+.book-detail-info > div.layout div.btn_support input {
+  background: url("/static/images/btn_bg.png") 0 0 no-repeat;
+  width: 104px;
+  height: 41px;
+  display: block;
+  color: #fff;
+  font-weight: bold;
+  text-align: center;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.book-detail-info > div.layout div.btn_support.modify input {
+  background: url("/static/images/btn_bg_grey.png") 0 0 no-repeat;
+}
+.book-detail-info .btn_wishlist span {
+  text-align: right;
+}
+.book-detail-info .find-book {
+  margin-top: 15px;
+}
+.book-detail-info .find-book label {
+  float: left;
+  line-height: 31px;
+}
+.book-detail-info .find-link {
+  float: right;
+}
+.book-detail-info .find-link img {
+  padding: 2px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.book-detail-info .pledged-info {
+  padding: 0;
+  position: relative;
+}
+.book-detail-info .pledged-group {
+  padding: 10px 40px 10px 0;
+  float: left;
+}
+.book-detail-info .status {
+  position: absolute;
+  top: 50%;
+  right: 0%;
+  height: 25px;
+  margin-top: -12px;
+}
+.preview_campaign {
+  float: right;
+  margin-right: 10px;
+}
+input[name="launch"] {
+  display: none;
+}
+#launchme {
+  margin: 15px auto;
+}
