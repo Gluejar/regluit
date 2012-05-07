@@ -877,7 +877,7 @@ def rh_tools(request):
                     claim.campaign_form.save_m2m()
                     claim.can_open_new=False
             else:
-                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title, 'userid': request.user.id})
+                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
         else:
             claim.can_open_new=False
     return render(request, "rh_tools.html", {'claims': claims ,}) 

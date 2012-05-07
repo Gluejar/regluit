@@ -27,7 +27,7 @@
     "pk": 4, 
     "model": "sites.site", 
     "fields": {
-      "domain": "ry-dev.dyndns.org", 
+      "domain": "ry-dev.unglueit.com", 
       "name": "ry-dev development"
     }
   },
