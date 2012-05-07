@@ -189,6 +189,7 @@ def update_edition(edition):
     
     # update the edition
     edition.title = title
+    # edition.description = d.get('description')
     edition.publisher = d.get('publisher')
     edition.publication_date = d.get('publishedDate', '')
     edition.save()
@@ -330,6 +331,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
     e.title = title
+    #e.description = d.get('description')
     e.publisher = d.get('publisher')
     e.publication_date = d.get('publishedDate', '')
     e.save()
@@ -474,7 +476,7 @@ def add_openlibrary(work):
             if e[isbn_key].has_key('details'):
                 if e[isbn_key]['details'].has_key('oclc_numbers'):
                     for oclcnum in e[isbn_key]['details']['oclc_numbers']:
-                        models.Identifier.get_or_add(type='oclc',value=oclcnum,work=work, edition=edition)
+                        models.Identifier.get_or_add(type='oclc',value=oclcnum,work=edition.work, edition=edition)
                 if e[isbn_key]['details'].has_key('identifiers'):
                     ids = e[isbn_key]['details']['identifiers']
                     if ids.has_key('goodreads'):
@@ -488,13 +490,11 @@ def add_openlibrary(work):
                 if e[isbn_key]['details'].has_key('works'):
                     work_key = e[isbn_key]['details']['works'].pop(0)['key']
                     logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
-                    models.Identifier.get_or_add(type='olwk',value=work_key,work=work)
                     try:
                         w = _get_json("http://openlibrary.org" + work_key,type='ol')
                         if w.has_key('description'):
-                            if not work.description or  len(w['description']) > len(work.description):
-                                work.description = w['description']
-                                work.save()
+                            edition.description = w['description']
+                            edition.save()
                         if w.has_key('subjects') and len(w['subjects']) > len(subjects):
                             subjects = w['subjects']
                     except LookupFailure:
@@ -511,6 +511,7 @@ def add_openlibrary(work):
     
     work.save()
 
+    models.Identifier.get_or_add(type='olwk',value=w['key'],work=work)
     # TODO: add authors here once they are moved from Edition to Work
 
 
