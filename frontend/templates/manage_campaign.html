@@ -98,12 +98,13 @@ Please fix the following before launching your campaign:
 <div class="clearfix"></div>
 
 <div class="tabs-1">
-	<h3>Description of the work offered for ungluing</h3>
 	<form action="#" method="POST">
 	{% csrf_token %}
+	<h3>Select the edition</h3>
 	<p> Please choose the edition that most closely matches the edition to be unglued:
 	{{ form.edition.errors }}{{ form.edition }}
-	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
+	<h3>Make Your Pitch</h3>
+		<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
 	<ul class="terms">
 	<li>A synopsis of the work.</li>
 	<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself. <span class="rh_help" id="helpHyperlink">(How do I hyperlink?)</span>
@@ -201,7 +202,7 @@ Please fix the following before launching your campaign:
 	<p>Before you hit launch:</p>
 	<ul>
 		<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
-		<li>Have you previewed your campaign? Does it look how you want it to?</li>
+		<li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
 	</ul>
 		
 	<p>If it doesn't look exactly the way you like, or you're having any trouble with your description or premiums, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
