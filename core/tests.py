@@ -102,6 +102,9 @@ class BookLoaderTests(TestCase):
         self.assertTrue(edition.work.publication_date)
         edition.publication_date = None
         self.assertTrue(edition.work.publication_date)
+        self.assertTrue(len(edition.work.longest_description()) > 20)
+        self.assertTrue(edition.work.identifiers.filter(type='oclc')[0])
+        
 
     def test_merge_works_mechanics(self):
         """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""

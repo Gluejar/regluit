@@ -245,7 +245,7 @@ class Campaign(models.Model):
         return Premium.objects.filter(campaign=self).filter(type='CU')
         
 class Identifier(models.Model):
-    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)
     value =  models.CharField(max_length=31, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)

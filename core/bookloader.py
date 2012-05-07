@@ -463,6 +463,7 @@ def add_openlibrary(work):
     # get the 1st openlibrary match by isbn that has an associated work
     url = "http://openlibrary.org/api/books"
     params = {"format": "json", "jscmd": "details"}
+    subjects = []
     for edition in work.editions.all():
         isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
@@ -471,34 +472,46 @@ def add_openlibrary(work):
         except LookupFailure:
             logger.exception("OL lookup failed for  %s", isbn_key)
             e = {}
-        if e.has_key(isbn_key) and e[isbn_key]['details'].has_key('works'):
-            work_key = e[isbn_key]['details']['works'].pop(0)['key']
-            logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
-            try:
-                w = _get_json("http://openlibrary.org" + work_key,type='ol')
-                if w.has_key('subjects'):
-                    found = True
-                    break
-            except LookupFailure:
-                logger.exception("OL lookup failed for  %s", work_key)
-    if not found:
+        if e.has_key(isbn_key):
+            if e[isbn_key].has_key('details'):
+                if e[isbn_key]['details'].has_key('oclc_numbers'):
+                    for oclcnum in e[isbn_key]['details']['oclc_numbers']:
+                        models.Identifier.get_or_add(type='oclc',value=oclcnum,work=edition.work, edition=edition)
+                if e[isbn_key]['details'].has_key('identifiers'):
+                    ids = e[isbn_key]['details']['identifiers']
+                    if ids.has_key('goodreads'):
+                        models.Identifier.get_or_add(type='gdrd',value=ids['goodreads'][0],work=work,edition=edition)
+                    if ids.has_key('librarything'):
+                        models.Identifier.get_or_add(type='ltwk',value=ids['librarything'][0],work=work)
+                    if ids.has_key('google'):
+                        models.Identifier.get_or_add(type='goog',value=ids['google'][0],work=work)
+                    if ids.has_key('project_gutenberg'):
+                        models.Identifier.get_or_add(type='gute',value=ids['project_gutenberg'][0],work=work)
+                if e[isbn_key]['details'].has_key('works'):
+                    work_key = e[isbn_key]['details']['works'].pop(0)['key']
+                    logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
+                    try:
+                        w = _get_json("http://openlibrary.org" + work_key,type='ol')
+                        if w.has_key('description'):
+                            edition.description = w['description']
+                            edition.save()
+                        if w.has_key('subjects') and len(w['subjects']) > len(subjects):
+                            subjects = w['subjects']
+                    except LookupFailure:
+                        logger.exception("OL lookup failed for  %s", work_key)
+    if not subjects:
         logger.warn("unable to find work %s at openlibrary", work.id)
         return 
 
     # add the subjects to the Work
-    for s in w.get('subjects',  []):
+    for s in subjects:
         logger.info("adding subject %s to work %s", s, work.id)
         subject, created = models.Subject.objects.get_or_create(name=s)
         work.subjects.add(subject)
+    
     work.save()
 
     models.Identifier.get_or_add(type='olwk',value=w['key'],work=work)
-    if e[isbn_key]['details'].has_key('identifiers'):
-        ids = e[isbn_key]['details']['identifiers']
-        if ids.has_key('goodreads'):
-            models.Identifier.get_or_add(type='gdrd',value=ids['goodreads'][0],work=work,edition=edition)
-        if ids.has_key('librarything'):
-            models.Identifier.get_or_add(type='ltwk',value=ids['librarything'][0],work=work)
     # TODO: add authors here once they are moved from Edition to Work
 
 
