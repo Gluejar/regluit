@@ -223,14 +223,6 @@ $j(document).ready(function(){
                        <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' %}
-                        <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
-                        <p>The rights holder, {% for claim in work.claim.all %}
-                            {% if claim.status == 'active' %}
-                            {{ claim.rights_holder.rights_holder_name }}
-                            {% endif %} 
-                        {% endfor %}
-                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
-                        You can help!</p>
                         {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
@@ -271,6 +263,15 @@ $j(document).ready(function(){
                     <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' %}
+                        <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                        <p>The rights holder, {% for claim in work.claim.all %}
+                            {% if claim.status == 'active' %}
+                            {{ claim.rights_holder.rights_holder_name }}
+                            {% endif %} 
+                        {% endfor %}
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
+                        You can help!</p>
+
                         <h4>Last campaign details</h4>
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
