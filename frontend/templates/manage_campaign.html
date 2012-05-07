@@ -12,6 +12,7 @@ textarea {
 
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 
+<!-- expand/collapse instructions on embedding video and links -->
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
@@ -25,6 +26,9 @@ $j(document).ready(function(){
 });
 </script>
 
+<!-- since we've hidden the launch button to prevent premature launching and
+can't make it readily visible in another div, need to create a launch-appearing
+button that triggers it -->
 <script>
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
@@ -33,6 +37,7 @@ $j(document).ready(function(){
 	});
 });
 </script>
+
 {% endblock %}
 
 {% block doccontent %}
@@ -186,7 +191,7 @@ Please fix the following before launching your campaign:
 	<h4>Add a custom premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
-	Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
+	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
 	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
 	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
 	{{ premium_form.campaign }}
