@@ -135,14 +135,14 @@ Please fix the following before launching your campaign:
 	<p>This will be displayed on the Details tab for your work.  It's the fine print for your offer.  For example, if your unglued edition will exclude certain illustrations due to rights issues, or otherwise differ from existing editions, this is the place to disclose that.  If your offer doesn't have any fine print, you can leave this blank.</p>
 	{{ form.details.errors }}{{ form.details }}
 	<h3>Target Price</h3>
-	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it.</p>
+	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target}} .</p>
 	{{ form.target.errors }}{{ form.target }}
 	<h3>License being offered</h3>
 	<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
 	{{ form.license.errors }}{{ form.license }}
 	<h3>Ending date</h3>
 	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
-	The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
+	The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ form.latest_ending }}</p>
 	
 	{{ form.deadline.errors }}{{ form.deadline }}
 	
