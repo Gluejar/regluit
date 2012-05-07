@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# this script is used by jenkins to remotely update a regluit instance
+# for it to work the jenkins user's public ssh key needs to be in the
+# authorized key for the machine running the regluit instance
+# you can then put something like this in a post build configuration
+# ssh ubuntu@please.unglueit.com "/opt/regluit/deploy/update-regluit"
+
+cd /opt/regluit
+sudo -u ubuntu /usr/bin/git pull
+source ENV/bin/activate
+#pip install -r requirements.pip
+django-admin.py syncdb --migrate --settings regluit.settings.just
+django-admin.py collectstatic --noinput --settings regluit.settings.just
+sudo /etc/init.d/apache2 restart
+sudo /etc/init.d/celeryd restart
+sudo /etc/init.d/celerybeat restart
+crontab deploy/crontab_just.txt
+touch /opt/regluit/deploy/last-update
