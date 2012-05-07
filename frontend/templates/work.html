@@ -234,7 +234,7 @@ $j(document).ready(function(){
                         {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
-                        <p>{{ work.description|safe }}
+                        <p>{{ work.longest_description|safe }}
                         {% endif %}
                         </p>
                     </div>
