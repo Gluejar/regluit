@@ -272,6 +272,7 @@ class Work(models.Model):
     language = models.CharField(max_length=2, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0)
+    description = models.TextField(default='', null=True)
 
     class Meta:
         ordering = ['title']
