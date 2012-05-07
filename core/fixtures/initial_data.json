@@ -30,7 +30,15 @@
       "domain": "ry-dev.dyndns.org", 
       "name": "ry-dev development"
     }
-  },  
+  },
+  {
+    "pk": 5, 
+    "model": "sites.site", 
+    "fields": {
+      "domain": "just.unglueit.com", 
+      "name": "unglue.it staging"
+    }
+  },    
   {
     "pk": 1, 
     "model": "core.premium", 
