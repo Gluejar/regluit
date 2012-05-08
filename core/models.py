@@ -109,8 +109,14 @@ class Campaign(models.Model):
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
+
+    # setting blank=True ensures that these fields are not required
+    # in the widget generated in forms.py -- important while we are
+    # running two payment processors. Should we standardize on one
+    # and wish to enforce it for RHs, take out blank=True.
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
+
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
