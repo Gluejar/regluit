@@ -485,14 +485,6 @@ a#readon span {
 #js-leftcol a:hover {
   text-decoration: underline;
 }
-#js-leftcol a.comingsoon:hover {
-  text-decoration: none;
-  cursor: default;
-}
-#js-leftcol a.comingsoon:hover:after {
-  content: " Coming soon!";
-  color: #8dc63f;
-}
 #js-leftcol .jsmod-content {
   border: solid 1px #edf3f4;
   -moz-border-radius: 0 0 10px 10px;
