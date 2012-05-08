@@ -569,6 +569,7 @@ a.manage:hover {
 h2.thank-you {
   font-size: 34px;
   color: #8dc63f;
+  line-height: 40px;
 }
 .pledge_complete, .pledge_complete a {
   font-size: 14px;
@@ -590,4 +591,8 @@ ul.social.pledge li {
 }
 div.pledge-container {
   width: 100%;
+}
+.yikes {
+  color: #e35351;
+  font-weight: bold;
 }

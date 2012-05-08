@@ -12,7 +12,6 @@ textarea {
 
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 
-<!-- expand/collapse instructions on embedding video and links -->
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
@@ -26,9 +25,6 @@ $j(document).ready(function(){
 });
 </script>
 
-<!-- since we've hidden the launch button to prevent premature launching and
-can't make it readily visible in another div, need to create a launch-appearing
-button that triggers it -->
 <script>
 var $j = jQuery.noConflict();
 $j(document).ready(function(){
@@ -37,10 +33,13 @@ $j(document).ready(function(){
 	});
 });
 </script>
+{% endblock %}
 
+{% block topsection %}
 {% endblock %}
 
 {% block doccontent %}
+{% with campaign.status as campaign_status %}
 {% if campaign.not_manager %}
 <h2>You're not a manager for campaign: {{ campaign.name }}</h2>
 {% else %}
@@ -88,7 +87,11 @@ Please fix the following before launching your campaign:
     </div>
 
 	<div class="preview_campaign">
-		<a href="{% url work_preview campaign.work.id %}" class="manage" target="new">Preview This Campaign</a>
+	{% ifequal campaign_status 'INITIALIZED' %}
+		<a href="{% url work_preview campaign.work.id %}" class="manage" target="_blank">Preview Your Campaign</a>
+	{% else %}
+		<a href="{% url work_preview campaign.work.id %}" class="manage" target="_blank">See Your Campaign</a>
+	{% endifequal %}
 	</div>
 
 </div>
@@ -154,14 +157,15 @@ Please fix the following before launching your campaign:
 	<p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
-	{% ifequal campaign.status 'ACTIVE' %}
+	{% ifequal campaign_status 'ACTIVE' %}
+	<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div>
 	<input type="submit" name="save" value="Modify Campaign" />
 	{% else %}
 	<input type="submit" name="save" value="Save Campaign" />
 	{% endifequal %}
-	{% ifequal campaign.status 'INITIALIZED' %}
+	{% if campaign_status == 'INITIALIZED' %}
 	<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
-	{% endifequal %}
+	{% endif %}
 	</form>
 </div>
 
@@ -191,7 +195,7 @@ Please fix the following before launching your campaign:
 	<h4>Add a custom premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
-	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
+	Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
 	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
 	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
 	{{ premium_form.campaign }}
@@ -201,6 +205,7 @@ Please fix the following before launching your campaign:
 	</form>
 </div>
 
+{% ifequal campaign_status 'INITIALIZED' %}
 <div class="tabs-3">
 	{% if campaign.description and campaign.target and campaign.deadline %}
 	<p>Before you hit launch:</p>
@@ -219,5 +224,22 @@ Please fix the following before launching your campaign:
 	{% endif %}
 	
 </div>
+{% endifequal %}
+
+{% ifequal campaign_status 'ACTIVE' %}
+<div class="tabs-3">
+<h2 class="thank-you">Your campaign is now active! Hooray!</h2>
+
+<h3>What to do next</h3>
+<ul>
+<li>Tell your friends, relatives, media contacts, professional organizations, social media networks -- everyone!</li>
+<li>Check in with your campaign frequently.  Use comments, description updates, and maybe new custom premiums to spark additional interest, keep supporters engaged, and keep the momentum going.</li>
+<li>Watch media and social networks for mentions of your campaign, and engage in those conversations.</li>
+<li>Need help doing any of this?  Talk to us.</li>
+</ul>
+</div>
+{% endifequal %}
+
 {% endif %}
+{% endwith %}
 {% endblock %}
