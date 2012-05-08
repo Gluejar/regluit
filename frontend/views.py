@@ -260,7 +260,7 @@ def manage_campaign(request, id):
         elif request.POST.has_key('inactivate') :
             activetab = '#2'
             if request.POST.has_key('premium_id'):
-                premiums_to_stop = request.POST['premium_id']
+                premiums_to_stop = request.POST.getlist('premium_id')
                 for premium_to_stop in premiums_to_stop:
                     selected_premium = models.Premium.objects.get(id=premium_to_stop)
                     if selected_premium.type == 'CU':
