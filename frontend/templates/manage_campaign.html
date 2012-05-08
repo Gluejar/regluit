@@ -180,7 +180,7 @@ Please fix the following before launching your campaign:
 	<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
 	<input type="submit" name="save" value="Modify Campaign" />
 	{% else %}
-	<input type="submit" name="save" value="Save Campaign" />
+	<br /><br /><input type="submit" name="save" value="Save Campaign" />
 	{% endifequal %}
 	{% if campaign_status == 'INITIALIZED' %}
 	<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
