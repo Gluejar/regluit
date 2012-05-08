@@ -264,16 +264,5 @@ AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'amazon'
 
-# now import AWS/FPS keys from a separate file, if it exists
-# Amazon FPS Credentials
-#FPS_ACCESS_KEY = ''
-#FPS_SECRET_KEY = ''
-
-try:
-    from regluit.settings.aws import FPS_ACCESS_KEY, FPS_SECRET_KEY
-except:
-    pass
-    
-
-
-
+# a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
+SECRET_KEY = ''

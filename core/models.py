@@ -1,6 +1,7 @@
 import re
 import random
 from regluit.utils.localdatetime import now, date_today
+from regluit.utils import crypto
 from datetime import timedelta
 from decimal import Decimal
 from notification import models as notification
@@ -13,10 +14,27 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
+import binascii
 
 class UnglueitError(RuntimeError):
     pass
 
+class Key(models.Model):
+    """an encrypted key store"""
+    name = models.CharField(max_length=255)
+    encrypted_value = models.TextField(null=True, blank=True)
+    
+    def _get_value(self):
+        return crypto.decrypt_string(binascii.a2b_hex(self.encrypted_value), settings.SECRET_KEY)
+        
+    def _set_value(self, value):
+        self.encrypted_value = binascii.b2a_hex(crypto.encrypt_string(value, settings.SECRET_KEY))
+
+    value = property(_get_value, _set_value) 
+
+    def __unicode__(self):
+        return "Key with name {0}".format(self.name)
+    
 class CeleryTask(models.Model):
     created = models.DateTimeField(auto_now_add=True, default=now())
     task_id = models.CharField(max_length=255)
