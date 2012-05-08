@@ -21,7 +21,7 @@ class UnglueitError(RuntimeError):
 
 class Key(models.Model):
     """an encrypted key store"""
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     encrypted_value = models.TextField(null=True, blank=True)
     
     def _get_value(self):
