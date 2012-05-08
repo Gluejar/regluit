@@ -103,9 +103,15 @@ $j(document).ready(function(){
         <div class="js-maincol-inner">
             <div id="content-block">
                 <div class="book-detail">
+                    {% if work.googlebooks_id %}
                     <div id="book-detail-img"><a href="{{ work.googlebooks_url }}">
                         <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
                     </div>
+                    {% else %}
+                    <div id="book-detail-img">
+                        <img src="/static/images/generic_cover_larger.png" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                    </div>
+                    {% endif %}
                     <div class="book-detail-info">
                       <div class="layout">
                         <h2 class="book-name">{{ work.title }}</h2>
@@ -226,7 +232,7 @@ $j(document).ready(function(){
                         {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
-                        <p>{{ work.longest_description|safe }}
+                        <p>{{ work.description|safe }}
                         {% endif %}
                         </p>
                     </div>
@@ -315,18 +321,20 @@ $j(document).ready(function(){
                         <h4>Editions</h4>
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
-                        <div class="editions"><div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>
-                            <div class="metadata" id="edition_{{edition.id}}">Publisher: {{edition.publisher}}<br />
-                            	Published: {{edition.publication_date}}<br />
-                            	{% with edition.isbn_13 as isbn %}
-                            		{% if isbn %}
-                            			ISBN: {{ isbn }}<br />
-                            		{% else %}
-                            			No ISBN available<br />
+                        <div class="editions">{% if edition.googlebooks_id %}<div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>{% endif %}
+                            <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: {{edition.publisher}}<br />{% endif %}
+                            	{% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
+                            		{% if edition.isbn_13 %}
+                            			ISBN: {{ edition.isbn_13 }}<br />
                             		{% endif %}
-                            	{% endwith %}
-                            	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a></div>
-                            </div>{{work.last_campaign_status}}
+                            		{% if edition.oclc %}
+                            			OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
+                            		{% endif %}
+                            		{% if edition.googlebooks_id %}
+                            	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
+                            		{% endif %}                            	    
+                            	</div>
+                            </div>
                             {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
                                 {% if edition.hide_details %}<div class="show_more_edition" >more...</div>{% endif %}
                                 <div {% if edition.hide_details %} class="more_edition" {% endif %}>

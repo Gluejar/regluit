@@ -102,6 +102,9 @@ class BookLoaderTests(TestCase):
         self.assertTrue(edition.work.publication_date)
         edition.publication_date = None
         self.assertTrue(edition.work.publication_date)
+        self.assertTrue(len(edition.work.description) > 20)
+        self.assertTrue(edition.work.identifiers.filter(type='oclc')[0])
+        
 
     def test_merge_works_mechanics(self):
         """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
@@ -278,9 +281,10 @@ class BookLoaderTests(TestCase):
         subjects = [s.name for s in work.subjects.all()]
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
-        self.assertEqual(work.openlibrary_id, '/works/OL27258W')
-        self.assertEqual(work.goodreads_id, '14770')
-        self.assertEqual(work.librarything_id, '609')
+        self.assertTrue('/works/OL27258W' in work.identifiers.filter(type='olwk').values_list('value',flat=True) )
+        self.assertTrue('14770' in work.identifiers.filter(type='gdrd').values_list('value',flat=True))
+        self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value',flat=True))
+
     def test_load_gutenberg_edition(self):
         """Let's try this out for Moby Dick"""
         

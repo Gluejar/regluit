@@ -3,7 +3,7 @@ from regluit.settings.common import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-SITE_ID = 2
+SITE_ID = 5
 
 ADMINS = (
     ('Ed Summers', 'ed.summers@gmail.com'),
@@ -17,10 +17,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'please',
+        'NAME': 'unglueit',
         'USER': 'root',
         'PASSWORD': 'forgetn0t',
-        'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'HOST': 'justdb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }

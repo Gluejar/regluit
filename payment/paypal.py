@@ -105,6 +105,74 @@ IPN_REASON_CODE_CHARGEBACK_SETTLEMENT = 'Chargeback Settlement'
 IPN_REASON_CODE_ADMIN_REVERSAL = 'Admin reversal'
 IPN_REASON_CODE_REFUND = 'Refund'
 
+def PaypalStatusToGlobalStatus(status):
+    '''
+        This represents the default mapping of paypal status codes to global status codes
+        There are cases where this mapping will not apply and the individual API calls must do
+        additional processing
+    '''
+    
+    if status == IPN_PAY_STATUS_CREATED:
+        return TRANSACTION_STATUS_CREATED
+    
+    elif status == IPN_PAY_STATUS_COMPLETED:
+        return TRANSACTION_STATUS_COMPLETE
+    
+    elif status == IPN_PAY_STATUS_INCOMPLETE:
+        return TRANSACTION_STATUS_INCOMPLETE
+    
+    elif status == IPN_PAY_STATUS_ERROR:
+        return TRANSACTION_STATUS_ERROR
+    
+    elif status == IPN_PAY_STATUS_REVERSALERROR:
+        return TRANSACTION_STATUS_ERROR
+    
+    elif status == IPN_PAY_STATUS_PROCESSING:
+        return TRANSACTION_STATUS_PENDING
+    
+    elif status == IPN_PAY_STATUS_PENDING:
+        return TRANSACTION_STATUS_PENDING
+    
+    elif status == IPN_PREAPPROVAL_STATUS_ACTIVE:
+        return TRANSACTION_STATUS_ACTIVE
+    
+    elif status == IPN_PREAPPROVAL_STATUS_CANCELED:
+        return TRANSACTION_STATUS_CANCELED
+    
+    elif status == IPN_PREAPPROVAL_STATUS_DEACTIVED:
+        return TRANSACTION_STATUS_CANCELED
+    
+    elif status == IPN_SENDER_STATUS_COMPLETED:
+        return TRANSACTION_STATUS_COMPLETE
+    
+    elif status == IPN_SENDER_STATUS_PENDING:
+        return TRANSACTION_STATUS_CPENDING
+    
+    elif status == IPN_SENDER_STATUS_CREATED:
+        return TRANSACTION_STATUS_CREATED
+    
+    elif status == IPN_SENDER_STATUS_PARTIALLY_REFUNDED:
+        return TRANSACTION_STATUS_REFUNDED
+    
+    elif status == IPN_SENDER_STATUS_DENIED:
+        return TRANSACTION_STATUS_FAILED
+    
+    elif status == IPN_SENDER_STATUS_PROCESSING:
+        return TRANSACTION_STATUS_PENDING
+    
+    elif status == IPN_SENDER_STATUS_REVERSED:
+        return TRANSACTION_STATUS_REFUNDED
+    
+    elif status == IPN_SENDER_STATUS_REFUNDED:
+        return TRANSACTION_STATUS_REFUNDED
+    
+    elif status == IPN_SENDER_STATUS_FAILED:
+        return TRANSACTION_STATUS_FAILED
+    
+    else:
+        return TRANSACTION_STATUS_ERRROR
+    
+    
 def ProcessIPN(request):
     '''
     processIPN
@@ -129,8 +197,9 @@ def ProcessIPN(request):
                 uniqueID = ipn.uniqueID()
                 t = Transaction.objects.get(secret=uniqueID)
                 
-                # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
+                # The local_status is always one of the IPN_PAY_STATUS codes defined in paypal.py
                 t.local_status = ipn.status
+                t.status  = PaypalStatusToGlobalStatus(ipn.status)
                 
                 for item in ipn.transactions:
                     
@@ -163,6 +232,7 @@ def ProcessIPN(request):
                 
                 # The status is always one of the IPN_PAY_STATUS codes defined in paypal.py
                 t.local_status = ipn.status
+                t.status  = PaypalStatusToGlobalStatus(ipn.status)
                 
                 # Reason code indicates more details of the adjustment type
                 t.reason = ipn.reason_code
@@ -193,6 +263,7 @@ def ProcessIPN(request):
                 
                 # The status is always one of the IPN_PREAPPROVAL_STATUS codes defined in paypal.py
                 t.local_status = ipn.status
+                t.status  = PaypalStatusToGlobalStatus(ipn.status)
                 
                 # capture whether the transaction has been approved
                 t.approved = ipn.approved
@@ -400,7 +471,7 @@ class Pay( PaypalEnvelopeRequest ):
                   'returnUrl': return_url,
                   'cancelUrl': cancel_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
-                  'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN'),
+                  'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN'),
                   'feesPayer': feesPayer,
                   'trackingId': transaction.secret
                   } 
@@ -519,6 +590,19 @@ class Finish(PaypalEnvelopeRequest):
             
 
 class PaymentDetails(PaypalEnvelopeRequest):
+    
+  '''
+       Get details about executed PAY operation
+       
+       This api must set the following class variables to work with the code in manager.py
+       
+       status - one of the global transaction status codes
+       transactions -- A list of all receiver transactions associated with this payment
+           status -  the status of the receiver transaction
+           txn_id -  the id of the receiver transaction
+       
+  '''
+    
   def __init__(self, transaction=None):
  
       try:
@@ -558,7 +642,7 @@ class PaymentDetails(PaypalEnvelopeRequest):
           logger.info(self.response)
           
           self.local_status = self.response.get("status", None)
-          self.status = self.response.get("status", None)
+          self.status = PaypalStatusToGlobalStatus(self.local_status)
           
           self.trackingId = self.response.get("trackingId", None)
           self.feesPayer = self.response.get("feesPayer", None)
@@ -730,7 +814,7 @@ class Preapproval( PaypalEnvelopeRequest ):
                   'returnUrl': return_url,
                   'cancelUrl': cancel_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
-                  'ipnNotificationUrl': settings.BASE_URL + reverse('PayPalIPN')
+                  'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN')
                   }
     
           # Is ipnNotificationUrl being computed properly
@@ -767,6 +851,19 @@ class Preapproval( PaypalEnvelopeRequest ):
 
 
 class PreapprovalDetails(PaypalEnvelopeRequest):
+    
+  '''
+       Get details about an authorized token
+       
+       This api must set 4 different class variables to work with the code in manager.py
+       
+       status - one of the global transaction status codes
+       approved - boolean value
+       currency - 
+       amount - 
+
+  '''
+    
   def __init__(self, transaction):
  
       try:
@@ -803,7 +900,9 @@ class PreapprovalDetails(PaypalEnvelopeRequest):
           self.response = json.loads( self.raw_response )
           logger.info(self.response)
           
-          self.status = self.response.get("status", None)
+          self.local_status = self.response.get("status", None)
+          self.status = PaypalStatusToGlobalStatus(self.local_status)
+          
           self.amount = self.response.get("maxTotalAmountOfAllPayments", None)
           self.currency = self.response.get("currencyCode", None)
           

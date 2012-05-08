@@ -127,7 +127,7 @@ def ProcessIPN(request):
                
                 
                 if status == AMAZON_IPN_STATUS_SUCCESS:
-                    transaction.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                    transaction.status = TRANSACTION_STATUS_COMPLETE
                     
                 elif status == AMAZON_IPN_STATUS_PENDING:
                     
@@ -154,7 +154,7 @@ def ProcessIPN(request):
             elif operation == AMAZON_OPERATION_TYPE_CANCEL:
                 
                 if status == AMAZON_IPN_STATUS_SUCCESS:
-                    transaction.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                    transaction.status = TRANSACTION_STATUS_COMPLETE
                 else:
                     transaction.status = TRANSACTION_STATUS_ERROR
                  
@@ -542,7 +542,15 @@ class Finish(AmazonRequest):
             self.errorMessage = "Error: Server Error"          
             
 class PaymentDetails(AmazonRequest):
-    
+    '''
+       Get details about executed PAY operation
+       
+       This api must set the following class variables to work with the code in manager.py
+       
+       status - one of the global transaction status codes
+       transactions -- Not supported for amazon, used by paypal
+       
+    '''
     def __init__(self, transaction=None):
  
         try:
@@ -588,7 +596,7 @@ class PaymentDetails(AmazonRequest):
                 # that information
                 #
                 if transaction.status != TRANSACTION_STATUS_REFUNDED:
-                    self.status = TRANSACTION_STATUS_COMPLETE_PRIMARY
+                    self.status = TRANSACTION_STATUS_COMPLETE
                 else:
                     self.status = TRANSACTION_STATUS_REFUNDED
                     

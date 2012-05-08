@@ -245,7 +245,7 @@ class Campaign(models.Model):
         return Premium.objects.filter(campaign=self).filter(type='CU')
         
 class Identifier(models.Model):
-    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)
     value =  models.CharField(max_length=31, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)
@@ -272,6 +272,7 @@ class Work(models.Model):
     language = models.CharField(max_length=2, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0)
+    description = models.TextField(default='', null=True)
 
     class Meta:
         ordering = ['title']
@@ -450,15 +451,6 @@ class Work(models.Model):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
 
-    def longest_description(self):
-        """get the longest description from an edition of this work
-        """
-        description = ""
-        for edition in self.editions.all():
-            if len(edition.description) > len(description):
-                description = edition.description
-        return description
-
     def first_isbn_13(self):
         try:
             return self.identifiers.filter(type='isbn')[0].value
@@ -500,7 +492,6 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    description = models.TextField(default='', null=True)
     publisher = models.CharField(max_length=255, null=True)
     publication_date = models.CharField(max_length=50, null=True)
     public_domain = models.NullBooleanField(null=True)

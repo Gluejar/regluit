@@ -55,8 +55,16 @@ def all_snapshots(owner=GLUEJAR_ACCOUNT_ID):
     return ec2.get_all_snapshots(owner=owner)
 
 def instance(tag_name):
+    """return instance tagged with Name=tag_name"""
     try:
         return ec2.get_all_instances(filters={'tag:Name' : tag_name})[0].instances[0]
+    except Exception, e:
+        return None
+
+def db(instance_id):
+    """return RDS instance with instance_id if it exists; None otherwise"""
+    try:
+        return rds.get_all_dbinstances(instance_id=instance_id)[0]
     except Exception, e:
         return None
     
@@ -258,7 +266,82 @@ def launch_instance(ami='ami-a29943cb',
                                                           ssh_pwd=ssh_pwd)
                                                             
     return (instance, cmd)
-   
+
+def create_dbinstance(id, allocated_storage, instance_class, master_username, master_password,
+                      port=3306, engine='MySQL5.1', db_name=None,
+                      param_group=None, security_groups=None, availability_zone='us-east-1c', preferred_maintenance_window=None, backup_retention_period=None, preferred_backup_window=None, multi_az=False, engine_version=None, auto_minor_version_upgrade=True):
+    """
+    create rds instance    
+    """
+    # rds-create-db-instance
+    
+    return rds.create_dbinstance(id, allocated_storage, instance_class, master_username, master_password, port=port, engine=engine, db_name=db_name, param_group=param_group, security_groups=security_groups, availability_zone=availability_zone, preferred_maintenance_window=preferred_maintenance_window, backup_retention_period=backup_retention_period, preferred_backup_window=preferred_backup_window, multi_az=multi_az, engine_version=engine_version, auto_minor_version_upgrade=auto_minor_version_upgrade)
+
+def instance_info(e):
+    return(
+        {
+          'id': e.id,
+          'ip_address': e.ip_address,
+          'tags': e.tags,
+          'name_tag': e.tags.get('Name', None)
+        }
+    )
+    
+def db_info(db, db_name='unglueit', master_password=None):
+    """given an rds instance db and master_password, return basic info"""
+    try:
+        django_setting = {
+            'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': db_name,
+            'USER': db.master_username,
+            'PASSWORD': master_password,
+            'HOST': db.endpoint[0],
+            'PORT': db.endpoint[1]
+            }
+        }
+        return({'id': db.id,
+                'allocated_storage': db.allocated_storage,
+                'availability_zone':db.availability_zone,
+                'instance_class': db.instance_class,
+                'multi_az': db.multi_az,
+                'master_username': db.master_username,
+                'engine': db.engine,
+                'preferred_backup_window': db.preferred_backup_window,
+                'preferred_maintenance_window': db.preferred_maintenance_window,
+                'backup_retention_period':db.backup_retention_period, 
+                'parameter_group': db.parameter_group,
+                'security_group': db.security_group,
+                'endpoint':db.endpoint,
+                'status':db.status,
+                'create_time': db.create_time, 
+                'latest_restorable_time':db.latest_restorable_time,
+                'django_setting': django_setting})
+    except Exception, e:
+        return None
+ 
+def test_ec2_user_data(ssh_pwd=None):
+    script = """#!/bin/sh
+echo "Hello World.  The time is now $(date -R)!" | tee /root/output.txt
+"""
+    return launch_instance(user_data=script, ssh_pwd=ssh_pwd)
+
+def create_image(instance_id, name, description=None, no_reboot=False):
+    """e.g., img = aws.ec2.create_image(aws.instance('rdhyee-dev').id, name="rdhyee-dev_2012_05_05", description="snapshot of rdhyee-dev", no_reboot=False)"""
+    # It's now good to delete the old AMI...have to deregister AMI and then delete the corresponding snapshot.
+    image = ec2.create_image(instance_id, name, description, no_reboot)
+    # So I still need to add a way to name the snapshot corresponding to AMI to make the panel more human readable.
+    return image
+
+def extraneous_snapshot_ids():
+    """Find snapshots that don't correspond to any registered images"""
+    return set([sn.id for sn in all_snapshots()]) - set([img.block_device_mapping.values()[0].snapshot_id for img in all_images()])
+
+def destroy_image(image_id):
+    # first deregister image
+    # delete snapshot corresponding to the image
+    pass
+
 if __name__ == '__main__':
     pprint (stats_for_instances(all_instances()))
     web1 = instance('web1')
