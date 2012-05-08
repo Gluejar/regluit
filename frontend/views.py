@@ -343,7 +343,7 @@ class WorkListView(ListView):
             context = super(WorkListView, self).get_context_data(**kwargs)
             qs=self.get_queryset()
             context['ungluers'] = userlists.work_list_users(qs,5)
-            context['facet'] =self.kwargs['facet']
+            context['facet'] = self.kwargs['facet']
             context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
             context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()
@@ -355,6 +355,11 @@ class WorkListView(ListView):
             counts['unglueing'] = context['works_active'].count()
             counts['wished'] = context['works_wished'].count()
             context['counts'] = counts
+            
+            if (self.kwargs['facet'] == 'recommended'):
+                unglue_staff = models.User.objects.filter(is_staff=True)
+                context['unglue_staff'] = unglue_staff
+                            
             return context
 
 class UngluedListView(ListView):
