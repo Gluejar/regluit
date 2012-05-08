@@ -69,7 +69,7 @@ class RightsHolderForm(forms.ModelForm):
             label='Owner',
             widget=AutoCompleteSelectWidget(OwnerLookup),
             required=True,
-            error_messages={'required': 'Please ensure the owner is a valid Unglue.It account.'},
+            error_messages={'required': 'Please ensure the owner is a valid Unglue.it account.'},
         )
     email = forms.EmailField(
         label=_("notification email address for rights holder"), 
