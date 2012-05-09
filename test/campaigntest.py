@@ -202,7 +202,7 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     sel.find_element_by_css_selector("input[value*='sign in']").click()
     
     # click on biggest campaign list
-    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("a[href*='/campaigns/pledged']"))
+    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("a[href*='/campaigns/ending']"))
     biggest_campaign_link.click()
     time.sleep(1)
     
