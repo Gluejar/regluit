@@ -1,6 +1,7 @@
 import re
 import random
 from regluit.utils.localdatetime import now, date_today
+from regluit.utils import crypto
 from datetime import timedelta
 from decimal import Decimal
 from notification import models as notification
@@ -13,10 +14,27 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
+import binascii
 
 class UnglueitError(RuntimeError):
     pass
 
+class Key(models.Model):
+    """an encrypted key store"""
+    name = models.CharField(max_length=255, unique=True)
+    encrypted_value = models.TextField(null=True, blank=True)
+    
+    def _get_value(self):
+        return crypto.decrypt_string(binascii.a2b_hex(self.encrypted_value), settings.SECRET_KEY)
+        
+    def _set_value(self, value):
+        self.encrypted_value = binascii.b2a_hex(crypto.encrypt_string(value, settings.SECRET_KEY))
+
+    value = property(_get_value, _set_value) 
+
+    def __unicode__(self):
+        return "Key with name {0}".format(self.name)
+    
 class CeleryTask(models.Model):
     created = models.DateTimeField(auto_now_add=True, default=now())
     task_id = models.CharField(max_length=255)
@@ -109,14 +127,8 @@ class Campaign(models.Model):
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField()
     activated = models.DateTimeField(null=True)
-
-    # setting blank=True ensures that these fields are not required
-    # in the widget generated in forms.py -- important while we are
-    # running two payment processors. Should we standardize on one
-    # and wish to enforce it for RHs, take out blank=True.
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
-
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL

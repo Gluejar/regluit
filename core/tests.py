@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -536,3 +536,14 @@ class ISBNTest(TestCase):
         self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])),2)
         self.assertEqual(len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),1)
 
+class EncryptedKeyTest(TestCase):
+    def test_create_read_key(self):
+        name = "the great answer"
+        value = "42"
+        key = Key.objects.create(name=name, value=value)
+        key.save()
+        # do we get back the value?
+        self.assertEqual(Key.objects.filter(name=name)[0].value, value)
+        # just checking that the encrypted value is not the same as the value
+        self.assertNotEqual(key.encrypted_value, value)  # is this always true?
+        

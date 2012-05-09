@@ -144,7 +144,7 @@ CREATE TABLE `auth_user` (
   `date_joined` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +153,7 @@ CREATE TABLE `auth_user` (
 
 LOCK TABLES `auth_user` WRITE;
 /*!40000 ALTER TABLE `auth_user` DISABLE KEYS */;
-INSERT INTO `auth_user` VALUES (1,'RaymondYee','Raymond','Yee','rdhyee@gluejar.com','!',0,1,0,'2012-03-02 13:17:24','2012-03-02 13:17:24'),(2,'rdhyee','Raymond','Yee','raymond.yee@gmail.com','sha1$e2d7b$55e51c0fad5f39292e7f99ad180c8ab31bb5bbc1',1,1,1,'2012-03-02 13:22:05','2012-03-02 13:21:21'),(3,'rdhyeetest','','','raymond.yee@dataunbound.com','sha1$1bd37$02b99913f602a80c5f810443ce82d73f336c26d3',0,1,0,'2012-03-13 19:14:27','2012-03-13 19:11:32');
+INSERT INTO `auth_user` VALUES (1,'RaymondYee','Raymond','Yee','rdhyee@gluejar.com','!',0,1,0,'2012-03-02 13:17:24','2012-03-02 13:17:24'),(2,'rdhyee','Raymond','Yee','raymond.yee@gmail.com','sha1$e2d7b$55e51c0fad5f39292e7f99ad180c8ab31bb5bbc1',1,1,1,'2012-03-02 13:22:05','2012-03-02 13:21:21'),(3,'rdhyeetest','','','raymond.yee@dataunbound.com','sha1$1bd37$02b99913f602a80c5f810443ce82d73f336c26d3',0,1,0,'2012-03-13 19:14:27','2012-03-13 19:11:32'),(4,'paypaltest','PayPal','Test','raymondyee@mashupguide.net','sha1$c5d99$2ff747e3a9f87bd98f7a68f49213cb6434ff7e8f',1,1,0,'2012-05-09 11:58:35','2012-05-09 11:57:13');
 /*!40000 ALTER TABLE `auth_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -583,6 +583,31 @@ INSERT INTO `core_identifier` VALUES (1,'goog','wtPxGztYx-UC',1,1),(2,'isbn','97
 UNLOCK TABLES;
 
 --
+-- Table structure for table `core_key`
+--
+
+DROP TABLE IF EXISTS `core_key`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `core_key` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `encrypted_value` longtext,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `core_key_name_uniq` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `core_key`
+--
+
+LOCK TABLES `core_key` WRITE;
+/*!40000 ALTER TABLE `core_key` DISABLE KEYS */;
+/*!40000 ALTER TABLE `core_key` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `core_premium`
 --
 
@@ -720,7 +745,7 @@ CREATE TABLE `core_userprofile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_id_refs_id_55007184` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -729,7 +754,7 @@ CREATE TABLE `core_userprofile` (
 
 LOCK TABLES `core_userprofile` WRITE;
 /*!40000 ALTER TABLE `core_userprofile` DISABLE KEYS */;
-INSERT INTO `core_userprofile` VALUES (1,'2012-03-02 13:17:24',1,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL),(2,'2012-03-02 13:21:21',2,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL),(3,'2012-03-13 19:11:32',3,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `core_userprofile` VALUES (1,'2012-03-02 13:17:24',1,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL),(2,'2012-03-02 13:21:21',2,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL),(3,'2012-03-13 19:11:32',3,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL),(4,'2012-05-09 11:57:13',4,'','','','',NULL,'',NULL,NULL,NULL,NULL,NULL);
 /*!40000 ALTER TABLE `core_userprofile` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -778,7 +803,7 @@ CREATE TABLE `core_wishlist` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_id_refs_id_109b8800` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,7 +812,7 @@ CREATE TABLE `core_wishlist` (
 
 LOCK TABLES `core_wishlist` WRITE;
 /*!40000 ALTER TABLE `core_wishlist` DISABLE KEYS */;
-INSERT INTO `core_wishlist` VALUES (1,'2012-03-02 13:17:24',1),(2,'2012-03-02 13:21:21',2),(3,'2012-03-13 19:11:32',3);
+INSERT INTO `core_wishlist` VALUES (1,'2012-03-02 13:17:24',1),(2,'2012-03-02 13:21:21',2),(3,'2012-03-13 19:11:32',3),(4,'2012-05-09 11:57:13',4);
 /*!40000 ALTER TABLE `core_wishlist` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1005,7 +1030,7 @@ CREATE TABLE `django_session` (
 
 LOCK TABLES `django_session` WRITE;
 /*!40000 ALTER TABLE `django_session` DISABLE KEYS */;
-INSERT INTO `django_session` VALUES ('18fbcae31f97186e23df72668c871697','OTU5N2MyYWZlMGEyZjQwMDlhNzhlZjQ2NzQ4ODY0YzM1MTFhN2VjNzqAAn1xAShVBm9wZW5pZH1V\nDV9hdXRoX3VzZXJfaWRxAooBAlUec29jaWFsX2F1dGhfbGFzdF9sb2dpbl9iYWNrZW5kcQNVBmdv\nb2dsZXEEVQp0ZXN0Y29va2llVQZ3b3JrZWRVEl9hdXRoX3VzZXJfYmFja2VuZHEFVSlzb2NpYWxf\nYXV0aC5iYWNrZW5kcy5nb29nbGUuR29vZ2xlQmFja2VuZHEGdS4=\n','2012-03-16 13:22:05'),('2a5014c0ae1d8df35a7ba7894737898c','OTIyOTliMjkxYjQ2NDE3ZGZiNmFhNThhZDUxN2U0NmZiNWY1YjJjMzqAAn1xAShVBm9wZW5pZH1V\nDV9hdXRoX3VzZXJfaWRxAooBAVUec29jaWFsX2F1dGhfbGFzdF9sb2dpbl9iYWNrZW5kcQNVBmdv\nb2dsZXEEVQp0ZXN0Y29va2llVQZ3b3JrZWRVEl9hdXRoX3VzZXJfYmFja2VuZHEFVSlzb2NpYWxf\nYXV0aC5iYWNrZW5kcy5nb29nbGUuR29vZ2xlQmFja2VuZHEGdS4=\n','2012-03-16 13:17:24'),('b5529b6ff89dd2e5662a34eb3b134085','MTEyNjAwNGQxNjY0YTY3ODI5N2UxODk0M2M2NmY4Y2Q2ODJiNDJkNDqAAn1xAS4=\n','2012-05-17 14:12:51'),('ceafe30bfba3d5669ac52b8958471207','MTEyNjAwNGQxNjY0YTY3ODI5N2UxODk0M2M2NmY4Y2Q2ODJiNDJkNDqAAn1xAS4=\n','2012-05-21 19:50:58'),('d588298920bbe41b16ba73a0dd2d6f2a','OGIzMmE3NTU0NTViODBhYWEwZGNhZTlkMDkyZWE2MDAwN2FhYTgwNTqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQN1Lg==\n','2012-03-27 19:14:27');
+INSERT INTO `django_session` VALUES ('18fbcae31f97186e23df72668c871697','OTU5N2MyYWZlMGEyZjQwMDlhNzhlZjQ2NzQ4ODY0YzM1MTFhN2VjNzqAAn1xAShVBm9wZW5pZH1V\nDV9hdXRoX3VzZXJfaWRxAooBAlUec29jaWFsX2F1dGhfbGFzdF9sb2dpbl9iYWNrZW5kcQNVBmdv\nb2dsZXEEVQp0ZXN0Y29va2llVQZ3b3JrZWRVEl9hdXRoX3VzZXJfYmFja2VuZHEFVSlzb2NpYWxf\nYXV0aC5iYWNrZW5kcy5nb29nbGUuR29vZ2xlQmFja2VuZHEGdS4=\n','2012-03-16 13:22:05'),('2a5014c0ae1d8df35a7ba7894737898c','OTIyOTliMjkxYjQ2NDE3ZGZiNmFhNThhZDUxN2U0NmZiNWY1YjJjMzqAAn1xAShVBm9wZW5pZH1V\nDV9hdXRoX3VzZXJfaWRxAooBAVUec29jaWFsX2F1dGhfbGFzdF9sb2dpbl9iYWNrZW5kcQNVBmdv\nb2dsZXEEVQp0ZXN0Y29va2llVQZ3b3JrZWRVEl9hdXRoX3VzZXJfYmFja2VuZHEFVSlzb2NpYWxf\nYXV0aC5iYWNrZW5kcy5nb29nbGUuR29vZ2xlQmFja2VuZHEGdS4=\n','2012-03-16 13:17:24'),('a142137fc26536495f7ce05675425424','OWE3ODZkODM2ZTUyNzhjZDY0OWE0NTQ5NDk2YjIyOTc3ZTNiYjZhZjqAAn1xAShVCnRlc3Rjb29r\naWVxAlUGd29ya2VkcQNVDV9hdXRoX3VzZXJfaWSKAQRVEl9hdXRoX3VzZXJfYmFja2VuZFUpZGph\nbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmR1Lg==\n','2012-05-23 11:58:35'),('b5529b6ff89dd2e5662a34eb3b134085','MTEyNjAwNGQxNjY0YTY3ODI5N2UxODk0M2M2NmY4Y2Q2ODJiNDJkNDqAAn1xAS4=\n','2012-05-17 14:12:51'),('ceafe30bfba3d5669ac52b8958471207','MTEyNjAwNGQxNjY0YTY3ODI5N2UxODk0M2M2NmY4Y2Q2ODJiNDJkNDqAAn1xAS4=\n','2012-05-21 19:50:58'),('d588298920bbe41b16ba73a0dd2d6f2a','OGIzMmE3NTU0NTViODBhYWEwZGNhZTlkMDkyZWE2MDAwN2FhYTgwNTqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQSKAQN1Lg==\n','2012-03-27 19:14:27');
 /*!40000 ALTER TABLE `django_session` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1556,7 +1581,7 @@ CREATE TABLE `registration_registrationprofile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_id_refs_id_313280c4` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1565,7 +1590,7 @@ CREATE TABLE `registration_registrationprofile` (
 
 LOCK TABLES `registration_registrationprofile` WRITE;
 /*!40000 ALTER TABLE `registration_registrationprofile` DISABLE KEYS */;
-INSERT INTO `registration_registrationprofile` VALUES (1,3,'ALREADY_ACTIVATED');
+INSERT INTO `registration_registrationprofile` VALUES (1,3,'ALREADY_ACTIVATED'),(2,4,'ALREADY_ACTIVATED');
 /*!40000 ALTER TABLE `registration_registrationprofile` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1721,7 +1746,7 @@ CREATE TABLE `tastypie_apikey` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
   CONSTRAINT `user_id_refs_id_56bfdb62` FOREIGN KEY (`user_id`) REFERENCES `auth_user` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1730,7 +1755,7 @@ CREATE TABLE `tastypie_apikey` (
 
 LOCK TABLES `tastypie_apikey` WRITE;
 /*!40000 ALTER TABLE `tastypie_apikey` DISABLE KEYS */;
-INSERT INTO `tastypie_apikey` VALUES (1,1,'f48b2cd73b1733f32dc69ff1673265121397c13e','2012-03-02 13:17:24'),(2,2,'dbe45999934851c9370b5be4e1d2dd9e4822ff86','2012-03-02 13:21:21'),(3,3,'f31487e061d226829f298209f82d32fec75e4484','2012-03-13 19:11:32');
+INSERT INTO `tastypie_apikey` VALUES (1,1,'f48b2cd73b1733f32dc69ff1673265121397c13e','2012-03-02 13:17:24'),(2,2,'dbe45999934851c9370b5be4e1d2dd9e4822ff86','2012-03-02 13:21:21'),(3,3,'f31487e061d226829f298209f82d32fec75e4484','2012-03-13 19:11:32'),(4,4,'e2c43db861505bab0c5d4099c6688ac91634a50b','2012-05-09 11:57:13');
 /*!40000 ALTER TABLE `tastypie_apikey` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -1743,4 +1768,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-05-07 16:51:23
+-- Dump completed on 2012-05-09  8:59:16
