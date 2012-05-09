@@ -358,10 +358,6 @@ class WorkListView(ListView):
             counts['wished'] = context['works_wished'].count()
             context['counts'] = counts
             
-            if (self.kwargs['facet'] == 'recommended'):
-                unglue_staff = models.User.objects.filter(is_staff=True)
-                context['unglue_staff'] = unglue_staff
-                            
             return context
 
 class UngluedListView(ListView):

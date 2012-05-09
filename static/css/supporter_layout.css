@@ -166,6 +166,9 @@
 .user-block3.recommended, .user-block4.recommended {
   margin-top: auto;
 }
+.user-block3.recommended img, .user-block4.recommended img {
+  margin-right: 7px;
+}
 .user-block3 {
   margin-top: 8px;
 }
