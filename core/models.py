@@ -9,6 +9,7 @@ from notification import models as notification
 from django.db import models
 from django.db.models import Q, get_model
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -211,7 +212,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim, 'site': Site.objects.get_current()}, True)
         return self
 
 
