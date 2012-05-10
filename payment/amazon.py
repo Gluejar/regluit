@@ -1,5 +1,4 @@
 from regluit.payment.parameters import *
-from regluit.core.models import Key
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.models import Transaction, PaymentResponse
@@ -50,10 +49,15 @@ AMAZON_OPERATION_TYPE_PAY = 'PAY'
 AMAZON_OPERATION_TYPE_REFUND = 'REFUND'
 AMAZON_OPERATION_TYPE_CANCEL = 'CANCEL'
 
-# load FPS_ACCESS_KEY and FPS_SECRET_KEY from the database
+# load FPS_ACCESS_KEY and FPS_SECRET_KEY from the database if possible
 
-FPS_ACCESS_KEY = Key.objects.get(name="FPS_ACCESS_KEY").value
-FPS_SECRET_KEY = Key.objects.get(name="FPS_SECRET_KEY").value
+try:
+    from regluit.core.models import Key
+    FPS_ACCESS_KEY = Key.objects.get(name="FPS_ACCESS_KEY").value
+    FPS_SECRET_KEY = Key.objects.get(name="FPS_SECRET_KEY").value
+except:
+    FPS_ACCESS_KEY = ''
+    FPS_SECRET_KEY = ''
 
 
 def ProcessIPN(request):
