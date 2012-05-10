@@ -22,6 +22,7 @@ DATABASES = {
         'PASSWORD': 'forgetn0t',
         'HOST': 'justdb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
+        'TEST_CHARSET': 'utf8'
     }
 }
 
@@ -125,9 +126,10 @@ CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 
-# Amazon credentials (for fps)
-AWS_ACCESS_KEY = ''
-AWS_SECRET_ACCESS_KEY = ''
+
+# set -- sandbox or production Amazon FPS?
+AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+#AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
