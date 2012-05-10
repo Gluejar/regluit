@@ -129,6 +129,9 @@ CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 AWS_ACCESS_KEY = ''
 AWS_SECRET_ACCESS_KEY = ''
 
+# choice of payment processor
+PAYMENT_PROCESSOR = 'paypal'
+
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
     from regluit.settings.local import *
