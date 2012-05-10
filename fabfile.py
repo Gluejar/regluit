@@ -58,6 +58,11 @@ def ssh_fingerprint():
     """display ssh fingerprint of /home/ubuntu/.ssh/id_rsa.pub on remote machine"""
     run ("""ssh-keygen -l -f /home/ubuntu/.ssh/id_rsa.pub""")
     
+def set_key(name, value):
+    """set encrypted key via the remote Django command -- works for web1, just, please"""
+    with cd("/opt/regluit"):
+        run("""source ENV/bin/activate; django-admin.py set_key {0} {1} --settings=regluit.settings.me""".format(name, value))
+ 
 def ssh_fingerprint2():
     # http://stackoverflow.com/a/6682934/7782
     import base64,hashlib
@@ -73,7 +78,7 @@ def public_key_from_private_key():
 def email_addresses():
     """list email addresses in unglue.it"""
     with cd("/opt/regluit"):
-        run("""source ENV/bin/activate; echo "import django; print ', '.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.prod""")
+        run("""source ENV/bin/activate; echo "import django; print ', '.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.me""")
     
 def selenium():
     """setting up selenium to run in the background on RY's laptop"""

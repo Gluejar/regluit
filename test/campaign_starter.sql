@@ -583,31 +583,6 @@ INSERT INTO `core_identifier` VALUES (1,'goog','wtPxGztYx-UC',1,1),(2,'isbn','97
 UNLOCK TABLES;
 
 --
--- Table structure for table `core_key`
---
-
-DROP TABLE IF EXISTS `core_key`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `core_key` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `encrypted_value` longtext,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `core_key_name_uniq` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `core_key`
---
-
-LOCK TABLES `core_key` WRITE;
-/*!40000 ALTER TABLE `core_key` DISABLE KEYS */;
-/*!40000 ALTER TABLE `core_key` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `core_premium`
 --
 
