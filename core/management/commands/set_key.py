@@ -6,6 +6,7 @@ class Command(BaseCommand):
     args = "<name> <value>"
 
     def handle(self, name, value, **options):
-        k = Key.objects.create(name=name, value=value)
+        (k, created) = Key.objects.get_or_create(name=name)
+        k.value = value
         k.save()
         
