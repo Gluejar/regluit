@@ -44,6 +44,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
     url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", "work_openlibrary", name="work_openlibrary"),
+    url(r"^new_edition/(?P<work_id>)(?P<edition_id>)$", "new_edition", name="new_edition"),
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", "new_edition", name="new_edition"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
