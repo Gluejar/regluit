@@ -511,10 +511,11 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher = models.CharField(max_length=255, null=True)
-    publication_date = models.CharField(max_length=50, null=True)
-    public_domain = models.NullBooleanField(null=True)
+    publisher = models.CharField(max_length=255, null=True, blank=True)
+    publication_date = models.CharField(max_length=50, null=True, blank=True)
+    public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
+    cover_image = models.URLField(null=True, blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -527,13 +528,17 @@ class Edition(models.Model):
             return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
     def cover_image_small(self):
-        if self.googlebooks_id:
+        if self.cover_image:        
+            return self.cover_image
+        elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
-        if self.googlebooks_id:
+        if self.cover_image:        
+            return self.cover_image
+        elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''

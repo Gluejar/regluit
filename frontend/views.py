@@ -45,7 +45,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -153,7 +153,7 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % time_remaining.seconds/60
         else:
             countdown = "right now"
-    	
+        
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
@@ -218,6 +218,103 @@ def work(request, work_id, action='display'):
         'countdown': countdown,
     })
 
+def new_edition(request, work_id, edition_id):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")
+    if not request.user.is_staff :
+        return render(request, "admins_only.html")
+    # if the work and edition are set, we save the edition and set the work    
+    language='en'
+    description=''
+    title=''
+    if work_id:
+        try:
+            work = models.Work.objects.get(id = work_id)
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = work_id).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
+        language=work.language
+        description=work.description
+        title=work.title
+    else:
+        work=None
+        
+    if edition_id:
+        try:
+            edition = models.Edition.objects.get(id = edition_id)
+        except models.Work.DoesNotExist:
+            raise Http404
+        if work:
+            edition.work = work 
+        language=edition.work.language
+        description=edition.work.description
+    else:
+        edition = models.Edition()
+        if work:
+            edition.work = work 
+
+    if request.method == 'POST' :
+        edition.new_author_names=request.POST.getlist('new_author')
+        edition.new_subjects=request.POST.getlist('new_subject')
+        if request.POST.has_key('add_author_submit'):
+            new_author_name = request.POST['add_author'].strip()
+            try:
+                author= models.Author.objects.get(name=new_author_name)
+            except models.Author.DoesNotExist:
+                author=models.Author.objects.create(name=new_author_name)
+            edition.new_author_names.append(new_author_name)
+            form = EditionForm(instance=edition, data=request.POST)
+        elif request.POST.has_key('add_subject_submit'):
+            new_subject = request.POST['add_subject'].strip()
+            try:
+                author= models.Subject.objects.get(name=new_subject)
+            except models.Subject.DoesNotExist:
+                author=models.Subject.objects.create(name=new_subject)
+            edition.new_subjects.append(new_subject)
+            form = EditionForm(instance=edition, data=request.POST)
+        else:
+            form = EditionForm(instance=edition, data=request.POST)
+            if form.is_valid():
+                form.save()
+                if not work:
+                    work= models.Work(title=form.cleaned_data['title'],language=form.cleaned_data['language'],description=form.cleaned_data['description'])
+                    work.save()
+                    edition.work=work
+                    edition.save()
+                else:
+                    work.description=form.cleaned_data['description']
+                    work.title=form.cleaned_data['title']
+                    work.save()
+                models.Identifier.get_or_add(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
+                for author_name in edition.new_author_names:
+                    try:
+                        author= models.Author.objects.get(name=author_name)
+                    except models.Author.DoesNotExist:
+                        author=models.Author.objects.create(name=author_name)
+                    author.editions.add(edition)
+                for subject_name in edition.new_subjects:
+                    try:
+                        subject= models.Subject.objects.get(name=subject_name)
+                    except models.Subject.DoesNotExist:
+                        subject=models.Subject.objects.create(name=subject_name)
+                    subject.works.add(work)
+                work_url = reverse('work', kwargs={'work_id': edition.work.id})
+                return HttpResponseRedirect(work_url)
+    else:
+        form = EditionForm(instance=edition, initial={
+            'language':language,
+            'isbn_13':edition.isbn_13, 
+            'description':description,
+            'title': title
+            })
+
+    return render(request, 'new_edition.html', {
+            'form': form, 'edition': edition
+        })
+    
+    
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
@@ -1059,11 +1156,11 @@ def supporter(request, supporter_username, template_name):
         works = worklist[:4]
         works2 = worklist[4:8]
         
-	# default to showing the Active tab if there are active campaigns, else show Wishlist
+    # default to showing the Active tab if there are active campaigns, else show Wishlist
     if backing > 0:
-    	activetab = "#2"
+        activetab = "#2"
     else:
-    	activetab = "#3"
+        activetab = "#3"
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -1670,7 +1767,7 @@ def emailshare(request):
             return HttpResponseRedirect(next)
             
     else:
-    	sender = request.user.email
+        sender = request.user.email
         try:
             next = request.GET['next']
             if "pledge" in request.path:

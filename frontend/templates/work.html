@@ -319,6 +319,10 @@ $j(document).ready(function(){
                         {% endif %}
 
                         <h4>Editions</h4>
+                                    {% if user.is_staff %}
+                                    <div><a href="{% url new_edition work.id edition.id %}">Create a new edition for this work</a><br /><br /></div>
+                                    {% endif %}
+
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
                         <div class="editions">{% if edition.googlebooks_id %}<div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>{% endif %}
@@ -330,6 +334,9 @@ $j(document).ready(function(){
                             		{% if edition.oclc %}
                             			OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
                             		{% endif %}
+                            		{% if user.is_staff %}
+                                    <a href="{% url new_edition work.id edition.id %}">Edit this edition</a><br />
+                                    {% endif %}
                             		{% if edition.googlebooks_id %}
                             	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
                             		{% endif %}                            	    
@@ -355,6 +362,7 @@ $j(document).ready(function(){
                                     </form>
                                 </div>
                             {% endifnotequal %}{% endif %}
+                            
                         {% endfor %}
                     </div>
                     </div>

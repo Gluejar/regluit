@@ -8,6 +8,7 @@
 {% url about as abouturl %}
 {% url press as pressurl %}
 {% url rh_admin as adminurl %}
+{% url new_edition '' '' as editionurl %}
 {% load truncatechars %}
 
 <html>
@@ -107,6 +108,7 @@ Welcome to the alpha version of Unglue.it.  This site is a preview of our full f
         <li><a href="{{termsurl}}">Terms of Use</a></li>
         {% if user.is_staff %}
         <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
+        <li><a href="{{editionurl}}">Create New Editions</a></li>
         {% endif %}
         </ul>
     </div>
