@@ -1,7 +1,20 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+Thank you, {{transaction.user.username}},
+    
+You've just pledged ${{ transaction.amount }} to the unglueing campaign for {{ work.title }}.  If it reaches its goal of ${{ campaign.target }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.
 
-You will be also something.
+You can help even more by sharing this campaign with your friends:
+- Email it!
+- Tweet it!
+- Share it on Facebook.
+- Best idea: talk about it with those you love.
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+We'll need lots of help from lots of people to make this a success. 
+
+If you want to change your pledge, just use the button at {% url work work.id %}
+
+If you have any problems with your pledge, don't hesitate to contact us at support@gluejar.com
+
+Thanks for being part of Unglue.it.
+
+The unglue.it team.
+
