@@ -336,7 +336,7 @@ class PaypalEnvelopeRequest:
     url = None
             
     def ack( self ):
-
+            
         if self.response and self.response.has_key( 'responseEnvelope' ) and self.response['responseEnvelope'].has_key( 'ack' ):
             return self.response['responseEnvelope']['ack']
         else:
@@ -344,6 +344,7 @@ class PaypalEnvelopeRequest:
         
     def success(self):
         status = self.ack()
+
         # print status
         if status == "Success" or status == "SuccessWithWarning":
             return True
@@ -401,8 +402,7 @@ class PaypalEnvelopeRequest:
             return self.response['responseEnvelope']['timestamp']
         else:
             return None
-
-
+    
 class Pay( PaypalEnvelopeRequest ):
   def __init__( self, transaction, return_url=None, cancel_url=None):
       
@@ -471,7 +471,7 @@ class Pay( PaypalEnvelopeRequest ):
                   'returnUrl': return_url,
                   'cancelUrl': cancel_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
-                  'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN'),
+                  'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN', args=["paypal"]),
                   'feesPayer': feesPayer,
                   'trackingId': transaction.secret
                   } 
@@ -535,7 +535,15 @@ class Pay( PaypalEnvelopeRequest ):
       return '%s/webapps/adaptivepayment/flow/pay?paykey=%s&expType=light'  % ( settings.PAYPAL_PAYMENT_HOST, self.response['payKey'] )
   
   
-  
+class Execute(Pay):
+    '''
+        For payapl, execute is the same as pay.  The pay funciton detects whether an execute or a co-branded operation
+        is called for.
+    '''
+    def __init__(self, transaction, return_url=None, cancel_url=None):
+        # Call our super class.  In python 2.2+, we can't use super here, so just call init directly
+        Pay.__init__(self, transaction, return_url, cancel_url)
+    
 class Finish(PaypalEnvelopeRequest):
     
     def __init__(self, transaction=None):
@@ -814,7 +822,7 @@ class Preapproval( PaypalEnvelopeRequest ):
                   'returnUrl': return_url,
                   'cancelUrl': cancel_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
-                  'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN')
+                  'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN', args=["paypal"])
                   }
     
           # Is ipnNotificationUrl being computed properly

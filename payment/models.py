@@ -10,6 +10,9 @@ class Transaction(models.Model):
     # type e.g., PAYMENT_TYPE_INSTANT or PAYMENT_TYPE_AUTHORIZATION -- defined in parameters.py
     type = models.IntegerField(default=PAYMENT_TYPE_NONE, null=False)
     
+    # host: the payment processor.  Named after the payment module that hosts the payment processing functions
+    host = models.CharField(default=PAYMENT_HOST_AMAZON, max_length=32, null=False)
+    
     # target: e.g, TARGET_TYPE_CAMPAIGN,  TARGET_TYPE_LIST -- defined in parameters.py 
     target = models.IntegerField(default=TARGET_TYPE_NONE, null=False)
     
@@ -87,6 +90,16 @@ class Transaction(models.Model):
         for r in receiver_list:
             receiver = Receiver.objects.create(email=r['email'], amount=r['amount'], currency=self.currency, status="None", primary=primary, transaction=self)
             primary = False
+            
+    def get_payment_class(self):
+        '''
+            Returns the specific payment module that implements this transaction
+        '''
+        if self.host == PAYMENT_HOST_NONE:
+            return None
+        else:
+            mod = __import__("regluit.payment." + self.host, fromlist=[str(self.host)])
+            return mod
                 
     
 class PaymentResponse(models.Model):
