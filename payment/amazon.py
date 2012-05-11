@@ -55,9 +55,11 @@ try:
     from regluit.core.models import Key
     FPS_ACCESS_KEY = Key.objects.get(name="FPS_ACCESS_KEY").value
     FPS_SECRET_KEY = Key.objects.get(name="FPS_SECRET_KEY").value
-except:
+    logger.info('Successful loading of FPS_*_KEYs')
+except Exception, e:
     FPS_ACCESS_KEY = ''
     FPS_SECRET_KEY = ''
+    logger.info('EXCEPTION: unsuccessful loading of FPS_*_KEYs: {0}'.format(e))
 
 
 def ProcessIPN(request):
