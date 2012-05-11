@@ -37,7 +37,7 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from regluit.core import tasks
-from regluit.core.tasks import send_mail_task
+from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
@@ -816,6 +816,10 @@ class PledgeCompleteView(TemplateView):
         context["faqmenu"] = "complete"
         context["works"] = works
         context["works2"] = works2        
+        
+        # generate notices with same context used for user page
+        notification.queue([transaction.user], "pledge_you_have_pledged", context, True)
+        emit_notifications.delay()
         
         return context        
                 
