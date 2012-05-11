@@ -16,6 +16,10 @@ def rydev():
     env.hosts = ['ec2-107-21-211-134.compute-1.amazonaws.com']
     env.user = 'ubuntu'
 
+def fps_key_local():
+    """ """
+    pass
+
 def update_prod():
     """Updates the production serve by running /opt/regluit/deploy/update-prod"""
     with cd("/opt/regluit"):
