@@ -9,6 +9,7 @@
             	<div class="greenpanel_top">
                     <div class="unglued_white">
 
+					{% if not is_preview %}
 					{% comment %}top section: campaign info + optional action button. Varies by campaign status.{% endcomment %}
                     {% if first_ebook %}
                         <b>AVAILABLE!</b>
@@ -51,6 +52,12 @@
                     </div>
                         
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+                    
+                    {% else %}
+                    	<p>No campaign yet.</p><br /><p>But if lots of ungluers wishlist this book, maybe there will be!</p>
+                    </div>
+                    {% endif %}
+                    
                 </div>
 
 					{% comment %}link to work page{% endcomment %}
@@ -127,13 +134,15 @@
     </div>
     {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">
-    	{% ifequal status "ACTIVE" %}
-        <span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total }}</b> raised of <b>${{ work.last_campaign.target }}</b> goal</span>
-    	{% else %}{% ifequal status "INITIALIZED" %}
-        <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
-		{% else %}
-        <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
-        {% endifequal %}{% endifequal %}
+    	{% if not is_preview %}
+			{% ifequal status "ACTIVE" %}
+			<span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total }}</b> raised of <b>${{ work.last_campaign.target }}</b> goal</span>
+			{% else %}{% if status == "INITIALIZED" %}
+			<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
+			{% else %}
+			<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">{{ status }}</span>
+			{% endif %}{% endifequal %}
+		{% endif %}
     </div>
     <div class="listview panelfront side1 icons">
         {% if status == 'No campaign yet' or status == 'INITIALIZED' %}

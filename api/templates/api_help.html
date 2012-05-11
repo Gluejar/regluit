@@ -5,7 +5,7 @@
 {% block doccontent %}
 
     <h2>API Help</h2>
-    <p>Some of the data from Unglue It is avaiable via a JSON API. You will need a key and username to be able to use the API.
+    <p>Some of the data from Unglue.it is avaiable via a JSON API. You will need a key and username to be able to use the API.
     </p>
     {% if user.is_authenticated %}
        <p> Welcome {{user.username}}. Your API key is <span style="font-weight:bold">{{api_key}}</span>.</p>

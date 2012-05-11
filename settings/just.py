@@ -3,7 +3,7 @@ from regluit.settings.common import *
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
-SITE_ID = 2
+SITE_ID = 5
 
 ADMINS = (
     ('Ed Summers', 'ed.summers@gmail.com'),
@@ -17,10 +17,10 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'please',
+        'NAME': 'unglueit',
         'USER': 'root',
         'PASSWORD': 'forgetn0t',
-        'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'HOST': 'justdb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
     }
 }
@@ -89,7 +89,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 
 # BASE_URL is a hard-coding of the domain name for site and used for PayPal IPN
 # Next step to try https
-BASE_URL = 'http://please.unglueit.com'
+BASE_URL = 'http://just.unglueit.com'
 
 # use redis for production queue
 BROKER_TRANSPORT = "redis"

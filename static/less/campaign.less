@@ -1,4 +1,6 @@
 @import "variables.less";
+@import "campaign_tabs.less";
+@import "book_detail.less";
 
 .shareclass(@sharewhere) {
 	background:url("@{image-base}icons/@{sharewhere}.png") 10px center no-repeat;
@@ -36,12 +38,14 @@
 			font-weight:bold;
 			border:none;
 			margin:0;
+			line-height: 16px;
 			
 			&.ACTIVE {
 				background: @green;
 				color: white;
 				font-size: 18px;
 				font-weight: normal;
+				line-height: 20px;
 			}
 			
 			&.No.campaign.yet {
@@ -68,195 +72,6 @@
 .jsmodule.pledge {
 	float: left;
 	margin-left: 10px;
-}
-
-.book-detail {
-	float:left;
-	width:100%;
-	clear:both;
-	display:block;
-}
-
-#book-detail-img {
-	float: left;
-	margin-right:10px;
-	width:151px;
-	
-	img {
-		.mediaborder;
-	}
-}
-
-.book-detail-info {
-	float:left;
-	/* if we want to nix the explore bar, width should be 544ish */
-	width:309px;
-
-	h2.book-name, h3.book-author, h3.book-year {
-		padding:0;
-		margin:0;
-		line-height:normal
-	}
-
-	h2.book-name {
-		font-size:18px;
-		text-transform:capitalize;
-		font-weight:bold;
-		color:@text-blue;
-	}
-
-	h3.book-author, h3.book-year {
-		font-size:12px;
-		font-weight:normal;
-		color:@medium-blue;
-	}
-	
-	> div {
-		width:100%;
-		clear:both;
-		display:block;
-		overflow:hidden;
-		border-top:1px solid @pale-blue;
-		padding:10px 0;
-	}
-	
-	> div.layout {
-		border: none;
-		padding: 0;
-		
-		div.pubinfo {
-			float: left;
-			width: auto;
-			padding-bottom: 7px;
-		}
-		
-		div.btn_support {
-			float: right;
-			
-			input {
-				background:url("@{image-base}btn_bg.png") 0 0 no-repeat;
-				width:104px;
-				height:41px;
-				display:block;
-				color:#fff;
-				font-weight:bold;
-				text-align:center;
-				border:none;
-				padding:0;
-				cursor:pointer;
-			}
-			
-			&.modify input {
-				background:url("@{image-base}btn_bg_grey.png") 0 0 no-repeat;
-			}
-		}
-	}
-	
-	.btn_wishlist span {
-		text-align: right;
-	}
-	
-	.find-book {
-		margin-top:15px;
-		
-		label {
-			float:left;
-			line-height:31px;
-		}
-	}
-	
-	.find-link {
-		float:right;
-		
-		img {
-			padding: 2px;
-			.one-border-radius(5px);
-		}
-	}
-	
-	.pledged-info {
-		padding:0;
-		position: relative;
-	}
-	
-	.pledged-group {
-		padding:10px 40px 10px 0;
-		float:left;
-	}
-	
-	.status {
-		position: absolute;
-		top:50%;
-		right:0%;
-		height: 25px;
-		margin-top: -12px;
-	}
-	
-}
-
-
-#tabs{ 
-	border-bottom: 4px solid @medium-blue;
-    clear: both;
-    float: left;
-    margin-top: 10px;
-    width: 100%;
-
-	ul.book-list-view {
-		margin-bottom:4px !important;
-	}
-}
-
-#tabs-1, #tabs-2, #tabs-3, #tabs-4 {
-	display:none;
-}
-
-#tabs-1.active, #tabs-2.active, #tabs-3.active, #tabs-4.active {
-	display: inherit;
-}
-
-#tabs-2 textarea {
-	width: 95%;
-}
-
-ul.tabs {
-	float:left;
-	padding:0;
-	margin:0;
-	list-style:none;
-	width: 100%;
-	
-	li {
-		float: left;
-		.height(46px);
-		padding-right:2px;
-		width: 116px;
-		
-		&.tabs4 {
-			padding-right:0px;
-		}
-		
-		a { 
-			.height(46px);
-			display:block;
-			text-align:center;
-			padding:0 10px;
-			min-width:80px;
-			.border-radius(7px, 7px, 0, 0);
-			background:@blue-grey;
-			color:@text-blue;
-			
-			&:hover {
-				text-decoration: none;
-			}
-		}
-		
-		a:hover, &.active a {
-			background:@medium-blue;
-			color:#fff;
-		}
-	}
-
 }
 
 #js-rightcol, #pledge-rightcol {

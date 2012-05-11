@@ -27,12 +27,24 @@
                     <div class="js-topnews3">
                         <div class="user-block">
                             <div id="user-block1">
-                            	<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
-                            </div>
-                            <div class="user-block2"><span class="user-short-info">With your help we're raising money to buy the rights to give these books to the world.</span>
-                            </div>
-                            <div class="user-block3">
-                            </div>
+                            {% if facet == 'recommended' %}
+								<div id="block-intro-text"><span class="special-user-name">Staff Picks</span></div>
+								</div>
+								<div class="user-block2"><span class="user-short-info">Here are the books {% for staffer in unglue_staff %}{% if not forloop.last %}<a href="{% url supporter '{{ staffer }}' %}">{{ staffer }}</a>, {% else %} and <a href="{% url supporter '{{ staffer }}' %}">{{ staffer }}</a>{% endif %}{% endfor %} are loving lately.</span>
+								</div>
+	                            <div class="user-block3 recommended">
+	                            {% for staffer in unglue_staff %}
+                                <img class="user-avatar" src="{{ staffer.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                {% endfor %}
+                                </div>
+	                        {% else %}
+								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
+								</div>
+								<div class="user-block2"><span class="user-short-info">With your help we're raising money to buy the rights to give these books to the world.</span>
+								</div>
+    	                        <div class="user-block3">
+	                            </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -82,7 +94,11 @@
                 </div>
                 <div id="content-block-content">
                     {% ifequal work_list.count 0 %}
+                    {% if facet == 'recommended' %}
+                    Check back soon to see what we're recommending.
+                    {% else %}
                     There aren't any works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
+					{% endif %}
                     {% else %}
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}
                         {% for work in works_unglued %}

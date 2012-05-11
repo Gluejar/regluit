@@ -8,6 +8,9 @@ textarea {
 	width: 90%;
 }
 </style>
+<link type="text/css" rel="stylesheet" href="/static/css/manage_campaign.css" />
+
+<script type="text/javascript" src="/static/js/tabs.js"></script>
 
 <script type="text/javascript">
 var $j = jQuery.noConflict();
@@ -21,12 +24,26 @@ $j(document).ready(function(){
 	);
 });
 </script>
+
+<script>
+var $j = jQuery.noConflict();
+$j(document).ready(function(){
+	$j('#launchme').click(function() {
+		$j('#campaign_launcher').click();
+	});
+});
+</script>
 {% endblock %}
 
-{% block doccontent %}  
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+{% with campaign.status as campaign_status %}
 {% if campaign.not_manager %}
 <h2>You're not a manager for campaign: {{ campaign.name }}</h2>
 {% else %}
+<div id="locationhash">{{ activetab }}</div>
 {% for alert in alerts %}
 <h1 class="alert">{{ alert }}</h1>
 {% empty %}
@@ -41,116 +58,207 @@ Please fix the following before launching your campaign:
 {% empty %}
 {% endfor %}
 
-Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.<br />
-<h2>The work</h2>
+(Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.)<br />
+<div style="height:15px;"></div>
+<div class="book-detail">
+	<div id="book-detail-img">
+		<a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+    </div>
+    
     <div class="book-detail-info">
-        <h2 class="book-name">Title: <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a></h2>
-        <h3 class="book-author">Authors: {{ campaign.work.author }}</h3>
-        <h3 class="book-year">Published: {{ campaign.work.publication_date }}</h3>
-        <h3 class="book-author">Language: {{ campaign.work.language }}</h3>
-        <p>Target Price: ${{ campaign.target }}</p>
-        <p>End Date: {{ campaign.deadline|date:"M d, Y" }}</p>
-        <p>Campaign status: {{ campaign.status }}</p>
+		<div class="layout">
+			<h2 class="book-name">{{ work.title }}</h2>
+			<div>
+				<div class="pubinfo">
+					<h3 class="book-author">{{ work.author }}</h3>
+					<h3 class="book-year">{{ pubdate }}</h3>
+				</div>
+			</div>
+		</div>
+                
+        <div class="pledged-info">
+        	<div class="pledged-group">
+        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
+        	</div>
+        	<div class="status">
+        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
+        	</div>
+        </div>
     </div>
-    <div>
-        <a href="{% url work_preview campaign.work.id %}" class="manage">Preview This Campaign</a>
-    </div>
-<h3>Description of the work offered for ungluing</h3>
-<form action="#" method="POST">
-{% csrf_token %}
-<p> Please choose the edition that most closely matches the edition to be unglued:
-{{ form.edition.errors }}{{ form.edition }}
-<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
-<ul class="terms">
-<li>A synopsis of the work.</li>
-<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself. <span class="rh_help" id="helpHyperlink">(How do I hyperlink?)</span>
-<div class="rh_answer" id="helpHyperlink2">
-<p>Format a hyperlink like this:</p>
-<p>&lt;a href="http://your_link_here"&gt;your link title here&lt;/a&gt;</p>
-<p>For example:</p>
-<p>&lt;a href="http://www.archive.org"&gt;the Internet Archive&lt;/a&gt;</p>
-<p>will display as <a href="http://www.archive.org">the Internet Archive</a>.</p>
-<p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
-</div></li>
-<li>Anything especially appealing about the work or author: awards, embedded video (445px max), etc. <span class="rh_help" id="helpEmbed">(How do I embed video?)</span>
-<div id="helpEmbed2" class="rh_answer">
-<p>To embed a video from YouTube:</p>
-<p>Go to the page where you watch the video.  Under the video, click "Share".</p>
-<p>A new set of options will open up.  Click the "Embed" button.</p>
-<p>This will generate some code for you to copy/paste into the box below.  It will look something like this:</p>
-<p>&lt;iframe width="444" height="301" src="<span style="color:red">http:</span>//www.youtube-nocookie.com/embed/adeDb0BRMZY?rel=0" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</p>
-<p>Copy/paste that text into the box below.  Delete the part that says "http:" (shown in red in the example).  You're done!  We'll figure out the details.</p>
-<p>Of course, if you want to include other text in addition to video, you can do that.</p>
-<p>If you'd like to change the size of the video, feel free; just don't make it more than 445px wide.  Leaving it the default size is fine, too.</p>
-<p>If you'd like to embed a video from another source, please talk to us. You certainly can; we just want to make sure we've given you the right instructions.</p>
-</div></li>
-</ul>
-<p>Make it concise and emotionally appealing.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
-{{ form.description.errors }}{{ form.description }}
-<h3>Offer details</h3>
-<p>This will be displayed on the Details tab for your work.  It's the fine print for your offer.  For example, if your unglued edition will exclude certain illustrations due to rights issues, or otherwise differ from existing editions, this is the place to disclose that.  If your offer doesn't have any fine print, you can leave this blank.</p>
-{{ form.details.errors }}{{ form.details }}
-<h3>Target Price</h3>
-<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it.</p>
-{{ form.target.errors }}{{ form.target }}
-<h3>License being offered</h3>
-<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
-{{ form.license.errors }}{{ form.license }}
-<h3>Ending date</h3>
-<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it. 
-The ending date can't be more than six months away- that's a practical limit for credit card authorizations.</p>
 
-{{ form.deadline.errors }}{{ form.deadline }}
+	<div class="preview_campaign">
+	{% ifequal campaign_status 'INITIALIZED' %}
+		<a href="{% url work_preview campaign.work.id %}" class="manage" target="_blank">Preview Your Campaign</a>
+	{% else %}
+		<a href="{% url work_preview campaign.work.id %}" class="manage" target="_blank">See Your Campaign</a>
+	{% endifequal %}
+	</div>
 
-<h3>Paypal collection address</h3>
-<p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
-<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
-
-<p>We recommend that you save and then preview your campaign before launch.  If it doesn't look exactly the way you like, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
-
-{% ifequal campaign.status 'ACTIVE' %}
-<input type="submit" name="save" value="Modify Campaign" />
-{% else %}
-<input type="submit" name="save" value="Save Campaign" />
-{% endifequal %}
-{% ifequal campaign.status 'INITIALIZED' %}
-<input type="submit" name="launch" value="Launch Campaign" />
-{% endifequal %}
-</form>
-
-<h3>Premiums</h3>
-<div class="jsmod-content">
-    <form action="#" method="POST">
-    {% csrf_token %}
-    <ul class="support menu">
-        {% for premium in premiums %}
-        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-        <a href="{% url pledge work_id=campaign.work.id %}?premium_id={{premium.id}}">
-            <span class="menu-item-price">${{ premium.amount }}</span>
-            <span class="menu-item-desc">{{ premium.description }}</span>
-         </a> 
-           {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
-        {% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
-        {% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
-        </li>
-        {% endfor %}
-     </ul>
-     {% if campaign.custom_premiums.count %}
-     <input type="submit" name="inactivate" value="Inactivate Checked Premiums" />
-     {% endif %}
-    </form>
 </div>
-<h4>Add a custom premium for this campaign</h4>
-<form action="#" method="POST">
-{% csrf_token %}
-Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
-Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
-Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
-{{ premium_form.campaign }}
-{{ premium_form.type.errors }}{{ premium_form.type }}
-<br />
-<input type="submit" name="add_premium" value="Add Premium" />
-</form>
+
+<div class="content-block-heading" id="tabs">
+	<ul class="tabs">
+		<li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">Description</a></li>
+		<li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Premiums</a></li>
+		<li class="tabs3 {% if activetab == '3' %}active{% endif %}"><a href="#">Launch</a></li>
+	</ul>
+</div>
+<div class="clearfix"></div>
+
+<div class="tabs-1">
+	<form action="#" method="POST">
+	{% csrf_token %}
+	<h3>Select the edition</h3>
+	<p> Please choose the edition that most closely matches the edition to be unglued:
+	{{ form.edition.errors }}{{ form.edition }}
+	<h3>Make Your Pitch</h3>
+		<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
+	<ul class="terms">
+	<li>A synopsis of the work.</li>
+	<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself. <span class="rh_help" id="helpHyperlink">(How do I hyperlink?)</span>
+	<div class="rh_answer" id="helpHyperlink2">
+	<p>Format a hyperlink like this:</p>
+	<p>&lt;a href="http://your_link_here"&gt;your link title here&lt;/a&gt;</p>
+	<p>For example:</p>
+	<p>&lt;a href="http://www.archive.org"&gt;the Internet Archive&lt;/a&gt;</p>
+	<p>will display as <a href="http://www.archive.org">the Internet Archive</a>.</p>
+	<p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
+	</div></li>
+	<li>Anything especially appealing about the work or author: awards, embedded video (445px max), etc. <span class="rh_help" id="helpEmbed">(How do I embed video?)</span>
+	<div id="helpEmbed2" class="rh_answer">
+	<p>To embed a video from YouTube:</p>
+	<p>Go to the page where you watch the video.  Under the video, click "Share".</p>
+	<p>A new set of options will open up.  Click the "Embed" button.</p>
+	<p>This will generate some code for you to copy/paste into the box below.  It will look something like this:</p>
+	<p>&lt;iframe width="444" height="301" src="<span style="color:red">http:</span>//www.youtube-nocookie.com/embed/adeDb0BRMZY?rel=0" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</p>
+	<p>Copy/paste that text into the box below.  Delete the part that says "http:" (shown in red in the example).  You're done!  We'll figure out the details.</p>
+	<p>Of course, if you want to include other text in addition to video, you can do that.</p>
+	<p>If you'd like to change the size of the video, feel free; just don't make it more than 445px wide.  Leaving it the default size is fine, too.</p>
+	<p>If you'd like to embed a video from another source, please talk to us. You certainly can; we just want to make sure we've given you the right instructions.</p>
+	</div></li>
+	</ul>
+	<p>Make it concise and emotionally appealing.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
+	{{ form.description.errors }}{{ form.description }}
+	<h3>Offer details</h3>
+	<p>This will be displayed on the Rights tab for your work.  It's the fine print for your offer.  For example, if your unglued edition will exclude certain illustrations due to rights issues, or otherwise differ from existing editions, this is the place to disclose that.  If your offer doesn't have any fine print, you can leave this blank.</p>
+	{{ form.details.errors }}{{ form.details }}
+
+	{% ifnotequal campaign_status 'ACTIVE' %}
+	<h3>Target Price</h3>
+	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target}} .</p>
+	{{ form.target.errors }}{{ form.target }}
+	<h3>License being offered</h3>
+	<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
+	{{ form.license.errors }}{{ form.license }}
+	<h3>Ending date</h3>
+	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.
+	The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ form.latest_ending }}</p>
+	
+	{{ form.deadline.errors }}{{ form.deadline }}
+	
+	{% else %}
+	<h3>Target Price</h3>
+	<p>The current target price for your campaign is <b>${{ campaign.target }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	${{ form.target.errors }}{{ form.target }}
+
+	<h3>License being offered</h3>
+	<p>If your campaign succeeds, you will be offering your ebook under a <b>{{ campaign.license }}</b> license.</p>
+
+	<h3>Ending date</h3>
+	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
+	
+	{% endifnotequal %}
+	
+	{% comment %}
+	<!-- not enforcing this while using Amazon payments -->
+	<h3>Paypal collection address</h3>
+	<p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
+	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
+	{% endcomment %}
+	
+	{% ifequal campaign_status 'ACTIVE' %}
+	<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
+	<input type="submit" name="save" value="Modify Campaign" />
+	{% else %}
+	<br /><br /><input type="submit" name="save" value="Save Campaign" />
+	{% endifequal %}
+	{% if campaign_status == 'INITIALIZED' %}
+	<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
+	{% endif %}
+	</form>
+</div>
+
+<div class="tabs-2">
+	<h3>Premiums</h3>
+	<div class="jsmod-content">
+		<form action="#" method="POST">
+		{% csrf_token %}
+		<ul class="support menu">
+			{% for premium in premiums %}
+			<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+			<a href="{% url pledge work_id=campaign.work.id %}?premium_id={{premium.id}}">
+				<span class="menu-item-price">${{ premium.amount }}</span>
+				<span class="menu-item-desc">{{ premium.description }}</span>
+			 </a> 
+			   {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
+			{% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
+			{% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
+			</li>
+			{% endfor %}
+		 </ul>
+		 {% if campaign.custom_premiums.count %}
+		 <input type="submit" name="inactivate" value="Inactivate Checked Premiums" />
+		 {% endif %}
+		</form>
+	</div>
+	<h4>Add a custom premium for this campaign</h4>
+	<form action="#" method="POST">
+	{% csrf_token %}
+	Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
+	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
+	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
+	{{ premium_form.campaign }}
+	{{ premium_form.type.errors }}{{ premium_form.type }}
+	<br />
+	<input type="submit" name="add_premium" value="Add Premium" />
+	</form>
+</div>
+
+{% ifequal campaign_status 'INITIALIZED' %}
+<div class="tabs-3">
+	{% if campaign.description and campaign.target and campaign.deadline %}
+	<p>Before you hit launch:</p>
+	<ul>
+		<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
+		<li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
+	</ul>
+		
+	<p>If it doesn't look exactly the way you like, or you're having any trouble with your description or premiums, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
+	
+	<p>If you're happy with your campaign, here's your moment of truth!</p>
+	
+	<div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
+	{% else %}
+	<p>Please make sure you've entered your campaign's description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
+	{% endif %}
+	
+</div>
+{% endifequal %}
+
+{% ifequal campaign_status 'ACTIVE' %}
+<div class="tabs-3">
+<h2 class="thank-you">Your campaign is now active! Hooray!</h2>
+
+<h3>What to do next</h3>
+<ul>
+<li>Tell your friends, relatives, media contacts, professional organizations, social media networks -- everyone!</li>
+<li>Check in with your campaign frequently.  Use comments, description updates, and maybe new custom premiums to spark additional interest, keep supporters engaged, and keep the momentum going.</li>
+<li>Watch media and social networks for mentions of your campaign, and engage in those conversations.</li>
+<li>Need help doing any of this?  Talk to us.</li>
+</ul>
+</div>
+{% endifequal %}
 
 {% endif %}
+{% endwith %}
 {% endblock %}

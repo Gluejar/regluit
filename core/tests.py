@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -102,6 +102,9 @@ class BookLoaderTests(TestCase):
         self.assertTrue(edition.work.publication_date)
         edition.publication_date = None
         self.assertTrue(edition.work.publication_date)
+        self.assertTrue(len(edition.work.description) > 20)
+        self.assertTrue(edition.work.identifiers.filter(type='oclc')[0])
+        
 
     def test_merge_works_mechanics(self):
         """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
@@ -278,9 +281,10 @@ class BookLoaderTests(TestCase):
         subjects = [s.name for s in work.subjects.all()]
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
-        self.assertEqual(work.openlibrary_id, '/works/OL27258W')
-        self.assertEqual(work.goodreads_id, '14770')
-        self.assertEqual(work.librarything_id, '609')
+        self.assertTrue('/works/OL27258W' in work.identifiers.filter(type='olwk').values_list('value',flat=True) )
+        self.assertTrue('14770' in work.identifiers.filter(type='gdrd').values_list('value',flat=True))
+        self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value',flat=True))
+
     def test_load_gutenberg_edition(self):
         """Let's try this out for Moby Dick"""
         
@@ -532,3 +536,14 @@ class ISBNTest(TestCase):
         self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])),2)
         self.assertEqual(len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),1)
 
+class EncryptedKeyTest(TestCase):
+    def test_create_read_key(self):
+        name = "the great answer"
+        value = "42"
+        key = Key.objects.create(name=name, value=value)
+        key.save()
+        # do we get back the value?
+        self.assertEqual(Key.objects.filter(name=name)[0].value, value)
+        # just checking that the encrypted value is not the same as the value
+        self.assertNotEqual(key.encrypted_value, value)  # is this always true?
+        

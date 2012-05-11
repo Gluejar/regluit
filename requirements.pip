@@ -25,3 +25,4 @@ fabric
 git+git://github.com/agiliq/merchant.git#egg=django-merchant
 paramiko
 pyasn1
+pycrypto

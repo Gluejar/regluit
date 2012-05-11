@@ -256,13 +256,6 @@ EBOOK_NOTIFICATIONS_JOB = {
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
-# Amazon credentials (for fps)
-AWS_ACCESS_KEY = ''
-AWS_SECRET_ACCESS_KEY = ''
-
-# Amazon FPS Credentials
-FPS_ACCESS_KEY = ''
-FPS_SECRET_KEY = ''
 
 # set -- sandbox or production Amazon FPS?
 AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
@@ -270,3 +263,6 @@ AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'amazon'
+
+# a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
+SECRET_KEY = ''

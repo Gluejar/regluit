@@ -225,7 +225,9 @@ def manage_campaign(request, id):
     if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
-    alerts = []   
+    alerts = []
+    activetab = '#1'
+
     if request.method == 'POST' :
         if request.POST.has_key('add_premium') :
             postcopy=request.POST.copy()
@@ -238,23 +240,29 @@ def manage_campaign(request, id):
             else:
                 alerts.append(_('New premium has not been added'))              
             form = getManageCampaignForm(instance=campaign)
-        elif request.POST.has_key('save') or  request.POST.has_key('launch') :
+            activetab = '#2'
+        elif request.POST.has_key('save') or request.POST.has_key('launch') :
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
                 alerts.append(_('Campaign data has been saved'))
+                activetab = '#2'
             else:
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
-                if campaign.launchable and form.is_valid() :
+                activetab = '#3'
+                # only staff should be allowed to launch a campaign before site launch
+                # this line can be removed after site launch
+                if (campaign.launchable and form.is_valid()) and (not settings.IS_PREVIEW or request.user.is_staff):
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
                 else:
                     alerts.append(_('Campaign has NOT been launched'))
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         elif request.POST.has_key('inactivate') :
+            activetab = '#2'
             if request.POST.has_key('premium_id'):
-                premiums_to_stop = request.POST['premium_id']
+                premiums_to_stop = request.POST.getlist('premium_id')
                 for premium_to_stop in premiums_to_stop:
                     selected_premium = models.Premium.objects.get(id=premium_to_stop)
                     if selected_premium.type == 'CU':
@@ -267,6 +275,13 @@ def manage_campaign(request, id):
         form = getManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
+    work = campaign.work
+
+    try:
+        pubdate = work.publication_date[:4]
+    except IndexError:
+        pubdate = 'unknown'
+               
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
         'form':form, 
@@ -274,6 +289,9 @@ def manage_campaign(request, id):
         'alerts': alerts, 
         'premiums' : campaign.effective_premiums(),
         'premium_form' : new_premium_form,
+        'pubdate': pubdate,
+        'work': work,
+        'activetab': activetab,
     })
         
 def googlebooks(request, googlebooks_id):
@@ -327,7 +345,7 @@ class WorkListView(ListView):
             context = super(WorkListView, self).get_context_data(**kwargs)
             qs=self.get_queryset()
             context['ungluers'] = userlists.work_list_users(qs,5)
-            context['facet'] =self.kwargs['facet']
+            context['facet'] = self.kwargs['facet']
             context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
             context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()
@@ -339,6 +357,11 @@ class WorkListView(ListView):
             counts['unglueing'] = context['works_active'].count()
             counts['wished'] = context['works_wished'].count()
             context['counts'] = counts
+            
+            if (self.kwargs['facet'] == 'recommended'):
+                unglue_staff = models.User.objects.filter(is_staff=True)
+                context['unglue_staff'] = unglue_staff
+                            
             return context
 
 class UngluedListView(ListView):
@@ -861,7 +884,7 @@ def rh_tools(request):
                     claim.campaign_form.save_m2m()
                     claim.can_open_new=False
             else:
-                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title, 'userid': request.user.id})
+                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
         else:
             claim.can_open_new=False
     return render(request, "rh_tools.html", {'claims': claims ,}) 
@@ -1658,7 +1681,7 @@ def emailshare(request):
                 work_id = next.split('=')[1]
                 book = models.Work.objects.get(pk=int(work_id))
                 title = book.title
-                message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.It: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
+                message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.it: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
                 subject = "Help me unglue "+title
             else:
                 work_id = next.split('/')[-2]
@@ -1677,15 +1700,15 @@ def emailshare(request):
             
                 # customize the call to action depending on campaign status
                 if status == 'ACTIVE':
-                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.it: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
                 else:
-                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.It: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.It may start a campaign to pay the creator and make the ebook free to everyone on earth.' 
-                subject = 'Come see one of my favorite books on Unglue.It'
+                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.it: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.it may start a campaign to pay the creator and make the ebook free to everyone on earth.' 
+                subject = 'Come see one of my favorite books on Unglue.it'
             
             form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
-            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': 'Come join me on Unglue.It', 'message':"I'm ungluing books on Unglue.It.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
+            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': 'Come join me on Unglue.it', 'message':"I'm ungluing books on Unglue.it.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
 
     return render(request, "emailshare.html", {'form':form})    
     
