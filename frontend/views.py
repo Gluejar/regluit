@@ -54,7 +54,7 @@ from regluit.payment.paypal import Preapproval
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
-import notification
+from notification import models as notification
 
 
 logger = logging.getLogger(__name__)
