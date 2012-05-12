@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Congratulations! Your claim to {{ claim.work }} has been approved.

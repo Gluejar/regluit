@@ -1,7 +1,11 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+Congratulations!  Your Platform Services Agreement has been accepted and you're now an official Unglue.it rights holder.
 
-You will be also something.
+Here's what to do next.  Find your book(s) on Unglue.it.  On the Rights tab of the book page, you'll now see an option to claim the book.  Do this.  We'll follow up.  Once we've approved your claim, you'll be able to run campaigns for the book.
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+If your book isn't listed in Google Books (which powers our search), you won't be able to find it at Unglue.it.  That's okay.  You can submit your books for inclusion in Google's search results: http://books.google.com/googlebooks/publishers.html .  We can also create a custom page for you; just notify us.
+
+You can also start thinking ahead about what you'd like your campaigns to look like and how you'd like to publicize them.  Some good things to brainstorm: your campaign pitch; any photos or video you can include; compelling premiums you might be able to offer; what you want your target to be and how long you think your campaign should last; and how to share your campaign with your social networks (online and off) and media contacts.
+
+Need help with any of this?  We'd be delighted.  Email us at rights@gluejar.com.  We're thrilled to be working with you.
+
+The Unglue.it team

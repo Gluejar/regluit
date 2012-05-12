@@ -1,7 +1,12 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+You have modified a pledge that you had previously made to the campaign to unglue {{ work.title }}
 
-You will be also something.
+Your new pledge summary
+Amount pledged: {{ amount }}
+Premium: {{ premium }}
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+If you'd like to visit the project page, click here: 
+http://{{site.domain}}{% url work work.id %}
+
+Thank you again for your support.
+
+{{ rightsholder }} and the Unglue.it team

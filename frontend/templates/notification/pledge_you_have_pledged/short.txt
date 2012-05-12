@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Thank you for supporting {{ work.title }} at Unglue.it!

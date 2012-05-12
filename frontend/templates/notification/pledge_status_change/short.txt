@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Your pledge has been modified for {{ work.title}}

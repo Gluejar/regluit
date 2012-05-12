@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Thanks to you, the campaign for {{campaign.work.title}} has succeeded!
