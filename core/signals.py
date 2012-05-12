@@ -125,17 +125,56 @@ successful_campaign.connect(notify_successful_campaign)
 
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written
+# if there is a campaign.rightsholder property accessible from template (which would
+# be awesome), we no longer need rightsholder as context in cases where we have
+# campaign (and cases where we have rightsholder and work but not campaign, we could
+# pass campaign instead)
 # PLEDGE_CHARGED:
+#	'site': (site)
 #	'rightsholder': (rightsholder name)
 #	'amount': (amount supporter's card will be charged)
 #	'premium': (premium requested by the supporter)
 #	'work': (campaign.work)
 #	'payment_processor': (the payment processor)
 # PLEDGE_CHANGE_STATUS:
+#	'site': (site)
 #	'work': (campaign.work)
 #	'rightsholder': (rightsholder name)
 #	'amount': (amount supporter's card will be charged)
 #	'premium': (premium requested by the supporter)
 # RIGHTS_HOLDER_CLAIM_APPROVED:
+#	'site': (site)
 #	'claim': (claim)
 # RIGHTS_HOLDER_CREATED: (no context needed)
+# note -- it might be that wishlist_near_target and wishlist_near_deadline would
+# both be triggered at about the same time -- do we want to prevent supporters
+# from getting both within a small time frame? if so which supersedes?
+# WISHLIST_NEAR_DEADLINE:
+#	'site': (site)
+#	'campaign': (the campaign)
+#	'pledged': (true if the supporter has pledged, false otherwise)
+#	'amount': (amount the supporter has pledged; only needed if pledged is true)
+#	'rightsholder': (the rights holder's name)
+# WISHLIST_NEAR_TARGET:
+#	'site': (site)
+#	'campaign': (the campaign)
+#	'pledged': (true if the supporter has pledged, false otherwise)
+#	'amount': (amount the supporter has pledged; only needed if pledged is true)
+#	'rightsholder': (the rights holder's name)
+# WISHLIST_PREMIUM_LIMITED_SUPPLY:
+# (note we should not send this to people who have already claimed this premium)
+# should we only send this to people who haven't pledged at all, or whose pledge 
+# is smaller than the amount of this premium? (don't want to encourage people to
+# lower their pledge)
+# the text assumes there is only 1 left -- if we're going to send at some other 
+# threshhold this will need to be revised
+#	'rightsholder': (rightsholder)
+#	'campaign': (campaign)
+#	'premium': (the premium in question)
+#	'site': (site)
+# WISHLIST_PRICE_DROP:
+#	'rightsholder'
+#	'campaign'
+#	'pledged': (true if recipient has pledged to campaign, otherwise false)
+#	'amount': (amount recipient has pledged, only needed if pledged=True)
+#	'site'

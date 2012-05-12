@@ -1,7 +1,13 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+Good news!  The rights holder, {{ rightsholder }}, has lowered the target price to ${{ campaign.target }} for {{ campaign.work.title }}.  Now we only need to raise ${{ campaign.left }} by {{ campaign.deadline }} in order to give this book to the world.  
 
-You will be also something.
+{% if pledged %}
+	Your pledge of {{ amount }} is now going even farther toward helping {{ campaign.work.title }} to reach its goal.  Still, we can only unglue this book if the campaign succeeds.  You can help by sharing the campaign (https://{{ site.domain }}{% url work work_id=campaign.work.id %}) with your friends through your favorite media: tweet, Facebook, Tumblr, blog, G+, Pinterest, email, carrier pigeon, or good old-fashioned conversation.
+	{% else %}
+	The target may be lower, but we still need your help to reach it.  Pledges of any amount help.  You can chip in towards giving this book to the world at https://{{ site.domain }}{% url pledge work_id=campaign.work.id %} .
+	
+	You can also help by sharing the campaign (https://{{ site.domain }}{% url work work_id=campaign.work.id %}) with your friends through your favorite media: tweet, Facebook, Tumblr, blog, G+, Pinterest, email, carrier pigeon, or good old-fashioned conversation.
+{% endif %}
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+Thank you!
+
+{{ rightsholder }} and the Unglue.it team

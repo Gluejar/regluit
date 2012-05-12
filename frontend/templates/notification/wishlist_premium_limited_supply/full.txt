@@ -1,7 +1,8 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+Did you want one of the limited-edition premiums for the campaign to unglue {{ campaign.work.title }}?  This is your last chance -- there's only one left!
 
-You will be also something.
+Premium: {{ premium.description }}
+Amount: {{ premium.amount }}
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+If you'd like to claim the last one, pledge here: https://{{ site.domain }}{% url pledge work_id=campaign.work.id %}
+
+{{ rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team

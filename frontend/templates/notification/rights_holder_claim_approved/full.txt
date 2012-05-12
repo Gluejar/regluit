@@ -1,6 +1,6 @@
 Congratulations! Your claim to {{ claim.work }} on Unglue.it has been approved.
 
-You are now free to run a campaign to unglue your work.  If you're logged in, you will see the option to open a campaign at https://unglue.it/rightsholders .  (You can also find this page by clicking on "Rights Holder Tools" at the bottom of any Unglue.it page.)
+You are now free to run a campaign to unglue your work.  If you're logged in, you will see the option to open a campaign at https://{{ site.domain }}/rightsholders .  (You can also find this page by clicking on "Rights Holder Tools" at the bottom of any Unglue.it page.)
 
 To run a campaign, you'll need to select a target price and a deadline.  You'll also need to write a pitch.  This will appear in the Description tab on your book's page (https://{{ site.domain }}{% url work claim.work.id %}).  Think about who your book's audience is, and remind them why they love this book -- your pitch is not a catalog page!  We encourage video, audio, and links to make your pitch come alive.  Feel free to email us (rights@gluejar.com) if you need any help with this.
 

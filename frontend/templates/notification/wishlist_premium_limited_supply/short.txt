@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Last chance for a limited-edition premium for {{campaign.work.title}}

@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+{{campaign.work.title}} is running out of time
