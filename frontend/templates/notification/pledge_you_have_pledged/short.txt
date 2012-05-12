@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+You've pledged to the "{{work.title}}" Campaign. Thanks!

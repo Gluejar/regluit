@@ -6,18 +6,27 @@ $j().ready(function() {
 	
     contentblock.on("click", "div.add-wishlist", function () {
         var span = $j(this).find("span");
-        var gb_id = span.attr('id').substring(1)
-        if (!gb_id) return;
-            
+        var id_val = span.attr('id').substring(1);
+        var id_type = span.attr('class');
+        if (!id_val) {span.html('<i>an error occurred.</i>'); return;}
+
         // give immediate feedback that action is in progress
 	    span.html('<b>Adding...</b>');
             
         // actually perform action
-        jQuery.post('/wishlist/', {'googlebooks_id': gb_id}, function(data) {
+        if (id_type=='work_id'){
+            jQuery.post('/wishlist/', { 'add_work_id': id_val}, function(data) {
         	span.html('On Wishlist!').addClass('on-wishlist');
-        });
+        });}
+        else if (id_type=='gb_id'){
+            jQuery.post('/wishlist/', { 'googlebooks_id': id_val}, function(data) {
+        	span.html('On Wishlist!').addClass('on-wishlist');
+        });}
+        else {
+            span.html('a type error occurred');
+        }
     });
-
+    
     contentblock.on("click", "div.remove-wishlist", function() {
         var span = $j(this).find("span");
         var book = $j(this).closest('.thewholebook');
@@ -55,21 +64,4 @@ $j().ready(function() {
             newDiv.fadeIn('slow');
         });
     });
-});
-
-var $k = jQuery.noConflict();
-
-$k().ready(function() {
-	$k("div.book-detail-info").on("click", "div.add-wishlist-workpage span", function() {
-    	var span = $k(this);
-    	var work_id = span.attr("class");
-    	if (!work_id || work_id === "on-wishlist") return;
-
-	    // give immediate feedback that action is in progress
-	    span.html('<b>Adding...</b>');
-
-	    jQuery.post('/wishlist/', {'add_work_id': work_id}, function(data) {
-        	span.html('<span class="on-wishlist">On Wishlist!</span>');
-	    });
-	});
 });
