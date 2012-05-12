@@ -319,7 +319,6 @@ class CampaignAdminForm(forms.Form):
     
 class EmailShareForm(forms.Form):
     recipient = forms.EmailField(error_messages={'required': 'Please specify a recipient.'})
-    sender = forms.EmailField(widget=forms.HiddenInput())
     subject = forms.CharField(max_length=100, error_messages={'required': 'Please specify a subject.'})
     message = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please include a message.'})
     # allows us to return user to original page by passing it as hidden form input
