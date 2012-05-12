@@ -393,7 +393,7 @@ class PaymentManager( object ):
         
         '''               
         
-        transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACITON_STATUS_ACTIVE)
+        transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:            
             result = self.cancel_transaction(t) 

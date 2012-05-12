@@ -61,6 +61,11 @@ def ecdsa():
 def ssh_fingerprint():
     """display ssh fingerprint of /home/ubuntu/.ssh/id_rsa.pub on remote machine"""
     run ("""ssh-keygen -l -f /home/ubuntu/.ssh/id_rsa.pub""")
+
+def set_key_ry(name,value):
+    """ry-dev is configured differently!"""
+    with cd("/home/ubuntu"):
+        run("""source /home/ubuntu/.virtualenvs/regluit/bin/activate; django-admin.py set_key {0} {1} --settings=regluit.settings.me""".format(name, value))
     
 def set_key(name, value):
     """set encrypted key via the remote Django command -- works for web1, just, please"""
