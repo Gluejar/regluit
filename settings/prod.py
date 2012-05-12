@@ -125,8 +125,8 @@ STATIC_ROOT = '/var/www/static'
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 # set -- sandbox or production Amazon FPS?
-#AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
-AMAZON_FPS_HOST = "fps.amazonaws.com"
+AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+#AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
