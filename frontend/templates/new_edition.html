@@ -14,7 +14,6 @@
 {% else %}
 <h2>Create New Edition</h2>
 {% endif %}
-{{form.errors}}
 <form method="POST" action="#">
     {% csrf_token %}
     {{ form.work }}
