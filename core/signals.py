@@ -80,9 +80,9 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_price_drop", _("Campaign Price Drop"), _("An ungluing campaign you're interested in has a reduced target."), default = 1)
     notification.create_notice_type("wishlist_unglued_book_released", _("Unglued Book!"), _("A book you wanted is now available to be downloaded.'"))
     notification.create_notice_type("pledge_you_have_pledged", _("Thanks For Your Pledge!"), _("Your ungluing pledge has been entered."))
-    notification.create_notice_type("pledge_status_change", _("Your Pledge Has Been Modified"), _("Your ungluing plegde has been modified."))
+    notification.create_notice_type("pledge_status_change", _("Your Pledge Has Been Modified"), _("Your ungluing pledge has been modified."))
     notification.create_notice_type("pledge_charged", _("Your Pledge has been Executed"), _("You have contributed to a successful ungluing campaign."))
-    notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You become a verified Unglue.it rights holder."))
+    notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You have become a verified Unglue.it rights holder."))
     notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
@@ -122,3 +122,20 @@ def notify_successful_campaign(campaign, **kwargs):
     
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
+
+# The notification templates need some context; I'm making a note of that here
+# This can be removed as the relevant functions are written
+# PLEDGE_CHARGED:
+#	'rightsholder': (rightsholder name)
+#	'amount': (amount supporter's card will be charged)
+#	'premium': (premium requested by the supporter)
+#	'work': (campaign.work)
+#	'payment_processor': (the payment processor)
+# PLEDGE_CHANGE_STATUS:
+#	'work': (campaign.work)
+#	'rightsholder': (rightsholder name)
+#	'amount': (amount supporter's card will be charged)
+#	'premium': (premium requested by the supporter)
+# RIGHTS_HOLDER_CLAIM_APPROVED:
+#	'claim': (claim)
+# RIGHTS_HOLDER_CREATED: (no context needed)
