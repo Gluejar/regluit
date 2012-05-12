@@ -74,7 +74,11 @@
 					{% comment %}status of book vis-a-vis user's wishlist{% endcomment %}
 					{% if works and activetab %}
                         <div class="moreinfo add-wishlist">
-                        <span id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        {% if on_search_page %}
+                        <span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        {% else %}
+                        <span class="work_id" id="p{{ work.id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        {% endif %}
                         </div>
                     {% else %}
 				    {% if request.user.id in supporters %}
@@ -96,7 +100,11 @@
                         </div>
                     {% else %}
                         <div class="moreinfo add-wishlist">
-                        <span id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        {% if on_search_page %}
+                        <span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        {% else %}
+                        <span class="work_id" id="p{{ work.id }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        {% endif %}
                         </div>
                     {% endif %}{% endif %}{% endifequal %}{% endif %}{% endif %}
 
@@ -130,7 +138,11 @@
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">
-        <span id="l{{ googlebooks_id }}">Add to Wishlist</span>
+                        {% if on_search_page %}
+                        <span class="gb_id" id="l{{ googlebooks_id }}">Add to Wishlist</span>
+                        {% else %}
+                        <span class="work_id" id="l{{ work.id }}">Add to Wishlist</span>
+                        {% endif %}
     </div>
     {% endif %}{% endif %}{% endifequal %}{% endif %}
     <div class="listview panelfront side1 booklist-status">

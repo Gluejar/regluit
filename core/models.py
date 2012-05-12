@@ -349,15 +349,19 @@ class Work(models.Model):
 
     def cover_image_small(self):
         try:
-            return self.preferred_edition.cover_image_small()
+            if self.preferred_edition.cover_image_small():
+                return self.preferred_edition.cover_image_small()
         except IndexError:
-            return "/static/images/generic_cover_larger.png"
+            pass
+        return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-            return self.preferred_edition.cover_image_thumbnail()
+            if self.preferred_edition.cover_image_thumbnail():
+                return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
-            return "/static/images/generic_cover_larger.png"
+            pass
+        return "/static/images/generic_cover_larger.png"
         
     def author(self):
         # note: if you want this to be a real list, use distinct()

@@ -22,6 +22,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.comments import Comment
+from django.contrib.sites.models import Site
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
@@ -1762,7 +1763,7 @@ def emailshare(request):
         if form.is_valid():
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
-            sender = form.cleaned_data['sender']
+            sender = sender = request.user.email
             recipient = form.cleaned_data['recipient']
             send_mail_task.delay(subject, message, sender, [recipient])
             try:
@@ -1772,41 +1773,34 @@ def emailshare(request):
             return HttpResponseRedirect(next)
             
     else:
-        sender = request.user.email
+        
         try:
             next = request.GET['next']
             if "pledge" in request.path:
                 work_id = next.split('=')[1]
-                book = models.Work.objects.get(pk=int(work_id))
-                title = book.title
-                message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.it: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
-                subject = "Help me unglue "+title
+                work = models.Work.objects.get(pk=int(work_id))
+                message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                subject = "Help me unglue "+work.title
             else:
                 work_id = next.split('/')[-2]
                 work_id = int(work_id)
-                book = models.Work.objects.get(pk=work_id)
-                title = book.title
-                # if title requires unicode let's ignore it for now
+                work = models.Work.objects.get(pk=work_id)
                 try:
-                    title = ', '+str(title)+', '
-                except:
-                    title = ' '
-                try:
-                    status = book.last_campaign().status
+                    status = work.last_campaign().status
                 except:
                     status = None
             
                 # customize the call to action depending on campaign status
                 if status == 'ACTIVE':
-                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.it: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+                    message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
                 else:
-                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.it: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.it may start a campaign to pay the creator and make the ebook free to everyone on earth.' 
+                    message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
                 subject = 'Come see one of my favorite books on Unglue.it'
             
-            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': subject, 'message': message})
+            form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
-            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': 'Come join me on Unglue.it', 'message':"I'm ungluing books on Unglue.it.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
+            form = EmailShareForm(initial={'next':next, 'subject': 'Come join me on Unglue.it', 'message':render_to_string('emails/join_me.txt',{'request':request,'site': Site.objects.get_current()})})
 
     return render(request, "emailshare.html", {'form':form})    
     

@@ -156,8 +156,9 @@ $j(document).ready(function(){
                         <div class="find-book">
                             <label>Find it:</label>
                              <div class="find-link">
-
+                                {% if work.googlebooks_id %}
                                 <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
+                                {% endif %}
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
                                 {% if not request.user.is_anonymous %}
                                 {% if request.user.profile.goodreads_user_link %}
@@ -208,7 +209,7 @@ $j(document).ready(function(){
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
-                                    <span id="w{{ work.googlebooks_id }}">Add to Wishlist</span>
+                                    <span class="work_id" id="w{{ work.id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
                         </div>
