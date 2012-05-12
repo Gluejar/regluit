@@ -260,7 +260,7 @@ class Campaign(models.Model):
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
 
     def custom_premiums(self):
-        """returns only the active custoe premiums for the Campaign """
+        """returns only the active custom premiums for the Campaign """
         return Premium.objects.filter(campaign=self).filter(type='CU')
         
 class Identifier(models.Model):
