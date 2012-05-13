@@ -45,14 +45,17 @@
     </div>
 </div>
     
-<div class="jsmodule rounded">
+<div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
 
 	{% if faqmenu == 'modify' %}	
-	<div>You've already pledged to this campaign.<hr/>
-	Amount: ${{preapproval_amount}}.<br />
-	Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
-	If you would like to modify your pledge, please use the following form.</div>
+	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
+		<div>
+		Amount: ${{preapproval_amount}}.<br />
+		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
+		</div>
+	<br /> You can modify your pledge below.
+	</div>
 	{% endif %}
 
     	{% comment %}
@@ -89,8 +92,8 @@
 	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge"{% endif %} id="pledgesubmit" />    
     	</form>
     </div>
-    
-{% if faqmenu == 'modify' %}<div>We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.</div>{% endif %}
+</div>
+{% if faqmenu == 'modify' %}<div class="spacer"></div><div>We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.</div>{% endif %}
 {% endblock %}
 
 
