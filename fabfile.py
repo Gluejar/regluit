@@ -59,8 +59,8 @@ def ecdsa():
     run("""ssh-keygen -f /etc/ssh/ssh_host_ecdsa_key.pub -l""")
     
 def ssh_fingerprint():
-    """display ssh fingerprint of /home/ubuntu/.ssh/id_rsa.pub on remote machine"""
-    run ("""ssh-keygen -l -f /home/ubuntu/.ssh/id_rsa.pub""")
+    """display ssh fingerprint of /etc/ssh/ssh_host_rsa_key.pub on remote machine"""
+    run ("""ssh-keygen -l -f /etc/ssh/ssh_host_rsa_key.pub""")
 
 def set_key_ry(name,value):
     """ry-dev is configured differently!"""
