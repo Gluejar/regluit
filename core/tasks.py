@@ -51,14 +51,19 @@ def fac(n, sleep_interval=None):
                 sleep(sleep_interval)
         return res
 
-from django.core import mail
+from django.core.mail import get_connection
+from django.core.mail.message import EmailMessage
 
 @task
 def send_mail_task(subject, message, from_email, recipient_list,
             fail_silently=False, auth_user=None, auth_password=None,
             connection=None):
     """a task to drop django.core.mail.send_mail into """
-    return mail.send_mail(subject, message, from_email, recipient_list, fail_silently, auth_user, auth_password, connection)
+    connection = connection or get_connection(username=auth_user,
+                                    password=auth_password,
+                                    fail_silently=fail_silently)
+    return EmailMessage(subject, message, from_email, recipient_list,
+                        connection=connection, headers = {'Reply-To': from_email }).send()
     
 
 from notification.engine import send_all

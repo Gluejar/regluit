@@ -1,4 +1,5 @@
 {% extends "basedocumentation.html" %}
+{% load humanize %}
 
 {% block title %}Campaign Management{% endblock %}
 
@@ -78,7 +79,7 @@ Please fix the following before launching your campaign:
                 
         <div class="pledged-info">
         	<div class="pledged-group">
-        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
+        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total|intcomma }}
         	</div>
         	<div class="status">
         		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
@@ -145,7 +146,7 @@ Please fix the following before launching your campaign:
 
 	{% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>Target Price</h3>
-	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target}} .</p>
+	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target|intcomma}} .</p>
 	{{ form.target.errors }}{{ form.target }}
 	<h3>License being offered</h3>
 	<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
@@ -158,7 +159,7 @@ Please fix the following before launching your campaign:
 	
 	{% else %}
 	<h3>Target Price</h3>
-	<p>The current target price for your campaign is <b>${{ campaign.target }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
 	${{ form.target.errors }}{{ form.target }}
 
 	<h3>License being offered</h3>
@@ -194,7 +195,7 @@ Please fix the following before launching your campaign:
 			{% for premium in premiums %}
 			<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 			<a href="{% url pledge work_id=campaign.work.id %}?premium_id={{premium.id}}">
-				<span class="menu-item-price">${{ premium.amount }}</span>
+				<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 				<span class="menu-item-desc">{{ premium.description }}</span>
 			 </a> 
 			   {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}

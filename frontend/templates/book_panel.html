@@ -1,3 +1,4 @@
+{% load humanize %}
 {% with work.first_ebook as first_ebook %}
 {% with work.last_campaign.supporters as supporters %}
 {% with work.cover_image_thumbnail as thumbnail %}
@@ -19,13 +20,13 @@
                     {% else %}{% if status == 'SUCCESSFUL' %} 
                     	<b>UNGLUED!</b>
                         <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
-                        <p><b>Raised:</b> {{ work.last_campaign.current_total }}</p>
+                        <p><b>Raised:</b> {{ work.last_campaign.current_total|intcomma }}</p>
                     </div>
                     <div class="read_itbutton">{% if first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
                     
                     {% else %}{% if status == 'ACTIVE' %}
                     	<b>UNGLUE IT!</b>
-                        <p><b>${{ work.last_campaign.current_total }}</b> raised</p><p><b>${{ work.last_campaign.target }}</b> needed</p>
+                        <p><b>${{ work.last_campaign.current_total|intcomma }}</b> raised</p><p><b>${{ work.last_campaign.target|intcomma }}</b> needed</p>
                         <p>by {{ deadline|date:"M d, Y" }}</p>
                     </div>
                     <div class="read_itbutton pledge"><a href="/pledge/{{work.id}}">Support</a></div>
@@ -148,7 +149,7 @@
     <div class="listview panelfront side1 booklist-status">
     	{% if not is_preview %}
 			{% ifequal status "ACTIVE" %}
-			<span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total }}</b> raised of <b>${{ work.last_campaign.target }}</b> goal</span>
+			<span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total|intcomma }}</b> raised of <b>${{ work.last_campaign.target|intcomma }}</b> goal</span>
 			{% else %}{% if status == "INITIALIZED" %}
 			<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 			{% else %}

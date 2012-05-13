@@ -1765,7 +1765,7 @@ def emailshare(request):
         if form.is_valid():
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
-            sender = sender = request.user.email
+            sender = '%s via Unglue.it <%s>'%(request.user.username, request.user.email)
             recipient = form.cleaned_data['recipient']
             send_mail_task.delay(subject, message, sender, [recipient])
             try:

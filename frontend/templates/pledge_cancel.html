@@ -1,4 +1,5 @@
 {% extends "basepledge.html" %}
+{% load humanize %}
 
 {% block title %}Pledge Cancelled{% endblock %}
 
@@ -9,7 +10,7 @@
 {% block doccontent %}
 
 {% if transaction %}
-    <div>You've asked to cancel your pledge of ${{ transaction.amount }} to <a href="{% url work work.id %}">{{ work.title }}</a>  Did you mean to do this?</div>
+    <div>You've asked to cancel your pledge of ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>  Did you mean to do this?</div>
     <div class="btn_support">Yes, cancel my pledge</div><div class="btn_support">Whoops, don't cancel!</div>
     
     {% comment %}

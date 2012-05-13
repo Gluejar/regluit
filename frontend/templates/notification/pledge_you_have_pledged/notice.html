@@ -1,3 +1,4 @@
+{% load humanize %}
 <div class="comments clearfix">
 	<div class="comments_book">
 	<a href="{% url work work.id %}?tab=2"><img src="{{ work.cover_image_thumbnail }}" alt="cover image for {{ work.title }}" /></a>
@@ -5,12 +6,12 @@
 	
 	<div class="comments_info">
 		<div class="comments_graphical">
-		  You've just pledged ${{ transaction.amount }} to <a href="{% url work work.id %}">{{ work.title }}</a>.
+		  You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>.
 		</div>
 		<div class="comments_textual">
 
 <p>Thank you, {{transaction.user.username}},</p>
-<p class="pledge_complete">You've just pledged ${{ transaction.amount }} to <a href="{% url work work.id %}">{{ work.title }}</a>.  If it reaches its goal of ${{ campaign.target }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+<p class="pledge_complete">You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
 	<p class="pledge_complete">You can help even more by sharing this campaign with your friends!</p>
 	<ul><li> Email it!</li>
 <li> Tweet it!</li>

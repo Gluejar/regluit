@@ -1,8 +1,7 @@
-{% if campaign.left > 0 %}
-	The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is almost out of time.  We need to raise ${{ campaign.left }} more by {{ campaign.deadline }} in order to give this book to the world.
+{% load humanize %}{% if campaign.left > 0 %}	The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is almost out of time.  We need to raise ${{ campaign.left|intcomma }} more by {{ campaign.deadline }} in order to give this book to the world.
 	
 	{% if pledged %}
-		Your pledge of {{ amount }} is helping {{ campaign.work.title }} to reach its goal, but we can only unglue this book if the campaign succeeds.  You can help your pledge go farther by sharing the campaign (https://{{ site.domain }}{% url work work_id=campaign.work.id %}) with your friends through your favorite media: tweet, Facebook, Tumblr, blog, G+, Pinterest, email, carrier pigeon, or good old-fashioned conversation.
+		Your pledge of {{ amount|intcomma }} is helping {{ campaign.work.title }} to reach its goal, but we can only unglue this book if the campaign succeeds.  You can help your pledge go farther by sharing the campaign (https://{{ site.domain }}{% url work work_id=campaign.work.id %}) with your friends through your favorite media: tweet, Facebook, Tumblr, blog, G+, Pinterest, email, carrier pigeon, or good old-fashioned conversation.
 		{% else %}
 		We need your pledge to reach this target.  Any amount helps.  You can chip in towards giving this book to the world at https://{{ site.domain }}{% url pledge work_id=campaign.work.id %} .
 		
@@ -12,10 +11,10 @@
 	Thank you!
 
 {% else %}
-	The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is on track to succeed!  It has met its target price of {{ campaign.target }} and will close soon.
+	The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is on track to succeed!  It has met its target price of {{ campaign.target|intcomma }} and will close soon.
 	
 	{% if pledged %}
-		Your pledge of {{ amount }} is helping us give this book to the world.  Thank you!  When the campaign closes, we'll be in touch about how and when you'll receive your premiums.
+		Your pledge of ${{ amount|intcomma }} is helping us give this book to the world.  Thank you!  When the campaign closes, we'll be in touch about how and when you'll receive your premiums.
 	{% else %}
 		If you wanted to support this campaign, this is your last chance.  Pledge by midnight (Eastern US time) if you want to help the campaign or receive any premiums: https://{{ site.domain }}{% url pledge work_id=campaign.work.id %}
 	{% endif %}
