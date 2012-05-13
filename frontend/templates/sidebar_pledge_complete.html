@@ -1,3 +1,4 @@
+{% load humanize %}
             <div class="jsmodule">
                 <div class="jsmod-content">
                     <ul class="menu level1">
@@ -5,9 +6,9 @@
                     	stuff about stuff.
                     	will contain campaign info. maybe a cover image. (small.)
 {% comment %}
-	<p class="pledge_complete">You just pledged ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
-    <p class="pledge_complete">If the campaign reaches its target of ${{campaign.target}} by {{campaign.deadline|date:"F d, Y"}},
-    your PayPal account will be charged ${{transaction.amount}}.</p>
+	<p class="pledge_complete">You just pledged ${{transaction.amount|intcomma}} to <a href="{% url work work.id %}">{{work.title}}</a>.</p>
+    <p class="pledge_complete">If the campaign reaches its target of ${{campaign.target|intcomma}} by {{campaign.deadline|date:"F d, Y"}},
+    your PayPal account will be charged ${{transaction.amount|intcomma}}.</p>
     
     note: campaign (image, title, rights holder, deadline, maybe target)
     pledge amount

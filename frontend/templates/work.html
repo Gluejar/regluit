@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load comments %}
+{% load humanize %}
 {% block title %}&#151; {% if work.last_campaign_status == 'ACTIVE' %}Campaign to unglue {% endif %}{{ work.title }}{% endblock %}
 
 {% block extra_css %}
@@ -63,11 +64,11 @@ $j(document).ready(function(){
                 {% else %}{% if work.last_campaign and not is_preview %}
                     {% if status == 'ACTIVE' %}
                             Unglue it! <br />
-                            ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }} <br />
+                            ${{ work.last_campaign.current_total|intcomma }}/${{ work.last_campaign.target|intcomma }} <br />
                             Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
-                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
+                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total|intcomma }} raised of ${{ work.last_campaign.target|intcomma }} goal
                         {% else %}{% if status == 'INITIALIZED' %}
                             Campaign starting soon
                         {% else %}{% if status == 'SUSPENDED' %}
@@ -184,7 +185,7 @@ $j(document).ready(function(){
                             {% else %} 
                                 {{ work.last_campaign.supporters.count }} Ungluers have 
                             {% endif %}
-                            pledged ${{ work.last_campaign.current_total }}<br />toward a ${{ work.last_campaign.target }} goal 
+                            pledged ${{ work.last_campaign.current_total|intcomma }}<br />toward a ${{ work.last_campaign.target|intcomma }} goal 
                         {% else %}
                             {% if wishers == 1 %}
                                 1 Ungluer has
@@ -277,7 +278,7 @@ $j(document).ready(function(){
                             {{ claim.rights_holder.rights_holder_name }}
                             {% endif %} 
                         {% endfor %}
-                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target|intcomma }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
 
                         <h4>Last campaign details</h4>
@@ -397,7 +398,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount }}</span>
+								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>
@@ -408,7 +409,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount }}</span>
+								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>

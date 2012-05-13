@@ -1,3 +1,4 @@
+{% load humanize %}
 {% extends "basepledge.html" %}
 
 {% block title %}Pledge Completed{% endblock %}
@@ -28,7 +29,7 @@
 
     <h2 class="thank-you">Thank you!</h2>
     
-	<p class="pledge_complete">You've just pledged ${{ transaction.amount }} to <a href="{% url work work.id %}">{{ work.title }}</a>.  If it reaches its goal of ${{ campaign.target }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+	<p class="pledge_complete">You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
 	<p class="pledge_complete">You can help even more by sharing this campaign with your friends:</p>
 	
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>

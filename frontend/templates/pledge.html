@@ -1,4 +1,5 @@
 {% extends "basepledge.html" %}
+{% load humanize %}
 
 {% block title %}Pledge{% endblock %}
 
@@ -29,14 +30,14 @@
 
 		<div class="jsmodule rounded pledge">
 			<div class="jsmod-content">
-				${{ work.last_campaign.target }} needed by<br />
+				${{ work.last_campaign.target|intcomma }} needed by<br />
 				{{ work.last_campaign.deadline }}
 			</div>
 		</div>
                 
         <div class="pledged-info">
         	<div class="pledged-group">
-        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
+        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total|intcomma }}
         	</div>
         	<div class="status">
         		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
@@ -51,7 +52,7 @@
 	{% if faqmenu == 'modify' %}	
 	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
 		<div>
-		Amount: ${{preapproval_amount}}.<br />
+		Amount: ${{preapproval_amount|intcomma}}.<br />
 		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
 		</div>
 	<br /> You can modify your pledge below.
@@ -79,7 +80,7 @@
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                 	<input type="radio" name="premium_id" id="premium_{{premium.id}}" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
-                    	${{ premium.amount }}
+                    	${{ premium.amount|intcomma }}
                     </span>
                 	<span class="menu-item-desc">
                 		{{ premium.description }} {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
