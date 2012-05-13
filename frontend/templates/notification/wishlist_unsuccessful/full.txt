@@ -1,7 +1,9 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+Alas.  The campaign to unglue {{ campaign.work.title}} (http://{{site.domain}}{% url work campaign.work.id %}) has not succeeded.
 
-You will be also something.
+If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
+
+Thank you for your support.
+
+{{ rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team

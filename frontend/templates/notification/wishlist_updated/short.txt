@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Update: Campaign to unglue {{campaign.work.title}}

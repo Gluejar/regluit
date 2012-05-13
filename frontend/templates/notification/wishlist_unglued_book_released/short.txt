@@ -1,1 +1,1 @@
-{{work.title}} is available for download!
+{{ work.title }} is available for download!

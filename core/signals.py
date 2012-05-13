@@ -178,3 +178,29 @@ successful_campaign.connect(notify_successful_campaign)
 #	'pledged': (true if recipient has pledged to campaign, otherwise false)
 #	'amount': (amount recipient has pledged, only needed if pledged=True)
 #	'site'
+# WISHLIST_SUCCESSFUL:
+#	'pledged'
+#	'campaign'
+#	'site'
+#	'rightsholder'
+# WISHLIST_UNSUCCESSFUL:
+#	'campaign'
+#	'site'
+#	'rightsholder'
+# WISHLIST_UPDATED:
+# I'd like to provide the actual text of the update in the message but I don't think
+# we can reasonably do that, since campaign.description may contain HTML and we are
+# sending notifications in plaintext.  If we can send the update information in the
+# email, though, let's do that.
+#	'campaign'
+#	'rightsholder'
+#	'site'
+# WISHLIST_WORK_CLAIMED
+# does this trigger when someone claims a work, or when the claim is approved?
+# I've written the text assuming it is the latter (sending notifications on the
+# former seems too sausage-making, and might make people angry if they get
+# notifications about claims they believe are false).  If it's the former, the
+# text should be revisited.
+#	'rightsholder'
+#	'campaign'
+#	'site'

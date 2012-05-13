@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Alas: the campaign for {{ campaign.work.title }} has not succeeded
