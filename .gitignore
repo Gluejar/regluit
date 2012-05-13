@@ -9,3 +9,4 @@ ENV
 build
 deploy/last-update
 logs/*
+celerybeat.pid
