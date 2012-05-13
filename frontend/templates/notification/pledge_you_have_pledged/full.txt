@@ -8,7 +8,7 @@ You can help even more by sharing this campaign with your friends.
 
 Facebook: https://www.facebook.com/sharer.php?u=http://{{ domain }}{% url work work_id %}
 
-Twitter: https://twitter.com/intent/tweet?url=http://{{ domain }}{% url work work_id %}&amp;text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
+Twitter: https://twitter.com/intent/tweet?url=http://{{ domain }}{% url work work_id %}&text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
 
 You can also embed this widget for {{ title }} in your web site:
 <iframe src="https://{{ domain }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"></iframe>
