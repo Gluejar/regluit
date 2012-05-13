@@ -49,7 +49,10 @@
     <div class="jsmod-content">
 
 	{% if faqmenu == 'modify' %}	
-	<p>You have pledged ${{preapproval_amount}}.  If you would like to modify your pledge, please use the following form.</p>
+	<div>You've already pledged to this campaign.<hr/>
+	Amount: ${{preapproval_amount}}.<br />
+	Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
+	If you would like to modify your pledge, please use the following form.</div>
 	{% endif %}
 
     	{% comment %}
@@ -86,7 +89,8 @@
 	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge"{% endif %} id="pledgesubmit" />    
     	</form>
     </div>
-
+    
+{% if faqmenu == 'modify' %}<div>We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.</div>{% endif %}
 {% endblock %}
 
 

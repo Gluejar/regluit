@@ -9,13 +9,21 @@
 {% block doccontent %}
 
 {% if transaction %}
-    <div>You were about to pledge ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a> but hit the cancel link.
-    Naturally, we won't be charging your PayPal account for this campaign unless you give permission.</div>
-    <div>However, the campaign can definitely make use of your pledge -- so won't you reconsider?</div>
-    <div>You <a href="{{try_again_url}}">can finish the pledge transaction</a>.</div>
+    <div>You've asked to cancel your pledge of ${{ transaction.amount }} to <a href="{% url work work.id %}">{{ work.title }}</a>  Did you mean to do this?</div>
+    <div class="btn_support">Yes, cancel my pledge</div><div class="btn_support">Whoops, don't cancel!</div>
+    
+    {% comment %}
+    "Yes" should trigger whatever functionality we need to complete cancellation -- may differ depending on whether we've hit the back button from Amazon or the cancel-my-pledge link in pledge_modify.
+    
+    Similarly. "Whoops" should use {{ try_again_url }} if we're coming out of Amazon, and should be a link back to the work page otherwise.
+    
+    Not sure whether these want to be input buttons for forms, links, javascript, or what -- make them be whichever they need; I have applicable styling in any case.  Will retrofit that.
+    
+    This suggests we may need an if condition to determine which route we've come from since they may have different context (e.g. try_again_url I suspect only applies if we've come by way of the payment processor).
+    {% endcomment %}
 
 {% else %}
-    <div>We're sorry; we can't figure out which transaction you're talking about.  If you meant to cancel a pledge, please go to the book's page and hit the Modify link.</div>
+    <div>We're sorry; we can't figure out which transaction you're talking about.  If you meant to cancel a pledge (though we hope you don't!), please go to the book's page and hit the Modify Pledge button.</div>
 {% endif %}
         
 {% endblock %}

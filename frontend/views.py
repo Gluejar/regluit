@@ -659,8 +659,10 @@ class PledgeModifyView(FormView):
         # preapproval_amount, premium_id (which we don't have stored yet)
         if transaction.premium is not None:
             premium_id = transaction.premium.id
+            premium_description = transaction.premium.description
         else:
             premium_id = None
+            premium_description = None
         
         # is there a Transaction for an ACTIVE campaign for this
         # should make sure Transaction is modifiable.
@@ -675,7 +677,7 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'faqmenu': 'modify'})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'premium_description': premium_description, 'faqmenu': 'modify', 'tid': transaction.id})
         return context
     
     
