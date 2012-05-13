@@ -104,6 +104,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.comments',
+    'django.contrib.humanize',
     'south',
     'django_extensions',
     'regluit.frontend',

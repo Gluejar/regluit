@@ -1,7 +1,7 @@
-You have modified a pledge that you had previously made to the campaign to unglue {{ campaign.work.title }}
+{% load humanize %}You have modified a pledge that you had previously made to the campaign to unglue {{ campaign.work.title }}
 
 Your new pledge summary
-Amount pledged: {{ amount }}
+Amount pledged: {{ amount|intcomma }}
 Premium: {{ premium }}
 
 If you'd like to visit the project page, click here: 

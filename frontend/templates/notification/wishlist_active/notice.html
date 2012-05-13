@@ -1,3 +1,4 @@
+{% load humanize %}
 {% with campaign.work.id as id %}
 {% with campaign.work.title as title %}
 
@@ -11,7 +12,7 @@
 	        <span>The rights holder, {{ active_claim.rights_holder.rights_holder_name }}, has launched a campaign for <a href="{% url work id %}">{{ title }}</a>!</span>
 		</div>
 		<div class="comments_textual">
-			<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ title }}</i> will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
+			<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ title }}</i> will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
 			<div>You can help!  <a href="{% url pledge work_id=id %}">Pledge</a> any amount, and use the sharing options on the <a href="{% url work id %}">campaign page</a> to tell your friends.</a></div>
 		</div>
 	</div>
