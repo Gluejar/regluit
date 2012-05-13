@@ -5,4 +5,4 @@ Amount: {{ premium.amount }}
 
 If you'd like to claim the last one, pledge here: https://{{ site.domain }}{% url pledge work_id=campaign.work.id %}
 
-{{ rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team

@@ -1,4 +1,4 @@
-You have modified a pledge that you had previously made to the campaign to unglue {{ work.title }}
+You have modified a pledge that you had previously made to the campaign to unglue {{ campaign.work.title }}
 
 Your new pledge summary
 Amount pledged: {{ amount }}
@@ -9,4 +9,4 @@ http://{{site.domain}}{% url work work.id %}
 
 Thank you again for your support.
 
-{{ rightsholder }} and the Unglue.it team
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team

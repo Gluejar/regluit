@@ -10,4 +10,4 @@ Join the discussion: share why you love {{ campaign.work.title }} and the world 
 
 Thank you!
 
-{{ active_claim.rights_holder.rights_holder_name }} (rights holder for {{ campaign.work.title }}) and the Unglue.it Team
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it Team

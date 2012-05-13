@@ -1,3 +1,3 @@
-There's new information about a work on your wishlist!  {{ rightsholder }}, the rights holder for {{ campaign.work.title}}, has updated the campaign.  See the details at http://{{site.domain}}{% url work campaign.work.id %}.
+There's new information about a work on your wishlist!  {{ campaign.rightsholder }}, the rights holder for {{ campaign.work.title}}, has updated the campaign.  See the details at http://{{site.domain}}{% url work campaign.work.id %}.
 
-{{ rightsholder }} and the Unglue.it team
+{{ campaign.rightsholder }} and the Unglue.it team

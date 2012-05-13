@@ -2,8 +2,8 @@ Alas.  The campaign to unglue {{ campaign.work.title}} (http://{{site.domain}}{%
 
 If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 
-Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
+Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ campaign.rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
 
 Thank you for your support.
 
-{{ rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team

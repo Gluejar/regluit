@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Thank you, {{transaction.user.username}}!  You have pledged to unglue {{ work.title }}.  If this campaign successfully raises ${{ campaign.target }} by {{ campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
 
 Pledge summary

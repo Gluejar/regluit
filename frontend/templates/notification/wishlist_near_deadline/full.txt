@@ -23,4 +23,4 @@
 	Thanks to ungluers like you, we'll soon be able to give this book to the world together.  Hooray!
 {% endif %}
 
-{{ rightsholder }} and the Unglue.it team
+{{ campaign.rightsholder }} and the Unglue.it team

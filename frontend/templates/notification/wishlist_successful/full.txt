@@ -4,9 +4,9 @@ for {{ campaign.work.title}} (http://{{site.domain}}{% url work campaign.work.id
 You will notified when an Unglued ebook edition is available, within 90 days.
 {% if pledged %}
 
-If necessary to provide you with any premiums you requested, {{ rightsholder }} will be contacting you.
+If necessary to provide you with any premiums you requested, {{ campaign.rightsholder }} will be contacting you.
 {% endif%}
 
 Thank you for your support.
 
-{{ rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team

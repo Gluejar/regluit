@@ -10,4 +10,4 @@ The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is cl
 
 Thank you!
 
-{{ rightsholder }} and the Unglue.it team
+{{ campaign.rightsholder }} and the Unglue.it team
