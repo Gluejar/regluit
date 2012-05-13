@@ -212,7 +212,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim, 'site': Site.objects.get_current()}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'site': Site.objects.get_current()}, True)
         return self
 
 
@@ -255,14 +255,26 @@ class Campaign(models.Model):
         return translist
 
     def effective_premiums(self):
-        """returns  the available premiums for the Campaign including any default premiums"""
+        """returns the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
 
     def custom_premiums(self):
-        """returns only the active custom premiums for the Campaign """
+        """returns only the active custom premiums for the Campaign"""
         return Premium.objects.filter(campaign=self).filter(type='CU')
         
+    @property
+    def rightsholder(self):
+        """returns the name of the rights holder for an active or initialized campaign"""
+        try:
+			if self.status=='ACTIVE' or self.status=='INITIALIZED':
+				q = Q(status='ACTIVE') | Q(status='INITIALIZED')
+				rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
+				return rh
+        except:
+            pass
+        return ''
+
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)
