@@ -525,13 +525,24 @@ class PledgeView(FormView):
         form_class = self.get_form_class()
         form = form_class()
         
-        return self.render_to_response(self.get_context_data(form=form))    
+        context_data = self.get_context_data(form=form)
+        # if there is already an active campaign pledge for user, redirect to the pledge modify page
+        if context_data.get('redirect_to_modify_pledge'):
+            work = context_data['work']
+            return HttpResponseRedirect(reverse('pledge_modify', args=[work.id]))
+        else:
+            return self.render_to_response(context_data)    
     
     def get_context_data(self, **kwargs):
+        """set up the pledge page"""
+
+        # the following should be true since PledgeModifyView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user        
+        
         context = super(PledgeView, self).get_context_data(**kwargs)
         
         work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
-        
         campaign = work.last_campaign()
         
         if campaign:
@@ -563,8 +574,17 @@ class PledgeView(FormView):
         except IndexError:
             pubdate = 'unknown'
 
+        context.update({'redirect_to_modify_pledge':False, 'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
+            
+        # check whether the user already has an ACTIVE transaction for the given campaign.
+        # if so, we should redirect the user to modify pledge page
+        # BUGBUG:  but what about Completed Transactions?
+        transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
+        if transactions.count() > 0:
+            context.update({'redirect_to_modify_pledge':True})
+        else:
+            context.update({'redirect_to_modify_pledge':False})
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
         return context
     
     def form_valid(self, form):
