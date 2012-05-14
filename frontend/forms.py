@@ -204,7 +204,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             error_messages={'required': 'You must enter the email associated with your Paypal account.'},
             )
         target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a target price.'} )
-        edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected')
+        edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
         latest_ending = (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()).date
                 
