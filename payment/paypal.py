@@ -404,8 +404,9 @@ class PaypalEnvelopeRequest:
 
 
 class Pay( PaypalEnvelopeRequest ):
-  def __init__( self, transaction, return_url=None, cancel_url=None):
+  def __init__( self, transaction, return_url=None, cancel_url=None, paymentReason=""):
       
+      #BUGBUG: though I'm passing in paymentReason (to make it signature compatible with Amazon, it's not being wired in properly yet)
       try:
           
           headers = {
@@ -778,7 +779,9 @@ class RefundPayment(PaypalEnvelopeRequest):
         
 
 class Preapproval( PaypalEnvelopeRequest ):
-  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
+  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None, paymentReason=""):
+      
+      # BUGBUG:  though I'm passing in paymentReason (to make it signature compatible with Amazon, it's not being wired in properly yet)
       
       try:
           
