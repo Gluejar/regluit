@@ -843,6 +843,7 @@ class PledgeCompleteView(TemplateView):
         context["faqmenu"] = "complete"
         context["works"] = works
         context["works2"] = works2   
+        context["domain"] = Site.objects.get_current().domain
         
         # generate notices with same context used for user page
         notification.queue([transaction.user], "pledge_you_have_pledged", {'transaction': transaction, 'campaign': campaign, 'site': Site.objects.get_current(), 'work': work}, True)
