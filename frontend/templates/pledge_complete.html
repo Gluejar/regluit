@@ -36,7 +36,7 @@
 	<ul class="social menu pledge">
 		<a href="https://www.facebook.com/sharer.php?u={% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
 		<a href="https://twitter.com/intent/tweet?url={% url work work.id|urlencode:"" %}&amp;text=I%20just%20pledged%20to%20unglue%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
-		<a href="{% url emailshare %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>
+		<a href="{% url emailshare 'pledge' %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>
 		<a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
 	</ul>
 </div>
