@@ -164,10 +164,10 @@ Please fix the following before launching your campaign:
 
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b>{{ campaign.license }}</b> license.</p>
-
+	{{ form.license.errors }}<span style="display: none">{{ form.license }}</span>
 	<h3>Ending date</h3>
 	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
-	
+	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% endifnotequal %}
 	
 	<h3>Paypal collection address</h3>
