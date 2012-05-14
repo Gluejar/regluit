@@ -1779,7 +1779,7 @@ def work_goodreads(request, work_id):
     return HttpResponseRedirect(url)
 
 @login_required
-def emailshare(request):
+def emailshare(request, action):
     if request.method == 'POST':
         form=EmailShareForm(request.POST)
         if form.is_valid():
@@ -1798,15 +1798,13 @@ def emailshare(request):
         
         try:
             next = request.GET['next']
-            if "pledge" in request.path:
-                work_id = next.split('=')[1]
-                work = models.Work.objects.get(pk=int(work_id))
+            work_id = next.split('/')[-2]
+            work_id = int(work_id)
+            work = models.Work.objects.get(pk=work_id)
+            if action == 'pledge':
                 message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
                 subject = "Help me unglue "+work.title
             else:
-                work_id = next.split('/')[-2]
-                work_id = int(work_id)
-                work = models.Work.objects.get(pk=work_id)
                 try:
                     status = work.last_campaign().status
                 except:
