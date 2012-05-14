@@ -7,7 +7,7 @@ $j(function() {
 $j().ready(function() {
 	var inputbox = $j('#id_preapproval_amount');
 	
-	$j('#premiums_list input').click(function() {
+	$j('#premiums_list input').on("click", function() {
 		amount = $j(this).siblings('span.menu-item-price').html();
 		amount = amount.split('$')[1];
 		current = inputbox.val();
