@@ -20,7 +20,7 @@ django-endless-pagination
 django-selectable
 pytz
 django-notification
-boto
+git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 fabric
 git+git://github.com/agiliq/merchant.git#egg=django-merchant
 paramiko
