@@ -1,12 +1,18 @@
-// This autofills the pledge box when users select a premium tier.
 var $j = jQuery.noConflict();
-
+//give pledge box focus
+$j(function() {
+  $j('#id_preapproval_amount').focus();
+});
+// This autofills the pledge box when users select a premium tier.
 $j().ready(function() {
 	var inputbox = $j('#id_preapproval_amount');
 	
 	$j('#premiums_list input').click(function() {
 		amount = $j(this).siblings('span.menu-item-price').html();
-		amount = amount.split('$')[1]
-		inputbox.val(amount);
+		amount = amount.split('$')[1];
+		current = inputbox.val();
+		if (current<amount)
+		    {inputbox.val(amount);}
 	});
 });
+
