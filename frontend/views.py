@@ -220,10 +220,8 @@ def work(request, work_id, action='display'):
         'countdown': countdown,
     })
 
-def new_edition(request, work_id, edition_id):
+def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
-        return render(request, "admins_only.html")
-    if not request.user.is_staff :
         return render(request, "admins_only.html")
     # if the work and edition are set, we save the edition and set the work    
     language='en'
@@ -243,6 +241,12 @@ def new_edition(request, work_id, edition_id):
     else:
         work=None
         
+    if not request.user.is_staff :
+        if by == 'rh' and work is not None:
+            if not request.user in work.last_campaign().managers.all():
+                return render(request, "admins_only.html")
+        else:
+            return render(request, "admins_only.html")
     if edition_id:
         try:
             edition = models.Edition.objects.get(id = edition_id)

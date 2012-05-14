@@ -110,8 +110,14 @@ Please fix the following before launching your campaign:
 	<form action="#" method="POST">
 	{% csrf_token %}
 	<h3>Select the edition</h3>
-	<p> Please choose the edition that most closely matches the edition to be unglued:
+	<p> Please choose the edition that most closely matches the edition to be unglued:</p>
+	
 	{{ form.edition.errors }}{{ form.edition }}
+	{% if campaign.edition %}
+	<p>You can edit the campaign's <a href="{% url rh_edition work.id campaign.edition.id %}">preferred edition</a>.</p>
+	{% else %}
+	<p>If none of the existing editions matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
+	{% endif %}
 	<h3>Make Your Pitch</h3>
 		<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
 	<ul class="terms">
@@ -164,10 +170,10 @@ Please fix the following before launching your campaign:
 
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b>{{ campaign.license }}</b> license.</p>
-
+	{{ form.license.errors }}<span style="display: none">{{ form.license }}</span>
 	<h3>Ending date</h3>
 	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
-	
+	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% endifnotequal %}
 	
 	<h3>Paypal collection address</h3>
