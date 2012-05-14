@@ -624,8 +624,11 @@ class PledgeView(FormView):
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+
+            paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium,
+                            paymentReason=paymentReason)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
@@ -745,7 +748,9 @@ class PledgeModifyView(FormView):
         assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE        
         
         p = PaymentManager(embedded=self.embedded)
-        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium)
+        paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
+        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium,
+                                           paymentReason=paymentReason)
         
         logger.info("status: {0}, url:{1}".format(status, url))
         

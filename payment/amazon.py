@@ -385,7 +385,7 @@ class Pay( AmazonRequest ):
     The pay function generates a redirect URL to approve the transaction
   '''
     
-  def __init__( self, transaction, return_url=None, cancel_url=None, amount=None):
+  def __init__( self, transaction, return_url=None, cancel_url=None, amount=None, paymentReason=""):
       
       try:
           logging.debug("Amazon PAY operation for transaction ID %d" % transaction.id)
@@ -418,7 +418,7 @@ class Pay( AmazonRequest ):
                   'validityExpiry': str(int(time.mktime(expiry.timetuple()))), # use the preapproval date by default
                   }
           
-          self.url = self.connection.make_url(return_url, "Test Payment", "MultiUse", str(amount), **data)
+          self.url = self.connection.make_url(return_url, paymentReason, "MultiUse", str(amount), **data)
           
           logging.debug("Amazon PAY redirect url was: %s" % self.url)
           
@@ -452,7 +452,7 @@ class Pay( AmazonRequest ):
   
 class Preapproval(Pay):
     
-    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
+    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None, paymentReason=""):
       
         # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
         now_val = now()
@@ -463,7 +463,7 @@ class Preapproval(Pay):
         transaction.save()
           
         # Call into our parent class
-        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, amount=amount)
+        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, amount=amount, paymentReason=paymentReason)
   
   
 class Execute(AmazonRequest):
