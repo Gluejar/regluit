@@ -10,8 +10,8 @@ $j().ready(function() {
 	$j('#premiums_list input').on("click", function() {
 		amount = $j(this).siblings('span.menu-item-price').html();
 		amount = amount.split('$')[1];
-		current = inputbox.val();
-		if (current<amount)
+		current = parseInt(inputbox.val());
+		if (current<parseInt(amount))
 		    {inputbox.val(amount);}
 	});
 });

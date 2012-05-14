@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block doccontent %}
-<div style="height:15px";></div>
+<div style="height:15px"></div>
 <div class="book-detail">
 	<div id="book-detail-img">
 		<a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
@@ -76,8 +76,8 @@
         	<ul class="support menu" id="premiums_list">
             	{% for premium in premiums %}
             	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-            	<label for="premium_{{premium.id}}">
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+            	<label for="premium_{{premium.id}}">
                 	<input type="radio" name="premium_id" id="premium_{{premium.id}}" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium.amount|intcomma }}
@@ -85,7 +85,7 @@
                 	<span class="menu-item-desc">
                 		{{ premium.description }} {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
-           		</a></li></label>
+           		</label></li>
             	{% endif %}
             	{% endfor %}
          	</ul>
