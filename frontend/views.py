@@ -137,8 +137,6 @@ def work(request, work_id, action='display'):
         editions = [campaign.edition]
     else:
         editions = work.editions.all().order_by('-publication_date')
-    if action == 'preview':
-        work.last_campaign_status = 'ACTIVE'
     try:
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
@@ -155,6 +153,8 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % time_remaining.seconds/60
         else:
             countdown = "right now"
+    if action == 'preview':
+        work.last_campaign_status = 'ACTIVE'
         
     try:
         pubdate = work.publication_date[:4]
