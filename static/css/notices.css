@@ -141,6 +141,9 @@ input[type="submit"] {
   margin: 5px;
   max-width: 80px;
 }
+.comments .comments_book img {
+  max-width: 80px;
+}
 .comments .comments_info {
   width: 590px;
 }
