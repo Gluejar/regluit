@@ -91,7 +91,7 @@ def slideshow(max):
 
 def next(request):
     if request.COOKIES.has_key('next'):
-        response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+        response = HttpResponseRedirect(urllib.unquote(urllib.unquote(request.COOKIES['next'])))
         response.delete_cookie('next')
         return response
     else:

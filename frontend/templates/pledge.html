@@ -82,16 +82,16 @@ $j(function() {
         	<div class="pledge_amount premium_level">Choose your premium:</div>
 
         	<ul class="support menu" id="premiums_list">
-            	{% for premium in premiums %}
-            	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
+            	{% for premium_item in premiums %}
+            	{% if premium_item.limit == 0  or  premium_item.limit > premium_item.premium_count  %}
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-            	<label for="premium_{{premium.id}}">
-                	<input type="radio" name="premium_id" id="premium_{{premium.id}}" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
+            	<label for="premium_{{premium_item.id}}">
+                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %}/>
                     <span class="menu-item-price">
-                    	${{ premium.amount|intcomma }}
+                    	${{ premium_item.amount|intcomma }}
                     </span>
                 	<span class="menu-item-desc">
-                		{{ premium.description }} {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+                		{{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
            		</label></li>
             	{% endif %}
