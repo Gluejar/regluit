@@ -2,18 +2,20 @@
 {% with comment.user as user %}
 
 <div class="comments clearfix">
-	<div class="comments_book">
-    	<a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ comment.content_object.title }}" /></a>
-	</div>
 	
-	<div class="comments_info">
-		<div class="comments_graphical">
-	        <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> has made a comment on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
+	<div class="comments_info clearfix">
+		<div class="comments_book">
+			<a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ comment.content_object.title }}" /></a>
 		</div>
-		<div class="comments_textual">
-			{{ comment.comment|linebreaksbr }}
+		<div class="comments_graphical">
+	        <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> has made a comment on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a>.</span>
 		</div>
 	</div>
+
+	<div class="comments_textual">
+		{{ comment.comment|linebreaksbr }}
+	</div>
+
 </div>
 
 {% endwith %}
