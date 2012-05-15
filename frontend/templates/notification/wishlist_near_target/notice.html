@@ -1,19 +1,30 @@
+{% load humanize %}
 <div class="comments clearfix">
-	<div class="comments_book">
-	<a href="{% url work campaign.work.id %}?tab=2"><img src="{{ campaign.work.cover_image_thumbnail }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<div class="comments_info clearfix">
+		<div class="comments_book">
+			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+		</div>
+		<div class="comments_graphical">
+			<img src="/static/images/images/icon-book-37by25-{{ campaign.work.percent_unglued }}.png" alt="almost-unglued icon" title="almost-unglued icon" />
+	        <span>The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is close to succeeding!</span>
+			{% endcomment %}
+		</div>
 	</div>
 	
-	<div class="comments_info">
-		<div class="comments_graphical">
-		  
-		</div>
-		<div class="comments_textual">
+	<div class="comments_textual">
+		{% if pledged %}
+		Your pledge is helping us reach the campaign's target price of {{ campaign.target }}.  Will you help again by sharing this campaign with your friends?
+		{% else %}
+		You can help us give this book to the world by <a href="{% url pledge work_id=campaign.work.id %}">pledging</a> or by sharing this campaign with your friends.
+		{% endif %}
 
-<p>
-text comments
-</p>
-
-<p class="classname">Give ebooks to the world; give income to authors and publishers.  Unglue.it</p>
-		</div>
+		<ul>
+			<a href="{% url emailshare 'pledge' %}?next={% url work campaign.work.id|urlencode:"" %}"><li>Email it!</li></a>
+			<a href="https://twitter.com/intent/tweet?url=http://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}&text=Help%20me%20give%20{{ campaign.work.title|urlencode }}%20to%20the%20world%20at%20%40unglueit"><li>Tweet it!</li></a>
+			<a href="https://www.facebook.com/sharer.php?u=http://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
+			<li>Best idea: talk about it with those you love.</li>
+		</ul><br />
+		
+		Thank you!
 	</div>
 </div>

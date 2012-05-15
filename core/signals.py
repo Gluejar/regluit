@@ -188,5 +188,6 @@ successful_campaign.connect(notify_successful_campaign)
 # former seems too sausage-making, and might make people angry if they get
 # notifications about claims they believe are false).  If it's the former, the
 # text should be revisited.
-#	'campaign'
+#	'claim'
 #	'site'
+#	'rightsholder' (the name of the rightsholder)
