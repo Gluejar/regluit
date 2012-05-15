@@ -7,15 +7,14 @@ Using this template will allow notices.css to apply to all notices for a uniform
 {% endcomment %}
 
 <div class="comments clearfix">
-	<div class="comments_book">
-		{% comment %}
-		Your cover image goes here. e.g.:
-		<a href="{% url work work.id %}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
-		modify as needed for your local context variables
-		{% endcomment %}
-	</div>
-	
-	<div class="comments_info">
+	<div class="comments_info clearfix">
+		<div class="comments_book">
+			{% comment %}
+			Your cover image goes here. e.g.:
+			<a href="{% url work work.id %}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+			modify as needed for your local context variables
+			{% endcomment %}
+		</div>
 		<div class="comments_graphical">
 			{% comment %}
 			This is where you put graphics-oriented header info for the notice.
@@ -32,11 +31,12 @@ Using this template will allow notices.css to apply to all notices for a uniform
 	        <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
 			{% endcomment %}
 		</div>
-		<div class="comments_textual">
-			{% comment %}
-			This is where you put the textual part of your message.
-			Examples include the text of comments, details about credit card charges, etc.
-			{% endcomment %}
-		</div>
+	</div>
+	
+	<div class="comments_textual">
+		{% comment %}
+		This is where you put the textual part of your message.
+		Examples include the text of comments, details about credit card charges, etc.
+		{% endcomment %}
 	</div>
 </div>
