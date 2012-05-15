@@ -105,6 +105,9 @@
   font-size: 17px;
   background: #edf3f4;
 }
+.pledge_amount.premium_level {
+  margin-top: 3px;
+}
 form.pledgeform {
   width: 470px;
 }
