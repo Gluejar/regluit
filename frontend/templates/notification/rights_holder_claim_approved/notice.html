@@ -1,19 +1,14 @@
 <div class="comments clearfix">
-	<div class="comments_book">
-	<a href="{% url work campaign.work.id %}?tab=2"><img src="{{ campaign.work.cover_image_thumbnail }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<div class="comments_info clearfix">
+		<div class="comments_book">
+			<a href="{% url work claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
+		</div>
+		<div class="comments_graphical">
+			Congratulations!  Your claim to {{ claim.work.title }} has been approved.
+		</div>
 	</div>
 	
-	<div class="comments_info">
-		<div class="comments_graphical">
-		  
-		</div>
-		<div class="comments_textual">
-
-<p>
-text comments
-</p>
-
-<p class="classname">Give ebooks to the world; give income to authors and publishers.  Unglue.it</p>
-		</div>
+	<div class="comments_textual">
+		You are now free to run campaigns for this work.  See your email for full details.  Then get started on the <a href="/rightsholders/">rights holder tools page</a> (also available through a link at the bottom of every page).  Contact us if you need any help.
 	</div>
 </div>

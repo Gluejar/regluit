@@ -200,10 +200,10 @@ Please fix the following before launching your campaign:
 		<ul class="support menu">
 			{% for premium in premiums %}
 			<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-			<a href="{% url pledge work_id=campaign.work.id %}?premium_id={{premium.id}}">
+			<i>
 				<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 				<span class="menu-item-desc">{{ premium.description }}</span>
-			 </a> 
+			</i>
 			   {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
 			{% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
 			{% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
@@ -211,10 +211,12 @@ Please fix the following before launching your campaign:
 			{% endfor %}
 		 </ul>
 		 {% if campaign.custom_premiums.count %}
-		 <input type="submit" name="inactivate" value="Inactivate Checked Premiums" />
+		 <input type="submit" name="inactivate" value="Deactivate Checked Premiums" />
 		 {% endif %}
 		</form>
 	</div>
+	<h4>Editing premiums</h4>
+	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
 	<h4>Add a custom premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}

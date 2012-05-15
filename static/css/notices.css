@@ -83,6 +83,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {
@@ -132,27 +133,28 @@ input[type="submit"] {
   border: solid 3px #d6dde0;
   margin: 3px auto;
 }
-.comments div {
-  float: left;
-}
 .comments .comments_book {
   padding: 5px;
   border: solid 5px #EDF3F4;
   margin: 5px;
   max-width: 80px;
 }
-.comments .comments_info {
-  width: 590px;
+.comments .comments_book img {
+  max-width: 80px;
 }
-.comments .comments_info .comments_graphical {
-  border-bottom: solid 1px #d6dde0;
-  margin: 5px;
-  padding-bottom: 5px;
-  float: none;
-}
-.comments .comments_info .comments_textual {
+.comments .comments_textual {
   margin: auto 5px 7px;
 }
-.comments .comments_info .comments_textual div {
+.comments .comments_textual div {
   margin-bottom: 5px;
+}
+.comments .comments_info {
+  border-bottom: solid 1px #d6dde0;
+}
+.comments .comments_info div {
+  float: left;
+}
+.comments .comments_info .comments_graphical {
+  margin: 5px;
+  padding-bottom: 5px;
 }

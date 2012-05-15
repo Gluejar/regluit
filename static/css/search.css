@@ -83,6 +83,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {

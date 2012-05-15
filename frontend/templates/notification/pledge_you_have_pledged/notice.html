@@ -1,25 +1,27 @@
 {% load humanize %}
 <div class="comments clearfix">
-	<div class="comments_book">
-	<a href="{% url work work.id %}?tab=2"><img src="{{ work.cover_image_thumbnail }}" alt="cover image for {{ work.title }}" /></a>
-	</div>
-	
-	<div class="comments_info">
+	<div class="comments_info clearfix">
+		<div class="comments_book">
+			<a href="{% url work work.id %}?tab=2"><img src="{{ work.cover_image_thumbnail }}" alt="cover image for {{ work.title }}" /></a>
+		</div>
 		<div class="comments_graphical">
 		  You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>.
 		</div>
-		<div class="comments_textual">
+	</div>
+	
+	<div class="comments_textual">
+		<p>Thank you, {{transaction.user.username}}!</p>
+		<p>You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+		<p>You can help even more by sharing this campaign with your friends!</p>
 
-<p>Thank you, {{transaction.user.username}},</p>
-<p class="pledge_complete">You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
-	<p class="pledge_complete">You can help even more by sharing this campaign with your friends!</p>
-	<ul><li> Email it!</li>
-<li> Tweet it!</li>
-<li> Share it on Facebook.</li>
-<li> Best idea: talk about it with those you love.</li>
-</ul>
-<p>Thanks for being part of Unglue.it.</p>
-<p>The unglue.it team.</p>
-		</div>
+		<ul>
+			<a href="{% url emailshare 'pledge' %}?next={% url work work.id|urlencode:"" %}"><li>Email it!</li></a>
+			<a href="https://twitter.com/intent/tweet?url=http://{{ site.domain }}{% url work work.id|urlencode:"" %}&text=I%20just%20pledged%20to%20unglue%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li>Tweet it!</li></a>
+			<a href="https://www.facebook.com/sharer.php?u=http://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
+			<li>Best idea: talk about it with those you love.</li>
+		</ul>
+		
+		<p>Thanks for being part of Unglue.it.</p>
+		<p>The unglue.it team.</p>
 	</div>
 </div>

@@ -83,6 +83,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {
@@ -103,6 +104,9 @@
   padding: 10px;
   font-size: 17px;
   background: #edf3f4;
+}
+.pledge_amount.premium_level {
+  margin-top: 3px;
 }
 form.pledgeform {
   width: 470px;

@@ -7,12 +7,13 @@ $j(function() {
 $j().ready(function() {
 	var inputbox = $j('#id_preapproval_amount');
 	
-	$j('#premiums_list input').click(function() {
+	$j('#premiums_list input').on("click", function() {
 		amount = $j(this).siblings('span.menu-item-price').html();
 		amount = amount.split('$')[1];
-		current = parseInt(inputbox.val());
-		if (current<parseInt(amount))
-		    {inputbox.val(amount);}
+		amount = parseInt(amount);
+		current = inputbox.val();
+		if (current<amount) {
+			inputbox.val(amount);
+		}
 	});
 });
-

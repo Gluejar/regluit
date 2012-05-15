@@ -50,33 +50,36 @@ input[type="submit"] {
 .comments {
 	border: solid 3px @blue-grey;
 	margin: 3px auto;
-	
-	div {
-		float: left;
-	}
-	
+		
 	.comments_book {
 		.mediaborder;
 		margin: 5px;
 		max-width: 80px;
+		
+		img {
+			max-width: 80px;
+		}
 	}
 	
+	.comments_textual {
+		margin: auto 5px 7px;
+		
+		div {
+			margin-bottom: 5px;
+		}
+	}
+
 	.comments_info {	
-		width: 590px;
+		border-bottom: solid 1px @blue-grey;
+
+		div {
+			float: left;
+		}
 		
 		.comments_graphical {
-			border-bottom: solid 1px @blue-grey;
 			margin: 5px;
 			padding-bottom: 5px;
-			float: none;
 		}
 		
-		.comments_textual {
-			margin: auto 5px 7px;
-			
-			div {
-				margin-bottom: 5px;
-			}
-		}
 	}
 }
