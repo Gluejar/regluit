@@ -1,7 +1,7 @@
 {% load humanize %}Did you want one of the limited-edition premiums for the campaign to unglue {{ campaign.work.title }}?  This is your last chance -- there's only one left!
 
 Premium: {{ premium.description }}
-Amount: {{ premium.amount|intcomma }}
+Minimum pledge: {{ premium.amount|intcomma }}
 
 If you'd like to claim the last one, pledge here: https://{{ site.domain }}{% url pledge work_id=campaign.work.id %}
 

@@ -592,7 +592,7 @@ class PaymentManager( object ):
         
         method = getattr(t.get_payment_class(), "Preapproval")
         p = method(t, amount, expiry, return_url=return_url, cancel_url=cancel_url, paymentReason=paymentReason) 
-        
+       
          # Create a response for this
         envelope = p.envelope()
         
