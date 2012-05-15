@@ -851,7 +851,7 @@ class PledgeCompleteView(TemplateView):
         context["site"] = Site.objects.get_current()
         
         # generate notices with same context used for user page
-        notification.queue([transaction.user], "pledge_you_have_pledged", {'transaction': transaction, 'campaign': campaign, 'site': site, 'work': work}, True)
+        notification.queue([transaction.user], "pledge_you_have_pledged", {'transaction': transaction, 'campaign': campaign, 'site': context['site'], 'work': work}, True)
         emit_notifications.delay()
         
         return context        
