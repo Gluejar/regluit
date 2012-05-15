@@ -83,6 +83,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {
@@ -104,6 +105,9 @@
   font-size: 17px;
   background: #edf3f4;
 }
+.pledge_amount.premium_level {
+  margin-top: 3px;
+}
 form.pledgeform {
   width: 470px;
 }
@@ -123,4 +127,16 @@ p {
 }
 .jsmodule.pledge .jsmod-content {
   float: right !important;
+}
+.modify_notification {
+  width: 452px;
+  margin-bottom: 7px;
+  border: solid 2px #8dc63f;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 7px;
+}
+.modify_notification h4 {
+  margin: 0 0 5px 0;
 }

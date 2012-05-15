@@ -389,7 +389,7 @@ class PaymentManager( object ):
         
         '''               
         
-        transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACITON_STATUS_ACTIVE)
+        transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:            
             result = self.cancel_transaction(t) 
@@ -538,7 +538,9 @@ class PaymentManager( object ):
             logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False, premium=None):
+    def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None,
+                  return_url=None, cancel_url=None, anonymous=False, premium=None,
+                  paymentReason="unglue.it Pledge"):
         '''
         authorize
         
@@ -554,6 +556,7 @@ class PaymentManager( object ):
         cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction
+        paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
@@ -588,8 +591,8 @@ class PaymentManager( object ):
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
         method = getattr(t.get_payment_class(), "Preapproval")
-        p = method(t, amount, expiry, return_url=return_url, cancel_url=cancel_url) 
-        
+        p = method(t, amount, expiry, return_url=return_url, cancel_url=cancel_url, paymentReason=paymentReason) 
+       
          # Create a response for this
         envelope = p.envelope()
         
@@ -616,7 +619,9 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return t, None
         
-    def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None, return_url=None, cancel_url=None):
+    def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None,
+                           return_url=None, cancel_url=None,
+                           paymentReason=None):
         '''
         modify
         
@@ -628,6 +633,7 @@ class PaymentManager( object ):
         premium: new premium selected; if None, then keep old value
         return_url: the return URL after the preapproval(if needed)
         cancel_url: the cancel url after the preapproval(if needed)
+        paymentReason: a memo line that will show up in the Payer's Amazon (and Paypal?) account
         
         return value: True if successful, False otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
         '''
@@ -665,7 +671,8 @@ class PaymentManager( object ):
                                     return_url, 
                                     cancel_url, 
                                     transaction.anonymous,
-                                    premium)
+                                    premium,
+                                    paymentReason)
             
             if t and url:
                 # Need to re-direct to approve the transaction

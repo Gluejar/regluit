@@ -1,7 +1,14 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+{% load humanize %}You have modified a pledge that you had previously made to the campaign to unglue {{ campaign.work.title }}
 
-You will be also something.
+Your new pledge summary
+Amount pledged: {{ amount|intcomma }}
+Premium: {{ premium }}
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+If you increased your earlier pledge (thanks!), you will also be receiving an email from Amazon confirming this.  If you decreased an earlier pledge, you will not receive a confirmation email from Amazon.  If you log in to your Amazon Payments account you will still see an authorization to Unglue.it for the entire amount of your earlier pledge, but never fear -- we'll only charge the amount of your new pledge, not the full authorization.
+
+If you'd like to visit the project page, click here: 
+http://{{site.domain}}{% url work work.id %}
+
+Thank you again for your support.
+
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team

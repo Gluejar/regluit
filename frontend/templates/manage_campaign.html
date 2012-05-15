@@ -1,4 +1,5 @@
 {% extends "basedocumentation.html" %}
+{% load humanize %}
 
 {% block title %}Campaign Management{% endblock %}
 
@@ -78,7 +79,7 @@ Please fix the following before launching your campaign:
                 
         <div class="pledged-info">
         	<div class="pledged-group">
-        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
+        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total|intcomma }}
         	</div>
         	<div class="status">
         		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
@@ -109,8 +110,14 @@ Please fix the following before launching your campaign:
 	<form action="#" method="POST">
 	{% csrf_token %}
 	<h3>Select the edition</h3>
-	<p> Please choose the edition that most closely matches the edition to be unglued:
+	<p> Please choose the edition that most closely matches the edition to be unglued:</p>
+	
 	{{ form.edition.errors }}{{ form.edition }}
+	{% if campaign.edition %}
+	<p>You can edit the campaign's <a href="{% url rh_edition work.id campaign.edition.id %}">preferred edition</a>.</p>
+	{% else %}
+	<p>If none of the existing editions matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
+	{% endif %}
 	<h3>Make Your Pitch</h3>
 		<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
 	<ul class="terms">
@@ -145,7 +152,7 @@ Please fix the following before launching your campaign:
 
 	{% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>Target Price</h3>
-	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target}} .</p>
+	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target|intcomma}} .</p>
 	{{ form.target.errors }}{{ form.target }}
 	<h3>License being offered</h3>
 	<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
@@ -158,23 +165,20 @@ Please fix the following before launching your campaign:
 	
 	{% else %}
 	<h3>Target Price</h3>
-	<p>The current target price for your campaign is <b>${{ campaign.target }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
 	${{ form.target.errors }}{{ form.target }}
 
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b>{{ campaign.license }}</b> license.</p>
-
+	{{ form.license.errors }}<span style="display: none">{{ form.license }}</span>
 	<h3>Ending date</h3>
 	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
-	
+	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% endifnotequal %}
 	
-	{% comment %}
-	<!-- not enforcing this while using Amazon payments -->
 	<h3>Paypal collection address</h3>
 	<p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
-	{% endcomment %}
 	
 	{% ifequal campaign_status 'ACTIVE' %}
 	<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
@@ -196,10 +200,10 @@ Please fix the following before launching your campaign:
 		<ul class="support menu">
 			{% for premium in premiums %}
 			<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-			<a href="{% url pledge work_id=campaign.work.id %}?premium_id={{premium.id}}">
-				<span class="menu-item-price">${{ premium.amount }}</span>
+			<i>
+				<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 				<span class="menu-item-desc">{{ premium.description }}</span>
-			 </a> 
+			</i>
 			   {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
 			{% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
 			{% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
@@ -207,10 +211,12 @@ Please fix the following before launching your campaign:
 			{% endfor %}
 		 </ul>
 		 {% if campaign.custom_premiums.count %}
-		 <input type="submit" name="inactivate" value="Inactivate Checked Premiums" />
+		 <input type="submit" name="inactivate" value="Deactivate Checked Premiums" />
 		 {% endif %}
 		</form>
 	</div>
+	<h4>Editing premiums</h4>
+	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
 	<h4>Add a custom premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
@@ -239,7 +245,7 @@ Please fix the following before launching your campaign:
 	
 	<div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
 	{% else %}
-	<p>Please make sure you've entered your campaign's description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
+	<p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
 	{% endif %}
 	
 </div>

@@ -91,7 +91,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 
 # BASE_URL is a hard-coding of the domain name for site and used for PayPal IPN
 # Next step to try https
-BASE_URL = 'http://unglueit.com'
+BASE_URL = 'http://unglue.it'
 
 # use redis for production queue
 BROKER_TRANSPORT = "redis"
@@ -123,6 +123,10 @@ STATIC_ROOT = '/var/www/static'
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
+
+# set -- sandbox or production Amazon FPS?
+#AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:

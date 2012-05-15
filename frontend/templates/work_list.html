@@ -30,12 +30,13 @@
                             {% if facet == 'recommended' %}
 								<div id="block-intro-text"><span class="special-user-name">Staff Picks</span></div>
 								</div>
-								<div class="user-block2"><span class="user-short-info">Here are the books {% for staffer in unglue_staff %}{% if not forloop.last %}<a href="{% url supporter '{{ staffer }}' %}">{{ staffer }}</a>, {% else %} and <a href="{% url supporter '{{ staffer }}' %}">{{ staffer }}</a>{% endif %}{% endfor %} are loving lately.</span>
+								<div class="user-block2"><span class="user-short-info">Here are the books <a href="{% url supporter 'AmandaM' %}">Amanda</a>, <a href="{% url supporter 'andromeda' %}">Andromeda</a>, <a href="{% url supporter 'eric' %}">Eric</a>, and <a href="{% url supporter 'rdhyee' %}">Raymond</a> are loving lately.</span>
 								</div>
 	                            <div class="user-block3 recommended">
-	                            {% for staffer in unglue_staff %}
-                                <img class="user-avatar" src="{{ staffer.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                                {% endfor %}
+                                <a href="{% url supporter 'AmandaM' %}"><img class="user-avatar" src="https://si0.twimg.com/profile_images/1801686082/image_normal.jpg" height="50" width="50" alt="Picture of Amanda" title="Amanda" /></a>
+                                <a href="{% url supporter 'andromeda' %}"><img class="user-avatar" src="https://si0.twimg.com/profile_images/611713549/andromeda_by_molly_color_normal.jpg" height="50" width="50" alt="Picture of Andromeda" title="Andromeda" /></a>
+                                <a href="{% url supporter 'eric' %}"><img class="user-avatar" src="https://graph.facebook.com/1009077800/picture" height="50" width="50" alt="Picture of Eric" title="Eric" /></a>
+                                <a href="{% url supporter 'RaymondYee' %}"><img class="user-avatar" src="https://graph.facebook.com/1229336/picture" height="50" width="50" alt="Picture of Raymond" title="Raymond" /></a>
                                 </div>
 	                        {% else %}
 								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
@@ -110,7 +111,6 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
-                        <br>
                         <div class="pagination content-block-heading tabs-1">
                             {% get_pages %}
                             {% for page in pages %}
@@ -128,7 +128,6 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
-                        <br>
                         <div class="pagination content-block-heading tabs-2">
                             {% get_pages %}
                             {% for page in pages %}
@@ -146,7 +145,6 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
-                        <br>
                         <div class="pagination content-block-heading tabs-3">
                             {% get_pages %}
                             {% for page in pages %}

@@ -71,8 +71,9 @@ $j(document).ready(function() {
                     {% with work.googlebooks_id as googlebooks_id %}
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
+					{% with 'yes' as on_search_page %}
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% empty %}
                     <h2>Sorry, couldn't find that!</h2>

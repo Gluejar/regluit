@@ -49,6 +49,18 @@ AMAZON_OPERATION_TYPE_PAY = 'PAY'
 AMAZON_OPERATION_TYPE_REFUND = 'REFUND'
 AMAZON_OPERATION_TYPE_CANCEL = 'CANCEL'
 
+# load FPS_ACCESS_KEY and FPS_SECRET_KEY from the database if possible
+
+try:
+    from regluit.core.models import Key
+    FPS_ACCESS_KEY = Key.objects.get(name="FPS_ACCESS_KEY").value
+    FPS_SECRET_KEY = Key.objects.get(name="FPS_SECRET_KEY").value
+    logger.info('Successful loading of FPS_*_KEYs')
+except Exception, e:
+    FPS_ACCESS_KEY = ''
+    FPS_SECRET_KEY = ''
+    logger.info('EXCEPTION: unsuccessful loading of FPS_*_KEYs: {0}'.format(e))
+
 
 def ProcessIPN(request):
     '''
@@ -82,7 +94,7 @@ def ProcessIPN(request):
         uri = request.build_absolute_uri()
         parsed_url = urlparse.urlparse(uri)
         
-        connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+        connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
         
         # Check the validity of the IPN
         resp = connection.verify_signature("%s://%s%s" %(parsed_url.scheme, 
@@ -373,7 +385,7 @@ class Pay( AmazonRequest ):
     The pay function generates a redirect URL to approve the transaction
   '''
     
-  def __init__( self, transaction, return_url=None, cancel_url=None, amount=None):
+  def __init__( self, transaction, return_url=None, cancel_url=None, amount=None, paymentReason=""):
       
       try:
           logging.debug("Amazon PAY operation for transaction ID %d" % transaction.id)
@@ -382,7 +394,7 @@ class Pay( AmazonRequest ):
           self.original_return_url = return_url
           return_url = settings.BASE_URL + reverse('AmazonPaymentReturn')
             
-          self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+          self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
           
           receiver_list = []
           receivers = transaction.receiver_set.all()
@@ -406,7 +418,7 @@ class Pay( AmazonRequest ):
                   'validityExpiry': str(int(time.mktime(expiry.timetuple()))), # use the preapproval date by default
                   }
           
-          self.url = self.connection.make_url(return_url, "Test Payment", "MultiUse", str(amount), **data)
+          self.url = self.connection.make_url(return_url, paymentReason, "MultiUse", str(amount), **data)
           
           logging.debug("Amazon PAY redirect url was: %s" % self.url)
           
@@ -440,7 +452,7 @@ class Pay( AmazonRequest ):
   
 class Preapproval(Pay):
     
-    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None):
+    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None, paymentReason=""):
       
         # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
         now_val = now()
@@ -451,7 +463,7 @@ class Preapproval(Pay):
         transaction.save()
           
         # Call into our parent class
-        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, amount=amount)
+        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, amount=amount, paymentReason=paymentReason)
   
   
 class Execute(AmazonRequest):
@@ -467,7 +479,7 @@ class Execute(AmazonRequest):
             logging.debug("Amazon EXECUTE action for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+            self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             # BUGBUG, handle multiple receivers!  For now we just send the money to ourselves
@@ -558,7 +570,7 @@ class PaymentDetails(AmazonRequest):
             logging.debug("Amazon PAYMENTDETAILS API for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+            self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             if not transaction.preapproval_key:
@@ -639,7 +651,7 @@ class CancelPreapproval(AmazonRequest):
             logging.debug("Amazon CANCELPREAPPROVAL api called for transaction id: %d" % transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+            self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             global_params = {"OverrideIPNURL": settings.BASE_URL + reverse('HandleIPN', args=["amazon"])}
@@ -694,7 +706,7 @@ class RefundPayment(AmazonRequest):
             logging.debug("Amazon REFUNDPAYMENT API called for transaction id: %d", transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+            self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             if not transaction.preapproval_key:
@@ -748,7 +760,7 @@ class PreapprovalDetails(AmazonRequest):
             logging.debug("Amazon PREAPPROVALDETAILS API called for transaction id: %d", transaction.id)
             
             # Use the boto class top open a connection
-            self.connection = FPSConnection(settings.FPS_ACCESS_KEY, settings.FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+            self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
             

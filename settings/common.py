@@ -104,6 +104,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.comments',
+    'django.contrib.humanize',
     'south',
     'django_extensions',
     'regluit.frontend',
@@ -255,7 +256,6 @@ EBOOK_NOTIFICATIONS_JOB = {
 }
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
-
 
 # set -- sandbox or production Amazon FPS?
 AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"

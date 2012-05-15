@@ -3,6 +3,7 @@ from django import forms
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.conf.global_settings import LANGUAGES
 from django.core.validators import validate_email
 from django.utils.translation import ugettext_lazy as _
 from django.forms.widgets import RadioSelect
@@ -20,6 +21,31 @@ from regluit.utils.localdatetime import now
 import logging
 
 logger = logging.getLogger(__name__)
+
+class EditionForm(forms.ModelForm):
+    add_author = forms.CharField(max_length=500,  required=False)
+    add_subject = forms.CharField(max_length=200,  required=False)
+    isbn_13 = forms.RegexField(
+        label=_("ISBN"), 
+        max_length=13, 
+        regex=r'^97[89]\d\d\d\d\d\d\d\d\d\d$',
+        required = True,
+        help_text = _("13 digits, no dash."),
+        error_messages = {
+            'invalid': _("This value must be 13 digits, starting with 978 or 979."),
+            'required': _("Yes, we need an ISBN."),
+        }
+    )
+    language = forms.ChoiceField(choices=LANGUAGES)
+    description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
+    class Meta:
+        model = Edition
+        exclude = 'created', 'work'
+        widgets = { 
+                'title': forms.TextInput(attrs={'size': 40}),
+                'add_author': forms.TextInput(attrs={'size': 30}),
+                'add_subject': forms.TextInput(attrs={'size': 30}),
+            }
 
 class EbookForm(forms.ModelForm):
     class Meta:
@@ -178,7 +204,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             error_messages={'required': 'You must enter the email associated with your Paypal account.'},
             )
         target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a target price.'} )
-        edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected')
+        edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
         latest_ending = (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()).date
                 
@@ -293,7 +319,6 @@ class CampaignAdminForm(forms.Form):
     
 class EmailShareForm(forms.Form):
     recipient = forms.EmailField(error_messages={'required': 'Please specify a recipient.'})
-    sender = forms.EmailField(widget=forms.HiddenInput())
     subject = forms.CharField(max_length=100, error_messages={'required': 'Please specify a subject.'})
     message = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please include a message.'})
     # allows us to return user to original page by passing it as hidden form input

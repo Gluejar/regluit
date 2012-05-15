@@ -99,6 +99,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {
@@ -206,6 +207,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {
@@ -273,7 +275,7 @@
   line-height: 36px;
   float: left;
   clear: both;
-  margin: 10px 0;
+  margin: 10px auto;
   cursor: pointer;
   font-style: normal;
 }

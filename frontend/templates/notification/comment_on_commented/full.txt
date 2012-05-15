@@ -1,6 +1,6 @@
-We thought you might like to know, there are new comments for a book you have commented on. 
+We thought you might like to know there are new comments for a book you have commented on. 
 
-{{ comment.user.username }} on {{ comment.content_object.title }}
+{{ comment.user.username }} on {{ comment.content_object.title }}:
           
 {{ comment.comment }}
 

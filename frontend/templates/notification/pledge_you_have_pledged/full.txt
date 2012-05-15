@@ -1,7 +1,27 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+{% load humanize %}{% with work.title as title %}{% with site.domain as domain %}{% with work.id as work_id %}Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ title }}.  If this campaign successfully raises ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
 
-You will be also something.
+Pledge summary
+Amount pledged: ${{ transaction.amount|intcomma }}
+Premium: {{ transaction.premium.description }}
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+You can help even more by sharing this campaign with your friends.
+
+Facebook: https://www.facebook.com/sharer.php?u=http://{{ domain }}{% url work work_id %}
+
+Twitter: https://twitter.com/intent/tweet?url=http://{{ domain }}{% url work work_id %}&text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
+
+You can also embed a widget for {{ title }} in your web site by copy/pasting the following:
+<iframe src="https://{{ domain }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"></iframe>
+
+Or the best idea: talk about it with those you love.  We'll need lots of help from lots of people to make this a success. 
+
+If you want to change your pledge, just use the button at http://{{ domain }}{% url work work_id %}
+
+If you have any problems with your pledge, don't hesitate to contact us at support@gluejar.com
+
+Thanks for being part of Unglue.it.
+
+{{ campaign.rightsholder }} (rights holder for {{ title }}) and the Unglue.it team
+{% endwith %}
+{% endwith %}
+{% endwith %}

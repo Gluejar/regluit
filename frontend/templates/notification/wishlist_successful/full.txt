@@ -1,7 +1,12 @@
-Congratulations! You wished for it and pledged for it, and now the Campaign
-for {{ campaign.work.title}} (http://{{site.domain}}{% url work campaign.work.id %}?tab=2) has succeeded.
+{% if pledged %}Congratulations!  You pledged toward{% else %}Hooray! You wished for{% endif %} it, and now the campaign
+for {{ campaign.work.title}} (http://{{site.domain}}{% url work campaign.work.id %}) has succeeded.
+
 You will notified when an Unglued ebook edition is available, within 90 days.
+{% if pledged %}
 
-You will be receiving notification about your Campaign Premium(s) for {{ campaign.work.title}} directly from the RIGHTS HOLDER. 
+If necessary to provide you with any premiums you requested, {{ campaign.rightsholder }} will be contacting you.
+{% endif%}
 
-Give ebooks to the world; give income to authors and publishers.  Unglue.it.
+Thank you for your support.
+
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team

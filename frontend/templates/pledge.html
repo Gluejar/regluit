@@ -1,4 +1,5 @@
 {% extends "basepledge.html" %}
+{% load humanize %}
 
 {% block title %}Pledge{% endblock %}
 
@@ -6,11 +7,17 @@
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
 
-<script type="text/javascript" src="/static/js/prefill_pledge.js"></script>
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+//give pledge box focus
+$j(function() {
+  $j('#id_preapproval_amount').focus();
+});
+</script>
 {% endblock %}
 
 {% block doccontent %}
-<div style="height:15px";></div>
+<div style="height:15px"></div>
 <div class="book-detail">
 	<div id="book-detail-img">
 		<a href="#"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
@@ -29,14 +36,14 @@
 
 		<div class="jsmodule rounded pledge">
 			<div class="jsmod-content">
-				${{ work.last_campaign.target }} needed by<br />
+				${{ work.last_campaign.target|intcomma }} needed by<br />
 				{{ work.last_campaign.deadline }}
 			</div>
 		</div>
                 
         <div class="pledged-info">
         	<div class="pledged-group">
-        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total }}
+        		{{ work.last_campaign.supporters.count }} Ungluers have pledged ${{ work.last_campaign.current_total|intcomma }}
         	</div>
         	<div class="status">
         		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
@@ -45,11 +52,17 @@
     </div>
 </div>
     
-<div class="jsmodule rounded">
+<div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
 
 	{% if faqmenu == 'modify' %}	
-	<p>You have pledged ${{preapproval_amount}}.  If you would like to modify your pledge, please use the following form.</p>
+	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
+		<div>
+		Amount: ${{preapproval_amount|intcomma}}.<br />
+		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
+		</div>
+	<br /> You can modify your pledge below.
+	</div>
 	{% endif %}
 
     	{% comment %}
@@ -65,28 +78,31 @@
         	not supported yet; don't display
         	{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}	
         	{% endcomment %}
+        	
+        	<div class="pledge_amount premium_level">Choose your premium:</div>
 
         	<ul class="support menu" id="premiums_list">
-            	{% for premium in premiums %}
-            	{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-            	<label for="premium_{{premium.id}}">
+            	{% for premium_item in premiums %}
+            	{% if premium_item.limit == 0  or  premium_item.limit > premium_item.premium_count  %}
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                	<input type="radio" name="premium_id" id="premium_{{premium.id}}" value="{{premium.id}}" {% ifequal request.REQUEST.premium_id premium.id|stringformat:"s"  %}checked="checked"{% endifequal %} />
+            	<label for="premium_{{premium_item.id}}">
+                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %}/>
                     <span class="menu-item-price">
-                    	${{ premium.amount }}
+                    	${{ premium_item.amount|intcomma }}
                     </span>
                 	<span class="menu-item-desc">
-                		{{ premium.description }} {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+                		{{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
-           		</a></li></label>
+           		</label></li>
             	{% endif %}
             	{% endfor %}
          	</ul>
 
-	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge"{% endif %} id="pledgesubmit" />    
+	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />    
     	</form>
     </div>
-
+</div>
+{% if faqmenu == 'modify' %}<div class="spacer"></div><div>We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.</div>{% endif %}
 {% endblock %}
 
 

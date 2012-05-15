@@ -22,6 +22,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.comments import Comment
+from django.contrib.sites.models import Site
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
@@ -37,7 +38,7 @@ from django.shortcuts import render, render_to_response, get_object_or_404
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from regluit.core import tasks
-from regluit.core.tasks import send_mail_task
+from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
@@ -45,7 +46,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -54,6 +55,7 @@ from regluit.payment.paypal import Preapproval
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
+from notification import models as notification
 
 
 logger = logging.getLogger(__name__)
@@ -89,7 +91,7 @@ def slideshow(max):
 
 def next(request):
     if request.COOKIES.has_key('next'):
-        response = HttpResponseRedirect(urllib.unquote(request.COOKIES['next']))
+        response = HttpResponseRedirect(urllib.unquote(urllib.unquote(request.COOKIES['next'])))
         response.delete_cookie('next')
         return response
     else:
@@ -135,15 +137,13 @@ def work(request, work_id, action='display'):
         editions = [campaign.edition]
     else:
         editions = work.editions.all().order_by('-publication_date')
-    if action == 'preview':
-        work.last_campaign_status = 'ACTIVE'
     try:
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
         
     countdown = ""
-    if work.last_campaign_status == 'ACTIVE':
+    if work.last_campaign_status() == 'ACTIVE':
         time_remaining = campaign.deadline - now()
         if time_remaining.days:
             countdown = "in %s days" % time_remaining.days
@@ -153,7 +153,9 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % time_remaining.seconds/60
         else:
             countdown = "right now"
-    	
+    if action == 'preview':
+        work.last_campaign_status = 'ACTIVE'
+        
     try:
         pubdate = work.publication_date[:4]
     except IndexError:
@@ -218,6 +220,107 @@ def work(request, work_id, action='display'):
         'countdown': countdown,
     })
 
+def new_edition(request, work_id, edition_id, by=None):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")
+    # if the work and edition are set, we save the edition and set the work    
+    language='en'
+    description=''
+    title=''
+    if work_id:
+        try:
+            work = models.Work.objects.get(id = work_id)
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = work_id).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
+        language=work.language
+        description=work.description
+        title=work.title
+    else:
+        work=None
+        
+    if not request.user.is_staff :
+        if by == 'rh' and work is not None:
+            if not request.user in work.last_campaign().managers.all():
+                return render(request, "admins_only.html")
+        else:
+            return render(request, "admins_only.html")
+    if edition_id:
+        try:
+            edition = models.Edition.objects.get(id = edition_id)
+        except models.Work.DoesNotExist:
+            raise Http404
+        if work:
+            edition.work = work 
+        language=edition.work.language
+        description=edition.work.description
+    else:
+        edition = models.Edition()
+        if work:
+            edition.work = work 
+
+    if request.method == 'POST' :
+        edition.new_author_names=request.POST.getlist('new_author')
+        edition.new_subjects=request.POST.getlist('new_subject')
+        if request.POST.has_key('add_author_submit'):
+            new_author_name = request.POST['add_author'].strip()
+            try:
+                author= models.Author.objects.get(name=new_author_name)
+            except models.Author.DoesNotExist:
+                author=models.Author.objects.create(name=new_author_name)
+            edition.new_author_names.append(new_author_name)
+            form = EditionForm(instance=edition, data=request.POST)
+        elif request.POST.has_key('add_subject_submit'):
+            new_subject = request.POST['add_subject'].strip()
+            try:
+                author= models.Subject.objects.get(name=new_subject)
+            except models.Subject.DoesNotExist:
+                author=models.Subject.objects.create(name=new_subject)
+            edition.new_subjects.append(new_subject)
+            form = EditionForm(instance=edition, data=request.POST)
+        else:
+            form = EditionForm(instance=edition, data=request.POST)
+            if form.is_valid():
+                form.save()
+                if not work:
+                    work= models.Work(title=form.cleaned_data['title'],language=form.cleaned_data['language'],description=form.cleaned_data['description'])
+                    work.save()
+                    edition.work=work
+                    edition.save()
+                else:
+                    work.description=form.cleaned_data['description']
+                    work.title=form.cleaned_data['title']
+                    work.save()
+                models.Identifier.get_or_add(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
+                for author_name in edition.new_author_names:
+                    try:
+                        author= models.Author.objects.get(name=author_name)
+                    except models.Author.DoesNotExist:
+                        author=models.Author.objects.create(name=author_name)
+                    author.editions.add(edition)
+                for subject_name in edition.new_subjects:
+                    try:
+                        subject= models.Subject.objects.get(name=subject_name)
+                    except models.Subject.DoesNotExist:
+                        subject=models.Subject.objects.create(name=subject_name)
+                    subject.works.add(work)
+                work_url = reverse('work', kwargs={'work_id': edition.work.id})
+                return HttpResponseRedirect(work_url)
+    else:
+        form = EditionForm(instance=edition, initial={
+            'language':language,
+            'isbn_13':edition.isbn_13, 
+            'description':description,
+            'title': title
+            })
+
+    return render(request, 'new_edition.html', {
+            'form': form, 'edition': edition
+        })
+    
+    
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
@@ -358,10 +461,6 @@ class WorkListView(ListView):
             counts['wished'] = context['works_wished'].count()
             context['counts'] = counts
             
-            if (self.kwargs['facet'] == 'recommended'):
-                unglue_staff = models.User.objects.filter(is_staff=True)
-                context['unglue_staff'] = unglue_staff
-                            
             return context
 
 class UngluedListView(ListView):
@@ -430,13 +529,24 @@ class PledgeView(FormView):
         form_class = self.get_form_class()
         form = form_class()
         
-        return self.render_to_response(self.get_context_data(form=form))    
+        context_data = self.get_context_data(form=form)
+        # if there is already an active campaign pledge for user, redirect to the pledge modify page
+        if context_data.get('redirect_to_modify_pledge'):
+            work = context_data['work']
+            return HttpResponseRedirect(reverse('pledge_modify', args=[work.id]))
+        else:
+            return self.render_to_response(context_data)    
     
     def get_context_data(self, **kwargs):
+        """set up the pledge page"""
+
+        # the following should be true since PledgeModifyView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user        
+        
         context = super(PledgeView, self).get_context_data(**kwargs)
         
         work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
-        
         campaign = work.last_campaign()
         
         if campaign:
@@ -468,8 +578,17 @@ class PledgeView(FormView):
         except IndexError:
             pubdate = 'unknown'
 
+        context.update({'redirect_to_modify_pledge':False, 'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
+            
+        # check whether the user already has an ACTIVE transaction for the given campaign.
+        # if so, we should redirect the user to modify pledge page
+        # BUGBUG:  but what about Completed Transactions?
+        transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
+        if transactions.count() > 0:
+            context.update({'redirect_to_modify_pledge':True})
+        else:
+            context.update({'redirect_to_modify_pledge':False})
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
         return context
     
     def form_valid(self, form):
@@ -505,8 +624,11 @@ class PledgeView(FormView):
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+
+            paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)    
+                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium,
+                            paymentReason=paymentReason)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
@@ -564,8 +686,10 @@ class PledgeModifyView(FormView):
         # preapproval_amount, premium_id (which we don't have stored yet)
         if transaction.premium is not None:
             premium_id = transaction.premium.id
+            premium_description = transaction.premium.description
         else:
             premium_id = None
+            premium_description = None
         
         # is there a Transaction for an ACTIVE campaign for this
         # should make sure Transaction is modifiable.
@@ -580,7 +704,7 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'faqmenu': 'modify'})
+        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'premium_description': premium_description, 'faqmenu': 'modify', 'tid': transaction.id})
         return context
     
     
@@ -624,7 +748,9 @@ class PledgeModifyView(FormView):
         assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE        
         
         p = PaymentManager(embedded=self.embedded)
-        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium)
+        paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
+        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium,
+                                           paymentReason=paymentReason)
         
         logger.info("status: {0}, url:{1}".format(status, url))
         
@@ -721,7 +847,12 @@ class PledgeCompleteView(TemplateView):
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
         context["works"] = works
-        context["works2"] = works2        
+        context["works2"] = works2   
+        context["site"] = Site.objects.get_current()
+        
+        # generate notices with same context used for user page
+        notification.queue([transaction.user], "pledge_you_have_pledged", {'transaction': transaction, 'campaign': campaign, 'site': context['site'], 'work': work}, True)
+        emit_notifications.delay()
         
         return context        
                 
@@ -1063,11 +1194,11 @@ def supporter(request, supporter_username, template_name):
         works = worklist[:4]
         works2 = worklist[4:8]
         
-	# default to showing the Active tab if there are active campaigns, else show Wishlist
+    # default to showing the Active tab if there are active campaigns, else show Wishlist
     if backing > 0:
-    	activetab = "#2"
+        activetab = "#2"
     else:
-    	activetab = "#3"
+        activetab = "#3"
     
     date = supporter.date_joined.strftime("%B %d, %Y")
     
@@ -1658,13 +1789,13 @@ def work_goodreads(request, work_id):
     return HttpResponseRedirect(url)
 
 @login_required
-def emailshare(request):
+def emailshare(request, action):
     if request.method == 'POST':
         form=EmailShareForm(request.POST)
         if form.is_valid():
             subject = form.cleaned_data['subject']
             message = form.cleaned_data['message']
-            sender = form.cleaned_data['sender']
+            sender = '%s via Unglue.it <%s>'%(request.user.username, request.user.email)
             recipient = form.cleaned_data['recipient']
             send_mail_task.delay(subject, message, sender, [recipient])
             try:
@@ -1674,41 +1805,32 @@ def emailshare(request):
             return HttpResponseRedirect(next)
             
     else:
-    	sender = request.user.email
+        
         try:
             next = request.GET['next']
-            if "pledge" in request.path:
-                work_id = next.split('=')[1]
-                book = models.Work.objects.get(pk=int(work_id))
-                title = book.title
-                message = "I just pledged to unglue one of my favorite books, "+title+", on Unglue.it: http://unglue.it/work/"+work_id+".  If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.  Will you join me?"
-                subject = "Help me unglue "+title
+            work_id = next.split('/')[-2]
+            work_id = int(work_id)
+            work = models.Work.objects.get(pk=work_id)
+            if action == 'pledge':
+                message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                subject = "Help me unglue "+work.title
             else:
-                work_id = next.split('/')[-2]
-                work_id = int(work_id)
-                book = models.Work.objects.get(pk=work_id)
-                title = book.title
-                # if title requires unicode let's ignore it for now
                 try:
-                    title = ', '+str(title)+', '
-                except:
-                    title = ' '
-                try:
-                    status = book.last_campaign().status
+                    status = work.last_campaign().status
                 except:
                     status = None
             
                 # customize the call to action depending on campaign status
                 if status == 'ACTIVE':
-                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.it: http://unglue.it/'+next+'. If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.'
+                    message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
                 else:
-                    message = 'Help me unglue one of my favorite books'+title+'on Unglue.it: http://unglue.it'+next+'. If enough of us wishlist this book, Unglue.it may start a campaign to pay the creator and make the ebook free to everyone on earth.' 
+                    message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
                 subject = 'Come see one of my favorite books on Unglue.it'
             
-            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': subject, 'message': message})
+            form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
         except:
             next = ''
-            form = EmailShareForm(initial={'sender': sender, 'next':next, 'subject': 'Come join me on Unglue.it', 'message':"I'm ungluing books on Unglue.it.  Together we're paying creators and making ebooks free to everyone on earth.  Join me! http://unglue.it"})
+            form = EmailShareForm(initial={'next':next, 'subject': 'Come join me on Unglue.it', 'message':render_to_string('emails/join_me.txt',{'request':request,'site': Site.objects.get_current()})})
 
     return render(request, "emailshare.html", {'form':form})    
     

@@ -8,6 +8,7 @@
 {% url about as abouturl %}
 {% url press as pressurl %}
 {% url rh_admin as adminurl %}
+{% url new_edition '' '' as editionurl %}
 {% load truncatechars %}
 
 <html>
@@ -79,7 +80,7 @@
 
 {% if is_preview %}
 <div class="preview_top">
-Welcome to the alpha version of Unglue.it.  This site is a preview of our full functionality; some things (including pledging) aren't turned on yet.  If something seems broken or confusing -- or if you find something you love! -- please give us <a href="/feedback">feedback</a>.  Thank you for your interest, and have fun.
+Welcome to the almost-beta version of Unglue.it.  Want to help us with a test campaign?  <a href="https://unglue.it/work/82028/">Here it is.</a>  Please try to break it, and then send us <a href="/feedback">feedback</a>.  Thank you!  Real campaigns coming Thursday at noon.  See you then.
 </div>
 {% endif %}
     {% block topsection %}{% endblock %}
@@ -107,6 +108,7 @@ Welcome to the alpha version of Unglue.it.  This site is a preview of our full f
         <li><a href="{{termsurl}}">Terms of Use</a></li>
         {% if user.is_staff %}
         <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
+        <li><a href="{{editionurl}}">Create New Editions</a></li>
         {% endif %}
         </ul>
     </div>

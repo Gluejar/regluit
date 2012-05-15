@@ -83,6 +83,7 @@
   line-height: 16px;
   padding: 7px 0;
   font-weight: bold;
+  font-size: 13px;
   text-align: center;
 }
 .errors li {
@@ -165,6 +166,9 @@
 }
 .user-block3.recommended, .user-block4.recommended {
   margin-top: auto;
+}
+.user-block3.recommended img, .user-block4.recommended img {
+  margin-right: 7px;
 }
 .user-block3 {
   margin-top: 8px;

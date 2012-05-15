@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load comments %}
+{% load humanize %}
 {% block title %}&#151; {% if work.last_campaign_status == 'ACTIVE' %}Campaign to unglue {% endif %}{{ work.title }}{% endblock %}
 
 {% block extra_css %}
@@ -51,6 +52,7 @@ $j(document).ready(function(){
 
 {% block content %}    
 {% with work.last_campaign_status as status %} 
+{% with work.id as work_id %}
     <div id="main-container">
     <div class="js-main">
     <div id="js-leftcol">
@@ -62,11 +64,11 @@ $j(document).ready(function(){
                 {% else %}{% if work.last_campaign and not is_preview %}
                     {% if status == 'ACTIVE' %}
                             Unglue it! <br />
-                            ${{ work.last_campaign.current_total }}/${{ work.last_campaign.target }} <br />
+                            ${{ work.last_campaign.current_total|intcomma }}/${{ work.last_campaign.target|intcomma }} <br />
                             Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
-                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total }} raised of ${{ work.last_campaign.target }} goal
+                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total|intcomma }} raised of ${{ work.last_campaign.target|intcomma }} goal
                         {% else %}{% if status == 'INITIALIZED' %}
                             Campaign starting soon
                         {% else %}{% if status == 'SUSPENDED' %}
@@ -122,9 +124,9 @@ $j(document).ready(function(){
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
-                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id=work.id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
+                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                           {% else %}
-                          	<div class="btn_support"><form action="{% url pledge work_id=work.id %}" method="get"><input type="submit" value="Support" /></form></div>
+                          	<div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Support" /></form></div>
                           {% endif %}
                           {% endif %}
 					  	</div>
@@ -156,15 +158,16 @@ $j(document).ready(function(){
                         <div class="find-book">
                             <label>Find it:</label>
                              <div class="find-link">
-
+                                {% if work.googlebooks_id %}
                                 <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
-                                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work.id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
+                                {% endif %}
+                                <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work_id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
                                 {% if not request.user.is_anonymous %}
                                 {% if request.user.profile.goodreads_user_link %}
-                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work.id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
+                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
                                 {% endif %}
                                 {% if request.user.profile.librarything_id %}
-                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work.id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
+                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                                 {% endif %}
                                 {% endif %}
                             </div>
@@ -182,7 +185,7 @@ $j(document).ready(function(){
                             {% else %} 
                                 {{ work.last_campaign.supporters.count }} Ungluers have 
                             {% endif %}
-                            pledged ${{ work.last_campaign.current_total }}<br />toward a ${{ work.last_campaign.target }} goal 
+                            pledged ${{ work.last_campaign.current_total|intcomma }}<br />toward a ${{ work.last_campaign.target|intcomma }} goal 
                         {% else %}
                             {% if wishers == 1 %}
                                 1 Ungluer has
@@ -196,7 +199,7 @@ $j(document).ready(function(){
                         <div class="btn_wishlist" id="wishlist_actions">
                             {% if request.user.is_anonymous %}
                                 <div class="create-account">
-                                    <span title="{% url work work.id %}">Login to Add</span>
+                                    <span title="{% url work work_id %}">Login to Add</span>
                                 </div>
                             {% else %}{% if request.user.id in work.last_campaign.supporters %}
 								<div class="add-wishlist">
@@ -204,11 +207,11 @@ $j(document).ready(function(){
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
-                                    <span id="w{{ work.id }}">Remove This</span>
+                                    <span id="w{{ work_id }}">Remove This</span>
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
-                                    <span id="w{{ work.googlebooks_id }}">Add to Wishlist</span>
+                                    <span class="work_id" id="w{{ work_id }}">Add to Wishlist</span>
                                 </div>
                             {% endif %}{% endif %}{% endif %}
                         </div>
@@ -275,7 +278,7 @@ $j(document).ready(function(){
                             {{ claim.rights_holder.rights_holder_name }}
                             {% endif %} 
                         {% endfor %}
-                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target }} by {{ work.last_campaign.deadline }}.
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target|intcomma }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
 
                         <h4>Last campaign details</h4>
@@ -319,6 +322,10 @@ $j(document).ready(function(){
                         {% endif %}
 
                         <h4>Editions</h4>
+                                    {% if user.is_staff %}
+                                    <div><a href="{% url new_edition work_id edition.id %}">Create a new edition for this work</a><br /><br /></div>
+                                    {% endif %}
+
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
                         {% for edition in editions %}
                         <div class="editions">{% if edition.googlebooks_id %}<div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>{% endif %}
@@ -330,6 +337,9 @@ $j(document).ready(function(){
                             		{% if edition.oclc %}
                             			OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
                             		{% endif %}
+                            		{% if user.is_staff %}
+                                    <a href="{% url new_edition work_id edition.id %}">Edit this edition</a><br />
+                                    {% endif %}
                             		{% if edition.googlebooks_id %}
                             	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
                             		{% endif %}                            	    
@@ -355,6 +365,7 @@ $j(document).ready(function(){
                                     </form>
                                 </div>
                             {% endifnotequal %}{% endif %}
+                            
                         {% endfor %}
                     </div>
                     </div>
@@ -371,7 +382,7 @@ $j(document).ready(function(){
                     <ul class="social menu">
                         <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
                         <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"><li class="twitter"><span>Twitter</span></li></a>
-                        {% if request.user.is_authenticated %}<a href="{% url emailshare %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
+                        {% if request.user.is_authenticated %}<a href="{% url emailshare '' %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                         <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
                     </ul>
                         <div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
@@ -382,16 +393,29 @@ $j(document).ready(function(){
                 <h3 class="jsmod-title"><span>Support</span></h3>
                 <div class="jsmod-content">
                     <ul class="support menu">
-                        {% for premium in premiums %}
-            	        {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                        <a href="{% url pledge work_id=work.id %}?premium_id={{premium.id}}">
-                            <span class="menu-item-price">${{ premium.amount }}</span>
-                            <span class="menu-item-desc">{{ premium.description }}</span>
-                            {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
-                        </a></li>
-                        {% endif %}
-                        {% endfor %}
+                        {% if pledged %}
+							{% for premium in premiums %}
+							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
+							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
+								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
+								<span class="menu-item-desc">{{ premium.description }}</span>
+								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+							</a></li>
+							{% endif %}
+							{% endfor %}
+                        {% else %}
+							{% for premium in premiums %}
+							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
+							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+							<a href="{% url pledge work_id %}?premium_id={{premium.id}}">
+								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
+								<span class="menu-item-desc">{{ premium.description }}</span>
+								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+							</a></li>
+							{% endif %}
+							{% endfor %}
+                        {% endif %}                        
                      </ul>
                 </div>
             </div>
@@ -400,5 +424,6 @@ $j(document).ready(function(){
         </div>
     </div>
     </div>
+{% endwith %} 
 {% endwith %} 
 {% endblock %}

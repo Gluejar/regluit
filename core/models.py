@@ -9,6 +9,7 @@ from notification import models as notification
 from django.db import models
 from django.db.models import Q, get_model
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
@@ -211,7 +212,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'active_claim':active_claim}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'site': Site.objects.get_current()}, True)
         return self
 
 
@@ -254,14 +255,26 @@ class Campaign(models.Model):
         return translist
 
     def effective_premiums(self):
-        """returns  the available premiums for the Campaign including any default premiums"""
+        """returns the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
 
     def custom_premiums(self):
-        """returns only the active custoe premiums for the Campaign """
+        """returns only the active custom premiums for the Campaign"""
         return Premium.objects.filter(campaign=self).filter(type='CU')
         
+    @property
+    def rightsholder(self):
+        """returns the name of the rights holder for an active or initialized campaign"""
+        try:
+			if self.status=='ACTIVE' or self.status=='INITIALIZED':
+				q = Q(status='ACTIVE') | Q(status='INITIALIZED')
+				rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
+				return rh
+        except:
+            pass
+        return ''
+
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)
@@ -348,15 +361,19 @@ class Work(models.Model):
 
     def cover_image_small(self):
         try:
-            return self.preferred_edition.cover_image_small()
+            if self.preferred_edition.cover_image_small():
+                return self.preferred_edition.cover_image_small()
         except IndexError:
-            return "/static/images/generic_cover_larger.png"
+            pass
+        return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-            return self.preferred_edition.cover_image_thumbnail()
+            if self.preferred_edition.cover_image_thumbnail():
+                return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
-            return "/static/images/generic_cover_larger.png"
+            pass
+        return "/static/images/generic_cover_larger.png"
         
     def author(self):
         # note: if you want this to be a real list, use distinct()
@@ -510,10 +527,11 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher = models.CharField(max_length=255, null=True)
-    publication_date = models.CharField(max_length=50, null=True)
-    public_domain = models.NullBooleanField(null=True)
+    publisher = models.CharField(max_length=255, null=True, blank=True)
+    publication_date = models.CharField(max_length=50, null=True, blank=True)
+    public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
+    cover_image = models.URLField(null=True, blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -526,13 +544,17 @@ class Edition(models.Model):
             return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
     def cover_image_small(self):
-        if self.googlebooks_id:
+        if self.cover_image:        
+            return self.cover_image
+        elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
-        if self.googlebooks_id:
+        if self.cover_image:        
+            return self.cover_image
+        elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
