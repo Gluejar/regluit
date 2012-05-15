@@ -57,10 +57,16 @@ try:
     FPS_SECRET_KEY = Key.objects.get(name="FPS_SECRET_KEY").value
     logger.info('Successful loading of FPS_*_KEYs')
 except Exception, e:
-    FPS_ACCESS_KEY = ''
-    FPS_SECRET_KEY = ''
+    FPS_ACCESS_KEY = 'AKIAJMSHBCEKIDAHKIUQ'
+    FPS_SECRET_KEY = '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'
     logger.info('EXCEPTION: unsuccessful loading of FPS_*_KEYs: {0}'.format(e))
 
+def get_ipn_url():
+
+    if settings.IPN_SECURE_URL:
+        return settings.BASE_URL_SECURE + reverse('HandleIPN', args=["amazon"])
+    else:
+        return settings.BASE_URL + reverse('HandleIPN', args=["amazon"])
 
 def ProcessIPN(request):
     '''
@@ -483,7 +489,7 @@ class Execute(AmazonRequest):
             self.transaction = transaction
             
             # BUGBUG, handle multiple receivers!  For now we just send the money to ourselves
-            global_params = {"OverrideIPNURL": settings.BASE_URL + reverse('HandleIPN', args=["amazon"])}
+            global_params = {"OverrideIPNURL": get_ipn_url()}
             self.raw_response = self.connection.pay(transaction.amount, 
                                               transaction.pay_key,
                                               recipientTokenId=None,
@@ -654,7 +660,7 @@ class CancelPreapproval(AmazonRequest):
             self.connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
             self.transaction = transaction
             
-            global_params = {"OverrideIPNURL": settings.BASE_URL + reverse('HandleIPN', args=["amazon"])}
+            global_params = {"OverrideIPNURL": get_ipn_url()}
             params = global_params
             params['TokenId'] = transaction.pay_key
             params['ReasonText'] = "Cancel Reason"
@@ -718,7 +724,7 @@ class RefundPayment(AmazonRequest):
             # We need to reference the transaction ID here, this is stored in the preapproval_key as this
             # field is not used for amazon
             #
-            global_params = {"OverrideIPNURL": settings.BASE_URL + reverse('HandleIPN', args=["amazon"])}
+            global_params = {"OverrideIPNURL": get_ipn_url()}
             self.raw_response = self.connection.refund(transaction.secret, transaction.preapproval_key, extra_params=global_params)
             self.response = self.raw_response[0]
             
