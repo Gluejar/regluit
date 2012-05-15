@@ -1,24 +1,17 @@
+{% with campaign.work.title as title %}
 <div class="comments clearfix">
-	<div class="comments_book">
-	<a href="{% url work campaign.work.id %}?tab=2"><img src="{{ campaign.work.cover_image_thumbnail }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<div class="comments_info clearfix">
+		<div class="comments_book">
+			<a href="{% url work work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+		</div>
+		<div class="comments_graphical">
+			Hooray!  We're going to give {{ title }} to the world!
+		</div>
 	</div>
 	
-	<div class="comments_info">
-		<div class="comments_graphical">
-		  
-		</div>
-		<div class="comments_textual">
-
-<p>Congratulations! You wished for it and pledged for it, and now the Campaign
-for <a href="{% url work campaign.work.id %}?tab=2">{{ campaign.work.title}}</a> has succeeded.
-You will notified when an Unglued ebook edition is
-available, within 90 days.</p>
-
-<p>You will be receiving notification about your Campaign
-Premium(s) for <a href="{% url work campaign.work.id %}?tab=2">{{ campaign.work.title}}</a> directly from the RIGHTS HOLDER. 
-</p>
-
-<p class="classname">Give ebooks to the world; give income to authors and publishers.  Unglue.it</p>
-		</div>
+	<div class="comments_textual">
+		A book on your wishlist, {{ title }}, has met its goal price of {{ campaign.target }}, thanks to the support of ungluers like you.  Unglue.it and the book's rights holder, {{ campaign.rightsholder }}, will be converting it to an unglued ebook edition and making it available for all the world to enjoy.  If you've asked us to in your <a href="/notification/settings/">notification settings</a>, we'll tell you when the unglued ebook is ready.<br /><br />
+		Thank you again!
 	</div>
 </div>
+{% endwith %}
