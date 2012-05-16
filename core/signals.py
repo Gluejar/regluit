@@ -131,9 +131,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         return
     notification.queue([transaction.user], "pledge_charged", {
             'site':Site.objects.get_current(),
-            'campaign':transaction.campaign, 
-            'amount':transaction.amount,
-            'premium': transaction.premium,
+            'transaction':transaction
             'payment_processor':settings.PAYMENT_PROCESSOR
         }, True)
     from regluit.core.tasks import emit_notifications
