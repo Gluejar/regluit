@@ -8,9 +8,11 @@ Replace this with more appropriate tests for your application.
 from django.test import TestCase
 from django.utils import unittest
 from django.conf import settings
+from django.contrib.auth.models import User
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist, Work
+from regluit.core.signals import handle_transaction_charged
 from regluit.payment.parameters import *
 from regluit.payment.paypal import *
 import traceback
@@ -303,7 +305,8 @@ class TransactionTest(TestCase):
         create a single transaction with PAYMENT_TYPE_AUTHORIZATION / ACTIVE with a $12.34 pledge and see whether the payment
         manager can query and get the right amount.
         """
-        
+        user = User.objects.create_user('payment_test', 'support@gluejar.com', 'payment_test')
+
         w = Work()
         w.save()
         c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
@@ -315,6 +318,7 @@ class TransactionTest(TestCase):
         t.status = 'ACTIVE'
         t.approved = True
         t.campaign = c
+        t.user = user
         t.save()
         
         p = PaymentManager()

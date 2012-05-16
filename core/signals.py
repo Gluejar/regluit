@@ -14,6 +14,8 @@ from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
+from regluit.payment.signals import transaction_charged
+
 import registration.signals
 import django.dispatch
 
@@ -122,6 +124,22 @@ def notify_successful_campaign(campaign, **kwargs):
     
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
+
+
+def handle_transaction_charged(sender,transaction=None, **kwargs):
+    if transaction==None:
+        return
+    notification.queue([transaction.user], "pledge_charged", {
+            'site':Site.objects.get_current(),
+            'work':transaction.campaign.work, 
+            'amount':transaction.amount,
+            'premium': transaction.premium,
+            'payment_processor':settings.PAYMENT_PROCESSOR
+        }, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
+
+transaction_charged.connect(handle_transaction_charged)
 
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written

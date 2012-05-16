@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.parameters import *
 from regluit.payment.paypal import IPN_SENDER_STATUS_COMPLETED
+from regluit.payment.signals import transaction_charged
 
 if settings.PAYMENT_PROCESSOR == 'paypal':
     from regluit.payment.paypal import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
@@ -496,6 +497,7 @@ class PaymentManager( object ):
             transaction.pay_key = p.key()
             transaction.save()
             logger.info("execute_transaction Success")
+            transaction_charged.send(sender=self, transaction=transaction)
             return True
         
         else:
