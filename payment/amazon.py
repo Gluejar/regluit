@@ -57,8 +57,6 @@ try:
     FPS_SECRET_KEY = Key.objects.get(name="FPS_SECRET_KEY").value
     logger.info('Successful loading of FPS_*_KEYs')
 except Exception, e:
-    FPS_ACCESS_KEY = 'AKIAJMSHBCEKIDAHKIUQ'
-    FPS_SECRET_KEY = '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'
     logger.info('EXCEPTION: unsuccessful loading of FPS_*_KEYs: {0}'.format(e))
 
 def get_ipn_url():
