@@ -1,1 +1,1 @@
-Thanks to you, the campaign for {{campaign.work.title}} has succeeded!
+Thanks to you, the campaign for {{work.title}} has succeeded!
