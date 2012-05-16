@@ -17,6 +17,8 @@ import regluit
 import regluit.core.isbn
 import binascii
 
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE
+
 class UnglueitError(RuntimeError):
     pass
 
