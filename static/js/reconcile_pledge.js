@@ -56,8 +56,14 @@ $j().ready(function() {
 		// when user changes the pledge box contents, ensure they are compatible
 		// with the selected pledge
 		current = $j(this).val();
+		
+		if (current[0] == '$') {
+			// remove leading $ to prevent form validation error
+			current = current.slice(1);
+			$j(this).val(current);
+		}
+		
 		amount = canonicalize($j('input[type=radio]:checked'));
-		current = inputbox.val();
 		if (current<amount) {
 			mayday();
 		} else if (submitbutton.attr('disabled')) {
