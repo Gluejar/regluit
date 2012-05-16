@@ -93,10 +93,12 @@
          	</ul>
 
 	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />    
-    	</form>
+    	</form>    	
     </div>
 </div>
-{% if faqmenu == 'modify' %}<div class="spacer"></div><div>We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.</div>{% endif %}
+
+{% if faqmenu == 'modify' %}<div class="cancel_notice">(We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.)</div>{% endif %}
+
 {% endblock %}
 
 
