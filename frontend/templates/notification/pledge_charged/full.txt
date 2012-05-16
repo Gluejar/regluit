@@ -9,7 +9,7 @@ Premium: {{ transaction.premium.description }}
 We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 
 If you'd like to visit the project page, click here: 
-http://{{ site.domain }}{% url work transaction.campaign.work.id %}
+https://{{ site.domain }}{% url work transaction.campaign.work.id %}
 
 Thank you again for your support.
 

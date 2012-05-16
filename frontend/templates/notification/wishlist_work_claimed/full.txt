@@ -2,7 +2,7 @@ Hooray!  A rights holder, {{ rightsholder }}, has claimed {{ claim.work.title }}
 
 What does this mean for you?  Rights holders are the people who are legally authorized to license works.  This means they're the only people who can run campaigns on Unglue.it.
 
-{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  Leave a comment (http://{{site.domain}}{% url work campaign.work.id %}?tab=2) and tell your friends: make sure {{ rightsholder }} knows how much you want to give this book to the world.
+{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  Leave a comment (https://{{site.domain}}{% url work campaign.work.id %}?tab=2) and tell your friends: make sure {{ rightsholder }} knows how much you want to give this book to the world.
 
 Thanks for your help!
 
