@@ -24,7 +24,6 @@ import urllib, urlparse
 
 from django.conf import settings
 
-
 logger = logging.getLogger(__name__)
 
 def append_element(doc, parent, name, text):
@@ -42,15 +41,18 @@ class PaymentManager( object ):
     def __init__( self, embedded=False):
         self.embedded = embedded
         
-    def processIPN(self, request):
+    def processIPN(self, request, module):
         
         # Forward to our payment processor
-        return ProcessIPN(request)
+        mod = __import__("regluit.payment." + module, fromlist=[str(module)])
+        method = getattr(mod, "ProcessIPN")
+        return method(request)
 
     def update_preapproval(self, transaction):
         """Update a transaction to hold the data from a PreapprovalDetails on that transaction"""
         t = transaction
-        p = PreapprovalDetails(t)
+        method = getattr(transaction.get_payment_class(), "PreapprovalDetails")
+        p = method(t)
                     
         preapproval_status = {'id':t.id, 'key':t.preapproval_key}
         
@@ -102,7 +104,8 @@ class PaymentManager( object ):
         t = transaction
         payment_status = {'id':t.id}
             
-        p = PaymentDetails(t)
+        method = getattr(transaction.get_payment_class(), "PaymentDetails")
+        p = method(t)
         
         if p.error() or not p.success():
             logger.info("Error retrieving payment details for transaction %d" % t.id)
@@ -422,7 +425,8 @@ class PaymentManager( object ):
         transaction.date_executed = now()
         transaction.save()
         
-        p = Finish(transaction)            
+        method = getattr(transaction.get_payment_class(), "Finish")
+        p = method(transaction)            
         
         # Create a response for this
         envelope = p.envelope()
@@ -476,7 +480,8 @@ class PaymentManager( object ):
         transaction.date_payment = now()
         transaction.save()
         
-        p = Execute(transaction)
+        method = getattr(transaction.get_payment_class(), "Execute")
+        p = method(transaction)
         
         # Create a response for this
         envelope = p.envelope()
@@ -515,7 +520,8 @@ class PaymentManager( object ):
         return value: True if successful, false otherwise
         '''        
         
-        p = CancelPreapproval(transaction)
+        method = getattr(transaction.get_payment_class(), "CancelPreapproval")
+        p = method(transaction) 
         
         # Create a response for this
         envelope = p.envelope()
@@ -593,8 +599,9 @@ class PaymentManager( object ):
                                 urllib.urlencode({'tid':t.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
-        p = Preapproval(t, amount, expiry, return_url=return_url, cancel_url=cancel_url, paymentReason=paymentReason)
-        
+        method = getattr(t.get_payment_class(), "Preapproval")
+        p = method(t, amount, expiry, return_url=return_url, cancel_url=cancel_url, paymentReason=paymentReason) 
+       
          # Create a response for this
         envelope = p.envelope()
         
@@ -716,7 +723,8 @@ class PaymentManager( object ):
             logger.info("Refund Transaction failed, invalid transaction status")
             return False
         
-        p = RefundPayment(transaction)
+        method = getattr(transaction.get_payment_class(), "RefundPayment")
+        p = method(transaction) 
         
         # Create a response for this
         envelope = p.envelope()
@@ -791,8 +799,8 @@ class PaymentManager( object ):
                                        )
     
         t.create_receivers(receiver_list)
-        
-        p = Pay(t,return_url=return_url, cancel_url=cancel_url)
+        method = getattr(t.get_payment_class(), "Pay")
+        p = method(t,return_url=return_url, cancel_url=cancel_url) 
         
          # Create a response for this
         envelope = p.envelope()

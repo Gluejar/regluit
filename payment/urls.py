@@ -4,8 +4,7 @@ from django.conf import settings
 
 urlpatterns = patterns(
     "regluit.payment.views",
-    url(r"^paypalipn", "handleIPN", name="HandleIPN"),
-    url(r"^amazonipn", "handleIPN", name="HandleIPN"),
+    url(r"^handleipn/(?P<module>\w+)$", "handleIPN", name="HandleIPN"),
 )
 
 # Amazon payment URLs
