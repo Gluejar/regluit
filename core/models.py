@@ -251,7 +251,7 @@ class Campaign(models.Model):
        
     def supporters(self):
         """nb: returns (distinct) supporter IDs, not supporter objects"""
-        translist = self.transactions().values_list('user', flat=True).distinct()
+        translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
         return translist
 
     def effective_premiums(self):
