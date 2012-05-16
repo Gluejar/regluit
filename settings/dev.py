@@ -94,6 +94,8 @@ PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
 PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
 
 BASE_URL = 'http://0.0.0.0'
+BASE_URL_SECURE = 'https://0.0.0.0' 
+IPN_SECURE_URL = True
 
 # use database as queuing service in development
 BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"

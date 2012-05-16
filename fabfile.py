@@ -70,7 +70,7 @@ def set_key_ry(name,value):
 def set_key(name, value):
     """set encrypted key via the remote Django command -- works for web1, just, please"""
     with cd("/opt/regluit"):
-        run("""source ENV/bin/activate; django-admin.py set_key {0} {1} --settings=regluit.settings.me""".format(name, value))
+        run("""source ENV/bin/activate; django-admin.py set_key {0} "{1}" --settings=regluit.settings.me""".format(name, value))
  
 def ssh_fingerprint2():
     # http://stackoverflow.com/a/6682934/7782

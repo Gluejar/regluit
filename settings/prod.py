@@ -92,6 +92,8 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 # BASE_URL is a hard-coding of the domain name for site and used for PayPal IPN
 # Next step to try https
 BASE_URL = 'http://unglue.it'
+BASE_URL_SECURE = 'https://unglue.it'
+IPN_SECURE_URL = False
 
 # use redis for production queue
 BROKER_TRANSPORT = "redis"

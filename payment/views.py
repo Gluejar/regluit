@@ -26,7 +26,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
-TEST_RECEIVERS = ['raymond.yee@gmail.com', 'Buyer6_1325742408_per@gmail.com']
+TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'buyer5_1325740224_per@gmail.com']
 #TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
 #TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
 
@@ -248,7 +248,7 @@ def testPledge(request):
         receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':pledge_amount}]
     else:
         receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
-    
+        
     if campaign_id:
         campaign = Campaign.objects.get(id=int(campaign_id))
         t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=None)
@@ -294,11 +294,11 @@ def runTests(request):
         traceback.print_exc()
     
 @csrf_exempt
-def handleIPN(request):
+def handleIPN(request, module):
     # Handler for paypal IPN notifications
     
     p = PaymentManager()
-    p.processIPN(request)
+    p.processIPN(request, module)
     
     logger.info(str(request.POST))
     return HttpResponse("ipn")
