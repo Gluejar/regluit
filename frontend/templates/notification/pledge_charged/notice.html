@@ -1,27 +1,35 @@
 {% load humanize %}
+{% with campaign.work.title as title %}
+{% with campaign.rightsholder as rightsholder %}
 <div class="comments clearfix">
 	<div class="comments_info clearfix">
 		<div class="comments_book">
-			<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+			<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 		</div>
 		<div class="comments_graphical">
-			<p>Congratulations!
-
-<p>Thanks to you and other ungluers, {{ work.title }} will be released to the world in an unglued ebook edition. {{ payment_processor }} will now charge your credit card.</p>
-
-<p>Pledge Summary :<br />
-Amount pledged: {{ amount|intcomma }}<br />
-Premium: {{ premium }} <br />
-</p>
-<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
-</p>
-<p>For more information, visit the  visit the <a href="http://{{site.domain}}{% url work work.id %}">project page</a>.
-
-</p>
-<p>Thank you again for your support.
-</p>
-<p>{{ campaign.rightsholder }} and the Unglue.it team
-</p>
+			Hooray! The campaign for {{ title }} has succeeded.  Your credit card will be charged ${{ amount }}.  Thank you again for your help.
 		</div>
 	</div>
+	
+	<div class="comments_textual">
+		<p>Congratulations!</p>
+		
+		<p>Thanks to you and other ungluers, {{ title }} will be released to the world in an unglued ebook edition. {{ payment_processor|capfirst }} will now charge your credit card.</p>
+		
+		<p>Pledge Summary :<br />
+		Amount pledged: {{ amount|intcomma }}<br />
+		Premium: {{ premium.description }} <br />
+		</p>
+		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
+		</p>
+		<p>For more information, visit the  visit the <a href="http://{{site.domain}}{% url work work.id %}">project page</a>.
+		
+		</p>
+		<p>Thank you again for your support.
+		</p>
+		<p>{{ rightsholder }} and the Unglue.it team
+		</p>
+	</div>
 </div>
+{% endwith %}
+{% endwith %}

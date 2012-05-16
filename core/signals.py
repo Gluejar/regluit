@@ -131,7 +131,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         return
     notification.queue([transaction.user], "pledge_charged", {
             'site':Site.objects.get_current(),
-            'work':transaction.campaign.work, 
+            'campaign':transaction.campaign, 
             'amount':transaction.amount,
             'premium': transaction.premium,
             'payment_processor':settings.PAYMENT_PROCESSOR
@@ -143,12 +143,6 @@ transaction_charged.connect(handle_transaction_charged)
 
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written
-# PLEDGE_CHARGED:
-#	'site': (site)
-#	'amount': (amount supporter's card will be charged)
-#	'premium': (premium requested by the supporter)
-#	'work': (campaign.work)
-#	'payment_processor': (the payment processor)
 # PLEDGE_CHANGE_STATUS:
 #	'site': (site)
 #	'campaign'
