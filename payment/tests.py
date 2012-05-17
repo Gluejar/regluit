@@ -126,6 +126,8 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
     print "Tranasction Complete"
     
 def payAmazonSandbox(sel):
+    
+        # login to Amazon payments
         login_email = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_email"))
         login_email.click()
         login_email.clear()
@@ -145,6 +147,8 @@ def payAmazonSandbox(sel):
         
         print "looking for payment_confirm", sel.current_url
         payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
+        print "payment_confirm ", payment_confirm
+        print "len(payment_confirm)", len(payment_confirm)
         time.sleep(1)
         payment_confirm[-1].click()
         
