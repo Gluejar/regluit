@@ -214,7 +214,6 @@ GOODREADS_API_SECRET = ""
 UNGLUEIT_MINIMUM_TARGET = '1000' # in US Dollars
 UNGLUEIT_LONGEST_DEADLINE = '180' # number of days allowed for a campaign
 UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
-UNGLUEIT_SHORTEST_DEADLINE = 0
 
 TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
 import djcelery
