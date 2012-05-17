@@ -160,8 +160,8 @@ class Campaign(models.Model):
         if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             may_launch = False  
-        elif self.deadline.date()- date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
-            self.problems.append(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
+        elif self.deadline.date()- date_today() < timedelta(days=0):         
+            self.problems.append(_('The chosen closing date is in the past'))
             may_launch = False  
         return may_launch
 
