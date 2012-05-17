@@ -368,7 +368,7 @@ div#content-block-content {
 div#content-block-content a {
   color: #6994a3;
 }
-div#content-block-content img {
+div#content-block-content #tabs-1 img {
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
