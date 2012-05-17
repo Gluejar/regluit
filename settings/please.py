@@ -127,6 +127,10 @@ CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 
+
+# local settings for maintenance mode
+MAINTENANCE_MODE = False
+
 # Amazon credentials (for fps)
 AWS_ACCESS_KEY = ''
 AWS_SECRET_ACCESS_KEY = ''
