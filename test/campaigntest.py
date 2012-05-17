@@ -228,14 +228,13 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     premium_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('input[type="radio"][value="1"]'))
     premium_button.click()
     
+    print "making $10 pledge"
+    
     # now we have to replace the current preapproval amount with 10
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="10";""")
-    
-    ## enter a $10 pledge -- entering the pledge after clicking on premium is needed because clicking on premium fills in pledge amount
-    #preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
-    #preapproval_amount_input.send_keys("10")
-    
-    print "making $10 pledge"
+    # must also pick a premium level -- otherwise there will not be a pledge_button -- let's pick the first premium ($1)
+    premium_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('input[type="radio"][value="1"]'))
+    premium_button.click()
     
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     pledge_button.click()
@@ -246,7 +245,9 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
         print  "Now trying to pay PayPal", sel.current_url
         paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
     elif backend == 'amazon':
+        print "before payAmazonSandbox"
         payAmazonSandbox(sel)
+        print "after payAmazonSandbox"
     
         
     # should be back on a pledge complete page
