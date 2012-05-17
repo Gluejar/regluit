@@ -149,7 +149,7 @@
     <div class="listview panelfront side1 booklist-status">
     	{% if not is_preview %}
 			{% ifequal status "ACTIVE" %}
-			<span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total|intcomma }}</b> raised of <b>${{ work.last_campaign.target|intcomma }}</b> goal</span>
+			<span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total|intcomma }}</b>/<b>${{ work.last_campaign.target|intcomma }}</b></span>
 			{% else %}{% if status == "INITIALIZED" %}
 			<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 			{% else %}
@@ -171,7 +171,7 @@
           <div class="booklist-status-img">
             <img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
           </div>
-                    <div class="booklist-status-label">{{ work.percent_unglued_number }}%</div>
+                    <div class="booklist-status-label">{{ work.percent_of_goal }}%</div>
 	    {% endif %}{% endif %}
     </div>
     <div class="listview panelfront side1 ebooks">
