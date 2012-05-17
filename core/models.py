@@ -436,12 +436,10 @@ class Work(models.Model):
         percent = 0
         campaign = self.last_campaign()
         if campaign is not None:
-            if(campaign.status == 'SUCCESSFUL'):
-                percent = 100
-            elif(campaign.status == 'ACTIVE'):
+            if(campaign.status == 'SUCCESSFUL' or campaign.status == 'ACTIVE'):
                 target = campaign.target
                 total = campaign.current_total
-                percent = int(total/target)*100
+                percent = int(total/target*100)
         return percent
 
     def ebooks(self):
