@@ -856,9 +856,74 @@ class PledgeCompleteView(TemplateView):
         
         return context        
                 
-    
+
 class PledgeCancelView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+    template_name="pledge_cancel.html"
+    
+    def get_context_data(self):
+        context = super(PledgeCancelView, self).get_context_data()
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+        
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # work and campaign in question
+        try:
+            campaign = transaction.campaign
+            work = campaign.work
+        except Exception, e:
+            campaign = None
+            work = None
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = True
+        else:
+            correct_transaction_type = False
+            
+        # status?
+
+        # give the user an opportunity to approved the transaction again
+        # provide a URL to click on.
+        # https://www.sandbox.paypal.com/?cmd=_ap-preapproval&preapprovalkey=PA-6JV656290V840615H
+        try_again_url = '%s?cmd=_ap-preapproval&preapprovalkey=%s' % (settings.PAYPAL_PAYMENT_HOST, transaction.preapproval_key)
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["try_again_url"] = try_again_url
+        context["work"] = work
+        context["campaign"] = campaign
+        context["faqmenu"] = "cancel"
+        
+        return context
+        
+class __PledgeCancelViewForPayPal(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user
+    BUGBUG:  Although the PledgeCancelView was originally written to handle PayPal transaction interruption,
+    it's currently been hijacked to serve as a Cancel functionality for Amazon....I'm keeping this old code around
+    until we get around to implementing PayPal fully.
+
+    """
     template_name="pledge_cancel.html"
     
     def get_context_data(self):
