@@ -441,7 +441,7 @@ class Work(models.Model):
             elif(campaign.status == 'ACTIVE'):
                 target = campaign.target
                 total = campaign.current_total
-                percent = int(total/target)
+                percent = int(total/target)*100
         return percent
 
     def ebooks(self):
