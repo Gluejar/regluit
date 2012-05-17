@@ -84,6 +84,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
@@ -265,3 +266,9 @@ PAYMENT_PROCESSOR = 'amazon'
 
 # a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
 SECRET_KEY = ''
+
+# by default, we are not in maintenance mode -- set True in overriding settings files for maintenance mode
+# http://pypi.python.org/pypi/django-maintenancemode/
+MAINTENANCE_MODE = False
+# Sequence of URL path regexes to exclude from the maintenance mode.
+MAINTENANCE_IGNORE_URLS = {}
