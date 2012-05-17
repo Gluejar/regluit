@@ -220,7 +220,7 @@ Please fix the following before launching your campaign:
 	<h4>Add a custom premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
-	Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
+	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
 	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
 	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
 	{{ premium_form.campaign }}
