@@ -196,6 +196,7 @@
   left: 40px;
   bottom: 5px;
   font-size: 17px;
+  margin-bottom: 3px;
 }
 .panelview.icons .panelnope {
   display: none;
