@@ -194,7 +194,7 @@ $j(document).ready(function(){
                             {% endif %} wished for this Work
                         {% endif %}{% endif %}
                         </div>
-                        <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png"  title="book list status" alt="book list status" /></div>
+                        <div class="status">{% if status == 'ACTIVE' %}{{ work.percent_of_goal }}%&nbsp;{% endif %}<img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png"  title="book list status" alt="book list status" /></div>
                         </div>
                         <div class="btn_wishlist" id="wishlist_actions">
                             {% if request.user.is_anonymous %}
