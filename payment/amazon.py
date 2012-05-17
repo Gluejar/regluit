@@ -215,10 +215,12 @@ def amazonPaymentReturn(request):
         output = "payment complete"
         output += request.method + "\n" + str(request.REQUEST.items())
         
+        
         signature = request.GET['signature']
+        status = request.GET['status']
         reference = request.GET['callerReference']
         token = request.GET['tokenID']
-        status = request.GET['status']
+        
 
         # BUGUBG - Should we verify the signature here?
         #
@@ -318,11 +320,24 @@ def amazonPaymentReturn(request):
         logging.error("Amazon co-branded return-url FAILED with exception:")
         traceback.print_exc()
         
-        cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
-                                urllib.urlencode({'tid':transaction.id}))            
-        cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
-            
-        return HttpResponseRedirect(cancel_url)
+        # BUGBUG: check to see whether status is AMAZON_STATUS_ADBANDONED
+        # if so, ultimately figure out the campaign whose transaction is being canceled out.
+        # for the moment, return the user to BASE_URL
+        
+        if request.REQUEST.get("status") == AMAZON_STATUS_ADBANDONED:
+            return HttpResponseRedirect(settings.BASE_URL)
+        
+
+        try:
+            cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
+                                    urllib.urlencode({'tid':transaction.id}))            
+            cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+                
+            return HttpResponseRedirect(cancel_url)
+        except Exception, e:
+            # BUGBUG -- we should find a better place to send user...but back to front page is ok for now.
+            logging.error("Amazon co-branded return-url FAILED with exception: {0}".format(e))
+            return HttpResponseRedirect(settings.BASE_URL)
 
 
 class AmazonRequest:
