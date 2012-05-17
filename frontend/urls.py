@@ -72,7 +72,7 @@ urlpatterns = patterns(
     url(r'^campaign_archive.js/$', "campaign_archive_js", name='campaign_archive_js'),
 )
 
-if not settings.IS_PREVIEW:
+if settings.DEBUG:
     urlpatterns += patterns(
         "regluit.frontend.views",
         url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
