@@ -2,7 +2,8 @@ from regluit.settings.common import *
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
-IS_PREVIEW = True
+# we are launched!
+IS_PREVIEW = False
 
 SITE_ID = 1
 
