@@ -3,6 +3,7 @@ from regluit.payment.models import Transaction, PaymentResponse, Receiver
 from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 
+import django
 from django.conf import settings
 
 from selenium import selenium, webdriver
@@ -13,6 +14,8 @@ import unittest, time, re
 import logging
 import os
 
+# PayPal developer sandbox
+from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -152,32 +155,29 @@ def recipient_status(clist):
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
 
-def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon'):
+def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='firefox'):
     """
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
     """
-    import django
+
     django.db.transaction.enter_transaction_management()
     
     UNGLUE_IT_URL = unglue_it_url
-    # unglue.it login info
     USER = settings.UNGLUEIT_TEST_USER
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
     
-    # PayPal developer sandbox
-    from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
-    
     setup_selenium()
     
-    # we can experiment with different webdrivers
-    sel = webdriver.Firefox()
-    
-    # Chrome
-    #sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
-    
-    # HTMLUNIT with JS -- not successful
-    #sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    if browser == 'firefox':
+        sel = webdriver.Firefox()
+    elif browser == 'chrome':
+        sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
+    elif browser == 'htmlunit':
+        # HTMLUNIT with JS -- not successful
+        sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    else:
+        sel = webdriver.Firefox()
 
     time.sleep(10)
     
@@ -245,10 +245,7 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
         print  "Now trying to pay PayPal", sel.current_url
         paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
     elif backend == 'amazon':
-        print "before payAmazonSandbox"
-        payAmazonSandbox(sel)
-        print "after payAmazonSandbox"
-    
+        payAmazonSandbox(sel)    
         
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)

@@ -127,7 +127,8 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
     
 def payAmazonSandbox(sel):
     
-        # login to Amazon payments
+        print "Expected title: {0} \n Actual Title: {1}".format('Amazon.com Sign In', sel.title)
+        # does it make sense to throw up if there is problem....what better invariants?
         login_email = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_email"))
         login_email.click()
         login_email.clear()
@@ -141,16 +142,17 @@ def payAmazonSandbox(sel):
         time.sleep(2)
         
         # sel.find_element_by_css_selector("input[type='image']")
+        print "Expected title: {0} \n Actual Title: {1}".format('Amazon Payments', sel.title)        
         print "looking for credit_card_confirm", sel.current_url
         credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
-        credit_card_confirm[0].click()
+        credit_card_confirm[-1].click()
         
-        print "looking for payment_confirm", sel.current_url
-        payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
-        print "payment_confirm ", payment_confirm
-        print "len(payment_confirm)", len(payment_confirm)
-        time.sleep(1)
-        payment_confirm[-1].click()
+        #print "looking for payment_confirm", sel.current_url
+        #payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
+        #print "payment_confirm ", payment_confirm
+        #print "len(payment_confirm)", len(payment_confirm)
+        #time.sleep(1)
+        #payment_confirm[-1].click()
         
 class PledgeTest(TestCase):
     
