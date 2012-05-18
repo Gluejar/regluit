@@ -619,7 +619,7 @@ class PledgeView(FormView):
         if not self.embedded:
             
             return_url = None
-            cancel_url = None
+            nevermind_url = None
             
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
@@ -627,17 +627,17 @@ class PledgeView(FormView):
 
             paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium,
+                            return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium,
                             paymentReason=paymentReason)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
             
             return_url = None
-            cancel_url = None
+            nevermind_url = None
             
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)
+                              return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium)
         
         if url:
             logger.info("PledgeView paypal: " + url)
@@ -863,6 +863,67 @@ class PledgeCancelView(TemplateView):
     
     def get_context_data(self):
         context = super(PledgeCancelView, self).get_context_data()
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            user = None
+        
+        # pull out the transaction id and try to get the corresponding Transaction
+        transaction_id = self.request.REQUEST.get("tid")
+        transaction = Transaction.objects.get(id=transaction_id)
+        
+        # work and campaign in question
+        try:
+            campaign = transaction.campaign
+            work = campaign.work
+        except Exception, e:
+            campaign = None
+            work = None
+        
+        # we need to check whether the user tied to the transaction is indeed the authenticated user.
+        
+        correct_user = False 
+        try:
+            if user.id == transaction.user.id:
+                correct_user = True
+        except Exception, e:
+            pass
+            
+        # check that the user had not already approved the transaction
+        # do we need to first run PreapprovalDetails to check on the status
+        
+        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
+        
+        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
+            correct_transaction_type = True
+        else:
+            correct_transaction_type = False
+            
+        # status?
+
+        # give the user an opportunity to approved the transaction again
+        # provide a URL to click on.
+        # https://www.sandbox.paypal.com/?cmd=_ap-preapproval&preapprovalkey=PA-6JV656290V840615H
+        try_again_url = '%s?cmd=_ap-preapproval&preapprovalkey=%s' % (settings.PAYPAL_PAYMENT_HOST, transaction.preapproval_key)
+        
+        context["transaction"] = transaction
+        context["correct_user"] = correct_user
+        context["correct_transaction_type"] = correct_transaction_type
+        context["try_again_url"] = try_again_url
+        context["work"] = work
+        context["campaign"] = campaign
+        context["faqmenu"] = "cancel"
+        
+        return context
+    
+
+class PledgeNeverMindView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+    template_name="pledge_nevermind.html"
+    
+    def get_context_data(self):
+        context = super(PledgeNeverMindView, self).get_context_data()
         
         if self.request.user.is_authenticated():
             user = self.request.user

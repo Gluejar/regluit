@@ -49,4 +49,4 @@ TRANSACTION_STATUS_FAILED = 'Failed'
 
 # these two following parameters are probably extraneous since I think we will compute dynamically where to return each time.
 COMPLETE_URL = '/paymentcomplete'
-CANCEL_URL = '/paymentcancel'
+NEVERMIND_URL = '/paymentnevermind'

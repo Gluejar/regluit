@@ -548,7 +548,7 @@ class PaymentManager( object ):
             return False
         
     def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None,
-                  return_url=None, cancel_url=None, anonymous=False, premium=None,
+                  return_url=None, nevermind_url=None, anonymous=False, premium=None,
                   paymentReason="unglue.it Pledge"):
         '''
         authorize
@@ -562,7 +562,7 @@ class PaymentManager( object ):
         list: optional list object(to be set with TARGET_TYPE_LIST)
         user: optional user object
         return_url: url to redirect supporter to after a successful PayPal transaction
-        cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
+        nevermind_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction
         paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
@@ -586,13 +586,13 @@ class PaymentManager( object ):
                                        premium=premium
                                        )
         
-        # we might want to not allow for a return_url or cancel_url to be passed in but calculated
+        # we might want to not allow for a return_url or nevermind_url to be passed in but calculated
         # here because we have immediate access to the Transaction object.
         
-        if cancel_url is None:
-            cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
+        if nevermind_url is None:
+            nevermind_path = "{0}?{1}".format(reverse('pledge_nevermind'), 
                                 urllib.urlencode({'tid':t.id}))            
-            cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+            nevermind_url = urlparse.urljoin(settings.BASE_URL, nevermind_path)
             
         if return_url is None:
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
@@ -600,7 +600,7 @@ class PaymentManager( object ):
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
         method = getattr(t.get_payment_class(), "Preapproval")
-        p = method(t, amount, expiry, return_url=return_url, cancel_url=cancel_url, paymentReason=paymentReason) 
+        p = method(t, amount, expiry, return_url=return_url, nevermind_url=nevermind_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
@@ -629,7 +629,7 @@ class PaymentManager( object ):
             return t, None
         
     def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None,
-                           return_url=None, cancel_url=None,
+                           return_url=None, nevermind_url=None,
                            paymentReason=None):
         '''
         modify
@@ -641,7 +641,7 @@ class PaymentManager( object ):
         anonymous:  new anonymous value; if None, then keep old value
         premium: new premium selected; if None, then keep old value
         return_url: the return URL after the preapproval(if needed)
-        cancel_url: the cancel url after the preapproval(if needed)
+        nevermind_url: the cancel url after the preapproval(if needed)
         paymentReason: a memo line that will show up in the Payer's Amazon (and Paypal?) account
         
         return value: True if successful, False otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
@@ -678,7 +678,7 @@ class PaymentManager( object ):
                                     transaction.list, 
                                     transaction.user, 
                                     return_url, 
-                                    cancel_url, 
+                                    nevermind_url, 
                                     transaction.anonymous,
                                     premium,
                                     paymentReason)
@@ -750,7 +750,7 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False, premium=None):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, nevermind_url=None, anonymous=False, premium=None):
         '''
         pledge
         
@@ -769,7 +769,7 @@ class PaymentManager( object ):
         list: optional list object(to be set with TARGET_TYPE_LIST)
         user: optional user object
         return_url: url to redirect supporter to after a successful PayPal transaction
-        cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
+        nevermind_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction        
         
@@ -800,7 +800,7 @@ class PaymentManager( object ):
     
         t.create_receivers(receiver_list)
         method = getattr(t.get_payment_class(), "Pay")
-        p = method(t,return_url=return_url, cancel_url=cancel_url) 
+        p = method(t,return_url=return_url, nevermind_url=nevermind_url) 
         
          # Create a response for this
         envelope = p.envelope()
