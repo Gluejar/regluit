@@ -133,6 +133,10 @@ CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 #AMAZON_FPS_HOST = "fps.amazonaws.com"
 
+# local settings for maintenance mode
+MAINTENANCE_MODE = False
+
+
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
     from regluit.settings.local import *

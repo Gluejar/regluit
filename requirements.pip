@@ -22,7 +22,7 @@ pytz
 django-notification
 git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 fabric
-#git+git://github.com/agiliq/merchant.git#egg=django-merchant
 paramiko
 pyasn1
 pycrypto
+django-maintenancemode
