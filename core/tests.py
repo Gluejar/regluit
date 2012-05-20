@@ -350,7 +350,11 @@ class CampaignTests(TestCase):
         w = Work()
         w.save()
         c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1), work=w)
+        c.license = 'CC BY-NC'
         c.save()
+        self.assertEqual(c.license_url, 'http://creativecommons.org/licenses/by-nc/3.0/')
+        self.assertEqual(c.license_badge, 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png')
+        
 
     def test_campaign_status(self):
         
