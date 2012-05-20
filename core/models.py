@@ -269,10 +269,10 @@ class Campaign(models.Model):
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-			if self.status=='ACTIVE' or self.status=='INITIALIZED':
-				q = Q(status='ACTIVE') | Q(status='INITIALIZED')
-				rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
-				return rh
+            if self.status=='ACTIVE' or self.status=='INITIALIZED':
+                q = Q(status='ACTIVE') | Q(status='INITIALIZED')
+                rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
+                return rh
         except:
             pass
         return ''
