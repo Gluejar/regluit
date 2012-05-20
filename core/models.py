@@ -111,9 +111,10 @@ class CampaignAction(models.Model):
     type = models.CharField(max_length=15)
     comment = models.TextField(null=True, blank=True)
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
-    
-class Campaign(models.Model):
-    LICENSE_CHOICES = (('CC BY-NC-ND','CC BY-NC-ND'), 
+
+class CCLicense():
+    CCCHOICES = ( 
+            ('CC BY-NC-ND','CC BY-NC-ND'), 
             ('CC BY-ND','CC BY-ND'), 
             ('CC BY','CC BY'), 
             ('CC BY-NC','CC BY-NC'),
@@ -121,6 +122,53 @@ class Campaign(models.Model):
             ( 'CC BY-SA','CC BY-SA'),
             ( 'CC0','CC0'),
         )
+    CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
+    
+    @classmethod
+    def url(klass, license):
+        if license == 'PD-US':
+            return 'http://creativecommons.org/publicdomain/mark/1.0/'
+        elif license == 'CC0':
+            return 'http://creativecommons.org/publicdomain/zero/1.0/'
+        elif license == 'CC BY':
+            return 'http://creativecommons.org/licenses/by/3.0/'
+        elif license == 'CC BY-NC-ND':
+            return 'http://creativecommons.org/licenses/by-nc-nd/3.0/'
+        elif license == 'CC BY-NC-SA':
+            return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'
+        elif license == 'CC BY-NC':
+            return 'http://creativecommons.org/licenses/by-nc/3.0/'
+        elif license == 'CC BY-SA':
+            return 'http://creativecommons.org/licenses/by-sa/3.0/'
+        elif license == 'CC BY-ND':
+            return 'http://creativecommons.org/licenses/by-nd/3.0/'
+        else:
+            return ''
+    
+    @classmethod
+    def badge(klass,license):
+        if license == 'PD-US':
+            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
+        elif license == 'CC0':
+            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
+        elif license == 'CC BY':
+            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
+        elif license == 'CC BY-NC-ND':
+            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
+        elif license == 'CC BY-NC-SA':
+            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
+        elif license == 'CC BY-NC':
+            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
+        elif license == 'CC BY-SA':
+            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
+        elif license == 'CC BY-ND':
+            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
+        else:
+            return ''
+
+    
+class Campaign(models.Model):
+    LICENSE_CHOICES = CCLicense.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = models.TextField(null=True, blank=False)
@@ -276,6 +324,15 @@ class Campaign(models.Model):
         except:
             pass
         return ''
+    
+    @property
+    def license_url(self):
+        return CCLicense.url(self.license)
+
+    @property
+    def license_badge(self):
+        return CCLicense.badge(self.license)
+    
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -610,15 +667,7 @@ class WasWork(models.Model):
     
 class Ebook(models.Model):
     FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
-    RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
-            ('CC BY-NC-ND','CC BY-NC-ND'), 
-            ('CC BY-ND','CC BY-ND'), 
-            ('CC BY','CC BY'), 
-            ('CC BY-NC','CC BY-NC'),
-            ( 'CC BY-NC-SA','CC BY-NC-SA'),
-            ( 'CC BY-SA','CC BY-SA'),
-            ( 'CC0','CC0'),
-        )
+    RIGHTS_CHOICES = CCLicense.CHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
@@ -635,27 +684,9 @@ class Ebook(models.Model):
         
     @property
     def rights_badge(self):
-        my_rights=self.rights
-        if not my_rights:
-            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
-        if my_rights == 'PD-US':
-            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
-        elif my_rights == 'CC0':
-            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
-        elif my_rights == 'CC BY':
-            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
-        elif my_rights == 'CC BY-NC-ND':
-            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
-        elif my_rights == 'CC BY-NC-SA':
-            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
-        elif my_rights == 'CC BY-NC':
-            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
-        elif my_rights == 'CC BY-SA':
-            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
-        elif my_rights == 'CC BY-ND':
-            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
-        else:
-            return ''
+        if self.rights is None :
+            return CCLicense.badge('PD-US')
+        return CCLicense.badge(self.rights)
     
     @classmethod
     def infer_provider(klass, url):
