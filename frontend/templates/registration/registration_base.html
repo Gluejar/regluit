@@ -21,7 +21,8 @@ $j(document).ready(function() {
         next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
         $j.cookie('next', next, {path: '/'});
     } else if(saved_next!=null){
-        $j('#link-to-next').html("<a href='"+saved_next+"'> Click to continue after logging in...</a>");
+        var do_next = $j('#link-to-next');
+        if (do_next.length) window.location.replace(saved_next);
     }
 });
 </script>
