@@ -27,7 +27,7 @@ urlpatterns = patterns(
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"),
     url(r"^campaign_admin/$", "campaign_admin", name="campaign_admin"),    
     url(r"^faq/$", FAQView.as_view(), {'location':'faq', 'sublocation':'all'}, name="faq"), 
-    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}), 
+    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}, name="faq_location"), 
     url(r"^faq/(?P<location>\w*)/(?P<sublocation>\w*)/$", FAQView.as_view()), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
