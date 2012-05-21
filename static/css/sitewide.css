@@ -168,7 +168,8 @@
   display: block;
 }
 /* Page-wide elements */
-html, body {
+html,
+body {
   /* Necessary to make footer stretch to bottom of page */
 
   height: 100%;
@@ -231,13 +232,15 @@ a:hover {
 img {
   border: none;
 }
-input, textarea {
+input,
+textarea {
   border: 2px solid #d6dde0;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
 }
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   border: 2px solid #8dc63f;
   outline: none;
 }
@@ -518,7 +521,8 @@ a#readon span {
   -webkit-border-radius: 0 0 10px 10px;
   border-radius: 0 0 10px 10px;
 }
-#js-leftcol ul.level1 > li > a, #js-leftcol ul.level1 > li > span {
+#js-leftcol ul.level1 > li > a,
+#js-leftcol ul.level1 > li > span {
   border-bottom: 1px solid #edf3f4;
   border-top: 1px solid #edf3f4;
   text-transform: uppercase;
@@ -723,4 +727,26 @@ a.nounderline {
   z-index: 5000;
   margin-top: -12px;
   margin-right: -22px;
+}
+.signuptoday {
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  background-color: #8dc63f;
+  padding: 0 15px;
+  height: 36px;
+  line-height: 36px;
+  float: left;
+  clear: both;
+  margin: 10px auto;
+  cursor: pointer;
+  font-style: normal;
+}
+.signuptoday a {
+  background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
+  padding-right: 17px;
+  color: white;
+}
+.signuptoday a:hover {
+  text-decoration: none;
 }

@@ -92,7 +92,8 @@
             	{% endfor %}
          	</ul>
 
-	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />    
+	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
+	       <input type="submit" id="fakepledgesubmit" disabled="disabled" />
     	</form>    	
     </div>
 </div>

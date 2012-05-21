@@ -12,6 +12,7 @@ $j().ready(function() {
 	// cache these to speed things up
 	var inputbox = $j('#id_preapproval_amount');
 	var submitbutton = $j('#pledgesubmit');
+	var fakesubmitbutton = $j('#fakepledgesubmit');
 	
 	var canonicalize = function(amt) {
 		// takes an input button from the premiums list
@@ -27,8 +28,9 @@ $j().ready(function() {
 		// highlights pledge box and submit button in alert color
 		// disables submit button and overwrites with help text
 		inputbox.css({'border-color': '#e35351', 'background-color': '#e35351', 'color': 'white'});
-		submitbutton.css({'background-color': '#e35351', 'cursor': 'default', 'font-weight': 'normal', 'font-size': '15px'});
-		submitbutton.val("You must pledge at least $"+amount+" for that premium");
+		fakesubmitbutton.val("You must pledge at least $"+amount+" for that premium");
+		fakesubmitbutton.show();
+		submitbutton.hide();
 		submitbutton.attr('disabled', 'disabled');
 	}
 	
@@ -36,8 +38,8 @@ $j().ready(function() {
 		// returns pledge box and submit button to conventional colors
 		// enables submit button and rewrites with original text
 		inputbox.css({'border-color': '#8dc63f', 'background-color': 'white', 'color': '#3d4e53'});
-		submitbutton.css({'background-color': '#8dc63f', 'cursor': 'pointer', 'font-weight': 'bold', 'font-size': '17px'});
-		submitbutton.val("Modify Pledge");
+		fakesubmitbutton.hide();
+		submitbutton.show();
 		submitbutton.removeAttr('disabled');
 	}
 	

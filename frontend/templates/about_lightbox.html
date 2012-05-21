@@ -20,6 +20,8 @@
 		<div class="right_border"><a href="{% url press %}">Our press coverage</a></div>
 		{% if not user.is_authenticated %}
 		<div class="signuptoday"><a href="{% url registration_register %}">Sign up today</a></div>
+		{% else %}
+		<div class="signuptoday"><a href="{% url campaign_list 'ending' %}">Our campaigns</a></div>
 		{% endif %}
 	</div>
 </div>
