@@ -278,7 +278,7 @@ $j(document).ready(function(){
                             {{ claim.rights_holder.rights_holder_name }}
                             {% endif %} 
                         {% endfor %}
-                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target|intcomma }} by {{ work.last_campaign.deadline }}.
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|intcomma }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
 
                         <h4>Campaign details: the fine print</h4>

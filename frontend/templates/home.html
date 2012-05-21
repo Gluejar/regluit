@@ -9,6 +9,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/learn_more.css"  />
 {% endblock %}
 
 {% block base_js %}
@@ -41,7 +42,7 @@
           <div id="js-rightcol2">
             <div id="js-rightcol-padd2">
             	<div class="jsmodule">
- 		       		<div id="collapser">X</div>
+ 		       		<div id="collapser" class="collapser_x">X</div>
                 	<h3 class="module-title">Start Ungluing Now!</h3>
                     <div class="jsmod-content">
                       <form action='/accounts/register/' method='post'>{% csrf_token %}

@@ -4,13 +4,17 @@
 
 {% if form.errors %}
 <p class="errorlist">Your username and password didn't match. Please try again.</p>
+Make sure the username box has your <b>username, not your email</b> -- some browsers automatically fill in your email.  We're working on fixing this bug.
 {% endif %}
 
 <h3>Sign in to your account</h3>
 
 {% include "login_form.html" %}
 <br />
-<a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="/faq/basics/account">Trouble</a> logging in?  <a href="{% url registration_register %}">Need an account</a>?
+
+
+<a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="{% url registration_register %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+
 
 <br /><br />
 <div class="google_signup">
