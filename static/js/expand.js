@@ -6,6 +6,8 @@ $j(document).ready(function(){
     }
     $j('#expander').click(function(){
         $j('#js-topsection').css({"opacity": "0.15"});
+        $j('#js-header').css({"opacity": "0.15"});
+        $j('#js-header a').css({"cursor": "default"});
 		$j('.launch_top').css({"opacity": "0.15"});
         $j('#main-container').css({"opacity": "0.15"});
         $j('#js-rightcol').css({"visibility":"hidden"});
@@ -13,6 +15,8 @@ $j(document).ready(function(){
     });
     $j('#collapser').click(function(){
         $j('#js-topsection').fadeTo("slow", 1);
+        $j('#js-header').fadeTo("slow", 1);
+        $j('#js-header a').css({"cursor": "pointer"});
         $j('.launch_top').fadeTo("slow", 1);
         $j('#main-container').fadeTo("slow", 1);
         $j('#js-rightcol').css({"visibility":"visible"});
