@@ -46,7 +46,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -857,60 +857,30 @@ class PledgeCompleteView(TemplateView):
         return context        
                 
     
-class PledgeCancelView(TemplateView):
-    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+class PledgeCancelView(FormView):
+    """A view for allowing a user to cancel the active transaction for specified campaign"""
     template_name="pledge_cancel.html"
+    form_class = PledgeCancelForm
     
-    def get_context_data(self):
-        context = super(PledgeCancelView, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super(PledgeCancelView, self).get_context_data(**kwargs)
         
-        if self.request.user.is_authenticated():
-            user = self.request.user
-        else:
-            user = None
+        error_msg = None
         
-        # pull out the transaction id and try to get the corresponding Transaction
-        transaction_id = self.request.REQUEST.get("tid")
-        transaction = Transaction.objects.get(id=transaction_id)
+        # the following should be true since PledgeCancelView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user
         
-        # work and campaign in question
-        try:
-            campaign = transaction.campaign
-            work = campaign.work
-        except Exception, e:
-            campaign = None
-            work = None
-        
-        # we need to check whether the user tied to the transaction is indeed the authenticated user.
-        
-        correct_user = False 
-        try:
-            if user.id == transaction.user.id:
-                correct_user = True
-        except Exception, e:
-            pass
-            
-        # check that the user had not already approved the transaction
-        # do we need to first run PreapprovalDetails to check on the status
-        
-        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
-        
-        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
-            correct_transaction_type = True
-        else:
-            correct_transaction_type = False
-            
-        # status?
+        campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
+        assert campaign.status == 'ACTIVE'
 
-        # give the user an opportunity to approved the transaction again
-        # provide a URL to click on.
-        # https://www.sandbox.paypal.com/?cmd=_ap-preapproval&preapprovalkey=PA-6JV656290V840615H
-        try_again_url = '%s?cmd=_ap-preapproval&preapprovalkey=%s' % (settings.PAYPAL_PAYMENT_HOST, transaction.preapproval_key)
-        
+        work = campaign.work
+        transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
+        assert transactions.count() == 1
+        transaction = transactions[0]
+        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE
+                
         context["transaction"] = transaction
-        context["correct_user"] = correct_user
-        context["correct_transaction_type"] = correct_transaction_type
-        context["try_again_url"] = try_again_url
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "cancel"

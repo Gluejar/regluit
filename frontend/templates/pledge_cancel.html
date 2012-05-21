@@ -11,7 +11,11 @@
 
 {% if transaction %}
     <div>You've asked to cancel your pledge of ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>  Did you mean to do this?</div>
-    <div class="btn_support">If so, please click on  the feedback form to the right to let us know, and we'll cancel the transaction for you.</div>
+    
+    <form method="post" action="{% url pledge_cancel campaign_id=campaign.id %}">
+	{% csrf_token %}
+	<input type="submit" value="Cancel Pledge" id="pledgesubmit" /> 
+    </form>
     
     {% comment %}
     "Yes" should trigger whatever functionality we need to complete cancellation -- may differ depending on whether we've hit the back button from Amazon or the cancel-my-pledge link in pledge_modify.
