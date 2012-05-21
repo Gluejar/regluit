@@ -242,7 +242,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             if self.instance:
                 if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
                     # should only allow change to a less restrictive license
-                    if self.instance.license == 'CC BY-ND' and new_license == 'CC BY-NC-ND':
+                    if self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-NC']:
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
                     elif self.instance.license == 'CC BY' and new_license != 'CC0':
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
