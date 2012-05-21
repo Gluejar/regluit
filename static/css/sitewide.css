@@ -659,3 +659,68 @@ a.nounderline {
 .slides_control {
   height: 325px !important;
 }
+#about_expandable {
+  display: none;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: solid 5px #d6dde0;
+  background: white;
+  z-index: 500;
+  position: absolute;
+  left: 12.5%;
+  width: 75%;
+  top: 25%;
+  margin-left: 0;
+  padding: 9px;
+}
+#about_expandable p {
+  padding: 9px 0;
+  font-size: 14px;
+  line-height: 18px;
+}
+#about_expandable p a {
+  font-size: 14px;
+  line-height: 18px;
+}
+#about_expandable p b {
+  color: #8dc63f;
+}
+#about_expandable p.last {
+  border-bottom: solid 2px #d6dde0;
+  margin-bottom: 5px;
+}
+#about_expandable .right_border {
+  border-right: solid 1px #d6dde0;
+  float: left;
+  padding: 9px;
+}
+#about_expandable .signuptoday {
+  float: right;
+  margin-top: 0;
+  clear: none;
+}
+#about_expandable .collapser_x {
+  margin-top: -27px;
+  margin-right: -27px;
+}
+.collapser_x {
+  float: right;
+  height: 24px;
+  line-height: 24px;
+  width: 24px;
+  -moz-border-radius: 24px;
+  -webkit-border-radius: 24px;
+  border-radius: 24px;
+  -moz-box-shadow: -1px 1px #3d4e53;
+  -webkit-box-shadow: -1px 1px #3d4e53;
+  box-shadow: -1px 1px #3d4e53;
+  border: solid 3px white;
+  text-align: center;
+  color: white;
+  background: #3d4e53;
+  font-size: 17px;
+  z-index: 5000;
+  margin-top: -12px;
+  margin-right: -22px;
+}

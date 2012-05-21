@@ -25,6 +25,27 @@
     {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+	<script type="text/javascript">
+		var $j = jQuery.noConflict();
+		$j(document).ready(function(){
+			$j('#about_expander').click(function(){
+				$j('#js-topsection').css({"opacity": "0.07"});
+				$j('.launch_top').css({"opacity": "0.07"});
+				$j('#main-container').css({"opacity": "0.07"});
+				$j('#js-rightcol').css({"opacity": "0.07"});
+				$j('#js-header').css({"opacity": "0.07"});
+				$j('#about_expandable').fadeTo("slow", 1);
+			});
+			$j('#about_collapser').click(function(){
+				$j('#js-topsection').fadeTo("slow", 1);
+				$j('.launch_top').fadeTo("slow", 1);
+				$j('#main-container').fadeTo("slow", 1);
+				$j('#js-rightcol').fadeTo("slow", 1);
+				$j('#js-header').fadeTo("slow", 1);
+				$j('#about_expandable').css({"display": "none"});
+			});
+		});
+	</script>
     {% block extra_head %}
     {% endblock %}
 </head>
@@ -34,6 +55,9 @@
 <div id="feedback">
 <p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
+
+{% include "about_lightbox.html" %}
+
 <div id="js-page-wrap">
     <div id="js-header">
         <div class="js-main">
@@ -68,7 +92,7 @@
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
                     <li><a href="{{ faqurl }}"><span>FAQs</span></a></li>   
-                    <li><a href="{{ pressurl }}"><span>Press</span></a></li>   
+                    <li id="about_expander"><a href="#"><span>About</span></a></li>   
                     <li><a href="/"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
@@ -95,7 +119,7 @@ Unglue.it has launched!  Please consider supporting our <a href="/campaigns/endi
     <div class="column">
         <span>About Unglue.it</span>
         <ul>
-        <li><a href="{{ abouturl }}">About</a></li>
+        <li><a href="{{ abouturl }}">Team</a></li>
         <li><a href="http://blog.unglue.it">Blog</a></li>
         <li><a href="{{ pressurl }}">Press</a></li>
         <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>

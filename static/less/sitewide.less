@@ -579,3 +579,72 @@ a.nounderline {
 .slides_control {
 	height: 325px !important;
 }
+
+#about_expandable {
+	display: none;
+	.one-border-radius(5px);
+	border: solid 5px @blue-grey;
+	background: white;
+	z-index: 500;
+	position: absolute;
+	left: 12.5%;
+	width: 75%;
+	top: 25%;
+	margin-left: 0;
+	padding: 9px;
+	
+	p {
+		padding: 9px 0;
+		font-size: 14px;
+		line-height: 18px;
+		
+		a {
+			font-size: 14px;
+			line-height: 18px;
+		}
+		
+		b {
+			color: @call-to-action;
+		}
+		
+		&.last {
+			border-bottom: solid 2px @blue-grey;
+			margin-bottom: 5px;
+		}
+	}
+	
+	.right_border {
+		border-right: solid 1px @blue-grey;
+		float: left;
+		padding: 9px;
+	}
+	
+	.signuptoday {
+		float: right;
+		margin-top: 0;
+		clear: none;
+	}
+	
+	.collapser_x {
+		margin-top: -27px;
+		margin-right: -27px;
+	}
+}
+
+.collapser_x {
+	float: right;
+	.height(24px);
+	width: 24px;
+	.one-border-radius(24px); 
+	-moz-box-shadow: -1px 1px @text-blue;
+	-webkit-box-shadow: -1px 1px @text-blue;
+	box-shadow: -1px 1px @text-blue;
+	border: solid 3px white;
+	text-align: center;
+	color: white;
+	background: @text-blue;
+	font-size: 17px;
+	z-index:5000;
+	margin-top: -12px;
+	margin-right:-22px;
+}

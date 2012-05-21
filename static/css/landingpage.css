@@ -214,14 +214,14 @@
   list-style: none;
   border: none;
 }
-#user-block-hide {
+.learnmore_block {
   float: left;
   width: 100%;
   clear: both;
   border-top: solid 1px #8ac3d7;
   margin-top: 20px;
 }
-#user-block-hide .quicktour {
+.learnmore_block .quicktour {
   width: 270px;
   float: left;
   font-style: italic;
@@ -229,23 +229,24 @@
   font-size: 13px;
   margin-top: 20px;
 }
-#user-block-hide .quicktour .highlight {
+.learnmore_block .quicktour .highlight {
   font-weight: bold;
 }
-#user-block-hide .quicktour.last {
+.learnmore_block .quicktour.last {
   padding-right: 0px;
   width: 270px;
 }
-#user-block-hide .quicktour.last .signup {
+.learnmore_block .quicktour.last .signup {
   color: #8dc63f;
   font-weight: bold;
   margin-top: 10px;
 }
-#user-block-hide .quicktour.last .signup img {
+.learnmore_block .quicktour.last .signup img {
   margin-left: 5px;
   vertical-align: middle;
+  margin-bottom: 3px;
 }
-#user-block-hide .movingrightalong {
+.learnmore_block .movingrightalong {
   background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
   height: 100px;
   width: 75px;
@@ -352,31 +353,6 @@
   line-height: 30px;
   color: #3d4e53;
   padding-right: 15px;
-}
-#collapser {
-  float: right;
-  height: 24px;
-  line-height: 24px;
-  height: 24px;
-  line-height: 24px;
-  width: 24px;
-  -moz-border-radius: 24px;
-  -webkit-border-radius: 24px;
-  border-radius: 24px;
-  -moz-border-radius: 24px;
-  -webkit-border-radius: 24px;
-  border-radius: 24px;
-  -moz-box-shadow: -1px 1px #3d4e53;
-  -webkit-box-shadow: -1px 1px #3d4e53;
-  box-shadow: -1px 1px #3d4e53;
-  border: solid 3px white;
-  text-align: center;
-  color: white;
-  background: #3d4e53;
-  font-size: 17px;
-  z-index: 5000;
-  margin-top: -12px;
-  margin-right: -22px;
 }
 #js-rightcol, #js-rightcol2 {
   float: right;
