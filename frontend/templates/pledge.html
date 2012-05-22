@@ -53,7 +53,7 @@
 	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
 		<div>
 		Amount: ${{preapproval_amount|intcomma}}.<br />
-		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
+		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
 		</div>
 	<br /> You can modify your pledge below.
 	</div>
@@ -80,7 +80,7 @@
             	{% if premium_item.limit == 0  or  premium_item.limit > premium_item.premium_count  %}
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
             	<label for="premium_{{premium_item.id}}">
-                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %}/>
+                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium_item.amount|intcomma }}
                     </span>
