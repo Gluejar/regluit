@@ -2,6 +2,7 @@
 @import "campaign_tabs.less";
 @import "book_detail.less";
 
+/* Common elements of share links -- just swap in the background image */
 .shareclass(@sharewhere) {
 	background:url("@{image-base}icons/@{sharewhere}.png") 10px center no-repeat;
 	cursor: pointer;
@@ -19,6 +20,7 @@
 	}
 }
 
+/* Page layout */
 #js-page-wrap {
 	overflow:hidden;
 }
@@ -40,6 +42,7 @@
 			margin:0;
 			line-height: 16px;
 			
+			/* Bubble in upper left looks different depending on campaign status */
 			&.ACTIVE {
 				background: @green;
 				color: white;
@@ -74,6 +77,199 @@
 	margin-left: 10px;
 }
 
+#js-slide .jsmodule {
+	width: 660px !important;	
+}
+
+a {
+	color:#3d4e53;
+	font-size:12px;
+}
+
+#js-search {
+	margin: 0 15px 0 15px !important;
+}
+
+.alert > .errorlist {
+	list-style-type: none;
+	font-size: 14px;
+	border: none;
+	text-align: left;
+	font-weight: normal;
+	font-size: 12px;
+	
+	> li {
+		margin-bottom: 14px;
+	}
+
+	.errorlist {
+		margin-top: 7px; 
+		
+		li {
+			width: auto;
+			height: auto;
+			padding-left: 32px;
+			padding-right: 32px;
+			font-size: 12px;
+		}
+	}
+}
+
+/* Center elements */
+#js-maincol {
+	float:left;
+	width:470px;
+	margin:0 10px;
+
+	div#content-block { 
+		background: none;
+		padding:0;
+	}
+}
+
+#pledge-maincol {
+	float: left;
+	width: 450px;
+	padding-right: 15px;
+}
+
+.status {
+	font-size: 17px;
+	color: @green;
+}
+
+/* Center - add/remove actions in book detail area */
+.add-wishlist, .add-wishlist-workpage, &.remove-wishlist-workpage, .remove-wishlist, &.on-wishlist, &.create-account {
+	float: right;
+	cursor: pointer;
+            
+	span {
+    	font-weight:normal;
+        color:@text-blue;
+        text-transform: none;
+        padding-left:20px;
+        
+        &.on-wishlist {
+    		background:url("@{image-base}checkmark_small.png") left center no-repeat;
+    		cursor: default;
+        }
+	}
+}
+
+.add-wishlist span, .add-wishlist-workpage span, .create-account span {
+    background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
+}
+
+.remove-wishlist-workpage span, .remove-wishlist span {
+    background:url("@{image-base}booklist/remove-wishlist-blue.png") left center no-repeat;
+}
+
+/* Center - tabs and content below them */
+div#content-block-content {
+  padding-left: 5px;
+  
+  a {
+  	color: @medium-blue;
+  }
+  
+  #tabs-1 img {
+  	.mediaborder;
+  }
+}
+
+.tabs-content {
+	padding-right: 5px;
+	
+	iframe {
+		.mediaborder;
+	}
+	
+	form {
+	margin-left: -5px;
+	}
+}
+
+.work_supporter {
+	height: auto;
+	min-height: 50px;
+	margin-top: 5px;
+	vertical-align: middle;
+	margin-left:-5px;
+}
+
+.work_supporter_avatar {
+	float: left;
+	margin-right: 5px;
+	
+	img {
+		.one-border-radius(5px);
+	}
+}
+	
+.work_supporter_name {
+	.height(50px);
+	float: left;
+}
+
+.work_supporter_nocomment {
+	height: 50px;
+	margin-top: 5px;
+	vertical-align: middle;
+	margin-left:-5px;
+}
+
+.editions {
+	clear: both;
+	
+	div {
+		float:left;
+		padding-bottom: 5px;
+	}
+	
+	.image {
+		width: 60px;
+		overflow: hidden;
+	}
+	
+    .metadata { 
+    	display:block;
+        overflow: hidden;
+        margin-left: 5px;
+    }
+    
+    a:hover {
+    	text-decoration: underline;
+    }
+}
+
+.show_more_edition,
+.show_more_ebooks {
+	cursor: pointer;
+}
+
+.show_more_edition {
+  text-align: right;
+  
+  &:hover {
+	  text-decoration: underline;
+  }
+}
+
+.more_edition {
+  display:none;
+  clear: both;
+  padding-bottom: 10px;
+  padding-left: 60px;  
+}
+
+.more_ebooks {
+  display:none;
+}
+.show_more_ebooks:hover {
+  text-decoration: underline;
+}
+
+/* Right column */
 #js-rightcol, #pledge-rightcol {
 	float:right;
 	width:235px;
@@ -112,48 +308,7 @@
 	padding:10px;
 } 
 
-#js-maincol {
-	float:left;
-	/* If we want to nuke the explore column, width should be 705ish */
-	width:470px;
-	margin:0 10px;
-
-	div#content-block { 
-		background: none;
-		padding:0;
-	}
-}
-
-#pledge-maincol {
-	float: left;
-	width: 450px;
-	padding-right: 15px;
-}
-
-div#content-block-content {
-  padding-left: 5px;
-  
-  a {
-  	color: @medium-blue;
-  }
-  
-  #tabs-1 img {
-  	.mediaborder;
-  }
-}
-
-.tabs-content {
-	padding-right: 5px;
-	
-	iframe {
-		.mediaborder;
-	}
-	
-	form {
-	margin-left: -5px;
-	}
-}
-
+/* Right column - sharing */
 ul.social {
 	a:hover {
 		text-decoration: none;
@@ -191,6 +346,7 @@ ul.social {
 	padding:10px;
 }
 
+/* Right column - support tiers */
 ul.support li {
 	border-bottom:1px solid @blue-grey;
 	padding:10px 5px 10px 10px;
@@ -222,162 +378,6 @@ ul.support li {
 	}
 }
 
-.work_supporter_nocomment {
-	height: 50px;
-	margin-top: 5px;
-	vertical-align: middle;
-	margin-left:-5px;
-}
-
-.work_supporter_avatar {
-	float: left;
-}
-	
-.work_supporter_name {
-	.height(50px);
-	float: left;
-}
-
-.add-wishlist, .add-wishlist-workpage, &.remove-wishlist-workpage, .remove-wishlist, &.on-wishlist, &.create-account {
-	float: right;
-	cursor: pointer;
-            
-	span {
-    	font-weight:normal;
-        color:@text-blue;
-        text-transform: none;
-        padding-left:20px;
-        
-        &.on-wishlist {
-    		background:url("@{image-base}checkmark_small.png") left center no-repeat;
-    		cursor: default;
-        }
-	}
-}
-
-.add-wishlist span, .add-wishlist-workpage span, .create-account span {
-    background:url("@{image-base}booklist/add-wishlist.png") left center no-repeat;
-}
-
-.remove-wishlist-workpage span, .remove-wishlist span {
-    background:url("@{image-base}booklist/remove-wishlist-blue.png") left center no-repeat;
-}
-
-.editions {
-	clear: both;
-	
-	div {
-		float:left;
-		padding-bottom: 5px;
-	}
-	
-	.image {
-		width: 60px;
-		overflow: hidden;
-	}
-	
-    .metadata { 
-    	display:block;
-        overflow: hidden;
-        margin-left: 5px;
-    }
-    
-    a:hover {
-    	text-decoration: underline;
-    }
-}
-
-.show_more_edition,
-.show_more_ebooks {
-	cursor: pointer;
-}
-
-.thank-you {
-	font-size: 18px;
-	font-weight: bold;
-	margin: 20px auto;
-}
-
-.work_supporter {
-	height: auto;
-	min-height: 50px;
-	margin-top: 5px;
-	vertical-align: middle;
-	margin-left:-5px;
-}
-.work_supporter_avatar {
-	margin-right: 5px;
-	
-	img {
-		.one-border-radius(5px);
-	}
-}
-
-.more_edition {
-  display:none;
-  clear: both;
-  padding-bottom: 10px;
-  padding-left: 60px;  
-}
-
-.show_more_edition:hover {
-  text-decoration: underline;
-}
-.show_more_edition {
-  text-align: right;
-}
-
-.more_ebooks {
-  display:none;
-}
-.show_more_ebooks:hover {
-  text-decoration: underline;
-}
-
-
-.alert > .errorlist {
-	list-style-type: none;
-	font-size: 14px;
-	border: none;
-	text-align: left;
-	font-weight: normal;
-	font-size: 12px;
-	
-	> li {
-		margin-bottom: 14px;
-	}
-
-	.errorlist {
-		margin-top: 7px; 
-		
-		li {
-			width: auto;
-			height: auto;
-			padding-left: 32px;
-			padding-right: 32px;
-			font-size: 12px;
-		}
-	}
-}
-
-#js-slide .jsmodule {
-	width: 660px !important;	
-}
-
-a {
-	color:#3d4e53;
-	font-size:12px;
-}
-
-#js-search {
-	margin: 0 15px 0 15px !important;
-}
-
-.status {
-	font-size: 17px;
-	color: @green;
-}
-
 .you_pledged {
 	float: left;
 	line-height: 21px;
@@ -385,4 +385,10 @@ a {
     color:@text-blue;
     padding-left:20px;
     background:url("@{image-base}checkmark_small.png") left center no-repeat;
+}
+
+.thank-you {
+	font-size: 18px;
+	font-weight: bold;
+	margin: 20px auto;
 }

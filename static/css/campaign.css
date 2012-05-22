@@ -267,6 +267,8 @@ ul.tabs li.active a {
   height: 25px;
   margin-top: -12px;
 }
+/* Common elements of share links -- just swap in the background image */
+/* Page layout */
 #js-page-wrap {
   overflow: hidden;
 }
@@ -289,6 +291,8 @@ ul.tabs li.active a {
   border: none;
   margin: 0;
   line-height: 16px;
+  /* Bubble in upper left looks different depending on campaign status */
+
 }
 #js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE,
 .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
@@ -320,6 +324,185 @@ ul.tabs li.active a {
   float: left;
   margin-left: 10px;
 }
+#js-slide .jsmodule {
+  width: 660px !important;
+}
+a {
+  color: #3d4e53;
+  font-size: 12px;
+}
+#js-search {
+  margin: 0 15px 0 15px !important;
+}
+.alert > .errorlist {
+  list-style-type: none;
+  font-size: 14px;
+  border: none;
+  text-align: left;
+  font-weight: normal;
+  font-size: 12px;
+}
+.alert > .errorlist > li {
+  margin-bottom: 14px;
+}
+.alert > .errorlist .errorlist {
+  margin-top: 7px;
+}
+.alert > .errorlist .errorlist li {
+  width: auto;
+  height: auto;
+  padding-left: 32px;
+  padding-right: 32px;
+  font-size: 12px;
+}
+/* Center elements */
+#js-maincol {
+  float: left;
+  width: 470px;
+  margin: 0 10px;
+}
+#js-maincol div#content-block {
+  background: none;
+  padding: 0;
+}
+#pledge-maincol {
+  float: left;
+  width: 450px;
+  padding-right: 15px;
+}
+.status {
+  font-size: 17px;
+  color: #8dc63f;
+}
+/* Center - add/remove actions in book detail area */
+.add-wishlist,
+.add-wishlist-workpage,
+.remove-wishlist-workpage,
+.remove-wishlist,
+.on-wishlist,
+.create-account {
+  float: right;
+  cursor: pointer;
+}
+.add-wishlist span,
+.add-wishlist-workpage span,
+.remove-wishlist-workpage span,
+.remove-wishlist span,
+.on-wishlist span,
+.create-account span {
+  font-weight: normal;
+  color: #3d4e53;
+  text-transform: none;
+  padding-left: 20px;
+}
+.add-wishlist span.on-wishlist,
+.add-wishlist-workpage span.on-wishlist,
+.remove-wishlist-workpage span.on-wishlist,
+.remove-wishlist span.on-wishlist,
+.on-wishlist span.on-wishlist,
+.create-account span.on-wishlist {
+  background: url("/static/images/checkmark_small.png") left center no-repeat;
+  cursor: default;
+}
+.add-wishlist span,
+.add-wishlist-workpage span,
+.create-account span {
+  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
+}
+.remove-wishlist-workpage span,
+.remove-wishlist span {
+  background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
+}
+/* Center - tabs and content below them */
+div#content-block-content {
+  padding-left: 5px;
+}
+div#content-block-content a {
+  color: #6994a3;
+}
+div#content-block-content #tabs-1 img {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.tabs-content {
+  padding-right: 5px;
+}
+.tabs-content iframe {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.tabs-content form {
+  margin-left: -5px;
+}
+.work_supporter {
+  height: auto;
+  min-height: 50px;
+  margin-top: 5px;
+  vertical-align: middle;
+  margin-left: -5px;
+}
+.work_supporter_avatar {
+  float: left;
+  margin-right: 5px;
+}
+.work_supporter_avatar img {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.work_supporter_name {
+  height: 50px;
+  line-height: 50px;
+  float: left;
+}
+.work_supporter_nocomment {
+  height: 50px;
+  margin-top: 5px;
+  vertical-align: middle;
+  margin-left: -5px;
+}
+.editions {
+  clear: both;
+}
+.editions div {
+  float: left;
+  padding-bottom: 5px;
+}
+.editions .image {
+  width: 60px;
+  overflow: hidden;
+}
+.editions .metadata {
+  display: block;
+  overflow: hidden;
+  margin-left: 5px;
+}
+.editions a:hover {
+  text-decoration: underline;
+}
+.show_more_edition,
+.show_more_ebooks {
+  cursor: pointer;
+}
+.show_more_edition {
+  text-align: right;
+}
+.show_more_edition:hover {
+  text-decoration: underline;
+}
+.more_edition {
+  display: none;
+  clear: both;
+  padding-bottom: 10px;
+  padding-left: 60px;
+}
+.more_ebooks {
+  display: none;
+}
+.show_more_ebooks:hover {
+  text-decoration: underline;
+}
+/* Right column */
 #js-rightcol,
 #pledge-rightcol {
   float: right;
@@ -361,42 +544,7 @@ ul.tabs li.active a {
   border-radius: 10px;
   padding: 10px;
 }
-#js-maincol {
-  float: left;
-  /* If we want to nuke the explore column, width should be 705ish */
-
-  width: 470px;
-  margin: 0 10px;
-}
-#js-maincol div#content-block {
-  background: none;
-  padding: 0;
-}
-#pledge-maincol {
-  float: left;
-  width: 450px;
-  padding-right: 15px;
-}
-div#content-block-content {
-  padding-left: 5px;
-}
-div#content-block-content a {
-  color: #6994a3;
-}
-div#content-block-content #tabs-1 img {
-  padding: 5px;
-  border: solid 5px #EDF3F4;
-}
-.tabs-content {
-  padding-right: 5px;
-}
-.tabs-content iframe {
-  padding: 5px;
-  border: solid 5px #EDF3F4;
-}
-.tabs-content form {
-  margin-left: -5px;
-}
+/* Right column - sharing */
 ul.social a:hover {
   text-decoration: none;
 }
@@ -469,6 +617,7 @@ ul.social li.embed:hover span {
   border-radius: 10px;
   padding: 10px;
 }
+/* Right column - support tiers */
 ul.support li {
   border-bottom: 1px solid #d6dde0;
   padding: 10px 5px 10px 10px;
@@ -495,154 +644,6 @@ ul.support li:hover a {
   color: #fff;
   text-decoration: none;
 }
-.work_supporter_nocomment {
-  height: 50px;
-  margin-top: 5px;
-  vertical-align: middle;
-  margin-left: -5px;
-}
-.work_supporter_avatar {
-  float: left;
-}
-.work_supporter_name {
-  height: 50px;
-  line-height: 50px;
-  float: left;
-}
-.add-wishlist,
-.add-wishlist-workpage,
-.remove-wishlist-workpage,
-.remove-wishlist,
-.on-wishlist,
-.create-account {
-  float: right;
-  cursor: pointer;
-}
-.add-wishlist span,
-.add-wishlist-workpage span,
-.remove-wishlist-workpage span,
-.remove-wishlist span,
-.on-wishlist span,
-.create-account span {
-  font-weight: normal;
-  color: #3d4e53;
-  text-transform: none;
-  padding-left: 20px;
-}
-.add-wishlist span.on-wishlist,
-.add-wishlist-workpage span.on-wishlist,
-.remove-wishlist-workpage span.on-wishlist,
-.remove-wishlist span.on-wishlist,
-.on-wishlist span.on-wishlist,
-.create-account span.on-wishlist {
-  background: url("/static/images/checkmark_small.png") left center no-repeat;
-  cursor: default;
-}
-.add-wishlist span,
-.add-wishlist-workpage span,
-.create-account span {
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
-}
-.remove-wishlist-workpage span,
-.remove-wishlist span {
-  background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
-}
-.editions {
-  clear: both;
-}
-.editions div {
-  float: left;
-  padding-bottom: 5px;
-}
-.editions .image {
-  width: 60px;
-  overflow: hidden;
-}
-.editions .metadata {
-  display: block;
-  overflow: hidden;
-  margin-left: 5px;
-}
-.editions a:hover {
-  text-decoration: underline;
-}
-.show_more_edition,
-.show_more_ebooks {
-  cursor: pointer;
-}
-.thank-you {
-  font-size: 18px;
-  font-weight: bold;
-  margin: 20px auto;
-}
-.work_supporter {
-  height: auto;
-  min-height: 50px;
-  margin-top: 5px;
-  vertical-align: middle;
-  margin-left: -5px;
-}
-.work_supporter_avatar {
-  margin-right: 5px;
-}
-.work_supporter_avatar img {
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
-.more_edition {
-  display: none;
-  clear: both;
-  padding-bottom: 10px;
-  padding-left: 60px;
-}
-.show_more_edition:hover {
-  text-decoration: underline;
-}
-.show_more_edition {
-  text-align: right;
-}
-.more_ebooks {
-  display: none;
-}
-.show_more_ebooks:hover {
-  text-decoration: underline;
-}
-.alert > .errorlist {
-  list-style-type: none;
-  font-size: 14px;
-  border: none;
-  text-align: left;
-  font-weight: normal;
-  font-size: 12px;
-}
-.alert > .errorlist > li {
-  margin-bottom: 14px;
-}
-.alert > .errorlist .errorlist {
-  margin-top: 7px;
-}
-.alert > .errorlist .errorlist li {
-  width: auto;
-  height: auto;
-  padding-left: 32px;
-  padding-right: 32px;
-  font-size: 12px;
-}
-#js-slide .jsmodule {
-  width: 660px !important;
-}
-a {
-  color: #3d4e53;
-  font-size: 12px;
-}
-#js-search {
-  margin: 0 15px 0 15px !important;
-}
-.status {
-  font-size: 17px;
-  color: #8dc63f;
-}
 .you_pledged {
   float: left;
   line-height: 21px;
@@ -650,4 +651,9 @@ a {
   color: #3d4e53;
   padding-left: 20px;
   background: url("/static/images/checkmark_small.png") left center no-repeat;
+}
+.thank-you {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 20px auto;
 }
