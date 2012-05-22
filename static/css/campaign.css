@@ -152,7 +152,8 @@ ul.tabs li a {
 ul.tabs li a:hover {
   text-decoration: none;
 }
-ul.tabs li a:hover, ul.tabs li.active a {
+ul.tabs li a:hover,
+ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
 }
@@ -178,7 +179,9 @@ ul.tabs li a:hover, ul.tabs li.active a {
 
   width: 309px;
 }
-.book-detail-info h2.book-name, .book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h2.book-name,
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   padding: 0;
   margin: 0;
   line-height: normal;
@@ -189,7 +192,8 @@ ul.tabs li a:hover, ul.tabs li.active a {
   font-weight: bold;
   color: #3d4e53;
 }
-.book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   font-size: 12px;
   font-weight: normal;
   color: #6994a3;
@@ -269,10 +273,12 @@ ul.tabs li a:hover, ul.tabs li.active a {
 #main-container {
   margin-top: 20px;
 }
-#js-leftcol .jsmodule, .pledge.jsmodule {
+#js-leftcol .jsmodule,
+.pledge.jsmodule {
   margin-bottom: 10px;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content, .pledge.jsmodule.rounded .jsmod-content {
+#js-leftcol .jsmodule.rounded .jsmod-content,
+.pledge.jsmodule.rounded .jsmod-content {
   -moz-border-radius: 20px;
   -webkit-border-radius: 20px;
   border-radius: 20px;
@@ -284,37 +290,44 @@ ul.tabs li a:hover, ul.tabs li.active a {
   margin: 0;
   line-height: 16px;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE, .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
+#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE,
+.pledge.jsmodule.rounded .jsmod-content.ACTIVE {
   background: #8dc63f;
   color: white;
   font-size: 18px;
   font-weight: normal;
   line-height: 20px;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet, .pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
+#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet,
+.pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
   background: #e18551;
   color: white;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content span, .pledge.jsmodule.rounded .jsmod-content span {
+#js-leftcol .jsmodule.rounded .jsmod-content span,
+.pledge.jsmodule.rounded .jsmod-content span {
   display: inline-block;
   vertical-align: middle;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content span.spacer, .pledge.jsmodule.rounded .jsmod-content span.spacer {
+#js-leftcol .jsmodule.rounded .jsmod-content span.spacer,
+.pledge.jsmodule.rounded .jsmod-content span.spacer {
   visibility: none;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers, .pledge.jsmodule.rounded .jsmod-content span.findtheungluers {
+#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers,
+.pledge.jsmodule.rounded .jsmod-content span.findtheungluers {
   cursor: pointer;
 }
 .jsmodule.pledge {
   float: left;
   margin-left: 10px;
 }
-#js-rightcol, #pledge-rightcol {
+#js-rightcol,
+#pledge-rightcol {
   float: right;
   width: 235px;
   margin-bottom: 20px;
 }
-#js-rightcol h3.jsmod-title, #pledge-rightcol h3.jsmod-title {
+#js-rightcol h3.jsmod-title,
+#pledge-rightcol h3.jsmod-title {
   background: #a7c1ca;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
@@ -326,14 +339,16 @@ ul.tabs li a:hover, ul.tabs li.active a {
   margin: 0 0 10px 0;
   color: white;
 }
-#js-rightcol h3.jsmod-title span, #pledge-rightcol h3.jsmod-title span {
+#js-rightcol h3.jsmod-title span,
+#pledge-rightcol h3.jsmod-title span {
   padding: 0;
   color: #fff;
   font-style: normal;
   height: 22px;
   line-height: 22px;
 }
-#js-rightcol .jsmodule, #pledge-rightcol .jsmodule {
+#js-rightcol .jsmodule,
+#pledge-rightcol .jsmodule {
   margin-bottom: 10px;
 }
 #pledge-rightcol {
@@ -465,6 +480,12 @@ ul.support li span {
 }
 ul.support li span.menu-item-price {
   font-size: 18px;
+  float: left;
+  margin-bottom: 3px;
+}
+ul.support li span.menu-item-desc {
+  float: none;
+  clear: both;
 }
 ul.support li:hover {
   color: #fff;
@@ -517,10 +538,13 @@ ul.support li:hover a {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
   cursor: default;
 }
-.add-wishlist span, .add-wishlist-workpage span, .create-account span {
+.add-wishlist span,
+.add-wishlist-workpage span,
+.create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
 }
-.remove-wishlist-workpage span, .remove-wishlist span {
+.remove-wishlist-workpage span,
+.remove-wishlist span {
   background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
 }
 .editions {
@@ -542,7 +566,8 @@ ul.support li:hover a {
 .editions a:hover {
   text-decoration: underline;
 }
-.show_more_edition, .show_more_ebooks {
+.show_more_edition,
+.show_more_ebooks {
   cursor: pointer;
 }
 .thank-you {
@@ -617,4 +642,12 @@ a {
 .status {
   font-size: 17px;
   color: #8dc63f;
+}
+.you_pledged {
+  float: left;
+  line-height: 21px;
+  font-weight: normal;
+  color: #3d4e53;
+  padding-left: 20px;
+  background: url("/static/images/checkmark_small.png") left center no-repeat;
 }

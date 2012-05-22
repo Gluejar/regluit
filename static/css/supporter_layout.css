@@ -106,7 +106,8 @@
 #user-block-hide .block {
   float: left;
 }
-#user-block-hide .block1, #user-block-hide .block3 {
+#user-block-hide .block1,
+#user-block-hide .block3 {
   width: 25%;
 }
 #user-block-hide .block2 {
@@ -128,7 +129,8 @@
   float: none;
   width: auto;
 }
-#user-block-hide input#librarything_input, #user-block-hide input#goodreads_input {
+#user-block-hide input#librarything_input,
+#user-block-hide input#goodreads_input {
   width: auto;
   cursor: pointer;
   background: #edf3f4;
@@ -160,14 +162,17 @@
   float: left;
   width: 25%;
 }
-.user-block3, .user-block4 {
+.user-block3,
+.user-block4 {
   float: left;
   width: 25%;
 }
-.user-block3.recommended, .user-block4.recommended {
+.user-block3.recommended,
+.user-block4.recommended {
   margin-top: auto;
 }
-.user-block3.recommended img, .user-block4.recommended img {
+.user-block3.recommended img,
+.user-block4.recommended img {
   margin-right: 7px;
 }
 .user-block3 {
@@ -201,13 +206,16 @@ span.special-user-name {
   font-weight: bold;
   height: 50px;
 }
-span.user-name, span.user-date, span.user-short-info {
+span.user-name,
+span.user-date,
+span.user-short-info {
   display: block;
 }
 .user-block2 .user-short-info {
   padding-right: 10px;
 }
-span.user-name, span.user-name a {
+span.user-name,
+span.user-name a {
   font-size: 12px;
   color: #3d4e53;
 }
@@ -280,7 +288,8 @@ input.profile-save {
   display: inline-block;
   vertical-align: middle;
 }
-#loadgr div, #loadgr input {
+#loadgr div,
+#loadgr input {
   margin: auto 10px auto 36px;
 }
 #loadgr #goodreads_shelves {
@@ -292,7 +301,8 @@ input.profile-save {
   min-height: 32px;
   padding-top: 4px;
 }
-#loadlt div, #loadlt input {
+#loadlt div,
+#loadlt input {
   margin: auto 10px auto 36px;
 }
 .weareonthat {
@@ -344,7 +354,9 @@ span.my-setting.active {
 #tabs ul.book-list-view {
   margin-bottom: 0 !important;
 }
-#tabs-1, #tabs-2, #tabs-3 {
+#tabs-1,
+#tabs-2,
+#tabs-3 {
   margin-left: 10px;
 }
 ul.tabs {
@@ -359,7 +371,9 @@ ul.tabs li {
   line-height: 46px;
   margin-right: 2px;
 }
-ul.tabs li.tabs1, ul.tabs li.tabs2, ul.tabs li.tabs3 {
+ul.tabs li.tabs1,
+ul.tabs li.tabs2,
+ul.tabs li.tabs3 {
   width: 112px;
 }
 ul.tabs li a {
@@ -375,15 +389,18 @@ ul.tabs li a {
   background: #6994a3;
   color: #fff;
 }
-ul.tabs li.tabs1 a:hover, ul.tabs li.tabs1.active a {
+ul.tabs li.tabs1 a:hover,
+ul.tabs li.tabs1.active a {
   background: #8dc63f;
   color: #ffffff;
 }
-ul.tabs li.tabs2 a:hover, ul.tabs li.tabs2.active a {
+ul.tabs li.tabs2 a:hover,
+ul.tabs li.tabs2.active a {
   background: #eabc7c;
   color: #fff;
 }
-ul.tabs li.tabs3 a:hover, ul.tabs li.tabs3.active a {
+ul.tabs li.tabs3 a:hover,
+ul.tabs li.tabs3.active a {
   background: #d6dde0;
   color: #3d4e53;
 }

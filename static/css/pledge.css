@@ -90,7 +90,8 @@
   list-style: none;
   border: none;
 }
-#content-block .jsmod-content, .book-detail {
+#content-block .jsmod-content,
+.book-detail {
   float: left;
   width: auto;
 }
@@ -116,7 +117,8 @@ form.pledgeform {
   line-height: 30px;
   font-size: 16px;
 }
-ul.support li, ul.support li:hover {
+ul.support li,
+ul.support li:hover {
   background-image: none;
 }
 p {

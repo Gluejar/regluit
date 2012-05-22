@@ -152,7 +152,8 @@ ul.tabs li a {
 ul.tabs li a:hover {
   text-decoration: none;
 }
-ul.tabs li a:hover, ul.tabs li.active a {
+ul.tabs li a:hover,
+ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
 }
@@ -178,7 +179,9 @@ ul.tabs li a:hover, ul.tabs li.active a {
 
   width: 309px;
 }
-.book-detail-info h2.book-name, .book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h2.book-name,
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   padding: 0;
   margin: 0;
   line-height: normal;
@@ -189,7 +192,8 @@ ul.tabs li a:hover, ul.tabs li.active a {
   font-weight: bold;
   color: #3d4e53;
 }
-.book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   font-size: 12px;
   font-weight: normal;
   color: #6994a3;

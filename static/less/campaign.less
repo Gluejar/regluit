@@ -202,6 +202,13 @@ ul.support li {
 
 		&.menu-item-price { 
 			font-size:18px;
+			float: left;
+			margin-bottom: 3px;
+		}
+		
+		&.menu-item-desc {
+			float: none;
+			clear: both;
 		}
 	}
 	
@@ -369,4 +376,13 @@ a {
 .status {
 	font-size: 17px;
 	color: @green;
+}
+
+.you_pledged {
+	float: left;
+	line-height: 21px;
+    font-weight:normal;
+    color:@text-blue;
+    padding-left:20px;
+    background:url("@{image-base}checkmark_small.png") left center no-repeat;
 }

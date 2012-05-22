@@ -397,7 +397,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
+								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Pledged!</div>{% endif %}
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>
