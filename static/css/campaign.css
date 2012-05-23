@@ -219,19 +219,13 @@ ul.tabs li.active a {
   float: right;
 }
 .book-detail-info > div.layout div.btn_support input {
-  background: url("/static/images/btn_bg.png") 0 0 no-repeat;
-  width: 104px;
-  height: 41px;
-  display: block;
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  font-size: 17px;
 }
 .book-detail-info > div.layout div.btn_support.modify input {
-  background: url("/static/images/btn_bg_grey.png") 0 0 no-repeat;
+  background: #d6dde0;
+  font-size: 13px;
+  border: double white;
+  line-height: 17px;
 }
 .book-detail-info .btn_wishlist span {
   text-align: right;
