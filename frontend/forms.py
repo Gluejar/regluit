@@ -329,8 +329,9 @@ class LibraryThingForm(forms.Form):
     lt_username = forms.CharField(max_length=30, required=True)
 
 class PledgeCancelForm(forms.Form):
-    # campaign_id is the id for the campaign 
+    # which campaign whose active transaction to cancel?
     campaign_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
+
 
 class CampaignAdminForm(forms.Form):
     campaign_id = forms.IntegerField()

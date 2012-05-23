@@ -865,21 +865,39 @@ class PledgeCancelView(FormView):
     def get_context_data(self, **kwargs):
         context = super(PledgeCancelView, self).get_context_data(**kwargs)
         
-        error_msg = None
+        # initialize error to be None
+        context["error"] = None
         
         # the following should be true since PledgeCancelView.as_view is wrapped in login_required
-        assert self.request.user.is_authenticated()
-        user = self.request.user
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            context["error"] = "user is not authenticated"
+            return context
         
         campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
-        assert campaign.status == 'ACTIVE'
-
+        if campaign.status != 'ACTIVE':
+            context["error"] = "{0} is not an active campaign".format(campaign)
+            return context
+        
         work = campaign.work
         transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
-        assert transactions.count() == 1
+        
+        if transactions.count() < 1:
+            context["error"] = "You don't have an active transaction for this campaign"
+            return context
+        elif transactions.count() > 1:
+            context["error"] = "You have {0} active transactions for this campaign".format(transactions.count())
+            return context
+
         transaction = transactions[0]
-        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE
-                
+        if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
+            context["error"] = "Your transaction type, which should be {0}, is actually {1}".format(PAYMENT_TYPE_AUTHORIZATION, transaction.type)
+            return context
+        
+        # we've located the transaction, work, and campaign referenced in the view
+        
         context["transaction"] = transaction
         context["work"] = work
         context["campaign"] = campaign
@@ -887,6 +905,34 @@ class PledgeCancelView(FormView):
         
         return context
     
+    def form_valid(self, form):
+        # check that user does, in fact, have an active transaction for specified campaign
+    
+        logger.info("arrived at pledge_cancel form_valid")
+        # pull campaign_id from form, not from URI as we do from GET
+        campaign_id = self.request.REQUEST.get('campaign_id')
+        user = self.request.user
+        
+        try:
+            campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
+            transaction = campaign.transaction_set.get(user=user, status=TRANSACTION_STATUS_ACTIVE,
+                                                          type=PAYMENT_TYPE_AUTHORIZATION)
+            # cancel the transaction and redirect to the Work page.
+            # here's a place that would be nice to use https://docs.djangoproject.com/en/dev/ref/contrib/messages/
+            p = PaymentManager()
+            result = p.cancel_transaction(transaction)
+            return HttpResponseRedirect("{0}/{1}".format(reverse('work', kwargs={'work_id': campaign.work.id}))) 
+        except Transaction.DoesNotExist, e:
+            return HttpResponse("Could not find a transaction that you can cancel in this context")
+        
+        # check that the transaction actually belongs to user, that the transaction is active, and can be cancelled.
+        # let's also look at the code that is already in pledge_modify to see how it compares
+        
+        # pm.cancel_transaction()
+        # default behavior: https://github.com/django/django/blob/stable/1.3.x/django/views/generic/edit.py#L60
+        # return HttpResponseRedirect(self.get_success_url())
+        
+
 
 class PledgeNeverMindView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
