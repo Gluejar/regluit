@@ -914,24 +914,27 @@ class PledgeCancelView(FormView):
         user = self.request.user
         
         try:
+            # look up the specified campaign and attempt to pull up the appropriate transaction
+            # i.e., the transaction actually belongs to user, that the transaction is active
             campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
             transaction = campaign.transaction_set.get(user=user, status=TRANSACTION_STATUS_ACTIVE,
                                                           type=PAYMENT_TYPE_AUTHORIZATION)
-            # cancel the transaction and redirect to the Work page.
+            # attempt to cancel the transaction and redirect to the Work page if cancel is successful
             # here's a place that would be nice to use https://docs.djangoproject.com/en/dev/ref/contrib/messages/
+            # to display the success or failure of the cancel operation as a popup in the context of the work page
             p = PaymentManager()
             result = p.cancel_transaction(transaction)
-            return HttpResponseRedirect("{0}/{1}".format(reverse('work', kwargs={'work_id': campaign.work.id}))) 
+            if result:
+                # Now if we redirect the user to the Work page and the IPN hasn't arrived, the status of the
+                # transaction might be out of date.  Let's try an explicit polling of the transaction result before redirecting
+                # We might want to remove this in a production system
+                if settings.DEBUG:
+                    update_status = p.update_preapproval(transaction)
+                return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
+            else:
+                return HttpResponse("Attempt to cancel your transaction failed")
         except Transaction.DoesNotExist, e:
             return HttpResponse("Could not find a transaction that you can cancel in this context")
-        
-        # check that the transaction actually belongs to user, that the transaction is active, and can be cancelled.
-        # let's also look at the code that is already in pledge_modify to see how it compares
-        
-        # pm.cancel_transaction()
-        # default behavior: https://github.com/django/django/blob/stable/1.3.x/django/views/generic/edit.py#L60
-        # return HttpResponseRedirect(self.get_success_url())
-        
 
 
 class PledgeNeverMindView(TemplateView):
