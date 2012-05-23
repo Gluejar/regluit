@@ -16,21 +16,21 @@
                     {% if first_ebook %}
                         <b>AVAILABLE!</b>
                     </div>
-                    <div class="read_itbutton">{% if first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
+                    <a href="{{ work.ebooks.0.url }}"><div class="read_itbutton"><span>Read it Now</span></div></a>
 
                     {% else %}{% if status == 'SUCCESSFUL' %} 
                     	<b>UNGLUED!</b>
                         <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
                         <p><b>Raised:</b> {{ work.last_campaign.current_total|intcomma }}</p>
                     </div>
-                    <div class="read_itbutton">{% if first_ebook %}<a href="{{ work.ebooks.0.url }}">{% endif %}Read it Now</a></div>
+                    {% if first_ebook %}<a href="{{ work.ebooks.0.url }}"><div class="read_itbutton"><span>Read it Now</span></div></a>{% else %}<div class="read_itbutton"><span>Coming Soon</span></div>{% endif %}
                     
                     {% else %}{% if status == 'ACTIVE' %}
                     	<b>UNGLUE IT!</b>
                         <p><b>${{ work.last_campaign.current_total|intcomma }}</b> raised</p><p><b>${{ work.last_campaign.target|intcomma }}</b> needed</p>
                         <p>by {{ deadline|date:"M d, Y" }}</p>
                     </div>
-                    <div class="read_itbutton pledge"><a href="/pledge/{{work.id}}">Support</a></div>
+                    <a href="/pledge/{{work.id}}"><div class="read_itbutton pledge"><span>Support</span></div></a>
 
                     {% else %}{% if status == 'INITIALIZED' %}
                         <p>Campaign coming soon!</p>
