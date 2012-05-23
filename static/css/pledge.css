@@ -154,3 +154,6 @@ p {
   font-size: 17px;
   display: none;
 }
+span.menu-item-price {
+  float: none !important;
+}
