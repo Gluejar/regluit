@@ -219,10 +219,10 @@ $j(document).ready(function(){
                 {% get_comment_count for work as comment_count %}
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Ungluers {% if wishers > 0 %}({{ wishers }}){% endif %}</a></li>
-                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
+                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#"><div>{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</div></a></li>
+                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#"><div>Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</div></a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#"><div>Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</div></a></li>
+                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#"><div>Rights</div></a></li>
                     </ul>
                         
                 </div>

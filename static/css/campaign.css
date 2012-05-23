@@ -126,7 +126,7 @@ ul.tabs {
 ul.tabs li {
   float: left;
   height: 46px;
-  line-height: 46px;
+  line-height: 20px;
   padding-right: 2px;
   width: 116px;
   background: none;
@@ -138,7 +138,7 @@ ul.tabs li.tabs4 {
 }
 ul.tabs li a {
   height: 46px;
-  line-height: 46px;
+  line-height: 18px;
   display: block;
   text-align: center;
   padding: 0 10px;
@@ -151,6 +151,9 @@ ul.tabs li a {
 }
 ul.tabs li a:hover {
   text-decoration: none;
+}
+ul.tabs li a div {
+  padding-top: 8px;
 }
 ul.tabs li a:hover,
 ul.tabs li.active a {
