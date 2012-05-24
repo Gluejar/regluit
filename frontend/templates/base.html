@@ -8,6 +8,7 @@
 {% url about as abouturl %}
 {% url press as pressurl %}
 {% url rh_admin as adminurl %}
+{% url landing as landingurl %}
 {% url new_edition '' '' as editionurl %}
 {% load truncatechars %}
 
@@ -42,7 +43,7 @@
     <div id="js-header">
         <div class="js-main">
             <div class="js-logo">
-                <a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
+                <a href="{{ landingurl }}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
             {% if not suppress_search_box %}
             <div class="js-search">
