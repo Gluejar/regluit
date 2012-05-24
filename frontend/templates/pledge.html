@@ -92,8 +92,11 @@
             	{% endfor %}
          	</ul>
 
-	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
-	       <input type="submit" id="fakepledgesubmit" disabled="disabled" />
+	       <input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
+	       <input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
+	       {% comment %}
+	       When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
+	       {% endcomment %}
     	</form>    	
     </div>
 </div>

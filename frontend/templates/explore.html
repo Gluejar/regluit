@@ -15,6 +15,7 @@
                             {% endif %}
                             {% if not is_preview %}
                                 <a href="{% url campaign_list 'ending' %}"><span>Active Campaigns</span></a></li>
+                                <li><a href="{% url comment %}"><span>Latest Comments</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Most Wished</span></a></li>
                             {% else %}
                                 <a href="{% url work_list 'popular' %}"><span>Most Wishes</span></a></li>

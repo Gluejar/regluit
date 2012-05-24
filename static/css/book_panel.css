@@ -254,7 +254,7 @@ div.panelview.side2 {
   border-radius: 4px;
   border: 1px solid #81bb38;
 }
-.read_itbutton a {
+.read_itbutton span {
   line-height: 40px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -266,10 +266,10 @@ div.panelview.side2 {
   color: #73a334;
   background: url("/static/images/book-panel/book_icon.png") no-repeat 10% center;
 }
-.read_itbutton a:hover {
+.read_itbutton span:hover {
   text-decoration: none;
 }
-.read_itbutton a:hover {
+.read_itbutton span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -278,7 +278,7 @@ div.panelview.side2 {
   background-repeat: no-repeat;
   background-position: 90% center;
 }
-.read_itbutton.pledge a {
+.read_itbutton.pledge span {
   line-height: 35px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -290,10 +290,10 @@ div.panelview.side2 {
   color: #73a334;
   background: none;
 }
-.read_itbutton.pledge a:hover {
+.read_itbutton.pledge span:hover {
   text-decoration: none;
 }
-.read_itbutton.pledge a:hover {
+.read_itbutton.pledge span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -349,7 +349,8 @@ div.panelview.side2 {
 .Unglue_itbutton a:hover {
   text-decoration: none;
 }
-.moreinfo.add-wishlist, .moreinfo.create-account {
+.moreinfo.add-wishlist,
+.moreinfo.create-account {
   width: 120px;
   height: 30px;
   padding: 0px;
@@ -397,7 +398,8 @@ div.panelview.side2 {
   border-bottom-color: #FFFFFF;
   background: url("/static/images/booklist/remove-wishlist-white.png") no-repeat left center;
 }
-.moreinfo.remove-wishlist a, .moreinfo.remove-wishlist span {
+.moreinfo.remove-wishlist a,
+.moreinfo.remove-wishlist span {
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -408,7 +410,8 @@ div.panelview.side2 {
   padding: 0 5px 0 21px;
   color: #FFF;
 }
-.moreinfo.remove-wishlist a:hover, .moreinfo.remove-wishlist span:hover {
+.moreinfo.remove-wishlist a:hover,
+.moreinfo.remove-wishlist span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -425,7 +428,8 @@ div.panelview.side2 {
   border-bottom-color: #FFFFFF;
   background: url("/static/images/checkmark_small-white.png") no-repeat left center;
 }
-.moreinfo.on-wishlist a, .moreinfo.on-wishlist span {
+.moreinfo.on-wishlist a,
+.moreinfo.on-wishlist span {
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -436,7 +440,8 @@ div.panelview.side2 {
   padding: 0 5px 0 21px;
   color: #FFF;
 }
-.moreinfo.on-wishlist a:hover, .moreinfo.on-wishlist span:hover {
+.moreinfo.on-wishlist a:hover,
+.moreinfo.on-wishlist span:hover {
   text-decoration: none;
   color: #3d4e53;
 }
@@ -476,7 +481,8 @@ div.panelview.side2 {
   background: url("/static/images/book-panel/more_icon.png") no-repeat left center;
   cursor: pointer;
 }
-.moreinfo a, .moreinfo span {
+.moreinfo a,
+.moreinfo span {
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -487,7 +493,8 @@ div.panelview.side2 {
   padding: 0 0 0 21px;
   color: #FFF;
 }
-.moreinfo a:hover, .moreinfo span:hover {
+.moreinfo a:hover,
+.moreinfo span:hover {
   text-decoration: none;
   color: #3d4e53;
 }

@@ -1,4 +1,4 @@
-We thought you might like to know, there are new comments for a book on your wishlist. 
+We thought you might like to know there's a new comment for a book on your wishlist. 
 
 {{ comment.user.username }} has commented on {{ comment.content_object.title }}:
           

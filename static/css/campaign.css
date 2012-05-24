@@ -126,7 +126,7 @@ ul.tabs {
 ul.tabs li {
   float: left;
   height: 46px;
-  line-height: 46px;
+  line-height: 20px;
   padding-right: 2px;
   width: 116px;
   background: none;
@@ -138,7 +138,7 @@ ul.tabs li.tabs4 {
 }
 ul.tabs li a {
   height: 46px;
-  line-height: 46px;
+  line-height: 18px;
   display: block;
   text-align: center;
   padding: 0 10px;
@@ -152,7 +152,11 @@ ul.tabs li a {
 ul.tabs li a:hover {
   text-decoration: none;
 }
-ul.tabs li a:hover, ul.tabs li.active a {
+ul.tabs li a div {
+  padding-top: 8px;
+}
+ul.tabs li a:hover,
+ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
 }
@@ -178,7 +182,9 @@ ul.tabs li a:hover, ul.tabs li.active a {
 
   width: 309px;
 }
-.book-detail-info h2.book-name, .book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h2.book-name,
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   padding: 0;
   margin: 0;
   line-height: normal;
@@ -189,7 +195,8 @@ ul.tabs li a:hover, ul.tabs li.active a {
   font-weight: bold;
   color: #3d4e53;
 }
-.book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   font-size: 12px;
   font-weight: normal;
   color: #6994a3;
@@ -215,19 +222,13 @@ ul.tabs li a:hover, ul.tabs li.active a {
   float: right;
 }
 .book-detail-info > div.layout div.btn_support input {
-  background: url("/static/images/btn_bg.png") 0 0 no-repeat;
-  width: 104px;
-  height: 41px;
-  display: block;
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  font-size: 17px;
 }
 .book-detail-info > div.layout div.btn_support.modify input {
-  background: url("/static/images/btn_bg_grey.png") 0 0 no-repeat;
+  background: #d6dde0;
+  font-size: 13px;
+  border: double white;
+  line-height: 17px;
 }
 .book-detail-info .btn_wishlist span {
   text-align: right;
@@ -263,16 +264,20 @@ ul.tabs li a:hover, ul.tabs li.active a {
   height: 25px;
   margin-top: -12px;
 }
+/* Common elements of share links -- just swap in the background image */
+/* Page layout */
 #js-page-wrap {
   overflow: hidden;
 }
 #main-container {
   margin-top: 20px;
 }
-#js-leftcol .jsmodule, .pledge.jsmodule {
+#js-leftcol .jsmodule,
+.pledge.jsmodule {
   margin-bottom: 10px;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content, .pledge.jsmodule.rounded .jsmod-content {
+#js-leftcol .jsmodule.rounded .jsmod-content,
+.pledge.jsmodule.rounded .jsmod-content {
   -moz-border-radius: 20px;
   -webkit-border-radius: 20px;
   border-radius: 20px;
@@ -283,73 +288,73 @@ ul.tabs li a:hover, ul.tabs li.active a {
   border: none;
   margin: 0;
   line-height: 16px;
+  /* Bubble in upper left looks different depending on campaign status */
+
 }
-#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE, .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
+#js-leftcol .jsmodule.rounded .jsmod-content.ACTIVE,
+.pledge.jsmodule.rounded .jsmod-content.ACTIVE {
   background: #8dc63f;
   color: white;
   font-size: 18px;
   font-weight: normal;
   line-height: 20px;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet, .pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
+#js-leftcol .jsmodule.rounded .jsmod-content.No.campaign.yet,
+.pledge.jsmodule.rounded .jsmod-content.No.campaign.yet {
   background: #e18551;
   color: white;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content span, .pledge.jsmodule.rounded .jsmod-content span {
+#js-leftcol .jsmodule.rounded .jsmod-content span,
+.pledge.jsmodule.rounded .jsmod-content span {
   display: inline-block;
   vertical-align: middle;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content span.spacer, .pledge.jsmodule.rounded .jsmod-content span.spacer {
+#js-leftcol .jsmodule.rounded .jsmod-content span.spacer,
+.pledge.jsmodule.rounded .jsmod-content span.spacer {
   visibility: none;
 }
-#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers, .pledge.jsmodule.rounded .jsmod-content span.findtheungluers {
+#js-leftcol .jsmodule.rounded .jsmod-content span.findtheungluers,
+.pledge.jsmodule.rounded .jsmod-content span.findtheungluers {
   cursor: pointer;
 }
 .jsmodule.pledge {
   float: left;
   margin-left: 10px;
 }
-#js-rightcol, #pledge-rightcol {
-  float: right;
-  width: 235px;
-  margin-bottom: 20px;
+#js-slide .jsmodule {
+  width: 660px !important;
 }
-#js-rightcol h3.jsmod-title, #pledge-rightcol h3.jsmod-title {
-  background: #a7c1ca;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  padding: 10px;
-  height: auto;
-  font-style: normal;
+a {
+  color: #3d4e53;
+  font-size: 12px;
+}
+#js-search {
+  margin: 0 15px 0 15px !important;
+}
+.alert > .errorlist {
+  list-style-type: none;
   font-size: 14px;
-  margin: 0 0 10px 0;
-  color: white;
+  border: none;
+  text-align: left;
+  font-weight: normal;
+  font-size: 12px;
 }
-#js-rightcol h3.jsmod-title span, #pledge-rightcol h3.jsmod-title span {
-  padding: 0;
-  color: #fff;
-  font-style: normal;
-  height: 22px;
-  line-height: 22px;
+.alert > .errorlist > li {
+  margin-bottom: 14px;
 }
-#js-rightcol .jsmodule, #pledge-rightcol .jsmodule {
-  margin-bottom: 10px;
-}
-#pledge-rightcol {
+.alert > .errorlist .errorlist {
   margin-top: 7px;
 }
-.js-rightcol-pad {
-  border: 1px solid #d6dde0;
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  border-radius: 10px;
-  padding: 10px;
+.alert > .errorlist .errorlist li {
+  width: auto;
+  height: auto;
+  padding-left: 32px;
+  padding-right: 32px;
+  font-size: 12px;
 }
+/* Center elements */
 #js-maincol {
   float: left;
-  /* If we want to nuke the explore column, width should be 705ish */
-
   width: 470px;
   margin: 0 10px;
 }
@@ -362,6 +367,50 @@ ul.tabs li a:hover, ul.tabs li.active a {
   width: 450px;
   padding-right: 15px;
 }
+.status {
+  font-size: 17px;
+  color: #8dc63f;
+}
+/* Center - add/remove actions in book detail area */
+.add-wishlist,
+.add-wishlist-workpage,
+.remove-wishlist-workpage,
+.remove-wishlist,
+.on-wishlist,
+.create-account {
+  float: right;
+  cursor: pointer;
+}
+.add-wishlist span,
+.add-wishlist-workpage span,
+.remove-wishlist-workpage span,
+.remove-wishlist span,
+.on-wishlist span,
+.create-account span {
+  font-weight: normal;
+  color: #3d4e53;
+  text-transform: none;
+  padding-left: 20px;
+}
+.add-wishlist span.on-wishlist,
+.add-wishlist-workpage span.on-wishlist,
+.remove-wishlist-workpage span.on-wishlist,
+.remove-wishlist span.on-wishlist,
+.on-wishlist span.on-wishlist,
+.create-account span.on-wishlist {
+  background: url("/static/images/checkmark_small.png") left center no-repeat;
+  cursor: default;
+}
+.add-wishlist span,
+.add-wishlist-workpage span,
+.create-account span {
+  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
+}
+.remove-wishlist-workpage span,
+.remove-wishlist span {
+  background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
+}
+/* Center - tabs and content below them */
 div#content-block-content {
   padding-left: 5px;
 }
@@ -382,6 +431,117 @@ div#content-block-content #tabs-1 img {
 .tabs-content form {
   margin-left: -5px;
 }
+.work_supporter {
+  height: auto;
+  min-height: 50px;
+  margin-top: 5px;
+  vertical-align: middle;
+  margin-left: -5px;
+}
+.work_supporter_avatar {
+  float: left;
+  margin-right: 5px;
+}
+.work_supporter_avatar img {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+.work_supporter_name {
+  height: 50px;
+  line-height: 50px;
+  float: left;
+}
+.work_supporter_nocomment {
+  height: 50px;
+  margin-top: 5px;
+  vertical-align: middle;
+  margin-left: -5px;
+}
+.editions {
+  clear: both;
+}
+.editions div {
+  float: left;
+  padding-bottom: 5px;
+}
+.editions .image {
+  width: 60px;
+  overflow: hidden;
+}
+.editions .metadata {
+  display: block;
+  overflow: hidden;
+  margin-left: 5px;
+}
+.editions a:hover {
+  text-decoration: underline;
+}
+.show_more_edition,
+.show_more_ebooks {
+  cursor: pointer;
+}
+.show_more_edition {
+  text-align: right;
+}
+.show_more_edition:hover {
+  text-decoration: underline;
+}
+.more_edition {
+  display: none;
+  clear: both;
+  padding-bottom: 10px;
+  padding-left: 60px;
+}
+.more_ebooks {
+  display: none;
+}
+.show_more_ebooks:hover {
+  text-decoration: underline;
+}
+/* Right column */
+#js-rightcol,
+#pledge-rightcol {
+  float: right;
+  width: 235px;
+  margin-bottom: 20px;
+}
+#js-rightcol h3.jsmod-title,
+#pledge-rightcol h3.jsmod-title {
+  background: #a7c1ca;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  padding: 10px;
+  height: auto;
+  font-style: normal;
+  font-size: 14px;
+  margin: 0 0 10px 0;
+  color: white;
+}
+#js-rightcol h3.jsmod-title span,
+#pledge-rightcol h3.jsmod-title span {
+  padding: 0;
+  color: #fff;
+  font-style: normal;
+  height: 22px;
+  line-height: 22px;
+}
+#js-rightcol .jsmodule,
+#pledge-rightcol .jsmodule {
+  margin-bottom: 10px;
+}
+#pledge-rightcol {
+  margin-top: 7px;
+}
+.js-rightcol-pad {
+  border: 1px solid #d6dde0;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
+  padding: 10px;
+}
+/* Right column - sharing */
 ul.social a:hover {
   text-decoration: none;
 }
@@ -454,6 +614,7 @@ ul.social li.embed:hover span {
   border-radius: 10px;
   padding: 10px;
 }
+/* Right column - support tiers */
 ul.support li {
   border-bottom: 1px solid #d6dde0;
   padding: 10px 5px 10px 10px;
@@ -465,6 +626,12 @@ ul.support li span {
 }
 ul.support li span.menu-item-price {
   font-size: 18px;
+  float: left;
+  margin-bottom: 3px;
+}
+ul.support li span.menu-item-desc {
+  float: none;
+  clear: both;
 }
 ul.support li:hover {
   color: #fff;
@@ -474,147 +641,16 @@ ul.support li:hover a {
   color: #fff;
   text-decoration: none;
 }
-.work_supporter_nocomment {
-  height: 50px;
-  margin-top: 5px;
-  vertical-align: middle;
-  margin-left: -5px;
-}
-.work_supporter_avatar {
+.you_pledged {
   float: left;
-}
-.work_supporter_name {
-  height: 50px;
-  line-height: 50px;
-  float: left;
-}
-.add-wishlist,
-.add-wishlist-workpage,
-.remove-wishlist-workpage,
-.remove-wishlist,
-.on-wishlist,
-.create-account {
-  float: right;
-  cursor: pointer;
-}
-.add-wishlist span,
-.add-wishlist-workpage span,
-.remove-wishlist-workpage span,
-.remove-wishlist span,
-.on-wishlist span,
-.create-account span {
+  line-height: 21px;
   font-weight: normal;
   color: #3d4e53;
-  text-transform: none;
   padding-left: 20px;
-}
-.add-wishlist span.on-wishlist,
-.add-wishlist-workpage span.on-wishlist,
-.remove-wishlist-workpage span.on-wishlist,
-.remove-wishlist span.on-wishlist,
-.on-wishlist span.on-wishlist,
-.create-account span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
-  cursor: default;
-}
-.add-wishlist span, .add-wishlist-workpage span, .create-account span {
-  background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
-}
-.remove-wishlist-workpage span, .remove-wishlist span {
-  background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
-}
-.editions {
-  clear: both;
-}
-.editions div {
-  float: left;
-  padding-bottom: 5px;
-}
-.editions .image {
-  width: 60px;
-  overflow: hidden;
-}
-.editions .metadata {
-  display: block;
-  overflow: hidden;
-  margin-left: 5px;
-}
-.editions a:hover {
-  text-decoration: underline;
-}
-.show_more_edition, .show_more_ebooks {
-  cursor: pointer;
 }
 .thank-you {
   font-size: 18px;
   font-weight: bold;
   margin: 20px auto;
-}
-.work_supporter {
-  height: auto;
-  min-height: 50px;
-  margin-top: 5px;
-  vertical-align: middle;
-  margin-left: -5px;
-}
-.work_supporter_avatar {
-  margin-right: 5px;
-}
-.work_supporter_avatar img {
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-}
-.more_edition {
-  display: none;
-  clear: both;
-  padding-bottom: 10px;
-  padding-left: 60px;
-}
-.show_more_edition:hover {
-  text-decoration: underline;
-}
-.show_more_edition {
-  text-align: right;
-}
-.more_ebooks {
-  display: none;
-}
-.show_more_ebooks:hover {
-  text-decoration: underline;
-}
-.alert > .errorlist {
-  list-style-type: none;
-  font-size: 14px;
-  border: none;
-  text-align: left;
-  font-weight: normal;
-  font-size: 12px;
-}
-.alert > .errorlist > li {
-  margin-bottom: 14px;
-}
-.alert > .errorlist .errorlist {
-  margin-top: 7px;
-}
-.alert > .errorlist .errorlist li {
-  width: auto;
-  height: auto;
-  padding-left: 32px;
-  padding-right: 32px;
-  font-size: 12px;
-}
-#js-slide .jsmodule {
-  width: 660px !important;
-}
-a {
-  color: #3d4e53;
-  font-size: 12px;
-}
-#js-search {
-  margin: 0 15px 0 15px !important;
-}
-.status {
-  font-size: 17px;
-  color: #8dc63f;
 }

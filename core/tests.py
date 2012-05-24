@@ -416,8 +416,26 @@ class CampaignTests(TestCase):
         c5 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c5.save()
         c5.activate().withdraw('testing')
-        self.assertEqual(c5.status, 'WITHDRAWN')        
+        self.assertEqual(c5.status, 'WITHDRAWN')     
 
+        # testing percent-of-goal
+        w2 = Work()
+        w2.save()
+        c6 = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=1),work=w2)
+        c6.save()
+        cl = Claim(rights_holder = rh, work = w2, user = u, status = 'active')
+        cl.save()
+        c6.activate()
+        t = Transaction()
+        t.amount = D('234.00')
+        t.type = PAYMENT_TYPE_AUTHORIZATION
+        t.status = 'ACTIVE'
+        t.approved = True
+        t.campaign = c6
+        t.user = user
+        t.save()
+        print w2.percent_of_goal()
+        self.assertEqual(w2.percent_of_goal(), 23)
 
 class WishlistTest(TestCase):
 
