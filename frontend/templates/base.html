@@ -74,7 +74,7 @@
                     {% endif %}
                     <li><a href="{{ faqurl }}"><span>FAQs</span></a></li>   
                     <li id="about_expander"><a href="#"><span>About</span></a></li>   
-                    <li><a href="/"><span>Home</span></a></li>   
+                    <li><a href="{{ landingurl }}"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
                     {% endif %}
