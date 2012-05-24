@@ -13,6 +13,7 @@ from regluit.frontend.views import CampaignListView, DonateView, WorkListView, U
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
+    url(r"^landing/$", "home", {'landing': True}, name="landing"),
     url(r"^next/$", "next", name="next"),
     url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
     url(r"^search/$", "search", name="search"),

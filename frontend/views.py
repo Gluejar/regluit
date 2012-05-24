@@ -97,8 +97,8 @@ def next(request):
     else:
         return HttpResponseRedirect('/')
 
-def home(request):
-    if request.user.is_authenticated():
+def home(request, landing=False):
+    if request.user.is_authenticated() and landing == False:
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
 
