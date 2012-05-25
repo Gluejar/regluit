@@ -101,7 +101,7 @@
     </div>
 </div>
 
-{% if faqmenu == 'modify' %}<div class="cancel_notice">(We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.)</div>{% endif %}
+{% if faqmenu == 'modify' %}<div class="cancel_notice">(We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>.)</div>{% endif %}
 
 {% endblock %}
 

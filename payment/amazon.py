@@ -316,7 +316,7 @@ def amazonPaymentReturn(request):
         return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         return HttpResponseRedirect(return_url)
 
-    except:
+    except Exception, e:
         logging.error("Amazon co-branded return-url FAILED with exception:")
         traceback.print_exc()
         
@@ -326,19 +326,6 @@ def amazonPaymentReturn(request):
         
         if request.REQUEST.get("status") == AMAZON_STATUS_ADBANDONED:
             return HttpResponseRedirect(settings.BASE_URL)
-        
-
-        try:
-            cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
-                                    urllib.urlencode({'tid':transaction.id}))            
-            cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
-                
-            return HttpResponseRedirect(cancel_url)
-        except Exception, e:
-            # BUGBUG -- we should find a better place to send user...but back to front page is ok for now.
-            logging.error("Amazon co-branded return-url FAILED with exception: {0}".format(e))
-            return HttpResponseRedirect(settings.BASE_URL)
-
 
 class AmazonRequest:
     '''
@@ -404,7 +391,7 @@ class Pay( AmazonRequest ):
     The pay function generates a redirect URL to approve the transaction
   '''
     
-  def __init__( self, transaction, return_url=None, cancel_url=None, amount=None, paymentReason=""):
+  def __init__( self, transaction, return_url=None, nevermind_url=None, amount=None, paymentReason=""):
       
       try:
           logging.debug("Amazon PAY operation for transaction ID %d" % transaction.id)
@@ -471,7 +458,7 @@ class Pay( AmazonRequest ):
   
 class Preapproval(Pay):
     
-    def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None, paymentReason=""):
+    def __init__( self, transaction, amount, expiry=None, return_url=None, nevermind_url=None, paymentReason=""):
       
         # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
         now_val = now()
@@ -482,7 +469,7 @@ class Preapproval(Pay):
         transaction.save()
           
         # Call into our parent class
-        Pay.__init__(self, transaction, return_url=return_url, cancel_url=cancel_url, amount=amount, paymentReason=paymentReason)
+        Pay.__init__(self, transaction, return_url=return_url, nevermind_url=nevermind_url, amount=amount, paymentReason=paymentReason)
   
   
 class Execute(AmazonRequest):

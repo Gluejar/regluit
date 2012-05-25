@@ -404,7 +404,7 @@ class PaypalEnvelopeRequest:
             return None
     
 class Pay( PaypalEnvelopeRequest ):
-  def __init__( self, transaction, return_url=None, cancel_url=None, paymentReason=""):
+  def __init__( self, transaction, return_url=None, nevermind_url=None, paymentReason=""):
       
       #BUGBUG: though I'm passing in paymentReason (to make it signature compatible with Amazon, it's not being wired in properly yet)
       try:
@@ -420,11 +420,11 @@ class Pay( PaypalEnvelopeRequest ):
     
           if return_url is None:
               return_url = settings.BASE_URL + COMPLETE_URL
-          if cancel_url is None:
-              cancel_url = settings.BASE_URL + CANCEL_URL
+          if nevermind_url is None:
+              nevermind_url = settings.BASE_URL + nevermind_url
             
           logger.info("Return URL: " + return_url)
-          logger.info("Cancel URL: " + cancel_url)
+          logger.info("Cancel URL: " + nevermind_url)
           
           receiver_list = []
           receivers = transaction.receiver_set.all()
@@ -470,7 +470,7 @@ class Pay( PaypalEnvelopeRequest ):
                   'receiverList': { 'receiver': receiver_list },
                   'currencyCode': transaction.currency,
                   'returnUrl': return_url,
-                  'cancelUrl': cancel_url,
+                  'cancelUrl': nevermind_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
                   'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN', args=["paypal"]),
                   'feesPayer': feesPayer,
@@ -541,9 +541,9 @@ class Execute(Pay):
         For payapl, execute is the same as pay.  The pay funciton detects whether an execute or a co-branded operation
         is called for.
     '''
-    def __init__(self, transaction, return_url=None, cancel_url=None):
+    def __init__(self, transaction, return_url=None, nevermind_url=None):
         # Call our super class.  In python 2.2+, we can't use super here, so just call init directly
-        Pay.__init__(self, transaction, return_url, cancel_url)
+        Pay.__init__(self, transaction, return_url, nevermind_url)
     
 class Finish(PaypalEnvelopeRequest):
     
@@ -787,7 +787,7 @@ class RefundPayment(PaypalEnvelopeRequest):
         
 
 class Preapproval( PaypalEnvelopeRequest ):
-  def __init__( self, transaction, amount, expiry=None, return_url=None, cancel_url=None, paymentReason=""):
+  def __init__( self, transaction, amount, expiry=None, return_url=None, nevermind_url=None, paymentReason=""):
       
       # BUGBUG:  though I'm passing in paymentReason (to make it signature compatible with Amazon, it's not being wired in properly yet)
       
@@ -804,8 +804,8 @@ class Preapproval( PaypalEnvelopeRequest ):
     
           if return_url is None:
             return_url = settings.BASE_URL + COMPLETE_URL
-          if cancel_url is None:
-            cancel_url = settings.BASE_URL + CANCEL_URL
+          if nevermind_url is None:
+            nevermind_url = settings.BASE_URL + NEVERMIND_URL
           
           # set the expiration date for the preapproval if not passed in
           now_val = now()
@@ -823,7 +823,7 @@ class Preapproval( PaypalEnvelopeRequest ):
                   'maxAmountPerPayment': '%.2f' % transaction.amount,
                   'currencyCode': transaction.currency,
                   'returnUrl': return_url,
-                  'cancelUrl': cancel_url,
+                  'cancelUrl': nevermind_url,
                   'requestEnvelope': { 'errorLanguage': 'en_US' },
                   'ipnNotificationUrl': settings.BASE_URL + reverse('HandleIPN', args=["paypal"])
                   }

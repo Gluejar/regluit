@@ -215,7 +215,6 @@ def add_by_isbn_from_google(isbn, work=None):
     if len(isbn)==10:
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
     
-    logger.info("adding book by isbn %s", isbn)
 
     # check if we already have this isbn
     edition = get_edition_by_id(type='isbn',value=isbn)
@@ -223,6 +222,7 @@ def add_by_isbn_from_google(isbn, work=None):
         edition.new = False
         return edition
 
+    logger.info("adding new book by isbn %s", isbn)
     results=get_google_isbn_results(isbn)
     if results:
         try:

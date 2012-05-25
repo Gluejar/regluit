@@ -453,6 +453,10 @@ div#content-block-content #tabs-1 img {
   vertical-align: middle;
   margin-left: -5px;
 }
+.official {
+	border: 3px #B8DDE0 solid;
+	margin: 3px auto;
+}
 .editions {
   clear: both;
 }

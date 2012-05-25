@@ -3,6 +3,7 @@ from regluit.payment.models import Transaction, PaymentResponse, Receiver
 from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 
+import django
 from django.conf import settings
 
 from selenium import selenium, webdriver
@@ -13,6 +14,8 @@ import unittest, time, re
 import logging
 import os
 
+# PayPal developer sandbox
+from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -152,32 +155,29 @@ def recipient_status(clist):
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
 
-def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon'):
+def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='firefox'):
     """
     programatically fire up selenium to make a Pledge
     do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
     """
-    import django
+
     django.db.transaction.enter_transaction_management()
     
     UNGLUE_IT_URL = unglue_it_url
-    # unglue.it login info
     USER = settings.UNGLUEIT_TEST_USER
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
     
-    # PayPal developer sandbox
-    from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
-    
     setup_selenium()
     
-    # we can experiment with different webdrivers
-    sel = webdriver.Firefox()
-    
-    # Chrome
-    #sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
-    
-    # HTMLUNIT with JS -- not successful
-    #sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    if browser == 'firefox':
+        sel = webdriver.Firefox()
+    elif browser == 'chrome':
+        sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
+    elif browser == 'htmlunit':
+        # HTMLUNIT with JS -- not successful
+        sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    else:
+        sel = webdriver.Firefox()
 
     time.sleep(10)
     
@@ -202,7 +202,9 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     sel.find_element_by_css_selector("input[value*='sign in']").click()
     
     # click on biggest campaign list
-    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("a[href*='/campaigns/ending']"))
+    # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
+    # http://stackoverflow.com/a/6141678/7782
+    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
     biggest_campaign_link.click()
     time.sleep(1)
     
@@ -245,10 +247,7 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
         print  "Now trying to pay PayPal", sel.current_url
         paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
     elif backend == 'amazon':
-        print "before payAmazonSandbox"
-        payAmazonSandbox(sel)
-        print "after payAmazonSandbox"
-    
+        payAmazonSandbox(sel)    
         
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
@@ -304,12 +303,35 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
 
     # wait a bit to allow PayPal sandbox to be update the status of the Transaction    
     time.sleep(10)
+    django.db.transaction.commit()
+
+    # time out to simulate an IPN -- update all the transactions
+    if do_local:
+        django.db.transaction.enter_transaction_management()
+        pm = PaymentManager()
+        print pm.checkStatus() 
+        django.db.transaction.commit()    
+
+    django.db.transaction.enter_transaction_management()
+    
+    # now go back to the work page, hit modify pledge, and then the cancel link
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    cancel_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('a[href*="/pledge/cancel"]'))
+    cancel_url.click()
+    
+    # hit the confirm cancellation button
+    cancel_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Confirm Pledge Cancellation']"))
+    cancel_pledge_button.click()
+    
+    django.db.transaction.commit()
 
     # Why is the status of the new transaction not being updated?
     
-    django.db.transaction.commit()
-    
     # force a db lookup -- see whether there are 1 or 2 transactions
+    # they should both be cancelled
     if do_local:
         transactions = list(Transaction.objects.all())
         print "number of transactions", Transaction.objects.count()

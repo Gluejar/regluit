@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
 from decimal import Decimal
 import uuid
+
     
 class Transaction(models.Model):
     
@@ -11,7 +13,7 @@ class Transaction(models.Model):
     type = models.IntegerField(default=PAYMENT_TYPE_NONE, null=False)
     
     # host: the payment processor.  Named after the payment module that hosts the payment processing functions
-    host = models.CharField(default=PAYMENT_HOST_AMAZON, max_length=32, null=False)
+    host = models.CharField(default=settings.PAYMENT_PROCESSOR, max_length=32, null=False)
     
     # target: e.g, TARGET_TYPE_CAMPAIGN,  TARGET_TYPE_LIST -- defined in parameters.py 
     target = models.IntegerField(default=TARGET_TYPE_NONE, null=False)
