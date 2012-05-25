@@ -873,7 +873,7 @@ class PledgeCancelView(FormView):
         if self.request.user.is_authenticated():
             user = self.request.user
         else:
-            context["error"] = "user is not authenticated"
+            context["error"] = "You are not logged in."
             return context
         
         campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
@@ -885,14 +885,16 @@ class PledgeCancelView(FormView):
         transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
         
         if transactions.count() < 1:
-            context["error"] = "You don't have an active transaction for this campaign"
+            context["error"] = "You don't have an active transaction for this campaign."
             return context
         elif transactions.count() > 1:
+            logger.error("User {0} has {1} active transactions for campaign id {2}".format(user, transactions.count(), campaign.id))
             context["error"] = "You have {0} active transactions for this campaign".format(transactions.count())
             return context
 
         transaction = transactions[0]
         if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
+            logger.error("Transaction id {0} transaction type, which should be {1}, is actually {2}".format(transaction.id, PAYMENT_TYPE_AUTHORIZATION, transaction.type))
             context["error"] = "Your transaction type, which should be {0}, is actually {1}".format(PAYMENT_TYPE_AUTHORIZATION, transaction.type)
             return context
         
@@ -911,7 +913,12 @@ class PledgeCancelView(FormView):
         logger.info("arrived at pledge_cancel form_valid")
         # pull campaign_id from form, not from URI as we do from GET
         campaign_id = self.request.REQUEST.get('campaign_id')
-        user = self.request.user
+        
+        # this following logic should be extraneous.
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            return HttpResponse("You need to be logged in.")
         
         try:
             # look up the specified campaign and attempt to pull up the appropriate transaction
@@ -924,6 +931,7 @@ class PledgeCancelView(FormView):
             # to display the success or failure of the cancel operation as a popup in the context of the work page
             p = PaymentManager()
             result = p.cancel_transaction(transaction)
+            # put a notification here for pledge cancellation?
             if result:
                 # Now if we redirect the user to the Work page and the IPN hasn't arrived, the status of the
                 # transaction might be out of date.  Let's try an explicit polling of the transaction result before redirecting
@@ -932,9 +940,11 @@ class PledgeCancelView(FormView):
                     update_status = p.update_preapproval(transaction)
                 return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
             else:
-                return HttpResponse("Attempt to cancel your transaction failed")
-        except Transaction.DoesNotExist, e:
-            return HttpResponse("Could not find a transaction that you can cancel in this context")
+                logger.error("Attempt to cancel transaction id {0} failed".format(transaction.id))
+                return HttpResponse("Our attempt to cancel your transaction failed. We have logged this error.")
+        except Exception, e:
+            logger.error("Exception from attempt to cancel pledge for campaign id {0} for username {1}: {2}".format(campaign_id, user.username, e))
+            return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
 
 
 class PledgeNeverMindView(TemplateView):

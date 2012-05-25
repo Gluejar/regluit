@@ -303,12 +303,35 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
 
     # wait a bit to allow PayPal sandbox to be update the status of the Transaction    
     time.sleep(10)
+    django.db.transaction.commit()
+
+    # time out to simulate an IPN -- update all the transactions
+    if do_local:
+        django.db.transaction.enter_transaction_management()
+        pm = PaymentManager()
+        print pm.checkStatus() 
+        django.db.transaction.commit()    
+
+    django.db.transaction.enter_transaction_management()
+    
+    # now go back to the work page, hit modify pledge, and then the cancel link
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    cancel_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('a[href*="/pledge/cancel"]'))
+    cancel_url.click()
+    
+    # hit the confirm cancellation button
+    cancel_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Confirm Pledge Cancellation']"))
+    cancel_pledge_button.click()
+    
+    django.db.transaction.commit()
 
     # Why is the status of the new transaction not being updated?
     
-    django.db.transaction.commit()
-    
     # force a db lookup -- see whether there are 1 or 2 transactions
+    # they should both be cancelled
     if do_local:
         transactions = list(Transaction.objects.all())
         print "number of transactions", Transaction.objects.count()

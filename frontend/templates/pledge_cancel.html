@@ -9,18 +9,19 @@
 
 {% block doccontent %}
 
-{% if error_mesg %}
-   {{error_mesg}}
-{% endif %}
-
+{% if error %}
+   {{error}}
+{% else %}
 {% if transaction %}
-    <div>You've asked to cancel your pledge of ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>  Did you mean to do this?</div>
+    <div>You have asked to cancel your pledge of ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>. </div>
     
     <form method="post" action="{% url pledge_cancel campaign_id=campaign.id %}">
 	{% csrf_token %}
 	<input type="hidden" name="campaign_id" value="{{campaign.id}}" />
-	<input type="submit" value="Cancel Pledge" id="pledgesubmit" /> 
+	<input type="submit" value="Confirm Pledge Cancellation" id="cancelsubmit" /> 
     </form>
+    
+    <div>or return to <a href="{% url work work.id %}">{{ work.title }}</a> without canceling your pledge.</div>
     
     {% comment %}
     "Yes" should trigger whatever functionality we need to complete cancellation -- may differ depending on whether we've hit the back button from Amazon or the cancel-my-pledge link in pledge_modify.
@@ -33,8 +34,10 @@
     {% endcomment %}
 
 {% else %}
-    <div>We're sorry; we can't figure out which transaction you're talking about.  If you meant to cancel a pledge (though we hope you don't!), please go to the book's page and hit the Modify Pledge button.</div>
+    <div>No relevant transaction to cancel for this campaign.</div>
 {% endif %}
+{% endif %}
+
         
 {% endblock %}
 
