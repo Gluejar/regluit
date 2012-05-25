@@ -30,7 +30,7 @@
 
 		<div class="jsmodule rounded pledge">
 			<div class="jsmod-content">
-				${{ work.last_campaign.target|intcomma }} needed by<br />
+				${{ work.last_campaign.target|floatformat:0|intcomma }} needed by<br />
 				{{ work.last_campaign.deadline }}
 			</div>
 		</div>
