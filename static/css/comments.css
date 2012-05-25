@@ -47,3 +47,7 @@
   margin: 0 auto;
   padding-top: 5px;
 }
+.official {
+	border: 3px #B8DDE0 solid;
+	margin: 3px auto;
+}
