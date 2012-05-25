@@ -100,8 +100,8 @@
     	</form>    	
     </div>
 </div>
-
-{% if faqmenu == 'modify' %}<div class="cancel_notice">(We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>.)</div>{% endif %}
+<div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
+{% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
 
 {% endblock %}
 

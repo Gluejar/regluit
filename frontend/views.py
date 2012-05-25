@@ -704,7 +704,18 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'premium_description': premium_description, 'faqmenu': 'modify', 'tid': transaction.id})
+        context.update({
+                'work':work,
+                'campaign':campaign, 
+                'premiums':premiums, 
+                'form':form,
+                'preapproval_amount':preapproval_amount, 
+                'premium_id':premium_id, 
+                'premium_description': premium_description, 
+                'faqmenu': 'modify', 
+                'tid': transaction.id,
+                'payment_processor':settings.PAYMENT_PROCESSOR,
+                })
         return context
     
     
