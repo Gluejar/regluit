@@ -175,7 +175,7 @@ class BookLoaderTests(TestCase):
         # create campaigns for the stub works 
         c1 = models.Campaign.objects.create(
             name=e1.work.title,
-            work=e2.work, 
+            work=e1.work, 
             description='Test Campaign 1',
             deadline=now(),
             target=D('1000.00'),
