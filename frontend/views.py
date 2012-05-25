@@ -578,7 +578,15 @@ class PledgeView(FormView):
         except IndexError:
             pubdate = 'unknown'
 
-        context.update({'redirect_to_modify_pledge':False, 'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
+        context.update({
+                'redirect_to_modify_pledge':False, 
+                'work':work,'campaign':campaign, 
+                'premiums':premiums, 'form':form, 
+                'premium_id':premium_id, 
+                'faqmenu': 'pledge', 
+                'pubdate':pubdate,
+                'payment_processor':settings.PAYMENT_PROCESSOR,
+            })
             
         # check whether the user already has an ACTIVE transaction for the given campaign.
         # if so, we should redirect the user to modify pledge page
