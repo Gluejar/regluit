@@ -225,9 +225,9 @@ class BookLoaderTests(TestCase):
         w3 = models.Edition.get_by_isbn('0385722133').work
         
         # and that relevant Campaigns and Wishlists are updated
-        
         c1=Campaign.objects.get(pk=c1.pk)
         c2=Campaign.objects.get(pk=c2.pk)
+
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
         self.assertEqual(Comment.objects.for_model(w3).count(), 3)
