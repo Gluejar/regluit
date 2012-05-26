@@ -1384,7 +1384,6 @@ def edit_user(request):
     form=UserData()
     emailform = UserEmail({'email':request.user.email})
     oldusername=request.user.username
-    oldemail= request.user.email
     if request.method == 'POST': 
         if 'change_username' in request.POST.keys():
             # surely there's a better way to add data to the POST data?
@@ -1397,14 +1396,15 @@ def edit_user(request):
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
         elif 'change_email'  in request.POST.keys():
             emailform = UserEmail(request.POST)
+            emailform.oldemail = request.user.email
             if emailform.is_valid():
                 request.user.email=emailform.cleaned_data['email']
                 request.user.save()
                 send_mail_task.delay(
                     'unglue.it email changed', 
-                    render_to_string('registration/email_changed.txt',{'oldemail':oldemail,'request':request}),
+                    render_to_string('registration/email_changed.txt',{'oldemail':emailform.oldemail,'request':request}),
                     None,
-                    [request.user.email,oldemail]
+                    [request.user.email,emailform.oldemail]
                     )
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  

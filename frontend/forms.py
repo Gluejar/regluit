@@ -130,6 +130,16 @@ class UserEmail(forms.Form):
         max_length=100,
         error_messages={'required': 'Please enter an email address.'},
         )
+    oldemail = None
+    
+    def clean_email(self):
+        email = self.data["email"]
+        if email != self.oldemail:
+            users = User.objects.filter(email__iexact=email)
+            for user in users:
+                raise forms.ValidationError(_("Another user with that email already exists."))
+            return email
+        raise forms.ValidationError(_("Your email is already "+ email))
     
 class UserData(forms.Form):
     username = forms.RegexField(
