@@ -1382,14 +1382,11 @@ def edit_user(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('auth_login'))    
     form=UserData()
-    emailform = UserEmail({'email':request.user.email})
-    oldusername=request.user.username
+    emailform = UserEmail()
     if request.method == 'POST': 
         if 'change_username' in request.POST.keys():
-            # surely there's a better way to add data to the POST data?
-            postcopy=request.POST.copy()
-            postcopy['oldusername']=oldusername 
-            form = UserData(postcopy)
+            form = UserData(request.POST)
+            form.oldusername = request.user.username
             if form.is_valid(): # All validation rules pass, go and change the username
                 request.user.username=form.cleaned_data['username']
                 request.user.save()
