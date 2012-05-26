@@ -649,7 +649,7 @@ class PledgeView(FormView):
         
         if url:
             logger.info("PledgeView paypal: " + url)
-            print >> sys.stderr, "CampaignFormView paypal: ", url
+            print >> sys.stderr, "PledgeView paypal: ", url
             return HttpResponseRedirect(url)
         else:
             response = t.reference
@@ -1481,70 +1481,6 @@ def wishlist(request):
         request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   
-class CampaignFormView(FormView):
-    template_name="campaign_detail.html"
-    form_class = CampaignPledgeForm
-    embedded = False
-    
-    def get_context_data(self, **kwargs):
-        pk = self.kwargs["pk"]
-        campaign = models.Campaign.objects.get(id=int(pk))
-        context = super(CampaignFormView, self).get_context_data(**kwargs)
-        base_url = self.request.build_absolute_uri("/")[:-1]
-        context.update({
-           'embedded': self.embedded,
-           'campaign': campaign,
-           'base_url':base_url
-        })
-        
-        return context
-
-    def form_valid(self,form):
-        pk = self.kwargs["pk"]
-        preapproval_amount = form.cleaned_data["preapproval_amount"]
-        anonymous = form.cleaned_data["anonymous"]
-        
-        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
-        campaign = models.Campaign.objects.get(id=int(pk))
-        
-        p = PaymentManager(embedded=self.embedded)
-                    
-        # we should force login at this point -- or if no account, account creation, login, and return to this spot
-        if self.request.user.is_authenticated():
-            user = self.request.user
-        else:
-            user = None
-            
-        # calculate the work corresponding to the campaign id
-        work_id = campaign.work.id
-        
-        # set the expiry date based on the campaign deadline
-        expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
-        
-        if not self.embedded:
-            
-            return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
-            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, anonymous=anonymous)    
-        else:
-            # instant payment:  send to the partnering RH
-            # right now, all money going to Gluejar.  
-            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':preapproval_amount}]
-            
-            #redirect the page back to campaign page on success
-            return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
-            t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, anonymous=anonymous)
-        
-        if url:
-            logger.info("CampaignFormView paypal: " + url)
-            print >> sys.stderr, "CampaignFormView paypal: ", url
-            return HttpResponseRedirect(url)
-        else:
-            response = t.reference
-            logger.info("CampaignFormView paypal: Error " + str(t.reference))
-            return HttpResponse(response)
-
 class InfoPageView(TemplateView):
     
     def get_template_names(self, **kwargs):
