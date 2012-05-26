@@ -52,18 +52,26 @@ post_save.connect(create_user_objects, sender=User)
 # create API key for new User
 post_save.connect(create_api_key, sender=User)
 
-def merge_emails(sender, user, **kwargs):
+def handle_same_email_account(sender, user, **kwargs):
     logger.info('checking %s' % user.username)
-    try:
-        old_user=User.objects.exclude(id=user.id).get(email=user.email)
-        old_user.username=user.username
-        old_user.password=user.password
-        user.delete()
-        old_user.save()
-    except User.DoesNotExist:
-        return
-
-registration.signals.user_activated.connect(merge_emails)
+    old_users=User.objects.exclude(id=user.id).filter(email=user.email)
+    for old_user in old_users:
+        # decide why there's a previous user with this email
+        if not old_user.is_active:
+            # never activated
+            old_user.delete()
+        elif old_user.date_joined < user.date_joined:
+            # attach to old account 
+            old_user.username=user.username
+            old_user.password=user.password
+            user.delete()
+            old_user.save()
+            user=old_user
+        else: 
+            # shouldn't happen; don't want to delete the user in case the user is being used for something
+            old_user.email= '%s.unglue.it'% old_user.email
+            
+registration.signals.user_activated.connect(handle_same_email_account)
 
 # create notification types (using django-notification) -- tie to syncdb
 
