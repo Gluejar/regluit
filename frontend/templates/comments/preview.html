@@ -1,0 +1,57 @@
+{% extends "comments/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Preview your comment" %}{% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+{% endblock %}
+
+{% block doccontent %}
+  {% load comments %}
+  
+  <div class="tabs-content" id="js-maincol">
+  {% if request.user.is_anonymous %}
+                       <p>You must be <a href="{% url auth_login %}?next={{ request.path }}">logged in</a> to comment.</p>
+  {% else %}
+  <form action="{% comment_form_target %}" method="post">{% csrf_token %}
+    {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
+    {% if form.errors %}
+    <h1>{% blocktrans count counter=form.errors|length %}Please correct the error below{% plural %}Please correct the errors below{% endblocktrans %}</h1>
+    {% else %}
+    <h1>{% trans "Preview your comment" %}</h1>
+    <div class="work_supporter {% if content_object.last_campaign and user in content_object.last_campaign.managers.all %}official{% endif %}">
+      <a href="/supporter/{{user.username}}">
+      <div class="work_supporter_avatar">
+        {% if user.profile.pic_url %}
+            <img class="user-avatar" src="{{ user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ user }}" title="{{ user }}" />
+               {% else %}
+            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+            {% endif %}
+    </div>
+    <span class="comment_username">{{user.username }}</span></a> <span>( [today's date] )</span> <br /><span class="comment">{{ comment|linebreaksbr }}<br /></span> 
+  </div>  
+<br /><br /><br />
+      <p>
+      {% trans "and" %} <input type="submit" name="submit" class="submit-post" value="{% trans "Post your comment" %}" id="submit" /> {% trans "or make changes" %}:
+      </p>
+    {% endif %}
+    {% for field in form %}
+      {% if field.is_hidden %}
+        <div>{{ field }}</div>
+      {% else %}
+      {% if field.errors %}{{ field.errors }}{% endif %}
+      {% ifequal field.name "honeypot" %}<p style="display:none;"{% if field.errors %} class="error"{% endif %}>{{ field.label_tag }} {{ field }}</p>{% endifequal %}
+      {% ifequal field.name "name" %}<div><input id="id_name" type="hidden" name="name" value="" /></div>{% endifequal %}
+      {% ifequal field.name "email" %}<div><input id="id_email" type="hidden" name="email" value="" /></div>{% endifequal %}
+      {% ifequal field.name "url" %}<div><input id="id_url" type="hidden" name="url" value="" /></div>{% endifequal %}
+      {% ifequal field.name "comment" %}<p{% if field.errors %} class="error"{% endif %}>Add your comment (<span id="count_display">3000</span> characters remaining):<br /> <textarea style="width:95%" id="id_comment" rows="4" name="comment" onKeyUp="counter(this, 3000)" onBlur="counter(this,3000)">{{comment}}</textarea></p>{% endifequal %}
+      {% endif %}
+    {% endfor %}
+    <p class="submit">
+    <input type="submit" name="submit" class="submit-post" value="{% trans "Post" %}" />
+    <input type="submit" name="preview" class="submit-preview" value="{% trans "Preview" %}" />
+    </p>
+  </form>
+    {% endif %}
+</div>
+{% endblock %}
