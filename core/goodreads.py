@@ -157,6 +157,7 @@ class GoodreadsClient(object):
         params["key"] = self.key
         
         request_url = urljoin(GoodreadsClient.url, path)
+        logger.info("request_url:{0}, params: {1}".format(request_url, params))
         
         more_pages = True
         
