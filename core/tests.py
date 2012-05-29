@@ -494,7 +494,11 @@ class GoodreadsTest(TestCase):
         self.assertTrue('read' in shelf_names)
         self.assertTrue('to-read' in shelf_names)
 
+    @unittest.expectedFailure
     def test_review_list_unauth(self):
+        """Marked for expected failure (2012.05.29)
+        http://www.goodreads.com/topic/show/908732-api-problem-http-status-code-500-for-list-xml#comment_51296303
+        """
         gr_uid = "767708"  # for Raymond Yee
         gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
