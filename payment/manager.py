@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.parameters import *
 from regluit.payment.paypal import IPN_SENDER_STATUS_COMPLETED
-from regluit.payment.signals import transaction_charged
+from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
 
 if settings.PAYMENT_PROCESSOR == 'paypal':
     from regluit.payment.paypal import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
@@ -549,7 +549,7 @@ class PaymentManager( object ):
         
     def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None,
                   return_url=None, nevermind_url=None, anonymous=False, premium=None,
-                  paymentReason="unglue.it Pledge"):
+                  paymentReason="unglue.it Pledge", modification=False):
         '''
         authorize
         
@@ -619,6 +619,17 @@ class PaymentManager( object ):
             url = p.next_url()
                 
             logger.info("Authorize Success: " + url)
+            
+            # modification and initial pledge use different notification templates --
+            # decide which to send
+            # we fire notifications here because it's the first point at which we are sure
+            # that the transaction has successfully completed; triggering notifications
+            # when the transaction is initiated risks sending notifications on transactions
+            # that for whatever reason fail.  will need other housekeeping to handle those.
+            if modification==True:
+                pledge_modified.send(sender=self, transaction=transaction, status="increased")
+            else:
+                pledge_created.send(sender=self, transaction=transaction)
             return t, url
     
         
@@ -681,16 +692,22 @@ class PaymentManager( object ):
                                     nevermind_url, 
                                     transaction.anonymous,
                                     premium,
-                                    paymentReason)
+                                    paymentReason,
+                                    True)
             
             if t and url:
                 # Need to re-direct to approve the transaction
                 logger.info("New authorization needed, redirection to url %s" % url)
-                self.cancel_transaction(transaction)    
+                self.cancel_transaction(transaction)
+                # while it would seem to make sense to send a pledge notification change here
+                # if we do, we will also send notifications when we initiate but do not
+                # successfully complete a pledge modification
                 return True, url
             else:
                 # a problem in authorize
                 logger.info("Error, unable to start a new authorization")
+                # should we send a pledge_modified signal with state="failed" and a
+                # corresponding notification to the user? that would go here.
                 return False, None
             
         elif amount <= transaction.max_amount:
@@ -701,6 +718,7 @@ class PaymentManager( object ):
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
+            pledge_modified.send(sender=self, transaction=transaction, status="decreased")
             return True, None
         else:
             # this shouldn't happen

@@ -14,7 +14,7 @@ from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
-from regluit.payment.signals import transaction_charged
+from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
 
 import registration.signals
 import django.dispatch
@@ -130,6 +130,7 @@ def notify_successful_campaign(campaign, **kwargs):
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
 
+from regluit.core.tasks import emit_notifications
 
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
@@ -139,10 +140,36 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             'transaction':transaction,
             'payment_processor':settings.PAYMENT_PROCESSOR
         }, True)
-    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
+
+def handle_pledge_modified(sender, transaction=None, status=None, **kwargs):
+    if transaction==None or status==None:
+        return
+    notification.queue([transaction.user], "pledge_status_change", {
+            'site':Site.objects.get_current(),
+            'transaction': transaction,
+            'payment_processor':settings.PAYMENT_PROCESSOR,
+            'status': status
+        }, True)
+    emit_notifications.delay()
+
+pledge_modified.connect(handle_pledge_modified)
+
+def handle_you_have_pledged(sender, transaction=None, **kwargs):
+    if transaction==None:
+        return
+    notification.queue([transaction.user], "pledge_you_have_pledged", {
+            'site':Site.objects.get_current(),
+            'transaction': transaction,
+            'campaign': transaction.campaign,
+            'work': transaction.campaign.work,
+            'payment_processor':settings.PAYMENT_PROCESSOR,
+    }, True)
+    emit_notifications.delay()
+    
+pledge_created.connect(handle_you_have_pledged)
 
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written

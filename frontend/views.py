@@ -760,8 +760,10 @@ class PledgeModifyView(FormView):
         elif status and url is None:
             # let's use the pledge_complete template for now and maybe look into customizing it.
             return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
+            from regluit.payment.signals import pledge_modified
+            pledge_modified.send(sender=self, transaction=transaction, status="increased")
         else:
-            return HttpResponse("No modication made")
+            return HttpResponse("No modification made")
 
 
 class PledgeCompleteView(TemplateView):
@@ -849,10 +851,6 @@ class PledgeCompleteView(TemplateView):
         context["works"] = works
         context["works2"] = works2   
         context["site"] = Site.objects.get_current()
-        
-        # generate notices with same context used for user page
-        notification.queue([transaction.user], "pledge_you_have_pledged", {'transaction': transaction, 'campaign': campaign, 'site': context['site'], 'work': work}, True)
-        emit_notifications.delay()
         
         return context        
                 
