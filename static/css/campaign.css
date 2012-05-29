@@ -626,6 +626,7 @@ ul.support li span {
 ul.support li span.menu-item-price {
   font-size: 18px;
   float: left;
+  display: inline;
   margin-bottom: 3px;
 }
 ul.support li span.menu-item-desc {

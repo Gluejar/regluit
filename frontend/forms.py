@@ -130,6 +130,16 @@ class UserEmail(forms.Form):
         max_length=100,
         error_messages={'required': 'Please enter an email address.'},
         )
+    oldemail = None
+    
+    def clean_email(self):
+        email = self.data["email"]
+        if email != self.oldemail:
+            users = User.objects.filter(email__iexact=email)
+            for user in users:
+                raise forms.ValidationError(_("Another user with that email already exists."))
+            return email
+        raise forms.ValidationError(_("Your email is already "+ email))
     
 class UserData(forms.Form):
     username = forms.RegexField(
@@ -141,18 +151,17 @@ class UserData(forms.Form):
             'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
         }
     )
+    oldusername = None
 
 
     def clean_username(self):
         username = self.data["username"]
-        oldusername = self.data["oldusername"]
-        if username != oldusername:
-            try:
-                User.objects.get(username__iexact=username)
-            except User.DoesNotExist:
-                return username
-            raise forms.ValidationError(_("Another user with that username already exists."))
-        raise forms.ValidationError(_("Your username is already "+oldusername))
+        if username != self.oldusername:
+            users = User.objects.filter(username__iexact=username)
+            for user in users:
+                raise forms.ValidationError(_("Another user with that username already exists."))
+            return username
+        raise forms.ValidationError(_("Your username is already "+username))
 
 class OpenCampaignForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(

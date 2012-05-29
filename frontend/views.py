@@ -578,7 +578,15 @@ class PledgeView(FormView):
         except IndexError:
             pubdate = 'unknown'
 
-        context.update({'redirect_to_modify_pledge':False, 'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
+        context.update({
+                'redirect_to_modify_pledge':False, 
+                'work':work,'campaign':campaign, 
+                'premiums':premiums, 'form':form, 
+                'premium_id':premium_id, 
+                'faqmenu': 'pledge', 
+                'pubdate':pubdate,
+                'payment_processor':settings.PAYMENT_PROCESSOR,
+            })
             
         # check whether the user already has an ACTIVE transaction for the given campaign.
         # if so, we should redirect the user to modify pledge page
@@ -704,7 +712,18 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'premium_description': premium_description, 'faqmenu': 'modify', 'tid': transaction.id})
+        context.update({
+                'work':work,
+                'campaign':campaign, 
+                'premiums':premiums, 
+                'form':form,
+                'preapproval_amount':preapproval_amount, 
+                'premium_id':premium_id, 
+                'premium_description': premium_description, 
+                'faqmenu': 'modify', 
+                'tid': transaction.id,
+                'payment_processor':settings.PAYMENT_PROCESSOR,
+                })
         return context
     
     
@@ -1361,29 +1380,26 @@ def edit_user(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('auth_login'))    
     form=UserData()
-    emailform = UserEmail({'email':request.user.email})
-    oldusername=request.user.username
-    oldemail= request.user.email
+    emailform = UserEmail()
     if request.method == 'POST': 
         if 'change_username' in request.POST.keys():
-            # surely there's a better way to add data to the POST data?
-            postcopy=request.POST.copy()
-            postcopy['oldusername']=oldusername 
-            form = UserData(postcopy)
+            form = UserData(request.POST)
+            form.oldusername = request.user.username
             if form.is_valid(): # All validation rules pass, go and change the username
                 request.user.username=form.cleaned_data['username']
                 request.user.save()
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
         elif 'change_email'  in request.POST.keys():
             emailform = UserEmail(request.POST)
+            emailform.oldemail = request.user.email
             if emailform.is_valid():
                 request.user.email=emailform.cleaned_data['email']
                 request.user.save()
                 send_mail_task.delay(
                     'unglue.it email changed', 
-                    render_to_string('registration/email_changed.txt',{'oldemail':oldemail,'request':request}),
+                    render_to_string('registration/email_changed.txt',{'oldemail':emailform.oldemail,'request':request}),
                     None,
-                    [request.user.email,oldemail]
+                    [request.user.email,emailform.oldemail]
                     )
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  
