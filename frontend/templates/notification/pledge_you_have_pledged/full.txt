@@ -1,7 +1,4 @@
-{% load humanize %}
-{% with work.title as title %}
-{% with site.domain as domain %}
-{% with work.id as work_id %}
+{% load humanize %}{% with work.title as title %}{% with site.domain as domain %}{% with work.id as work_id %}
 Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ title }}.  If this campaign successfully raises ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
 
 Pledge summary

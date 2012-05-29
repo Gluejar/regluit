@@ -1,1 +1,1 @@
-Your pledge has been modified for {{ work.title}}
+Your pledge has been modified for {{ transaction.campaign.work.title}}

@@ -1,14 +1,26 @@
-{% load humanize %}You have modified a pledge that you had previously made to the campaign to unglue {{ campaign.work.title }}
+{% load humanize %}You have modified a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
 
 Your new pledge summary
-Amount pledged: {{ amount|intcomma }}
-Premium: {{ premium }}
+Amount pledged: ${{ transaction.amount|intcomma }}
+Premium: {{ transaction.premium.description }}
 
-If you increased your earlier pledge (thanks!), you will also be receiving an email from Amazon confirming this.  If you decreased an earlier pledge, you will not receive a confirmation email from Amazon.  If you log in to your Amazon Payments account you will still see an authorization to Unglue.it for the entire amount of your earlier pledge, but never fear -- we'll only charge the amount of your new pledge, not the full authorization.
+{% if payment_processor == 'amazon' %}{% if status == 'increased' %}
+You will also receive an email from Amazon confirming this.
+{% else %}{% if status == 'decreased' %}
+Your Amazon Payments account may still show an authorization to Unglue.it for the entire amount of your earlier pledge, but never fear -- if the campaign succeeds, we'll only charge you ${{ transaction.amount|intcomma }}.
+{% endif %}{% endif %}{% else %}{% endif %}
 
 If you'd like to visit the project page, click here: 
-https://{{site.domain}}{% url work work.id %}
+https://{{site.domain}}{% url work transaction.campaign.work.id %}
 
 Thank you again for your support.
 
-{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team
+{{ transaction.campaign.rightsholder }} (rights holder for {{ transaction.campaign.work.title }}) and the Unglue.it team
+
+{% comment %}
+If we're going to send notifications in the event of an incomplete transaction, fill in another if (or the rest of the if). In the meantime, testing for 'decreased' specifically rather than !'increased' in order to allow for that.
+
+If we get Paypal running, we're going to need to figure out what notifications they send in the various pledge change events and make the communication to users consistent with that.
+
+Space has been left in the if statements for these contingencies.
+{% endcomment %}
