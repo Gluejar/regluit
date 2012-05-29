@@ -138,7 +138,6 @@ def notify_successful_campaign(campaign, **kwargs):
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
 
-from regluit.core.tasks import emit_notifications
 
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
@@ -148,6 +147,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             'transaction':transaction,
             'payment_processor':settings.PAYMENT_PROCESSOR
         }, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
@@ -161,6 +161,7 @@ def handle_pledge_modified(sender, transaction=None, status=None, **kwargs):
             'payment_processor':settings.PAYMENT_PROCESSOR,
             'status': status
         }, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 pledge_modified.connect(handle_pledge_modified)
@@ -175,6 +176,7 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
             'work': transaction.campaign.work,
             'payment_processor':settings.PAYMENT_PROCESSOR,
     }, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
     
 pledge_created.connect(handle_you_have_pledged)
