@@ -3,6 +3,7 @@
 {% with work.last_campaign.supporters as supporters %}
 {% with work.cover_image_thumbnail as thumbnail %}
 {% with work.author as author %}
+{% with work.last_campaign as last_campaign %}
 {% with work.last_campaign.status as status %}
 {% with work.last_campaign.deadline as deadline %}
 <div class="thewholebook listview tabs {% if first_ebook %}tabs-1{% else %}{% if status == 'SUCCESSFUL' or status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}{% endif %}">
@@ -160,14 +161,14 @@
 		{% endif %}
     </div>
     <div class="listview panelfront side1 icons">
-        {% if status == 'No campaign yet' or status == 'INITIALIZED' %}
-          <a href="{% url work work.id %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
-        {% else %}{% if first_ebook %}
+        {% if first_ebook %}
             <span class="listview boolist-ebook">
             {% for ebook in work.ebooks|slice:":3" %}
             <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.rights}}  {{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.rights}} {{ ebook.format }} at {{ebook.provider}}" /></a>
             {% endfor %}
             </span>
+        {% else %}{% if last_campaign == None or status == 'No campaign yet' or status == 'INITIALIZED' %}
+          <a href="{% url work work.id %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
         {% else %}
         
           <div class="booklist-status-img">
@@ -186,6 +187,7 @@
     </div>
 </div>
 </div>
+{% endwith %}
 {% endwith %}
 {% endwith %}
 {% endwith %}

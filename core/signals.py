@@ -142,22 +142,22 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         return
     notification.queue([transaction.user], "pledge_charged", {
             'site':Site.objects.get_current(),
-            'transaction':transaction,
-            'payment_processor':settings.PAYMENT_PROCESSOR
+            'transaction':transaction
         }, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
 
-def handle_pledge_modified(sender, transaction=None, status=None, **kwargs):
+def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
     if transaction==None or status==None:
         return
     notification.queue([transaction.user], "pledge_status_change", {
             'site':Site.objects.get_current(),
             'transaction': transaction,
-            'payment_processor':settings.PAYMENT_PROCESSOR,
-            'status': status
+            'up_or_down': status
         }, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 pledge_modified.connect(handle_pledge_modified)
@@ -167,9 +167,9 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
         return
     notification.queue([transaction.user], "pledge_you_have_pledged", {
             'site':Site.objects.get_current(),
-            'transaction': transaction,
-            'payment_processor':settings.PAYMENT_PROCESSOR,
+            'transaction': transaction
     }, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
     
 pledge_created.connect(handle_you_have_pledged)

@@ -566,6 +566,7 @@ class PaymentManager( object ):
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction
         paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
+        modification: whether this authorize call is part of a modification of an existing pledge 
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None

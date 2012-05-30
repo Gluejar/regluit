@@ -157,6 +157,7 @@ class GoodreadsClient(object):
         params["key"] = self.key
         
         request_url = urljoin(GoodreadsClient.url, path)
+        logger.info("request_url:{0}, params: {1}".format(request_url, params))
         
         more_pages = True
         
@@ -165,7 +166,7 @@ class GoodreadsClient(object):
           r = request(method,request_url,params=params)
           # print request_url, params
           if r.status_code != httplib.OK:
-              raise GoodreadsException('Error in review_list_unauth: ' )
+              raise GoodreadsException('Error in review_list_unauth, http status_code: {0}'.format(r.status_code))
           else:
               doc = ET.fromstring(r.content.encode('utf-8'))
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results

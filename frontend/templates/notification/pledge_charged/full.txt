@@ -1,6 +1,6 @@
 {% load humanize %}Congratulations!
 
-Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. {{ payment_processor|capfirst }} will now charge your credit card.
+Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} will now charge your credit card.
 
 Pledge Summary 
 Amount pledged: ${{ transaction.amount|intcomma }}

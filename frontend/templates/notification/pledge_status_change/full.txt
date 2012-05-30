@@ -4,7 +4,7 @@ Your new pledge summary
 Amount pledged: ${{ transaction.amount|intcomma }}
 Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}
 
-{% if payment_processor == 'amazon' %}{% if status == 'increased' %}
+{% if transaction.host|lower == 'amazon' %}{% if status == 'increased' %}
 You will also receive an email from Amazon confirming this.
 {% else %}{% if status == 'decreased' %}
 Your Amazon Payments account may still show an authorization to Unglue.it for the entire amount of your earlier pledge, but never fear -- if the campaign succeeds, we'll only charge you ${{ transaction.amount|intcomma }}.
