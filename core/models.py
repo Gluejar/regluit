@@ -762,8 +762,9 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
 
-
-from regluit.core import signals
+# this was causing a circular import problem and we do not seem to be using
+# anything from regluit.core.signals after this line
+# from regluit.core import signals
 from regluit.payment.manager import PaymentManager
 
 from social_auth.signals import pre_update

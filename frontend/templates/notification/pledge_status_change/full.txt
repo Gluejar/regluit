@@ -2,7 +2,7 @@
 
 Your new pledge summary
 Amount pledged: ${{ transaction.amount|intcomma }}
-Premium: {{ transaction.premium.description }}
+Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}
 
 {% if payment_processor == 'amazon' %}{% if status == 'increased' %}
 You will also receive an email from Amazon confirming this.

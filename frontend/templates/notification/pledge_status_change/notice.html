@@ -13,7 +13,7 @@
 	<div class="comments_textual">
 		Your new pledge is as follows:<br />
 		Amount: ${{ transaction.amount|intcomma }}<br />
-		Premium: {{ transaction.premium.description }}<br />
+		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
 		Thank you for your continued support of {{ title }}.
 	</div>
 </div>

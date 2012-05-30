@@ -627,9 +627,9 @@ class PaymentManager( object ):
             # when the transaction is initiated risks sending notifications on transactions
             # that for whatever reason fail.  will need other housekeeping to handle those.
             if modification==True:
-                pledge_modified.send(sender=self, transaction=transaction, status="increased")
+                pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
             else:
-                pledge_created.send(sender=self, transaction=transaction)
+                pledge_created.send(sender=self, transaction=t)
             return t, url
     
         
@@ -718,7 +718,7 @@ class PaymentManager( object ):
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
-            pledge_modified.send(sender=self, transaction=transaction, status="decreased")
+            pledge_modified.send(sender=self, transaction=transaction, up_or_down="decreased")
             return True, None
         else:
             # this shouldn't happen

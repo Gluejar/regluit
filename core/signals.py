@@ -101,7 +101,7 @@ signals.post_syncdb.connect(create_notice_types, sender=notification)
 # define the notifications and tie them to corresponding signals
 
 from django.contrib.comments.signals import comment_was_posted
-
+from regluit.core.tasks import emit_notifications
 
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
@@ -113,7 +113,6 @@ def notify_comment(comment, request, **kwargs):
     else:
         notification.queue(other_commenters, "comment_on_commented", {'comment':comment}, True)
         notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
-    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 comment_was_posted.connect(notify_comment)
@@ -137,8 +136,6 @@ def notify_successful_campaign(campaign, **kwargs):
     
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
-
-from regluit.core.tasks import emit_notifications
 
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
@@ -171,8 +168,6 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
     notification.queue([transaction.user], "pledge_you_have_pledged", {
             'site':Site.objects.get_current(),
             'transaction': transaction,
-            'campaign': transaction.campaign,
-            'work': transaction.campaign.work,
             'payment_processor':settings.PAYMENT_PROCESSOR,
     }, True)
     emit_notifications.delay()
