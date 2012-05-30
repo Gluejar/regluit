@@ -1,1 +1,1 @@
-{{ comment.user.username }} has mad an official comment on {{ comment.content_object.title }} at Unglue.it
+{{ comment.user.username }} has made an official comment on {{ comment.content_object.title }} at Unglue.it
