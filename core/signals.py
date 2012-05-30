@@ -101,7 +101,6 @@ signals.post_syncdb.connect(create_notice_types, sender=notification)
 # define the notifications and tie them to corresponding signals
 
 from django.contrib.comments.signals import comment_was_posted
-from regluit.core.tasks import emit_notifications
 
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
@@ -113,6 +112,7 @@ def notify_comment(comment, request, **kwargs):
     else:
         notification.queue(other_commenters, "comment_on_commented", {'comment':comment}, True)
         notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
+    from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
 comment_was_posted.connect(notify_comment)
@@ -150,12 +150,15 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
 transaction_charged.connect(handle_transaction_charged)
 
 def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
-    if transaction==None or status==None:
+    # we need to know if pledges were modified up or down because Amazon handles the
+    # transactions in different ways, resulting in different user-visible behavior;
+    # we need to set expectations appropriately
+    if transaction==None or up_or_down==None:
         return
     notification.queue([transaction.user], "pledge_status_change", {
             'site':Site.objects.get_current(),
             'transaction': transaction,
-            'up_or_down': status
+            'up_or_down': up_or_down
         }, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
@@ -176,11 +179,6 @@ pledge_created.connect(handle_you_have_pledged)
 
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written
-# PLEDGE_CHANGE_STATUS:
-#	'site': (site)
-#	'campaign'
-#	'amount': (amount supporter's card will be charged)
-#	'premium': (premium requested by the supporter)
 # RIGHTS_HOLDER_CLAIM_APPROVED:
 #	'site': (site)
 #	'claim': (claim)

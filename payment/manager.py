@@ -623,11 +623,13 @@ class PaymentManager( object ):
             
             # modification and initial pledge use different notification templates --
             # decide which to send
-            # we fire notifications here because it's the first point at which we are sure
+            # we need to fire notifications at the first point at which we are sure
             # that the transaction has successfully completed; triggering notifications
             # when the transaction is initiated risks sending notifications on transactions
             # that for whatever reason fail.  will need other housekeeping to handle those.
-            if modification==True:
+            # sadly this point is not yet late enough in the process -- needs to be moved
+            # until after we are certain.
+            if modification:
                 pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
             else:
                 pledge_created.send(sender=self, transaction=t)
@@ -719,6 +721,9 @@ class PaymentManager( object ):
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
+            # since modifying pledges downwards happens immediately and only within our
+            # db, we don't have to wait until we hear back from amazon to be assured of
+            # success; send the notification immediately
             pledge_modified.send(sender=self, transaction=transaction, up_or_down="decreased")
             return True, None
         else:
