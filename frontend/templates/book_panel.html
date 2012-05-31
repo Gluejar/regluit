@@ -3,6 +3,7 @@
 {% with work.last_campaign.supporters as supporters %}
 {% with work.cover_image_thumbnail as thumbnail %}
 {% with work.author as author %}
+{% with work.title as title %}
 {% with work.last_campaign as last_campaign %}
 {% with work.last_campaign.status as status %}
 {% with work.last_campaign.deadline as deadline %}
@@ -65,7 +66,7 @@
 
 			{% comment %}bibliographic data{% endcomment %}
 			<div class="white_text"> 
-				<p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+				<p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
 				<p>{{ author }}</p>
 			</div>
 
@@ -112,7 +113,7 @@
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
-            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ work.title }}</a>
+            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a>
         </div>
         <div class="listview author {{ author }}">{{ author }}</div>
     </div>
@@ -181,6 +182,7 @@
     </div>
 </div>
 </div>
+{% endwith %}
 {% endwith %}
 {% endwith %}
 {% endwith %}
