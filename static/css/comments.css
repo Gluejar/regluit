@@ -49,5 +49,7 @@
 }
 .official {
   border: 3px #B8DDE0 solid;
-  margin: 3px auto;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  padding-left: 2px;
 }
