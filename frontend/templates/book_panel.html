@@ -174,7 +174,7 @@
 			</div>
         	<div class="booklist-status-label panel">{{ work.percent_of_goal }}%</div>
         {% else %}
-        	<a href="{% url work workid %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
+        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
         {% endif %}{% endif %}
         
     </div>
