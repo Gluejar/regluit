@@ -1,4 +1,5 @@
 from regluit.payment.parameters import *
+from regluit.payment.manager import PaymentManager
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.models import Transaction, PaymentResponse
@@ -295,6 +296,13 @@ def amazonPaymentReturn(request):
                 transaction.status = TRANSACTION_STATUS_ACTIVE
                 transaction.approved = True
                 transaction.pay_key = token
+                transaction.save()
+                
+                print "Calling CANCEL RELATED"
+                
+                # clear out any other active transactions for this user and this campaign
+                p = PaymentManager()
+                p.cancel_related_transaction(transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=transaction.campaign)
                 
             else:
                 # We may never see an IPN, set the status here

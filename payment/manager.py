@@ -186,7 +186,7 @@ class PaymentManager( object ):
             logger.info(preapproval_transactions)
             
             transactions = payment_transactions | preapproval_transactions
- 
+    
         
         for t in transactions:
             
@@ -199,6 +199,19 @@ class PaymentManager( object ):
                 payment_status = self.update_payment(t)
                 if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
                     status["payments"].append(payment_status)
+                    
+        for p in preapproval_transactions:
+            
+            # Clear out older, duplicate preapproval transactions
+            if p.status == TRANSACTION_STATUS_ACTIVE:
+                
+                # keep only the newest transaction for this user and campaign
+                transactions = Transaction.objects.filter(user=p.user, status=TRANSACTION_STATUS_ACTIVE, campaign=p.campaign).order_by('-date_authorized')
+                
+                if len(transactions) > 0:
+                    self.cancel_related_transaction(transactions[0], status=TRANSACTION_STATUS_ACTIVE, campaign=transactions[0].campaign)
+                    
+            # Note, we may need to call checkstatus again here
             
         return status
     
@@ -619,6 +632,36 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return t, None
         
+    def cancel_related_transaction(self, transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=None):
+        '''
+        Cancels any other similar status transactions for the same campaign.  Used with modify code
+        
+        Returns the number of transactions successfully canceled
+        '''
+        
+        related_transactions = Transaction.objects.filter(status=status, user=transaction.user)
+        
+        print "FOUND %d realted transactions" % len(related_transactions)
+        
+        if len(related_transactions) == 0:
+            return 0
+        
+        if campaign:
+            related_transactions = related_transactions.filter(campaign=campaign)
+            
+        canceled = 0
+        
+        for t in related_transactions:
+            
+            if t.id == transaction.id:
+                # keep our transaction
+                continue
+            
+            if self.cancel_transaction(t):
+                canceled = canceled + 1
+            
+        return canceled
+    
     def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None,
                            return_url=None, cancel_url=None,
                            paymentReason=None):
@@ -677,7 +720,9 @@ class PaymentManager( object ):
             if t and url:
                 # Need to re-direct to approve the transaction
                 logger.info("New authorization needed, redirection to url %s" % url)
-                self.cancel_transaction(transaction)    
+                # Do not cancel the transaction here, wait until we get confirmation that the transaction is complete
+                # then cancel all other active transactions for this campaign
+                #self.cancel_transaction(transaction)    
                 return True, url
             else:
                 # a problem in authorize
