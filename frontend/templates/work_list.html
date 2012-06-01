@@ -102,7 +102,10 @@
                     There aren't any works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
 					{% endif %}
                     {% else %}
+                        {% comment %}
+                        pagination commented out for now because it was causing huge db hits/pageload times. These sets have been limited in views.py to 20 on the theory that people only want to see the MOST popular works, and the other facets are unlikely to produce sets exceeding this anyway.
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}
+                        {% endcomment %}
                         {% for work in works_unglued %}
                         <div class="{% cycle 'row1' 'row2' %}">
                         {% with work.last_campaign_status as status %}
@@ -112,14 +115,18 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
+                        {% comment %}
                         <div class="pagination content-block-heading tabs-1">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
+                        {% endcomment %}
     
+                        {% comment %}
                         {% lazy_paginate 20 works_active using "works_active" %}
+                        {% endcomment %}
                         {% for work in works_active %}
                         <div class="{% cycle 'row1' 'row2' %}">
                         {% with work.last_campaign_status as status %}
@@ -129,14 +136,18 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
+                        {% comment %}
                         <div class="pagination content-block-heading tabs-2">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#2" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
+                        {% endcomment %}
     
+                        {% comment %}
                         {% lazy_paginate 20 works_wished using "works_wished" %}
+                        {% endcomment %}
                         {% for work in works_wished %}
                         <div class="{% cycle 'row1' 'row2' %}">
                         {% with work.last_campaign_status as status %}
@@ -146,12 +157,14 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
+                        {% comment %}
                         <div class="pagination content-block-heading tabs-3">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
+                        {% endcomment %}
                     {% endifequal %}
                 </div>
             </div>    
