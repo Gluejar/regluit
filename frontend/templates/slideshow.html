@@ -1,3 +1,4 @@
+{% with request.user.wishlist.works.all as wishlist %}
 <h3><span>{% if is_preview %}Most wishlisted{% else %}{% if faqmenu %}You might also like...{% else %}Top ungluing campaigns{% endif %}{% endif %}</span></h3>
 <div class="jsmod-content">
 	<div id="js-slideshow">
@@ -13,11 +14,14 @@
 			</div>
 			<div class="slide-page slide-page2">
 				{% for work in works2 %}
+				{% with work.googlebooks_id as googlebooks_id %}					
 				<div class="spacer">
 					{% include "book_panel.html" %}
 				</div>
+				{% endwith %}
 				{% endfor %}
 			</div>
 		</div>
 	</div>	
 </div>
+{% endwith %}

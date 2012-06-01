@@ -66,6 +66,7 @@ $j(document).ready(function() {
                         </ul>
                 </div>
                 <div id="content-block-content"><div id="results">
+                	{% with request.user.wishlist.works.all as wishlist %}
                     {% for work in results %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
@@ -86,6 +87,7 @@ $j(document).ready(function() {
                         </div>
                     </div>
                     {% endfor %}
+                    {% endwith %}
                 </div></div>
                 <div id="results-bottom"></div>
             </div>    

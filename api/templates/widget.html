@@ -36,7 +36,9 @@
 {% if work %}
   {% with work.googlebooks_id as googlebooks_id %}
   {% with work.last_campaign.status as status %}
+  {% with request.user.wishlist.works.all.status as wishlist %}
   {% include "book_panel.html" %}
+{% endwith %}
 {% endwith %}
 {% endwith %}
 {% else %}

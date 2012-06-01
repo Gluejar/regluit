@@ -92,7 +92,7 @@
 				<div class="moreinfo remove-wishlist">
 					<span id="p{{ workid }}">Remove This</span>
 				</div>
-			{% else %}{% if work in request.user.wishlist.works.all %}
+			{% else %}{% if work in wishlist %}
 				<div class="moreinfo on-wishlist">
 				 <a href="#">On Wishlist!</a>
 				</div>
@@ -131,7 +131,7 @@
     <div class="listview panelfront side1 remove-wishlist">
         <span id="l{{ workid }}">Remove This</span>
     </div>
-    {% else %}{% if work in request.user.wishlist.works.all %}
+    {% else %}{% if work in wishlist %}
     <div class="listview panelfront side1 on-wishlist">
         <span>On Wishlist!</span>
     </div>
