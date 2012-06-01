@@ -208,7 +208,7 @@ class PaymentManager( object ):
                 # keep only the newest transaction for this user and campaign
                 transactions = Transaction.objects.filter(user=p.user, status=TRANSACTION_STATUS_ACTIVE, campaign=p.campaign).order_by('-date_authorized')
                 
-                if len(transactions) > 0:
+                if len(transactions) > 1:
                     self.cancel_related_transaction(transactions[0], status=TRANSACTION_STATUS_ACTIVE, campaign=transactions[0].campaign)
                     
             # Note, we may need to call checkstatus again here
