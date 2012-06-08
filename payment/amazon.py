@@ -1,5 +1,4 @@
 from regluit.payment.parameters import *
-from regluit.payment.manager import PaymentManager
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.models import Transaction, PaymentResponse
@@ -301,6 +300,7 @@ def amazonPaymentReturn(request):
                 print "Calling CANCEL RELATED"
                 
                 # clear out any other active transactions for this user and this campaign
+                from regluit.payment.manager import PaymentManager
                 p = PaymentManager()
                 p.cancel_related_transaction(transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=transaction.campaign)
                 
