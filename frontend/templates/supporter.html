@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load truncatechars %}
-
+{% comment %} we don't need "with request.user.wishlist.works.all as wishlist" here to make book_panel work, because wishlist is already in the context {% endcomment %}
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />

@@ -126,7 +126,7 @@ ul.tabs {
 ul.tabs li {
   float: left;
   height: 46px;
-  line-height: 46px;
+  line-height: 20px;
   padding-right: 2px;
   width: 116px;
   background: none;
@@ -138,7 +138,7 @@ ul.tabs li.tabs4 {
 }
 ul.tabs li a {
   height: 46px;
-  line-height: 46px;
+  line-height: 18px;
   display: block;
   text-align: center;
   padding: 0 10px;
@@ -152,7 +152,11 @@ ul.tabs li a {
 ul.tabs li a:hover {
   text-decoration: none;
 }
-ul.tabs li a:hover, ul.tabs li.active a {
+ul.tabs li a div {
+  padding-top: 8px;
+}
+ul.tabs li a:hover,
+ul.tabs li.active a {
   background: #6994a3;
   color: #fff;
 }
@@ -178,7 +182,9 @@ ul.tabs li a:hover, ul.tabs li.active a {
 
   width: 309px;
 }
-.book-detail-info h2.book-name, .book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h2.book-name,
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   padding: 0;
   margin: 0;
   line-height: normal;
@@ -189,7 +195,8 @@ ul.tabs li a:hover, ul.tabs li.active a {
   font-weight: bold;
   color: #3d4e53;
 }
-.book-detail-info h3.book-author, .book-detail-info h3.book-year {
+.book-detail-info h3.book-author,
+.book-detail-info h3.book-year {
   font-size: 12px;
   font-weight: normal;
   color: #6994a3;
@@ -215,19 +222,13 @@ ul.tabs li a:hover, ul.tabs li.active a {
   float: right;
 }
 .book-detail-info > div.layout div.btn_support input {
-  background: url("/static/images/btn_bg.png") 0 0 no-repeat;
-  width: 104px;
-  height: 41px;
-  display: block;
-  color: #fff;
-  font-weight: bold;
-  text-align: center;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  font-size: 17px;
 }
 .book-detail-info > div.layout div.btn_support.modify input {
-  background: url("/static/images/btn_bg_grey.png") 0 0 no-repeat;
+  background: #d6dde0;
+  font-size: 13px;
+  border: double white;
+  line-height: 17px;
 }
 .book-detail-info .btn_wishlist span {
   text-align: right;

@@ -9,6 +9,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/learn_more.css"  />
 {% endblock %}
 
 {% block base_js %}
@@ -41,9 +42,10 @@
           <div id="js-rightcol2">
             <div id="js-rightcol-padd2">
             	<div class="jsmodule">
- 		       		<div id="collapser">X</div>
+ 		       		<div id="collapser" class="collapser_x">X</div>
                 	<h3 class="module-title">Start Ungluing Now!</h3>
                     <div class="jsmod-content">
+                    {% if not request.user.is_authenticated %}
                       <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
@@ -68,6 +70,12 @@
                         <div class="google_signup">
                             <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
+                    {% else %}
+                    <div>
+                    You are logged in as <a href="/supporter/{{request.user.username}}">{{ request.user.username }}</a>.
+                    </div>
+                    {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -112,6 +120,7 @@
             <div class="js-rightcol-padd">
             	<div class="jsmodule" id="mainlogin">
                 	<h3 class="module-title">Start Ungluing Now!</h3>
+                	{% if not request.user.is_authenticated %}
                     <div class="jsmod-content">
                       <form action='/accounts/register/' method='post'>{% csrf_token %}
                     	<div class="user-name">
@@ -138,6 +147,12 @@
                         </div>
                       </form>
                     </div>
+                    {% else %}
+                    <div>
+                    You are logged in as <a href="/supporter/{{request.user.username}}">{{ request.user.username }}</a>.
+                    </div>
+                    {% endif %}
+
                 </div>
                 <div class="jsmodule">
                 	<h3 class="module-title">Who's ungluing what</h3>

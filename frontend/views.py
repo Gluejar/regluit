@@ -46,7 +46,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm
+from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -97,8 +97,8 @@ def next(request):
     else:
         return HttpResponseRedirect('/')
 
-def home(request):
-    if request.user.is_authenticated():
+def home(request, landing=False):
+    if request.user.is_authenticated() and landing == False:
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
 
@@ -449,9 +449,9 @@ class WorkListView(ListView):
             qs=self.get_queryset()
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] = self.kwargs['facet']
-            context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()
-            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()
-            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()
+            context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()[:20]
+            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()[:20]
+            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:20]
             
             context['activetab'] = "#3"
             
@@ -578,7 +578,15 @@ class PledgeView(FormView):
         except IndexError:
             pubdate = 'unknown'
 
-        context.update({'redirect_to_modify_pledge':False, 'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id, 'faqmenu': 'pledge', 'pubdate':pubdate})
+        context.update({
+                'redirect_to_modify_pledge':False, 
+                'work':work,'campaign':campaign, 
+                'premiums':premiums, 'form':form, 
+                'premium_id':premium_id, 
+                'faqmenu': 'pledge', 
+                'pubdate':pubdate,
+                'payment_processor':settings.PAYMENT_PROCESSOR,
+            })
             
         # check whether the user already has an ACTIVE transaction for the given campaign.
         # if so, we should redirect the user to modify pledge page
@@ -619,7 +627,7 @@ class PledgeView(FormView):
         if not self.embedded:
             
             return_url = None
-            cancel_url = None
+            nevermind_url = None
             
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
@@ -627,21 +635,21 @@ class PledgeView(FormView):
 
             paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium,
+                            return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium,
                             paymentReason=paymentReason)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
             
             return_url = None
-            cancel_url = None
+            nevermind_url = None
             
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, cancel_url=cancel_url, anonymous=anonymous, premium=premium)
+                              return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium)
         
         if url:
             logger.info("PledgeView paypal: " + url)
-            print >> sys.stderr, "CampaignFormView paypal: ", url
+            print >> sys.stderr, "PledgeView paypal: ", url
             return HttpResponseRedirect(url)
         else:
             response = t.reference
@@ -704,7 +712,18 @@ class PledgeModifyView(FormView):
             form_class = self.get_form_class()
             form = form_class(initial=data)
     
-        context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form,'preapproval_amount':preapproval_amount, 'premium_id':premium_id, 'premium_description': premium_description, 'faqmenu': 'modify', 'tid': transaction.id})
+        context.update({
+                'work':work,
+                'campaign':campaign, 
+                'premiums':premiums, 
+                'form':form,
+                'preapproval_amount':preapproval_amount, 
+                'premium_id':premium_id, 
+                'premium_description': premium_description, 
+                'faqmenu': 'modify', 
+                'tid': transaction.id,
+                'payment_processor':settings.PAYMENT_PROCESSOR,
+                })
         return context
     
     
@@ -760,8 +779,10 @@ class PledgeModifyView(FormView):
         elif status and url is None:
             # let's use the pledge_complete template for now and maybe look into customizing it.
             return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
+            from regluit.payment.signals import pledge_modified
+            pledge_modified.send(sender=self, transaction=transaction, status="increased")
         else:
-            return HttpResponse("No modication made")
+            return HttpResponse("No modification made")
 
 
 class PledgeCompleteView(TemplateView):
@@ -850,19 +871,105 @@ class PledgeCompleteView(TemplateView):
         context["works2"] = works2   
         context["site"] = Site.objects.get_current()
         
-        # generate notices with same context used for user page
-        notification.queue([transaction.user], "pledge_you_have_pledged", {'transaction': transaction, 'campaign': campaign, 'site': context['site'], 'work': work}, True)
-        emit_notifications.delay()
-        
         return context        
                 
     
-class PledgeCancelView(TemplateView):
-    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+class PledgeCancelView(FormView):
+    """A view for allowing a user to cancel the active transaction for specified campaign"""
     template_name="pledge_cancel.html"
+    form_class = PledgeCancelForm
+    
+    def get_context_data(self, **kwargs):
+        context = super(PledgeCancelView, self).get_context_data(**kwargs)
+        
+        # initialize error to be None
+        context["error"] = None
+        
+        # the following should be true since PledgeCancelView.as_view is wrapped in login_required
+        
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            context["error"] = "You are not logged in."
+            return context
+        
+        campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
+        if campaign.status != 'ACTIVE':
+            context["error"] = "{0} is not an active campaign".format(campaign)
+            return context
+        
+        work = campaign.work
+        transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
+        
+        if transactions.count() < 1:
+            context["error"] = "You don't have an active transaction for this campaign."
+            return context
+        elif transactions.count() > 1:
+            logger.error("User {0} has {1} active transactions for campaign id {2}".format(user, transactions.count(), campaign.id))
+            context["error"] = "You have {0} active transactions for this campaign".format(transactions.count())
+            return context
+
+        transaction = transactions[0]
+        if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
+            logger.error("Transaction id {0} transaction type, which should be {1}, is actually {2}".format(transaction.id, PAYMENT_TYPE_AUTHORIZATION, transaction.type))
+            context["error"] = "Your transaction type, which should be {0}, is actually {1}".format(PAYMENT_TYPE_AUTHORIZATION, transaction.type)
+            return context
+        
+        # we've located the transaction, work, and campaign referenced in the view
+        
+        context["transaction"] = transaction
+        context["work"] = work
+        context["campaign"] = campaign
+        context["faqmenu"] = "cancel"
+        
+        return context
+    
+    def form_valid(self, form):
+        # check that user does, in fact, have an active transaction for specified campaign
+    
+        logger.info("arrived at pledge_cancel form_valid")
+        # pull campaign_id from form, not from URI as we do from GET
+        campaign_id = self.request.REQUEST.get('campaign_id')
+        
+        # this following logic should be extraneous.
+        if self.request.user.is_authenticated():
+            user = self.request.user
+        else:
+            return HttpResponse("You need to be logged in.")
+        
+        try:
+            # look up the specified campaign and attempt to pull up the appropriate transaction
+            # i.e., the transaction actually belongs to user, that the transaction is active
+            campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
+            transaction = campaign.transaction_set.get(user=user, status=TRANSACTION_STATUS_ACTIVE,
+                                                          type=PAYMENT_TYPE_AUTHORIZATION)
+            # attempt to cancel the transaction and redirect to the Work page if cancel is successful
+            # here's a place that would be nice to use https://docs.djangoproject.com/en/dev/ref/contrib/messages/
+            # to display the success or failure of the cancel operation as a popup in the context of the work page
+            p = PaymentManager()
+            result = p.cancel_transaction(transaction)
+            # put a notification here for pledge cancellation?
+            if result:
+                # Now if we redirect the user to the Work page and the IPN hasn't arrived, the status of the
+                # transaction might be out of date.  Let's try an explicit polling of the transaction result before redirecting
+                # We might want to remove this in a production system
+                if settings.DEBUG:
+                    update_status = p.update_preapproval(transaction)
+                return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
+            else:
+                logger.error("Attempt to cancel transaction id {0} failed".format(transaction.id))
+                return HttpResponse("Our attempt to cancel your transaction failed. We have logged this error.")
+        except Exception, e:
+            logger.error("Exception from attempt to cancel pledge for campaign id {0} for username {1}: {2}".format(campaign_id, user.username, e))
+            return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
+
+
+class PledgeNeverMindView(TemplateView):
+    """A callback for PayPal to tell unglue.it that a payment transaction has been canceled by the user"""
+    template_name="pledge_nevermind.html"
     
     def get_context_data(self):
-        context = super(PledgeCancelView, self).get_context_data()
+        context = super(PledgeNeverMindView, self).get_context_data()
         
         if self.request.user.is_authenticated():
             user = self.request.user
@@ -1273,29 +1380,26 @@ def edit_user(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('auth_login'))    
     form=UserData()
-    emailform = UserEmail({'email':request.user.email})
-    oldusername=request.user.username
-    oldemail= request.user.email
+    emailform = UserEmail()
     if request.method == 'POST': 
         if 'change_username' in request.POST.keys():
-            # surely there's a better way to add data to the POST data?
-            postcopy=request.POST.copy()
-            postcopy['oldusername']=oldusername 
-            form = UserData(postcopy)
+            form = UserData(request.POST)
+            form.oldusername = request.user.username
             if form.is_valid(): # All validation rules pass, go and change the username
                 request.user.username=form.cleaned_data['username']
                 request.user.save()
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
         elif 'change_email'  in request.POST.keys():
             emailform = UserEmail(request.POST)
+            emailform.oldemail = request.user.email
             if emailform.is_valid():
                 request.user.email=emailform.cleaned_data['email']
                 request.user.save()
                 send_mail_task.delay(
                     'unglue.it email changed', 
-                    render_to_string('registration/email_changed.txt',{'oldemail':oldemail,'request':request}),
+                    render_to_string('registration/email_changed.txt',{'oldemail':emailform.oldemail,'request':request}),
                     None,
-                    [request.user.email,oldemail]
+                    [request.user.email,emailform.oldemail]
                     )
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  
@@ -1372,70 +1476,6 @@ def wishlist(request):
         request.user.wishlist.add_work(work,'user')
         return HttpResponseRedirect('/')
   
-class CampaignFormView(FormView):
-    template_name="campaign_detail.html"
-    form_class = CampaignPledgeForm
-    embedded = False
-    
-    def get_context_data(self, **kwargs):
-        pk = self.kwargs["pk"]
-        campaign = models.Campaign.objects.get(id=int(pk))
-        context = super(CampaignFormView, self).get_context_data(**kwargs)
-        base_url = self.request.build_absolute_uri("/")[:-1]
-        context.update({
-           'embedded': self.embedded,
-           'campaign': campaign,
-           'base_url':base_url
-        })
-        
-        return context
-
-    def form_valid(self,form):
-        pk = self.kwargs["pk"]
-        preapproval_amount = form.cleaned_data["preapproval_amount"]
-        anonymous = form.cleaned_data["anonymous"]
-        
-        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
-        campaign = models.Campaign.objects.get(id=int(pk))
-        
-        p = PaymentManager(embedded=self.embedded)
-                    
-        # we should force login at this point -- or if no account, account creation, login, and return to this spot
-        if self.request.user.is_authenticated():
-            user = self.request.user
-        else:
-            user = None
-            
-        # calculate the work corresponding to the campaign id
-        work_id = campaign.work.id
-        
-        # set the expiry date based on the campaign deadline
-        expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
-        
-        if not self.embedded:
-            
-            return_url = self.request.build_absolute_uri(reverse('work',kwargs={'work_id': str(work_id)}))
-            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
-                            return_url=return_url, anonymous=anonymous)    
-        else:
-            # instant payment:  send to the partnering RH
-            # right now, all money going to Gluejar.  
-            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':preapproval_amount}]
-            
-            #redirect the page back to campaign page on success
-            return_url = self.request.build_absolute_uri(reverse('campaign_by_id',kwargs={'pk': str(pk)}))
-            t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, anonymous=anonymous)
-        
-        if url:
-            logger.info("CampaignFormView paypal: " + url)
-            print >> sys.stderr, "CampaignFormView paypal: ", url
-            return HttpResponseRedirect(url)
-        else:
-            response = t.reference
-            logger.info("CampaignFormView paypal: Error " + str(t.reference))
-            return HttpResponse(response)
-
 class InfoPageView(TemplateView):
     
     def get_template_names(self, **kwargs):

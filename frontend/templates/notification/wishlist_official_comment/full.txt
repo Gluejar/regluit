@@ -1,0 +1,9 @@
+We thought you might like to know that Unglue.it staff or the book's rights holder have news about a book on your wishlist.
+
+{{ comment.user.username }} has commented on {{ comment.content_object.title }}:
+          
+{{ comment.comment }}
+
+To change your email preferences, visit https://unglue.it/notification/settings/
+
+The Unglue.it team

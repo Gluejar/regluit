@@ -5,6 +5,14 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.parameters import *
 from regluit.payment.paypal import IPN_SENDER_STATUS_COMPLETED
+from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
+
+if settings.PAYMENT_PROCESSOR == 'paypal':
+    from regluit.payment.paypal import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
+    from regluit.payment.paypal import Pay as Execute
+    
+elif settings.PAYMENT_PROCESSOR == 'amazon':
+    from regluit.payment.amazon import Pay, Execute, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
 import uuid
 import traceback
 from regluit.utils.localdatetime import now
@@ -511,6 +519,7 @@ class PaymentManager( object ):
             transaction.pay_key = p.key()
             transaction.save()
             logger.info("execute_transaction Success")
+            transaction_charged.send(sender=self, transaction=transaction)
             return True
         
         else:
@@ -556,8 +565,8 @@ class PaymentManager( object ):
             return False
         
     def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None,
-                  return_url=None, cancel_url=None, anonymous=False, premium=None,
-                  paymentReason="unglue.it Pledge"):
+                  return_url=None, nevermind_url=None, anonymous=False, premium=None,
+                  paymentReason="unglue.it Pledge", modification=False):
         '''
         authorize
         
@@ -570,10 +579,11 @@ class PaymentManager( object ):
         list: optional list object(to be set with TARGET_TYPE_LIST)
         user: optional user object
         return_url: url to redirect supporter to after a successful PayPal transaction
-        cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
+        nevermind_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction
         paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
+        modification: whether this authorize call is part of a modification of an existing pledge 
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
@@ -594,13 +604,13 @@ class PaymentManager( object ):
                                        premium=premium
                                        )
         
-        # we might want to not allow for a return_url or cancel_url to be passed in but calculated
+        # we might want to not allow for a return_url or nevermind_url to be passed in but calculated
         # here because we have immediate access to the Transaction object.
         
-        if cancel_url is None:
-            cancel_path = "{0}?{1}".format(reverse('pledge_cancel'), 
+        if nevermind_url is None:
+            nevermind_path = "{0}?{1}".format(reverse('pledge_nevermind'), 
                                 urllib.urlencode({'tid':t.id}))            
-            cancel_url = urlparse.urljoin(settings.BASE_URL, cancel_path)
+            nevermind_url = urlparse.urljoin(settings.BASE_URL, nevermind_path)
             
         if return_url is None:
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
@@ -608,7 +618,7 @@ class PaymentManager( object ):
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
         method = getattr(t.get_payment_class(), "Preapproval")
-        p = method(t, amount, expiry, return_url=return_url, cancel_url=cancel_url, paymentReason=paymentReason) 
+        p = method(t, amount, expiry, return_url=return_url, nevermind_url=nevermind_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
@@ -627,6 +637,19 @@ class PaymentManager( object ):
             url = p.next_url()
                 
             logger.info("Authorize Success: " + url)
+            
+            # modification and initial pledge use different notification templates --
+            # decide which to send
+            # we need to fire notifications at the first point at which we are sure
+            # that the transaction has successfully completed; triggering notifications
+            # when the transaction is initiated risks sending notifications on transactions
+            # that for whatever reason fail.  will need other housekeeping to handle those.
+            # sadly this point is not yet late enough in the process -- needs to be moved
+            # until after we are certain.
+            if modification:
+                pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
+            else:
+                pledge_created.send(sender=self, transaction=t)
             return t, url
     
         
@@ -665,7 +688,7 @@ class PaymentManager( object ):
         return canceled
     
     def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None,
-                           return_url=None, cancel_url=None,
+                           return_url=None, nevermind_url=None,
                            paymentReason=None):
         '''
         modify
@@ -677,7 +700,7 @@ class PaymentManager( object ):
         anonymous:  new anonymous value; if None, then keep old value
         premium: new premium selected; if None, then keep old value
         return_url: the return URL after the preapproval(if needed)
-        cancel_url: the cancel url after the preapproval(if needed)
+        nevermind_url: the cancel url after the preapproval(if needed)
         paymentReason: a memo line that will show up in the Payer's Amazon (and Paypal?) account
         
         return value: True if successful, False otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
@@ -714,21 +737,30 @@ class PaymentManager( object ):
                                     transaction.list, 
                                     transaction.user, 
                                     return_url, 
-                                    cancel_url, 
+                                    nevermind_url, 
                                     transaction.anonymous,
                                     premium,
-                                    paymentReason)
+                                    paymentReason,
+                                    True)
             
             if t and url:
                 # Need to re-direct to approve the transaction
                 logger.info("New authorization needed, redirection to url %s" % url)
+                
                 # Do not cancel the transaction here, wait until we get confirmation that the transaction is complete
                 # then cancel all other active transactions for this campaign
                 #self.cancel_transaction(transaction)    
+
+                # while it would seem to make sense to send a pledge notification change here
+                # if we do, we will also send notifications when we initiate but do not
+                # successfully complete a pledge modification
+
                 return True, url
             else:
                 # a problem in authorize
                 logger.info("Error, unable to start a new authorization")
+                # should we send a pledge_modified signal with state="failed" and a
+                # corresponding notification to the user? that would go here.
                 return False, None
             
         elif amount <= transaction.max_amount:
@@ -739,6 +771,10 @@ class PaymentManager( object ):
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
+            # since modifying pledges downwards happens immediately and only within our
+            # db, we don't have to wait until we hear back from amazon to be assured of
+            # success; send the notification immediately
+            pledge_modified.send(sender=self, transaction=transaction, up_or_down="decreased")
             return True, None
         else:
             # this shouldn't happen
@@ -788,7 +824,7 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, cancel_url=None, anonymous=False, premium=None):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, nevermind_url=None, anonymous=False, premium=None):
         '''
         pledge
         
@@ -807,7 +843,7 @@ class PaymentManager( object ):
         list: optional list object(to be set with TARGET_TYPE_LIST)
         user: optional user object
         return_url: url to redirect supporter to after a successful PayPal transaction
-        cancel_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
+        nevermind_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction        
         
@@ -838,7 +874,7 @@ class PaymentManager( object ):
     
         t.create_receivers(receiver_list)
         method = getattr(t.get_payment_class(), "Pay")
-        p = method(t,return_url=return_url, cancel_url=cancel_url) 
+        p = method(t,return_url=return_url, nevermind_url=nevermind_url) 
         
          # Create a response for this
         envelope = p.envelope()

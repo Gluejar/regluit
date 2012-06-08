@@ -1,6 +1,7 @@
 from os.path import dirname, realpath, join
 import regluit
 import datetime
+from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
@@ -84,6 +85,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
@@ -213,7 +215,6 @@ GOODREADS_API_SECRET = ""
 # unglue.it parameters
 UNGLUEIT_MINIMUM_TARGET = '1000' # in US Dollars
 UNGLUEIT_LONGEST_DEADLINE = '180' # number of days allowed for a campaign
-UNGLUEIT_SHORTEST_DEADLINE = '7' # minimum number of days allowed for a campaign
 UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
 
 TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
@@ -266,3 +267,9 @@ PAYMENT_PROCESSOR = 'amazon'
 
 # a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
 SECRET_KEY = ''
+
+# by default, we are not in maintenance mode -- set True in overriding settings files for maintenance mode
+# http://pypi.python.org/pypi/django-maintenancemode/
+MAINTENANCE_MODE = False
+# Sequence of URL path regexes to exclude from the maintenance mode.
+MAINTENANCE_IGNORE_URLS = {}

@@ -19,8 +19,8 @@
 
 		<ul>
 			<a href="{% url emailshare 'pledge' %}?next={% url work campaign.work.id|urlencode:"" %}"><li>Email it!</li></a>
-			<a href="https://twitter.com/intent/tweet?url=http://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}&text=Help%20me%20give%20{{ campaign.work.title|urlencode }}%20to%20the%20world%20at%20%40unglueit"><li>Tweet it!</li></a>
-			<a href="https://www.facebook.com/sharer.php?u=http://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
+			<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}&text=Help%20me%20give%20{{ campaign.work.title|urlencode }}%20to%20the%20world%20at%20%40unglueit"><li>Tweet it!</li></a>
+			<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
 			<li>Best idea: talk about it with those you love.</li>
 		</ul><br />
 		

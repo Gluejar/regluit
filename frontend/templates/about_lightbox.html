@@ -1,0 +1,26 @@
+<div id="about_expandable">
+ 	<div id="about_collapser" class="collapser_x">X</div>
+    <p>
+        <b>What if you could</b> give a book to everyone on earth?  Get an ebook and read it on any device, in any format, forever? Give an ebook to your library, for them to share?  Own DRM-free ebooks, legally?  Read free ebooks, and know their creators had been fairly paid?
+    </p>
+    <p>
+        At Unglue.it, you can pledge toward creating ebooks that will be legally free, worldwide.  These books have already been traditionally published, but they're stuck: legal restrictions keep you from being able to enjoy and share them.
+    </p>
+    <p>
+        Unglue.it gets them unstuck.  We work with authors and publishers to choose a fair licensing fee.  We raise that fee here through crowdfunding: people like you chipping in.  When campaigns succeed, the rights holders get paid, and they issue a free electronic edition under a <a href="http://creativecommons.org">Creative Commons</a> license.
+    </p>
+    <p>
+        What if you could give your favorite book to the world?
+    </p>
+    <p class="last">
+        What if you could <b>unglue it</b>?
+    </p>
+    <div class="right_border"><a href="{{ faqurl }}">Read the FAQ</a></div>
+    <div class="right_border"><a href="{% url faq_location 'rightsholders' %}">Read the FAQ for authors and publishers</a></div>
+    <div class="right_border"><a href="{% url press %}">Our press coverage</a></div>
+    {% if not user.is_authenticated %}
+    <div class="signuptoday"><a href="{% url registration_register %}">Sign up today</a></div>
+    {% else %}
+    <div class="signuptoday"><a href="{% url campaign_list 'ending' %}">Our campaigns</a></div>
+    {% endif %}
+</div>

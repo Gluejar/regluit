@@ -25,7 +25,7 @@
     <h2>Campaign: {{campaign.name}}</h2>
     <!-- url for work: -->
     <p>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work}}</a></p>
-    <p>Target: {{campaign.target|intcomma}}</p>
+    <p>Target: {{campaign.target|floatformat:0|intcomma}}</p>
     <p>Deadline: {{campaign.deadline}}</p>
     <p>Status: {{campaign.status}}</p>
     <p>ISBN: {{campaign.work.first_isbn_13}} </p>
@@ -33,7 +33,7 @@
     <p>Embed a widget:</p>
     <textarea rows="2" cols="80">&lt;iframe src="{{base_url}}/api/widget/{{campaign.work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;</iframe></textarea>
     <p>PayPal receiver: {{campaign.paypal_receiver}}</p>
-    <p>Current total (pledged/authorized): {{campaign.current_total|intcomma}}</p>
+    <p>Current total (pledged/authorized): {{campaign.current_total|floatformat:0|intcomma}}</p>
     <form method="POST" action="{% url campaign_by_id pk=campaign.id %}"  onsubmit="test()">
         {% csrf_token %}
        {{form.as_p}}

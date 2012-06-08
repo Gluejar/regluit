@@ -7,12 +7,13 @@ from django.conf import settings
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import CampaignFormView, GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, FAQView
+from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, FAQView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
     url(r"^$", "home", name="home"),
+    url(r"^landing/$", "home", {'landing': True}, name="landing"),
     url(r"^next/$", "next", name="next"),
     url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
     url(r"^search/$", "search", name="search"),
@@ -27,10 +28,9 @@ urlpatterns = patterns(
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"),
     url(r"^campaign_admin/$", "campaign_admin", name="campaign_admin"),    
     url(r"^faq/$", FAQView.as_view(), {'location':'faq', 'sublocation':'all'}, name="faq"), 
-    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}), 
+    url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}, name="faq_location"), 
     url(r"^faq/(?P<location>\w*)/(?P<sublocation>\w*)/$", FAQView.as_view()), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
-    url(r"^campaigns/(?P<pk>\d+)/$",CampaignFormView.as_view(), name="campaign_by_id"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
     url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),
@@ -49,8 +49,9 @@ urlpatterns = patterns(
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", "new_edition", name="new_edition"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
-    url(r"^pledge/cancel/$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
+    url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
+    url(r"^pledge/nevermind/$", login_required(PledgeNeverMindView.as_view()), name="pledge_nevermind"),
     url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeModifyView.as_view()), name="pledge_modify"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
@@ -72,7 +73,7 @@ urlpatterns = patterns(
     url(r'^campaign_archive.js/$', "campaign_archive_js", name='campaign_archive_js'),
 )
 
-if not settings.IS_PREVIEW:
+if settings.DEBUG:
     urlpatterns += patterns(
         "regluit.frontend.views",
         url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),

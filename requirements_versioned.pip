@@ -12,7 +12,7 @@ django-debug-toolbar==0.8.5
 django-endless-pagination==1.1
 django-extensions==0.7.1
 django-kombu==0.9.4
-django-merchant==0.0.3a0
+django-maintenancemode==0.10
 django-nose-selenium==0.7.3
 django-notification==0.2
 django-picklefield==0.1.9

@@ -70,6 +70,16 @@ class ApiTests(TestCase):
         self.assertEqual(j['meta']['logged_in_username'], None)
         self.assertEqual(j['objects'][0]['in_wishlist'], False)
 
+    def test_identifier_lookup(self):
+        r = self.client.get('/api/v1/identifier/', data={
+            'format': 'json', 
+            'value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'type': 'isbn', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        self.assertEqual(r.status_code, 200)
+
     def test_logged_in_user_info(self):
         # login and see if adding a work to the users wishlist causes
         # it to show up as in_wishlist in the campaign info

@@ -214,14 +214,14 @@
   list-style: none;
   border: none;
 }
-#user-block-hide {
+.learnmore_block {
   float: left;
   width: 100%;
   clear: both;
   border-top: solid 1px #8ac3d7;
   margin-top: 20px;
 }
-#user-block-hide .quicktour {
+.learnmore_block .quicktour {
   width: 270px;
   float: left;
   font-style: italic;
@@ -229,23 +229,24 @@
   font-size: 13px;
   margin-top: 20px;
 }
-#user-block-hide .quicktour .highlight {
+.learnmore_block .quicktour .highlight {
   font-weight: bold;
 }
-#user-block-hide .quicktour.last {
+.learnmore_block .quicktour.last {
   padding-right: 0px;
   width: 270px;
 }
-#user-block-hide .quicktour.last .signup {
+.learnmore_block .quicktour.last .signup {
   color: #8dc63f;
   font-weight: bold;
   margin-top: 10px;
 }
-#user-block-hide .quicktour.last .signup img {
+.learnmore_block .quicktour.last .signup img {
   margin-left: 5px;
   vertical-align: middle;
+  margin-bottom: 3px;
 }
-#user-block-hide .movingrightalong {
+.learnmore_block .movingrightalong {
   background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
   height: 100px;
   width: 75px;
@@ -260,33 +261,6 @@
 #block-intro-text div#active {
   display: inherit;
 }
-.signuptoday {
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  background-color: #8dc63f;
-  padding: 0 15px;
-  height: 36px;
-  line-height: 36px;
-  height: 36px;
-  line-height: 36px;
-  float: left;
-  clear: both;
-  margin: 10px auto;
-  cursor: pointer;
-  font-style: normal;
-}
-.signuptoday a {
-  background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
-  padding-right: 17px;
-  color: white;
-}
-.signuptoday a:hover {
-  text-decoration: none;
-}
 body {
   font-size: 13px;
   line-height: 16px;
@@ -296,7 +270,8 @@ body {
   width: 100%;
   clear: both;
 }
-#user-block1, .user-block2 {
+#user-block1,
+.user-block2 {
   float: left;
 }
 #user-block1 {
@@ -439,10 +414,12 @@ dd {
 .collapse ul {
   display: none;
 }
-.faq, .answer {
+.faq,
+.answer {
   text-transform: none !important;
 }
-.faq a, .answer a {
+.faq a,
+.answer a {
   color: #6994a3;
 }
 .faq {
@@ -487,7 +464,8 @@ dd {
   border-bottom: solid 1px #3d4e53;
   float: left;
 }
-.pressvideos iframe, .pressvideos div.mediaborder {
+.pressvideos iframe,
+.pressvideos div.mediaborder {
   padding: 5px;
   border: solid 5px #EDF3F4;
   padding: 5px;
@@ -573,7 +551,8 @@ h2.thank-you {
   color: #8dc63f;
   line-height: 40px;
 }
-.pledge_complete, .pledge_complete a {
+.pledge_complete,
+.pledge_complete a {
   font-size: 14px;
   line-height: 17px;
   margin-bottom: 14px;

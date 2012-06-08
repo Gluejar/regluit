@@ -153,7 +153,7 @@ Please fix the following before launching your campaign:
 	{% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>Target Price</h3>
 	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target|intcomma}} .</p>
-	{{ form.target.errors }}{{ form.target }}
+	{{ form.target.errors }}${{ form.target }}
 	<h3>License being offered</h3>
 	<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
 	{{ form.license.errors }}{{ form.license }}
@@ -169,8 +169,9 @@ Please fix the following before launching your campaign:
 	${{ form.target.errors }}{{ form.target }}
 
 	<h3>License being offered</h3>
-	<p>If your campaign succeeds, you will be offering your ebook under a <b>{{ campaign.license }}</b> license.</p>
-	{{ form.license.errors }}<span style="display: none">{{ form.license }}</span>
+	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
+	<p>During a campaign, you may only change the license to remove restrictions. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
+	{{ form.license.errors }}<span>{{ form.license }}</span>
 	<h3>Ending date</h3>
 	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
 	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
@@ -220,7 +221,7 @@ Please fix the following before launching your campaign:
 	<h4>Add a custom premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
-	Pledge Amount: {{ premium_form.amount.errors }}{{ premium_form.amount }}<br />
+	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
 	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
 	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
 	{{ premium_form.campaign }}

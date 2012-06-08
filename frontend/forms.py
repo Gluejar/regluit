@@ -130,6 +130,16 @@ class UserEmail(forms.Form):
         max_length=100,
         error_messages={'required': 'Please enter an email address.'},
         )
+    oldemail = None
+    
+    def clean_email(self):
+        email = self.data["email"]
+        if email != self.oldemail:
+            users = User.objects.filter(email__iexact=email)
+            for user in users:
+                raise forms.ValidationError(_("Another user with that email already exists."))
+            return email
+        raise forms.ValidationError(_("Your email is already "+ email))
     
 class UserData(forms.Form):
     username = forms.RegexField(
@@ -141,18 +151,17 @@ class UserData(forms.Form):
             'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
         }
     )
+    oldusername = None
 
 
     def clean_username(self):
         username = self.data["username"]
-        oldusername = self.data["oldusername"]
-        if username != oldusername:
-            try:
-                User.objects.get(username__iexact=username)
-            except User.DoesNotExist:
-                return username
-            raise forms.ValidationError(_("Another user with that username already exists."))
-        raise forms.ValidationError(_("Your username is already "+oldusername))
+        if username != self.oldusername:
+            users = User.objects.filter(username__iexact=username)
+            for user in users:
+                raise forms.ValidationError(_("Another user with that username already exists."))
+            return username
+        raise forms.ValidationError(_("Your username is already "+username))
 
 class OpenCampaignForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(
@@ -233,15 +242,29 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                     raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
             if new_deadline - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
                 raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-            elif new_deadline - now() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
-                raise forms.ValidationError(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
+            elif new_deadline - now() < timedelta(days=0):         
+                raise forms.ValidationError(_('The chosen closing date is in the past'))
             return new_deadline
             
         def clean_license(self):
             new_license = self.cleaned_data['license']
             if self.instance:
                 if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
-                    raise forms.ValidationError(_('The license for an ACTIVE campaign cannot be changed.'))
+                    # should only allow change to a less restrictive license
+                    if self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-NC']:
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license == 'CC BY' and new_license != 'CC0':
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license == 'CC BY-NC' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-SA','CC BY-ND']:
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-SA','CC BY-NC']:
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license == 'CC BY-SA' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-ND','CC BY-NC']:
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license == 'CC BY-NC-SA' and new_license in ['CC BY-NC-ND','CC BY-ND']:
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license == 'CC0' :
+                        raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
             return new_license
     return ManageCampaignForm(instance = instance, data=data)
 
@@ -313,9 +336,14 @@ class GoodreadsShelfLoadingForm(forms.Form):
 
 class LibraryThingForm(forms.Form):
     lt_username = forms.CharField(max_length=30, required=True)
-    
+
+class PledgeCancelForm(forms.Form):
+    # which campaign whose active transaction to cancel?
+    campaign_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
+
+
 class CampaignAdminForm(forms.Form):
-    pass
+    campaign_id = forms.IntegerField()
     
 class EmailShareForm(forms.Form):
     recipient = forms.EmailField(error_messages={'required': 'Please specify a recipient.'})

@@ -64,11 +64,11 @@ $j(document).ready(function(){
                 {% else %}{% if work.last_campaign and not is_preview %}
                     {% if status == 'ACTIVE' %}
                             Unglue it! <br />
-                            ${{ work.last_campaign.current_total|intcomma }}/${{ work.last_campaign.target|intcomma }} <br />
+                            ${{ work.last_campaign.current_total|floatformat:0|intcomma }}/${{ work.last_campaign.target|floatformat:0|intcomma }} <br />
                             Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
-                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total|intcomma }} raised of ${{ work.last_campaign.target|intcomma }} goal
+                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total|floatformat:0|intcomma }} raised of ${{ work.last_campaign.target|floatformat:0|intcomma }} goal
                         {% else %}{% if status == 'INITIALIZED' %}
                             Campaign starting soon
                         {% else %}{% if status == 'SUSPENDED' %}
@@ -96,7 +96,6 @@ $j(document).ready(function(){
 					You can too!
                 {% endif %}{% endif %}
                     </span>
-                    <span class="spacer">&nbsp;<br />&nbsp;</span>
                 </div>
             </div>
             {% include "explore.html" %}
@@ -185,7 +184,7 @@ $j(document).ready(function(){
                             {% else %} 
                                 {{ work.last_campaign.supporters.count }} Ungluers have 
                             {% endif %}
-                            pledged ${{ work.last_campaign.current_total|intcomma }}<br />toward a ${{ work.last_campaign.target|intcomma }} goal 
+                            pledged ${{ work.last_campaign.current_total|floatformat:0|intcomma }}<br />toward a ${{ work.last_campaign.target|floatformat:0|intcomma }} goal 
                         {% else %}
                             {% if wishers == 1 %}
                                 1 Ungluer has
@@ -194,7 +193,7 @@ $j(document).ready(function(){
                             {% endif %} wished for this Work
                         {% endif %}{% endif %}
                         </div>
-                        <div class="status"><img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png"  title="book list status" alt="book list status" /></div>
+                        <div class="status">{% if status == 'ACTIVE' %}{{ work.percent_of_goal }}%&nbsp;{% endif %}<img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png"  title="book list status" alt="book list status" /></div>
                         </div>
                         <div class="btn_wishlist" id="wishlist_actions">
                             {% if request.user.is_anonymous %}
@@ -220,10 +219,10 @@ $j(document).ready(function(){
                 {% get_comment_count for work as comment_count %}
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Ungluers {% if wishers > 0 %}({{ wishers }}){% endif %}</a></li>
-                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
+                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#"><div>{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</div></a></li>
+                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#"><div>Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</div></a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#"><div>Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</div></a></li>
+                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#"><div>Rights</div></a></li>
                     </ul>
                         
                 </div>
@@ -278,10 +277,10 @@ $j(document).ready(function(){
                             {{ claim.rights_holder.rights_holder_name }}
                             {% endif %} 
                         {% endfor %}
-                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook ({{ work.last_campaign.license }}) if ungluers can join together to raise ${{ work.last_campaign.target|intcomma }} by {{ work.last_campaign.deadline }}.
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
                         You can help!</p>
 
-                        <h4>Last campaign details</h4>
+                        <h4>Campaign details: the fine print</h4>
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
  
@@ -398,7 +397,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
+								<span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Pledged!</div>{% endif %}
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>
@@ -409,7 +408,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
+								<span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>

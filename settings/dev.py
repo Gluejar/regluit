@@ -135,6 +135,9 @@ LIVE_SERVER_TEST_URL = "http://127.0.0.1:8000"
 UNGLUEIT_TEST_USER = None
 UNGLUEIT_TEST_PASSWORD = None
 
+# local settings for maintenance mode
+MAINTENANCE_MODE = False
+
 # decide which of the period tasks to add to the schedule
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB

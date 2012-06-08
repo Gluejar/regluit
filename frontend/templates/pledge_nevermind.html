@@ -1,0 +1,22 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}Pledge Cancelled{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+{% endblock %}
+
+{% block doccontent %}
+
+{% if transaction %}
+    <div>You were about to pledge ${{transaction.amount}} to <a href="{% url work work.id %}">{{work.title}}</a> but hit the cancel link.
+    Naturally, we won't be charging your PayPal account for this campaign unless you give permission.</div>
+    <div>However, the campaign can definitely make use of your pledge -- so won't you reconsider?</div>
+    <div>You <a href="{{try_again_url}}">can finish the pledge transaction</a>.</div>
+
+{% else %}
+    <div>We're sorry; we can't figure out which transaction you're talking about.  If you meant to cancel a pledge, please go to the book's page and hit the Modify link.</div>
+{% endif %}
+        
+{% endblock %}

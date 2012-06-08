@@ -90,11 +90,12 @@
   list-style: none;
   border: none;
 }
-#content-block .jsmod-content, .book-detail {
+#content-block .jsmod-content,
+.book-detail {
   float: left;
   width: auto;
 }
-#pledgesubmit {
+input[type="submit"] {
   float: right;
   font-size: 17px;
   margin: 10px;
@@ -116,7 +117,8 @@ form.pledgeform {
   line-height: 30px;
   font-size: 16px;
 }
-ul.support li, ul.support li:hover {
+ul.support li,
+ul.support li:hover {
   background-image: none;
 }
 p {
@@ -139,4 +141,19 @@ p {
 }
 .modify_notification h4 {
   margin: 0 0 5px 0;
+}
+.cancel_notice {
+  width: 470px;
+  padding: 5px;
+  margin-top: 10px;
+}
+#fakepledgesubmit {
+  background-color: #e35351;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 17px;
+  display: none;
+}
+span.menu-item-price {
+  float: none !important;
 }

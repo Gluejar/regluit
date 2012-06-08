@@ -1,1 +1,1 @@
-Thank you for supporting {{ work.title }} at Unglue.it!
+Thank you for supporting {{ transaction.campaign.work.title }} at Unglue.it!

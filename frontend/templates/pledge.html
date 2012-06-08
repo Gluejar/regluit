@@ -7,13 +7,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
 
-<script type="text/javascript">
-var $j = jQuery.noConflict();
-//give pledge box focus
-$j(function() {
-  $j('#id_preapproval_amount').focus();
-});
-</script>
+<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
 {% endblock %}
 
 {% block doccontent %}
@@ -36,7 +30,7 @@ $j(function() {
 
 		<div class="jsmodule rounded pledge">
 			<div class="jsmod-content">
-				${{ work.last_campaign.target|intcomma }} needed by<br />
+				${{ work.last_campaign.target|floatformat:0|intcomma }} needed by<br />
 				{{ work.last_campaign.deadline }}
 			</div>
 		</div>
@@ -59,7 +53,7 @@ $j(function() {
 	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
 		<div>
 		Amount: ${{preapproval_amount|intcomma}}.<br />
-		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br/>
+		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
 		</div>
 	<br /> You can modify your pledge below.
 	</div>
@@ -86,7 +80,7 @@ $j(function() {
             	{% if premium_item.limit == 0  or  premium_item.limit > premium_item.premium_count  %}
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
             	<label for="premium_{{premium_item.id}}">
-                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %}/>
+                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %} />
                     <span class="menu-item-price">
                     	${{ premium_item.amount|intcomma }}
                     </span>
@@ -98,11 +92,17 @@ $j(function() {
             	{% endfor %}
          	</ul>
 
-	       <input type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />    
-    	</form>
+	       <input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
+	       <input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
+	       {% comment %}
+	       When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
+	       {% endcomment %}
+    	</form>    	
     </div>
 </div>
-{% if faqmenu == 'modify' %}<div class="spacer"></div><div>We hope you won't, but of course you're also free to <a href="{% url pledge_cancel %}?tid={{ tid }}">cancel your pledge</a>.</div>{% endif %}
+<div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
+{% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
+
 {% endblock %}
 
 

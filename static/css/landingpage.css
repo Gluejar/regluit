@@ -214,14 +214,14 @@
   list-style: none;
   border: none;
 }
-#user-block-hide {
+.learnmore_block {
   float: left;
   width: 100%;
   clear: both;
   border-top: solid 1px #8ac3d7;
   margin-top: 20px;
 }
-#user-block-hide .quicktour {
+.learnmore_block .quicktour {
   width: 270px;
   float: left;
   font-style: italic;
@@ -229,23 +229,24 @@
   font-size: 13px;
   margin-top: 20px;
 }
-#user-block-hide .quicktour .highlight {
+.learnmore_block .quicktour .highlight {
   font-weight: bold;
 }
-#user-block-hide .quicktour.last {
+.learnmore_block .quicktour.last {
   padding-right: 0px;
   width: 270px;
 }
-#user-block-hide .quicktour.last .signup {
+.learnmore_block .quicktour.last .signup {
   color: #8dc63f;
   font-weight: bold;
   margin-top: 10px;
 }
-#user-block-hide .quicktour.last .signup img {
+.learnmore_block .quicktour.last .signup img {
   margin-left: 5px;
   vertical-align: middle;
+  margin-bottom: 3px;
 }
-#user-block-hide .movingrightalong {
+.learnmore_block .movingrightalong {
   background: url("/static/images/landingpage/quicktour-arrow.png") no-repeat center;
   height: 100px;
   width: 75px;
@@ -259,33 +260,6 @@
 }
 #block-intro-text div#active {
   display: inherit;
-}
-.signuptoday {
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  background-color: #8dc63f;
-  padding: 0 15px;
-  height: 36px;
-  line-height: 36px;
-  height: 36px;
-  line-height: 36px;
-  float: left;
-  clear: both;
-  margin: 10px auto;
-  cursor: pointer;
-  font-style: normal;
-}
-.signuptoday a {
-  background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
-  padding-right: 17px;
-  color: white;
-}
-.signuptoday a:hover {
-  text-decoration: none;
 }
 #expandable {
   display: none;
@@ -319,7 +293,8 @@
   width: 100%;
   clear: both;
 }
-#user-block1, .user-block2 {
+#user-block1,
+.user-block2 {
   float: left;
 }
 #user-block1 {
@@ -353,36 +328,13 @@
   color: #3d4e53;
   padding-right: 15px;
 }
-#collapser {
-  float: right;
-  height: 24px;
-  line-height: 24px;
-  height: 24px;
-  line-height: 24px;
-  width: 24px;
-  -moz-border-radius: 24px;
-  -webkit-border-radius: 24px;
-  border-radius: 24px;
-  -moz-border-radius: 24px;
-  -webkit-border-radius: 24px;
-  border-radius: 24px;
-  -moz-box-shadow: -1px 1px #3d4e53;
-  -webkit-box-shadow: -1px 1px #3d4e53;
-  box-shadow: -1px 1px #3d4e53;
-  border: solid 3px white;
-  text-align: center;
-  color: white;
-  background: #3d4e53;
-  font-size: 17px;
-  z-index: 5000;
-  margin-top: -12px;
-  margin-right: -22px;
-}
-#js-rightcol, #js-rightcol2 {
+#js-rightcol,
+#js-rightcol2 {
   float: right;
   width: 230px;
 }
-#js-rightcol .jsmodule, #js-rightcol2 .jsmodule {
+#js-rightcol .jsmodule,
+#js-rightcol2 .jsmodule {
   float: left;
   width: 208px;
   background: #edf3f4;
@@ -396,11 +348,13 @@
   margin-bottom: 10px;
   padding: 0 10px 10px 10px;
 }
-#js-rightcol .jsmodule.last, #js-rightcol2 .jsmodule.last {
+#js-rightcol .jsmodule.last,
+#js-rightcol2 .jsmodule.last {
   border-bottom: none;
   padding-bottom: 10px;
 }
-#js-rightcol .jsmodule input, #js-rightcol2 .jsmodule input {
+#js-rightcol .jsmodule input,
+#js-rightcol2 .jsmodule input {
   -moz-border-radius: 32px;
   -webkit-border-radius: 32px;
   border-radius: 32px;
@@ -416,7 +370,8 @@
   outline: none;
   padding-left: 16px;
 }
-#js-rightcol .jsmodule input.signup, #js-rightcol2 .jsmodule input.signup {
+#js-rightcol .jsmodule input.signup,
+#js-rightcol2 .jsmodule input.signup {
   background: url("/static/images/landingpage/button.png") no-repeat 0 0;
   border: medium none;
   color: #FFF;
@@ -428,10 +383,12 @@
   padding: 0 31px 0 11px;
   width: 111px;
 }
-#js-rightcol div.button, #js-rightcol2 div.button {
+#js-rightcol div.button,
+#js-rightcol2 div.button {
   padding-top: 10px;
 }
-#js-rightcol label, #js-rightcol2 label {
+#js-rightcol label,
+#js-rightcol2 label {
   width: 100%;
   display: block;
   clear: both;

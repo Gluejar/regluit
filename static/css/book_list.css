@@ -160,13 +160,15 @@ div.book-list.listview div.create-account span {
   text-transform: none;
   padding-left: 20px;
 }
-div.book-list.listview div.add-wishlist span, div.book-list.listview div.create-account span {
+div.book-list.listview div.add-wishlist span,
+div.book-list.listview div.create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
 }
 div.book-list.listview div.remove-wishlist span {
   background: url("/static/images/booklist/remove-wishlist-blue.png") left center no-repeat;
 }
-div.book-list.listview div.on-wishlist > span, div.book-list.listview div > span.on-wishlist {
+div.book-list.listview div.on-wishlist > span,
+div.book-list.listview div > span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
 div.book-list.listview div.booklist-status {
@@ -174,7 +176,8 @@ div.book-list.listview div.booklist-status {
   margin-right: 7px;
   float: left;
 }
-div.add-wishlist, div.remove-wishlist {
+div.add-wishlist,
+div.remove-wishlist {
   cursor: pointer;
 }
 .booklist-status.listview span.booklist-status-label {
@@ -263,7 +266,8 @@ ul.navigation li.arrow-r a {
   display: block;
   text-indent: -10000px;
 }
-ul.navigation li a:hover, ul.navigation li.active a {
+ul.navigation li a:hover,
+ul.navigation li.active a {
   color: #8ac3d7;
   text-decoration: underline;
 }
@@ -315,7 +319,8 @@ ul.navigation li a:hover, ul.navigation li.active a {
 div#content-block-content {
   padding-bottom: 100px;
 }
-.listview.panelback, .listview.panelback div {
+.listview.panelback,
+.listview.panelback div {
   display: none;
 }
 .listview.boolist-ebook a {

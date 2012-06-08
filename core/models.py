@@ -17,6 +17,8 @@ import regluit
 import regluit.core.isbn
 import binascii
 
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE
+
 class UnglueitError(RuntimeError):
     pass
 
@@ -109,9 +111,10 @@ class CampaignAction(models.Model):
     type = models.CharField(max_length=15)
     comment = models.TextField(null=True, blank=True)
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
-    
-class Campaign(models.Model):
-    LICENSE_CHOICES = (('CC BY-NC-ND','CC BY-NC-ND'), 
+
+class CCLicense():
+    CCCHOICES = ( 
+            ('CC BY-NC-ND','CC BY-NC-ND'), 
             ('CC BY-ND','CC BY-ND'), 
             ('CC BY','CC BY'), 
             ('CC BY-NC','CC BY-NC'),
@@ -119,6 +122,53 @@ class Campaign(models.Model):
             ( 'CC BY-SA','CC BY-SA'),
             ( 'CC0','CC0'),
         )
+    CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
+    
+    @classmethod
+    def url(klass, license):
+        if license == 'PD-US':
+            return 'http://creativecommons.org/publicdomain/mark/1.0/'
+        elif license == 'CC0':
+            return 'http://creativecommons.org/publicdomain/zero/1.0/'
+        elif license == 'CC BY':
+            return 'http://creativecommons.org/licenses/by/3.0/'
+        elif license == 'CC BY-NC-ND':
+            return 'http://creativecommons.org/licenses/by-nc-nd/3.0/'
+        elif license == 'CC BY-NC-SA':
+            return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'
+        elif license == 'CC BY-NC':
+            return 'http://creativecommons.org/licenses/by-nc/3.0/'
+        elif license == 'CC BY-SA':
+            return 'http://creativecommons.org/licenses/by-sa/3.0/'
+        elif license == 'CC BY-ND':
+            return 'http://creativecommons.org/licenses/by-nd/3.0/'
+        else:
+            return ''
+    
+    @classmethod
+    def badge(klass,license):
+        if license == 'PD-US':
+            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
+        elif license == 'CC0':
+            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
+        elif license == 'CC BY':
+            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
+        elif license == 'CC BY-NC-ND':
+            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
+        elif license == 'CC BY-NC-SA':
+            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
+        elif license == 'CC BY-NC':
+            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
+        elif license == 'CC BY-SA':
+            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
+        elif license == 'CC BY-ND':
+            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
+        else:
+            return ''
+
+    
+class Campaign(models.Model):
+    LICENSE_CHOICES = CCLicense.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = models.TextField(null=True, blank=False)
@@ -158,8 +208,8 @@ class Campaign(models.Model):
         if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             may_launch = False  
-        elif self.deadline.date()- date_today() < timedelta(days=int(settings.UNGLUEIT_SHORTEST_DEADLINE)):         
-            self.problems.append(_('The chosen closing date is less than %s days from now' % settings.UNGLUEIT_SHORTEST_DEADLINE))
+        elif self.deadline.date()- date_today() < timedelta(days=0):         
+            self.problems.append(_('The chosen closing date is in the past'))
             may_launch = False  
         return may_launch
 
@@ -251,7 +301,7 @@ class Campaign(models.Model):
        
     def supporters(self):
         """nb: returns (distinct) supporter IDs, not supporter objects"""
-        translist = self.transactions().values_list('user', flat=True).distinct()
+        translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
         return translist
 
     def effective_premiums(self):
@@ -267,13 +317,22 @@ class Campaign(models.Model):
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-			if self.status=='ACTIVE' or self.status=='INITIALIZED':
-				q = Q(status='ACTIVE') | Q(status='INITIALIZED')
-				rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
-				return rh
+            if self.status=='ACTIVE' or self.status=='INITIALIZED':
+                q = Q(status='ACTIVE') | Q(status='INITIALIZED')
+                rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
+                return rh
         except:
             pass
         return ''
+    
+    @property
+    def license_url(self):
+        return CCLicense.url(self.license)
+
+    @property
+    def license_badge(self):
+        return CCLicense.badge(self.license)
+    
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -416,7 +475,7 @@ class Work(models.Model):
         status = 0
         if self.last_campaign() is not None:
             if(self.last_campaign_status() == 'SUCCESSFUL'):
-                status = 6;
+                status = 6
             elif(self.last_campaign_status() == 'ACTIVE'):
                 target = float(self.campaigns.order_by('-created')[0].target)
                 if target <= 0:
@@ -427,27 +486,19 @@ class Work(models.Model):
                     if percent >= 6:
                         status = 6
                     else:
-                        status = percent;
-        return status;
+                        status = percent
+        return status
 
-    def percent_unglued_number(self):
-        status = 0
-        if self.last_campaign() is not None:
-            if(self.last_campaign_status() == 'SUCCESSFUL'):
-                status = 100;
-            elif(self.last_campaign_status() == 'ACTIVE'):
-                target = float(self.campaigns.order_by('-created')[0].target)
-                if target <= 0:
-                    status = 100
-                else:
-                    total = float(self.campaigns.order_by('-created')[0].current_total)
-                    percent = int(total*100/target)
-                    if percent >= 100:
-                        status = 100
-                    else:
-                        status = percent;
-        return status;
-    
+    def percent_of_goal(self):
+        percent = 0
+        campaign = self.last_campaign()
+        if campaign is not None:
+            if(campaign.status == 'SUCCESSFUL' or campaign.status == 'ACTIVE'):
+                target = campaign.target
+                total = campaign.current_total
+                percent = int(total/target*100)
+        return percent
+
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
     
@@ -616,15 +667,7 @@ class WasWork(models.Model):
     
 class Ebook(models.Model):
     FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
-    RIGHTS_CHOICES = (('PD-US', 'Public Domain, US'), 
-            ('CC BY-NC-ND','CC BY-NC-ND'), 
-            ('CC BY-ND','CC BY-ND'), 
-            ('CC BY','CC BY'), 
-            ('CC BY-NC','CC BY-NC'),
-            ( 'CC BY-NC-SA','CC BY-NC-SA'),
-            ( 'CC BY-SA','CC BY-SA'),
-            ( 'CC0','CC0'),
-        )
+    RIGHTS_CHOICES = CCLicense.CHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
@@ -641,27 +684,9 @@ class Ebook(models.Model):
         
     @property
     def rights_badge(self):
-        my_rights=self.rights
-        if not my_rights:
-            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
-        if my_rights == 'PD-US':
-            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
-        elif my_rights == 'CC0':
-            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
-        elif my_rights == 'CC BY':
-            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
-        elif my_rights == 'CC BY-NC-ND':
-            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
-        elif my_rights == 'CC BY-NC-SA':
-            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
-        elif my_rights == 'CC BY-NC':
-            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
-        elif my_rights == 'CC BY-SA':
-            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
-        elif my_rights == 'CC BY-ND':
-            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
-        else:
-            return ''
+        if self.rights is None :
+            return CCLicense.badge('PD-US')
+        return CCLicense.badge(self.rights)
     
     @classmethod
     def infer_provider(klass, url):
@@ -737,8 +762,9 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
 
-
-from regluit.core import signals
+# this was causing a circular import problem and we do not seem to be using
+# anything from regluit.core.signals after this line
+# from regluit.core import signals
 from regluit.payment.manager import PaymentManager
 
 from social_auth.signals import pre_update

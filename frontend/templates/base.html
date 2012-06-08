@@ -8,6 +8,7 @@
 {% url about as abouturl %}
 {% url press as pressurl %}
 {% url rh_admin as adminurl %}
+{% url landing as landingurl %}
 {% url new_edition '' '' as editionurl %}
 {% load truncatechars %}
 
@@ -21,6 +22,7 @@
 	{% block base_js %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     {% endblock %}
+	<script type="text/javascript" src="/static/js/expand_about.js"></script>
     {% block extra_js %}
     {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
@@ -34,11 +36,14 @@
 <div id="feedback">
 <p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
+
+{% include "about_lightbox.html" %}
+
 <div id="js-page-wrap">
     <div id="js-header">
         <div class="js-main">
             <div class="js-logo">
-                <a href="/"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
+                <a href="{{ landingurl }}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
             {% if not suppress_search_box %}
             <div class="js-search">
@@ -68,8 +73,8 @@
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
                     <li><a href="{{ faqurl }}"><span>FAQs</span></a></li>   
-                    <li><a href="{{ pressurl }}"><span>Press</span></a></li>   
-                    <li><a href="/"><span>Home</span></a></li>   
+                    <li id="about_expander"><a href="#"><span>About</span></a></li>   
+                    <li><a href="{{ landingurl }}"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
                     {% endif %}
@@ -80,7 +85,11 @@
 
 {% if is_preview %}
 <div class="preview_top">
-Welcome to the almost-beta version of Unglue.it.  Want to help us with a test campaign?  <a href="https://unglue.it/work/82028/">Here it is.</a>  Please try to break it, and then send us <a href="/feedback">feedback</a>.  Thank you!  Real campaigns coming Thursday at noon.  See you then.
+Welcome to the almost-beta version of Unglue.it.  Thanks to everyone who helped us with <a href="https://unglue.it/work/82028/">our test campaign.</a>  Real campaigns coming Thursday at noon EDT.  See you then.
+</div>
+{% else %}
+<div class="launch_top">
+Unglue.it has launched!  Please consider supporting our <a href="/campaigns/ending#2">five active campaigns</a>.
 </div>
 {% endif %}
     {% block topsection %}{% endblock %}
@@ -91,7 +100,7 @@ Welcome to the almost-beta version of Unglue.it.  Want to help us with a test ca
     <div class="column">
         <span>About Unglue.it</span>
         <ul>
-        <li><a href="{{ abouturl }}">About</a></li>
+        <li><a href="{{ abouturl }}">Team</a></li>
         <li><a href="http://blog.unglue.it">Blog</a></li>
         <li><a href="{{ pressurl }}">Press</a></li>
         <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>

@@ -1,8 +1,9 @@
-{% with campaign.work.title as title %}
+{% load humanize %}
+{% with transaction.campaign.work.title as title %}
 <div class="comments clearfix">
 	<div class="comments_info clearfix">
 		<div class="comments_book">
-			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 		</div>
 		<div class="comments_graphical">
 			Your pledge for the campaign to unglue {{ title }} has been modified.
@@ -11,8 +12,8 @@
 	
 	<div class="comments_textual">
 		Your new pledge is as follows:<br />
-		Amount: ${{ amount }}<br />
-		Premium: {{ premium.description }}<br />
+		Amount: ${{ transaction.amount|intcomma }}<br />
+		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
 		Thank you for your continued support of {{ title }}.
 	</div>
 </div>

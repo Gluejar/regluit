@@ -171,11 +171,11 @@ class BookLoaderTests(TestCase):
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
         user.wishlist.add_work(e1.work, 'test')
         user.wishlist.add_work(e2.work, 'test')
-
+        manager = User.objects.create_user('manager', 'manager@example.com', 'managerpass')
         # create campaigns for the stub works 
         c1 = models.Campaign.objects.create(
             name=e1.work.title,
-            work=e2.work, 
+            work=e1.work, 
             description='Test Campaign 1',
             deadline=now(),
             target=D('1000.00'),
@@ -187,7 +187,9 @@ class BookLoaderTests(TestCase):
             deadline=now(),
             target=D('1000.00'),
         )
-        
+        c2.managers.add(manager)
+        c2.save()
+        self.assertEqual(c2.pk, e2.work.last_campaign().pk)
         # comment on the works
         site = Site.objects.all()[0]
         wct = ContentType.objects.get_for_model(models.Work)
@@ -207,6 +209,15 @@ class BookLoaderTests(TestCase):
             site=site
         )
         comment2.save()
+        comment3 = Comment(
+            content_type=wct,
+            object_pk=e2.work.pk,
+            comment="test comment3",
+            user=manager, 
+            site=site
+        )
+        comment3.save()
+        
         
         # now add related edition to make sure Works get merged
         bookloader.add_related('0385722133')
@@ -214,10 +225,12 @@ class BookLoaderTests(TestCase):
         w3 = models.Edition.get_by_isbn('0385722133').work
         
         # and that relevant Campaigns and Wishlists are updated
-        
+        c1=Campaign.objects.get(pk=c1.pk)
+        c2=Campaign.objects.get(pk=c2.pk)
+
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
-        self.assertEqual(Comment.objects.for_model(w3).count(), 2)
+        self.assertEqual(Comment.objects.for_model(w3).count(), 3)
         
         anon_client = Client()
         r = anon_client.get("/work/%s/" % w3.pk)
@@ -350,7 +363,11 @@ class CampaignTests(TestCase):
         w = Work()
         w.save()
         c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1), work=w)
+        c.license = 'CC BY-NC'
         c.save()
+        self.assertEqual(c.license_url, 'http://creativecommons.org/licenses/by-nc/3.0/')
+        self.assertEqual(c.license_badge, 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png')
+        
 
     def test_campaign_status(self):
         
@@ -412,8 +429,26 @@ class CampaignTests(TestCase):
         c5 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c5.save()
         c5.activate().withdraw('testing')
-        self.assertEqual(c5.status, 'WITHDRAWN')        
+        self.assertEqual(c5.status, 'WITHDRAWN')     
 
+        # testing percent-of-goal
+        w2 = Work()
+        w2.save()
+        c6 = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=1),work=w2)
+        c6.save()
+        cl = Claim(rights_holder = rh, work = w2, user = u, status = 'active')
+        cl.save()
+        c6.activate()
+        t = Transaction()
+        t.amount = D('234.00')
+        t.type = PAYMENT_TYPE_AUTHORIZATION
+        t.status = 'ACTIVE'
+        t.approved = True
+        t.campaign = c6
+        t.user = user
+        t.save()
+        print w2.percent_of_goal()
+        self.assertEqual(w2.percent_of_goal(), 23)
 
 class WishlistTest(TestCase):
 

@@ -1,6 +1,14 @@
 {% extends "registration/registration_base.html" %}
 {% block title %}Activation email sent{% endblock %}
 {% block doccontent %}
+{% if not user.is_authenticated %}
+
 An activation email has been sent.  Please check your email and click on the link to activate your account.
+{% else %}
+<div>
+You are logged in as <a href="/supporter/{{user.username}}">{{ request.user.username }}</a>.
+</div>
+{% endif %}
+
 {% endblock %}
 
