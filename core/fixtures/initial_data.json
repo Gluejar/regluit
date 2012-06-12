@@ -57,7 +57,7 @@
       "campaign": null, 
       "amount": 25, 
       "type": "00", 
-      "description": "Your name under \"supporters\" in the acknowledgements section.",
+      "description": "Your username under \"supporters\" in the acknowledgements section.",
       "created": "2011-11-17 22:03:37"
     }
   }, 
@@ -68,7 +68,7 @@
       "campaign": null, 
       "amount": 50, 
       "type": "00", 
-      "description": "Your name and profile URL of your choice under \"benefactors\"",
+      "description": "Your username and profile URL of your choice under \"benefactors\"",
       "created": "2011-11-17 22:03:37"
     }
   }, 
@@ -79,7 +79,7 @@
       "campaign": null, 
       "amount": 100, 
       "type": "00", 
-      "description": "Your name, profile URL, and profile tagline under \"bibliophiles\"",
+      "description": "Your username, profile URL, and profile tagline under \"bibliophiles\"",
       "created": "2011-11-17 22:03:37"
     }
   }
