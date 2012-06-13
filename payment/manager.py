@@ -198,30 +198,33 @@ class PaymentManager( object ):
         
         for t in transactions:
             
+            # deal with preapprovals
             if t.date_payment is None:
                 preapproval_status = self.update_preapproval(t)
                 logger.info("transaction: {0}, preapproval_status: {1}".format(t, preapproval_status))
                 if not set(['status', 'currency', 'amount', 'approved']).isdisjoint(set(preapproval_status.keys())):
                     status["preapprovals"].append(preapproval_status)
+            # update payments
             else:
                 payment_status = self.update_payment(t)
                 if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
                     status["payments"].append(payment_status)
                     
+        # Clear out older, duplicate preapproval transactions
         cleared_list = []
-        for p in preapproval_transactions:
+        for p in transactions:
             
-            # Clear out older, duplicate preapproval transactions
-            if p.status == TRANSACTION_STATUS_ACTIVE and p not in cleared_list:
+            # pick out only the preapprovals
+            if p.date_payment is None and p.type == PAYMENT_TYPE_AUTHORIZATION and p.status == TRANSACTION_STATUS_ACTIVE and p not in cleared_list:
                 
                 # keep only the newest transaction for this user and campaign                
-                transactions = Transaction.objects.filter(user=p.user, status=TRANSACTION_STATUS_ACTIVE, campaign=p.campaign).order_by('-date_authorized')
+                user_transactions_for_campaign = Transaction.objects.filter(user=p.user, status=TRANSACTION_STATUS_ACTIVE, campaign=p.campaign).order_by('-date_authorized')
                 
-                if len(transactions) > 1:
-                    logger.info("Found %d active transactions for campaign" % len(transactions))
-                    self.cancel_related_transaction(transactions[0], status=TRANSACTION_STATUS_ACTIVE, campaign=transactions[0].campaign)
+                if len(user_transactions_for_campaign) > 1:
+                    logger.info("Found %d active transactions for campaign" % len(user_transactions_for_campaign))
+                    self.cancel_related_transaction(user_transactions_for_campaign[0], status=TRANSACTION_STATUS_ACTIVE, campaign=transactions[0].campaign)
                     
-                cleared_list.extend(transactions)
+                cleared_list.extend(user_transactions_for_campaign)
                     
             # Note, we may need to call checkstatus again here
             
