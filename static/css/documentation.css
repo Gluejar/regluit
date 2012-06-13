@@ -262,8 +262,7 @@
   display: inherit;
 }
 body {
-  font-size: 13px;
-  line-height: 16px;
+  line-height: 17px;
 }
 /* Learn More area (not already styles by learnmore.less) */
 .user-block {
@@ -280,7 +279,7 @@ body {
 #user-block1 #block-intro-text {
   float: left;
   width: 70%;
-  font-size: 20px;
+  font-size: 19px;
 }
 #user-block1 a#readon {
   float: left;
@@ -288,7 +287,7 @@ body {
 }
 .user-block2 {
   color: #6994a3;
-  font-size: 11px;
+  font-size: 13px;
   line-height: normal;
   width: 30%;
 }
@@ -298,7 +297,7 @@ body {
 }
 .user-block2 label {
   float: left;
-  font-size: 20px;
+  font-size: 19px;
   height: 30px;
   line-height: 30px;
   color: #3d4e53;
@@ -340,7 +339,7 @@ body {
 .doc h2 {
   margin: 20px 0;
   color: #3d4e53;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: bold;
 }
 .doc h3 {
@@ -553,9 +552,9 @@ h2.thank-you {
 }
 .pledge_complete,
 .pledge_complete a {
-  font-size: 14px;
-  line-height: 17px;
-  margin-bottom: 14px;
+  font-size: 15px;
+  line-height: 18px;
+  margin-bottom: 15px;
 }
 #js-slide .jsmodule.pledge {
   width: 960px !important;

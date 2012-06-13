@@ -63,29 +63,24 @@ logger = logging.getLogger(__name__)
 def slideshow(max):
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
-    is_preview = settings.IS_PREVIEW
     j = 0
         
-    if is_preview:
-        # on the preview site there are no active campaigns, so we should show most-wished books instead
-        worklist = models.Work.objects.order_by('-num_wishes')[:max]
+    worklist = []
+    if max > count:
+        # add all the works with active campaigns
+        for campaign in ending:
+            worklist.append(campaign.work)
+			
+        # then fill out the rest of the list with popular but inactive works
+        remainder = max - count
+        remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+        worklist.extend(remainder_works)
     else:
-        worklist = []
-        if max > count:
-            # add all the works with active campaigns
-            for campaign in ending:
-                worklist.append(campaign.work)
-                
-            # then fill out the rest of the list with popular but inactive works
-            remainder = max - count
-            remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
-            worklist.extend(remainder_works)
-        else:
-            # if the active campaign list has more works than we can fit 
-            # in our slideshow, it's the only source we need to draw from
-            while j < max:
-                worklist.append(ending[j].work)
-                j +=1
+        # if the active campaign list has more works than we can fit 
+        # in our slideshow, it's the only source we need to draw from
+        while j < max:
+            worklist.append(ending[j].work)
+            j +=1
                 
     return worklist
 
@@ -354,9 +349,7 @@ def manage_campaign(request, id):
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
                 activetab = '#3'
-                # only staff should be allowed to launch a campaign before site launch
-                # this line can be removed after site launch
-                if (campaign.launchable and form.is_valid()) and (not settings.IS_PREVIEW or request.user.is_staff):
+                if (campaign.launchable and form.is_valid()):
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
                 else:
@@ -1272,7 +1265,6 @@ def supporter(request, supporter_username, template_name):
     works_unglued = []
     works_active = []
     works_wished = []
-    is_preview = settings.IS_PREVIEW
     
     if (wishlist.works.all()):
         # querysets for tabs
@@ -1361,7 +1353,6 @@ def supporter(request, supporter_username, template_name):
             "works_wished": works_wished,
             "works": works,
             "works2": works2,
-            "is_preview": is_preview,
             "backed": backed,
             "backing": backing,
             "wished": wished,

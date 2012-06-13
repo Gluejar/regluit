@@ -8,23 +8,12 @@
 	.one-border-radius(7px);
     clear:both;
     padding: 5px 10px;
-    font-size:13px;
+    font-size: @font-size-default;
+
     line-height: 17px;
     
     a {
     	color: @call-to-action;
-    }
-}
-
-.preview_top {
-	.preview;
-	border-color: @orange;
-	width: 934px;
-    margin:10px auto 0 auto;
-    font-size: 120%;
-    
-    a {
-	    font-size: 110%;
     }
 }
 
@@ -50,7 +39,7 @@
 .utilityheaders {
     text-transform:uppercase;
     color:@text-blue;
-    font-size:12px;
+    font-size: @font-size-larger;
     display:block; 
 }
 
@@ -58,6 +47,7 @@
     padding:@topbottom @leftright;
     a {
         color:@medium-blue;
+        font-size: @font-size-larger;
     }
 }
 
@@ -71,7 +61,9 @@ body{
     background:url(@background-body) 0 0 repeat-x;
     padding:0 0 20px 0;
     margin:0;
-    font-size:12px;
+    font-size: @font-size-default;
+    line-height: @font-size-default*1.3;
+
     font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Arial, Helvetica, sans-serif;
     color:@text-blue;
 }
@@ -114,7 +106,8 @@ body{
 
 a {
     font-weight:bold;
-    font-size:13px; 
+    font-size: @font-size-default;
+ 
     text-decoration:none;
     cursor:pointer;
     color: @medium-blue;
@@ -146,7 +139,7 @@ h2 {
     &.content-heading {
         padding:15px;
         margin:0;
-        font-size:19px;
+        font-size: @font-size-header;
         font-weight:normal;
         color:@text-blue;
         float:left;
@@ -167,7 +160,7 @@ h3 {
         height:73px;
         
         span {
-            font-size:19px;
+            font-size: @font-size-header;
             font-style: italic;
             color:@text-blue;
             padding:26px 40px 27px 20px;
@@ -384,7 +377,8 @@ a#readon {
     text-transform:capitalize;
     display:block;
     float:right;
-    font-size:13px;
+    font-size: @font-size-default;
+
     font-weight:bold;
     
     &.down {
@@ -500,7 +494,7 @@ div#content-block {
 .content-block-heading a.block-link {
     float:right;
     padding:15px;
-    font-size:11px;
+    font-size: @font-size-default;
     color:@text-blue;
     text-decoration:underline;
     font-weight:normal;
@@ -555,14 +549,14 @@ div#content-block-content {
     padding-top:7px;
 
     .endless_page_link {
-      font-size: 13pt;
+      font-size: @font-size-default;
       border: thin @text-blue solid;
       font-weight: normal;
       margin: 5px;
       padding:1px;
     }
     .endless_page_current {
-      font-size: 13pt;
+      font-size: @font-size-default;
       border: thin @text-blue solid;
       font-weight: normal;
       margin: 5px;
@@ -595,12 +589,12 @@ a.nounderline {
 	
 	p {
 		padding: 9px 0;
-		font-size: 14px;
-		line-height: 18px;
+		font-size: @font-size-larger;
+		line-height: 20px;
 		
 		a {
-			font-size: 14px;
-			line-height: 18px;
+			font-size: @font-size-larger;
+			line-height: 20px;
 		}
 		
 		b {

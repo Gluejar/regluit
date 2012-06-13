@@ -3,8 +3,7 @@
 @import "learnmore.less";
 
 body {
-	font-size: 13px;
-	line-height: 16px;
+	line-height: 17px;
 }
 
 /* Learn More area (not already styles by learnmore.less) */
@@ -22,7 +21,7 @@ body {
 	#block-intro-text {
 		float:left;
 		width:70%; 
-		font-size:20px;
+		font-size: @font-size-header;
 	}
 	
 	a#readon {
@@ -33,7 +32,7 @@ body {
 
 .user-block2 {
 	color: @medium-blue;
-	font-size:11px;
+	font-size: @font-size-default;
 	line-height:normal;
 	width:30%;
 	
@@ -44,7 +43,7 @@ body {
 	
 	label {
 		float:left;
-		font-size:20px;
+		font-size: @font-size-header;
 		height:30px;
 		line-height:30px; 
 		color:@text-blue;
@@ -91,7 +90,7 @@ body {
 .doc h2 {
 	margin:20px 0;
 	color:@text-blue;
-	font-size:17px;
+	font-size: @font-size-larger;
 	font-weight: bold;
 }
 
@@ -296,9 +295,9 @@ h2.thank-you {
 }
 
 .pledge_complete, .pledge_complete a {
-	font-size: 14px;
-	line-height: 17px;
-	margin-bottom: 14px;	
+	font-size: @font-size-larger;
+	line-height: 18px;
+	margin-bottom: 15px;	
 }
 
 #js-slide .jsmodule.pledge  {

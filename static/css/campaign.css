@@ -190,14 +190,14 @@ ul.tabs li.active a {
   line-height: normal;
 }
 .book-detail-info h2.book-name {
-  font-size: 18px;
+  font-size: 19px;
   text-transform: capitalize;
   font-weight: bold;
   color: #3d4e53;
 }
 .book-detail-info h3.book-author,
 .book-detail-info h3.book-year {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
   color: #6994a3;
 }
@@ -222,7 +222,7 @@ ul.tabs li.active a {
   float: right;
 }
 .book-detail-info > div.layout div.btn_support input {
-  font-size: 17px;
+  font-size: 15px;
 }
 .book-detail-info > div.layout div.btn_support.modify input {
   background: #d6dde0;
@@ -295,7 +295,7 @@ ul.tabs li.active a {
 .pledge.jsmodule.rounded .jsmod-content.ACTIVE {
   background: #8dc63f;
   color: white;
-  font-size: 18px;
+  font-size: 19px;
   font-weight: normal;
   line-height: 20px;
 }
@@ -326,18 +326,18 @@ ul.tabs li.active a {
 }
 a {
   color: #3d4e53;
-  font-size: 12px;
+  font-size: 13px;
 }
 #js-search {
   margin: 0 15px 0 15px !important;
 }
 .alert > .errorlist {
   list-style-type: none;
-  font-size: 14px;
+  font-size: 15px;
   border: none;
   text-align: left;
   font-weight: normal;
-  font-size: 12px;
+  font-size: 13px;
 }
 .alert > .errorlist > li {
   margin-bottom: 14px;
@@ -350,7 +350,7 @@ a {
   height: auto;
   padding-left: 32px;
   padding-right: 32px;
-  font-size: 12px;
+  font-size: 13px;
 }
 /* Center elements */
 #js-maincol {
@@ -363,7 +363,7 @@ a {
   padding: 0;
 }
 .status {
-  font-size: 17px;
+  font-size: 19px;
   color: #8dc63f;
 }
 /* Center - add/remove actions in book detail area */
@@ -514,7 +514,7 @@ div#content-block-content #tabs-1 img {
   padding: 10px;
   height: auto;
   font-style: normal;
-  font-size: 14px;
+  font-size: 15px;
   margin: 0 0 10px 0;
   color: white;
 }
@@ -624,7 +624,7 @@ ul.support li span {
   padding-right: 10px;
 }
 ul.support li span.menu-item-price {
-  font-size: 18px;
+  font-size: 19px;
   float: left;
   display: inline;
   margin-bottom: 3px;
@@ -632,6 +632,8 @@ ul.support li span.menu-item-price {
 ul.support li span.menu-item-desc {
   float: none;
   clear: both;
+  font-size: 15px;
+  font-weight: normal;
 }
 ul.support li:hover {
   color: #fff;
@@ -650,7 +652,7 @@ ul.support li:hover a {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
 .thank-you {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: bold;
   margin: 20px auto;
 }

@@ -106,12 +106,13 @@ def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
     other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user.id)
     other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
+    domain = Site.objects.get_current().domain
     if comment.content_object.last_campaign() and comment.user in comment.content_object.last_campaign().managers.all():
         #official
-        notification.queue(other_wishers, "wishlist_official_comment", {'comment':comment}, True)
+        notification.queue(other_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain}, True)
     else:
-        notification.queue(other_commenters, "comment_on_commented", {'comment':comment}, True)
-        notification.queue(other_wishers, "wishlist_comment", {'comment':comment}, True)
+        notification.queue(other_commenters, "comment_on_commented", {'comment':comment, 'domain':domain}, True)
+        notification.queue(other_wishers, "wishlist_comment", {'comment':comment, 'domain':domain}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 

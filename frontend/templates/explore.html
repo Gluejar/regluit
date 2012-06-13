@@ -13,13 +13,9 @@
                             {% else %}
                             	<li class="first">
                             {% endif %}
-                            {% if not is_preview %}
                                 <a href="{% url campaign_list 'ending' %}"><span>Active Campaigns</span></a></li>
                                 <li><a href="{% url comment %}"><span>Latest Comments</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Most Wished</span></a></li>
-                            {% else %}
-                                <a href="{% url work_list 'popular' %}"><span>Most Wishes</span></a></li>
-                            {% endif %}
                                 <li><a href="{% url work_list 'new' %}"><span>Newly Wished</span></a></li>
                                 <li><a href="{% url work_list 'recommended' %}"><span>Staff Picks</span></a></li>
                                 <li class="last"><a href="{% url unglued_list 'recent' %}"><span>Recently Unglued</span></a></li>

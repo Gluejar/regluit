@@ -316,15 +316,15 @@ ul.navigation li.active a {
 .listview.icons .booklist-status-label {
   display: none;
 }
+.listview.icons .boolist-ebook span {
+  padding-bottom: 6px;
+}
 div#content-block-content {
   padding-bottom: 100px;
 }
 .listview.panelback,
 .listview.panelback div {
   display: none;
-}
-.listview.boolist-ebook a {
-  color: #3d4e53;
 }
 /* Starting state of toggle icons; will be overwritten by js in page */
 #toggle-list {

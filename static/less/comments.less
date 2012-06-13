@@ -1,3 +1,5 @@
+@import "variables.less";
+
 .comments {
 	clear: both;
 	padding: 5px;
@@ -42,13 +44,13 @@
 			
 			&.text:before {
 				content: "\201C";
-				font-size: 17px;
+				font-size: @font-size-larger;
 				font-weight: bold;
 			}
 
 			&.text:after {
 				content: "\201D";
-				font-size: 17px;
+				font-size: @font-size-larger;
 				font-weight: bold;
 			}
 		}

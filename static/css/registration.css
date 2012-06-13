@@ -153,7 +153,7 @@
   display: block;
   margin-top: -11px;
   font-style: italic;
-  font-size: 12px;
+  font-size: 13px;
 }
 #login .google_signup {
   padding: 14px 0;
@@ -189,7 +189,7 @@
 #welcomesearch label {
   display: block;
   margin: 0 auto;
-  font-size: 17px;
+  font-size: 19px;
   padding-bottom: 10px;
 }
 #welcomesearch p {

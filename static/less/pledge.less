@@ -7,14 +7,14 @@
 
 input[type="submit"] {
 	float: right;
-	font-size: 17px;
+	font-size: @font-size-header;
 	margin: 10px;
 	cursor: pointer;
 }
 
 .pledge_amount {
 	padding: 10px;
-	font-size: 17px;
+	font-size: @font-size-header;
 	background: @pale-blue;
 	
 	&.premium_level {
@@ -29,7 +29,7 @@ form.pledgeform {
 #id_preapproval_amount {
 	width: 50%;
 	line-height: 30px;
-	font-size: 16px;
+	font-size: @font-size-larger;
 }
 
 ul.support li, ul.support li:hover {
@@ -70,7 +70,7 @@ p {
 	background-color: @alert;
 	cursor: pointer;
 	font-weight: bold;
-	font-size: 17px;
+	font-size: @font-size-header;
 	display: none;
 }
 

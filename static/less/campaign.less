@@ -33,43 +33,42 @@
 	margin-bottom:10px;
 
 	&.rounded .jsmod-content {
-		   .one-border-radius(20px);
-			background:@pale-blue;
-			color: @text-blue;
-			padding:10px 20px;
-			font-weight:bold;
-			border:none;
-			margin:0;
-			line-height: 16px;
-			
-			/* Bubble in upper left looks different depending on campaign status */
-			&.ACTIVE {
-				background: @green;
-				color: white;
-				font-size: 18px;
-				font-weight: normal;
-				line-height: 20px;
-			}
-			
-			&.No.campaign.yet {
-				background: @orange;
-				color: white;
-			}
-
-			span {
-				display: inline-block;
-				vertical-align: middle;
-				
-				&.spacer {
-					visibility: none;
-				}	
-				
-				&.findtheungluers {
-					cursor: pointer;
-				}
-			}
-					
+	   .one-border-radius(20px);
+		background:@pale-blue;
+		color: @text-blue;
+		padding:10px 20px;
+		font-weight:bold;
+		border:none;
+		margin:0;
+		line-height: 16px;
+		
+		/* Bubble in upper left looks different depending on campaign status */
+		&.ACTIVE {
+			background: @green;
+			color: white;
+			font-size: @font-size-header;
+			font-weight: normal;
+			line-height: 20px;
 		}
+		
+		&.No.campaign.yet {
+			background: @orange;
+			color: white;
+		}
+
+		span {
+			display: inline-block;
+			vertical-align: middle;
+			
+			&.spacer {
+				visibility: none;
+			}	
+			
+			&.findtheungluers {
+				cursor: pointer;
+			}
+		}				
+	}
 }
 
 .jsmodule.pledge {
@@ -83,7 +82,7 @@
 
 a {
 	color:#3d4e53;
-	font-size:12px;
+	font-size: @font-size-default;
 }
 
 #js-search {
@@ -92,11 +91,11 @@ a {
 
 .alert > .errorlist {
 	list-style-type: none;
-	font-size: 14px;
+	font-size: @font-size-larger;
 	border: none;
 	text-align: left;
 	font-weight: normal;
-	font-size: 12px;
+	font-size: @font-size-default;
 	
 	> li {
 		margin-bottom: 14px;
@@ -110,7 +109,7 @@ a {
 			height: auto;
 			padding-left: 32px;
 			padding-right: 32px;
-			font-size: 12px;
+			font-size: @font-size-default;
 		}
 	}
 }
@@ -128,7 +127,7 @@ a {
 }
 
 .status {
-	font-size: 17px;
+	font-size: @font-size-header;
 	color: @green;
 }
 
@@ -279,7 +278,7 @@ div#content-block-content {
 		padding:10px;
 		height:auto;
 		font-style:normal;
-		font-size:14px;
+		font-size: @font-size-larger;
 		margin:0 0 10px 0;
 		color: white;
 		
@@ -355,7 +354,7 @@ ul.support li {
 		padding-right:10px;
 
 		&.menu-item-price { 
-			font-size:18px;
+			font-size: @font-size-header;
 			float: left;
 			display: inline;
 			margin-bottom: 3px;
@@ -364,6 +363,8 @@ ul.support li {
 		&.menu-item-desc {
 			float: none;
 			clear: both;
+			font-size: @font-size-larger;
+			font-weight: normal;
 		}
 	}
 	
@@ -387,7 +388,7 @@ ul.support li {
 }
 
 .thank-you {
-	font-size: 18px;
+	font-size: @font-size-header;
 	font-weight: bold;
 	margin: 20px auto;
 }

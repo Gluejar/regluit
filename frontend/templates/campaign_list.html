@@ -79,13 +79,6 @@ location.hash = "#2";
                                 </div>
                 </div>
                 <div id="content-block-content">
-					{% if is_preview == 1 %}
-					<div class="preview_content">
-					We're not running campaigns during our alpha phase.<br /><br />
-					After we've implemented a few more features and improved the site based on <a href="/feedback">your feedback</a>, you'll see a list of active campaigns here.<br /><br />
-					If you're a rights holder and you'd like us to run campaigns to unglue your works, please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.  Want more info?  We have a <a href="/faq/rightsholders">rights holder FAQ</a>.
-					</div>
-					{% else %}
                     {% ifequal campaign_list.count 0 %}
                     There aren't any ungluing campaigns active yet.  If you're a rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
@@ -108,7 +101,6 @@ location.hash = "#2";
                         {% endfor %}
                     </div>
                     {% endifequal %}
-                    {% endif %}
                 </div>
             </div>    
         </div>
