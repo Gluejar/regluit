@@ -190,14 +190,14 @@ ul.tabs li.active a {
   line-height: normal;
 }
 .book-detail-info h2.book-name {
-  font-size: 18px;
+  font-size: 19px;
   text-transform: capitalize;
   font-weight: bold;
   color: #3d4e53;
 }
 .book-detail-info h3.book-author,
 .book-detail-info h3.book-year {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: normal;
   color: #6994a3;
 }
@@ -222,7 +222,7 @@ ul.tabs li.active a {
   float: right;
 }
 .book-detail-info > div.layout div.btn_support input {
-  font-size: 17px;
+  font-size: 15px;
 }
 .book-detail-info > div.layout div.btn_support.modify input {
   background: #d6dde0;

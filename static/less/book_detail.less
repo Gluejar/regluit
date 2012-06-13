@@ -29,14 +29,14 @@
 	}
 
 	h2.book-name {
-		font-size:18px;
+		font-size: @font-size-header;
 		text-transform:capitalize;
 		font-weight:bold;
 		color:@text-blue;
 	}
 
 	h3.book-author, h3.book-year {
-		font-size:12px;
+		font-size: @font-size-default;
 		font-weight:normal;
 		color:@medium-blue;
 	}
@@ -64,12 +64,12 @@
 			float: right;
 			
 			input {
-				font-size: 17px;
+				font-size: @font-size-larger;
 			}
 			
 			&.modify input {
 				background:@blue-grey;
-				font-size: 13px;
+				font-size: @font-size-default;
 				border: double white;
 				line-height: 17px;
 			}

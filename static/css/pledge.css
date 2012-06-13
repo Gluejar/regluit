@@ -97,13 +97,13 @@
 }
 input[type="submit"] {
   float: right;
-  font-size: 17px;
+  font-size: 19px;
   margin: 10px;
   cursor: pointer;
 }
 .pledge_amount {
   padding: 10px;
-  font-size: 17px;
+  font-size: 19px;
   background: #edf3f4;
 }
 .pledge_amount.premium_level {
@@ -115,7 +115,7 @@ form.pledgeform {
 #id_preapproval_amount {
   width: 50%;
   line-height: 30px;
-  font-size: 16px;
+  font-size: 15px;
 }
 ul.support li,
 ul.support li:hover {
@@ -151,7 +151,7 @@ p {
   background-color: #e35351;
   cursor: pointer;
   font-weight: bold;
-  font-size: 17px;
+  font-size: 19px;
   display: none;
 }
 span.menu-item-price {

@@ -286,7 +286,7 @@
 #js-maincol-fl h2.page-heading {
   margin: 0 0 20px 0;
   color: #3d4e53;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: bold;
 }
 #user-block {
@@ -303,14 +303,14 @@
 #user-block1 #block-intro-text {
   float: left;
   width: 70%;
-  font-size: 20px;
+  font-size: 19px;
 }
 #user-block1 a#readon {
   float: left;
 }
 .user-block2 {
   color: #6994a3;
-  font-size: 11px;
+  font-size: 13px;
   line-height: normal;
   width: 30%;
 }
@@ -320,7 +320,7 @@
 }
 .user-block2 label {
   float: left;
-  font-size: 20px;
+  font-size: 19px;
   height: 30px;
   line-height: 30px;
   height: 30px;
@@ -437,13 +437,13 @@ ul.ungluingwhat .user-book-info {
 ul.ungluingwhat .user-book-info p {
   margin: 0;
   padding: 0 5px;
-  font-size: 11px;
+  font-size: 13px;
 }
 ul.ungluingwhat .user-book-info a {
   display: block;
   padding: 0;
   color: #3d4e53;
-  font-size: 11px;
+  font-size: 13px;
   text-decoration: underline;
 }
 ul.ungluingwhat .user-book-info a.user-book-name {
@@ -488,7 +488,7 @@ div.signup_btn a span {
 .have-content-right-module .item-content {
   float: left;
   width: 364px;
-  font-size: 14px;
+  font-size: 15px;
   height: 132px;
   border-bottom: 7px solid #8ac3d7;
 }
@@ -529,7 +529,7 @@ h2.page-heading {
 .js-maincontainer-faq-inner {
   float: right;
   color: #3d4e53;
-  font-size: 14px;
+  font-size: 15px;
   padding-right: 60px;
 }
 .js-maincontainer-faq-inner a {
@@ -539,7 +539,7 @@ h2.page-heading {
 }
 h3.module-title {
   padding: 10px 0 0 0;
-  font-size: 17px;
+  font-size: 19px;
   font-weight: normal;
 }
 .google_signup {

@@ -105,26 +105,6 @@
 .preview a {
   color: #8dc63f;
 }
-.preview_top {
-  border: solid 3px #e35351;
-  -moz-border-radius: 7px;
-  -webkit-border-radius: 7px;
-  border-radius: 7px;
-  clear: both;
-  padding: 5px 10px;
-  font-size: 13px;
-  line-height: 17px;
-  border-color: #e18551;
-  width: 934px;
-  margin: 10px auto 0 auto;
-  font-size: 120%;
-}
-.preview_top a {
-  color: #8dc63f;
-}
-.preview_top a {
-  font-size: 110%;
-}
 .launch_top {
   border: solid 3px #e35351;
   -moz-border-radius: 7px;
@@ -164,7 +144,7 @@
 .utilityheaders {
   text-transform: uppercase;
   color: #3d4e53;
-  font-size: 12px;
+  font-size: 15px;
   display: block;
 }
 /* Page-wide elements */
@@ -178,7 +158,8 @@ body {
   background: url("/static/images/bg-body.png") 0 0 repeat-x;
   padding: 0 0 20px 0;
   margin: 0;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 16.900000000000002px;
   font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Arial, Helvetica, sans-serif;
   color: #3d4e53;
 }
@@ -527,7 +508,7 @@ a#readon span {
   border-top: 1px solid #edf3f4;
   text-transform: uppercase;
   color: #3d4e53;
-  font-size: 12px;
+  font-size: 15px;
   display: block;
   padding: 10px;
 }
@@ -536,6 +517,7 @@ a#readon span {
 }
 #js-leftcol ul.level2 li a {
   color: #6994a3;
+  font-size: 15px;
 }
 #js-leftcol ul.level2 li img {
   vertical-align: middle;
@@ -588,7 +570,7 @@ div#content-block.jsmodule {
 .content-block-heading a.block-link {
   float: right;
   padding: 15px;
-  font-size: 11px;
+  font-size: 13px;
   color: #3d4e53;
   text-decoration: underline;
   font-weight: normal;
@@ -608,7 +590,7 @@ div#content-block-content .cols3 .column {
   clear: both;
   text-transform: uppercase;
   color: #3d4e53;
-  font-size: 12px;
+  font-size: 15px;
   display: block;
   padding: 15px 0px 45px 0px;
   margin-top: 15px;
@@ -632,6 +614,7 @@ div#content-block-content .cols3 .column {
 }
 #footer .column li a {
   color: #6994a3;
+  font-size: 15px;
 }
 .pagination {
   width: 100%;
@@ -642,14 +625,14 @@ div#content-block-content .cols3 .column {
   padding-top: 7px;
 }
 .pagination .endless_page_link {
-  font-size: 13pt;
+  font-size: 13px;
   border: thin #3d4e53 solid;
   font-weight: normal;
   margin: 5px;
   padding: 1px;
 }
 .pagination .endless_page_current {
-  font-size: 13pt;
+  font-size: 13px;
   border: thin #3d4e53 solid;
   font-weight: normal;
   margin: 5px;
@@ -680,12 +663,12 @@ a.nounderline {
 }
 #about_expandable p {
   padding: 9px 0;
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 15px;
+  line-height: 20px;
 }
 #about_expandable p a {
-  font-size: 14px;
-  line-height: 18px;
+  font-size: 15px;
+  line-height: 20px;
 }
 #about_expandable p b {
   color: #8dc63f;
