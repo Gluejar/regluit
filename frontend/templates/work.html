@@ -61,7 +61,7 @@ $j(document).ready(function(){
                     <span>
                 {% if work.first_ebook %}
                     AVAILABLE!
-                {% else %}{% if work.last_campaign and not is_preview %}
+                {% else %}{% if work.last_campaign %}
                     {% if status == 'ACTIVE' %}
                             Unglue it! <br />
                             ${{ work.last_campaign.current_total|floatformat:0|intcomma }}/${{ work.last_campaign.target|floatformat:0|intcomma }} <br />
