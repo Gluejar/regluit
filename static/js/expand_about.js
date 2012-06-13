@@ -1,6 +1,9 @@
 var $j = jQuery.noConflict();
+
 $j(document).ready(function(){
-	$j('#about_expander').click(function(){
+	$j('.about_expander').click(function(){
+		var whichbox = $j(this).attr('id');
+		$j('#lightbox').load('/static/html/'+whichbox+'.html');
 		$j('#js-topsection').css({"opacity": "0.07"});
 		$j('.launch_top').css({"opacity": "0.07"});
 		$j('#main-container').css({"opacity": "0.07"});
