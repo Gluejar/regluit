@@ -317,6 +317,18 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
                         {% endifequal %}
                     {% else %}
+                    
+                    {% if request.user.is_anonymous %}
+                    <div class="tabs-1 anon_about">
+                    {{ supporter }} has given these books to you.  <a href="#" class="about_expander" id="about_unglued">Find out how.</a>
+                    </div>
+                    <div class="tabs-2 anon_about">
+                    {{ supporter }} is giving these books to you.  <a href="#" class="about_expander" id="about_active">Find out how.</a>
+                    </div>
+                    <div class="tabs-3 anon_about">
+                    {{ supporter }} wants to give these books to you.  <a href="#" class="about_expander" id="about_wishlist">Find out how.</a>
+                    </div>
+                    {% endif %}
 
                     {% lazy_paginate 20 works_unglued using "works_unglued" %}
                     {% for work in works_unglued %}
@@ -368,7 +380,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                         	<a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
-
+                    
                     {% endifequal %}
                 </div>
             </div>    
