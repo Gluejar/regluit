@@ -4,5 +4,6 @@ We thought you might like to know there are new comments for a book you have com
           
 {{ comment.comment }}
 
-To change your email preferences, visit https://unglue.it/notification/settings/
+You can see all comments on this book at https://{{ domain }}{% url work comment.content_object.id %}?tab=2 .
 
+The Unglue.it team
