@@ -139,13 +139,23 @@ def work(request, work_id, action='display'):
         
     countdown = ""
     if work.last_campaign_status() == 'ACTIVE':
+        from math import ceil
         time_remaining = campaign.deadline - now()
+        
+        '''
+        we want to round up on all of these; if it's the 3rd and the
+        campaign ends the 8th, users expect to see 5 days remaining,
+        not 4 (as an artifact of 4 days 11 hours or whatever)
+        time_remaining.whatever is an int, so just adding 1 will do
+        that for us (except in the case where .days exists and both other
+        fields are 0, which is unlikely enough I'm not defending against it)
+        '''
         if time_remaining.days:
-            countdown = "in %s days" % time_remaining.days
+            countdown = "in %s days" % str(time_remaining.days + 1)
         elif time_remaining.seconds > 3600:
-            countdown = "in %s hours" % time_remaining.seconds/3600
+            countdown = "in %s hours" % str(time_remaining.seconds/3600 + 1)
         elif time_remaining.seconds > 60:
-            countdown = "in %s minutes" % time_remaining.seconds/60
+            countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
     if action == 'preview':
