@@ -782,8 +782,8 @@ class PledgeModifyView(FormView):
         elif status and url is None:
             # let's use the pledge_complete template for now and maybe look into customizing it.
             return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
-            from regluit.payment.signals import pledge_modified
-            pledge_modified.send(sender=self, transaction=transaction, status="increased")
+            #from regluit.payment.signals import pledge_modified
+            #pledge_modified.send(sender=self, transaction=transaction, status="increased")
         else:
             return HttpResponse("No modification made")
 

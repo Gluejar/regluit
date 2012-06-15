@@ -653,6 +653,7 @@ class PaymentManager( object ):
                 pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
             else:
                 pledge_created.send(sender=self, transaction=t)
+                
             return t, url
     
         
@@ -685,8 +686,23 @@ class PaymentManager( object ):
                 # keep our transaction
                 continue
             
-            if self.cancel_transaction(t):
+            if self.cancel_transaction(t): 
                 canceled = canceled + 1
+                # send notice about modification of transaction
+                if transaction.amount > t.amount:
+                    # this should be the only one that happens
+                    up_or_down = "increased"
+                elif transaction.amount < t.amount:
+                    # we shouldn't expect any case in which this happens
+                    up_or_down = "decreased"
+                else:
+                    # we shouldn't expect any case in which this happens
+                    up_or_down = None
+                    
+                pledge_modified.send(sender=self, transaction=transaction, up_or_down=up_or_down)
+            else:
+                # BUGBUG: we should handle this error in which a cancellation did not happen properly
+                pass
             
         return canceled
     
