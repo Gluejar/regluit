@@ -1,12 +1,17 @@
-{% load humanize %}You have modified a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
+{% load humanize %}{% if up_or_down == 'canceled' %}You have canceled a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
+
+Your canceled pledge
+Amount: ${{ transaction.amount|intcomma }}
+Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}
+{% else %}You have modified a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
 
 Your new pledge summary
 Amount pledged: ${{ transaction.amount|intcomma }}
-Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}
+Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}{% endif %}
 
-{% if transaction.host|lower == 'amazon' %}{% if status == 'increased' %}
+{% if transaction.host|lower == 'amazon' %}{% if up_or_down == 'increased' %}
 You will also receive an email from Amazon confirming this.
-{% else %}{% if status == 'decreased' %}
+{% else %}{% if up_or_down == 'decreased' %}
 Your Amazon Payments account may still show an authorization to Unglue.it for the entire amount of your earlier pledge, but never fear -- if the campaign succeeds, we'll only charge you ${{ transaction.amount|intcomma }}.
 {% endif %}{% endif %}{% else %}{% endif %}
 
