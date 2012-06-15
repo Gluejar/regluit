@@ -650,11 +650,7 @@ class PaymentManager( object ):
             # sadly this point is not yet late enough in the process -- needs to be moved
             # until after we are certain.
             
-            if modification:
-                # the pledge_modify notice is sent after the previous transaction is successfully canceled
-                # pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
-                pass
-            else:
+            if not modification:
                 # BUGBUG: 
                 # send the notice here for now
                 # this is actually premature since we're only about to send the user off to the payment system to
@@ -708,8 +704,7 @@ class PaymentManager( object ):
                     
                 pledge_modified.send(sender=self, transaction=transaction, up_or_down=up_or_down)
             else:
-                # BUGBUG: we should handle this error in which a cancellation did not happen properly
-                pass
+                logger.error("Failed to cancel transaction {0} for related transaction {1} ".format(t, transaction))
             
         return canceled
     
