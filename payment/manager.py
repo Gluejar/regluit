@@ -649,9 +649,16 @@ class PaymentManager( object ):
             # that for whatever reason fail.  will need other housekeeping to handle those.
             # sadly this point is not yet late enough in the process -- needs to be moved
             # until after we are certain.
+            
             if modification:
-                pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
+                # the pledge_modify notice is sent after the previous transaction is successfully canceled
+                # pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
+                pass
             else:
+                # BUGBUG: 
+                # send the notice here for now
+                # this is actually premature since we're only about to send the user off to the payment system to
+                # authorize a charge
                 pledge_created.send(sender=self, transaction=t)
                 
             return t, url
