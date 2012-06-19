@@ -139,13 +139,23 @@ def work(request, work_id, action='display'):
         
     countdown = ""
     if work.last_campaign_status() == 'ACTIVE':
+        from math import ceil
         time_remaining = campaign.deadline - now()
+        
+        '''
+        we want to round up on all of these; if it's the 3rd and the
+        campaign ends the 8th, users expect to see 5 days remaining,
+        not 4 (as an artifact of 4 days 11 hours or whatever)
+        time_remaining.whatever is an int, so just adding 1 will do
+        that for us (except in the case where .days exists and both other
+        fields are 0, which is unlikely enough I'm not defending against it)
+        '''
         if time_remaining.days:
-            countdown = "in %s days" % time_remaining.days
+            countdown = "in %s days" % str(time_remaining.days + 1)
         elif time_remaining.seconds > 3600:
-            countdown = "in %s hours" % time_remaining.seconds/3600
+            countdown = "in %s hours" % str(time_remaining.seconds/3600 + 1)
         elif time_remaining.seconds > 60:
-            countdown = "in %s minutes" % time_remaining.seconds/60
+            countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
     if action == 'preview':
@@ -772,8 +782,6 @@ class PledgeModifyView(FormView):
         elif status and url is None:
             # let's use the pledge_complete template for now and maybe look into customizing it.
             return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
-            from regluit.payment.signals import pledge_modified
-            pledge_modified.send(sender=self, transaction=transaction, status="increased")
         else:
             return HttpResponse("No modification made")
 
@@ -948,6 +956,11 @@ class PledgeCancelView(FormView):
                 # We might want to remove this in a production system
                 if settings.DEBUG:
                     update_status = p.update_preapproval(transaction)
+                # send a notice out that the transaction has been canceled -- leverage the pledge_modify notice for now
+                # BUGBUG:  should have a pledge cancel notice actually since I think it's different
+                from regluit.payment.signals import pledge_modified
+                pledge_modified.send(sender=self, transaction=transaction, up_or_down="canceled")
+                logger.info("pledge_modified notice for cancellation: sender {0}, transaction {1}".format(self, transaction))
                 return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
             else:
                 logger.error("Attempt to cancel transaction id {0} failed".format(transaction.id))

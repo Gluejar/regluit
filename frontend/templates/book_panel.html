@@ -31,7 +31,7 @@
 					<b>UNGLUE IT!</b>
 					<p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
 					<p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
-					<p>by {{ deadline|date:"M d, Y" }}</p>
+					<p>by {{ deadline|naturalday:"M d, Y" }}</p>
 					<a href="/pledge/{{workid}}"><div class="read_itbutton pledge"><span>Support</span></div></a>
 
 				{% else %}{% if status == 'INITIALIZED' %}
