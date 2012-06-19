@@ -1,6 +1,6 @@
 {% if work.last_campaign_status == 'SUCCESSFUL' %}
 Great news, {{ user.username }}!  {{ work.title }}, which you have supported on Unglue.it, is now available for download as an Unglued Ebook.  
-</p>
+
 {% else %}
 Good News, {{ user.username }}!  {{ work.title }}, which is on your wishlist, is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
 
