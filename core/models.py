@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
+from regluit.core.signals import successful_campaign
 import binascii
 
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE
@@ -229,7 +230,7 @@ class Campaign(models.Model):
 	    action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
 	    action.save()
 	    if send_notice:
-		regluit.core.signals.successful_campaign.send(sender=None,campaign=self)
+		successful_campaign.send(sender=None,campaign=self)
 	    return True
 	elif self.deadline < now() and self.current_total < self.target:
 	    self.status = 'UNSUCCESSFUL'
