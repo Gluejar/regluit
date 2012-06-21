@@ -2,7 +2,7 @@
 <div class="comments clearfix">
 	<div class="comments_info clearfix">
 		<div class="comments_book">
-			<a href="{% url work work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 		</div>
 		<div class="comments_graphical">
 			Hooray!  We're going to give {{ title }} to the world!
