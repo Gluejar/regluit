@@ -552,9 +552,12 @@ class PledgeView(FormView):
         work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
         campaign = work.last_campaign()
         
-        if campaign:
-            premiums = campaign.effective_premiums()
-                
+        # if there is no campaign or if campaign is not active, we should raise an error
+        
+        if campaign is None or campaign.status != 'ACTIVE':
+            raise Http404
+  
+        premiums = campaign.effective_premiums()        
         premium_id = self.request.REQUEST.get('premium_id', None)
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         

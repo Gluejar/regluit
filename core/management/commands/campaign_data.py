@@ -56,5 +56,8 @@ class Command(BaseCommand):
         # NONE status -- follow up on?
         
         
+        # tally up different classes of statuses we have for c3
+        
+        
         # who has modified a transaction and never cancelled it?
 
