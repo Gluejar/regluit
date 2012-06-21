@@ -217,26 +217,26 @@ class Campaign(models.Model):
     
     def update_status(self, ignore_deadline_for_success=False, send_notice=False):
         """Updates the campaign's status. returns true if updated.
-	Computes UNSUCCESSFUL only after the deadline has passed
-	Computes SUCCESSFUL only after the deadline has passed if ignore_deadline_for_success is TRUE -- otherwise looks just at amount of pledges accumulated
-	by default, send_notice is False so that we have to explicity send specify delivery of successful_campaign notice
+        Computes UNSUCCESSFUL only after the deadline has passed
+        Computes SUCCESSFUL only after the deadline has passed if ignore_deadline_for_success is TRUE -- otherwise looks just at amount of pledges accumulated
+        by default, send_notice is False so that we have to explicity send specify delivery of successful_campaign notice
           
         """
         if not self.status=='ACTIVE':
             return False
         elif (ignore_deadline_for_success or self.deadline < now()) and self.current_total >= self.target:
-	    self.status = 'SUCCESSFUL'
-	    self.save()
-	    action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
-	    action.save()
-	    if send_notice:
-		successful_campaign.send(sender=None,campaign=self)
-	    return True
-	elif self.deadline < now() and self.current_total < self.target:
-	    self.status = 'UNSUCCESSFUL'
-	    self.save()
-	    action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
-	    action.save()
+            self.status = 'SUCCESSFUL'
+            self.save()
+            action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
+            action.save()
+            if send_notice:
+                successful_campaign.send(sender=None,campaign=self)
+            return True
+        elif self.deadline < now() and self.current_total < self.target:
+            self.status = 'UNSUCCESSFUL'
+            self.save()
+            action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
+            action.save()
             return True            
         else:
             return False
