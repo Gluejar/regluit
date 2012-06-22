@@ -353,6 +353,7 @@ def manage_campaign(request, id):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                campaign.update_left()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
             else:
