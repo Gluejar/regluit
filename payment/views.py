@@ -43,7 +43,7 @@ def queryCampaign(request):
     
     p = PaymentManager()
     
-    transactions = p.query_campaign(campaign)
+    # transactions = p.query_campaign(campaign)
     
     total = p.query_campaign(campaign, summary=True)
     
