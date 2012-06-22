@@ -247,11 +247,16 @@ class Campaign(models.Model):
             return self.target-self.left
         else:
             return 0
-        
-    def transactions(self, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
+            
+    def update_left(self):
         p = PaymentManager()
-        return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
-                                completed=completed)
+        amount = p.query_campaign(self,summary=True, campaign_total=True)
+        self.left = self.target - amount
+        self.save()
+        
+    def transactions(self,  **kwargs):
+        p = PaymentManager()
+        return p.query_campaign(self, summary=False, campaign_total=True, **kwargs)
         
     
     def activate(self):
