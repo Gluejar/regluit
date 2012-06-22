@@ -243,7 +243,7 @@ class Campaign(models.Model):
 
     @property
     def current_total(self):
-        if self.left:
+        if self.left is not None:
             return self.target-self.left
         else:
             return 0
