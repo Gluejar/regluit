@@ -34,11 +34,21 @@ SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'notices@gluejar.com'
-EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
-EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_HOST_USER = 'accounts@gluejar.com'
+#EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
+#EMAIL_PORT = 587
+#DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
+
+# testing out using Amazon SES
+
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+MAIL_USE_TLS = True 
+EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+EMAIL_HOST_USER = 'AKIAJXM4QX324HXCH54Q'
+EMAIL_HOST_PASSWORD = 'AgR9hVmSSOhetuLOnbFEFo9PTnL9iAM/52NOPGkS3Rwh'
+EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
 # googlebooks 
