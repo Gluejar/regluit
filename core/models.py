@@ -230,6 +230,7 @@ class Campaign(models.Model):
                 self.status = 'UNSUCCESSFUL'
                 action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
                 action.save()
+                regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
             self.save()
             return True            
         else:

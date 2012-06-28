@@ -138,6 +138,23 @@ def notify_successful_campaign(campaign, **kwargs):
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
 
+unsuccessful_campaign = Signal(providing_args=["campaign"])
+
+def notify_unsuccessful_campaign(campaign, **kwargs):
+    """send notification in response to unsuccessful campaign"""
+    logger.info('received unsuccessful_campaign signal for {0}'.format(campaign))
+    # supporters and staff -- though it might be annoying for staff to be getting all these notices!
+    staff = User.objects.filter(is_staff=True)
+    supporters = (User.objects.get(id=k) for k in campaign.supporters())
+    
+    site = Site.objects.get_current()
+    notification.queue(itertools.chain(staff, supporters), "wishlist_unsuccessful", {'campaign':campaign, 'site':site}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
+    
+# unsuccessful_campaign -> send notices    
+unsuccessful_campaign.connect(notify_successful_campaign)
+
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
         return
