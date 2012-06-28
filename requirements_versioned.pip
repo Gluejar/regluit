@@ -20,6 +20,7 @@ django-profiles==0.2
 https://bitbucket.org/ubernostrum/django-registration/get/tip.tar.gz
 #django-registration==0.8-alpha-1
 django-selectable==0.2
+django-smtp-ssl==1.0
 django-social-auth==0.6.1
 #https://github.com/toastdriven/django-tastypie/tarball/master
 django-tastypie==0.9.11

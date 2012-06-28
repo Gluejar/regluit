@@ -194,142 +194,135 @@ class PaymentManager( object ):
             logger.info(preapproval_transactions)
             
             transactions = payment_transactions | preapproval_transactions
- 
+    
         
         for t in transactions:
             
+            # deal with preapprovals
             if t.date_payment is None:
                 preapproval_status = self.update_preapproval(t)
                 logger.info("transaction: {0}, preapproval_status: {1}".format(t, preapproval_status))
                 if not set(['status', 'currency', 'amount', 'approved']).isdisjoint(set(preapproval_status.keys())):
                     status["preapprovals"].append(preapproval_status)
+            # update payments
             else:
                 payment_status = self.update_payment(t)
                 if not set(["status", "receivers"]).isdisjoint(payment_status.keys()):
                     status["payments"].append(payment_status)
+                    
+        # Clear out older, duplicate preapproval transactions
+        cleared_list = []
+        for p in transactions:
+            
+            # pick out only the preapprovals
+            if p.date_payment is None and p.type == PAYMENT_TYPE_AUTHORIZATION and p.status == TRANSACTION_STATUS_ACTIVE and p not in cleared_list:
+                
+                # keep only the newest transaction for this user and campaign                
+                user_transactions_for_campaign = Transaction.objects.filter(user=p.user, status=TRANSACTION_STATUS_ACTIVE, campaign=p.campaign).order_by('-date_authorized')
+                
+                if len(user_transactions_for_campaign) > 1:
+                    logger.info("Found %d active transactions for campaign" % len(user_transactions_for_campaign))
+                    self.cancel_related_transaction(user_transactions_for_campaign[0], status=TRANSACTION_STATUS_ACTIVE, campaign=transactions[0].campaign)
+                    
+                cleared_list.extend(user_transactions_for_campaign)
+                    
+            # Note, we may need to call checkstatus again here
             
         return status
     
          
-    def run_query(self, transaction_list, summary, pledged, authorized, incomplete, completed):
+    def run_query(self, transaction_list, summary=True, campaign_total=False, pledged=False, authorized=False, incomplete=False, completed=False, pending=False, error=False, failed=False, **kwargs):
         '''
-        Generic query handler for returning summary and transaction info,  see query_user, query_list and query_campaign
-        '''
-
-        if pledged:
-            pledged_list = transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
-                                                   status=TRANSACTION_STATUS_COMPLETE)
-        else:
-            pledged_list = []
+        Generic query handler for returning summary and transaction info,  see query_user and query_campaign
         
-        if authorized:
+        campaign_total=True includes all payment types which should count towards campaign total
+        
+        '''
+        if campaign_total:
+            # must double check when adding Paypal or other
             # return only ACTIVE transactions with approved=True
-            authorized_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=TRANSACTION_STATUS_ACTIVE,
-                                                         approved=True)
-        else:
-            authorized_list = []
+            list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                approved=True).exclude(status=TRANSACTION_STATUS_CANCELED)
+            list = list | transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
+                                                   status=TRANSACTION_STATUS_COMPLETE)
+        else:                                       
+            list = Transaction.objects.none()
+            if pledged:
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_INSTANT,
+                                                       status=TRANSACTION_STATUS_COMPLETE)
             
-        if incomplete:
-            incomplete_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=TRANSACTION_STATUS_INCOMPLETE)
-        else:
-            incomplete_list = []                      
-            
-        if completed:
-            completed_list = transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
-                                                         status=TRANSACTION_STATUS_COMPLETE)
-        else:
-            completed_list = []            
-        
+            if authorized:
+                # return only ACTIVE transactions with approved=True
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                             status=TRANSACTION_STATUS_ACTIVE,
+                                                             approved=True)                
+            if incomplete:
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                             status=TRANSACTION_STATUS_INCOMPLETE)
+            if completed:
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                             status=TRANSACTION_STATUS_COMPLETE)        
+            if pending:
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                             status=TRANSACTION_STATUS_PENDING)        
+            if error:
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                             status=TRANSACTION_STATUS_ERROR)        
+            if failed:
+                list = list | transaction_list.filter(type=PAYMENT_TYPE_AUTHORIZATION,
+                                                             status=TRANSACTION_STATUS_FAILED)        
         if summary:
-            pledged_amount = D('0.00')
-            authorized_amount = D('0.00')
-            incomplete_amount = D('0.00')
-            completed_amount = D('0.00')
-            
-            for t in pledged_list:
-                for r in t.receiver_set.all():
-                    #
-                    # Currently receivers are only used for paypal, so keep the paypal status code here
-                    #
-                    if r.status == IPN_SENDER_STATUS_COMPLETED:
-                        # or IPN_SENDER_STATUS_COMPLETED
-                        # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
-                        pledged_amount += r.amount
-                
-            for t in authorized_list:
-                authorized_amount += t.amount
-                
-            for t in incomplete_list:
-                incomplete_amount += t.amount
-                
-            for t in completed_list:
-                completed_amount += t.amount                
-                
-            amount = pledged_amount + authorized_amount + incomplete_amount + completed_amount
+            amount = D('0.00')
+            for t in list:
+                if t.type==PAYMENT_TYPE_INSTANT:
+                    for r in t.receiver_set.all():
+                        #
+                        # Currently receivers are only used for paypal, so keep the paypal status code here
+                        #
+                        if r.status == IPN_SENDER_STATUS_COMPLETED:
+                            # or IPN_SENDER_STATUS_COMPLETED
+                            # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
+                            amount += r.amount
+                else:
+                    amount += t.amount
+                    
             return amount
         
         else:
-            return pledged_list | authorized_list | incomplete_list | completed_list   
+            return list   
 
-    def query_user(self, user, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
+    def query_user(self, user,  **kwargs):
         '''
         query_user
         
         Returns either an amount or list of transactions for a user
         
         summary: if true, return a float of the total, if false, return a list of transactions
-        pledged: include amounts pledged
-        authorized: include amounts pre-authorized
-        incomplete: include amounts for transactions with INCOMPLETE status
-        completed: include amounts for transactions that are COMPLETED
         
         return value: either a float summary or a list of transactions
+        Note: this method appears to be unused.
         
         '''        
         
         transactions = Transaction.objects.filter(user=user)
-        return self.run_query(transactions, summary, pledged, authorized, incomplete=True, completed=True)
+        return self.run_query(transactions,  **kwargs)
        
-    def query_campaign(self, campaign, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
+    def query_campaign(self, campaign, **kwargs ):
         '''
         query_campaign
         
         Returns either an amount or list of transactions for a campaign
         
         summary: if true, return a float of the total, if false, return a list of transactions
-        pledged: include amounts pledged
-        authorized: include amounts pre-authorized
-        incomplete: include amounts for transactions with INCOMPLETE status
-        completed: includes payments that have been completed
         
         return value: either a float summary or a list of transactions
-        
+                
         '''        
         
         transactions = Transaction.objects.filter(campaign=campaign)
-        return self.run_query(transactions, summary, pledged, authorized, incomplete, completed)
+        return self.run_query(transactions, **kwargs)
     
 
-    def query_list(self, list, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
-        '''
-        query_list
-        
-        Returns either an amount or list of transactions for a list
-        
-        summary: if true, return a float of the total, if false, return a list of transactions
-        pledged: include amounts pledged
-        authorized: include amounts pre-authorized
-        incomplete: include amounts for transactions with INCOMPLETE status
-        completed: includes payments that have been completed
-        
-        return value: either a float summary or a list of transactions
-        
-        '''        
-        
-        transactions = Transaction.objects.filter(list=list)
-        return self.run_query(transactions, summary, pledged, authorized, incomplete, completed)
             
     def execute_campaign(self, campaign):
         '''
@@ -629,10 +622,14 @@ class PaymentManager( object ):
             # that for whatever reason fail.  will need other housekeeping to handle those.
             # sadly this point is not yet late enough in the process -- needs to be moved
             # until after we are certain.
-            if modification:
-                pledge_modified.send(sender=self, transaction=t, up_or_down="increased")
-            else:
+            
+            if not modification:
+                # BUGBUG: 
+                # send the notice here for now
+                # this is actually premature since we're only about to send the user off to the payment system to
+                # authorize a charge
                 pledge_created.send(sender=self, transaction=t)
+                
             return t, url
     
         
@@ -642,6 +639,48 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return t, None
         
+    def cancel_related_transaction(self, transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=None):
+        '''
+        Cancels any other similar status transactions for the same campaign.  Used with modify code
+        
+        Returns the number of transactions successfully canceled
+        '''
+        
+        related_transactions = Transaction.objects.filter(status=status, user=transaction.user)
+        
+        if len(related_transactions) == 0:
+            return 0
+        
+        if campaign:
+            related_transactions = related_transactions.filter(campaign=campaign)
+            
+        canceled = 0
+        
+        for t in related_transactions:
+            
+            if t.id == transaction.id:
+                # keep our transaction
+                continue
+            
+            if self.cancel_transaction(t): 
+                canceled = canceled + 1
+                # send notice about modification of transaction
+                if transaction.amount > t.amount:
+                    # this should be the only one that happens
+                    up_or_down = "increased"
+                elif transaction.amount < t.amount:
+                    # we shouldn't expect any case in which this happens
+                    up_or_down = "decreased"
+                else:
+                    # we shouldn't expect any case in which this happens
+                    up_or_down = None
+                    
+                pledge_modified.send(sender=self, transaction=transaction, up_or_down=up_or_down)
+            else:
+                logger.error("Failed to cancel transaction {0} for related transaction {1} ".format(t, transaction))
+            
+        return canceled
+    
     def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None,
                            return_url=None, nevermind_url=None,
                            paymentReason=None):
@@ -701,10 +740,15 @@ class PaymentManager( object ):
             if t and url:
                 # Need to re-direct to approve the transaction
                 logger.info("New authorization needed, redirection to url %s" % url)
-                self.cancel_transaction(transaction)
+                
+                # Do not cancel the transaction here, wait until we get confirmation that the transaction is complete
+                # then cancel all other active transactions for this campaign
+                #self.cancel_transaction(transaction)    
+
                 # while it would seem to make sense to send a pledge notification change here
                 # if we do, we will also send notifications when we initiate but do not
                 # successfully complete a pledge modification
+
                 return True, url
             else:
                 # a problem in authorize

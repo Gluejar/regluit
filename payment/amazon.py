@@ -50,7 +50,6 @@ AMAZON_OPERATION_TYPE_REFUND = 'REFUND'
 AMAZON_OPERATION_TYPE_CANCEL = 'CANCEL'
 
 # load FPS_ACCESS_KEY and FPS_SECRET_KEY from the database if possible
-
 try:
     from regluit.core.models import Key
     FPS_ACCESS_KEY = Key.objects.get(name="FPS_ACCESS_KEY").value
@@ -210,6 +209,7 @@ def amazonPaymentReturn(request):
         approves a preapproval or a pledge.  This URL is set via the PAY api.
     '''
     try:
+        transaction = None
         
         # pick up all get and post parameters and display
         output = "payment complete"
@@ -279,7 +279,7 @@ def amazonPaymentReturn(request):
                 # We may never see an IPN, set the status here
                 logging.error("Amazon payment authorization failed: ")
                 logging.error(request.GET)
-                transaction.status = AMAZON_STATUS_FAILURE
+                transaction.status = TRANSACTION_STATUS_ERROR
             
                 
         elif transaction.type == PAYMENT_TYPE_AUTHORIZATION:
@@ -295,6 +295,14 @@ def amazonPaymentReturn(request):
                 transaction.status = TRANSACTION_STATUS_ACTIVE
                 transaction.approved = True
                 transaction.pay_key = token
+                transaction.save()
+                
+                print "Calling CANCEL RELATED"
+                
+                # clear out any other active transactions for this user and this campaign
+                from regluit.payment.manager import PaymentManager
+                p = PaymentManager()
+                p.cancel_related_transaction(transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=transaction.campaign)
                 
             else:
                 # We may never see an IPN, set the status here
@@ -307,24 +315,48 @@ def amazonPaymentReturn(request):
                           info = str(request.GET),
                           status = status,
                           transaction=transaction)
+            
+        else:
+            # Corrupt transaciton, unknown type
+            transaction.status = TRANSACTION_STATUS_ERROR
                 
         transaction.save()
         
-        # Redirect to our pledge success URL
-        return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-                                urllib.urlencode({'tid':transaction.id})) 
-        return_url = urlparse.urljoin(settings.BASE_URL, return_path)
-        return HttpResponseRedirect(return_url)
+        if transaction.status == TRANSACTION_STATUS_ERROR:
+            # We failed, redirect to a page to allow the user to try again
+            return_path = "{0}?{1}".format(reverse('pledge_nevermind'), 
+                                    urllib.urlencode({'tid':transaction.id})) 
+            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+            return HttpResponseRedirect(return_url)
+            
+        else:
+            # Not a failure, exact status will be updated by IPN
+            # Redirect to our pledge success URL
+            return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+                                    urllib.urlencode({'tid':transaction.id})) 
+            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+            return HttpResponseRedirect(return_url)
 
     except Exception, e:
         logging.error("Amazon co-branded return-url FAILED with exception:")
         traceback.print_exc()
         
-        # BUGBUG: check to see whether status is AMAZON_STATUS_ADBANDONED
-        # if so, ultimately figure out the campaign whose transaction is being canceled out.
-        # for the moment, return the user to BASE_URL
+    
+        if transaction:
         
-        if request.REQUEST.get("status") == AMAZON_STATUS_ADBANDONED:
+            # We failed, redirect to a page to allow the user to try again
+            return_path = "{0}?{1}".format(reverse('pledge_nevermind'), 
+                                    urllib.urlencode({'tid':transaction.id})) 
+            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+            return HttpResponseRedirect(return_url)
+        
+        else:
+    
+            #
+            # If we are here, amazon did not give us a caller reference, so we don't know what transaction was cancelled.
+            # Some kind of cleanup is required.  This can happen if there is an error in the amazon API or if the user clicks
+            # the cancel button.  If the case where the user closes the co-branded window or hits the back button, we will never arrive here.
+            #
             return HttpResponseRedirect(settings.BASE_URL)
 
 class AmazonRequest:

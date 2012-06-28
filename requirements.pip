@@ -26,3 +26,4 @@ paramiko
 pyasn1
 pycrypto
 django-maintenancemode
+django-smtp-ssl

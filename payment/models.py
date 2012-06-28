@@ -150,26 +150,16 @@ import regluit.payment.manager
 
 def handle_transaction_change(sender, instance, created, **kwargs):
     campaign = instance.campaign
-    
     if campaign:
-        p = regluit.payment.manager.PaymentManager()
-        amount = p.query_campaign(campaign=instance.campaign,summary=True)
-        instance.campaign.left=instance.campaign.target - amount
-        instance.campaign.save()
-        
+        campaign.update_left()
     return True
 
 # handle any deletes of payment.Transaction
 
 def handle_transaction_delete(sender, instance, **kwargs):
     campaign = instance.campaign
-    
     if campaign:
-        p = regluit.payment.manager.PaymentManager()
-        amount = p.query_campaign(campaign=instance.campaign,summary=True)
-        instance.campaign.left=instance.campaign.target - amount
-        instance.campaign.save()
-        
+        campaign.update_left()
     return True
 
 post_save.connect(handle_transaction_change,sender=Transaction)

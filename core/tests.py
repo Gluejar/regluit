@@ -54,6 +54,7 @@ class BookLoaderTests(TestCase):
         edition = bookloader.add_by_isbn('9787500676911')
         self.assertEqual(edition.work.language, 'zh')
 
+    # @unittest.expectedFailure
     def test_update_edition(self):  
         w = models.Work(title='silly title', language='xx')
         w.save()
@@ -62,7 +63,7 @@ class BookLoaderTests(TestCase):
         models.Identifier(type='isbn', value='9780226032030', work=w, edition=e).save()
         bookloader.update_edition(e)    
         self.assertEqual(e.work.language, 'en')
-        self.assertEqual(e.title, 'Forbidden journeys')
+        self.assertEqual(e.title, 'Forbidden Journeys')
 
     def test_double_add(self):
         bookloader.add_by_isbn('0441012035')

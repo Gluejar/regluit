@@ -15,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
+from regluit.core.signals import successful_campaign
 import binascii
 
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE
@@ -214,39 +215,49 @@ class Campaign(models.Model):
         return may_launch
 
     
-    def update_status(self):
-        """Updates the campaign's status. returns true if updated.  Computes SUCCESSFUL or UNSUCCESSFUL only after the deadline has passed
+    def update_status(self, ignore_deadline_for_success=False, send_notice=False):
+        """Updates the campaign's status. returns true if updated.
+        Computes UNSUCCESSFUL only after the deadline has passed
+        Computes SUCCESSFUL only after the deadline has passed if ignore_deadline_for_success is TRUE -- otherwise looks just at amount of pledges accumulated
+        by default, send_notice is False so that we have to explicity send specify delivery of successful_campaign notice
           
         """
         if not self.status=='ACTIVE':
             return False
-        elif self.deadline < now():
-            if self.current_total >= self.target:
-                self.status = 'SUCCESSFUL'
-                action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
-                action.save()
-                regluit.core.signals.successful_campaign.send(sender=None,campaign=self)
-            else:
-                self.status = 'UNSUCCESSFUL'
-                action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
-                action.save()
-                regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
+        elif (ignore_deadline_for_success or self.deadline < now()) and self.current_total >= self.target:
+            self.status = 'SUCCESSFUL'
             self.save()
+            action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
+            action.save()
+            if send_notice:
+                successful_campaign.send(sender=None,campaign=self)
+            return True
+        elif self.deadline < now() and self.current_total < self.target:
+            self.status = 'UNSUCCESSFUL'
+            self.save()
+            action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
+            action.save()
+            regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
             return True            
         else:
             return False
 
     @property
     def current_total(self):
-        if self.left:
+        if self.left is not None:
             return self.target-self.left
         else:
             return 0
-        
-    def transactions(self, summary=False, pledged=True, authorized=True, incomplete=True, completed=True):
+            
+    def update_left(self):
         p = PaymentManager()
-        return p.query_campaign(campaign=self, summary=summary, pledged=pledged, authorized=authorized, incomplete=incomplete,
-                                completed=completed)
+        amount = p.query_campaign(self,summary=True, campaign_total=True)
+        self.left = self.target - amount
+        self.save()
+        
+    def transactions(self,  **kwargs):
+        p = PaymentManager()
+        return p.query_campaign(self, summary=False, campaign_total=True, **kwargs)
         
     
     def activate(self):
@@ -318,7 +329,9 @@ class Campaign(models.Model):
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-            if self.status=='ACTIVE' or self.status=='INITIALIZED':
+	    # BUGBUG: why should the RH be dependent on the status of a campaign?
+	    # for the moment, I'll extend this logic to include 'SUCCESSFUL' campaigns too
+            if self.status in ('ACTIVE', 'INITIALIZED', 'SUCCESSFUL'):
                 q = Q(status='ACTIVE') | Q(status='INITIALIZED')
                 rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
                 return rh

@@ -230,7 +230,7 @@ $j(document).ready(function(){
                 <div id="content-block-content">
                        <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
-                        {% if status == 'ACTIVE' %}
+                        {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
                         {{ work.last_campaign.description|safe }}
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
@@ -283,28 +283,41 @@ $j(document).ready(function(){
                         <h4>Campaign details: the fine print</h4>
                         {{ work.last_campaign.details|safe }}
                         {% endif %}
- 
-                        <h4> Rights Information </h4>
-                        {% if claimstatus == 'one_active' %}
-                          <p>This work has been claimed by {{ rights_holder_name }}.</p>
-                        {% else %}
-                          {% if claimstatus == 'disputed' %}
-                            <p>Rights claims are pending.</p>
-                          {% else %}
-                            {% if claimstatus == 'one_pending' %}
-                              <p>A claim for this work by {{ rights_holder_name }} is pending.</p>                              
-                            {% else %}
-                        	  {% if request.user.rights_holder.all.count %}
-	                        	Is this work yours?  Claim it: <br /><br />
                         
-	    	                    <form method="GET" action="{% url claim %}">
-    	    	                    {% csrf_token %}
-        	    	                {{ claimform.user }}
-            	    	            {{ claimform.work }}
-                	    	        {{ claimform.rights_holder }}
-                    	    	    <input type="submit" name="submit" value="Claim">
-                     		     </form><br />
-	                          {% endif %}
+                        {% if status == 'SUCCESSFUL' %}
+                        <h3 class="tabcontent-title">A campaign has succeeded to unglue <i>{{work.title}}</i>!</h3>
+                        <p>The rights holder, {% for claim in work.claim.all %}
+                            {% if claim.status == 'active' %}
+                            {{ claim.rights_holder.rights_holder_name }}
+                            {% endif %} 
+                        {% endfor %}
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) thanks to the efforts of ungluers like you.</p>
+                        <h4>Campaign details: the fine print</h4>
+                        {{ work.last_campaign.details|safe }}
+                        {% endif %}
+                        {% if status != 'ACTIVE' and status != 'SUCCESSFUL' %}
+                            <h4> Rights Information </h4>
+                            {% if claimstatus == 'one_active' %}
+                              <p>This work has been claimed by {{ rights_holder_name }}.</p>
+                            {% else %}
+                              {% if claimstatus == 'disputed' %}
+                                <p>Rights claims are pending.</p>
+                              {% else %}
+                                {% if claimstatus == 'one_pending' %}
+                                  <p>A claim for this work by {{ rights_holder_name }} is pending.</p>                              
+                                {% else %}
+                                  {% if request.user.rights_holder.all.count %}
+                                    Is this work yours?  Claim it: <br /><br />
+                            
+                                    <form method="GET" action="{% url claim %}">
+                                        {% csrf_token %}
+                                        {{ claimform.user }}
+                                        {{ claimform.work }}
+                                        {{ claimform.rights_holder }}
+                                        <input type="submit" name="submit" value="Claim">
+                                     </form><br />
+                                  {% endif %}
+                                {% endif %}
                             {% endif %}
                           {% endif %}
                         {% endif %}

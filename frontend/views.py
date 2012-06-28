@@ -353,6 +353,7 @@ def manage_campaign(request, id):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                campaign.update_left()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
             else:
@@ -552,9 +553,12 @@ class PledgeView(FormView):
         work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
         campaign = work.last_campaign()
         
-        if campaign:
-            premiums = campaign.effective_premiums()
-                
+        # if there is no campaign or if campaign is not active, we should raise an error
+        
+        if campaign is None or campaign.status != 'ACTIVE':
+            raise Http404
+  
+        premiums = campaign.effective_premiums()        
         premium_id = self.request.REQUEST.get('premium_id', None)
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         
@@ -782,8 +786,6 @@ class PledgeModifyView(FormView):
         elif status and url is None:
             # let's use the pledge_complete template for now and maybe look into customizing it.
             return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
-            from regluit.payment.signals import pledge_modified
-            pledge_modified.send(sender=self, transaction=transaction, status="increased")
         else:
             return HttpResponse("No modification made")
 
@@ -958,6 +960,11 @@ class PledgeCancelView(FormView):
                 # We might want to remove this in a production system
                 if settings.DEBUG:
                     update_status = p.update_preapproval(transaction)
+                # send a notice out that the transaction has been canceled -- leverage the pledge_modify notice for now
+                # BUGBUG:  should have a pledge cancel notice actually since I think it's different
+                from regluit.payment.signals import pledge_modified
+                pledge_modified.send(sender=self, transaction=transaction, up_or_down="canceled")
+                logger.info("pledge_modified notice for cancellation: sender {0}, transaction {1}".format(self, transaction))
                 return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
             else:
                 logger.error("Attempt to cancel transaction id {0} failed".format(transaction.id))
