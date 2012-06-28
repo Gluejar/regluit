@@ -1,0 +1,43 @@
+<section epub:type="copyright-page" id="copyright-page">
+    <div class="agate-info">
+    <p>© {{ campaign.preferred_edition.publication_date }} by {{ campaign.work.author }}</p>
+    <p>ISBN: {{ campaign.preferred_edition.isbn }} .</p>
+    <p>URI: <a href="https://unglue.it/{{ campaign.work.id }}/">https://unglue.it/work/{{ campaign.work.id }}/</a> (this work).</p>
+    <p><img src="images/unglueitlogo.png" alt="unglue.it logo" /></p>
+    <p>
+    This <i>unglued</i> edition is distributed under the terms of the Creative Commons  (<a href="{{ campaign.license_url }}">{{ campaign.license }}</a>) license.
+    The Creative Commons licensing is made possible by the support of readers like you.
+    Become an ungluer at <a href="https://unglue.it/">https://unglue.it/</a>
+    </p>
+    </div>
+</section>
+<section epub:type="other-credits" id="other-credits">
+    <h2>This is an unglued ebook</h2>
+    <p>
+    Unglued ebooks are made possible through the Unglue.it website by contributions from readers like you.</p>
+    {% if campaign.ungluers.supporters %}
+        <p>Supporters of this edition include ungluers:
+        {% for ungluer in campaign.ungluers.supporters %}
+            {% if forloop.last %}and {% endif %}{{ ungluer.username }}{% if forloop.last %}. {% else %}, {% endif %}
+        {% endfor %}
+        </p>
+    {% endif %}
+    {% if campaign.ungluers.patrons %}
+        <p>Patrons of this edition include ungluers:
+        {% for ungluer in campaign.ungluers.patrons %}
+            {% if forloop.last %}and {% endif %}<a href="https://unglue.it/supporter/{{ ungluer.username }}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
+        {% endfor %}
+        </p>
+    {% endif %}
+    {% if campaign.ungluers.bibliophiles %}
+        <p>Bibliophiles of this edition include ungluers:<dl>
+        {% for ungluer in campaign.ungluers.bibliophiles %}
+            <dt><a href="https://unglue.it/supporter/{{ ungluer.username }}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.tagline }}</dd>
+        {% endfor %}
+        </dl>
+        </p>
+    {% endif %}
+    <p>
+    You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a>
+    </p>
+</section>
