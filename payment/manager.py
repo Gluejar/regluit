@@ -379,7 +379,7 @@ class PaymentManager( object ):
         
         return transactions
     
-    def cancel_campaign(self, campaign):
+    def cancel_campaign(self, campaign, reason="UNSUCCESSFUL CAMPAIGN"):
         '''
         cancel_campaign
         
@@ -393,9 +393,10 @@ class PaymentManager( object ):
         transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
         
         for t in transactions:            
-            result = self.cancel_transaction(t) 
-
-        # TO DO:  update campaign status
+            result = self.cancel_transaction(t)
+            if result:
+                t.reason = reason
+                t.save()
 
         return transactions    
         
