@@ -10,8 +10,13 @@ from django.contrib.auth.models import User
 
 from regluit.core import bookloader, models
 from regluit.core import goodreads, librarything
+from regluit.core.models import Campaign
 from regluit.utils.localdatetime import now, date_today
 
+from django.core.mail import send_mail
+
+from notification.engine import send_all
+from notification import models as notification
 
 @task 
 def populate_edition(isbn):
@@ -51,23 +56,22 @@ def fac(n, sleep_interval=None):
                 sleep(sleep_interval)
         return res
 
-from django.core.mail import get_connection
-from django.core.mail.message import EmailMessage
 
 @task
 def send_mail_task(subject, message, from_email, recipient_list,
             fail_silently=False, auth_user=None, auth_password=None,
             connection=None):
-    """a task to drop django.core.mail.send_mail into """
-    connection = connection or get_connection(username=auth_user,
-                                    password=auth_password,
-                                    fail_silently=fail_silently)
-    return EmailMessage(subject, message, from_email, recipient_list,
-                        connection=connection, headers = {'Reply-To': from_email }).send()
-    
+    """a task to drop django.core.mail.send_mail into """   
+    return send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
+                     auth_password=auth_password, connection=connection)
 
-from notification.engine import send_all
-from notification import models as notification
+
+#task to update the status of active campaigns
+
+@task
+def update_active_campaign_status():
+    """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
+    return [c.update_status(send_notice=True) for c in Campaign.objects.filter(status='Active') ]
  
 @task
 def emit_notifications():

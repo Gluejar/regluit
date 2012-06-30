@@ -236,8 +236,14 @@ from celery.schedules import crontab
 
 SEND_TEST_EMAIL_JOB = {
     "task": "regluit.core.tasks.send_mail_task",
-    "schedule": datetime.timedelta(seconds=30),
-    "args": ('hi there', 'testing 1, 2, 3', 'raymond.yee@gmail.com', ['raymond.yee@gmail.com'])
+    "schedule": crontab(hour=18, minute=20),
+    "args": ('hi there  18:20', 'testing 1, 2, 3', 'notices@gluejar.com', ['raymond.yee@gmail.com'])
+}
+
+UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
+    "task": "regluit.core.tasks.update_active_campaign_status",
+    "schedule": crontab(hour=18, minute=5),
+    "args": ()
 }
 
 EMIT_NOTIFICATIONS_JOB = {

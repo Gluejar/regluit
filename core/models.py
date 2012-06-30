@@ -237,7 +237,8 @@ class Campaign(models.Model):
             self.save()
             action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
             action.save()
-            regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
+            if send_notice:
+                regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
             return True            
         else:
             return False
