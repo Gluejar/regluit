@@ -242,7 +242,7 @@ SEND_TEST_EMAIL_JOB = {
 
 UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
     "task": "regluit.core.tasks.update_active_campaign_status",
-    "schedule": crontab(hour=18, minute=5),
+    "schedule": crontab(hour=0, minute=1),
     "args": ()
 }
 
