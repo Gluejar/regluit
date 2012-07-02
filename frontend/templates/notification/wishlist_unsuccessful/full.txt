@@ -2,7 +2,7 @@
 {% with campaign.rightsholder as rightsholder %}
 Alas.  The campaign to unglue {{ title }} (https://{{site.domain}}{% url work campaign.work.id %}) has not succeeded.
 
-If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
+If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.  You'll also receive an email from Amazon notifying you that your payment to Gluejar has been cancelled.
 
 Still want to give {{ title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ title }}.
 
