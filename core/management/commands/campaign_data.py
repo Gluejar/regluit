@@ -6,25 +6,32 @@ from regluit.payment.models import Transaction
 from django.db.models import Q, F, Count, Sum, Max
 from django.contrib.auth.models import User
 from regluit.payment.manager import PaymentManager
+from decimal import Decimal as D
 
 from regluit.experimental.gutenberg import unicode_csv
 
-def amazon_payments(fname=r"/Users/raymondyee/Downloads/All-Activity-Jan-25-2012-Jun-25-2012.csv"):
+def amazon_payments(fname=r"/Users/raymondyee/Downloads/All-Activity-With-Balance-Jan-01-2012-Jul-02-2012.csv"):
     r0 = unicode_csv.UnicodeReader(f=open(fname), encoding="iso-8859-1")
     # grab the header
     header = r0.next()
+    print "header", header
     r = unicode_csv.UnicodeDictReader(f=open(fname), fieldnames=header, encoding="iso-8859-1")
     return dict([(k['Transaction ID'],k) for k in r])
     
 def transactions_with_payment_info(transactions, payments=None):
     """an iterator for transactions / if a dict representing the actual payment data is provided, correlate the two"""
     for t in transactions:
-        data = {"username":t.user.username,
+        data = {"id": t.id,
+                "user_id": t.user.id,
+                "username":t.user.username,
                 "email":t.user.email,
-                "campaign_id": t.campaign.id if t.campaign is not None else None, 
+                "campaign_id": t.campaign.id if t.campaign is not None else "NULL", 
                 "amount":t.amount,
                 "status":t.status,
                 "local_status":t.local_status,
+                "premium_id": t.premium.id if t.premium is not None else "NULL",
+                "premium_amount": t.premium.amount if t.premium is not None else "NULL",
+                "premium_description": t.premium.description if t.premium is not None else "NULL",
                 "preapproval_key":t.preapproval_key,
                 "approved":t.approved,
                 "error":t.error}
@@ -34,13 +41,23 @@ def transactions_with_payment_info(transactions, payments=None):
                 data.update({'payment_transaction_id':payment['Transaction ID'],
                              'payment_name': payment['Name'],
                              'payment_status': payment['Status'],
-                             'payment_amount': payment['Amount'],
-                             'payment_fees': payment['Fees']
+                             'payment_amount': D(payment['Amount'].replace("$","")),
+                             'payment_fees': D(payment['Fees'].replace("$",""))
                              })
             else:
-                data.update({'payment_transaction_id':None})
+                data.update({'payment_transaction_id':"NULL",
+                             'payment_name': "NULL",
+                             'payment_status': "NULL",
+                             'payment_amount': "NULL",
+                             'payment_fees': "NULL"
+                             })
         else:
-            data.update({'payment_transaction_id':None})
+            data.update({'payment_transaction_id':"NULL",
+                             'payment_name': "NULL",
+                             'payment_status': "NULL",
+                             'payment_amount': "NULL",
+                             'payment_fees': "NULL"
+                             })
         yield data
     
     
@@ -122,16 +139,25 @@ class Command(BaseCommand):
         stats_for_campaign(c3)
         
         out_fname = "/Users/raymondyee/Downloads/unglue_it_trans.csv"
-        out_headers = ["username", 
+        out_headers = ["id",
+                "user_id",
+                "username", 
                 "email",
                 "campaign_id",
                 "amount",
                 "status",
                 "local_status",
+                "premium_id",
+                "premium_amount",
+                "premium_description",
                 "preapproval_key",
                 "approved",
                 "error",
-                "payment_transaction_id"
+                "payment_transaction_id",
+                "payment_name",
+                "payment_fees",
+                "payment_status",
+                "payment_amount"
                 ]
         
         f = open(out_fname, "wb")
