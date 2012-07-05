@@ -135,6 +135,8 @@ STATIC_ROOT = '/var/www/static'
 # decide which of the period tasks to add to the schedule
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
+# update the statuses of campaigns
+CELERYBEAT_SCHEDULE['update_active_campaign_statuses'] = UPDATE_ACTIVE_CAMPAIGN_STATUSES
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 # set -- sandbox or production Amazon FPS?

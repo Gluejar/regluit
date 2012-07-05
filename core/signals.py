@@ -153,7 +153,7 @@ def notify_unsuccessful_campaign(campaign, **kwargs):
     emit_notifications.delay()
     
 # unsuccessful_campaign -> send notices    
-unsuccessful_campaign.connect(notify_successful_campaign)
+unsuccessful_campaign.connect(notify_unsuccessful_campaign)
 
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
