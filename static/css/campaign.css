@@ -530,6 +530,10 @@ div#content-block-content #tabs-1 img {
 #pledge-rightcol .jsmodule {
   margin-bottom: 10px;
 }
+#js-rightcol .jsmodule a:hover,
+#pledge-rightcol .jsmodule a:hover {
+  text-decoration: none;
+}
 #pledge-rightcol {
   margin-top: 7px;
 }

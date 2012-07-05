@@ -405,7 +405,7 @@ $j(document).ready(function(){
             </div>
             {% if status == 'ACTIVE' %}
             <div class="jsmodule">
-                <h3 class="jsmod-title"><span>Support</span></h3>
+                <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
                 <div class="jsmod-content">
                     <ul class="support menu">
                         {% if pledged %}
