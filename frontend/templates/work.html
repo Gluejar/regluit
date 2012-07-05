@@ -60,7 +60,12 @@ $j(document).ready(function(){
                 <div class="jsmod-content {{ status }}">
                     <span>
                 {% if work.first_ebook %}
-                    AVAILABLE!
+                    AVAILABLE! <br/>
+                    {% if wishers == 1 %}
+                    1 Ungluer is
+                    {% else %}
+                    {{ wishers }} Ungluers are
+                    {% endif %} enjoying this book
                 {% else %}{% if work.last_campaign %}
                     {% if status == 'ACTIVE' %}
                             Unglue it! <br />
@@ -68,7 +73,9 @@ $j(document).ready(function(){
                             Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
-                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />${{ work.last_campaign.current_total|floatformat:0|intcomma }} raised of ${{ work.last_campaign.target|floatformat:0|intcomma }} goal
+                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />
+                            ${{ work.last_campaign.current_total|floatformat:0|intcomma }} raised of ${{ work.last_campaign.target|floatformat:0|intcomma }} goal<br/>
+                            Ebook in progress
                         {% else %}{% if status == 'INITIALIZED' %}
                             Campaign starting soon
                         {% else %}{% if status == 'SUSPENDED' %}
@@ -171,14 +178,9 @@ $j(document).ready(function(){
                                 {% endif %}
                             </div>
                         </div>
+                        {% if not work.first_ebook %}
                         <div class="pledged-info"><div class="pledged-group">
-                        {% if work.first_ebook %}
-                            {% if wishers == 1 %}
-                                1 Ungluer is
-                            {% else %}
-                                {{ wishers }} Ungluers are
-                            {% endif %} enjoying this Work
-                        {% else %}{% if status == 'ACTIVE' %}
+                        {% if status == 'ACTIVE' %}
                             {% if work.last_campaign.supporters.count == 1 %}
                                 One Ungluer has 
                             {% else %} 
@@ -191,10 +193,11 @@ $j(document).ready(function(){
                             {% else %}
                                 {{ wishers }} Ungluers have
                             {% endif %} wished for this Work
-                        {% endif %}{% endif %}
+                        {% endif %}
                         </div>
                         <div class="status">{% if status == 'ACTIVE' %}{{ work.percent_of_goal }}%&nbsp;{% endif %}<img src="/static/images/images/icon-book-37by25-{% if work.first_ebook %}6{%else%}{{ work.percent_unglued }}{%endif%}.png"  title="book list status" alt="book list status" /></div>
                         </div>
+                        {% endif %}
                         <div class="btn_wishlist" id="wishlist_actions">
                             {% if request.user.is_anonymous %}
                                 <div class="create-account">
