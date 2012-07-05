@@ -416,6 +416,9 @@ div#content-block-content #tabs-1 img {
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
+div#content-block-content #tabs-3 {
+  margin-left: -5px;
+}
 .tabs-content {
   padding-right: 5px;
 }
@@ -450,7 +453,8 @@ div#content-block-content #tabs-1 img {
   height: 50px;
   margin-top: 5px;
   vertical-align: middle;
-  margin-left: -5px;
+  min-width: 235px;
+  float: left;
 }
 .official {
   border: 3px #8ac3d7 solid;
