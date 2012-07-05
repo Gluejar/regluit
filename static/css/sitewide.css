@@ -361,13 +361,7 @@ ul.menu {
   overflow: auto;
   max-width: 240px;
 }
-.js-topmenu ul li #unseen_count {
-  height: 0;
-}
 .js-topmenu ul li #unseen_count div {
-  position: absolute;
-  right: 10px;
-  top: -16px;
   border: solid 2px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -377,6 +371,7 @@ ul.menu {
   width: 16px;
   cursor: pointer;
   text-align: center;
+  margin-left: -10px;
 }
 .js-topmenu ul li #unseen_count div#i_haz_notifications {
   background-color: #8dc63f;

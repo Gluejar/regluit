@@ -62,6 +62,8 @@
                     {% if user.is_authenticated %}
                     <li class="first">
                     	<a href="/supporter/{{user.username}}"><span id="welcome">Welcome, {{ user.username|truncatechars:20 }}</span></a>
+                    </li>
+                    <li>
                     	{% if unseen_count %}
                     	<a href="/notification" id="unseen_count"><div id="i_haz_notifications">{{ unseen_count }}</div></a>
                     	{% else %}
@@ -72,7 +74,6 @@
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
-                    <li><a href="{{ faqurl }}"><span>FAQs</span></a></li>   
                     <li id="about_expander"><a href="#"><span>About</span></a></li>   
                     <li><a href="{{ landingurl }}"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
