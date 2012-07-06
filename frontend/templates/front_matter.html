@@ -25,14 +25,14 @@
     {% if campaign.ungluers.patrons %}
         <p>Patrons of this edition include ungluers:
         {% for ungluer in campaign.ungluers.patrons %}
-            {% if forloop.last %}and {% endif %}<a href="https://unglue.it/supporter/{{ ungluer.username }}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
+            {% if forloop.last %}and {% endif %}<a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
         {% endfor %}
         </p>
     {% endif %}
     {% if campaign.ungluers.bibliophiles %}
         <p>Bibliophiles of this edition include ungluers:<dl>
         {% for ungluer in campaign.ungluers.bibliophiles %}
-            <dt><a href="https://unglue.it/supporter/{{ ungluer.username }}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.tagline }}</dd>
+            <dt><a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.tagline }}</dd>
         {% endfor %}
         </dl>
         </p>

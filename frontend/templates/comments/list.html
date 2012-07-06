@@ -2,7 +2,7 @@
   {% for comment in comment_list reversed %}
   
   <div class="work_supporter {% if comment.content_object.last_campaign and comment.user in comment.content_object.last_campaign.managers.all %}official{% endif %}">
-      <a href="/supporter/{{comment.user.username}}">
+      <a href="{% url supporter supporter_username=comment.user.username %}">
       <div class="work_supporter_avatar">
         {% if comment.user.profile.pic_url %}
             <img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />

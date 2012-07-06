@@ -6,7 +6,7 @@
 An activation email has been sent.  Please check your email and click on the link to activate your account.
 {% else %}
 <div>
-You are logged in as <a href="/supporter/{{user.username}}">{{ request.user.username }}</a>.
+You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
 </div>
 {% endif %}
 
