@@ -60,6 +60,9 @@ from notification import models as notification
 
 logger = logging.getLogger(__name__)
 
+def static_redirect_view(request, file_name, dir=""):
+    return HttpResponseRedirect('/static/'+dir+"/"+file_name)
+
 def slideshow(max):
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
@@ -108,6 +111,10 @@ def stub(request):
     path = request.path[6:] # get rid of /stub/
     return render(request,'stub.html', {'path': path})
 
+def acks(request, work):
+    return render(request,'front_matter.html', {'campaign': work.last_campaign()})
+    
+
 def work(request, work_id, action='display'):
     try:
         work = models.Work.objects.get(id = work_id)
@@ -116,7 +123,8 @@ def work(request, work_id, action='display'):
             work = models.WasWork.objects.get(was = work_id).work
         except models.WasWork.DoesNotExist:
             raise Http404
-
+    if action == "acks":
+        return acks( request, work)
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:

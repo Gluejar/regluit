@@ -101,7 +101,7 @@ Please fix the following before launching your campaign:
 	<ul class="tabs">
 		<li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">Description</a></li>
 		<li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Premiums</a></li>
-		<li class="tabs3 {% if activetab == '3' %}active{% endif %}"><a href="#">Launch</a></li>
+		<li class="tabs3 {% if activetab == '3' %}active{% endif %}"><a href="#">{% if campaign_status == 'ACTIVE' or campaign_status == 'SUCCESSFUL'  %}Progress{% else %}Launch{% endif %}</a></li>
 	</ul>
 </div>
 <div class="clearfix"></div>
@@ -252,8 +252,9 @@ Please fix the following before launching your campaign:
 </div>
 {% endifequal %}
 
-{% ifequal campaign_status 'ACTIVE' %}
 <div class="tabs-3">
+{% if campaign_status == 'ACTIVE' or campaign_status == 'SUCCESSFUL'  %}
+{% if campaign_status == 'ACTIVE' %}
 <h2 class="thank-you">Your campaign is now active! Hooray!</h2>
 
 <h3>What to do next</h3>
@@ -263,8 +264,13 @@ Please fix the following before launching your campaign:
 <li>Watch media and social networks for mentions of your campaign, and engage in those conversations.</li>
 <li>Need help doing any of this?  Talk to us.</li>
 </ul>
+{% endif %}
+<h3>Campaign Summary</h3>
+<p> You can see what tiers people have pledged for (or earned) by looking at the <a href="{% url work_acks campaign.work.id %}">sample acknowledgement page</a>.
+After your campaign succeeds, you can used this page to generate epub code! 
+</p>
+{% endif %}
 </div>
-{% endifequal %}
 
 {% endif %}
 {% endwith %}
