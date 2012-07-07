@@ -181,10 +181,10 @@ $j(document).ready(function(){
                         {% if not work.first_ebook %}
                         <div class="pledged-info"><div class="pledged-group">
                         {% if status == 'ACTIVE' %}
-                            {% if work.last_campaign.supporters.count == 1 %}
+                            {% if work.last_campaign.supporters_count == 1 %}
                                 One Ungluer has 
                             {% else %} 
-                                {{ work.last_campaign.supporters.count }} Ungluers have 
+                                {{ work.last_campaign.supporters_count }} Ungluers have 
                             {% endif %}
                             pledged ${{ work.last_campaign.current_total|floatformat:0|intcomma }}<br />toward a ${{ work.last_campaign.target|floatformat:0|intcomma }} goal 
                         {% else %}

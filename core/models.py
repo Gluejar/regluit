@@ -316,6 +316,11 @@ class Campaign(models.Model):
         """nb: returns (distinct) supporter IDs, not supporter objects"""
         translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
         return translist
+        
+    @property
+    def supporters_count(self):
+        # avoid transmitting the whole list if you don't need to; let the db do the count.
+        return self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
 
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
