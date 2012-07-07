@@ -335,8 +335,8 @@ class Campaign(models.Model):
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-	    # BUGBUG: why should the RH be dependent on the status of a campaign?
-	    # for the moment, I'll extend this logic to include 'SUCCESSFUL' campaigns too
+        # BUGBUG: why should the RH be dependent on the status of a campaign?
+        # for the moment, I'll extend this logic to include 'SUCCESSFUL' campaigns too
             if self.status in ('ACTIVE', 'INITIALIZED', 'SUCCESSFUL'):
                 q = Q(status='ACTIVE') | Q(status='INITIALIZED')
                 rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
