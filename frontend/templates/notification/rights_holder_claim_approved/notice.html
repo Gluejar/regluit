@@ -1,6 +1,8 @@
 {% extends "notification/notice_template.html" %}
+{% url work claim.work.id as work_url %}
+
 {% block comments_book %}
-	<a href="{% url work claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
+	<a href="{{ work_url }}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}

@@ -25,16 +25,16 @@
 				<span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
 				{% endcomment %}
 			{% endblock %}
-				<br /><i>{% now "M d Y, h:i A"%}</i>
+				<br /><i>{% now "M d Y, h:i A"%}</i><br />
+		</div>
+		<div class="comments_textual">
+			{% block comments_textual %}
+				{% comment %}
+				This is where you put the textual part of your message.
+				Examples include the text of comments, details about credit card charges, etc.
+				{% endcomment %}
+			{% endblock %}
 		</div>
 	</div>
 	
-	<div class="comments_textual">
-		{% block comments_textual %}
-			{% comment %}
-			This is where you put the textual part of your message.
-			Examples include the text of comments, details about credit card charges, etc.
-			{% endcomment %}
-		{% endblock %}
-	</div>
 </div>

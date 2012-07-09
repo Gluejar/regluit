@@ -2,9 +2,12 @@
 {% load humanize %}
 {% with campaign.work.id as work_id %}
 {% with campaign.work.title as title %}
+{% url pledge work_id=work_id as pledge_url %}
+{% url work work_id as work_url %}
+{% url emailshare 'pledge' as emailshare_url %}
 
 {% block comments_book %}
-	<a href="{% url work work_id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -15,15 +18,10 @@
 	{% if pledged %}
 		Your pledge of {{ amount|intcomma }} is now going even farther toward helping {{ title }} to reach its goal.  Still, we can only unglue this book if the campaign succeeds.  You can help again by sharing this campaign:
 		{% else %}
-		The target may be lower, but we still need your help to reach it.  Pledges of any amount help.  You can chip in towards giving this book to the world at https://{{ site.domain }}{% url pledge work_id=work_id %} .  You can also help by sharing this campaign:
+		The target may be lower, but we still need your help to reach it.  Pledges of any amount help.  You can chip in towards giving this book to the world at https://{{ site.domain }}{{ pledge_url }} .  You can also help by sharing this campaign:
 	{% endif %}
 	
-	<ul>
-		<a href="{% url emailshare 'pledge' %}?next={% url work work_id|urlencode:"" %}"><li>Email it!</li></a>
-		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work_id|urlencode:"" %}&text=I%20just%20pledged%20to%20unglue%20{{ title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li>Tweet it!</li></a>
-		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work_id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
-		<li>Best idea: talk about it with those you love.</li>
-	</ul>
+	{% include "notification/sharing_block.html" %}
 {% endblock %}
 
 {% endwith %}

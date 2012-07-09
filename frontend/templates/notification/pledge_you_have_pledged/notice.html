@@ -1,26 +1,27 @@
 {% extends "notification/notice_template.html" %}
-{% load humanize %}{% with transaction.campaign.work.title as title %}{% with transaction.campaign.work.id as work_id %}{% with transaction.amount as amount %}
+{% load humanize %}
+{% with transaction.campaign.work.title as title %}
+{% with transaction.campaign.work.id as work_id %}
+{% with transaction.amount as amount %}
+{% url work work_id as work_url %}
+{% url emailshare 'pledge' as pledge_url %}
+
 {% block comments_book %}
-	<a href="{% url work transaction.campaign.work.id %}?tab=2"><img src="{{ transaction.campaign.work.cover_image_thumbnail }}" alt="cover image for {{ title }}" /></a>
+	<a href="{{ work_url }}?tab=2"><img src="{{ transaction.campaign.work.cover_image_thumbnail }}" alt="cover image for {{ title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-		  You've just pledged ${{ amount|intcomma }} to <a href="{% url work work_id %}">{{ title }}</a>.
+	You've just pledged ${{ amount|intcomma }} to <a href="{{ work_url }}">{{ title }}</a>.
 {% endblock %}
 
 {% block comments_textual %}
-		<p>Thank you, {{ transaction.user.username }}!</p>
-		<p>You've just pledged ${{ amount|intcomma }} to <a href="{% url work work_id %}">{{ title }}</a>.  If it reaches its goal of ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
-		<p>You can help even more by sharing this campaign with your friends!</p>
-
-		<ul>
-			<a href="{% url emailshare 'pledge' %}?next={% url work work_id|urlencode:"" %}"><li>Email it!</li></a>
-			<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work_id|urlencode:"" %}&text=I%20just%20pledged%20to%20unglue%20{{ title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li>Tweet it!</li></a>
-			<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work_id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
-			<li>Best idea: talk about it with those you love.</li>
-		</ul>
-		
-		<p>Thanks for being part of Unglue.it.</p>
-		<p>The unglue.it team.</p>
+	<p>Thank you, {{ transaction.user.username }}!</p>
+	<p>You've just pledged ${{ amount|intcomma }} to <a href="{{ work_url }}">{{ title }}</a>.  If it reaches its goal of ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+	<p>You can help even more by sharing this campaign with your friends!</p>
+	
+	{% include "notification/sharing_block.html" %}
+	
+	<p>Thanks for being part of Unglue.it.</p>
+	<p>The unglue.it team.</p>
 {% endblock %}
 {% endwith %}{% endwith %}{% endwith %}

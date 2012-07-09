@@ -1,9 +1,10 @@
 {% extends "notification/notice_template.html" %}
 {% load humanize %}
 {% with transaction.campaign.work.title as title %}
+{% url work transaction.campaign.work.id as work_url %}
 
 {% block comments_book %}
-			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+			<a href="{{ work_url }}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 {% endblock %}
 
 {% block comments_book %}

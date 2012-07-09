@@ -4,9 +4,10 @@
 {% with transaction.campaign.work.title as title %}
 {% with transaction.campaign.rightsholder as rightsholder %}
 {% with transaction.amount as amount %}
+{% url work work.id as work_url %}
 
 {% block comments_book %}
-			<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+			<a href="{{ work_url %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -24,7 +25,7 @@
 		</p>
 		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 		</p>
-		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">project page</a>.
+		<p>For more information, visit the  visit the <a href="{{ work_url }}">project page</a>.
 		
 		</p>
 		<p>Thank you again for your support.

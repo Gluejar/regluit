@@ -1,7 +1,9 @@
 {% extends "notification/notice_template.html" %}
 {% with campaign.work.title as title %}
+{% url work campaign.work.id as work_url %}
+
 {% block comments_book %}
-	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}

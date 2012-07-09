@@ -1,8 +1,10 @@
 {% extends "notification/notice_template.html" %}
 {% load humanize %}
+{% url pledge work_id=campaign.work.id as pledge_url %}
+{% url work campaign.work.id as work_url %}
 
 {% block comments_book %}
-	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -15,5 +17,5 @@
 	Premium: {{ premium.description }}
 	Minimum pledge: {{ premium.amount|intcomma }}
 	
-	If you'd like to claim the last one, pledge here: https://{{ site.domain }}{% url pledge work_id=campaign.work.id %}
+	If you'd like to claim the last one, pledge here: https://{{ site.domain }}{{ pledge_url }}
 {% endblock %}

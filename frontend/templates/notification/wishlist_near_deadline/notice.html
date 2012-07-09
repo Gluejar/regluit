@@ -1,7 +1,10 @@
 {% extends "notification/notice_template.html" %}
+{% url pledge work_id=campaign.work.id as pledge_url %}
+{% url emailshare 'pledge' as emailshare_url %}
+{% url work campaign.work.id as work_url %}
 
 {% block comments_book %}
-	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -14,15 +17,10 @@
 	{% if pledged %}
 	Your pledge is helping us reach that goal.  Will you help again by sharing this campaign with your friends?
 	{% else %}
-	You can help us give this book to the world by <a href="{% url pledge work_id=campaign.work.id %}">pledging</a> or by sharing this campaign with your friends.
+	You can help us give this book to the world by <a href="{{ pledge_url }}">pledging</a> or by sharing this campaign with your friends.
 	{% endif %}
 
-	<ul>
-		<a href="{% url emailshare 'pledge' %}?next={% url work campaign.work.id|urlencode:"" %}"><li>Email it!</li></a>
-		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}&text=Help%20me%20give%20{{ campaign.work.title|urlencode }}%20to%20the%20world%20at%20%40unglueit"><li>Tweet it!</li></a>
-		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work campaign.work.id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
-		<li>Best idea: talk about it with those you love.</li>
-	</ul><br />
+	{% include "notification/sharing_block.html" %}
 	
 	Thank you!
 {% endblock %}
