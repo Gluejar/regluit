@@ -776,7 +776,21 @@ class UserProfile(models.Model):
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-
+  
+class CampaignSurveyResponse(models.Model):
+    # generic
+    campaign = models.ForeignKey("Campaign", related_name="surveyresponses", null=False)
+    user = models.OneToOneField(User, related_name='wishlist')
+    transaction = models.ForeignKey(Transaction, null=True)
+    # for OLA only
+    premium = models.ForeignKey(Premium, null=True)
+    anonymous = models.BooleanField(null=False)
+    # relevant to all campaigns since these arise from acknowledgement requirements from generic premiums 
+    name = models.CharField(max_length=140, blank=True)
+    url = models.URLField(blank=True)
+    tagline = models.CharField(max_length=140, blank=True)
+    # do we need to collect address for Rupert or will he do that once he has emails?
+  
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals
