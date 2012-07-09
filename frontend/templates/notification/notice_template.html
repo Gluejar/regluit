@@ -1,10 +1,14 @@
+{% comment %}
+make sure that any urls you use are based off of a {% url foo as bar %}
+django-notification can't find the url dispatcher when extending this template
+{% endcomment %}
 <div class="comments clearfix">
 	<div class="comments_info clearfix">
 		<div class="comments_book">
 			{% block comments_book %}
 				{% comment %}
 				Your cover image goes here. e.g.:
-				<a href="{% url work work.id %}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+				<a href="{{ work_url }}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
 				modify as needed for your local context variables
 				{% endcomment %}
 			{% endblock %}
@@ -15,14 +19,14 @@
 				This is where you put your headline.
 				Brief text, graphics-oriented info like user avatars and campaign status icons.
 				e.g.:
-				<a href="{% url supporter supporter_username=user %}">
+				<a href="{{ supporter_url }}">
 					{% if supporter.profile.pic_url %}
 						<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
 					{% else %}
 						<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
 					{% endif %}
 				</a>
-				<span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
+				<span><a href="{{ supporter_url }}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>
 				{% endcomment %}
 			{% endblock %}
 				<br /><i>{% now "M d Y, h:i A"%}</i><br />
