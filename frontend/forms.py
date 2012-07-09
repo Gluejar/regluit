@@ -234,14 +234,14 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
                 raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
             return new_target
-    
+        
         def clean_deadline(self):
-            new_deadline = self.cleaned_data['deadline']
+            new_deadline_date = self.cleaned_data['deadline']
+            new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
             if self.instance:
-                if self.instance.status == 'ACTIVE' and self.instance.deadline != new_deadline:
-                    pass
-                    #raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-            if new_deadline - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
+                    raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+            if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
                 raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             elif new_deadline - now() < timedelta(days=0):         
                 raise forms.ValidationError(_('The chosen closing date is in the past'))

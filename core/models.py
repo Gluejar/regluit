@@ -90,6 +90,7 @@ class RightsHolder(models.Model):
     
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'),(u'CU', u'Custom'),(u'XX', u'Inactive'))
+    TIERS = {"supporter":25, "patron":50, "bibliophile":100} #should load this from fixture
     created =  models.DateTimeField(auto_now_add=True)  
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
     campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
@@ -105,6 +106,7 @@ class Premium(models.Model):
     def premium_remaining(self):
         t_model=get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
+    
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -316,6 +318,32 @@ class Campaign(models.Model):
         """nb: returns (distinct) supporter IDs, not supporter objects"""
         translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
         return translist
+        
+    @property
+    def supporters_count(self):
+        # avoid transmitting the whole list if you don't need to; let the db do the count.
+        return self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        
+    def ungluers(self):
+        p = PaymentManager()
+        ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
+        if self.status == "ACTIVE":
+            translist = p.query_campaign(self, summary=False, pledged=True, authorized=True)
+        elif self.status == "SUCCESSFUL":
+            translist = p.query_campaign(self, summary=False, pledged=True, completed=True)
+        else:
+            translist = []
+        for transaction in translist:
+            ungluers['all'].append(transaction.user)
+            if not transaction.anonymous:
+                if transaction.amount >= Premium.TIERS["bibliophile"]:
+                    ungluers['bibliophiles'].append(transaction.user)
+                elif transaction.amount >= Premium.TIERS["patron"]:
+                    ungluers['patrons'].append(transaction.user)
+                elif transaction.amount >= Premium.TIERS["supporter"]:
+                    ungluers['supporters'].append(transaction.user)
+        
+        return ungluers
 
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
@@ -330,8 +358,8 @@ class Campaign(models.Model):
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-	    # BUGBUG: why should the RH be dependent on the status of a campaign?
-	    # for the moment, I'll extend this logic to include 'SUCCESSFUL' campaigns too
+        # BUGBUG: why should the RH be dependent on the status of a campaign?
+        # for the moment, I'll extend this logic to include 'SUCCESSFUL' campaigns too
             if self.status in ('ACTIVE', 'INITIALIZED', 'SUCCESSFUL'):
                 q = Q(status='ACTIVE') | Q(status='INITIALIZED')
                 rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
