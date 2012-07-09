@@ -1,19 +1,19 @@
+{% extends "notification/notice_template.html" %}
 {% load humanize %}
 {% with transaction.campaign.work as work %}
 {% with transaction.campaign.work.title as title %}
 {% with transaction.campaign.rightsholder as rightsholder %}
 {% with transaction.amount as amount %}
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
+
+{% block comments_book %}
 			<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
-		</div>
-		<div class="comments_graphical">
+{% endblock %}
+
+{% block comments_graphical %}
 			Hooray! The campaign for {{ title }} has succeeded.  Your credit card is being charged ${{ amount }}.  Thank you again for your help.
-		</div>
-	</div>
-	
-	<div class="comments_textual">
+{% endblock %}
+
+{% block comments_textual %}
 		<p>Congratulations!</p>
 		
 		<p>Thanks to you and other ungluers, {{ title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} will now charge your credit card.</p>
@@ -31,8 +31,8 @@
 		</p>
 		<p>{{ rightsholder }} and the Unglue.it team
 		</p>
-	</div>
-</div>
+{% endblock %}
+
 {% endwith %}
 {% endwith %}
 {% endwith %}

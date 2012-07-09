@@ -1,24 +1,29 @@
+{% extends "notification/notice_template.html" %}
 {% load humanize %}
 {% with transaction.campaign.work.title as title %}
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
+
+{% block comments_book %}
 			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
-		</div>
-		<div class="comments_graphical">
+{% endblock %}
+
+{% block comments_book %}
 			Your pledge for the campaign to unglue {{ title }} has been {% if up_or_down == 'canceled'%}canceled{% else %}modified{% endif %}.
-		</div>
-	</div>
-	
-	{% if up_or_down == 'canceled' %}<div class="comments_textual">
+{% endblock %}
+
+{% if up_or_down == 'canceled' %}
+	{% block comments_book %}
 		Your canceled pledge was as follows:<br />
 		Amount: ${{ transaction.amount|intcomma }}<br />
 		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
-	</div>{% else %}<div class="comments_textual">
+	{% endblock %}
+
+{% else %}
+	{% block comments_book %}
 		Your new pledge is as follows:<br />
 		Amount: ${{ transaction.amount|intcomma }}<br />
 		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
 		Thank you for your continued support of {{ title }}.
-	</div>{% endif %}
-</div>
+	{% endblock %}
+{% endif %}
+
 {% endwith %}
