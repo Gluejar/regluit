@@ -62,12 +62,14 @@ def send_mail_task(subject, message, from_email, recipient_list,
             fail_silently=False, auth_user=None, auth_password=None,
             connection=None):
     """a task to drop django.core.mail.send_mail into """   
-    return send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
+    try:
+        r=send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
                      auth_password=auth_password, connection=connection)
-
-
+    except:
+        r=logger.info('failed to send message:' + message)
+    return r
+    
 #task to update the status of active campaigns
-
 @task
 def update_active_campaign_status():
     """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
