@@ -338,7 +338,7 @@ def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
     campaign.problems=[]
-    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
+    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     alerts = []
