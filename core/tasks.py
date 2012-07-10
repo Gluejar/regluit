@@ -65,7 +65,7 @@ def send_mail_task(subject, message, from_email, recipient_list,
     """a task to drop django.core.mail.send_mail into """
     # NOTE:  since we are currently using Amazon SES, which allows email to be sent only from validated email
     # addresses, we force from_email to be one of the validated address unless override_from_email is FALSE
-    try:"
+    try:
         if override_from_email:
             try:
                 from_email = settings.DEFAULT_FROM_EMAIL
