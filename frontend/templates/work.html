@@ -209,7 +209,7 @@ $j(document).ready(function(){
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
-                                    <span id="w{{ work_id }}">Remove This</span>
+                                    <span id="w{{ work_id }}">Remove from Wishlist</span>
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
