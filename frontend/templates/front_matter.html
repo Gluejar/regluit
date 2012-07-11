@@ -30,7 +30,7 @@
         </p>
     {% endif %}
     {% if campaign.ungluers.patrons %}
-        <p>Patrons of this edition include ungluers:
+        <p>Benefactors of this edition include ungluers:
         {% for ungluer in campaign.ungluers.patrons %}
             {% if forloop.last %}and {% endif %}<a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
         {% endfor %}
