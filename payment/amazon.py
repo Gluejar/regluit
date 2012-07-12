@@ -220,14 +220,36 @@ def amazonPaymentReturn(request):
         status = request.GET['status']
         reference = request.GET['callerReference']
         token = request.GET['tokenID']
-        
 
-        # BUGUBG - Should we verify the signature here?
-        #
+        # validate the signature
+        
+        uri = request.build_absolute_uri()
+        parsed_url = urlparse.urlparse(uri)
+        
+        connection = FPSConnection(FPS_ACCESS_KEY, FPS_SECRET_KEY, host=settings.AMAZON_FPS_HOST)
+        
+        # Check the validity of the IPN
+        resp = connection.verify_signature("%s://%s%s" %(parsed_url.scheme, 
+                                                         parsed_url.netloc, 
+                                                         parsed_url.path),
+                                                         urllib.urlencode(request.GET))
+        
+        if not resp[0].VerificationStatus == "Success":
+            # Error, ignore this 
+            logging.error("amazonPaymentReturn cannot be verified with get data: ")
+            logging.error(request.GET)
+            return HttpResponseForbidden()
+        
+        logging.debug("amazonPaymentReturn sig verified:")
+        logging.debug(request.GET)
+        
+        # validation of signature ok
         # Find the transaction by reference, there should only be one
-        # We will catch the exception if it does not exist
-        #
-        transaction = Transaction.objects.get(secret=reference)
+        try:
+            transaction = Transaction.objects.get(secret=reference)
+        except:
+            logging.info("transaction with secret {0}".format(reference))
+            return HttpResponseForbidden()
         
         logging.info("Amazon Co-branded Return URL called for transaction id: %d" % transaction.id)
         logging.info(request.GET)
