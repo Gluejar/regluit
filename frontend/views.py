@@ -805,12 +805,10 @@ class PledgeRechargeView(TemplateView):
     a view to allow for recharge of a transaction for failed transactions or ones with errors
     """
     template_name="pledge_recharge.html"
-    form_class = CampaignPledgeForm
-    embedded = False
 
     def get_context_data(self, **kwargs):
         
-        context = super(PledgeModifyView, self).get_context_data(**kwargs)
+        context = super(PledgeRechargeView, self).get_context_data(**kwargs)
         
         # the following should be true since PledgeModifyView.as_view is wrapped in login_required
         assert self.request.user.is_authenticated()
@@ -820,114 +818,37 @@ class PledgeRechargeView(TemplateView):
         
         try:
             campaign = work.last_campaign()
-            premiums = campaign.effective_premiums()
             
-            # which combination of campaign and transaction status required?
-            # Campaign must be ACTIVE
-            assert campaign.status == 'ACTIVE'
+            # only if a campaign is SUCCESSFUL, we allow for recharged
+            
+            # if there is a FAILED or ERROR transaction and no ACTIVE or COMPLETE transaction
+            # instead of a PREAPPROVAL, let's go right for PAYMENT...if successful, we need to send notice...if not, fail it out
 
-            transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
+            if campaign.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).count():
+                raise Http404
+            
+            transactions = campaign.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_ERROR) | Q(status=TRANSACTION_STATUS_FAILED)))
+            # there should be only 1
             assert transactions.count() == 1
             transaction = transactions[0]
-            assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE
-           
+            
         except Exception, e:
             raise e
         
-        # what stuff do we need to pull out to populate form?
-        # preapproval_amount, premium_id (which we don't have stored yet)
-        if transaction.premium is not None:
-            premium_id = transaction.premium.id
-            premium_description = transaction.premium.description
-        else:
-            premium_id = None
-            premium_description = None
-        
-        # is there a Transaction for an ACTIVE campaign for this
-        # should make sure Transaction is modifiable.
+        # compute the amount that supporter had tried to charge
         
         preapproval_amount = transaction.amount      
-        data = {'preapproval_amount':preapproval_amount, 'premium_id':premium_id}
-        
-        # initialize form with the current state of the transaction if the current values empty
-        form = kwargs['form']
-        
-        if not(form.is_bound):
-            form_class = self.get_form_class()
-            form = form_class(initial=data)
-    
+        data = {'preapproval_amount':preapproval_amount}
+
         context.update({
                 'work':work,
                 'campaign':campaign, 
-                'premiums':premiums, 
-                'form':form,
                 'preapproval_amount':preapproval_amount, 
-                'premium_id':premium_id, 
-                'premium_description': premium_description, 
-                'faqmenu': 'modify', 
                 'tid': transaction.id,
                 'payment_processor':settings.PAYMENT_PROCESSOR,
                 })
         return context
     
-    
-    def form_invalid(self, form):
-        logger.info("form.non_field_errors: {0}".format(form.non_field_errors()))
-        response =  self.render_to_response(self.get_context_data(form=form))
-        return response
-        
-    def form_valid(self, form):
-        
-        # What are the situations we need to deal with?
-        # 2 main situations:  if the new amount is less than max_amount, no need to go out to PayPal again
-        # if new amount is greater than max_amount...need to go out and get new approval.
-        # to start with, we can use the standard pledge_complete, pledge_cancel machinery
-        # might have to modify the pledge_complete, pledge_cancel because the messages are going to be
-        # different because we're modifying a pledge rather than a new one.
-        
-        work_id = self.kwargs["work_id"]
-        preapproval_amount = form.cleaned_data["preapproval_amount"]
-        anonymous = form.cleaned_data["anonymous"]
- 
-        assert self.request.user.is_authenticated()
-        user = self.request.user       
-                
-        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
-        campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
-        assert campaign.status == 'ACTIVE'
-    
-        premium_id = form.cleaned_data["premium_id"]
-        # confirm that the premium_id is a valid one for the campaign in question
-        try:
-            premium = models.Premium.objects.get(id=premium_id)
-            if not (premium.campaign is None or premium.campaign == campaign):
-                 premium = None
-        except models.Premium.DoesNotExist, e:
-            premium = None
-    
-        transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
-        assert transactions.count() == 1
-        transaction = transactions[0]
-        assert transaction.type == PAYMENT_TYPE_AUTHORIZATION and transaction.status == TRANSACTION_STATUS_ACTIVE        
-        
-        p = PaymentManager(embedded=self.embedded)
-        paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
-        status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium,
-                                           paymentReason=paymentReason)
-        
-        logger.info("status: {0}, url:{1}".format(status, url))
-        
-        if status and url is not None:
-            logger.info("PledgeModifyView paypal: " + url)
-            return HttpResponseRedirect(url)
-        elif status and url is None:
-            # let's use the pledge_complete template for now and maybe look into customizing it.
-            return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), transaction.id))
-        else:
-            return HttpResponse("No modification made")
-
-
-
 
 class PledgeCompleteView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
