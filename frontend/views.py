@@ -823,13 +823,30 @@ class PledgeRechargeView(TemplateView):
         transaction = campaign.transaction_to_recharge(user)
         
         # calculate a URL to do a preapproval -- in the future, we may want to do a straight up payment
+            
+        return_url = None
+        nevermind_url = None
         
-        
+        if transaction is not None:
+            # the recipients of this authorization is not specified here but rather by the PaymentManager.
+            # set the expiry date based on the campaign deadline
+            expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+    
+            paymentReason = "Unglue.it Recharge for {0}".format(campaign.name)
+            
+            p = PaymentManager(embedded=False)
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, transaction.amount, expiry=expiry, campaign=campaign, list=None, user=user,
+                            return_url=return_url, nevermind_url=nevermind_url, anonymous=transaction.anonymous, premium=transaction.premium,
+                            paymentReason=paymentReason)
+            logger.info("Recharge url: {0}".format(url))
+        else:
+            url = None
         
         context.update({
                 'work':work,
                 'transaction':transaction,
-                'payment_processor':settings.PAYMENT_PROCESSOR,
+                'payment_processor':transaction.host if transaction is not None else None,
+                'recharge_url': url
                 })
         return context
     
