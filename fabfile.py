@@ -87,7 +87,9 @@ def public_key_from_private_key():
 def email_addresses():
     """list email addresses in unglue.it"""
     with cd("/opt/regluit"):
-        run("""source ENV/bin/activate; echo "import django; print ' \\n'.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.me""")
+        run("""source ENV/bin/activate; echo "import django; print ' \\n'.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.me > /home/ubuntu/emails.txt""")
+    local("scp web1:/home/ubuntu/emails.txt .")
+    run("""rm /home/ubuntu/emails.txt""")
     
 def selenium():
     """setting up selenium to run in the background on RY's laptop"""

@@ -7,7 +7,7 @@ from django.conf import settings
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, FAQView
+from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
 
 urlpatterns = patterns(

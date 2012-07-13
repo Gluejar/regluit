@@ -815,36 +815,20 @@ class PledgeRechargeView(TemplateView):
         user = self.request.user
         
         work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        campaign = work.last_campaign()
         
-        try:
-            campaign = work.last_campaign()
-            
-            # only if a campaign is SUCCESSFUL, we allow for recharged
-            
-            # if there is a FAILED or ERROR transaction and no ACTIVE or COMPLETE transaction
-            # instead of a PREAPPROVAL, let's go right for PAYMENT...if successful, we need to send notice...if not, fail it out
-
-            if campaign.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).count():
-                raise Http404
-            
-            transactions = campaign.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_ERROR) | Q(status=TRANSACTION_STATUS_FAILED)))
-            # there should be only 1
-            assert transactions.count() == 1
-            transaction = transactions[0]
-            
-        except Exception, e:
-            raise e
+        if campaign is None:
+            return Http404
         
-        # compute the amount that supporter had tried to charge
+        transaction = campaign.transaction_to_recharge(user)
         
-        preapproval_amount = transaction.amount      
-        data = {'preapproval_amount':preapproval_amount}
-
+        # calculate a URL to do a preapproval -- in the future, we may want to do a straight up payment
+        
+        
+        
         context.update({
                 'work':work,
-                'campaign':campaign, 
-                'preapproval_amount':preapproval_amount, 
-                'tid': transaction.id,
+                'transaction':transaction,
                 'payment_processor':settings.PAYMENT_PROCESSOR,
                 })
         return context
