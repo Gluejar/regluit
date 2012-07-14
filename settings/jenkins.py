@@ -57,7 +57,7 @@ GOOGLE_DISPLAY_NAME = 'unglue it!'
 
 # you'll need to register a GoogleBooks API key
 # https://code.google.com/apis/console
-GOOGLE_BOOKS_API_KEY = 'AIzaSyD4CFqxbxTpSQP55q0q1uTGzLBsDki1s4E'
+GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
 
 PAYPAL_USERNAME = ''
 PAYPAL_PASSWORD =  ''
