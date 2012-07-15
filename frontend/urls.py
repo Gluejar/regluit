@@ -7,7 +7,7 @@ from django.conf import settings
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, FAQView
+from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
 
 urlpatterns = patterns(
@@ -55,6 +55,7 @@ urlpatterns = patterns(
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
     url(r"^pledge/nevermind/$", login_required(PledgeNeverMindView.as_view()), name="pledge_nevermind"),
     url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeModifyView.as_view()), name="pledge_modify"),
+    url(r"^pledge/recharge/(?P<work_id>\d+)$", login_required(PledgeRechargeView.as_view()), name="pledge_recharge"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),

@@ -674,7 +674,8 @@ class PledgeView(FormView):
 class PledgeModifyView(FormView):
     """
     A view to handle request to change an existing pledge
-    """
+     """
+   
     template_name="pledge.html"
     form_class = CampaignPledgeForm
     embedded = False
@@ -797,6 +798,58 @@ class PledgeModifyView(FormView):
         else:
             return HttpResponse("No modification made")
 
+
+
+class PledgeRechargeView(TemplateView):
+    """
+    a view to allow for recharge of a transaction for failed transactions or ones with errors
+    """
+    template_name="pledge_recharge.html"
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(PledgeRechargeView, self).get_context_data(**kwargs)
+        
+        # the following should be true since PledgeModifyView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user
+        
+        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        campaign = work.last_campaign()
+        
+        if campaign is None:
+            return Http404
+        
+        transaction = campaign.transaction_to_recharge(user)
+        
+        # calculate a URL to do a preapproval -- in the future, we may want to do a straight up payment
+            
+        return_url = None
+        nevermind_url = None
+        
+        if transaction is not None:
+            # the recipients of this authorization is not specified here but rather by the PaymentManager.
+            # set the expiry date based on the campaign deadline
+            expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+    
+            paymentReason = "Unglue.it Recharge for {0}".format(campaign.name)
+            
+            p = PaymentManager(embedded=False)
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, transaction.amount, expiry=expiry, campaign=campaign, list=None, user=user,
+                            return_url=return_url, nevermind_url=nevermind_url, anonymous=transaction.anonymous, premium=transaction.premium,
+                            paymentReason=paymentReason)
+            logger.info("Recharge url: {0}".format(url))
+        else:
+            url = None
+        
+        context.update({
+                'work':work,
+                'transaction':transaction,
+                'payment_processor':transaction.host if transaction is not None else None,
+                'recharge_url': url
+                })
+        return context
+    
 
 class PledgeCompleteView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.

@@ -18,7 +18,10 @@ import regluit.core.isbn
 from regluit.core.signals import successful_campaign, unsuccessful_campaign
 import binascii
 
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
+
+from django.db.models import Q
+
 
 class UnglueitError(RuntimeError):
     pass
@@ -323,7 +326,26 @@ class Campaign(models.Model):
     def supporters_count(self):
         # avoid transmitting the whole list if you don't need to; let the db do the count.
         return self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+
+    def transaction_to_recharge(self, user):
+        """given a user, return the transaction to be recharged if there is one -- None otherwise"""
         
+        # only if a campaign is SUCCESSFUL, we allow for recharged
+        
+        if self.status == 'SUCCESSFUL':
+            if self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).count():
+                # presence of an active or complete transaction means no transaction to recharge
+                return None  
+            else:
+                transactions = self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_ERROR) | Q(status=TRANSACTION_STATUS_FAILED)))
+                # assumption --that the first failed/errored transaction has the amount we need to recharge
+                if transactions.count():
+                    return transactions[0]
+                else:
+                    return None
+        else:
+            return None   
+
     def ungluers(self):
         p = PaymentManager()
         ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
@@ -804,7 +826,21 @@ class UserProfile(models.Model):
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-
+  
+#class CampaignSurveyResponse(models.Model):
+#    # generic
+#    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
+#    user = models.OneToOneField(User, related_name='surveyresponse')
+#    transaction = models.ForeignKey("payment.Transaction", null=True)
+#    # for OLA only
+#    premium = models.ForeignKey("Premium", null=True)
+#    anonymous = models.BooleanField(null=False)
+#    # relevant to all campaigns since these arise from acknowledgement requirements from generic premiums 
+#    name = models.CharField(max_length=140, blank=True)
+#    url = models.URLField(blank=True)
+#    tagline = models.CharField(max_length=140, blank=True)
+#    # do we need to collect address for Rupert or will he do that once he has emails?
+  
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals
