@@ -331,6 +331,7 @@ class TransactionTest(TestCase):
         results = p.query_campaign(c,campaign_total=True, summary=False)
         self.assertEqual(results[0].amount, D('12.34'))
         self.assertEqual(c.left,c.target-D('12.34'))
+        self.assertEqual(c.supporters_count, 1)
 
 class BasicGuiTest(TestCase):
     def setUp(self):

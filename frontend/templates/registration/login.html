@@ -22,7 +22,7 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 </div>
 {% else %}
 <div>
-You are already logged in as <a href="/supporter/{{user.username}}">{{ user.username }}</a>.
+You are already logged in as <a href="{% url supporter supporter_username=user.username %}">{{ user.username }}</a>.
 </div>
 {% endif %}
 {% endblock %}

@@ -87,12 +87,14 @@ def public_key_from_private_key():
 def email_addresses():
     """list email addresses in unglue.it"""
     with cd("/opt/regluit"):
-        run("""source ENV/bin/activate; echo "import django; print ' \\n'.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.me""")
+        run("""source ENV/bin/activate; echo "import django; print ' \\n'.join([u.email for u in django.contrib.auth.models.User.objects.all() ]); quit()" | django-admin.py shell_plus --settings=regluit.settings.me > /home/ubuntu/emails.txt""")
+    local("scp web1:/home/ubuntu/emails.txt .")
+    run("""rm /home/ubuntu/emails.txt""")
     
 def selenium():
     """setting up selenium to run in the background on RY's laptop"""
     with cd('/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit'):
-        local("java -jar test/selenium-server-standalone-2.20.0.jar > selenium-rc.log 2>&1 &")
+        local("java -jar test/selenium-server-standalone-2.24.1.jar > selenium-rc.log 2>&1 &")
         
 def test():
     """run regluit tests locally"""

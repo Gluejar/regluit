@@ -1,7 +1,14 @@
+{% extends "basedocumentation.html" %}
+{% block title %}Open Access eBooks{% endblock %}
+{% block extra_extra_head %}
+    <link rel="stylesheet" type="text/css" href="/static/css/vanilla.css" class="day" title="day" /> 
+{% endblock %}  
+{% block doccontent %}
+<!-- trim here -->
 <section epub:type="copyright-page" id="copyright-page">
     <div class="agate-info">
-    <p>© {{ campaign.preferred_edition.publication_date }} by {{ campaign.work.author }}</p>
-    <p>ISBN: {{ campaign.preferred_edition.isbn }} .</p>
+    <p>© {{ campaign.work.preferred_edition.publication_date }} by {{ campaign.work.author }}</p>
+    <p>ISBN: {{ campaign.work.preferred_edition.isbn_13 }} .</p>
     <p>URI: <a href="https://unglue.it/{{ campaign.work.id }}/">https://unglue.it/work/{{ campaign.work.id }}/</a> (this work).</p>
     <p><img src="images/unglueitlogo.png" alt="unglue.it logo" /></p>
     <p>
@@ -14,7 +21,7 @@
 <section epub:type="other-credits" id="other-credits">
     <h2>This is an unglued ebook</h2>
     <p>
-    Unglued ebooks are made possible through the Unglue.it website by contributions from readers like you.</p>
+    Unglued ebooks are made possible through the Unglue.it website by contributions from {{ campaign.ungluers.all|length }} readers like you.</p>
     {% if campaign.ungluers.supporters %}
         <p>Supporters of this edition include ungluers:
         {% for ungluer in campaign.ungluers.supporters %}
@@ -23,16 +30,16 @@
         </p>
     {% endif %}
     {% if campaign.ungluers.patrons %}
-        <p>Patrons of this edition include ungluers:
+        <p>Benefactors of this edition include ungluers:
         {% for ungluer in campaign.ungluers.patrons %}
-            {% if forloop.last %}and {% endif %}<a href="https://unglue.it/supporter/{{ ungluer.username }}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
+            {% if forloop.last %}and {% endif %}<a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
         {% endfor %}
         </p>
     {% endif %}
     {% if campaign.ungluers.bibliophiles %}
         <p>Bibliophiles of this edition include ungluers:<dl>
         {% for ungluer in campaign.ungluers.bibliophiles %}
-            <dt><a href="https://unglue.it/supporter/{{ ungluer.username }}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.tagline }}</dd>
+            <dt><a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.tagline }}</dd>
         {% endfor %}
         </dl>
         </p>
@@ -41,3 +48,6 @@
     You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a>
     </p>
 </section>
+<!-- trim here -->
+
+{% endblock %}

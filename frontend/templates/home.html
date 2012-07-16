@@ -72,7 +72,7 @@
                         </div>
                     {% else %}
                     <div>
-                    You are logged in as <a href="/supporter/{{request.user.username}}">{{ request.user.username }}</a>.
+                    You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
                     </div>
                     {% endif %}
 
@@ -149,7 +149,7 @@
                     </div>
                     {% else %}
                     <div>
-                    You are logged in as <a href="/supporter/{{request.user.username}}">{{ request.user.username }}</a>.
+                    You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
                     </div>
                     {% endif %}
 

@@ -60,6 +60,9 @@ from notification import models as notification
 
 logger = logging.getLogger(__name__)
 
+def static_redirect_view(request, file_name, dir=""):
+    return HttpResponseRedirect('/static/'+dir+"/"+file_name)
+
 def slideshow(max):
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
@@ -108,6 +111,10 @@ def stub(request):
     path = request.path[6:] # get rid of /stub/
     return render(request,'stub.html', {'path': path})
 
+def acks(request, work):
+    return render(request,'front_matter.html', {'campaign': work.last_campaign()})
+    
+
 def work(request, work_id, action='display'):
     try:
         work = models.Work.objects.get(id = work_id)
@@ -116,7 +123,8 @@ def work(request, work_id, action='display'):
             work = models.WasWork.objects.get(was = work_id).work
         except models.WasWork.DoesNotExist:
             raise Http404
-
+    if action == "acks":
+        return acks( request, work)
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
@@ -330,7 +338,7 @@ def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
     campaign.problems=[]
-    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all()):
+    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     alerts = []
@@ -666,7 +674,8 @@ class PledgeView(FormView):
 class PledgeModifyView(FormView):
     """
     A view to handle request to change an existing pledge
-    """
+     """
+   
     template_name="pledge.html"
     form_class = CampaignPledgeForm
     embedded = False
@@ -789,6 +798,58 @@ class PledgeModifyView(FormView):
         else:
             return HttpResponse("No modification made")
 
+
+
+class PledgeRechargeView(TemplateView):
+    """
+    a view to allow for recharge of a transaction for failed transactions or ones with errors
+    """
+    template_name="pledge_recharge.html"
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(PledgeRechargeView, self).get_context_data(**kwargs)
+        
+        # the following should be true since PledgeModifyView.as_view is wrapped in login_required
+        assert self.request.user.is_authenticated()
+        user = self.request.user
+        
+        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        campaign = work.last_campaign()
+        
+        if campaign is None:
+            return Http404
+        
+        transaction = campaign.transaction_to_recharge(user)
+        
+        # calculate a URL to do a preapproval -- in the future, we may want to do a straight up payment
+            
+        return_url = None
+        nevermind_url = None
+        
+        if transaction is not None:
+            # the recipients of this authorization is not specified here but rather by the PaymentManager.
+            # set the expiry date based on the campaign deadline
+            expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+    
+            paymentReason = "Unglue.it Recharge for {0}".format(campaign.name)
+            
+            p = PaymentManager(embedded=False)
+            t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, transaction.amount, expiry=expiry, campaign=campaign, list=None, user=user,
+                            return_url=return_url, nevermind_url=nevermind_url, anonymous=transaction.anonymous, premium=transaction.premium,
+                            paymentReason=paymentReason)
+            logger.info("Recharge url: {0}".format(url))
+        else:
+            url = None
+        
+        context.update({
+                'work':work,
+                'transaction':transaction,
+                'payment_processor':transaction.host if transaction is not None else None,
+                'recharge_url': url
+                })
+        return context
+    
 
 class PledgeCompleteView(TemplateView):
     """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.

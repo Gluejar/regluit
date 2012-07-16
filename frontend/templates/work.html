@@ -60,7 +60,7 @@ $j(document).ready(function(){
                 <div class="jsmod-content {{ status }}">
                     <span>
                 {% if work.first_ebook %}
-                    AVAILABLE! <br/>
+                    AVAILABLE! <br />
                     {% if wishers == 1 %}
                     1 Ungluer is
                     {% else %}
@@ -181,10 +181,10 @@ $j(document).ready(function(){
                         {% if not work.first_ebook %}
                         <div class="pledged-info"><div class="pledged-group">
                         {% if status == 'ACTIVE' %}
-                            {% if work.last_campaign.supporters.count == 1 %}
+                            {% if work.last_campaign.supporters_count == 1 %}
                                 One Ungluer has 
                             {% else %} 
-                                {{ work.last_campaign.supporters.count }} Ungluers have 
+                                {{ work.last_campaign.supporters_count }} Ungluers have 
                             {% endif %}
                             pledged ${{ work.last_campaign.current_total|floatformat:0|intcomma }}<br />toward a ${{ work.last_campaign.target|floatformat:0|intcomma }} goal 
                         {% else %}
@@ -209,7 +209,7 @@ $j(document).ready(function(){
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
-                                    <span id="w{{ work_id }}">Remove This</span>
+                                    <span id="w{{ work_id }}">Remove from Wishlist</span>
                                 </div>
                             {% else %}
                                 <div class="add-wishlist">
@@ -258,7 +258,7 @@ $j(document).ready(function(){
                         {% for wish in work.wishes.all reversed %}
                         {% with wish.wishlist.user as supporter %}
                         	<div class="work_supporter_nocomment">
-                        		<a href="/supporter/{{ supporter }}">
+                        		<a href="{% url supporter supporter_username=supporter.username %}">
                               		<div class="work_supporter_avatar">
                                 		{% if supporter.profile.pic_url %}
                                     		<img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
