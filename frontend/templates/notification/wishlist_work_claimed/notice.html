@@ -1,31 +1,22 @@
-{% with claim.work.id as work_id %}
-{% with claim.work.title as title %}
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
-			<a href="{% url work work_id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
-		</div>
-		<div class="comments_graphical">
-			Hooray! {{ rightsholder }} is now an approved rights holder for {{ title }}.
-		</div>
-	</div>
+{% extends "notification/notice_template.html" %}
+
+{% block comments_book %}
+	<a href="{% url work claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+	Hooray! {{ rightsholder }} is now an approved rights holder for {{ claim.work.title }}.
+{% endblock %}
+
+{% block comments_textual %}
+	What does this mean for you?  Rights holders are the people who are legally authorized to license works.  This means they're the only people who can run campaigns on Unglue.it.
 	
-	<div class="comments_textual">
-		What does this mean for you?  Rights holders are the people who are legally authorized to license works.  This means they're the only people who can run campaigns on Unglue.it.
-		
-		{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{site.domain}}{% url work work_id %}?tab=2">Leave a comment</a> and tell your friends:
+	{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{site.domain}}{% url work claim.work.id %}?tab=2">Leave a comment</a> and tell your friends:
 
-		<ul>
-			<a href="{% url emailshare 'pledge' %}?next={% url work work_id|urlencode:"" %}"><li>Email it!</li></a>
-			<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work_id|urlencode:"" %}&text=I%20just%20pledged%20to%20unglue%20{{ title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li>Tweet it!</li></a>
-			<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work_id|urlencode:"" %}"><li>Share it on Facebook.</li></a>
-			<li>Best idea: talk about it with those you love.</li>
-		</ul>
-
-		Make sure {{ rightsholder }} knows how much you want to give this book to the world.
-		
-		Thanks for your help!
-	</div>
-</div>
-{% endwith %}
-{% endwith %}
+	{% url work claim.work.id as work_url %}
+	{% include "notification/sharing_block.html" %}
+	
+	Make sure {{ rightsholder }} knows how much you want to give this book to the world.
+	
+	Thanks for your help!
+{% endblock %}

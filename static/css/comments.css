@@ -93,7 +93,7 @@
 .comments {
   clear: both;
   padding: 5px;
-  margin: 0 5px 0 0;
+  margin: 0 5px 8px 0;
   width: 95%;
 }
 .comments.row1 {
@@ -142,6 +142,6 @@
 .official {
   border: 3px #B8DDE0 solid;
   margin-top: 3px;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
   padding-left: 2px;
 }

@@ -1,12 +1,9 @@
-{% with campaign.work.title as title %}
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
-			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
-		</div>
-		<div class="comments_graphical">
-			The rights holder, {{ campaign.rightsholder }}, has updated the campaign to unglue {{ title }}.  For details, see the <a href="{% url work campaign.work.id %}">campaign page</a>.
-		</div>
-	</div>	
-</div>
-{% endwith %}
+{% extends "notification/notice_template.html" %}
+
+{% block comments_book %}
+			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ cmapaign.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+			The rights holder, {{ campaign.rightsholder }}, has updated the campaign to unglue {{ campaign.work.title }}.  For details, see the <a href="{% url work campaign.work.id %}">campaign page</a>.
+{% endblock %}

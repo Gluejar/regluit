@@ -1,22 +1,19 @@
-{% with campaign.work.title as title %}
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
-			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
-		</div>
-		<div class="comments_graphical">
-			Alas.  The campaign to unglue {{ title }} did not succeed.
-		</div>
-	</div>
+{% extends "notification/notice_template.html" %}
+
+{% block comments_book %}
+	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+	Alas.  The campaign to unglue <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a> did not succeed.
+{% endblock %}
+
+{% block comments_textual %}
+	If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 	
-	<div class="comments_textual">
-		If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
-		
-		Still want to give {{ title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ campaign.rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ title }}.
-		
-		There are also <a href="https://unglue.it/campaigns/ending">other books with active campaigns</a> that need your help.
-		
-		Thank you for your support.
-	</div>
-</div>
-{% endwith %}
+	Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ campaign.rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
+	
+	There are also <a href="https://unglue.it/campaigns/ending">other books with active campaigns</a> that need your help.
+	
+	Thank you for your support.
+{% endblock %}

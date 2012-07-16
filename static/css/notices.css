@@ -133,28 +133,39 @@ input[type="submit"] {
   border: solid 3px #d6dde0;
   margin: 3px auto;
 }
+.comments hr {
+  margin: 10px auto 5px;
+  color: #d6dde0;
+  background-color: #d6dde0;
+  height: 2px;
+  border: 0;
+}
 .comments .comments_book {
   padding: 5px;
   border: solid 5px #EDF3F4;
-  margin: 5px;
+  margin-right: 10px;
+  margin-bottom: 10px;
   max-width: 80px;
 }
 .comments .comments_book img {
   max-width: 80px;
 }
 .comments .comments_textual {
-  margin: auto 5px 7px;
+  padding: 10px 5px 5px;
 }
 .comments .comments_textual div {
   margin-bottom: 5px;
 }
 .comments .comments_info {
   border-bottom: solid 1px #d6dde0;
+  padding: 5px;
 }
 .comments .comments_info div {
   float: left;
 }
 .comments .comments_info .comments_graphical {
-  margin: 5px;
-  padding-bottom: 5px;
+  padding: 5px auto;
+}
+.comments .comments_info span {
+  text-indent: 0;
 }

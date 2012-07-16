@@ -1,39 +1,30 @@
+{% extends "notification/notice_template.html" %}
 {% load humanize %}
-{% with transaction.campaign.work as work %}
-{% with transaction.campaign.work.title as title %}
-{% with transaction.campaign.rightsholder as rightsholder %}
-{% with transaction.amount as amount %}
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
-			<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
-		</div>
-		<div class="comments_graphical">
-			Hooray! The campaign for {{ title }} has succeeded.  Your credit card is being charged ${{ amount }}.  Thank you again for your help.
-		</div>
-	</div>
-	
-	<div class="comments_textual">
+
+{% block comments_book %}
+			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card is being charged ${{ transaction.amount }}.  Thank you again for your help.
+{% endblock %}
+
+{% block comments_textual %}
 		<p>Congratulations!</p>
 		
-		<p>Thanks to you and other ungluers, {{ title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} will now charge your credit card.</p>
+		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} will now charge your credit card.</p>
 		
-		<p>Pledge Summary :<br />
-		Amount pledged: {{ amount|intcomma }}<br />
+		<p><b>Pledge Summary</b><br />
+		Amount pledged: {{ transaction.amount|intcomma }}<br />
 		Premium: {{ transaction.premium.description }} <br />
 		</p>
-		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
+		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 		</p>
-		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">project page</a>.
+		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">campaign page</a>.
 		
 		</p>
 		<p>Thank you again for your support.
 		</p>
-		<p>{{ rightsholder }} and the Unglue.it team
+		<p>{{ transaction.campaign.rightsholder }} and the Unglue.it team
 		</p>
-	</div>
-</div>
-{% endwith %}
-{% endwith %}
-{% endwith %}
-{% endwith %}
+{% endblock %}

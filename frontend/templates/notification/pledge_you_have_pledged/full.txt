@@ -1,5 +1,5 @@
-{% load humanize %}{% with transaction.campaign.work.title as title %}{% with site.domain as domain %}{% with transaction.campaign.work.id as work_id %}
-Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ title }}.  If this campaign successfully raises ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
+{% load humanize %}
+Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ transaction.campaign.work.title }}.  If this campaign successfully raises ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
 
 Pledge summary
 Amount pledged: ${{ transaction.amount|intcomma }}
@@ -7,22 +7,19 @@ Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% els
 
 You can help even more by sharing this campaign with your friends.
 
-Facebook: https://www.facebook.com/sharer.php?u=https://{{ domain }}{% url work work_id %}
+Facebook: https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work transaction.campaign.work.id %}
 
-Twitter: https://twitter.com/intent/tweet?url=https://{{ domain }}{% url work work_id %}&text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
+Twitter: https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work transaction.campaign.work.id %}&text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
 
-You can also embed a widget for {{ title }} in your web site by copy/pasting the following:
-<iframe src="https://{{ domain }}/api/widget/{{ transaction.campaign.work.first_isbn_13 }}/" width="152" height="325" frameborder="0"></iframe>
+You can also embed a widget for {{ transaction.campaign.work.title }} in your web site by copy/pasting the following:
+<iframe src="https://{{ site.domain }}/api/widget/{{ transaction.campaign.work.first_isbn_13 }}/" width="152" height="325" frameborder="0"></iframe>
 
 Or the best idea: talk about it with those you love.  We'll need lots of help from lots of people to make this a success. 
 
-If you want to change your pledge, just use the button at https://{{ domain }}{% url work work_id %}
+If you want to change your pledge, just use the button at https://{{ site.domain }}{% url work transaction.campaign.work.id %}
 
 If you have any problems with your pledge, don't hesitate to contact us at support@gluejar.com
 
 Thanks for being part of Unglue.it.
 
-{{ transaction.campaign.rightsholder }} (rights holder for {{ title }}) and the Unglue.it team
-{% endwith %}
-{% endwith %}
-{% endwith %}
+{{ transaction.campaign.rightsholder }} (rights holder for {{ transaction.campaign.work.title }}) and the Unglue.it team

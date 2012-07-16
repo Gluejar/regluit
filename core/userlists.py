@@ -5,13 +5,15 @@ from django.contrib.auth.models import User
 from regluit.core.models import Work
 
 def other_users(user, how_many):
-    # do something more sophisitcated sometime later
-    count = User.objects.all().count()
+    # do something more sophisticated later?
+    # limit to candidates with nonempty wishlists
+    candidates = User.objects.filter(wishlist__wishes__gte=1).distinct()
+    count = candidates.count()
     if count <= how_many :
-        user_list = User.objects.all()[0: count]
+        user_list = candidates[0: count]
     else :
         slice = random.random() * (count - how_many)
-        user_list = User.objects.all()[slice: slice+how_many]
+        user_list = candidates[slice: slice+how_many]
     return user_list
 
 def supporting_users(work, how_many):

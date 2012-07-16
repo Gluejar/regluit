@@ -1,41 +1,5 @@
-{% comment %}
-Note: this is NOT intended to render notices
+{% extends "notification/notice_template.html" %}
 
-This is a model to use as a base for notice.html templates.
-Copy/paste from here to your desired notice.html and fill in the specific content.
-Using this template will allow notices.css to apply to all notices for a uniform style.
-{% endcomment %}
-
-<div class="comments clearfix">
-	<div class="comments_info clearfix">
-		<div class="comments_book">
 			{% comment %}
-			Your cover image goes here. e.g.:
-			<a href="{% url work work.id %}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
-			modify as needed for your local context variables
+			Should possibly say something.
 			{% endcomment %}
-		</div>
-		<div class="comments_graphical">
-			{% comment %}
-			This is where you put your headline.
-			Brief text, graphics-oriented info like user avatars and campaign status icons.
-			e.g.:
-	        <a href="{% url supporter supporter_username=user %}">
-	        	{% if supporter.profile.pic_url %}
-            		<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
-		        {% else %}
-        		    <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-		        {% endif %}
-		    </a>
-	        <span><a href="{% url supporter supporter_username=user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span>
-			{% endcomment %}
-		</div>
-	</div>
-	
-	<div class="comments_textual">
-		{% comment %}
-		This is where you put the textual part of your message.
-		Examples include the text of comments, details about credit card charges, etc.
-		{% endcomment %}
-	</div>
-</div>
