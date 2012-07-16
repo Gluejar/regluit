@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			Hooray! The campaign for {{ transaction.campaign.work.title }} has succeeded.  Your credit card is being charged ${{ transaction.amount }}.  Thank you again for your help.
+			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card is being charged ${{ transaction.amount }}.  Thank you again for your help.
 {% endblock %}
 
 {% block comments_textual %}
@@ -14,13 +14,13 @@
 		
 		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} will now charge your credit card.</p>
 		
-		<p>Pledge Summary :<br />
-		Amount pledged: {{ amount|intcomma }}<br />
+		<p><b>Pledge Summary</b><br />
+		Amount pledged: {{ transaction.amount|intcomma }}<br />
 		Premium: {{ transaction.premium.description }} <br />
 		</p>
 		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 		</p>
-		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">project page</a>.
+		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">campaign page</a>.
 		
 		</p>
 		<p>Thank you again for your support.

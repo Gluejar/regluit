@@ -5,22 +5,19 @@
 			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
 {% endblock %}
 
-{% block comments_book %}
+{% block comments_graphical %}
 			Your pledge for the campaign to unglue {{ transaction.campaign.work.title }} has been {% if up_or_down == 'canceled'%}canceled{% else %}modified{% endif %}.
 {% endblock %}
 
-{% if up_or_down == 'canceled' %}
-	{% block comments_book %}
-		Your canceled pledge was as follows:<br />
-		Amount: ${{ transaction.amount|intcomma }}<br />
-		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
-	{% endblock %}
-
-{% else %}
-	{% block comments_book %}
-		Your new pledge is as follows:<br />
-		Amount: ${{ transaction.amount|intcomma }}<br />
-		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
-		Thank you for your continued support of {{ transaction.campaign.work.title }}.
-	{% endblock %}
-{% endif %}
+{% block comments_textual %}
+	{% if up_or_down == 'canceled' %}
+			Your canceled pledge was as follows:<br />
+			Amount: ${{ transaction.amount|intcomma }}<br />
+			Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
+	{% else %}
+			Your new pledge is as follows:<br />
+			Amount: ${{ transaction.amount|intcomma }}<br />
+			Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
+			Thank you for your continued support of {{ transaction.campaign.work.title }}.
+	{% endif %}
+{% endblock %}

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	Alas.  The campaign to unglue {{ campaign.work.title }} did not succeed.
+	Alas.  The campaign to unglue <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a> did not succeed.
 {% endblock %}
 
 {% block comments_textual %}

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	Hooray!  We're going to give {{ campaign.work.title }} to the world!
+	Hooray!  We're going to give <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a> to the world!
 {% endblock %}
 
 {% block comments_textual %}
