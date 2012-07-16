@@ -1,11 +1,8 @@
 {% extends "notification/notice_template.html" %}
 {% load humanize %}
-{% url work campaign.work.id as work_url %}
-{% url pledge work_id=campaign.work.id as pledge_url %}
-{% url emailshare 'pledge' as emailshare_url %}
 
 {% block comments_book %}
-	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -17,7 +14,7 @@
 	{% if pledged %}
 	Your pledge is helping us reach the campaign's target price of {{ campaign.target }}.  Will you help again by sharing this campaign with your friends?
 	{% else %}
-	You can help us give this book to the world by <a href="{{ pledge_url }}">pledging</a> or by sharing this campaign with your friends.
+	You can help us give this book to the world by <a href="{% url pledge work_id=campaign.work.id %}">pledging</a> or by sharing this campaign with your friends.
 	{% endif %}
 
 	{% include "notification/sharing_block.html" %}

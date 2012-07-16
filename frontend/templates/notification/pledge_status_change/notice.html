@@ -1,14 +1,12 @@
 {% extends "notification/notice_template.html" %}
 {% load humanize %}
-{% with transaction.campaign.work.title as title %}
-{% url work transaction.campaign.work.id as work_url %}
 
 {% block comments_book %}
-			<a href="{{ work_url }}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_book %}
-			Your pledge for the campaign to unglue {{ title }} has been {% if up_or_down == 'canceled'%}canceled{% else %}modified{% endif %}.
+			Your pledge for the campaign to unglue {{ transaction.campaign.work.title }} has been {% if up_or_down == 'canceled'%}canceled{% else %}modified{% endif %}.
 {% endblock %}
 
 {% if up_or_down == 'canceled' %}
@@ -23,8 +21,6 @@
 		Your new pledge is as follows:<br />
 		Amount: ${{ transaction.amount|intcomma }}<br />
 		Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
-		Thank you for your continued support of {{ title }}.
+		Thank you for your continued support of {{ transaction.campaign.work.title }}.
 	{% endblock %}
 {% endif %}
-
-{% endwith %}

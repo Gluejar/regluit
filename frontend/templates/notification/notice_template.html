@@ -1,6 +1,6 @@
 {% comment %}
-make sure that any urls you use are based off of a {% url foo as bar %}
-django-notification can't find the url dispatcher when extending this template
+django-notification {% with %} play poorly together. Don't use {% with %} 
+in child templates.
 {% endcomment %}
 <div class="comments clearfix">
 	<div class="comments_info clearfix">

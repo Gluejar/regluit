@@ -1,21 +1,17 @@
 {% extends "notification/notice_template.html" %}
-{% with claim.work.id as work_id %}
-{% with claim.work.title as title %}
-{% url work work_id as work_url %}
-{% url emailshare 'pledge' as emailshare_url %}
 
 {% block comments_book %}
-	<a href="{{ work_url }}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+	<a href="{% url work claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	Hooray! {{ rightsholder }} is now an approved rights holder for {{ title }}.
+	Hooray! {{ rightsholder }} is now an approved rights holder for {{ claim.work.title }}.
 {% endblock %}
 
 {% block comments_textual %}
 	What does this mean for you?  Rights holders are the people who are legally authorized to license works.  This means they're the only people who can run campaigns on Unglue.it.
 	
-	{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{site.domain}}{{ work_url }}?tab=2">Leave a comment</a> and tell your friends:
+	{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{site.domain}}{% url work claim.work.id %}?tab=2">Leave a comment</a> and tell your friends:
 
 	{% include "notification/sharing_block.html" %}
 	
@@ -23,6 +19,3 @@
 	
 	Thanks for your help!
 {% endblock %}
-
-{% endwith %}
-{% endwith %}

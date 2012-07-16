@@ -1,23 +1,19 @@
 {% extends "notification/notice_template.html" %}
-{% with campaign.work.title as title %}
-{% url work campaign.work.id as work_url %}
 
 {% block comments_book %}
-	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	Alas.  The campaign to unglue {{ title }} did not succeed.
+	Alas.  The campaign to unglue {{ campaign.work.title }} did not succeed.
 {% endblock %}
 
 {% block comments_textual %}
 	If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 	
-	Still want to give {{ title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ campaign.rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ title }}.
+	Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ campaign.rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
 	
 	There are also <a href="https://unglue.it/campaigns/ending">other books with active campaigns</a> that need your help.
 	
 	Thank you for your support.
 {% endblock %}
-
-{% endwith %}

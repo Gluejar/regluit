@@ -1,18 +1,14 @@
 {% extends "notification/notice_template.html" %}
-{% with campaign.work.title as title %}
-{% url work campaign.work.id as work_url %}
 
 {% block comments_book %}
-	<a href="{{ work_url }}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ title }}" /></a>
+	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	Hooray!  We're going to give {{ title }} to the world!
+	Hooray!  We're going to give {{ campaign.work.title }} to the world!
 {% endblock %}
 
 {% block comments_textual %}
-	A book on your wishlist, {{ title }}, has met its goal price of {{ campaign.target }}, thanks to the support of ungluers like you.  Unglue.it and the book's rights holder, {{ campaign.rightsholder }}, will be converting it to an unglued ebook edition and making it available for all the world to enjoy.  If you've asked us to in your <a href="/notification/settings/">notification settings</a>, we'll tell you when the unglued ebook is ready.<br /><br />
+	A book on your wishlist, {{ campaign.work.title }}, has met its goal price of {{ campaign.target }}, thanks to the support of ungluers like you.  Unglue.it and the book's rights holder, {{ campaign.rightsholder }}, will be converting it to an unglued ebook edition and making it available for all the world to enjoy.  If you've asked us to in your <a href="/notification/settings/">notification settings</a>, we'll tell you when the unglued ebook is ready.<br /><br />
 	Thank you again!
 {% endblock %}
-
-{% endwith %}

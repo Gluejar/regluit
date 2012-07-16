@@ -1,23 +1,22 @@
 {% extends "notification/notice_template.html" %}
 {% load truncatechars %}
-{% url work work.id as work_url %}
 
 {% block comments_book %}
-	<a href="{{ work_url }}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+	<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	<span><a href="{{ work_url }}">{{ work.title }}</a> is now available for download</span>
+	<span><a href="{% url work work.id %}">{{ work.title }}</a> is now available for download</span>
 {% endblock %}
 
 {% block comments_textual %}
 	{% if work.last_campaign_status == 'SUCCESSFUL' %}
 		<p>
-		Great News!  <a href="{{ work_url }}">{{ work.title }}</a> which you have supported is now available for download as an Unglued Ebook.  
+		Great News!  <a href="{% url work work.id %}">{{ work.title }}</a> which you have supported is now available for download as an Unglued Ebook.  
 		</p>
 	{% else %}
 		<p>
-		Good News!  <a href="{{ work_url }}">{{ work.title }}</a> which is on your wishlist is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
+		Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your wishlist is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
 		</p>
 		{% if work.ebooks.0.user %}
 			<p>
