@@ -16,9 +16,7 @@ tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as w
 				{% endcomment %}
 			{% endblock %}
 		</div>
-		<div class="comments_graphical">
-			{% block comments_graphical %}
-				{% comment %}
+		<span class="comments_graphical">{% block comments_graphical %}{% comment %}
 				This is where you put your headline.
 				Brief text, graphics-oriented info like user avatars and campaign status icons.
 				e.g.:
@@ -29,19 +27,18 @@ tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as w
 						<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
 					{% endif %}
 				</a>
-				<span><a href="{{ supporter_url }}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>
-				{% endcomment %}
-			{% endblock %}
+				<span><a href="{{ supporter_url }}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>{% endcomment %}{% endblock %}
 				<br /><i>{% now "M d Y, h:i A"%}</i><br />
-		</div>
-		<div class="comments_textual">
+		</span>
+		<span class="comments_textual">
+		<hr />
 			{% block comments_textual %}
 				{% comment %}
 				This is where you put the textual part of your message.
 				Examples include the text of comments, details about credit card charges, etc.
 				{% endcomment %}
 			{% endblock %}
-		</div>
+		</span>
 	</div>
 	
 </div>

@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	Hooray!  We're going to give <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a> to the world!
+Hooray!  We're going to give <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a> to the world!
 {% endblock %}
 
 {% block comments_textual %}
-	A book on your wishlist, {{ campaign.work.title }}, has met its goal price of {{ campaign.target }}, thanks to the support of ungluers like you.  Unglue.it and the book's rights holder, {{ campaign.rightsholder }}, will be converting it to an unglued ebook edition and making it available for all the world to enjoy.  If you've asked us to in your <a href="/notification/settings/">notification settings</a>, we'll tell you when the unglued ebook is ready.<br /><br />
-	Thank you again!
+A book on your wishlist, {{ campaign.work.title }}, has met its goal price of {{ campaign.target }}, thanks to the support of ungluers like you.  Unglue.it and the book's rights holder, {{ campaign.rightsholder }}, will be converting it to an unglued ebook edition and making it available for all the world to enjoy.  If you've asked us to in your <a href="/notification/settings/">notification settings</a>, we'll tell you when the unglued ebook is ready.<br /><br />
+Thank you again!
 {% endblock %}
