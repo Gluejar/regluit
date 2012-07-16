@@ -13,6 +13,7 @@
 	
 	{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{site.domain}}{% url work claim.work.id %}?tab=2">Leave a comment</a> and tell your friends:
 
+	{% url work claim.work.id as work_url %}
 	{% include "notification/sharing_block.html" %}
 	
 	Make sure {{ rightsholder }} knows how much you want to give this book to the world.

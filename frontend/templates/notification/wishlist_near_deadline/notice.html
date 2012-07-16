@@ -16,7 +16,8 @@
 	{% else %}
 	You can help us give this book to the world by <a href="{% url pledge work_id=campaign.work.id %}">pledging</a> or by sharing this campaign with your friends.
 	{% endif %}
-
+	
+	{% url work campaign.work.id as work_url %}
 	{% include "notification/sharing_block.html" %}
 	
 	Thank you!

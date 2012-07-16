@@ -1,6 +1,9 @@
 {% comment %}
 django-notification {% with %} play poorly together. Don't use {% with %} 
 in child templates.
+
+You can include notification/sharing_block.html into a notice.html to have
+tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as work_url %} immediately prior.
 {% endcomment %}
 <div class="comments clearfix">
 	<div class="comments_info clearfix">

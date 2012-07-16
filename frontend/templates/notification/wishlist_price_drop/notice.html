@@ -16,5 +16,6 @@
 		The target may be lower, but we still need your help to reach it.  Pledges of any amount help.  You can chip in towards giving this book to the world at https://{{ site.domain }}{% url pledge campaign.work.id %} .  You can also help by sharing this campaign:
 	{% endif %}
 	
+	{% url work campaign.work.id as work_url %}
 	{% include "notification/sharing_block.html" %}
 {% endblock %}

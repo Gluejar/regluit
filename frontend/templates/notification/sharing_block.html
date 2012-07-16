@@ -1,5 +1,5 @@
 	<ul>
-		<a href="{{ pledge_url }}?next={{ work_url|urlencode:"" }}"><li>Email it!</li></a>
+		<a href="{% url emailshare 'pledge' %}?next={{ work_url|urlencode:"" }}"><li>Email it!</li></a>
 		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{{ work_url|urlencode:"" }}&text=I%20just%20pledged%20to%20unglue%20{{ title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li>Tweet it!</li></a>
 		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{{ work_url|urlencode:"" }}"><li>Share it on Facebook.</li></a>
 		<li>Best idea: talk about it with those you love.</li>
