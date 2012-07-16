@@ -6,10 +6,10 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	<span>The rights holder, {{ active_claim.rights_holder.rights_holder_name }}, has launched a campaign for <a href="{% url work campaign.work.id %}">{{ title }}</a>!</span>
+	<span>The rights holder, {{ campaign.rightsholder }}, has launched a campaign for <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a>!</span>
 {% endblock %}
 
 {% block comments_textual %}
-	<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ title }}</i> will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
+	<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ campaign.work.title }}</i> will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
 	<div>You can help!  <a href="{% url pledge campaign.work.id %}">Pledge</a> any amount, and use the sharing options on the <a href="{% url work campaign.work.id %}">campaign page</a> to tell your friends.</a></div>
 {% endblock %}

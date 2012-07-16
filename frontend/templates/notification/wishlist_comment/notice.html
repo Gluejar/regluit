@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	<a href="{% url comment.user.username %}">{{ comment.user.username }}</a> has made a comment on <a href="{% url work comment.content_object.id %}?tab=2">{{ comment.content_object.title }}</a>
+	<a href="{% url supporter comment.user.username %}">{{ comment.user.username }}</a> has made a comment on <a href="{% url work comment.content_object.id %}?tab=2">{{ comment.content_object.title }}</a>
 {% endblock %}
 
 {% block comments_textual %}
