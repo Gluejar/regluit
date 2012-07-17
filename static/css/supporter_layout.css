@@ -494,3 +494,19 @@ div#content-block-content {
 #js-maincontainer-bot-block {
   padding-left: 16px;
 }
+.anon_about {
+  height: 43px;
+  line-height: 43px;
+  font-size: 15px;
+  padding-left: 37px;
+  border: solid 3px #d6dde0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  width: 665px;
+  margin: 7px 0;
+}
+.anon_about a {
+  font-size: 15px;
+  color: #8dc63f;
+}
