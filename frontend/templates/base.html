@@ -87,7 +87,7 @@
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
-                    <li id="about_expander"><a href="#"><span>About</span></a></li>   
+                    <li class="about_expander" id="about_main"><a href="#"><span>About</span></a></li>   
                     <li><a href="{{ landingurl }}"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
