@@ -882,8 +882,8 @@ class LibraryThingTest(TestCase):
         
 def suite():
     
-    #testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest]
-    testcases = []
+    testcases = [WorkMapperTest,FreebaseBooksTest, OpenLibraryTest,GoogleBooksTest, LibraryThingTest]
+    #testcases = []
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     suites.addTest(LibraryThingTest('test_cache'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment

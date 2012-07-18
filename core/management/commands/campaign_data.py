@@ -10,7 +10,7 @@ from decimal import Decimal as D
 
 from regluit.experimental.gutenberg import unicode_csv
 
-def amazon_payments(fname=r"/Users/raymondyee/Downloads/All-Activity-With-Balance-Jan-01-2012-Jul-02-2012.csv"):
+def amazon_payments(fname=r"/Users/raymondyee/Downloads/All-Activity-Jan-01-2012-Jul-17-2012.csv"):
     r0 = unicode_csv.UnicodeReader(f=open(fname), encoding="iso-8859-1")
     # grab the header
     header = r0.next()
@@ -63,31 +63,32 @@ def transactions_with_payment_info(transactions, payments=None):
     
 def stats_for_campaign(c):
     print "transactions by statuses", c.transaction_set.values('status').annotate(count_status=Count('status'))
-     
-    # total amount -- aggregate transactions that are Complete, Active, Pending, Error, Failed
-    valid_trans = c.transaction_set.filter(Q(status='Complete') | Q(status='Active') | Q(status='Pending') | Q(status='Error') | Q(status='Failed') )
-    
-    print "total amount for valid transactions", valid_trans.aggregate(Sum('amount'))['amount__sum']
-    print "maximum amount for valid transactions", valid_trans.aggregate(Max('amount'))['amount__max']
-    print 
-    
+         
+    # distinguish among campaigns that are Active, Successful, or Closed
+    if c.status == 'ACTIVE':
+        # nothing collected yet -- can tally all Active transactions for a total
+        valid_trans = c.transaction_set.filter(Q(status='Complete') | Q(status='Active') | Q(status='Pending') | Q(status='Error') | Q(status='Failed') )
+        total_amount = c.transaction_set.filter(Q(status='Active')).aggregate(Sum('amount'))['amount__sum']
+        print "expected amount for active campaign", total_amount
+    elif c.status == 'SUCCESSFUL':
+        # how to not double count transactions wih Error or Failed status that have an Active or Completed followup?
+        valid_trans = c.transaction_set.filter(Q(status='Complete') | Q(status='Active') )
+        uid_ok_trans = set([x[0] for x in c.transaction_set.filter(Q(status='Complete') | Q(status='Active')).values_list('user')])
+        cleared_amount = c.transaction_set.filter(Q(status='Complete')).aggregate(Sum('amount'))['amount__sum']
+        failed_errored_amount = sum([t.amount for t in c.transaction_set.filter(Q(status='Pending') | Q(status='Error') | Q(status='Failed') ) if t.user.id not in uid_ok_trans])
+        print "cleared amount for Successful campaign", cleared_amount
+        print "failed_errored_amount for Successful campaign", failed_errored_amount
+    elif c.status == 'CLOSED':
+        valid_trans = c.transaction_set.filter(Q(status='Complete'))
+        total_amount = c.transaction_set.filter(Q(status='Complete')).aggregate(Sum('amount'))['amount__sum']
+        print "total amount for Closed campaign", total_amount
+    else:
+        valid_trans = c.transaction_set.filter(Q(status='Complete') | Q(status='Active') | Q(status='Pending') | Q(status='Error') | Q(status='Failed') )
+        
     # distribution?
     clusters = valid_trans.values('amount').annotate(count_amount=Count('amount')).order_by('-amount')
     for t in clusters:
         print "{0}\t{1}\t{2}".format(t['amount'], t['count_amount'], t['count_amount']*t['amount'])
-    #print [(t['amount'], t['count_amount']*t['amount']) for t in clusters]
-    
-    # calculate the problematic pledges
-    problem_trans = c.transaction_set.filter(Q(status='Pending') | Q(status='Error') | Q(status='Failed'))
-
-    # first list all the problem pledges
-    for (i, t) in enumerate(problem_trans):
-        print i, t.user, t.amount, t.status, t.local_status, t.preapproval_key, t.approved, t.error
-        
-    # let's consider the Error ones first
-
-    # donors sorted by donation and time
-    # top 10
     
     c_users = set([u[0] for u in c.transaction_set.values_list('user__username')])
     
@@ -111,6 +112,7 @@ def stats_for_campaign(c):
     # tally up different classes of statuses we have for c
     
     # who has modified a transaction and never cancelled it?
+    
 
 
 class Command(BaseCommand):
@@ -131,9 +133,10 @@ class Command(BaseCommand):
         
         # breakdown of Transactions by status
         print "transactions by status", Transaction.objects.values('status').annotate(count_status=Count('status'))
+        print
         
         # distribution of donations for *Oral Literature*
-        print "stats for Oral Literature in Africa"
+        print "stats for *Oral Literature in Africa*"
         
         c3 = Campaign.objects.get(id=3)
         stats_for_campaign(c3)
