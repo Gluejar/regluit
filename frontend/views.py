@@ -663,13 +663,11 @@ class PledgeView(FormView):
                               return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium)
         
         if url:
-            logger.info("PledgeView paypal: " + url)
-            print >> sys.stderr, "PledgeView paypal: ", url
+            logger.info("PledgeView url: " + url)
             return HttpResponseRedirect(url)
         else:
-            response = t.reference
-            logger.info("PledgeView paypal: Error " + str(t.reference))
-            return HttpResponse(response)
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
 
 class PledgeModifyView(FormView):
     """
