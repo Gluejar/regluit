@@ -11,16 +11,51 @@ from decimal import Decimal as D
 
 from regluit.experimental.gutenberg import unicode_csv
 
+# options
+
+# should transactions be No premium selected be given nothing by default or maximum benefits for their amount by default? 
+# should people who explicitly picked a lesser premium be given that premium or the maximum one by default?
+# anonymous by default?
+
 OLA_PREMIUM_IDS = [1L, 97L, 2L, 98L, 3L, 99L, 4L, 15L, 18L, 65L]
 OLA_PREMIUMS_AND_AMOUNTS = [(1L, D('1')), (97L, D('7')), (2L, D('25')), (98L, D('40')), (3L, D('50')), (99L, D('75')), (4L, D('100')), (15L, D('200')), (18L, D('500')), (65L, D('1000'))]
 LEVELS = (D('0'), D('1'), D('7'), D('25'), D('40'), D('50'), D('75'), D('100'), D('200'), D('500'), D('1000'))
+
+MATERIAL_FOR_PREMIUM = [(1L, (1,)),
+                         (97L, (1, 2)),
+                         (2L,  (1, 2)),
+                         ]
+
+# the material premiums cluster in the following way -- it makes sense to be able to have 0 or 1 of the specific material
+# premiums in a cluster since within a cluster, they are essentially versions of different quality
+# 1
+# 2, 3, 4
+# 5, 9
+# 6, 8 , 11
+# 7
+# 10
+
 
 MATERIAL_PREMIUMS = [(1, "The unglued ebook delivered to your inbox."),
     (2, "You will have the choice of one free digital edition selected from our list of published titles. (Offer valid until 30 September 2012)"),
     (3, "You may select one free paperback edition or three free digital editions from our list of published titles. (Offer valid until 30 September 2012.)"),
     (4, "You may select one free hardback edition, or two free paperback editions, or six free digital editions from our list of published titles. (Offer valid until 30 September 2012.)"),
     (5, "A free printed paperback edition with personalised message from the author acknowledging your support."),
+    (6, "10% discount on any orders made for printed or digital editions of this, or any other OBP title, from the Open Book Publishers website for 12 months. "),
+    (7, "Opportunity to hold either a personal conversation or a webinar with Dr. Mark Turin, Director of the World Oral Literature Project to discuss the project and broader issues surrounding protecting oral literature globally."),
+    (8, "20% discount on any orders made for printed or digital editions of this, or any other OBP title, from the Open Book Publishers website for 12 months."),
+    (9, "Creation of a special personal benefactor's hardback edition of the title with personalised cover and front page and author's inscription. You will also be able to order additional copies of your personalised edition directly from us at $35 per copy plus shipping."),
+    (10, "Free registration and two nights' accommodation to attend the World Oral Literature Project Workshop in Cambridge, England (29-30 June) or a similar future event."),
+    (11, "30% discount on any orders made for printed or digital editions of this, or any other OBP title, from the Open Book Publishers website for 12 months.")]
+
+ACKNOWLEDGEMENT_LEVELS = [
+    ('A', """Your username under "supporters" in the acknowledgements section.""", ('username',)),
+    ('B', 'Your username and profile URL of your choice under "benefactors"', ('username', 'profile url')),
+    ('C', 'Your username, profile URL, and profile tagline under "bibliophiles"', ('username', 'profile url', 'profile tagline')),
+    ('D', "Your name recorded on a special benefactors' page in all printed and digital editions of the work.", ('name',))
     ]
+
+ACKNOWLEDGEMENT_ELEMENTS = ('username', 'profile url', 'profile tagline', 'name')
 
 class Command(BaseCommand):
     help = "Displays data about how related to collecting information about premiums for Oral Literature in Africa"
