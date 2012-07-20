@@ -279,9 +279,13 @@ class BookLoaderTests(TestCase):
         e = bookloader.add_by_isbn('0465019358')
         self.assertTrue(e)
 
+    @unittest.expectedFailure
     def test_one_language(self):
         # english edition for cat's cradle should only pull in other 
         # english editions
+        # expected failure right now because Google seems to have bad data about language of Cat's Cradle
+        # e.g., https://www.googleapis.com/books/v1/volumes?q=isbn:9789513033774
+        # title = "Kissan kehto" -- language according to API = English
         work = bookloader.add_by_isbn('079530272X').work
         self.assertEqual(work.language, 'en')
         bookloader.add_related('079530272X')
