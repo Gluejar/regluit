@@ -35,13 +35,13 @@ class BookLoaderTests(TestCase):
 
     def test_add_by_isbn(self):
         # edition
-        edition = bookloader.add_by_isbn('0441012035')
+        edition = bookloader.add_by_isbn('0441007465')
         self.assertEqual(edition.title, 'Neuromancer')
-        self.assertEqual(edition.publication_date, '2004')
-        self.assertEqual(edition.publisher, u'Ace Hardcover')
-        self.assertEqual(edition.isbn_10, '0441012035')
-        self.assertEqual(edition.isbn_13, '9780441012039')
-        self.assertEqual(edition.googlebooks_id, "2NyiPwAACAAJ")
+        self.assertEqual(edition.publication_date, u'2000-07-01')
+        self.assertEqual(edition.publisher, u'Ace Trade')
+        self.assertEqual(edition.isbn_10, '0441007465')
+        self.assertEqual(edition.isbn_13, '9780441007462')
+        self.assertEqual(edition.googlebooks_id, 'IDFfMPW32hQC')
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
@@ -66,8 +66,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(e.title, 'Forbidden Journeys')
 
     def test_double_add(self):
-        bookloader.add_by_isbn('0441012035')
-        bookloader.add_by_isbn('0441012035')
+        bookloader.add_by_isbn('0441007465')
+        bookloader.add_by_isbn('0441007465')
         self.assertEqual(models.Edition.objects.all().count(), 1)
         self.assertEqual(models.Author.objects.all().count(), 1)
         self.assertEqual(models.Work.objects.all().count(), 1)
@@ -77,19 +77,19 @@ class BookLoaderTests(TestCase):
         self.assertEqual(e, None)
 
     def test_thingisbn(self):
-        isbns = bookloader.thingisbn('0441012035')
+        isbns = bookloader.thingisbn('0441007465')
         self.assertTrue(len(isbns) > 20)
-        self.assertTrue('0441012035' in isbns)
+        self.assertTrue('0441007465' in isbns)
         self.assertTrue('3453313895' in isbns)
 
     def test_add_related(self):
         # add one edition
-        edition = bookloader.add_by_isbn('0441012035')
+        edition = bookloader.add_by_isbn('0441007465')
         self.assertEqual(models.Edition.objects.count(), 1)
         self.assertEqual(models.Work.objects.count(), 1)
         lang=edition.work.language
         # ask for related editions to be added using the work we just created
-        bookloader.add_related('0441012035')
+        bookloader.add_related('0441007465')
         self.assertTrue(models.Edition.objects.count() > 15)
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
         self.assertTrue(edition.work.editions.count() > 9)
@@ -289,14 +289,14 @@ class BookLoaderTests(TestCase):
             self.assertEqual(edition.title.lower(), "cat's cradle")
 
     def test_add_openlibrary(self):
-        work = bookloader.add_by_isbn('0441012035').work
-        bookloader.add_related('0441012035')
+        work = bookloader.add_by_isbn('0441007465').work
+        bookloader.add_related('0441007465')
         bookloader.add_openlibrary(work)
         subjects = [s.name for s in work.subjects.all()]
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
         self.assertTrue('/works/OL27258W' in work.identifiers.filter(type='olwk').values_list('value',flat=True) )
-        self.assertTrue('14770' in work.identifiers.filter(type='gdrd').values_list('value',flat=True))
+        self.assertTrue('888628' in work.identifiers.filter(type='gdrd').values_list('value',flat=True))
         self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value',flat=True))
 
     def test_load_gutenberg_edition(self):
@@ -448,7 +448,6 @@ class CampaignTests(TestCase):
         t.campaign = c6
         t.user = user
         t.save()
-        print w2.percent_of_goal()
         self.assertEqual(w2.percent_of_goal(), 23)
 
 class WishlistTest(TestCase):
@@ -456,7 +455,7 @@ class WishlistTest(TestCase):
     def test_add_remove(self):
         # add a work to a user's wishlist
         user = User.objects.create_user('test', 'test@example.com', 'testpass')
-        edition = bookloader.add_by_isbn('0441012035')
+        edition = bookloader.add_by_isbn('0441007465')
         work = edition.work
         num_wishes=work.num_wishes
         user.wishlist.add_work(work, 'test')
