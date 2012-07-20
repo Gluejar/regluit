@@ -13,7 +13,7 @@ class ApiTests(TestCase):
     work_id=None
     
     def setUp(self):
-        edition = bookloader.add_by_isbn_from_google(isbn='0441012035')
+        edition = bookloader.add_by_isbn_from_google(isbn='0441007465')
         self.work_id=edition.work.id
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
@@ -58,7 +58,7 @@ class ApiTests(TestCase):
     def test_campaign_lookup_by_isbn(self):
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441007465'), 
             'work__identifiers__type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
@@ -73,7 +73,7 @@ class ApiTests(TestCase):
     def test_identifier_lookup(self):
         r = self.client.get('/api/v1/identifier/', data={
             'format': 'json', 
-            'value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'value': regluit.core.isbn.convert_10_to_13('0441007465'), 
             'type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
@@ -87,7 +87,7 @@ class ApiTests(TestCase):
 
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441007465'), 
             'work__identifiers__type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
@@ -96,11 +96,11 @@ class ApiTests(TestCase):
         self.assertEqual(j['meta']['logged_in_username'], 'test')
         self.assertEqual(j['objects'][0]['in_wishlist'], False)
 
-        w = models.Work.objects.get(identifiers__value=regluit.core.isbn.convert_10_to_13('0441012035'), identifiers__type='isbn') 
+        w = models.Work.objects.get(identifiers__value=regluit.core.isbn.convert_10_to_13('0441007465'), identifiers__type='isbn') 
         self.user.wishlist.add_work(w,'test')
         r = self.client.get('/api/v1/campaign/', data={
             'format': 'json', 
-            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441012035'), 
+            'work__identifiers__value': regluit.core.isbn.convert_10_to_13('0441007465'), 
             'work__identifiers__type': 'isbn', 
             'username': self.user.username, 
             'api_key': self.user.api_key.key
