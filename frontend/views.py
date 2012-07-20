@@ -1596,6 +1596,20 @@ class InfoPageView(TemplateView):
             'wishlists': wishlists,
         }
 
+class InfoLangView(TemplateView):
+    
+    def get_template_names(self, **kwargs):
+        if self.kwargs['template_name']:
+            return (self.kwargs['template_name'])
+        else:
+            return ('languages.html')
+            
+    def get_context_data(self, **kwargs):
+        languages=models.Work.objects.filter(num_wishes__gte = 1).values('language').annotate(lang_count=Count('language')).order_by('-lang_count')
+        return {
+            'wished_languages': languages, 
+        }
+
 
 class FAQView(TemplateView):
     template_name = "faq.html"
