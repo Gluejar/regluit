@@ -7,6 +7,8 @@ PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
 LANGUAGE_CODE = 'en-us'
 
+WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
+
 SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not

@@ -14,7 +14,8 @@ register = Library()
 custom_language_info = {'xx': {'name':'unknown', 'name_local':'unknown'},
                         'un': {'name':'??', 'name_local':'??'},
                         'zh': {'name':'chinese', 'name_local':u'\u4E2D\u6587'},
-                        'la': {'name':'Latin', 'name_local':'latin'},
+                        'la': {'name':'Latin', 'name_local':'LATINA'},
+                        'ut': {'name':u'\u00DCttish', 'name_local':u'\u00DCttish'},
                         }
                         
         
@@ -49,3 +50,4 @@ def ez_lang_name_local(value):
         return li['name_local']
     except KeyError:
         return value
+    

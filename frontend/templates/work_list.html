@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
+{% load lang_utils %}
 {% with request.user.wishlist.works.all as wishlist %}
 
 {% block title %} Works {% endblock %}
@@ -31,7 +32,7 @@
                             {% if facet == 'recommended' %}
 								<div id="block-intro-text"><span class="special-user-name">Staff Picks</span></div>
 								</div>
-								<div class="user-block2"><span class="user-short-info">Here are the books <a href="{% url supporter 'AmandaM' %}">Amanda</a>, <a href="{% url supporter 'andromeda' %}">Andromeda</a>, <a href="{% url supporter 'eric' %}">Eric</a>, and <a href="{% url supporter 'rdhyee' %}">Raymond</a> are loving lately.</span>
+								<div class="user-block2"><span class="user-short-info">Here are the {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books <a href="{% url supporter 'AmandaM' %}">Amanda</a>, <a href="{% url supporter 'andromeda' %}">Andromeda</a>, <a href="{% url supporter 'eric' %}">Eric</a>, and <a href="{% url supporter 'rdhyee' %}">Raymond</a> are loving lately.</span>
 								</div>
 	                            <div class="user-block3 recommended">
                                 <a href="{% url supporter 'AmandaM' %}"><img class="user-avatar" src="https://si0.twimg.com/profile_images/1801686082/image_normal.jpg" height="50" width="50" alt="Picture of Amanda" title="Amanda" /></a>
@@ -42,7 +43,7 @@
 	                        {% else %}
 								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
 								</div>
-								<div class="user-block2"><span class="user-short-info">With your help we're raising money to buy the rights to give these books to the world.</span>
+								<div class="user-block2"><span class="user-short-info">With your help we're raising money to buy the rights to give these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books to the world.</span>
 								</div>
     	                        <div class="user-block3">
 	                            </div>
@@ -99,7 +100,7 @@
                     {% if facet == 'recommended' %}
                     Check back soon to see what we're recommending.
                     {% else %}
-                    There aren't any works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
+                    There aren't any {{pub_lang|ez_lang_name}} works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
 					{% endif %}
                     {% else %}
                         {% comment %}

@@ -1,4 +1,5 @@
 {% load truncatechars %}
+{% load lang_utils %}
             <div class="jsmodule">
                 <h3 class="jsmod-title"><span>Explore</span></h3>
                 <div class="jsmod-content">
@@ -21,6 +22,17 @@
                                 <li class="last"><a href="{% url unglued_list 'recent' %}"><span>Ready to Read</span></a></li>
                             </ul>
                         </li>
+                        {% if show_langs %}
+                        <li class="parent">
+                            <span class="show_langs">Languages...</span>
+                            <ul class="menu level2" id="lang_list">
+                                <li class="first{% ifequal pub_lang '' %} active_lang{% endifequal %}"><a href="?">ALL</a></li>
+                                {% for wished_lang in WISHED_LANGS %}
+                                <li{% ifequal pub_lang wished_lang %} class="active_lang"{% endifequal %}><a href="?pub_lang={{wished_lang}}">{{wished_lang|ez_lang_name_local}}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endif %}
                         <li class="parent">
                             <span>Ungluers</span>
                             <ul class="menu level2">
