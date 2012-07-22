@@ -30,8 +30,8 @@ tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as w
 				<span><a href="{{ supporter_url }}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>{% endcomment %}{% endblock %}
 				<br /><i>{% now "M d Y, h:i A"%}</i><br />
 		</span>
-		<span class="comments_textual">
 		<hr />
+		<span class="comments_textual">
 			{% block comments_textual %}
 				{% comment %}
 				This is where you put the textual part of your message.
