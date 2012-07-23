@@ -192,8 +192,9 @@ def work(request, work_id, action='display'):
     else:
         claimform = None
     if campaign:
-        # pull up premiums explicitly tied to the campaign or generic premiums
-        premiums = campaign.effective_premiums()
+        # pull up premiums explicitly tied to the campaign
+        # mandatory premiums are only displayed in pledge process
+        premiums = campaign.custom_premiums()
     else:
         premiums = None
         
