@@ -11,18 +11,34 @@ from decimal import Decimal as D
 
 from regluit.experimental.gutenberg import unicode_csv
 
-# options
+# compare to https://unglue.it/work/81724/acks/
 
-# should transactions be No premium selected be given nothing by default or maximum benefits for their amount by default? 
+# options -- these are options that are relevant in how we would determine what we ask people and what they get
+
+# should transactions be No premium selected be given nothing by default or maximum benefits for their amount by default?
+
+KEEP_NULL_PREMIUM = False
+
 # should people who explicitly picked a lesser premium be given that premium or the maximum one by default?
+
+KEEP_LESSER_PREMIUM = False
+
 # anonymous by default?
 
+ANONYMOUS_BY_DEFAULT = False
+
+# list of OLA premium ids and pledge amount required for that premium
 OLA_PREMIUMS_AND_AMOUNTS = ((1L, D('1')), (97L, D('7')), (2L, D('25')), (98L, D('40')), (3L, D('50')), (99L, D('75')), (4L, D('100')), (15L, D('200')), (18L, D('500')), (65L, D('1000')))
+# just the premium ids
 OLA_PREMIUM_IDS = tuple([x[0] for x in OLA_PREMIUMS_AND_AMOUNTS])
-OLA_PREMIUM_FOR_AMOUNT = dict([(n,m) for (m,n) in OLA_PREMIUMS_AND_AMOUNTS])
+# just the premium amount levels
 LEVELS = tuple([x[1] for x in OLA_PREMIUMS_AND_AMOUNTS])
+# mapping of premium amount to id -- assumes only one premium can have the same amount
+OLA_PREMIUM_FOR_AMOUNT = dict([(n,m) for (m,n) in OLA_PREMIUMS_AND_AMOUNTS])
 
+# each premium is composed of "material benefits" and acknowledgement levels
 
+# mapping of the material benefits for each premium
 MATERIAL_FOR_PREMIUM = dict([(1L, (1,)),
                         (97L, (1, 2)),
                         (2L,  (1, 2)),
@@ -35,6 +51,7 @@ MATERIAL_FOR_PREMIUM = dict([(1L, (1,)),
                         (65L, (1,4,7,9,10,11))
 ])
 
+# acknowledgement level for each premium
 ACK_FOR_PREMIUM = dict([
     (1L, None), (97L, None), (2L, 'A'), (98L, 'A'), (3L, 'B'), (99L, 'B'), (4L,'C'), (15L,'D'), (18L, 'D'), (65L, 'D')
 ])
@@ -70,19 +87,19 @@ ACKNOWLEDGEMENT_LEVELS = dict([
 
 ACKNOWLEDGEMENT_ELEMENTS = ('username', 'profile url', 'profile tagline', 'name')
 
-def supporters_for_campaign(c3):
-    for k in c3.transaction_set.filter(status='Complete').values_list('user',flat=True):
+def supporters_for_campaign(c):
+    for k in c.transaction_set.filter(status='Complete').values_list('user',flat=True):
         yield User.objects.get(id=k)
     
 def highest_eligible_premium(amount, levels):
     return max(filter(lambda x: x <= amount, levels))
 
-def premiums_and_acks(c3):
+def premiums_and_acks(c):
     """ calculate charts of premiums and acknowledgements owed"""
-    print "number of transactions", c3.transaction_set.filter(Q(status='Complete')).count()
-    for (i, u) in enumerate(supporters_for_campaign(c3)):
+    print "number of transactions", c.transaction_set.filter(Q(status='Complete')).count()
+    for (i, u) in enumerate(supporters_for_campaign(c)):
         try:
-            t = c3.transaction_set.get(user=u, status='Complete')
+            t = c.transaction_set.get(user=u, status='Complete')
             max_premium_amount = highest_eligible_premium(t.amount, LEVELS)
             max_premium_id = OLA_PREMIUM_FOR_AMOUNT[max_premium_amount]
             print i, t.id, t.user, t.user.email, t.user.profile.home_url, t.user.profile.tagline,  t.anonymous, t.amount, t.premium.id if t.premium is not None else None,  \
@@ -130,6 +147,6 @@ class Command(BaseCommand):
         c3 = Campaign.objects.get(id=3)
         validate_c3(c3)
         
-        #overall_stats(c3)
+        overall_stats(c3)
         
         premiums_and_acks(c3)
