@@ -671,7 +671,7 @@ class PledgeView(FormView):
             paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium,
-                            paymentReason=paymentReason)    
+                            paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, ack_dedication=ack_dedication)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
@@ -680,7 +680,8 @@ class PledgeView(FormView):
             nevermind_url = None
             
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium)
+                              return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium,
+                              ack_name=ack_name, ack_link=ack_link, ack_dedication=ack_dedication)
         
         if url:
             logger.info("PledgeView url: " + url)
@@ -855,7 +856,7 @@ class PledgeRechargeView(TemplateView):
             p = PaymentManager(embedded=False)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, transaction.amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, nevermind_url=nevermind_url, anonymous=transaction.anonymous, premium=transaction.premium,
-                            paymentReason=paymentReason)
+                            paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, ack_dedication=ack_dedication)
             logger.info("Recharge url: {0}".format(url))
         else:
             url = None
@@ -876,11 +877,6 @@ class PledgeCompleteView(TemplateView):
     
         after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
     study other confirmation emails for their contents
-    after pledging, supporters are returned to a thank-you screen
-    should have prominent "thank you" or "congratulations" message
-    should have prominent share options
-    should suggest other works for supporters to explore (on what basis?)
-    link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
     should note that a confirmation email has been sent to $email from $sender
     should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
         
@@ -1149,7 +1145,8 @@ class DonateView(FormView):
         return_url = self.request.build_absolute_uri(reverse('donate'))
         
         t, url = p.pledge('USD', TARGET_TYPE_DONATION, receiver_list, campaign=campaign, list=None, user=user,
-                          return_url=return_url, anonymous=anonymous)
+                          return_url=return_url, anonymous=anonymous, ack_name=ack_name, ack_link=ack_link, 
+                          ack_dedication=ack_dedication)
     
         if url:
             return HttpResponseRedirect(url)
