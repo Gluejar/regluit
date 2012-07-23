@@ -72,12 +72,17 @@ class Transaction(models.Model):
     campaign = models.ForeignKey(Campaign, null=True)
     premium = models.ForeignKey(Premium, null=True)
     
-    # list:  makes allowance for pledging against a Wishlist:  not currently in use
-    list = models.ForeignKey(Wishlist, null=True)
+    # how to acknowledge the user on the supporter page of the campaign ebook
+    ack_name = models.CharField(max_length=64, null=False)
+    ack_link = models.URLField(null=False)
+    ack_dedication = models.CharField(max_length=140, null=False)
     
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)
-    
+
+    # list:  makes allowance for pledging against a Wishlist:  not currently in use
+    list = models.ForeignKey(Wishlist, null=True)
+        
     def save(self, *args, **kwargs):
         if not self.secret:
             self.secret = str(uuid.uuid1())
