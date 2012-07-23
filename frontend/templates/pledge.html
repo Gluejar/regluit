@@ -103,27 +103,6 @@
 <div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
 {% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
 
-{% ifequal work.id 81724 %}
-<!-- Google Code for OLA pledge page Conversion Page; allows for AdWords conversion tracking -->
-<script type="text/javascript">
-/* <![CDATA[ */
-var google_conversion_id = 1072527387;
-var google_conversion_language = "en";
-var google_conversion_format = "3";
-var google_conversion_color = "ffffff";
-var google_conversion_label = "Vqw9CPi04AIQm_C1_wM";
-var google_conversion_value = 0;
-/* ]]> */
-</script>
-<script type="text/javascript" src="https://www.googleadservices.com/pagead/conversion.js">
-</script>
-<noscript>
-<div style="display:inline;">
-<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/1072527387/?value=0&amp;label=Vqw9CPi04AIQm_C1_wM&amp;guid=ON&amp;script=0"/>
-</div>
-</noscript>
-{% endifequal %}
-
 {% endblock %}
 
 
