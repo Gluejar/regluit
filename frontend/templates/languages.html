@@ -1,0 +1,19 @@
+{% extends "basedocumentation.html" %}
+{% load lang_utils %}
+{% block title %} Language Metrics {% endblock %}
+{% block doccontent %}
+
+<h2>Languages</h2>
+<p>What works, what languages?</p>
+<ul>
+{% for wished_language in wished_languages %}
+{% with wished_language.language as this_lang %}
+<li> {{ this_lang|ez_lang_name}} ({{ this_lang}}): 
+ 
+    {{ wished_language.lang_count }} works in {{ this_lang|ez_lang_name_local}} 
+</li>
+{% endwith %}
+{% endfor %}
+
+{% endblock %}
+

@@ -438,14 +438,33 @@ def subjects(request):
 
     return render(request, 'subjects.html', {'subjects': subjects})
 
+class FilterableListView(ListView):
+    def get_queryset(self):
+        if self.request.GET.has_key('pub_lang'):
+            if self.model is models.Campaign:
+                return self.get_queryset_all().filter(work__language=self.request.GET['pub_lang'])
+            else:
+                return self.get_queryset_all().filter(language=self.request.GET['pub_lang'])
+        else:
+            return self.get_queryset_all()
+            
+    def get_context_data(self, **kwargs):
+        context = super(FilterableListView, self).get_context_data(**kwargs)
+        if self.request.GET.has_key('pub_lang'):
+            context['pub_lang']=self.request.GET['pub_lang']
+        else:
+            context['pub_lang']=''
+        context['show_langs']=True
+        context['WISHED_LANGS']=settings.WISHED_LANGS
+        return context
 
 recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_USERNAME)
 
-class WorkListView(ListView):
+class WorkListView(FilterableListView):
     template_name = "work_list.html"
     context_object_name = "work_list"
     
-    def get_queryset(self):
+    def get_queryset_all(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
             return models.Work.objects.order_by('-num_wishes', 'id')
@@ -455,7 +474,7 @@ class WorkListView(ListView):
             return models.Work.objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
             return models.Work.objects.all().order_by('-created', 'id')
-
+            
     def get_context_data(self, **kwargs):
             context = super(WorkListView, self).get_context_data(**kwargs)
             qs=self.get_queryset()
@@ -475,7 +494,7 @@ class WorkListView(ListView):
             
             return context
 
-class UngluedListView(ListView):
+class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
     context_object_name = "work_list"
     
@@ -484,7 +503,7 @@ class UngluedListView(ListView):
         counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
         return counts
 
-    def get_queryset(self):
+    def get_queryset_all(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
@@ -502,12 +521,12 @@ class UngluedListView(ListView):
             return context
 
         
-class CampaignListView(ListView):
+class CampaignListView(FilterableListView):
     template_name = "campaign_list.html"
     context_object_name = "campaign_list"
     model = models.Campaign
-
-    def get_queryset(self):
+    
+    def get_queryset_all(self):
         facet = self.kwargs['facet']
         if (facet == 'newest'):
             return models.Campaign.objects.filter(status='ACTIVE').order_by('-activated')
@@ -1594,6 +1613,20 @@ class InfoPageView(TemplateView):
             'works': works,
             'ebooks': ebooks,
             'wishlists': wishlists,
+        }
+
+class InfoLangView(TemplateView):
+    
+    def get_template_names(self, **kwargs):
+        if self.kwargs['template_name']:
+            return (self.kwargs['template_name'])
+        else:
+            return ('languages.html')
+            
+    def get_context_data(self, **kwargs):
+        languages=models.Work.objects.filter(num_wishes__gte = 1).values('language').annotate(lang_count=Count('language')).order_by('-lang_count')
+        return {
+            'wished_languages': languages, 
         }
 
 

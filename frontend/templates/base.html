@@ -27,6 +27,16 @@
     {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+	{% if show_langs %}
+	<script>
+    var $j = jQuery.noConflict();
+    $j(document).ready(function(){
+        $j('.show_langs').click(function(){
+            $j(this).next().toggle();
+        });
+    });
+    </script>
+    {% endif %}
     {% block extra_head %}
     {% endblock %}
 </head>

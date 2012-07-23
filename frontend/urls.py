@@ -8,7 +8,7 @@ from django.conf import settings
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, PledgeRechargeView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView, InfoLangView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -71,7 +71,7 @@ urlpatterns = patterns(
         name="about"),
     url(r"^comments/$", "comment", name="comment"),
     url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
-    url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
+    url(r"^info/languages/(?P<template_name>[\w\.]*)$", InfoLangView.as_view()), 
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
     url(r'^campaign_archive.js/$', "campaign_archive_js", name='campaign_archive_js'),
 )
