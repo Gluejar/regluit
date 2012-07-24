@@ -92,11 +92,40 @@
             	{% endfor %}
          	</ul>
 
-	       <input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
-	       <input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
-	       {% comment %}
-	       When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
-	       {% endcomment %}
+			<div class="pledge_amount">
+			Depending on your pledge level, you'll also get these bonus premiums.
+			<span class="ack_level">Any amount</span><div class="ack_active"><div class="ack_header">The unglued ebook will be delivered to your inbox.</div></div>
+			<span class="ack_level">$25+</span><div id="ack_name" class="ack_inactive"><div class="ack_header">You'll be acknowledged on the supporters page<span id="ack_section"></span>.</div>{{ form.ack_name.label_tag }}: {{ form.ack_name.errors }}{{ form.ack_name }}{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}</div>
+			<span class="ack_level">$50+</span><div id="ack_link" class="ack_inactive"><div class="ack_header">Your acknowledgement can include a link.</div>{{ form.ack_link.label_tag }}: {{ form.ack_link.errors }}{{ form.ack_link }}</div>
+			<span class="ack_level">$100+</span><div id="ack_dedication" class="ack_inactive"><div class="ack_header">Your acknowledgement can include a dedication.</div>{{ form.ack_dedication.label_tag }}: {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div>
+				{% comment %}
+				What this needs:
+				DONE fields for name (and anonymity), link, dedication (140 char limit)
+				selective highlighting/activation. if inactive, grey out and provide an indication of the amount ( "$50+" or "($50+)" ); remove indication when active
+				DONE "How would you like to be recognized on the supporters page?" or similar
+				DONE validation? how?
+				prefill name and link? how? (do NOT prefill dedication; make them commit to that)  At any rate, this is a second-step problem.
+				A way to commit this to the db.
+					DONE: fields attached to transaction 
+					- do we want to update supporter with a last-committed-name-and-link to allow prefilling?
+					- path from frontend through db field.  add to existing form and use for validation? make sure everything is optional.
+				styling
+				
+				Testing:
+					run tests
+					create tests pertaining to name/link/dedication. what?
+					scour for places transaction authorize() & pledge() happen
+					make sure they've all been fed needed data!
+					wire in support analogously to PledgeView, then ask raymond to check in on DonateView
+					make sure forms do something sensible when ack_name, etc., are empty
+					make sure to expose & handle anonymity checkbox
+				{% endcomment %}
+			</div>
+			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
+			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
+			{% comment %}
+				When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
+			{% endcomment %}
     	</form>    	
     </div>
 </div>

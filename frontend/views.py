@@ -638,6 +638,9 @@ class PledgeView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
+        ack_name = form.cleaned_data["ack_name"]
+        ack_link = form.cleaned_data["ack_link"]
+        ack_dedication = form.cleaned_data["ack_dedication"]
         
         # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
