@@ -84,12 +84,10 @@ MATERIAL_PREMIUMS = dict([(1, "The unglued ebook delivered to your inbox."),
 
 ACKNOWLEDGEMENT_LEVELS = dict([
     ('A', {'label':"""Your username under "supporters" in the acknowledgements section.""", 'parts':('username',)}),
-    ('B', {'label':'Your username and profile URL of your choice under "benefactors"', 'parts':('username', 'profile url')}),
-    ('C', {'label':'Your username, profile URL, and profile tagline under "bibliophiles"', 'parts':('username', 'profile url', 'profile tagline')}),
-    ('D', {'label':"Your name recorded on a special benefactors' page in all printed and digital editions of the work.", 'parts':('name',)})
+    ('B', {'label':'Your username and profile URL of your choice under "benefactors"', 'parts':('username', 'home_url')}),
+    ('C', {'label':'Your username, profile URL, and profile tagline under "bibliophiles"', 'parts':('username', 'home_url', 'tagline')}),
+    ('D', {'label':"Your name recorded on a special benefactors' page in all printed and digital editions of the work.", 'parts':('username','email')})
     ])
-
-ACKNOWLEDGEMENT_ELEMENTS = ('username', 'profile url', 'profile tagline', 'name')
 
 def supporters_for_campaign(c):
     for k in c.transaction_set.filter(status='Complete').values_list('user',flat=True).order_by('-amount'):
@@ -169,9 +167,10 @@ def benefits_acks_by_category(c):
             print
         
     for a in sorted(ACKNOWLEDGEMENT_LEVELS.keys()):
+        """ for various levels of acknowledgements, write out the different pieces"""
         print "[{0}]".format(a), ACKNOWLEDGEMENT_LEVELS[a]['label'], "({0})".format(len(ack_recipients[a]))
         for p in ack_recipients[a]:
-            print p["email"]
+            print "\t".join([p[e] for e in ACKNOWLEDGEMENT_LEVELS[a]["parts"]])
         print
         print
         
