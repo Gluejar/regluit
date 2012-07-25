@@ -39,7 +39,7 @@
     {% if campaign.ungluers.bibliophiles %}
         <p>Bibliophiles of this edition include ungluers:<dl>
         {% for ungluer in campaign.ungluers.bibliophiles %}
-            <dt><a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.tagline }}</dd>
+            <dt><a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.profile.tagline }}</dd>
         {% endfor %}
         </dl>
         </p>

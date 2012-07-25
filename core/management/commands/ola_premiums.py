@@ -9,11 +9,14 @@ from django.contrib.auth.models import User
 from regluit.payment.manager import PaymentManager
 from decimal import Decimal as D
 
+from collections import defaultdict
+
 from regluit.experimental.gutenberg import unicode_csv
 
 # compare to https://unglue.it/work/81724/acks/
 
-# options -- these are options that are relevant in how we would determine what we ask people and what they get
+# possible options -- these are options that are relevant in how we would determine what we ask people and what they get
+# no implementation of these options however
 
 # should transactions be No premium selected be given nothing by default or maximum benefits for their amount by default?
 
@@ -53,7 +56,7 @@ MATERIAL_FOR_PREMIUM = dict([(1L, (1,)),
 
 # acknowledgement level for each premium
 ACK_FOR_PREMIUM = dict([
-    (1L, None), (97L, None), (2L, 'A'), (98L, 'A'), (3L, 'B'), (99L, 'B'), (4L,'C'), (15L,'D'), (18L, 'D'), (65L, 'D')
+    (1L, ()), (97L, ()), (2L, ('A',)), (98L, ('A',)), (3L, ('B',)), (99L, ('B',)), (4L,('C',)), (15L,('C','D')), (18L, ('C','D')), (65L, ('C', 'D'))
 ])
 
 # the material premiums cluster in the following way -- it makes sense to be able to have 0 or 1 of the specific material
@@ -65,6 +68,7 @@ ACK_FOR_PREMIUM = dict([
 # 7
 # 10
 
+MATERIAL_CLUSTERS = ((1,), (2,3,4), (5,9), (6, 8, 11), (7,), (10,))
 
 MATERIAL_PREMIUMS = dict([(1, "The unglued ebook delivered to your inbox."),
     (2, "You will have the choice of one free digital edition selected from our list of published titles. (Offer valid until 30 September 2012)"),
@@ -88,7 +92,7 @@ ACKNOWLEDGEMENT_LEVELS = dict([
 ACKNOWLEDGEMENT_ELEMENTS = ('username', 'profile url', 'profile tagline', 'name')
 
 def supporters_for_campaign(c):
-    for k in c.transaction_set.filter(status='Complete').values_list('user',flat=True):
+    for k in c.transaction_set.filter(status='Complete').values_list('user',flat=True).order_by('-amount'):
         yield User.objects.get(id=k)
     
 def highest_eligible_premium(amount, levels):
@@ -96,19 +100,89 @@ def highest_eligible_premium(amount, levels):
 
 def premiums_and_acks(c):
     """ calculate charts of premiums and acknowledgements owed"""
-    print "number of transactions", c.transaction_set.filter(Q(status='Complete')).count()
+
     for (i, u) in enumerate(supporters_for_campaign(c)):
         try:
             t = c.transaction_set.get(user=u, status='Complete')
             max_premium_amount = highest_eligible_premium(t.amount, LEVELS)
             max_premium_id = OLA_PREMIUM_FOR_AMOUNT[max_premium_amount]
-            print i, t.id, t.user, t.user.email, t.user.profile.home_url, t.user.profile.tagline,  t.anonymous, t.amount, t.premium.id if t.premium is not None else None,  \
-                 max_premium_amount, max_premium_id, MATERIAL_FOR_PREMIUM[max_premium_id], ACK_FOR_PREMIUM[max_premium_id]
+            row = {
+                "id":t.id, 
+                "username": t.user.username,
+                "email": t.user.email,
+                "home_url": t.user.profile.home_url, 
+                "tagline": t.user.profile.tagline, 
+                "amount": t.amount, 
+                "premium_id": t.premium.id if t.premium is not None else None, 
+                "premium_amount": t.premium.amount if t.premium is not None else None,
+                "max_premium_id": max_premium_id,
+                "max_premium_amount": max_premium_amount, 
+                "material_premium": ",".join([str(x) for x in MATERIAL_FOR_PREMIUM[max_premium_id]]),
+                "ack": ",".join(ACK_FOR_PREMIUM[max_premium_id])
+            }
+            yield row
             
-        except:
-            pass
+        except Exception, e:
+            print "problem: ", i, u, e
+
         
+def out_csv(c, out_fname = "/Users/raymondyee/Downloads/ola_fulfill.csv"):
+    
+    out_headers = ["id",
+            "username", 
+            "email",
+            "home_url",
+            "tagline",
+            "amount",
+            "premium_id",
+            "premium_amount",
+            "max_premium_id",
+            "max_premium_amount",
+            "material_premium",
+            "ack"
+            ]    
+    
+    f = open(out_fname, "wb")
+    f = unicode_csv.output_to_csv(f, out_headers, premiums_and_acks(c))
         
+def benefits_acks_by_category(c):
+    """loop through all the transactions and classify into buckets for material premiums + acks"""
+    material_benefits_recipients = defaultdict(list)
+    ack_recipients = defaultdict(list)
+    
+    for p in premiums_and_acks(c):
+        material_premium = [int(s) for s in p["material_premium"].split(",")]
+        ack = p["ack"].split(",")
+        for mp in material_premium:
+            material_benefits_recipients[mp].append(p)
+        for a in ack:
+            ack_recipients[a].append(p)
+            
+    # now print out the materials categories working through the material clusters
+    
+    for cluster in MATERIAL_CLUSTERS:
+        for mp in cluster:
+            print "[{0}]".format(mp), MATERIAL_PREMIUMS[mp], "({0})".format( len(material_benefits_recipients[mp]))
+            for p in material_benefits_recipients[mp]:
+                print p["email"]
+            print
+            print
+        
+    for a in sorted(ACKNOWLEDGEMENT_LEVELS.keys()):
+        print "[{0}]".format(a), ACKNOWLEDGEMENT_LEVELS[a]['label'], "({0})".format(len(ack_recipients[a]))
+        for p in ack_recipients[a]:
+            print p["email"]
+        print
+        print
+        
+    # compare with Eric's calculation of various ack levels
+    ungluers = c.ungluers()
+    print
+    print
+    print "supporters match?", set([u.username for u in ungluers["supporters"]]) == set([p['username'] for p in ack_recipients['A']])
+    print "patrons match?", set([u.username for u in ungluers["patrons"]]) == set([p['username'] for p in ack_recipients['B']])
+    print "bibliophiles match?", set([u.username for u in ungluers["bibliophiles"]]) == set([p['username'] for p in ack_recipients['C']])
+    
 
 def validate_c3(c3):
         
@@ -121,8 +195,9 @@ def validate_c3(c3):
     assert c3.transaction_set.filter(Q(status='Complete') & Q(premium__isnull=False)).filter(amount__lt = F('premium__amount')).count() == 0
     
 def overall_stats(c3):
+    print "total number of pledges completed", c3.transaction_set.filter(status='Complete').count()
+    
     print "number of pledgers that did not pick any premium", c3.transaction_set.filter(status='Complete').filter(premium__isnull=True).count()
-             # need to handle those who did not pick any premiums separately
     
     for p in c3.transaction_set.filter(Q(status='Complete') & Q(premium__isnull=False)).order_by('premium__amount').values_list('premium', 'premium__amount').annotate(count_premium=Count('premium')):
         print p[0], p[1], p[2]            
@@ -130,13 +205,6 @@ def overall_stats(c3):
     # who deliberately picked premiums at a value level equal to the pledge amount
     print "number of transactions with amount equal to premium amount", c3.transaction_set.filter(Q(status='Complete') & Q(premium__isnull=False)).filter(amount = F('premium__amount')).count()
         
-    # how many people deliberately chose premiums of lower value -- not correct -- have to calculate for a
-    # given amount, the corresponding premium level
-    
-    for t in c3.transaction_set.filter(Q(status='Complete') & Q(premium__isnull=False)).values('id', 'amount', 'premium__amount'):
-        max_qualified = max(filter(lambda x: x <= t['amount'], LEVELS))
-        if max_qualified != t['premium__amount']:
-            print t['id'], t['amount'], t['premium__amount'], max_qualified    
 
 class Command(BaseCommand):
     help = "Displays data about how related to collecting information about premiums for Oral Literature in Africa"
@@ -149,4 +217,6 @@ class Command(BaseCommand):
         
         overall_stats(c3)
         
-        premiums_and_acks(c3)
+        out_csv(c3)
+        
+        benefits_acks_by_category(c3)
