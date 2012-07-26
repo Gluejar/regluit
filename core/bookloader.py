@@ -492,8 +492,12 @@ def add_openlibrary(work):
                     try:
                         w = _get_json("http://openlibrary.org" + work_key,type='ol')
                         if w.has_key('description'):
-                            if not work.description or  len(w['description']) > len(work.description):
-                                work.description = w['description']
+                            description=w['description']
+                            if isinstance(description,dict):
+                                if description.has_key('value'):
+                                    description=description['value']
+                            if not work.description or work.description.startswith('{') or len(description) > len(work.description):
+                                work.description = description
                                 work.save()
                         if w.has_key('subjects') and len(w['subjects']) > len(subjects):
                             subjects = w['subjects']

@@ -303,6 +303,11 @@ class BookLoaderTests(TestCase):
         self.assertTrue('888628' in work.identifiers.filter(type='gdrd').values_list('value',flat=True))
         self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value',flat=True))
 
+    def test_unicode_openlibrary(self):
+        work = bookloader.add_by_isbn('9783894808358').work
+        bookloader.add_openlibrary(work)
+        self.assertTrue(work.description.startswith('Sie sind jung,'))
+        
     def test_load_gutenberg_edition(self):
         """Let's try this out for Moby Dick"""
         
