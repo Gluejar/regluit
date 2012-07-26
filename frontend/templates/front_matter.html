@@ -32,14 +32,14 @@
     {% if campaign.ungluers.patrons %}
         <p>Benefactors of this edition include ungluers:
         {% for ungluer in campaign.ungluers.patrons %}
-            {% if forloop.last %}and {% endif %}<a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
+            {% if forloop.last %}and {% endif %}<a href="{% if ungluer.profile.home_url %}{{ungluer.profile.home_url}}{% else %}https://unglue.it{% url supporter supporter_username=ungluer.username %}{% endif %}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
         {% endfor %}
         </p>
     {% endif %}
     {% if campaign.ungluers.bibliophiles %}
         <p>Bibliophiles of this edition include ungluers:<dl>
         {% for ungluer in campaign.ungluers.bibliophiles %}
-            <dt><a href="https://unglue.it{% url supporter supporter_username=ungluer.username %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.profile.tagline }}</dd>
+            <dt><a href="{% if ungluer.profile.home_url %}{{ungluer.profile.home_url}}{% else %}https://unglue.it{% url supporter supporter_username=ungluer.username %}{% endif %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.profile.tagline }}</dd>
         {% endfor %}
         </dl>
         </p>
