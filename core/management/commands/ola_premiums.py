@@ -13,6 +13,17 @@ from collections import defaultdict
 
 from regluit.experimental.gutenberg import unicode_csv
 
+# http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
+def grouper(iterable, page_size):
+    page= []
+    for item in iterable:
+        page.append( item )
+        if len(page) == page_size:
+            yield page
+            page= []
+    if len(page):
+        yield page
+
 # compare to https://unglue.it/work/81724/acks/
 
 # possible options -- these are options that are relevant in how we would determine what we ask people and what they get
@@ -142,6 +153,7 @@ def out_csv(c, out_fname = "/Users/raymondyee/Downloads/ola_fulfill.csv"):
     
     f = open(out_fname, "wb")
     f = unicode_csv.output_to_csv(f, out_headers, premiums_and_acks(c))
+    
         
 def benefits_acks_by_category(c):
     """loop through all the transactions and classify into buckets for material premiums + acks"""
@@ -181,6 +193,20 @@ def benefits_acks_by_category(c):
     print "supporters match?", set([u.username for u in ungluers["supporters"]]) == set([p['username'] for p in ack_recipients['A']])
     print "patrons match?", set([u.username for u in ungluers["patrons"]]) == set([p['username'] for p in ack_recipients['B']])
     print "bibliophiles match?", set([u.username for u in ungluers["bibliophiles"]]) == set([p['username'] for p in ack_recipients['C']])
+    
+    # list the emails for various acks-- A, B, C-D, D
+    for pledgers in (('A', [p["email"] for p in ack_recipients['A']]),
+        ('B', [p["email"] for p in ack_recipients['B']]),
+        ('C-D', set([p["email"] for p in ack_recipients['C']]) - set([p["email"] for p in ack_recipients['D']])), 
+        ('D', [p["email"] for p in ack_recipients['D']])):
+        print pledgers[0], len(pledgers[1]), "\n"
+        for page in grouper(pledgers[1], 40):
+            for p in page:
+                print p
+            print
+        print
+        print
+    
     
 
 def validate_c3(c3):
