@@ -444,8 +444,8 @@ def merge_works(w1, w2, user=None):
     w2.delete()
 
 
-def add_openlibrary(work):
-    if work.openlibrary_lookup is not None:
+def add_openlibrary(work, hard_refresh = False):
+    if (not hard_refresh) and work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
         if now()- work.openlibrary_lookup < timedelta(days=30):
              return

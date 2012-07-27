@@ -10,4 +10,4 @@ class Command(BaseCommand):
         
         for work in models.Work.objects.filter(description__contains='{'):
             print "updating work %s" % work 
-            bookloader.add_openlibrary(work)           
+            bookloader.add_openlibrary(work, hard_refresh = True)           
