@@ -118,6 +118,7 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
+CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
 
 IS_PREVIEW = False
 
