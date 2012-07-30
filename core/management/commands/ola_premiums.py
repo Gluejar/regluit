@@ -97,8 +97,12 @@ ACKNOWLEDGEMENT_LEVELS = dict([
     ('A', {'label':"""Your username under "supporters" in the acknowledgements section.""", 'parts':('username',)}),
     ('B', {'label':'Your username and profile URL of your choice under "benefactors"', 'parts':('username', 'home_url')}),
     ('C', {'label':'Your username, profile URL, and profile tagline under "bibliophiles"', 'parts':('username', 'home_url', 'tagline')}),
-    ('D', {'label':"Your name recorded on a special benefactors' page in all printed and digital editions of the work.", 'parts':('username','email')})
+    ('D', {'label':"Your name recorded on a special benefactors' page in all printed and digital editions of the work.", 'parts':('username', 'home_url', 'tagline')})
     ])
+
+ALTERNATE_ACK = dict(
+    [("jmo",{'username':'John and Mary Mark Ockerbloom'})]
+)
 
 def supporters_for_campaign(c):
     for k in c.transaction_set.filter(status='Complete').values_list('user',flat=True).order_by('-amount'):
@@ -127,8 +131,10 @@ def premiums_and_acks(c):
                 "max_premium_id": max_premium_id,
                 "max_premium_amount": max_premium_amount, 
                 "material_premium": ",".join([str(x) for x in MATERIAL_FOR_PREMIUM[max_premium_id]]),
-                "ack": ",".join(ACK_FOR_PREMIUM[max_premium_id])
+                "anonymous": t.anonymous,
+                "ack": ",".join(ACK_FOR_PREMIUM[max_premium_id]) if not t.anonymous else ""
             }
+
             yield row
             
         except Exception, e:
@@ -148,6 +154,7 @@ def out_csv(c, out_fname = "/Users/raymondyee/Downloads/ola_fulfill.csv"):
             "max_premium_id",
             "max_premium_amount",
             "material_premium",
+            "anonymous",
             "ack"
             ]    
     
@@ -182,7 +189,13 @@ def benefits_acks_by_category(c):
         """ for various levels of acknowledgements, write out the different pieces"""
         print "[{0}]".format(a), ACKNOWLEDGEMENT_LEVELS[a]['label'], "({0})".format(len(ack_recipients[a]))
         for p in ack_recipients[a]:
-            print "\t".join([p[e] for e in ACKNOWLEDGEMENT_LEVELS[a]["parts"]])
+            # if the username is in ALTERNATE_ACK, overwrite with the alternative info
+            if ALTERNATE_ACK.has_key(p["username"]):
+                p1 = p.copy()
+                p1.update(ALTERNATE_ACK[p["username"]])
+                print "\t".join([p1[e] for e in ACKNOWLEDGEMENT_LEVELS[a]["parts"]])
+            else:
+                print "\t".join([p[e] for e in ACKNOWLEDGEMENT_LEVELS[a]["parts"]])
         print
         print
         
@@ -206,8 +219,6 @@ def benefits_acks_by_category(c):
             print
         print
         print
-    
-    
 
 def validate_c3(c3):
         
