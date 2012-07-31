@@ -525,6 +525,7 @@ def _get_json(url, params={}, type='gb'):
                'X-Forwarded-For': '69.174.114.214'}
     if type == 'gb':
         params['key'] = settings.GOOGLE_BOOKS_API_KEY
+        params['country'] = 'us'
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
         return json.loads(response.content)
