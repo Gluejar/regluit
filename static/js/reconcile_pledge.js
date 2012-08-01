@@ -10,6 +10,7 @@ $j().ready(function() {
 	var submitbutton = $j('#pledgesubmit');
 	var fakesubmitbutton = $j('#fakepledgesubmit');
 	var anonbox = $j('#anonbox input');
+	var ackSection = $j('#ack_section');
 	var supporterName = $j('#supporter_name').html();
 	var acks = {
 		ack_name: supporterName,
@@ -89,6 +90,7 @@ $j().ready(function() {
 			deactivate('ack_name');
 			deactivateLink();
 			deactivate('ack_dedication');
+			ackSection.html('');
 		} else if (current >= 25 && current < 50) {
 			deactivateLink();
 			deactivate('ack_dedication');
@@ -97,6 +99,7 @@ $j().ready(function() {
 			} else {
 				activate('ack_name');
 			}
+			ackSection.html(' as a Supporter');
 		} else if (current >= 50 && current < 100) {
 			deactivate('ack_dedication');
 			if (anon) {
@@ -106,6 +109,7 @@ $j().ready(function() {
 				activate('ack_name');
 				activateLink();
 			}
+			ackSection.html(' as a Benefactor');
 		} else if (current >= 100) {
 			activate('ack_dedication');
 			if (anon) {
@@ -115,6 +119,7 @@ $j().ready(function() {
 				activate('ack_name');
 				activateLink();
 			}
+			ackSection.html(' as a Bibliophile');
 		}
 	}
 	
