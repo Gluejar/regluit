@@ -15,7 +15,7 @@ $j().ready(function() {
 		ack_name: supporterName,
 		ack_dedication: ''
 	};
-	
+		
 	// we're not letting people submit arbitrary links
 	$j('#id_ack_link').attr('disabled', 'disabled');
 	
