@@ -11,7 +11,10 @@ $j().ready(function() {
 	var fakesubmitbutton = $j('#fakepledgesubmit');
 	var anonbox = $j('#anonbox input');
 	var supporterName = $j('#supporter_name').html();
-	var supporterAckName = supporterName;
+	var acks = {
+		ack_name: supporterName,
+		ack_dedication: ''
+	};
 	
 	// we're not letting people submit arbitrary links
 	$j('#id_ack_link').attr('disabled', 'disabled');
@@ -49,13 +52,14 @@ $j().ready(function() {
 	var activate = function(mySpan) {
 		$j('#'+mySpan).removeClass('ack_inactive').addClass('ack_active');
 		$j('#'+mySpan+' input').removeAttr('disabled');
-		$j('#id_ack_name').val(supporterAckName);
+		ack = acks[mySpan];
+		$j('#id_'+mySpan).val(ack);
 	}
 	
 	// make mandatory premium input area inactive: greyed-out and not modifiable
 	var deactivate = function(mySpan) {
 		$j('#'+mySpan).removeClass('ack_active').addClass('ack_inactive');
-		$j('#'+mySpan+' input[type=text]').attr('disabled', 'disabled');
+		$j('#'+mySpan+' input[type=text]').val('').attr('disabled', 'disabled');
 	}
 
 	// fill mandatory premium link input with supporter page
@@ -71,8 +75,8 @@ $j().ready(function() {
 	}
 	
 	var anonymizeName = function() {
-		$j('#id_ack_name').val('Anonymous');
 		deactivate('ack_name');
+		$j('#id_ack_name').val('Anonymous');
 		// clicking the anonbox should disable name field, but not render
 		// anonbox impossible to click again!
 		$j('#id_anonymous').removeAttr('disabled');
@@ -82,7 +86,6 @@ $j().ready(function() {
 	var rectifyAcknowledgements = function(current) {
 		var anon = anonbox.prop("checked");
 		if (current < 25) {
-			$j('#id_ack_name').val('');
 			deactivate('ack_name');
 			deactivateLink();
 			deactivate('ack_dedication');
@@ -167,11 +170,14 @@ $j().ready(function() {
 		rectifyAcknowledgements(current);
 	});
 	
-	// if supporters enter a name in the acknowledgements name box, keep track of it
-	// so it doesn't get overwritten if they decrease & re-increase pledge, or 
+	// if supporters enter a name or dedication, keep track of them
+	// so they doesn't get thrown away if they decrease & re-increase pledge, or 
 	// anonymize and then de-anonymize
 	$j('#ack_name input[type=text]').change(function() {
-		supporterAckName = $j(this).val();
+		acks['ack_name'] = $j(this).val();
+	});
+	$j('#ack_dedication input[type=text]').change(function() {
+		acks['ack_dedication'] = $j(this).val();
 	});
 	
 	// input boxes must be enabled for values to be submitted
