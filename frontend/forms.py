@@ -278,9 +278,9 @@ class CampaignPledgeForm(forms.Form):
         label="Pledge Amount",
     )
     anonymous = forms.BooleanField(required=False, label=_("Don't display my name in the acknowledgements"))
-    ack_name = forms.CharField(required=False, max_length=64, label=_("Name to display"))
-    ack_link = forms.URLField(required=False, label=_("Your web site"))
-    ack_dedication = forms.CharField(required=False, max_length=140, label=_("Dedication"))
+    ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
+    ack_link = forms.URLField(required=False, label=_("Your web site:"))
+    ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
     premium_id = forms.IntegerField(required=False)
     

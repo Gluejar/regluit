@@ -73,9 +73,9 @@ class Transaction(models.Model):
     premium = models.ForeignKey(Premium, null=True)
     
     # how to acknowledge the user on the supporter page of the campaign ebook
-    ack_name = models.CharField(max_length=64, null=False)
-    ack_link = models.URLField(null=False)
-    ack_dedication = models.CharField(max_length=140, null=False)
+    ack_name = models.CharField(max_length=64, null=True)
+    ack_link = models.URLField(null=True)
+    ack_dedication = models.CharField(max_length=140, null=True)
     
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)

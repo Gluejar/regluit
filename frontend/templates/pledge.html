@@ -92,12 +92,12 @@
             	{% endfor %}
          	</ul>
 
-			<div class="pledge_amount">
-			Depending on your pledge level, you'll also get these bonus premiums.
-			<span class="ack_level">Any amount</span><div class="ack_active"><div class="ack_header">The unglued ebook will be delivered to your inbox.</div></div>
-			<span class="ack_level">$25+</span><div id="ack_name" class="ack_inactive"><div class="ack_header">You'll be acknowledged on the supporters page<span id="ack_section"></span>.</div>{{ form.ack_name.label_tag }}: {{ form.ack_name.errors }}{{ form.ack_name }}{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}</div>
-			<span class="ack_level">$50+</span><div id="ack_link" class="ack_inactive"><div class="ack_header">Your acknowledgement can include a link.</div>{{ form.ack_link.label_tag }}: {{ form.ack_link.errors }}{{ form.ack_link }}</div>
-			<span class="ack_level">$100+</span><div id="ack_dedication" class="ack_inactive"><div class="ack_header">Your acknowledgement can include a dedication.</div>{{ form.ack_dedication.label_tag }}: {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div>
+			<div class="pledge_amount clearfix" id="mandatory_premiums">
+			<div>Depending on your pledge level, you'll also get these acknowledgements.</div>
+			<div class="ack_active"><div class="ack_level">Any amount</div><div class="ack_header">The unglued ebook will be delivered to your inbox.</div></div>
+			<div id="ack_name" class="ack_inactive"><div class="ack_level">$25+</div><div class="ack_header">You'll be acknowledged on the supporters page<span id="ack_section"></span>.&nbsp;{{ form.ack_name.label_tag }} {{ form.ack_name.errors }}{{ form.ack_name }}<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div></div></div>
+			<div id="ack_link" class="ack_inactive"><div class="ack_level">$50+</div><div class="ack_header">Your acknowledgement will link to your Unglue.it supporter page.{{ form.ack_link }}</div></div>
+			<div id="ack_dedication" class="ack_inactive"><div class="ack_level">$100+</div><div class="ack_header">Your acknowledgement can include a dedication (140 characters max).&nbsp;{{ form.ack_dedication.label_tag }} {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div></div>
 				{% comment %}
 				What this needs:
 				DONE fields for name (and anonymity), link, dedication (140 char limit)
@@ -131,7 +131,7 @@
 </div>
 <div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
 {% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
-
+<div id="supporter_name" style="display: none;">{{ request.user.username }}</div>
 {% endblock %}
 
 
