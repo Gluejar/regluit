@@ -444,8 +444,8 @@ def merge_works(w1, w2, user=None):
     w2.delete()
 
 
-def add_openlibrary(work):
-    if work.openlibrary_lookup is not None:
+def add_openlibrary(work, hard_refresh = False):
+    if (not hard_refresh) and work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
         if now()- work.openlibrary_lookup < timedelta(days=30):
              return
@@ -492,8 +492,12 @@ def add_openlibrary(work):
                     try:
                         w = _get_json("http://openlibrary.org" + work_key,type='ol')
                         if w.has_key('description'):
-                            if not work.description or  len(w['description']) > len(work.description):
-                                work.description = w['description']
+                            description=w['description']
+                            if isinstance(description,dict):
+                                if description.has_key('value'):
+                                    description=description['value']
+                            if not work.description or work.description.startswith('{') or len(description) > len(work.description):
+                                work.description = description
                                 work.save()
                         if w.has_key('subjects') and len(w['subjects']) > len(subjects):
                             subjects = w['subjects']
@@ -521,6 +525,7 @@ def _get_json(url, params={}, type='gb'):
                'X-Forwarded-For': '69.174.114.214'}
     if type == 'gb':
         params['key'] = settings.GOOGLE_BOOKS_API_KEY
+        params['country'] = 'us'
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:
         return json.loads(response.content)

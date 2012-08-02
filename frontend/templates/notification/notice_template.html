@@ -1,8 +1,8 @@
 {% comment %}
-django-notification {% with %} play poorly together. Don't use {% with %} 
-in child templates.
+django-notification and {% with %} play poorly together. Don't use {% with %} 
+in child templates.  Also don't do {% url something as something %}; it doesn't work and I'm not clear why.
 
-You can include notification/sharing_block.html into a notice.html to have
+Exception: you can include notification/sharing_block.html into a notice.html to have
 tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as work_url %} immediately prior.
 {% endcomment %}
 <div class="comments clearfix">
@@ -11,7 +11,7 @@ tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as w
 			{% block comments_book %}
 				{% comment %}
 				Your cover image goes here. e.g.:
-				<a href="{{ work_url }}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+				<a href="{% url work work.id %}"><img src="{{ comment.content_object.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
 				modify as needed for your local context variables
 				{% endcomment %}
 			{% endblock %}
@@ -20,14 +20,14 @@ tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as w
 				This is where you put your headline.
 				Brief text, graphics-oriented info like user avatars and campaign status icons.
 				e.g.:
-				<a href="{{ supporter_url }}">
+				<a href="{% url supporter supporter %}">
 					{% if supporter.profile.pic_url %}
 						<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
 					{% else %}
 						<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
 					{% endif %}
 				</a>
-				<span><a href="{{ supporter_url }}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>{% endcomment %}{% endblock %}
+				<span><a href="{% url supporter supporter %}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>{% endcomment %}{% endblock %}
 				<br /><i>{% now "M d Y, h:i A"%}</i><br />
 		</span>
 		<hr />

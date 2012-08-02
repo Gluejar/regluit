@@ -21,4 +21,5 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin_site.urls)), 
     (r'^comments/', include('django.contrib.comments.urls')),
     (r'^notification/', include(notification.urls)),
+    (r'^ckeditor/', include('ckeditor.urls')),
 )

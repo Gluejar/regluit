@@ -98,8 +98,8 @@ class BookLoaderTests(TestCase):
     def test_populate_edition(self):
         edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
         edition = tasks.populate_edition.run(edition.isbn_13)
-        self.assertTrue(edition.work.editions.all().count() > 20)
-        self.assertTrue(edition.work.subjects.all().count() > 10)
+        self.assertTrue(edition.work.editions.all().count() > 10)
+        self.assertTrue(edition.work.subjects.all().count() > 8)
         self.assertTrue(edition.work.publication_date)
         edition.publication_date = None
         self.assertTrue(edition.work.publication_date)
@@ -303,6 +303,11 @@ class BookLoaderTests(TestCase):
         self.assertTrue('888628' in work.identifiers.filter(type='gdrd').values_list('value',flat=True))
         self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value',flat=True))
 
+    def test_unicode_openlibrary(self):
+        work = bookloader.add_by_isbn('9783894808358').work
+        bookloader.add_openlibrary(work)
+        self.assertTrue(work.description.startswith('Sie sind jung,'))
+        
     def test_load_gutenberg_edition(self):
         """Let's try this out for Moby Dick"""
         

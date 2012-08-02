@@ -131,6 +131,7 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
+CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
 
 # decide which of the period tasks to add to the schedule
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
