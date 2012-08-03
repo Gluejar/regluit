@@ -143,7 +143,7 @@ def update_edition(edition):
     # if there is no ISBN associated with edition, just return the input edition
     try:
         isbn=edition.identifiers.filter(type='isbn')[0].value
-    except models.Identifier.DoesNotExist, IndexError:
+    except (models.Identifier.DoesNotExist, IndexError):
         return edition
 
     # do a Google Books lookup on the isbn associated with the edition (there should be either 0 or 1 isbns associated
