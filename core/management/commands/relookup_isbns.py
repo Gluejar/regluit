@@ -8,12 +8,13 @@ from regluit.core import models, bookloader
 
 class Command(BaseCommand):
     help = "relookup all editions attached to language=xx works"
+    args = "<title>"
     
-    def handle(self, **options):
-        print "Number of Works with language=xx: %s" % models.Work.objects.filter(language='xx').count()
+    def handle(self, title='', **options):
+        print "Number of Works with language=xx, title like %s: %s" % (title, models.Work.objects.filter(language='xx', title__istartswith=title).count())
         updated_num=0
         
-        for work in models.Work.objects.filter(language='xx'):
+        for work in models.Work.objects.filter(language='xx', title__istartswith=title):
             print "updating work %s" % work            
             for edition in work.editions.all():
                 print "updating edition %s" % edition
