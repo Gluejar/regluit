@@ -349,6 +349,38 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     return e
 
 
+def relate_isbn(isbn, cluster_size=1):
+    """add a book by isbn and then see if there's an existing work to add it to so as to make a cluster 
+    bigger than cluster_size.
+    """
+    logger.info("finding a related work for %s", isbn)
+
+    edition = add_by_isbn(isbn)
+    if edition is None:
+        return None
+    if edition.work is None:
+        logger.warning("didn't add related to null work")
+        return None
+    if edition.work.editions.count()>cluster_size:
+        return 
+    for other_isbn in thingisbn(isbn):
+        # 979's come back as 13
+        logger.debug("other_isbn: %s", other_isbn)
+        if len(other_isbn)==10:
+            other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
+        related_edition = add_by_isbn(other_isbn, work=edition.work)
+        if related_edition:
+            related_language = related_edition.work.language
+            if edition.work.language == related_language:
+                if related_edition.work is None:
+                    related_edition.work = edition.work
+                elif related_edition.work != edition.work:
+                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
+                    merge_works(related_edition.work, edition.work)
+                if edition.work.editions.count()>cluster_size:
+                    return edition.work
+    return edition.work
+
 def add_related(isbn):
     """add all books related to a particular ISBN to the UnglueIt database.
     The initial seed ISBN will be added if it's not already there.
