@@ -183,7 +183,7 @@ def update_edition(edition):
             logger.info("moving identifier %s" % identifier.value)
             identifier.work=new_work
             identifier.save()
-        if old_work.editions.count()==0:
+        if old_work and old_work.editions.count()==0:
             #a dangling work; make sure nothing else is attached!
             merge_works(new_work,old_work)    
     
@@ -361,7 +361,9 @@ def add_related(isbn):
     edition = add_by_isbn(isbn)
     if edition is None:
         return new_editions
-
+    if edition.work is None:
+        logger.warning("didn't add related to null work")
+        return new_editions
     # this is the work everything will hang off
     work = edition.work
     other_editions = {}
@@ -376,9 +378,12 @@ def add_related(isbn):
             related_language = related_edition.work.language
             if edition.work.language == related_language:
                 new_editions.append(related_edition)
-                if related_edition.work != edition.work:
-                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
-                    merge_works(edition.work, related_edition.work)
+                if related_edition.work is None:
+                    related_edition.work = work
+                    related_edition.save()
+                elif related_edition.work != work:
+                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work.id )
+                    merge_works(work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
                     other_editions[related_language].append(related_edition)
@@ -416,7 +421,7 @@ def merge_works(w1, w2, user=None):
     """
     logger.info("merging work %s into %s", w2, w1)
     # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
-    if w1 == w2 or w1.id is None or w2.id is None:
+    if w1 is None or w2 is None or w1 == w2 or w1.id is None or w2.id is None:
         return
     
     for identifier in w2.identifiers.all():

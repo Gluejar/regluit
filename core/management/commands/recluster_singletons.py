@@ -14,7 +14,7 @@ class Command(BaseCommand):
     args = "<language> <max>"
     
 
-    def handle(self, language, max, **options):
+    def handle(self, language, max=100, **options):
         print "Number of singleton Works with language = %s: %s" % (language, models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count())
         
         try:
@@ -28,12 +28,13 @@ class Command(BaseCommand):
             if work.editions.count() != 1:
                 print
                 continue
-            if work.first_isbn_13():
-                new_editions = bookloader.add_related( work.first_isbn_13() )
-                corresponding_works =  set([ed.work for ed in new_editions])
-                print "clustered %s editions for work %s" % (len(new_editions),work ), \
-                      "| Corresponding works : ", [(w.id, w.language, w.editions.count()) for w in corresponding_works], \
-                      "#corresponding_works:%s" % (len(corresponding_works))
+            isbn=work.first_isbn_13()
+            if isbn:
+                new_work = bookloader.relate_isbn( isbn )
+                if new_work.id != work.id:
+                    print "added edition to work %s with %s editions" % (new_work.id, new_work.editions.count())
+                else:
+                    print "%s editions not moved" % work.editions.count()
             else:
                 print "no ISBN for this work and therefore no new editions"
         print "Updated Number of singleton Works with language = %s: %s" % (language,models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count() )
