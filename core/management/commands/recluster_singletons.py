@@ -11,30 +11,40 @@ from itertools import islice
 
 class Command(BaseCommand):
     help = "add and merge editions for singleton works"
-    args = "<language> <max>"
+    args = "<language> <max> <start>"
     
 
-    def handle(self, language, max=100, **options):
+    def handle(self, language, max=100, start=0, **options):
         print "Number of singleton Works with language = %s: %s" % (language, models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count())
         
         try:
             max = int(max)
         except:
-            max = None
+            max = 100
+        try:
+            start = int(start)
+        except:
+            start = 0
         
-        for (i, work) in enumerate(islice(models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language),max)):
+        for (i, work) in enumerate(islice(models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language),start,start+max)):
             #check that there's still only one edition
             print "%d %s id:%s #editions:%d #isbn:%s -->" % (i, work.title.encode('ascii','ignore'), work.id,  work.editions.count(), work.first_isbn_13()),
+            work_id=work.id
             if work.editions.count() != 1:
                 print
                 continue
             isbn=work.first_isbn_13()
             if isbn:
                 new_work = bookloader.relate_isbn( isbn )
-                if new_work.id != work.id:
+                if new_work is None:
+                    print "failed to get edition"
+                elif new_work.id != work_id:
                     print "added edition to work %s with %s editions" % (new_work.id, new_work.editions.count())
                 else:
-                    print "%s editions not moved" % work.editions.count()
+                    if work.editions.count()>1:
+                        print "singleton joined to new edition" 
+                    else:
+                        print "singleton edition not moved" 
             else:
                 print "no ISBN for this work and therefore no new editions"
         print "Updated Number of singleton Works with language = %s: %s" % (language,models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count() )

@@ -359,10 +359,10 @@ def relate_isbn(isbn, cluster_size=1):
     if edition is None:
         return None
     if edition.work is None:
-        logger.warning("didn't add related to null work")
+        logger.info("didn't add related to null work")
         return None
     if edition.work.editions.count()>cluster_size:
-        return 
+        return edition.work
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
         logger.debug("other_isbn: %s", other_isbn)
@@ -374,11 +374,13 @@ def relate_isbn(isbn, cluster_size=1):
             if edition.work.language == related_language:
                 if related_edition.work is None:
                     related_edition.work = edition.work
-                elif related_edition.work != edition.work:
+                    related_edition.save()
+                elif related_edition.work.id != edition.work.id:
                     logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
                     merge_works(related_edition.work, edition.work)
-                if edition.work.editions.count()>cluster_size:
-                    return edition.work
+                
+                if related_edition.work.editions.count()>cluster_size:
+                    return related_edition.work
     return edition.work
 
 def add_related(isbn):
@@ -413,7 +415,7 @@ def add_related(isbn):
                 if related_edition.work is None:
                     related_edition.work = work
                     related_edition.save()
-                elif related_edition.work != work:
+                elif related_edition.work.id != work.id:
                     logger.debug("merge_works path 1 %s %s", work.id, related_edition.work.id )
                     merge_works(work, related_edition.work)
             else:
@@ -453,7 +455,7 @@ def merge_works(w1, w2, user=None):
     """
     logger.info("merging work %s into %s", w2, w1)
     # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
-    if w1 is None or w2 is None or w1 == w2 or w1.id is None or w2.id is None:
+    if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return
     
     for identifier in w2.identifiers.all():
