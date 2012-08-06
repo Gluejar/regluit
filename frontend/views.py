@@ -782,6 +782,9 @@ class PledgeModifyView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
+        ack_name = form.cleaned_data["ack_name"]
+        ack_link = form.cleaned_data["ack_link"]
+        ack_dedication = form.cleaned_data["ack_dedication"]
  
         assert self.request.user.is_authenticated()
         user = self.request.user       
@@ -807,7 +810,8 @@ class PledgeModifyView(FormView):
         p = PaymentManager(embedded=self.embedded)
         paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
         status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium,
-                                           paymentReason=paymentReason)
+                                           paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, 
+                                           ack_dedication=ack_dedication)
         
         logger.info("status: {0}, url:{1}".format(status, url))
         
@@ -853,6 +857,9 @@ class PledgeRechargeView(TemplateView):
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+            ack_name = transaction.ack_name
+            ack_link = transaction.ack_link
+            ack_dedication = transaction.ack_dedication
     
             paymentReason = "Unglue.it Recharge for {0}".format(campaign.name)
             

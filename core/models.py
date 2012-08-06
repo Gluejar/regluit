@@ -368,6 +368,38 @@ class Campaign(models.Model):
         
         return ungluers
 
+    def ungluer_transactions(self):
+    	"""
+    	returns a list of authorized transactions for campaigns in progress,
+    	or completed transactions for successful campaigns
+    	used to build the acks page -- because ack_name, _link, _dedication adhere to transactions,
+    	it's easier to return transactions than ungluers
+    	"""
+        p = PaymentManager()
+        ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
+        anons = 0
+        if self.status == "ACTIVE":
+            translist = p.query_campaign(self, summary=False, pledged=True, authorized=True)
+        elif self.status == "SUCCESSFUL":
+            translist = p.query_campaign(self, summary=False, pledged=True, completed=True)
+        else:
+            translist = []
+        for transaction in translist:
+            ungluers['all'].append(transaction.user)
+            if not transaction.anonymous:
+                if transaction.amount >= Premium.TIERS["bibliophile"]:
+                    ungluers['bibliophiles'].append(transaction)
+                elif transaction.amount >= Premium.TIERS["patron"]:
+                    ungluers['patrons'].append(transaction)
+                elif transaction.amount >= Premium.TIERS["supporter"]:
+                    ungluers['supporters'].append(transaction)
+            else:
+            	anons += 1
+        
+        ungluers['anons'] = anons
+        
+        return ungluers
+
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
