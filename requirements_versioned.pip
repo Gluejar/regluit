@@ -8,6 +8,7 @@ boto==2.3.0
 celery==2.4.6
 certifi==0.0.6
 django-celery==2.4.2
+django-ckeditor==3.6.2.1
 django-debug-toolbar==0.8.5
 django-endless-pagination==1.1
 django-extensions==0.7.1

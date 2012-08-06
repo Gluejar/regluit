@@ -221,8 +221,6 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             model = Campaign
             fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition'
             widgets = { 
-                    'description': forms.Textarea(attrs={'cols': 80, 'rows': 20}),
-                    'details': forms.Textarea(attrs={'cols': 80, 'rows': 5}),
                     'deadline': SelectDateWidget,
                 }
     

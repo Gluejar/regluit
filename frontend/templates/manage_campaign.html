@@ -109,6 +109,7 @@ Please fix the following before launching your campaign:
 <div class="tabs-1">
 	<form action="#" method="POST">
 	{% csrf_token %}
+	{{ form.media }}
 	<h3>Select the edition</h3>
 	<p> Please choose the edition that most closely matches the edition to be unglued:</p>
 	
