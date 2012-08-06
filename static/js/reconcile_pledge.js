@@ -11,12 +11,21 @@ $j().ready(function() {
 	var fakesubmitbutton = $j('#fakepledgesubmit');
 	var anonbox = $j('#anonbox input');
 	var ackSection = $j('#ack_section');
-	var supporterName = $j('#supporter_name').html();
+	var supporterName = $j('#pass_supporter_name').html();
+	var ackName = $j('#pass_ack_name').html();
+	var ackLink = $j('#pass_ack_link').html();
+	var ackDedication = $j('#pass_ack_dedication').html();
+	if(ackDedication == 'None') {
+		ackDedication = '';
+	}
 	var acks = {
-		ack_name: supporterName,
-		ack_dedication: ''
+		ack_name: ackName,
+		ack_link: ackLink,
+		ack_dedication: ackDedication
 	};
 		
+	var ackAnon = $j('#pass_anon').html();
+
 	// we're not letting people submit arbitrary links
 	$j('#id_ack_link').attr('disabled', 'disabled');
 	
@@ -49,7 +58,7 @@ $j().ready(function() {
 		submitbutton.removeAttr('disabled');
 	}
 	
-	// make mandatory premium input area active
+	// make acknowledgements input area active
 	var activate = function(mySpan) {
 		$j('#'+mySpan).removeClass('ack_inactive').addClass('ack_active');
 		$j('#'+mySpan+' input').removeAttr('disabled');
@@ -66,7 +75,11 @@ $j().ready(function() {
 	// fill mandatory premium link input with supporter page
 	var activateLink = function() {
 		$j('#ack_link').removeClass('ack_inactive').addClass('ack_active');
-		$j('input#id_ack_link').val('https://unglue.it/supporter/'+supporterName);
+		if(ackLink) {
+			$j('input#id_ack_link').val(ackLink);
+		} else {
+			$j('input#id_ack_link').val('https://unglue.it/supporter/'+supporterName);
+		}
 	}
 	
 	// empty mandatory premium link
@@ -130,6 +143,11 @@ $j().ready(function() {
 		rectifyAcknowledgements(current);
 	} else {
 		rectifyAcknowledgements(0);
+	}
+	if (ackAnon == 'True') {
+		anonymizeName();
+		deactivateLink();
+		anonbox.prop("checked", true);
 	}
 
 	// when user clicks a premium, ensure it is compatible with the pledge box amount

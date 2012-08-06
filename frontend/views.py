@@ -736,7 +736,7 @@ class PledgeModifyView(FormView):
         else:
             premium_id = None
             premium_description = None
-        
+
         # is there a Transaction for an ACTIVE campaign for this
         # should make sure Transaction is modifiable.
         
@@ -761,6 +761,7 @@ class PledgeModifyView(FormView):
                 'faqmenu': 'modify', 
                 'tid': transaction.id,
                 'payment_processor':settings.PAYMENT_PROCESSOR,
+                'transaction': transaction,
                 })
         return context
     
@@ -781,10 +782,10 @@ class PledgeModifyView(FormView):
         
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
-        anonymous = form.cleaned_data["anonymous"]
         ack_name = form.cleaned_data["ack_name"]
         ack_link = form.cleaned_data["ack_link"]
         ack_dedication = form.cleaned_data["ack_dedication"]
+        anonymous = form.cleaned_data["anonymous"]
  
         assert self.request.user.is_authenticated()
         user = self.request.user       
@@ -811,7 +812,7 @@ class PledgeModifyView(FormView):
         paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
         status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium,
                                            paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, 
-                                           ack_dedication=ack_dedication)
+                                           ack_dedication=ack_dedication, anonymous=anonymous)
         
         logger.info("status: {0}, url:{1}".format(status, url))
         

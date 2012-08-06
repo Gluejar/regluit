@@ -386,18 +386,15 @@ class Campaign(models.Model):
             translist = []
         for transaction in translist:
             ungluers['all'].append(transaction.user)
-            if not transaction.anonymous:
-                if transaction.amount >= Premium.TIERS["bibliophile"]:
-                    ungluers['bibliophiles'].append(transaction)
-                elif transaction.amount >= Premium.TIERS["patron"]:
-                    ungluers['patrons'].append(transaction)
-                elif transaction.amount >= Premium.TIERS["supporter"]:
-                    ungluers['supporters'].append(transaction)
-            else:
+            if transaction.anonymous:
             	anons += 1
-        
-        ungluers['anons'] = anons
-        
+            if transaction.amount >= Premium.TIERS["bibliophile"]:
+            	ungluers['bibliophiles'].append(transaction)
+            elif transaction.amount >= Premium.TIERS["patron"]:
+            	ungluers['patrons'].append(transaction)
+            elif transaction.amount >= Premium.TIERS["supporter"]:
+            	ungluers['supporters'].append(transaction)
+                
         return ungluers
 
     def effective_premiums(self):

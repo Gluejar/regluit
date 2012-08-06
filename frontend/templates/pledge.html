@@ -98,28 +98,6 @@
 			<div id="ack_name" class="ack_inactive"><div class="ack_level">$25+</div><div class="ack_header">You'll be acknowledged on the acknowledgements page of the unglued ebook<span id="ack_section"></span>.&nbsp;{{ form.ack_name.label_tag }} {{ form.ack_name.errors }}{{ form.ack_name }}<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div></div></div>
 			<div id="ack_link" class="ack_inactive"><div class="ack_level">$50+</div><div class="ack_header">Your acknowledgement will link to your Unglue.it supporter page.{{ form.ack_link }}</div></div>
 			<div id="ack_dedication" class="ack_inactive"><div class="ack_level">$100+</div><div class="ack_header">Your acknowledgement can include a dedication (140 characters max).&nbsp;{{ form.ack_dedication.label_tag }} {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div></div>
-				{% comment %}
-				What this needs:
-				DONE fields for name (and anonymity), link, dedication (140 char limit)
-				selective highlighting/activation. if inactive, grey out and provide an indication of the amount ( "$50+" or "($50+)" ); remove indication when active
-				DONE "How would you like to be recognized on the supporters page?" or similar
-				DONE validation? how?
-				prefill name and link? how? (do NOT prefill dedication; make them commit to that)  At any rate, this is a second-step problem.
-				A way to commit this to the db.
-					DONE: fields attached to transaction 
-					- do we want to update supporter with a last-committed-name-and-link to allow prefilling?
-					- path from frontend through db field.  add to existing form and use for validation? make sure everything is optional.
-				styling
-				
-				Testing:
-					run tests
-					create tests pertaining to name/link/dedication. what?
-					scour for places transaction authorize() & pledge() happen
-					make sure they've all been fed needed data!
-					wire in support analogously to PledgeView, then ask raymond to check in on DonateView
-					make sure forms do something sensible when ack_name, etc., are empty
-					make sure to expose & handle anonymity checkbox
-				{% endcomment %}
 			</div>
 			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
 			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
@@ -131,7 +109,15 @@
 </div>
 <div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
 {% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
-<div id="supporter_name" style="display: none;">{{ request.user.username }}</div>
+<div id="pass_supporter_name" style="display: none;">{{ request.user.username }}</div>
+{% if transaction.ack_name %}
+<div id="pass_ack_name" style="display: none;">{{ transaction.ack_name }}</div>
+{% else %}
+<div id="pass_ack_name" style="display: none;">{{ request.user.username }}</div>
+{% endif %}
+<div id="pass_ack_link" style="display: none;">{{ transaction.ack_link }}</div>
+<div id="pass_ack_dedication" style="display: none;">{{ transaction.ack_dedication }}</div>
+<div id="pass_anon" style="display: none;">{{ transaction.anonymous }}</div>
 {% endblock %}
 
 

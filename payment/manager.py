@@ -738,7 +738,7 @@ class PaymentManager( object ):
                                     transaction.user, 
                                     return_url, 
                                     nevermind_url, 
-                                    transaction.anonymous,
+                                    anonymous,
                                     premium,
                                     paymentReason,
                                     ack_name,
@@ -771,6 +771,9 @@ class PaymentManager( object ):
             transaction.amount = amount
             transaction.anonymous = anonymous
             transaction.premium = premium
+            transaction.ack_name = ack_name
+            transaction.ack_link = ack_link
+            transaction.ack_dedication = ack_dedication
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
