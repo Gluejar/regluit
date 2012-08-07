@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
+from regluit.payment.signals import credit_balance_added
 from decimal import Decimal
 import uuid
 
@@ -149,12 +150,17 @@ class Credit(models.Model):
     pledged = models.IntegerField(default=0)
     last_activity = models.DateTimeField(auto_now=True)
     
+    @property
+    def available(self):
+        return self.balance - self.pledged
+    
     def add_to_balance(self, num_credits):
         if self.pledged - self.balance >  num_credits :  # negative to withdraw
             return False
         else:
             self.balance = self.balance + num_credits
             self.save()
+            credit_balance_added.send(sender=self, amount=num_credits)
             return True
     
     def add_to_pledged(self, num_credits):

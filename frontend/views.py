@@ -547,6 +547,19 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+class DonationView(TemplateView):
+    template_name = "donation.html"
+    
+    def get(self, request, *args, **kwargs): 
+        return self.render_to_response(self.get_context_data())
+        
+    def post(self, request, *args, **kwargs): 
+        return self.render_to_response(self.get_context_data())
+        
+    def get_context_data(self, *args, **kwargs):
+        context = {'user' : self.request.user}
+        return context
             
 class PledgeView(FormView):
     template_name="pledge.html"

@@ -1,0 +1,11 @@
+{% if amount > 0 %}
+{{ user.username }}, {{ amount }} donation credits have been added to your unglue.it donation credit account.
+{% else %}
+{{ user.username }}, {{ amount }} donation credits have been deducted from your unglue.it donation credit account.
+{% endif %}
+You have a balance of {{ user.credit.balance }} donation credits.
+You have pledged {{ user.credit.pledged }} donation credits to ungluing campaigns.
+You have {{ user.credit.available }} donation credits available to pledge or transfer.
+You can manage your donation credit account at https://unglue.it/donation/
+
+Donation credits can be used in support of ungluing campaigns.

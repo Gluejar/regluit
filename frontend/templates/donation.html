@@ -1,0 +1,20 @@
+{% extends "basedocumentation.html" %}
+{% load humanize %}
+
+{% block title %}Donations{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+{% endblock %}
+
+{% block doccontent %}
+<h2>Donation Credits</h2>
+<p>
+You have a balance of {{ user.credit.balance }} donation credits. <br />
+You have pledged {{ user.credit.pledged }} donation credits to ungluing campaigns.<br />
+You have {{ user.credit.available }} donation credits available to pledge or transfer.<br />
+</p>
+{% endblock %}
+
+
