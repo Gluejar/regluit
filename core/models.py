@@ -821,13 +821,18 @@ class UserProfile(models.Model):
     twitter_id =  models.CharField(max_length=15, blank=True)
     facebook_id =  models.PositiveIntegerField(null=True)
     librarything_id =  models.CharField(max_length=31, blank=True)
+    badges = models.ManyToManyField('Badge', related_name='holders')
     
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-  
+
+class Badge(models.Model):
+    name = models.CharField(max_length=72, blank=True)
+    description = models.TextField(default='', null=True)
+    
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
