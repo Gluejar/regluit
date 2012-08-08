@@ -95,6 +95,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("pledge_charged", _("Your Pledge has been Executed"), _("You have contributed to a successful ungluing campaign."))
     notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You have become a verified Unglue.it rights holder."))
     notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
+    notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -194,6 +195,8 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
     emit_notifications.delay()
     
 pledge_created.connect(handle_you_have_pledged)
+
+amazon_suspension = Signal(providing_args=["campaign"])
 
 def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
     """send notification in response to campaign shutdown following Amazon suspension"""
