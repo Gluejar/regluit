@@ -143,7 +143,7 @@ def update_edition(edition):
     # if there is no ISBN associated with edition, just return the input edition
     try:
         isbn=edition.identifiers.filter(type='isbn')[0].value
-    except models.Identifier.DoesNotExist:
+    except (models.Identifier.DoesNotExist, IndexError):
         return edition
 
     # do a Google Books lookup on the isbn associated with the edition (there should be either 0 or 1 isbns associated
@@ -183,7 +183,7 @@ def update_edition(edition):
             logger.info("moving identifier %s" % identifier.value)
             identifier.work=new_work
             identifier.save()
-        if old_work.editions.count()==0:
+        if old_work and old_work.editions.count()==0:
             #a dangling work; make sure nothing else is attached!
             merge_works(new_work,old_work)    
     
@@ -349,6 +349,40 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     return e
 
 
+def relate_isbn(isbn, cluster_size=1):
+    """add a book by isbn and then see if there's an existing work to add it to so as to make a cluster 
+    bigger than cluster_size.
+    """
+    logger.info("finding a related work for %s", isbn)
+
+    edition = add_by_isbn(isbn)
+    if edition is None:
+        return None
+    if edition.work is None:
+        logger.info("didn't add related to null work")
+        return None
+    if edition.work.editions.count()>cluster_size:
+        return edition.work
+    for other_isbn in thingisbn(isbn):
+        # 979's come back as 13
+        logger.debug("other_isbn: %s", other_isbn)
+        if len(other_isbn)==10:
+            other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
+        related_edition = add_by_isbn(other_isbn, work=edition.work)
+        if related_edition:
+            related_language = related_edition.work.language
+            if edition.work.language == related_language:
+                if related_edition.work is None:
+                    related_edition.work = edition.work
+                    related_edition.save()
+                elif related_edition.work.id != edition.work.id:
+                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
+                    merge_works(related_edition.work, edition.work)
+                
+                if related_edition.work.editions.count()>cluster_size:
+                    return related_edition.work
+    return edition.work
+
 def add_related(isbn):
     """add all books related to a particular ISBN to the UnglueIt database.
     The initial seed ISBN will be added if it's not already there.
@@ -361,7 +395,9 @@ def add_related(isbn):
     edition = add_by_isbn(isbn)
     if edition is None:
         return new_editions
-
+    if edition.work is None:
+        logger.warning("didn't add related to null work")
+        return new_editions
     # this is the work everything will hang off
     work = edition.work
     other_editions = {}
@@ -376,9 +412,12 @@ def add_related(isbn):
             related_language = related_edition.work.language
             if edition.work.language == related_language:
                 new_editions.append(related_edition)
-                if related_edition.work != edition.work:
-                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
-                    merge_works(edition.work, related_edition.work)
+                if related_edition.work is None:
+                    related_edition.work = work
+                    related_edition.save()
+                elif related_edition.work.id != work.id:
+                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work.id )
+                    merge_works(work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
                     other_editions[related_language].append(related_edition)
@@ -416,7 +455,7 @@ def merge_works(w1, w2, user=None):
     """
     logger.info("merging work %s into %s", w2, w1)
     # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
-    if w1 == w2 or w1.id is None or w2.id is None:
+    if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return
     
     for identifier in w2.identifiers.all():
