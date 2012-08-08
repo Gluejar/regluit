@@ -1,0 +1,11 @@
+Amazon Payments has informed us that they will no longer process pledge payments for new crowdfunding companies, including Unglue.it.  Therefore the campaign to unglue {{ campaign.work.title }} (https://{{site.domain}}{% url work campaign.work.id %}) has been closed.
+
+If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
+
+Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  Encourage your friends to sign up for Unglue.it and add it to their wishlists.  We are hard at work on payment alternatives and intend to reopen campaigns as soon as possible.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
+
+You can also comment and ask us questions at our blog (http://wp.me/p2omBl-3B), on our Facebook page (https://www.facebook.com/unglueit), or on Twitter with the hashtag #unglueit.
+
+Thank you for your support.
+
+Eric Hellman, President of Unglue.it
