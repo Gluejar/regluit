@@ -195,6 +195,20 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
     
 pledge_created.connect(handle_you_have_pledged)
 
+def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
+    """send notification in response to campaign shutdown following Amazon suspension"""
+    logger.info('received amazon_suspension signal for {0}'.format(campaign))
+    # supporters and staff -- though it might be annoying for staff to be getting all these notices!
+    staff = User.objects.filter(is_staff=True)
+    supporters = (User.objects.get(id=k) for k in campaign.supporters())
+    
+    site = Site.objects.get_current()
+    notification.queue(itertools.chain(staff, supporters), "wishlist_unsuccessful_amazon", {'campaign':campaign, 'site':site}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
+    
+amazon_suspension.connect(handle_wishlist_unsuccessful_amazon)
+
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written
 # RIGHTS_HOLDER_CLAIM_APPROVED:
