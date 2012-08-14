@@ -47,6 +47,7 @@ from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPle
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
+from regluit.frontend.forms import getTransferCreditForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -552,10 +553,28 @@ class DonationView(TemplateView):
     template_name = "donation.html"
     
     def get(self, request, *args, **kwargs): 
-        return self.render_to_response(self.get_context_data())
+        context = self.get_context_data()
+        context['transfer_form']=getTransferCreditForm(self.request.user.credit.available)
+        return self.render_to_response(context)
         
     def post(self, request, *args, **kwargs): 
-        return self.render_to_response(self.get_context_data())
+        context = self.get_context_data()
+        transfer_form=getTransferCreditForm(self.request.user.credit.available, data=self.request.POST)
+        if transfer_form.is_valid():
+            if self.request.user.credit.transfer_to(transfer_form.cleaned_data['recipient'], transfer_form.cleaned_data['amount']):
+                #successful transfer
+                context['transfer_message'] = 'Your transfer has been successfully executed.'
+                context['recipient']= transfer_form.cleaned_data['recipient']
+                context['transfer_amount'] = transfer_form.cleaned_data['amount']
+                context['transfer_form']=getTransferCreditForm(self.request.user.credit.available)
+            else:
+                #unsuccessful transfer
+                context['transfer_message'] = 'Your transfer was not successful.'
+                context['transfer_form']=transfer_form
+        else:
+            #not valid
+            context['transfer_form']=transfer_form
+        return self.render_to_response(context)
         
     def get_context_data(self, *args, **kwargs):
         context = {'user' : self.request.user}
