@@ -586,7 +586,9 @@ class PledgeView(FormView):
         if campaign is None or campaign.status != 'ACTIVE':
             raise Http404
   
-        premiums = campaign.custom_premiums()
+        custom_premiums = campaign.custom_premiums()
+        # need to also include the no-premiums default in the queryset we send the page
+        premiums = custom_premiums | models.Premium.objects.filter(id=150)
         premium_id = self.request.REQUEST.get('premium_id', None)
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         
