@@ -716,7 +716,7 @@ class PledgeModifyView(FormView):
         
         try:
             campaign = work.last_campaign()
-            premiums = campaign.effective_premiums()
+            premiums = campaign.custom_premiums() | models.Premium.objects.filter(id=150)
             
             # which combination of campaign and transaction status required?
             # Campaign must be ACTIVE
