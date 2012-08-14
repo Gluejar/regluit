@@ -68,11 +68,6 @@
 			{{ form.non_field_errors }}
         	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
         	
-        	{% comment %}
-        	not supported yet; don't display
-        	{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}	
-        	{% endcomment %}
-        	
         	<div class="pledge_amount premium_level">Choose your premium:</div>
 
         	<ul class="support menu" id="premiums_list">
@@ -81,9 +76,15 @@
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
             	<label for="premium_{{premium_item.id}}">
                 	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                	{% if premium_item.amount == 0 %}
+                    <span class="menu-item-price">
+                    	Any amount
+                    </span>
+                    {% else %}
                     <span class="menu-item-price">
                     	${{ premium_item.amount|intcomma }}
                     </span>
+                    {% endif %}
                 	<span class="menu-item-desc">
                 		{{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
