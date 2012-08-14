@@ -1,1 +1,240 @@
-.header-text{height:36px;line-height:36px;display:block;text-decoration:none;font-weight:bold;font-size:13px;letter-spacing:-0.05em}.panelborders{border-width:1px 0;border-style:solid none;border-color:#fff}.roundedspan{border:1px solid #d4d4d4;-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px;padding:1px;color:#fff;margin:0 8px 0 0;display:inline-block}.roundedspan>span{padding:7px 7px;min-width:15px;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;text-align:center;display:inline-block}.roundedspan>span .hovertext{display:none}.roundedspan>span:hover .hovertext{display:inline}.mediaborder{padding:5px;border:solid 5px #edf3f4}.google_signup_div{padding:14px 0}.google_signup_div div{height:24px;line-height:24px;float:left;padding-left:5px}.google_signup_div img{float:left;height:24px;width:24px}.actionbuttons{width:auto;height:36px;line-height:36px;background:#8dc63f;-moz-border-radius:32px;-webkit-border-radius:32px;border-radius:32px;color:white;cursor:pointer;font-size:13px;font-weight:bold;padding:0 15px;border:0;margin:5px 0}.errors{-moz-border-radius:16px 16px 0 0;-webkit-border-radius:16px 16px 0 0;border-radius:16px 16px 0 0;border:solid #e35351 3px;clear:both;width:90%;height:auto;line-height:16px;padding:7px 0;font-weight:bold;font-size:13px;text-align:center}.errors li{list-style:none;border:0}#login_centerer{padding:10px 25%;width:960px}#registration{width:960px;padding:10px;margin:0 auto;padding:10px 0;font-size:13px;line-height:18px}#registration input[type="submit"]{margin:0 auto;padding:5px 0}#login{border:solid 3px #d6dde0;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;margin:10px auto;float:left;padding:10px;width:50%}#login form label{display:block}#login form input{width:90%;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;border:1px solid #d6dde0;height:18px;line-height:18px;margin-bottom:16px}#login form input[type=submit]{text-decoration:capitalize;width:auto;height:36px;line-height:36px;background:#8dc63f;-moz-border-radius:32px;-webkit-border-radius:32px;border-radius:32px;color:white;cursor:pointer;font-size:13px;font-weight:bold;padding:0 15px;border:0;margin:5px 0}#login form input:focus{border:solid 1px #8dc63f}#login form span.helptext{display:block;margin-top:-11px;font-style:italic;font-size:13px}#login .google_signup{padding:14px 0}#login .google_signup div{height:24px;line-height:24px;float:left;padding-left:5px}#login .google_signup img{float:left;height:24px;width:24px}.actionbutton{width:auto;height:36px;line-height:36px;background:#8dc63f;-moz-border-radius:32px;-webkit-border-radius:32px;border-radius:32px;color:white;cursor:pointer;font-size:13px;font-weight:bold;padding:0 15px;border:0;margin:5px 0;float:left}#welcomesearch label{display:block;margin:0 auto;font-size:19px;padding-bottom:10px}#welcomesearch p{margin-bottom:5px}#welcomesearch form{margin:0 auto;width:210px;background:url("/static/images/landingpage/search-box-two.png") 0 0 no-repeat;height:36px;display:block;overflow:hidden}#welcomesearch input.inputbox{border:0;color:#66942e;height:26px;line-height:26px;font-size:13px;float:left;padding:0;margin:5px 0 5px 20px;width:149px;outline:0}#welcomesearch input.inputbox:focus{border:0}#welcomesearch input.greenbutton[type="submit"]{background:url("/static/images/landingpage/search-button-two.png") 0 0 no-repeat;width:40px;height:40px;padding:0;margin:0;border:0;display:block;float:right;text-indent:-10000px;font-size:0;-moz-border-radius:0;-webkit-border-radius:0;border-radius:0}.welcomealternatives{border-top:1px solid #d6dde0;margin-top:10px;padding-top:5px}
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.roundedspan {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+.roundedspan > span {
+  padding: 7px 7px;
+  min-width: 15px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+}
+.roundedspan > span .hovertext {
+  display: none;
+}
+.roundedspan > span:hover .hovertext {
+  display: inline;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+.errors {
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
+  width: 90%;
+  height: auto;
+  line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
+#login_centerer {
+  padding: 10px 25%;
+  width: 960px;
+}
+#registration {
+  width: 960px;
+  padding: 10px;
+  margin: 0 auto;
+  padding: 10px 0;
+  font-size: 13px;
+  line-height: 18px;
+}
+#registration input[type="submit"] {
+  margin: 0 auto;
+  padding: 5px 0;
+}
+#login {
+  border: solid 3px #d6dde0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  margin: 10px auto;
+  float: left;
+  padding: 10px;
+  width: 50%;
+}
+#login form label {
+  display: block;
+}
+#login form input {
+  width: 90%;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #d6dde0;
+  height: 18px;
+  line-height: 18px;
+  margin-bottom: 16px;
+}
+#login form input[type=submit] {
+  text-decoration: capitalize;
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+#login form input:focus {
+  border: solid 1px #8dc63f;
+}
+#login form span.helptext {
+  display: block;
+  margin-top: -11px;
+  font-style: italic;
+  font-size: 13px;
+}
+#login .google_signup {
+  padding: 14px 0;
+}
+#login .google_signup div {
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+}
+#login .google_signup img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.actionbutton {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+  float: left;
+}
+#welcomesearch label {
+  display: block;
+  margin: 0 auto;
+  font-size: 19px;
+  padding-bottom: 10px;
+}
+#welcomesearch p {
+  margin-bottom: 5px;
+}
+#welcomesearch form {
+  margin: 0 auto;
+  width: 210px;
+  background: url("/static/images/landingpage/search-box-two.png") 0 0 no-repeat;
+  height: 36px;
+  display: block;
+  overflow: hidden;
+}
+#welcomesearch input.inputbox {
+  border: none;
+  color: #66942e;
+  height: 26px;
+  line-height: 26px;
+  font-size: 13px;
+  float: left;
+  padding: 0;
+  margin: 5px 0 5px 20px;
+  width: 149px;
+  outline: none;
+}
+#welcomesearch input.inputbox:focus {
+  border: none;
+}
+#welcomesearch input.greenbutton[type="submit"] {
+  background: url("/static/images/landingpage/search-button-two.png") 0 0 no-repeat;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  display: block;
+  float: right;
+  text-indent: -10000px;
+  font-size: 0;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0;
+}
+.welcomealternatives {
+  border-top: 1px solid #d6dde0;
+  margin-top: 10px;
+  padding-top: 5px;
+}
