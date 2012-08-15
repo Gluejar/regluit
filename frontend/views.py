@@ -2035,7 +2035,7 @@ def lockss(request, work_id):
             work = models.WasWork.objects.get(was = work_id).work
         except models.WasWork.DoesNotExist:
             raise Http404
-    ebook = work.ebooks().filter(unglued=True)
+    ebook = work.ebooks().filter(unglued=True)[0]
     authors = list(models.Author.objects.filter(editions__work=work).all())
     
     return render(request, "lockss.html", {'work':work, 'ebook':ebook, 'authors':authors})
