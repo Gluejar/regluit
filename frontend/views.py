@@ -2026,3 +2026,16 @@ def campaign_archive_js(request):
     response.content = r.content
     response["Content-Type"] = "text/javascript"
     return response
+
+def lockss(request, work_id):
+    try:
+        work = models.Work.objects.get(id = work_id)
+    except models.Work.DoesNotExist:
+        try:
+            work = models.WasWork.objects.get(was = work_id).work
+        except models.WasWork.DoesNotExist:
+            raise Http404
+    ebook = work.ebooks().filter(unglued=True)
+    authors = list(models.Author.objects.filter(editions__work=work).all())
+    
+    return render(request, "lockss.html", {'work':work, 'ebook':ebook, 'authors':authors})
