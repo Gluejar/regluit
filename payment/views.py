@@ -2,6 +2,9 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
+
+from regluit.payment.forms import StripePledgeForm
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -12,6 +15,9 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpRes
 from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
 from django.template import RequestContext
+
+from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
 
 from unittest import TestResult
 from regluit.payment.tests import PledgeTest, AuthorizeTest
@@ -322,5 +328,10 @@ def checkStatus(request):
 def _render(request, template, template_vars={}):
     return render_to_response(template, template_vars, RequestContext(request))
     
-    
-    
+class StripeView(FormView):
+    template_name="stripe.html"
+    form_class = StripePledgeForm
+
+    def form_valid(self, form):
+        stripeToken = form.cleaned_data["stripeToken"]
+        return HttpResponse("stripeToken: {0}".format(stripeToken))
