@@ -68,11 +68,6 @@
 			{{ form.non_field_errors }}
         	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
         	
-        	{% comment %}
-        	not supported yet; don't display
-        	{{ form.anonymous.label_tag }}: {{ form.anonymous.errors }}{{ form.anonymous }}	
-        	{% endcomment %}
-        	
         	<div class="pledge_amount premium_level">Choose your premium:</div>
 
         	<ul class="support menu" id="premiums_list">
@@ -81,9 +76,15 @@
             	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
             	<label for="premium_{{premium_item.id}}">
                 	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                	{% if premium_item.amount == 0 %}
+                    <span class="menu-item-price">
+                    	Any amount
+                    </span>
+                    {% else %}
                     <span class="menu-item-price">
                     	${{ premium_item.amount|intcomma }}
                     </span>
+                    {% endif %}
                 	<span class="menu-item-desc">
                 		{{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
                 	</span>
@@ -92,38 +93,32 @@
             	{% endfor %}
          	</ul>
 
-	       <input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
-	       <input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
-	       {% comment %}
-	       When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
-	       {% endcomment %}
+			<div class="pledge_amount clearfix" id="mandatory_premiums">
+			<div>Depending on your pledge amount, you'll also get these acknowledgements.</div>
+			<div class="ack_active"><div class="ack_level">Any amount</div><div class="ack_header">The unglued ebook will be delivered to your inbox.</div></div>
+			<div id="ack_name" class="ack_inactive"><div class="ack_level">$25+</div><div class="ack_header">You'll be listed on the acknowledgements page of the unglued ebook<span id="ack_section"></span>.&nbsp;{{ form.ack_name.label_tag }} {{ form.ack_name.errors }}{{ form.ack_name }}<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div></div></div>
+			<div id="ack_link" class="ack_inactive"><div class="ack_level">$50+</div><div class="ack_header">Your acknowledgement will link to your Unglue.it supporter page.{{ form.ack_link }}</div></div>
+			<div id="ack_dedication" class="ack_inactive"><div class="ack_level">$100+</div><div class="ack_header">Your acknowledgement can include a dedication (140 characters max).&nbsp;{{ form.ack_dedication.label_tag }} {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div></div>
+			</div>
+			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
+			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
+			{% comment %}
+				When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
+			{% endcomment %}
     	</form>    	
     </div>
 </div>
 <div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
 {% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
-
-{% ifequal work.id 81724 %}
-<!-- Google Code for OLA pledge page Conversion Page; allows for AdWords conversion tracking -->
-<script type="text/javascript">
-/* <![CDATA[ */
-var google_conversion_id = 1072527387;
-var google_conversion_language = "en";
-var google_conversion_format = "3";
-var google_conversion_color = "ffffff";
-var google_conversion_label = "Vqw9CPi04AIQm_C1_wM";
-var google_conversion_value = 0;
-/* ]]> */
-</script>
-<script type="text/javascript" src="https://www.googleadservices.com/pagead/conversion.js">
-</script>
-<noscript>
-<div style="display:inline;">
-<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/1072527387/?value=0&amp;label=Vqw9CPi04AIQm_C1_wM&amp;guid=ON&amp;script=0"/>
-</div>
-</noscript>
-{% endifequal %}
-
+<div id="pass_supporter_name" style="display: none;">{{ request.user.username }}</div>
+{% if transaction.ack_name %}
+<div id="pass_ack_name" style="display: none;">{{ transaction.ack_name }}</div>
+{% else %}
+<div id="pass_ack_name" style="display: none;">{{ request.user.username }}</div>
+{% endif %}
+<div id="pass_ack_link" style="display: none;">{{ transaction.ack_link }}</div>
+<div id="pass_ack_dedication" style="display: none;">{{ transaction.ack_dedication }}</div>
+<div id="pass_anon" style="display: none;">{{ transaction.anonymous }}</div>
 {% endblock %}
 
 

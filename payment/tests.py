@@ -300,6 +300,31 @@ class AuthorizeTest(TestCase):
         
     def tearDown(self):
         self.selenium.quit()
+
+class CreditTest(TestCase):
+    user1=None
+    user2=None
+    def setUp(self):
+        """
+        """
+        self.user1 = User.objects.create_user('credit_test1', 'support@gluejar.com', 'credit_test1')
+        self.user2 = User.objects.create_user('credit_test2', 'support+1@gluejar.com', 'credit_test2')
+
+    def testSimple(self):
+        """
+        """
+        self.assertFalse(self.user1.credit.add_to_balance(-100))
+        self.assertTrue(self.user1.credit.add_to_balance(100))
+        self.assertTrue(self.user1.credit.add_to_pledged(50))
+        self.assertFalse(self.user1.credit.add_to_pledged(60))
+        self.assertFalse(self.user1.credit.use_pledge(60))
+        self.assertTrue(self.user1.credit.use_pledge(50))
+        self.assertFalse(self.user1.credit.transfer_to(self.user2,60))
+        self.assertTrue(self.user1.credit.transfer_to(self.user2,50))
+        self.assertEqual(self.user1.credit.balance, 0)
+        self.assertEqual(self.user2.credit.balance, 50)
+       
+
         
 class TransactionTest(TestCase):
     def setUp(self):

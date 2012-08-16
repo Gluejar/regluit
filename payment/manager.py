@@ -543,7 +543,8 @@ class PaymentManager( object ):
         
     def authorize(self, currency, target, amount, expiry=None, campaign=None, list=None, user=None,
                   return_url=None, nevermind_url=None, anonymous=False, premium=None,
-                  paymentReason="unglue.it Pledge", modification=False):
+                  paymentReason="unglue.it Pledge",  ack_name=None, ack_link=None, ack_dedication=None, 
+                  modification=False):
         '''
         authorize
         
@@ -560,7 +561,8 @@ class PaymentManager( object ):
         anonymous: whether this pledge is anonymous
         premium: the premium selected by the supporter for this transaction
         paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
-        modification: whether this authorize call is part of a modification of an existing pledge 
+        modification: whether this authorize call is part of a modification of an existing pledge
+        ack_name, ack_link, ack_dedication: how the user will be credited in the unglued ebook, if applicable
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
@@ -578,7 +580,10 @@ class PaymentManager( object ):
                                        list=list,
                                        user=user,
                                        anonymous=anonymous,
-                                       premium=premium
+                                       premium=premium,
+                                       ack_name=ack_name,
+                                       ack_link=ack_link,
+                                       ack_dedication=ack_dedication
                                        )
         
         # we might want to not allow for a return_url or nevermind_url to be passed in but calculated
@@ -683,8 +688,8 @@ class PaymentManager( object ):
         return canceled
     
     def modify_transaction(self, transaction, amount, expiry=None, anonymous=None, premium=None,
-                           return_url=None, nevermind_url=None,
-                           paymentReason=None):
+                           return_url=None, nevermind_url=None, paymentReason=None, 
+                           ack_name=None, ack_link=None, ack_dedication=None):
         '''
         modify
         
@@ -733,9 +738,12 @@ class PaymentManager( object ):
                                     transaction.user, 
                                     return_url, 
                                     nevermind_url, 
-                                    transaction.anonymous,
+                                    anonymous,
                                     premium,
                                     paymentReason,
+                                    ack_name,
+                                    ack_link,
+                                    ack_dedication,
                                     True)
             
             if t and url:
@@ -763,6 +771,9 @@ class PaymentManager( object ):
             transaction.amount = amount
             transaction.anonymous = anonymous
             transaction.premium = premium
+            transaction.ack_name = ack_name
+            transaction.ack_link = ack_link
+            transaction.ack_dedication = ack_dedication
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
@@ -819,7 +830,9 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, return_url=None, nevermind_url=None, anonymous=False, premium=None):
+    def pledge(self, currency, target, receiver_list, campaign=None, list=None, user=None, 
+    		   return_url=None, nevermind_url=None, anonymous=False, premium=None, ack_name=None, 
+    		   ack_link=None, ack_dedication=None):
         '''
         pledge
         
@@ -864,7 +877,10 @@ class PaymentManager( object ):
                                        user=user,
                                        date_payment=now(),
                                        anonymous=anonymous,
-                                       premium=premium
+                                       premium=premium,
+                                       ack_name=ack_name,
+                                       ack_link=ack_link,
+                                       ack_dedication=ack_dedication
                                        )
     
         t.create_receivers(receiver_list)

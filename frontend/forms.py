@@ -177,6 +177,25 @@ class OpenCampaignForm(forms.ModelForm):
         fields = 'name', 'work',  'managers'
         widgets = { 'work': forms.HiddenInput }
 
+def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
+    class TransferCreditForm(forms.Form):
+        recipient = AutoCompleteSelectField(
+                OwnerLookup,
+                label='Recipient',
+                widget=AutoCompleteSelectWidget(OwnerLookup),
+                required=True,
+                error_messages={'required': 'Please ensure the recipient is a valid Unglue.it account.'},
+            )
+        amount = forms.IntegerField(
+                required=True,
+                min_value=1, 
+                max_value=maximum,
+                label="Transfer Amount",
+                error_messages={'min_value': 'Transfer amount must be positive', 'max_value': 'You only have %(limit_value)s available for transfer'},
+            )
+    return TransferCreditForm( data=data )
+
+    
 class EditManagersForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(
             OwnerLookup,
@@ -275,7 +294,10 @@ class CampaignPledgeForm(forms.Form):
         decimal_places=2, 
         label="Pledge Amount",
     )
-    anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the supporters list"))
+    anonymous = forms.BooleanField(required=False, label=_("Don't display my name in the acknowledgements"))
+    ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
+    ack_link = forms.URLField(required=False, label=_("Your web site:"))
+    ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
     premium_id = forms.IntegerField(required=False)
     

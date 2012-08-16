@@ -98,7 +98,7 @@
 input[type="submit"] {
   float: right;
   font-size: 19px;
-  margin: 10px;
+  margin: 10px 0 10px;
   cursor: pointer;
 }
 .pledge_amount {
@@ -149,11 +149,67 @@ p {
 }
 #fakepledgesubmit {
   background-color: #e35351;
-  cursor: pointer;
+  cursor: default;
   font-weight: bold;
   font-size: 19px;
   display: none;
 }
 span.menu-item-price {
   float: none !important;
+}
+#mandatory_premiums {
+  font-size: 15px;
+}
+#mandatory_premiums div {
+  float: left;
+}
+#mandatory_premiums div.ack_level {
+  width: 16%;
+  margin-right: 3%;
+  height: 100%;
+  padding: 1%;
+}
+#mandatory_premiums div.ack_header {
+  width: 73%;
+  padding: 1%;
+}
+#mandatory_premiums div.ack_active,
+#mandatory_premiums div.ack_inactive {
+  width: 100%;
+  font-size: 13px;
+}
+#mandatory_premiums div.ack_active .ack_header,
+#mandatory_premiums div.ack_active .ack_level {
+  border: solid #3d4e53;
+  border-width: 1%;
+  background: white;
+}
+#mandatory_premiums div.ack_inactive .ack_header,
+#mandatory_premiums div.ack_inactive .ack_level {
+  border: solid #d6dde0;
+  border-width: 1%;
+  background: #d6dde0;
+}
+#mandatory_premiums div.ack_inactive input,
+#mandatory_premiums div.ack_inactive textarea {
+  background: #d6dde0;
+  border: dashed 1px #3d4e53;
+}
+#mandatory_premiums > div {
+  margin: 7px 0;
+}
+#mandatory_premiums input[type=text],
+#mandatory_premiums textarea {
+  width: 95%;
+  font-size: 15px;
+  color: #3d4e53;
+  margin: 5px 0;
+}
+#mandatory_premiums input[type=text] {
+  height: 19.5px;
+  line-height: 19.5px;
+}
+#id_ack_link {
+  border: none;
+  cursor: default;
 }

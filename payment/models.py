@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
+from regluit.payment.signals import credit_balance_added
 from decimal import Decimal
 import uuid
 
@@ -72,12 +73,17 @@ class Transaction(models.Model):
     campaign = models.ForeignKey(Campaign, null=True)
     premium = models.ForeignKey(Premium, null=True)
     
-    # list:  makes allowance for pledging against a Wishlist:  not currently in use
-    list = models.ForeignKey(Wishlist, null=True)
+    # how to acknowledge the user on the supporter page of the campaign ebook
+    ack_name = models.CharField(max_length=64, null=True)
+    ack_link = models.URLField(null=True)
+    ack_dedication = models.CharField(max_length=140, null=True)
     
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)
-    
+
+    # list:  makes allowance for pledging against a Wishlist:  not currently in use
+    list = models.ForeignKey(Wishlist, null=True)
+        
     def save(self, *args, **kwargs):
         if not self.secret:
             self.secret = str(uuid.uuid1())
@@ -142,7 +148,60 @@ class Receiver(models.Model):
     
     def __unicode__(self):
         return u"Receiver -- email: {0} status: {1} transaction: {2}".format(self.email, self.status, unicode(self.transaction))
+
+class Credit(models.Model):
+    user = models.OneToOneField(User, related_name='credit')
+    balance = models.IntegerField(default=0)
+    pledged = models.IntegerField(default=0)
+    last_activity = models.DateTimeField(auto_now=True)
     
+    @property
+    def available(self):
+        return self.balance - self.pledged
+    
+    def add_to_balance(self, num_credits):
+        if self.pledged - self.balance >  num_credits :  # negative to withdraw
+            return False
+        else:
+            self.balance = self.balance + num_credits
+            self.save()
+            credit_balance_added.send(sender=self, amount=num_credits)
+            return True
+    
+    def add_to_pledged(self, num_credits):
+        if not isinstance( num_credits, int):
+            return False
+        if self.balance - self.pledged <  num_credits :
+            return False
+        else:
+            self.pledged=self.pledged + num_credits
+            self.save()
+            return True
+ 
+    def use_pledge(self, num_credits):
+        if not isinstance( num_credits, int):
+            return False
+        if self.pledged <  num_credits :
+            return False
+        else:
+            self.pledged=self.pledged - num_credits
+            self.balance = self.balance - num_credits
+            self.save()
+            return True
+            
+    def transfer_to(self, receiver, num_credits):
+        if not isinstance( num_credits, int) or not isinstance( receiver, User):
+            return False
+        if self.add_to_balance(-num_credits):
+            if receiver.credit.add_to_balance(num_credits):
+                return True
+            else:
+                # unwind transfer
+                self.add_to_balance(num_credits)
+                return False
+        else:
+            return False
+            
 from django.db.models.signals import post_save, post_delete
 import regluit.payment.manager
 

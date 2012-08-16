@@ -8,7 +8,7 @@ from django.conf import settings
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, PledgeRechargeView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView, InfoLangView
+from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -51,6 +51,7 @@ urlpatterns = patterns(
     url(r"^new_edition/(?P<work_id>)(?P<edition_id>)$", "new_edition", name="new_edition"),
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", "new_edition", name="new_edition"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
+    url(r"^donation/$", login_required(DonationView.as_view()), name="donation"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
     url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),

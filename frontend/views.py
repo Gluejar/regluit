@@ -47,6 +47,7 @@ from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPle
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
+from regluit.frontend.forms import getTransferCreditForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
@@ -192,8 +193,9 @@ def work(request, work_id, action='display'):
     else:
         claimform = None
     if campaign:
-        # pull up premiums explicitly tied to the campaign or generic premiums
-        premiums = campaign.effective_premiums()
+        # pull up premiums explicitly tied to the campaign
+        # mandatory premiums are only displayed in pledge process
+        premiums = campaign.custom_premiums()
     else:
         premiums = None
         
@@ -547,6 +549,37 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+class DonationView(TemplateView):
+    template_name = "donation.html"
+    
+    def get(self, request, *args, **kwargs): 
+        context = self.get_context_data()
+        context['transfer_form']=getTransferCreditForm(self.request.user.credit.available)
+        return self.render_to_response(context)
+        
+    def post(self, request, *args, **kwargs): 
+        context = self.get_context_data()
+        transfer_form=getTransferCreditForm(self.request.user.credit.available, data=self.request.POST)
+        if transfer_form.is_valid():
+            if self.request.user.credit.transfer_to(transfer_form.cleaned_data['recipient'], transfer_form.cleaned_data['amount']):
+                #successful transfer
+                context['transfer_message'] = 'Your transfer has been successfully executed.'
+                context['recipient']= transfer_form.cleaned_data['recipient']
+                context['transfer_amount'] = transfer_form.cleaned_data['amount']
+                context['transfer_form']=getTransferCreditForm(self.request.user.credit.available)
+            else:
+                #unsuccessful transfer
+                context['transfer_message'] = 'Your transfer was not successful.'
+                context['transfer_form']=transfer_form
+        else:
+            #not valid
+            context['transfer_form']=transfer_form
+        return self.render_to_response(context)
+        
+    def get_context_data(self, *args, **kwargs):
+        context = {'user' : self.request.user}
+        return context
             
 class PledgeView(FormView):
     template_name="pledge.html"
@@ -585,7 +618,9 @@ class PledgeView(FormView):
         if campaign is None or campaign.status != 'ACTIVE':
             raise Http404
   
-        premiums = campaign.effective_premiums()        
+        custom_premiums = campaign.custom_premiums()
+        # need to also include the no-premiums default in the queryset we send the page
+        premiums = custom_premiums | models.Premium.objects.filter(id=150)
         premium_id = self.request.REQUEST.get('premium_id', None)
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         
@@ -637,6 +672,9 @@ class PledgeView(FormView):
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         anonymous = form.cleaned_data["anonymous"]
+        ack_name = form.cleaned_data["ack_name"]
+        ack_link = form.cleaned_data["ack_link"]
+        ack_dedication = form.cleaned_data["ack_dedication"]
         
         # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
         campaign = models.Work.objects.get(id=int(work_id)).last_campaign()
@@ -670,7 +708,7 @@ class PledgeView(FormView):
             paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, preapproval_amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium,
-                            paymentReason=paymentReason)    
+                            paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, ack_dedication=ack_dedication)    
         else:  # embedded view -- which we're not actively using right now.
             # embedded view triggerws instant payment:  send to the partnering RH
             receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':preapproval_amount}]
@@ -679,7 +717,8 @@ class PledgeView(FormView):
             nevermind_url = None
             
             t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user,
-                              return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium)
+                              return_url=return_url, nevermind_url=nevermind_url, anonymous=anonymous, premium=premium,
+                              ack_name=ack_name, ack_link=ack_link, ack_dedication=ack_dedication)
         
         if url:
             logger.info("PledgeView url: " + url)
@@ -709,7 +748,7 @@ class PledgeModifyView(FormView):
         
         try:
             campaign = work.last_campaign()
-            premiums = campaign.effective_premiums()
+            premiums = campaign.custom_premiums() | models.Premium.objects.filter(id=150)
             
             # which combination of campaign and transaction status required?
             # Campaign must be ACTIVE
@@ -731,7 +770,7 @@ class PledgeModifyView(FormView):
         else:
             premium_id = None
             premium_description = None
-        
+
         # is there a Transaction for an ACTIVE campaign for this
         # should make sure Transaction is modifiable.
         
@@ -756,6 +795,7 @@ class PledgeModifyView(FormView):
                 'faqmenu': 'modify', 
                 'tid': transaction.id,
                 'payment_processor':settings.PAYMENT_PROCESSOR,
+                'transaction': transaction,
                 })
         return context
     
@@ -776,6 +816,9 @@ class PledgeModifyView(FormView):
         
         work_id = self.kwargs["work_id"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
+        ack_name = form.cleaned_data["ack_name"]
+        ack_link = form.cleaned_data["ack_link"]
+        ack_dedication = form.cleaned_data["ack_dedication"]
         anonymous = form.cleaned_data["anonymous"]
  
         assert self.request.user.is_authenticated()
@@ -802,7 +845,8 @@ class PledgeModifyView(FormView):
         p = PaymentManager(embedded=self.embedded)
         paymentReason = "Unglue.it Pledge for {0}".format(campaign.name)
         status, url = p.modify_transaction(transaction=transaction, amount=preapproval_amount, premium=premium,
-                                           paymentReason=paymentReason)
+                                           paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, 
+                                           ack_dedication=ack_dedication, anonymous=anonymous)
         
         logger.info("status: {0}, url:{1}".format(status, url))
         
@@ -848,13 +892,16 @@ class PledgeRechargeView(TemplateView):
             # the recipients of this authorization is not specified here but rather by the PaymentManager.
             # set the expiry date based on the campaign deadline
             expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+            ack_name = transaction.ack_name
+            ack_link = transaction.ack_link
+            ack_dedication = transaction.ack_dedication
     
             paymentReason = "Unglue.it Recharge for {0}".format(campaign.name)
             
             p = PaymentManager(embedded=False)
             t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, transaction.amount, expiry=expiry, campaign=campaign, list=None, user=user,
                             return_url=return_url, nevermind_url=nevermind_url, anonymous=transaction.anonymous, premium=transaction.premium,
-                            paymentReason=paymentReason)
+                            paymentReason=paymentReason, ack_name=ack_name, ack_link=ack_link, ack_dedication=ack_dedication)
             logger.info("Recharge url: {0}".format(url))
         else:
             url = None
@@ -875,11 +922,6 @@ class PledgeCompleteView(TemplateView):
     
         after pledging, supporter receives email including thanks, work pledged, amount, expiry date, any next steps they should expect; others?
     study other confirmation emails for their contents
-    after pledging, supporters are returned to a thank-you screen
-    should have prominent "thank you" or "congratulations" message
-    should have prominent share options
-    should suggest other works for supporters to explore (on what basis?)
-    link to work page? or to page on which supporter entered the process? (if the latter, how does that work with widgets?)
     should note that a confirmation email has been sent to $email from $sender
     should briefly note next steps (e.g. if this campaign succeeds you will be emailed on date X)    
         
@@ -1148,7 +1190,8 @@ class DonateView(FormView):
         return_url = self.request.build_absolute_uri(reverse('donate'))
         
         t, url = p.pledge('USD', TARGET_TYPE_DONATION, receiver_list, campaign=campaign, list=None, user=user,
-                          return_url=return_url, anonymous=anonymous)
+                          return_url=return_url, anonymous=anonymous, ack_name=ack_name, ack_link=ack_link, 
+                          ack_dedication=ack_dedication)
     
         if url:
             return HttpResponseRedirect(url)

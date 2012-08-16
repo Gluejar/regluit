@@ -368,6 +368,35 @@ class Campaign(models.Model):
         
         return ungluers
 
+    def ungluer_transactions(self):
+    	"""
+    	returns a list of authorized transactions for campaigns in progress,
+    	or completed transactions for successful campaigns
+    	used to build the acks page -- because ack_name, _link, _dedication adhere to transactions,
+    	it's easier to return transactions than ungluers
+    	"""
+        p = PaymentManager()
+        ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
+        anons = 0
+        if self.status == "ACTIVE":
+            translist = p.query_campaign(self, summary=False, pledged=True, authorized=True)
+        elif self.status == "SUCCESSFUL":
+            translist = p.query_campaign(self, summary=False, pledged=True, completed=True)
+        else:
+            translist = []
+        for transaction in translist:
+            ungluers['all'].append(transaction.user)
+            if transaction.anonymous:
+            	anons += 1
+            if transaction.amount >= Premium.TIERS["bibliophile"]:
+            	ungluers['bibliophiles'].append(transaction)
+            elif transaction.amount >= Premium.TIERS["patron"]:
+            	ungluers['patrons'].append(transaction)
+            elif transaction.amount >= Premium.TIERS["supporter"]:
+            	ungluers['supporters'].append(transaction)
+                
+        return ungluers
+
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
@@ -822,13 +851,18 @@ class UserProfile(models.Model):
     twitter_id =  models.CharField(max_length=15, blank=True)
     facebook_id =  models.PositiveIntegerField(null=True)
     librarything_id =  models.CharField(max_length=31, blank=True)
+    badges = models.ManyToManyField('Badge', related_name='holders')
     
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-  
+
+class Badge(models.Model):
+    name = models.CharField(max_length=72, blank=True)
+    description = models.TextField(default='', null=True)
+    
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
