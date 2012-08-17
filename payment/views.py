@@ -3,6 +3,7 @@ from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
 
+from regluit.payment.stripelib import STRIPE_PK
 from regluit.payment.forms import StripePledgeForm
 
 from django.conf import settings
@@ -332,6 +333,20 @@ class StripeView(FormView):
     template_name="stripe.html"
     form_class = StripePledgeForm
 
+    def get_context_data(self, **kwargs):
+        
+        context = super(StripeView, self).get_context_data(**kwargs)
+    
+        context.update({
+                'STRIPE_PK':STRIPE_PK
+                })
+        return context
+    
     def form_valid(self, form):
         stripeToken = form.cleaned_data["stripeToken"]
+        # e.g., tok_0C0k4jG5B2Oxox
+        # 
         return HttpResponse("stripeToken: {0}".format(stripeToken))
+        
+        
+        
