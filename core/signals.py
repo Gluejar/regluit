@@ -95,6 +95,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("pledge_charged", _("Your Pledge has been Executed"), _("You have contributed to a successful ungluing campaign."))
     notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You have become a verified Unglue.it rights holder."))
     notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
+    notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
     notification.create_notice_type("pledge_donation_credit", _("Donation Credit Balance"), _("You have a donation credit balance"))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
@@ -195,6 +196,22 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
     emit_notifications.delay()
     
 pledge_created.connect(handle_you_have_pledged)
+
+amazon_suspension = Signal(providing_args=["campaign"])
+
+def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
+    """send notification in response to campaign shutdown following Amazon suspension"""
+    logger.info('received amazon_suspension signal for {0}'.format(campaign))
+    # supporters and staff -- though it might be annoying for staff to be getting all these notices!
+    staff = User.objects.filter(is_staff=True)
+    supporters = (User.objects.get(id=k) for k in campaign.supporters())
+    
+    site = Site.objects.get_current()
+    notification.queue(itertools.chain(staff, supporters), "wishlist_unsuccessful_amazon", {'campaign':campaign, 'site':site}, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
+    
+amazon_suspension.connect(handle_wishlist_unsuccessful_amazon)
 
 # The notification templates need some context; I'm making a note of that here
 # This can be removed as the relevant functions are written

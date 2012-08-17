@@ -1,0 +1,1 @@
+Amazon shuts off Unglue.it payments; we've closed the campaign to unglue {{ campaign.work.title }}.

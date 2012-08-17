@@ -50,7 +50,7 @@ class EditionForm(forms.ModelForm):
 class EbookForm(forms.ModelForm):
     class Meta:
         model = Ebook
-        exclude = 'created'
+        exclude =( 'created', 'unglued',)
         widgets = { 
                 'edition': forms.HiddenInput, 
                 'user': forms.HiddenInput, 
