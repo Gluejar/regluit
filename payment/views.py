@@ -4,7 +4,9 @@ from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
 
 from regluit.payment.stripelib import STRIPE_PK
-from regluit.payment.forms import StripePledgeForm
+from regluit.payment.balancedlib import MARKETPLACE_URI
+
+from regluit.payment.forms import StripePledgeForm, BalancedPledgeForm
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -347,6 +349,24 @@ class StripeView(FormView):
         # e.g., tok_0C0k4jG5B2Oxox
         # 
         return HttpResponse("stripeToken: {0}".format(stripeToken))
+
+class BalancedView(FormView):
+    template_name="balanced.html"
+    form_class = BalancedPledgeForm
+
+    def get_context_data(self, **kwargs):
         
+        context = super(BalancedView, self).get_context_data(**kwargs)
+    
+        context.update({
+                'MARKETPLACE_URI':MARKETPLACE_URI
+                })
+        return context
+    
+    def form_valid(self, form):
+        
+        card_uri = form.cleaned_data["card_uri"]
+        return HttpResponse("card_uri: {0}".format(card_uri))
+  
         
         

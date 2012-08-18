@@ -1,0 +1,119 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}Balanced{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<link rel="stylesheet" href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" type="text/css">
+    <style type="text/css">
+    [name="marketplace_eid"] {
+        width: 300px;
+    }
+    [name^="expiration"] {
+        width: 50px;
+    }
+    [name="security_code"] {
+        width: 50px;
+    }
+    code { display: block; }
+    pre { color: green; }
+    </style>
+
+
+{% endblock %}
+
+{% block doccontent %}
+
+<h1>Balanced Sample - Collect Credit Card Information</h1>
+<div class="row">
+    <div class="span6">
+        <form id="payment" method="POST">
+	    {% csrf_token %}
+            <div>
+                <label>Card Number</label>
+                <input name="card_number" value="4111111111111111" autocomplete="off">
+            </div>
+            <div>
+                <label>Expiration</label>
+                <input name="expiration_month" value="1"> / <input name="expiration_year" value="2020">
+            </div>
+            <div>
+                <label>Security Code</label>
+                <input name="security_code" value="123" autocomplete="off">
+            </div>
+            <button>Submit Payment Data</button>
+        </form>
+    </div>
+</div>
+<div id="result"></div>
+<script type="text/javascript" src="https://js.balancedpayments.com/v1/balanced.js"></script>
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+    var marketplaceUri = '{{MARKETPLACE_URI}}';
+
+    var debug = function (tag, content) {
+        $j('<' + tag + '>' + content + '</' + tag + '>').appendTo('#result');
+    };
+
+    try {
+        balanced.init(marketplaceUri);
+    } catch (e) {
+        debug('code', 'You need to set the marketplaceUri variable');
+    }
+
+    function balancedCallback(response) {
+        var tag = (response.status < 300) ? 'pre' : 'code';
+        debug(tag, JSON.stringify(response));
+        switch (response.status) {
+            case 201:
+                // response.data.uri == uri of the card resource, submit to your server
+		var form$ = $j('form#payment');
+		var card_uri = response.data.uri;
+		// insert the token into the form so it gets submitted to the server
+		form$.append("<input type='hidden' name='card_uri' value='" + card_uri + "' />");
+		// and submit
+		form$.get(0).submit();
+            case 400:
+            case 403:
+                // missing/malformed data - check response.error for details
+                break;
+            case 402:
+                // we couldn't authorize the buyer's credit card - check response.error for details
+                break;
+            case 404:
+                // your marketplace URI is incorrect
+                break;
+            default:
+                // we did something unexpected - check response.error for details
+                break;
+        }
+    }
+
+    var tokenizeCard = function(e) {
+        e.preventDefault();
+
+        var $form = $j('form#payment');
+        var cardData = {
+            card_number: $form.find('[name="card_number"]').val(),
+            expiration_month: $form.find('[name="expiration_month"]').val(),
+            expiration_year: $form.find('[name="expiration_year"]').val(),
+            security_code: $form.find('[name="security_code"]').val()
+        };
+
+        balanced.card.create(cardData, balancedCallback);
+	// prevent the form from submitting with the default action
+	return false;
+    };
+
+    $j('#payment').submit(tokenizeCard);
+
+    if (window.location.protocol === 'file:') {
+        alert("balanced.js does not work when included in pages served over file:// URLs. Try serving this page over a webserver. Contact support@balancedpayments.com if you need assistance.");
+    }
+</script>
+
+{% endblock %}
+
