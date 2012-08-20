@@ -1,6 +1,6 @@
 from django.conf.urls.defaults import *
 from django.conf import settings
-from regluit.payment.views import StripeView, BalancedView
+from regluit.payment.views import StripeView, BalancedView, WepayView
 
 urlpatterns = patterns(
     "regluit.payment.views",
@@ -31,6 +31,7 @@ if settings.DEBUG:
         url(r"^testmodify", "testModify"),
         url(r"^stripe/test", StripeView.as_view()),
         url(r"^balanced/test", BalancedView.as_view()),
+        url(r"^wepay/test", WepayView.as_view()),
     )
          
      

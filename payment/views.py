@@ -5,8 +5,9 @@ from regluit.core.models import Campaign, Wishlist
 
 from regluit.payment.stripelib import STRIPE_PK
 from regluit.payment.balancedlib import MARKETPLACE_URI
+from regluit.payment import wepaylib
 
-from regluit.payment.forms import StripePledgeForm, BalancedPledgeForm
+from regluit.payment.forms import StripePledgeForm, BalancedPledgeForm, WepayPledgeForm
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -367,6 +368,25 @@ class BalancedView(FormView):
         
         card_uri = form.cleaned_data["card_uri"]
         return HttpResponse("card_uri: {0}".format(card_uri))
+        
+class WepayView(FormView):
+    template_name="wepay.html"
+    form_class = WepayPledgeForm
+    
+    def get_context_data(self, **kwargs):
+        
+        context = super(WepayView, self).get_context_data(**kwargs)
+        
+        # compute a uri to embed in frame
+        # test payment of $10
+        
+        r = wepaylib.create_checkout(10.00, "test charge of 10.00", mode='iframe')
+    
+        context.update({
+                'checkout_uri':r['checkout_uri']
+                })
+        return context
+    
   
         
         

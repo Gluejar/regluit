@@ -1,0 +1,24 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}WePay{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<script type="text/javascript" src="https://www.wepay.com/js/iframe.wepay.js"></script>{% endblock %}
+
+{% block doccontent %}
+
+<div id="checkout_div"></div>
+
+
+
+<script type="text/javascript">
+    WePay.iframe_checkout("checkout_div", "{{checkout_uri}}");
+</script>
+
+
+{% endblock %}
+

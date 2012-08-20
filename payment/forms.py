@@ -8,3 +8,6 @@ class StripePledgeForm(forms.Form):
     
 class BalancedPledgeForm(forms.Form):
     card_uri = forms.CharField(required=False, widget=forms.HiddenInput())
+    
+class WepayPledgeForm(forms.Form):
+    pass
