@@ -166,6 +166,8 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
+    elif work.last_campaign_status() == 'SUCCESSFUL':
+    	unglued_ebook = work.ebooks().filter(unglued=True)
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
         
