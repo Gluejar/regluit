@@ -122,7 +122,7 @@ img {
     border:none;
 }
 
-input, textarea {
+input, textarea, a.fakeinput {
 	border: 2px solid @blue-grey;
 	.one-border-radius(5px);
 	
@@ -130,6 +130,10 @@ input, textarea {
 		border: 2px solid @call-to-action;
 		outline: none;
 	}
+}
+
+a.fakeinput:hover {
+	text-decoration: none;
 }
 
 .js-search input {
@@ -170,7 +174,7 @@ h3 {
     }
 }
 
-input[type="submit"] {
+input[type="submit"], a.fakeinput {
 	background: @call-to-action;
 	color: white;
 	font-weight: bold;
