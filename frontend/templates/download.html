@@ -18,10 +18,12 @@
 <h2>Downloads for {{ work.title }}</h2>
 {% if unglued_ebook %}
 <div class="unglued">
-	<h3>Get the unglued edition!</h3>
+	<h3>Read the unglued edition!</h3>
 	<div class="ebook_download">
-		<img src="{{ unglued_ebook.rights_badge }}">
-		<a href="{{ unglued_ebook.0.url }}">{{ unglued_ebook.format }}</a>
+		{% with unglued_ebook.url as url %}
+			<a href="{{ url }}"><img src="{{ unglued_ebook.rights_badge }}"></a>
+			<a href="{{ url }}">{{ unglued_ebook.format }}</a>
+		{% endwith %}
 	</div>
 </div>
 {% endif %}
@@ -41,7 +43,71 @@
 	{% endfor %}
 {% endif %}
 {% if unglued_ebook or other_ebooks %}
-blah blah download instructions
+<h3>How to download</h3>
+<p>Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>
+
+<h4>Android devices</h4>
+<p class="ebook_download logo"><img src="/static/images/aldiko_logo.png">Aldiko</p>
+
+<ul>
+<li><a href="http://calibre-ebook.com/download">Download the free Aldiko app.</a></li>
+<li>Download your book from this page using your device's web browser.</li>
+<li>You can read HTML files right in the browser.  You will be given the option of opening the file in Aldiko.</li>
+</ul>
+
+<h4>iOS devices</h4>
+<p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg">iBooks</p>
+{% comment %}test{% endcomment %}
+<ul>
+<li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+<li>Download your book from this page using your device's web browser.</li>
+<li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
+</ul>
+
+<h4>PC, Mac, or Linux</h4>
+<p class="ebook_download logo"><img src="/static/images/calibre_logo.png">Calibre</p>
+<ul>
+<li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+<li>Download your book from this page using your device's web browser.</li>
+<li>Open the ebook file in Calibre.</li>
+</ul>
+
+<h4>Non-Kindle ereaders</h4>
+{% comment %}can we just use browser on web-connected device? try it
+<ul>
+<li>Download</li>
+</ul>
+{% endcomment %}
+<h4>Kindles</h4>
+<p>Kindles can read plain text, MOBI, PDF, and HTML files.  They cannot read epub books (the format unglued ebooks are released in).  However, you can convert epubs to mobi files using free software.</p>
+<ul>
+<li>Download the ebook to a laptop or desktop computer.</li>
+<li>If necessary, convert the epub to a mobi file using Calibre (see above).</li>
+<li>Plug the Kindle into your computer with a USB cable.</li>
+<li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the converted .mobi file into the Documents folder on your Kindle.</li>
+<li>Eject the Kindle from the Finder or Explorer and disconnect the USB.</li>
+<li>You may need to reboot your Kindle to see the new book.</li>
+</ul>
+
+<p>If you've set up a Kindle email account at Amazon, you can also email the .mobi file to your device as an attachment.</p>
+
+<p>Need help with something not listed here?  Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
+{% comment %}
+http://www.gutenberg.org/wiki/Gutenberg:MobileReader_Devices_How-To
+http://www.feedbooks.com/help/devices
+
+android: aldiko
+iOS: ibooks (built in? test handling on ipad)
+desktop: calibre.
+
+reader apps?
+
+kindle: ???  "All free books on Feedbooks are available in a Kindle compatible format (for both Kindle devices and mobile applications), but due to the closed nature of the Kindle ecosystem, none of the files available on our store are compatible with the Kindle.
+
+To download a book in a Kindle compatible format, click on the book's name and then select the "Kindle" download option." sideloading: download to computer; attach Kindle with USB; add .mobi file to "documents" folder in Kindle. (convert epub to mobi using Calibre, which also has a send-to-Kindle function)
+
+i canNOT list all the possibilities. need to have a help email.
+{% endcomment %}
 {% else %}
 <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their wishlists!{% endif %}</p>
 
