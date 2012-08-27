@@ -75,7 +75,8 @@ urlpatterns = patterns(
     url(r"^info/(?P<template_name>[\w\.]*)$", InfoPageView.as_view()), 
     url(r"^info/languages/(?P<template_name>[\w\.]*)$", InfoLangView.as_view()), 
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
-    url(r'^campaign_archive.js/$', "campaign_archive_js", name='campaign_archive_js'),
+    url(r'^campaign_archive.js/$', "campaign_archive_js", name="campaign_archive_js"),
+    url(r"^about/(?P<facet>\w*)/$", "about",  name="about"),
 )
 
 if settings.DEBUG:

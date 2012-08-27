@@ -2075,3 +2075,7 @@ def download(request, work_id):
     })
     
     return render(request, "download.html", context)
+    
+def about(request, facet):
+    template = "about_" + facet + ".html"
+    return render(request, template)

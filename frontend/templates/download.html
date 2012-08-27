@@ -15,6 +15,7 @@
 
 {% block content %}
 <div class="download_container">
+<div id="lightbox_content">
 <h2>Downloads for {{ work.title }}</h2>
 {% if unglued_ebook %}
 <div class="unglued">
@@ -50,7 +51,7 @@
 <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png">Aldiko</p>
 
 <ul>
-<li><a href="http://calibre-ebook.com/download">Download the free Aldiko app.</a></li>
+<li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
 <li>Download your book from this page using your device's web browser.</li>
 <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in Aldiko.</li>
 </ul>
@@ -122,6 +123,7 @@ i canNOT list all the possibilities. need to have a help email.
 
 <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url work work.id %}?tab=4">Rights tab of the book page</a>.</p>
 {% endif %}
+</div>
 </div>
 {% endblock %}
 

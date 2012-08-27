@@ -15,6 +15,7 @@
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+<script type="text/javascript" src="/static/js/hijax.js"></script>
 
 <script>
 var $j = jQuery.noConflict();
@@ -127,7 +128,7 @@ $j(document).ready(function(){
                           {% else %}
 							  {% if work.first_ebook %}
 								<div class="btn_support">
-									<a href="{% url download work_id %}" id="ebookDownload" class="fakeinput">Download</a>
+									<a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
 								</div>
 							  {% endif %}
                           {% endif %}

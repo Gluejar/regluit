@@ -94,6 +94,9 @@
   width: 50%;
   margin: auto;
 }
+#lightbox a {
+  color: #6994a3;
+}
 .ebook_download {
   margin-bottom: 15px;
 }

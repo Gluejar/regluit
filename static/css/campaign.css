@@ -18,6 +18,9 @@
   -moz-border-radius: 7px;
   -webkit-border-radius: 7px;
   border-radius: 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
   padding: 1px;
   color: #fff;
   margin: 0 8px 0 0;
@@ -26,6 +29,9 @@
 .roundedspan > span {
   padding: 7px 7px;
   min-width: 15px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -48,6 +54,8 @@
 .google_signup_div div {
   height: 24px;
   line-height: 24px;
+  height: 24px;
+  line-height: 24px;
   float: left;
   padding-left: 5px;
 }
@@ -60,7 +68,12 @@
   width: auto;
   height: 36px;
   line-height: 36px;
+  height: 36px;
+  line-height: 36px;
   background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
   -moz-border-radius: 32px;
   -webkit-border-radius: 32px;
   border-radius: 32px;
@@ -73,6 +86,9 @@
   margin: 5px 0;
 }
 .errors {
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
   -moz-border-radius: 16px 16px 0 0;
   -webkit-border-radius: 16px 16px 0 0;
   border-radius: 16px 16px 0 0;
@@ -146,6 +162,9 @@ ul.tabs li a {
   -moz-border-radius: 7px 7px 0 0;
   -webkit-border-radius: 7px 7px 0 0;
   border-radius: 7px 7px 0 0;
+  -moz-border-radius: 7px 7px 0 0;
+  -webkit-border-radius: 7px 7px 0 0;
+  border-radius: 7px 7px 0 0;
   background: #d6dde0;
   color: #3d4e53;
 }
@@ -173,6 +192,8 @@ ul.tabs li.active a {
   width: 151px;
 }
 #book-detail-img img {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
@@ -248,6 +269,9 @@ ul.tabs li.active a {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 .book-detail-info .pledged-info {
   padding: 0;
@@ -264,6 +288,169 @@ ul.tabs li.active a {
   height: 25px;
   margin-top: -12px;
 }
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.roundedspan {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+.roundedspan > span {
+  padding: 7px 7px;
+  min-width: 15px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+}
+.roundedspan > span .hovertext {
+  display: none;
+}
+.roundedspan > span:hover .hovertext {
+  display: inline;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+.errors {
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
+  width: 90%;
+  height: auto;
+  line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
+.download_container {
+  width: 50%;
+  margin: auto;
+}
+#lightbox a {
+  color: #6994a3;
+}
+.ebook_download {
+  margin-bottom: 15px;
+}
+.ebook_download a {
+  margin: auto 5px auto 0;
+  font-size: 15px;
+}
+.ebook_download img {
+  vertical-align: middle;
+}
+.logo {
+  font-size: 15px;
+}
+.logo img {
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  height: 50px;
+  width: 50px;
+  margin-right: 5px;
+}
+.unglued {
+  border: solid 2px #8dc63f;
+  margin-left: -2px;
+  padding: 5px;
+}
+.unglued h3 {
+  margin-top: 5px;
+}
+a.add-wishlist .on-wishlist,
+a.success,
+a.success:hover {
+  text-decoration: none;
+  color: #3d4e53;
+}
+ul {
+  padding-left: 50px;
+}
+ul li {
+  margin-bottom: 4px;
+}
+a.success,
+a.success:hover {
+  cursor: default;
+}
 /* Common elements of share links -- just swap in the background image */
 /* Page layout */
 #js-page-wrap {
@@ -278,6 +465,9 @@ ul.tabs li.active a {
 }
 #js-leftcol .jsmodule.rounded .jsmod-content,
 .pledge.jsmodule.rounded .jsmod-content {
+  -moz-border-radius: 20px;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
   -moz-border-radius: 20px;
   -webkit-border-radius: 20px;
   border-radius: 20px;
@@ -415,6 +605,8 @@ div#content-block-content a {
 div#content-block-content #tabs-1 img {
   padding: 5px;
   border: solid 5px #EDF3F4;
+  padding: 5px;
+  border: solid 5px #EDF3F4;
 }
 div#content-block-content #tabs-3 {
   margin-left: -5px;
@@ -423,6 +615,8 @@ div#content-block-content #tabs-3 {
   padding-right: 5px;
 }
 .tabs-content iframe {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
@@ -443,8 +637,13 @@ div#content-block-content #tabs-3 {
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 .work_supporter_name {
+  height: 50px;
+  line-height: 50px;
   height: 50px;
   line-height: 50px;
   float: left;
@@ -515,6 +714,9 @@ div#content-block-content #tabs-3 {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
   padding: 10px;
   height: auto;
   font-style: normal;
@@ -527,6 +729,8 @@ div#content-block-content #tabs-3 {
   padding: 0;
   color: #fff;
   font-style: normal;
+  height: 22px;
+  line-height: 22px;
   height: 22px;
   line-height: 22px;
 }
@@ -546,6 +750,9 @@ div#content-block-content #tabs-3 {
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
   padding: 10px;
 }
 /* Right column - sharing */
@@ -557,6 +764,9 @@ ul.social li {
   height: 28px;
   line-height: 28px !important;
   margin: 0 !important;
+  -moz-border-radius: 0px;
+  -webkit-border-radius: 0px;
+  border-radius: 0px;
   -moz-border-radius: 0px;
   -webkit-border-radius: 0px;
   border-radius: 0px;
@@ -616,6 +826,9 @@ ul.social li.embed:hover span {
 #widgetcode {
   display: none;
   border: 1px solid #d6dde0;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  border-radius: 10px;
   -moz-border-radius: 10px;
   -webkit-border-radius: 10px;
   border-radius: 10px;
