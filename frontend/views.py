@@ -157,7 +157,7 @@ def work(request, work_id, action='display'):
     try:
     	assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
     except:
-    	logger.warning("Campaign running for %w when ebooks are already available: why?" % work.title )
+    	logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     	
     if work.last_campaign_status() == 'ACTIVE':
         from math import ceil
@@ -2062,7 +2062,7 @@ def download(request, work_id):
         ungluedcount = unglued_ebook.count()
         assert (ungluedcount == 1 or ungluedcount == 0)
     except:
-        logger.warning("There is more than one unglued edition for %w" % work.title)
+        logger.warning("There is more than one unglued edition for %s" % work.title)
         
     try:
     	unglued_ebook = unglued_ebook[0]
