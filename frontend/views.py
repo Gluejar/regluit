@@ -179,7 +179,7 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
-        context.update({ 'countdown': countdown })
+        context.update({ 'countdown': countdown, })
     	
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
