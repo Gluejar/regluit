@@ -179,7 +179,6 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
-        context.update({ 'countdown': countdown, })
     	
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
@@ -247,6 +246,7 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
+        'countdown': countdown,
     })
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -2045,7 +2045,10 @@ def campaign_archive_js(request):
 
 def lockss(request, work_id):
     work = safe_get_work(work_id)
-    ebook = work.ebooks().filter(unglued=True)[0]
+    try:
+        ebook = work.ebooks().filter(unglued=True)[0]
+    except:
+        ebook = None
     authors = list(models.Author.objects.filter(editions__work=work).all())
     
     return render(request, "lockss.html", {'work':work, 'ebook':ebook, 'authors':authors})
