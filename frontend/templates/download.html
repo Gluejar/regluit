@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% with work.title as title %}
+{% block title %}
+&mdash; Downloads for {{ work.title }}
+{% endblock %}
+
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/download.css"  />
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="download_container">
+<h2>Downloads for {{ work.title }}</h2>
+{% if unglued_ebook %}
+<div class="unglued">
+	<h3>Get the unglued edition!</h3>
+	<div class="ebook_download">
+		<img src="{{ unglued_ebook.rights_badge }}">
+		<a href="{{ unglued_ebook.0.url }}">{{ unglued_ebook.format }}</a>
+	</div>
+</div>
+{% endif %}
+{% if other_ebooks %}
+	{% if unglued_ebook %}<h4>Freely available editions</h4>{% endif %}
+	{% comment %}
+	the header is only necessary if we have an unglued edition we're distinguishing
+	non-unglued editions from
+	{% endcomment %}
+	{% for edition in other_ebooks %}
+		<div class="ebook_download clearfix">
+			{% with edition.url as url %}
+				<a href="{{ url }}"><img src="{{ edition.rights_badge }}"></a>
+				<a href="{{ url }}">{{ edition.format }}</a>
+			{% endwith %}
+		</div>
+	{% endfor %}
+{% endif %}
+{% if unglued_ebook or other_ebooks %}
+blah blah download instructions
+{% else %}
+<p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their wishlists!{% endif %}</p>
+
+<p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url work work.id %}?tab=4">Rights tab of the book page</a>.</p>
+{% endif %}
+</div>
+{% endblock %}
+
+{% endwith %}

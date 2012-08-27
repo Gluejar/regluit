@@ -95,6 +95,16 @@ def next(request):
         return response
     else:
         return HttpResponseRedirect('/')
+        
+def safe_get_work(work_id):
+    try:
+        work = models.Work.objects.get(id = work_id)
+    except models.Work.DoesNotExist:
+        try:
+            work = models.WasWork.objects.get(was = work_id).work
+        except models.WasWork.DoesNotExist:
+            raise Http404
+    return work
 
 def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
@@ -117,15 +127,10 @@ def acks(request, work):
     
 
 def work(request, work_id, action='display'):
-    try:
-        work = models.Work.objects.get(id = work_id)
-    except models.Work.DoesNotExist:
-        try:
-            work = models.WasWork.objects.get(was = work_id).work
-        except models.WasWork.DoesNotExist:
-            raise Http404
+    work = safe_get_work(work_id)
     if action == "acks":
         return acks( request, work)
+        
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
@@ -136,6 +141,8 @@ def work(request, work_id, action='display'):
                 activetab = '1';
         except:
             activetab = '1';
+            
+    context = {}
     campaign = work.last_campaign()
     if campaign and campaign.edition:
         editions = [campaign.edition]
@@ -147,6 +154,12 @@ def work(request, work_id, action='display'):
         pledged = None
         
     countdown = ""
+    
+    try:
+    	assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
+    except:
+    	logger.warning("Campaign running for %w when ebooks are already available: why?" % work.title )
+    	
     if work.last_campaign_status() == 'ACTIVE':
         from math import ceil
         time_remaining = campaign.deadline - now()
@@ -167,6 +180,8 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
+        context.update({ 'countdown': countdown })
+    	
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
         
@@ -174,6 +189,7 @@ def work(request, work_id, action='display'):
         pubdate = work.publication_date[:4]
     except IndexError:
         pubdate = 'unknown'
+        
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
         for edition in editions:
@@ -192,6 +208,7 @@ def work(request, work_id, action='display'):
                 edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
+        
     if campaign:
         # pull up premiums explicitly tied to the campaign
         # mandatory premiums are only displayed in pledge process
@@ -232,7 +249,6 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'countdown': countdown,
     })
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -2071,14 +2087,35 @@ def campaign_archive_js(request):
     return response
 
 def lockss(request, work_id):
-    try:
-        work = models.Work.objects.get(id = work_id)
-    except models.Work.DoesNotExist:
-        try:
-            work = models.WasWork.objects.get(was = work_id).work
-        except models.WasWork.DoesNotExist:
-            raise Http404
+    work = safe_get_work(work_id)
     ebook = work.ebooks().filter(unglued=True)[0]
     authors = list(models.Author.objects.filter(editions__work=work).all())
     
     return render(request, "lockss.html", {'work':work, 'ebook':ebook, 'authors':authors})
+    
+def download(request, work_id):
+    context = {}
+    work = safe_get_work(work_id)
+    context.update({'work': work})
+
+    unglued_ebook = work.ebooks().filter(unglued=True)
+    other_ebooks = work.ebooks().filter(unglued=False)
+	
+    try:
+        ungluedcount = unglued_ebook.count()
+        assert (ungluedcount == 1 or ungluedcount == 0)
+    except:
+        logger.warning("There is more than one unglued edition for %w" % work.title)
+        
+    try:
+    	unglued_ebook = unglued_ebook[0]
+    except:
+    	pass
+		
+    context.update({
+        'unglued_ebook': unglued_ebook,
+        'other_ebooks': other_ebooks
+    })
+    
+    return render(request, "download.html", context)
+

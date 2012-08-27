@@ -215,16 +215,21 @@ img {
   border: none;
 }
 input,
-textarea {
+textarea,
+a.fakeinput {
   border: 2px solid #d6dde0;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
 }
 input:focus,
-textarea:focus {
+textarea:focus,
+a.fakeinput:focus {
   border: 2px solid #8dc63f;
   outline: none;
+}
+a.fakeinput:hover {
+  text-decoration: none;
 }
 .js-search input {
   -moz-border-radius: 0;
@@ -259,7 +264,8 @@ h3.jsmod-title span {
   padding: 26px 40px 27px 20px;
   display: block;
 }
-input[type="submit"] {
+input[type="submit"],
+a.fakeinput {
   background: #8dc63f;
   color: white;
   font-weight: bold;
