@@ -5,10 +5,14 @@ try:
     from regluit.core.models import Key
     STRIPE_PK = Key.objects.get(name="STRIPE_PK").value
     STRIPE_SK = Key.objects.get(name="STRIPE_SK").value
+    STRIPE_PARTNER_PK = Key.objects.get(name="STRIPE_PARTNER_PK").value
+    STRIPE_PARTNER_SK = Key.objects.get(name="STRIPE_PARTNER_SK").value    
     logger.info('Successful loading of STRIPE_*_KEYs')
 except Exception, e:
-    STRIPE_PK = 'pk_0AnIkNu4WRiJYzxMKgruiUwxzXP2T'
-    STRIPE_SK = 'sk_0AnIvBrnrJoFpfD3YmQBVZuTUAbjs'
+    STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
+    STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
+    STRIPE_PARTNER_PK = None
+    STRIPE_PARTNER_SK = None
     
 stripe.api_key =  STRIPE_SK   
     

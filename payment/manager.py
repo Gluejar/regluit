@@ -13,6 +13,9 @@ if settings.PAYMENT_PROCESSOR == 'paypal':
     
 elif settings.PAYMENT_PROCESSOR == 'amazon':
     from regluit.payment.amazon import Pay, Execute, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
+
+
+
 import uuid
 import traceback
 from regluit.utils.localdatetime import now
