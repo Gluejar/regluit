@@ -400,23 +400,28 @@ ul.tabs li.active a {
   width: 50%;
   margin: auto;
 }
-#lightbox a {
+#lightbox_content a {
   color: #6994a3;
 }
-.ebook_download {
+#lightbox_content h2,
+#lightbox_content h3,
+#lightbox_content h4 {
+  margin: 15px auto 5px auto;
+}
+#lightbox_content .ebook_download {
   margin-bottom: 15px;
 }
-.ebook_download a {
+#lightbox_content .ebook_download a {
   margin: auto 5px auto 0;
   font-size: 15px;
 }
-.ebook_download img {
+#lightbox_content .ebook_download img {
   vertical-align: middle;
 }
-.logo {
+#lightbox_content .logo {
   font-size: 15px;
 }
-.logo img {
+#lightbox_content .logo img {
   -moz-border-radius: 7px;
   -webkit-border-radius: 7px;
   border-radius: 7px;
@@ -427,29 +432,29 @@ ul.tabs li.active a {
   width: 50px;
   margin-right: 5px;
 }
-.unglued {
+#lightbox_content .unglued {
   border: solid 2px #8dc63f;
   margin-left: -2px;
   padding: 5px;
 }
-.unglued h3 {
+#lightbox_content .unglued h3 {
   margin-top: 5px;
 }
-a.add-wishlist .on-wishlist,
-a.success,
+#lightbox_content a.add-wishlist .on-wishlist,
+#lightbox_content a.success,
 a.success:hover {
   text-decoration: none;
   color: #3d4e53;
 }
-ul {
-  padding-left: 50px;
-}
-ul li {
-  margin-bottom: 4px;
-}
-a.success,
+#lightbox_content a.success,
 a.success:hover {
   cursor: default;
+}
+#lightbox_content ul {
+  padding-left: 50px;
+}
+#lightbox_content ul li {
+  margin-bottom: 4px;
 }
 /* Common elements of share links -- just swap in the background image */
 /* Page layout */
