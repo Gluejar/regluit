@@ -47,6 +47,11 @@
 <h3>How to download</h3>
 <p>Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>
 
+<h4>Any device</h4>
+<p>You may already have an app which reads our ebook formats.  If so, when you download the file, you will be given an option to open the file using that app.  You're done!</p>
+
+<p>If this doesn't work, use the instructions below for your device.</p>
+
 <h4>Android devices</h4>
 <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png">Aldiko</p>
 
@@ -76,48 +81,31 @@ this doesn't seem to work. i get only browser and IndieBound reader as options o
 <li>Open the ebook file in Calibre.</li>
 </ul>
 
-<h4>Non-Kindle ereaders</h4>
-{% comment %}can we just use browser on web-connected device? try it
+<h4>Ereaders</h4>
+<p>If you'd like to read epub files on a Kindle or Kindle Fire, you'll need to follow the "Converting epubs for Kindle" instructions below, and then the instructions here.  To read mobi files on a Kindle, or any ebooks on other ereaders, use these instructions.</p>
 
-should we just include general sideloading directions all here under ereaders and then have an extra note for Kindle? Should we recommend calibre for all?
-{% endcomment %}
 <ul>
 <li>Download the ebook to a laptop or desktop computer.</li>
 <li>Plug the ereader into your computer with a USB cable.</li>
-<li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>
+<li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)  If you have downloaded Calibre, you can also use its "Send to Device" button.</li>
 <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
 <li>You may need to reboot your device to see the new book.</li>
 </ul>
 
-<h4>Kindles</h4>
+<h4>Converting epubs for Kindle</h4>
 <p>Kindles can read plain text, MOBI, PDF, and HTML files.  They cannot read epub books (the format unglued ebooks are released in).  However, you can convert epubs to mobi files using free software.</p>
 
 <ul>
-<li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-<li>Download your book from this page using your device's web browser.</li>
+<li><a href="http://calibre-ebook.com/download">Download the free Calibre app</a> to a desktop or laptop computer.</li>
+<li>Download your book from this page onto the desktop or laptop.</li>
 <li>Open the ebook file in Calibre.</li>
 <li>Convert the epub to a mobi file: select the file; click on "convert books"; and set the output format to mobi.</li>
-<li>When the conversion is done, you can drag and drop the file to your device using the instructions for non-Kindle ereaders.  You can also use the "Send to Device" button, if your device is plugged in.</li>
+<li>When the conversion is done, put the file on your device using the instructions for ereaders above.  If you've set up your Kindle email address at Amazon.com, you can also email it to yourself using the "Connect/share" button, without needing to plug your Kindle in.  Calibre will walk you through the process of setting up your Kindle email in Calibre.</li>
 </ul>
 
 <h4>Need more help?</h4>
 <p>Need help with something not listed here?  Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
-{% comment %}
-http://www.gutenberg.org/wiki/Gutenberg:MobileReader_Devices_How-To
-http://www.feedbooks.com/help/devices
 
-android: aldiko
-iOS: ibooks (built in? test handling on ipad)
-desktop: calibre.
-
-reader apps?
-
-kindle: ???  "All free books on Feedbooks are available in a Kindle compatible format (for both Kindle devices and mobile applications), but due to the closed nature of the Kindle ecosystem, none of the files available on our store are compatible with the Kindle.
-
-To download a book in a Kindle compatible format, click on the book's name and then select the "Kindle" download option." sideloading: download to computer; attach Kindle with USB; add .mobi file to "documents" folder in Kindle. (convert epub to mobi using Calibre, which also has a send-to-Kindle function)
-
-i canNOT list all the possibilities. need to have a help email.
-{% endcomment %}
 {% else %}
 <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their wishlists!{% endif %}</p>
 
