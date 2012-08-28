@@ -403,10 +403,13 @@ ul.tabs li.active a {
 #lightbox_content a {
   color: #6994a3;
 }
+#lightbox_content .signuptoday a {
+  color: white;
+}
 #lightbox_content h2,
 #lightbox_content h3,
 #lightbox_content h4 {
-  margin: 15px auto 5px auto;
+  margin-top: 15px;
 }
 #lightbox_content .ebook_download {
   margin-bottom: 15px;
