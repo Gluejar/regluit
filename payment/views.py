@@ -346,10 +346,10 @@ class StripeView(FormView):
         return context
     
     def form_valid(self, form):
-        stripeToken = form.cleaned_data["stripeToken"]
+        stripe_token = form.cleaned_data["stripe_token"]
         # e.g., tok_0C0k4jG5B2Oxox
         # 
-        return HttpResponse("stripeToken: {0}".format(stripeToken))
+        return HttpResponse("stripe_token: {0}".format(stripe_token))
 
 class BalancedView(FormView):
     template_name="balanced.html"
