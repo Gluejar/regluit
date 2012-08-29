@@ -22,7 +22,7 @@
 					<p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
 					<p><b>Raised:</b> {{ work.last_campaign.current_total|floatformat:0|intcomma }}</p>
 					{% if first_ebook %}
-						<a href="{{ work.ebooks.0.url }}"><div class="read_itbutton"><span>Read it Now</span></div></a>
+						<a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>
 					{% else %}
 						<div class="read_itbutton"><span>Coming Soon</span></div>
 					{% endif %}

@@ -1,6 +1,7 @@
 /* For sitewide elements of unglue.it. */
 
 @import "variables.less";
+@import "download.less";
 
 /* remove before beta */
 .preview {
@@ -605,6 +606,13 @@ a.nounderline {
 	margin-left: 0;
 	padding: 9px;
 	
+	.collapser_x {
+		margin-top: -27px;
+		margin-right: -27px;
+	}
+}
+
+#lightbox_content {
 	p {
 		padding: 9px 0;
 		font-size: @font-size-larger;
@@ -637,10 +645,15 @@ a.nounderline {
 		clear: none;
 	}
 	
-	.collapser_x {
-		margin-top: -27px;
-		margin-right: -27px;
-	}
+}
+
+// need to style /about/X pages such that they will not conflict with lightboxed About from header
+.nonlightbox .about_page {
+    .one-border-radius(5px);
+	border: solid 5px @blue-grey;
+	width: 75%;
+	margin: 10px auto auto auto;
+	padding: 9px;
 }
 
 .collapser_x {

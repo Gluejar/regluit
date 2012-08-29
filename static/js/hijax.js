@@ -16,6 +16,7 @@ $j(document).ready(function() {
 		$j('#js-rightcol').css({"opacity": "0.07"});
 		$j('#js-header').css({"opacity": "0.07"});
         $j('#js-header a').css({"cursor": "default"});
+		$j('#js-page-wrap').css({"opacity": "0.07"});
 		$j('#footer').css({"opacity": "0.07"});
 		$j('#about_expandable').fadeTo("slow", 1);
 		
@@ -44,6 +45,7 @@ $j(document).ready(function() {
 		$j('#js-rightcol').fadeTo("slow", 1);
 		$j('#js-header').fadeTo("slow", 1);
         $j('#js-header a').css({"cursor": "pointer"});
+		$j('#js-page-wrap').fadeTo("slow", 1);
 		$j('#footer').fadeTo("slow", 1);
 		$j('#about_expandable').css({"display": "none"});
 	});

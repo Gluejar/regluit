@@ -97,6 +97,9 @@ def next(request):
         return HttpResponseRedirect('/')
         
 def safe_get_work(work_id):
+    """
+    use this rather than querying the db directly for a work by id
+    """
     try:
         work = models.Work.objects.get(id = work_id)
     except models.Work.DoesNotExist:
@@ -125,7 +128,6 @@ def stub(request):
 def acks(request, work):
     return render(request,'front_matter.html', {'campaign': work.last_campaign()})
     
-
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     if action == "acks":
@@ -2087,6 +2089,9 @@ def campaign_archive_js(request):
     return response
 
 def lockss(request, work_id):
+    """
+    manifest pages for lockss harvester
+    """
     work = safe_get_work(work_id)
     try:
         ebook = work.ebooks().filter(unglued=True)[0]

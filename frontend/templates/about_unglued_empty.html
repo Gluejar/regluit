@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="nonlightbox">
 <div id="lightbox_content">
+<div class="clearfix about_page">
     <p>
         Imagine if <b>you could give your favorite book</b> to everyone on earth.  Imagine if they all had a copy that they could read anywhere, anytime, on their favorite devices, with no DRM.  That they could share with their friends, freely and legally.  And imagine that your favorite book's creators still got paid.
     </p>
@@ -19,5 +21,7 @@
     </p>
     
 	{% include "about_lightbox_footer.html" %}
+</div>
+</div>
 </div>
 {% endblock %}
