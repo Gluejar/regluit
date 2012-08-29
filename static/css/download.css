@@ -90,15 +90,33 @@
   list-style: none;
   border: none;
 }
+.download_container {
+  width: 50%;
+  margin: auto;
+}
+#lightbox a {
+  color: #6994a3;
+}
 .ebook_download {
   margin-bottom: 15px;
 }
 .ebook_download a {
-  margin: auto 5px;
+  margin: auto 5px auto 0;
   font-size: 15px;
 }
 .ebook_download img {
   vertical-align: middle;
+}
+.logo {
+  font-size: 15px;
+}
+.logo img {
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  height: 50px;
+  width: 50px;
+  margin-right: 5px;
 }
 .unglued {
   border: solid 2px #8dc63f;
@@ -114,11 +132,13 @@ a.success:hover {
   text-decoration: none;
   color: #3d4e53;
 }
+ul {
+  padding-left: 50px;
+}
+ul li {
+  margin-bottom: 4px;
+}
 a.success,
 a.success:hover {
   cursor: default;
-}
-.download_container {
-  width: 50%;
-  margin: auto;
 }

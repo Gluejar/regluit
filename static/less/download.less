@@ -1,8 +1,17 @@
 @import "variables.less";
 
+.download_container {
+	width: 50%;
+	margin: auto;
+}
+
+#lightbox a {
+	color: @medium-blue;
+}
+
 .ebook_download {
 	a {
-		margin: auto 5px;
+		margin: auto 5px auto 0;
 		font-size: @font-size-larger;
 	}
 	
@@ -11,6 +20,18 @@
 	}
 	
 	margin-bottom: 15px;	
+	
+}
+
+.logo {
+	img {
+		.one-border-radius(7px);
+		height: 50px;
+		width: 50px;
+		margin-right: 5px;
+	}
+	
+	font-size: @font-size-larger;
 }
 
 .unglued {
@@ -28,11 +49,13 @@ a.add-wishlist .on-wishlist, a.success, a.success:hover {
 	color: @text-blue;
 }
 
+ul {
+	padding-left: 50px; 
+	
+	li {
+		margin-bottom: 4px;
+	}
+}
 a.success, a.success:hover {
 	cursor: default;
-}
-
-.download_container {
-	width: 50%;
-	margin: auto;
 }

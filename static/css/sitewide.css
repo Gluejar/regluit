@@ -211,6 +211,18 @@ a {
 a:hover {
   text-decoration: underline;
 }
+h1 {
+  font-size: 22.5px;
+}
+h2 {
+  font-size: 18.75px;
+}
+h3 {
+  font-size: 17.549999999999997px;
+}
+h4 {
+  font-size: 15px;
+}
 img {
   border: none;
 }

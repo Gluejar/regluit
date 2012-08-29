@@ -158,7 +158,7 @@ def work(request, work_id, action='display'):
     try:
     	assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
     except:
-    	logger.warning("Campaign running for %w when ebooks are already available: why?" % work.title )
+    	logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     	
     if work.last_campaign_status() == 'ACTIVE':
         from math import ceil
@@ -180,7 +180,6 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
-        context.update({ 'countdown': countdown })
     	
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
@@ -249,6 +248,7 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
+        'countdown': countdown,
     })
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -2088,7 +2088,10 @@ def campaign_archive_js(request):
 
 def lockss(request, work_id):
     work = safe_get_work(work_id)
-    ebook = work.ebooks().filter(unglued=True)[0]
+    try:
+        ebook = work.ebooks().filter(unglued=True)[0]
+    except:
+        ebook = None
     authors = list(models.Author.objects.filter(editions__work=work).all())
     
     return render(request, "lockss.html", {'work':work, 'ebook':ebook, 'authors':authors})
@@ -2105,7 +2108,7 @@ def download(request, work_id):
         ungluedcount = unglued_ebook.count()
         assert (ungluedcount == 1 or ungluedcount == 0)
     except:
-        logger.warning("There is more than one unglued edition for %w" % work.title)
+        logger.warning("There is more than one unglued edition for %s" % work.title)
         
     try:
     	unglued_ebook = unglued_ebook[0]
@@ -2118,4 +2121,7 @@ def download(request, work_id):
     })
     
     return render(request, "download.html", context)
-
+    
+def about(request, facet):
+    template = "about_" + facet + ".html"
+    return render(request, template)
