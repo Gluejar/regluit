@@ -1,4 +1,15 @@
+# https://github.com/stripe/stripe-python
+# https://stripe.com/docs/api?lang=python#top
+
 import stripe
+
+try:
+    import unittest
+    from unittest import TestCase    
+except:
+    from django.test import TestCase
+    from django.utils import unittest
+
 
 # if customer.id doesn't exist, create one and then charge the customer
 # we probably should ask our users whether they are ok with our creating a customer id account -- or ask for credit
@@ -13,12 +24,16 @@ try:
     STRIPE_PARTNER_SK = Key.objects.get(name="STRIPE_PARTNER_SK").value    
     logger.info('Successful loading of STRIPE_*_KEYs')
 except Exception, e:
+    # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
     STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
     STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
     STRIPE_PARTNER_PK ='pk_0AnIkNu4WRiJYzxMKgruiUwxzXP2T'
     STRIPE_PARTNER_SK = 'sk_0AnIvBrnrJoFpfD3YmQBVZuTUAbjs'
     
+# set default stripe api_key to that of unglue.it
+
 stripe.api_key =  STRIPE_SK   
+
 # https://stripe.com/docs/testing
 
 TEST_CARDS = (
@@ -82,6 +97,8 @@ class StripeClient(object):
     def __init__(self, api_key=STRIPE_SK):
         self.api_key = api_key
     
+    # key entities:  Charge, Customer, Token, Event
+    
     @property    
     def charge(self):
         return stripe.Charge(api_key=self.api_key)
@@ -142,12 +159,48 @@ class StripeClient(object):
         # https://stripe.com/docs/api?lang=python#list_charges
         return stripe.Charge(api_key=self.api_key).all(count=count, offset=offset, customer=customer)
    
- 
-# key entities:  Charge, Customer, Token, Event
-# IPNs/webhooks: https://stripe.com/docs/webhooks
+# what to work through?
 
-# charge object: https://stripe.com/docs/api?lang=python#charge_object
-# need to study to figure out db schema
+#pledge scenario
+# 
+
+class PledgeScenarioTest(TestCase):
+    def setUp(self):
+        print "in setUp"
+        self.sc = StripeClient(api_key=STRIPE_SK)
+        card0 = card()
+        self.good_cust = self.sc.create_customer(card=card0, description="test good customer", email="raymond.yee@gmail.com")
+        # set up a Customer with a good card tied to Gluejar
+    def test_charge_good_cust(self):
+        charge = self.sc.create_charge(10, customer=self.good_cust, description="$10 for good cust")
+        print charge
+    def tearDown(self):
+        # clean up stuff we create in test
+        print "in tearDown"
+        self.good_cust.delete()
+        print "list of customers", self.sc.customer.all()
+        print "list of charges", self.sc.charge.all()
+        print "list of events", self.sc.event.all()
+
+def suite():
+    
+    testcases = [PledgeScenarioTest]
+    #testcases = []
+    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
+    #suites.addTest(LibraryThingTest('test_cache'))
+    #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
+    return suites
+
+
+ 
+# IPNs/webhooks: https://stripe.com/docs/webhooks
+# how to use pending_webhooks ?
 
 # all events
 # https://stripe.com/docs/api?lang=python#list_events
+
+if __name__ == '__main__':
+    #unittest.main()
+    suites = suite()
+    #suites = unittest.defaultTestLoader.loadTestsFromModule(__import__('__main__'))
+    unittest.TextTestRunner().run(suites)    
