@@ -296,16 +296,15 @@ class CampaignPledgeForm(forms.Form):
     )
     anonymous = forms.BooleanField(required=False, label=_("Don't display my name in the acknowledgements"))
     ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
-    ack_link = forms.URLField(required=False, label=_("Your web site:"))
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
     premium_id = forms.IntegerField(required=False)
     
     def clean_preapproval_amount(self):
-        data = self.cleaned_data['preapproval_amount']
-        if data is None:
+        preapproval_amount = self.cleaned_data['preapproval_amount']
+        if preapproval_amount is None:
             raise forms.ValidationError(_("Please enter a pledge amount."))
-        return data
+        return preapproval_amount
     
     # should we do validation on the premium_id here?
     # can see whether it corresponds to a real premium -- do that here?
@@ -317,11 +316,6 @@ class CampaignPledgeForm(forms.Form):
         try:
             preapproval_amount = cleaned_data.get("preapproval_amount")
             premium_id =  int(cleaned_data.get("premium_id"))
-            premium_amount = Premium.objects.get(id=premium_id).amount
-            logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, premium_id, premium_amount))
-            if preapproval_amount < premium_amount:
-                logger.info("raising form validating error")
-                raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
             try:
                 premium= Premium.objects.get(id=premium_id)
                 if premium.limit>0:
@@ -329,6 +323,11 @@ class CampaignPledgeForm(forms.Form):
                         raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
             except  Premium.DoesNotExist:
                 raise forms.ValidationError(_("Sorry, that premium is not valid."))
+            premium_amount = premium.amount
+            logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, premium_id, premium_amount))
+            if preapproval_amount < premium_amount:
+                logger.info("raising form validating error")
+                raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
 
         except Exception, e:
             if isinstance(e, forms.ValidationError):

@@ -190,7 +190,7 @@ class PledgeTest(TestCase):
     
             # Note, set this to 1-5 different receivers with absolute amounts for each
             receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}]
-            t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+            t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
         
             self.validateRedirect(t, url, 1)
         
@@ -220,7 +220,7 @@ class PledgeTest(TestCase):
         receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}, 
                          {'email':settings.PAYPAL_TEST_RH_EMAIL, 'amount':10.00}]
         
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+        t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
         
         self.validateRedirect(t, url, 2)
         
@@ -244,7 +244,7 @@ class PledgeTest(TestCase):
     
         # Note, set this to 1-5 different receivers with absolute amounts for each
         receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':50000.00}]
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+        t, url = p.pledge('USD',  receiver_list, campaign=None, list=None, user=None)
         
         self.validateRedirect(t, url, 1)
 
@@ -284,7 +284,7 @@ class AuthorizeTest(TestCase):
     
         # Note, set this to 1-5 different receivers with absolute amounts for each
         
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, 100.0, campaign=None, list=None, user=None)
+        t, url = p.authorize('USD', 100.0, campaign=None, list=None, user=None)
         
         self.validateRedirect(t, url)
         
@@ -388,7 +388,7 @@ class BasicGuiTest(TestCase):
 def suite():
 
     #testcases = [PledgeTest, AuthorizeTest, TransactionTest]
-    testcases = [TransactionTest]
+    testcases = [TransactionTest, CreditTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     return suites    
         

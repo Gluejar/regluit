@@ -5,16 +5,14 @@ PAYMENT_TYPE_AUTHORIZATION = 2
 PAYMENT_HOST_NONE = "none"
 PAYMENT_HOST_PAYPAL = "paypal"
 PAYMENT_HOST_AMAZON = "amazon"
+PAYMENT_HOST_TEST = "test"
+PAYMENT_HOST_CREDIT = "credit"
+PAYMENT_HOST_STRIPE = "stripe"
 
 EXECUTE_TYPE_NONE = 0
 EXECUTE_TYPE_CHAINED_INSTANT = 1
 EXECUTE_TYPE_CHAINED_DELAYED = 2
 EXECUTE_TYPE_PARALLEL = 3
-
-TARGET_TYPE_NONE = 0
-TARGET_TYPE_CAMPAIGN = 1
-TARGET_TYPE_LIST = 2
-TARGET_TYPE_DONATION = 3
 
 # The default status for a transaction that is newly created
 TRANSACTION_STATUS_NONE = 'None'
@@ -47,6 +45,3 @@ TRANSACTION_STATUS_REFUNDED = 'Refunded'
 # The transaction was refused/denied
 TRANSACTION_STATUS_FAILED = 'Failed'
 
-# these two following parameters are probably extraneous since I think we will compute dynamically where to return each time.
-COMPLETE_URL = '/paymentcomplete'
-NEVERMIND_URL = '/paymentnevermind'

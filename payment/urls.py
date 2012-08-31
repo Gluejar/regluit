@@ -17,8 +17,6 @@ if settings.DEBUG:
         url(r"^testexecute", "testExecute"),
         url(r"^testcancel", "testCancel"),
         url(r"^querycampaign", "queryCampaign"),
-        url(r"^runtests", "runTests"),
-        url(r"^paymentcomplete","paymentcomplete"),
         url(r"^checkstatus", "checkStatus"),
         url(r"^testfinish", "testFinish"),
         url(r"^testrefund", "testRefund"),
