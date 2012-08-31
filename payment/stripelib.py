@@ -51,14 +51,14 @@ TEST_CARDS = (
     ('3566002020360505','JCB')
 )
 
-ERROR_TESTING = (
-    ('ADDRESS1_ZIP_FAIL', '4000000000000010', 'address_line1_check and address_zip_check will both fail'),
-    ('ADDRESS1_FAIL', '4000000000000028', 'address_line1_check will fail.'),
-    ('ADDRESS_ZIP_FAIL', '4000000000000036', 'address_zip_check will fail.'),
-    ('CVC_CHECK_FAIL', '4000000000000101', 'cvc_check will fail.'),
-    ('CHARGE_FAIL', '4000000000000341', 'Attaching this card to a Customer object will succeed, but attempts to charge the customer will fail.'),
-    ('CHARGE_DECLINE', '4000000000000002', 'Charges with this card will always be declined.')
-)
+ERROR_TESTING = dict((
+    ('ADDRESS1_ZIP_FAIL', ('4000000000000010', 'address_line1_check and address_zip_check will both fail')),
+    ('ADDRESS1_FAIL', ('4000000000000028', 'address_line1_check will fail.')),
+    ('ADDRESS_ZIP_FAIL', ('4000000000000036', 'address_zip_check will fail.')),
+    ('CVC_CHECK_FAIL', ('4000000000000101', 'cvc_check will fail.')),
+    ('CHARGE_FAIL', ('4000000000000341', 'Attaching this card to a Customer object will succeed, but attempts to charge the customer will fail.')),
+    ('CHARGE_DECLINE', ('4000000000000002', 'Charges with this card will always be declined.'))
+))
 
 #card_declined: Use this special card number - 4000000000000002.
 #incorrect_number: Use a number that fails the Luhn check, e.g. 4242424242424241.
@@ -162,25 +162,46 @@ class StripeClient(object):
 # what to work through?
 
 #pledge scenario
-# 
+# bad card -- what types of erros to handle?
+# https://stripe.com/docs/api#errors
+
+# what errors are handled in the python library and how?
+
+
+# pending payments?
+# how to tell whether money transferred to bank account yet
+# best practices for calling Events -- not too often.
 
 class PledgeScenarioTest(TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         print "in setUp"
-        self.sc = StripeClient(api_key=STRIPE_SK)
+        cls._sc = StripeClient(api_key=STRIPE_SK)
+        
+        # valid card
         card0 = card()
-        self.good_cust = self.sc.create_customer(card=card0, description="test good customer", email="raymond.yee@gmail.com")
-        # set up a Customer with a good card tied to Gluejar
+        cls._good_cust = cls._sc.create_customer(card=card0, description="test good customer", email="raymond.yee@gmail.com")
+        
+        # bad card
+        test_card_num_to_get_charge_fail = ERROR_TESTING['CHARGE_FAIL'][0]
+        card1 = card(number=test_card_num_to_get_charge_fail)
+        cls._cust_bad_card = cls._sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
+    
     def test_charge_good_cust(self):
-        charge = self.sc.create_charge(10, customer=self.good_cust, description="$10 for good cust")
+        charge = self._sc.create_charge(10, customer=self._good_cust, description="$10 for good cust")
         print charge
-    def tearDown(self):
+        
+    def test_charge_bad_cust(self):
+        self.assertRaises(stripe.CardError, self._sc.create_charge, 10,
+                          customer = self._cust_bad_card, description="$10 for bad cust")
+    @classmethod
+    def tearDownClass(cls):
         # clean up stuff we create in test
         print "in tearDown"
-        self.good_cust.delete()
-        print "list of customers", self.sc.customer.all()
-        print "list of charges", self.sc.charge.all()
-        print "list of events", self.sc.event.all()
+        cls._good_cust.delete()
+        print "list of customers", cls._sc.customer.all()
+        print "list of charges", cls._sc.charge.all()
+        print "list of events", cls._sc.event.all()
 
 def suite():
     
