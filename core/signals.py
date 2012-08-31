@@ -97,6 +97,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
     notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
     notification.create_notice_type("pledge_donation_credit", _("Donation Credit Balance"), _("You have a donation credit balance"))
+    notification.create_notice_type("new_wisher", _("New wisher"), _("Someone new has wished for a book that you're the rightsholder for"))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -213,60 +214,18 @@ def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
     
 amazon_suspension.connect(handle_wishlist_unsuccessful_amazon)
 
-# The notification templates need some context; I'm making a note of that here
-# This can be removed as the relevant functions are written
-# RIGHTS_HOLDER_CLAIM_APPROVED:
-#	'site': (site)
-#	'claim': (claim)
-# RIGHTS_HOLDER_CREATED: (no context needed)
-# note -- it might be that wishlist_near_target and wishlist_near_deadline would
-# both be triggered at about the same time -- do we want to prevent supporters
-# from getting both within a small time frame? if so which supersedes?
-# WISHLIST_NEAR_DEADLINE:
-#	'site': (site)
-#	'campaign': (the campaign)
-#	'pledged': (true if the supporter has pledged, false otherwise)
-#	'amount': (amount the supporter has pledged; only needed if pledged is true)
-# WISHLIST_NEAR_TARGET:
-#	'site': (site)
-#	'campaign': (the campaign)
-#	'pledged': (true if the supporter has pledged, false otherwise)
-#	'amount': (amount the supporter has pledged; only needed if pledged is true)
-# WISHLIST_PREMIUM_LIMITED_SUPPLY:
-# (note we should not send this to people who have already claimed this premium)
-# should we only send this to people who haven't pledged at all, or whose pledge 
-# is smaller than the amount of this premium? (don't want to encourage people to
-# lower their pledge)
-# the text assumes there is only 1 left -- if we're going to send at some other 
-# threshhold this will need to be revised
-#	'campaign': (campaign)
-#	'premium': (the premium in question)
-#	'site': (site)
-# WISHLIST_PRICE_DROP:
-#	'campaign'
-#	'pledged': (true if recipient has pledged to campaign, otherwise false)
-#	'amount': (amount recipient has pledged, only needed if pledged=True)
-#	'site'
-# WISHLIST_SUCCESSFUL:
-#	'pledged'
-#	'campaign'
-#	'site'
-# WISHLIST_UNSUCCESSFUL:
-#	'campaign'
-#	'site'
-# WISHLIST_UPDATED:
-# I'd like to provide the actual text of the update in the message but I don't think
-# we can reasonably do that, since campaign.description may contain HTML and we are
-# sending notifications in plaintext.  If we can send the update information in the
-# email, though, let's do that.
-#	'campaign'
-#	'site'
-# WISHLIST_WORK_CLAIMED
-# does this trigger when someone claims a work, or when the claim is approved?
-# I've written the text assuming it is the latter (sending notifications on the
-# former seems too sausage-making, and might make people angry if they get
-# notifications about claims they believe are false).  If it's the former, the
-# text should be revisited.
-#	'claim'
-#	'site'
-#	'rightsholder' (the name of the rightsholder)
+wishlist_added = Signal(providing_args=["supporter", "work"])
+
+def handle_wishlist_added(supporter, work, **kwargs):
+    """send notification to confirmed rights holder when someone wishes for their work"""
+    claim = work.claim.filter(status="active")
+    if claim:
+        notification.queue([claim.user], "new_wisher", {
+            'supporter': supporter,
+            'work': work
+        }, True)
+        
+        from regluit.core.tasks import emit_notifications
+        emit_notifications.delay()
+		
+wishlist_added.connect(handle_wishlist_added)
