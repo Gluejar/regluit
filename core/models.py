@@ -790,7 +790,8 @@ class Wishlist(models.Model):
             w = Wishes.objects.get(wishlist=self,work=work)
         except:
             Wishes.objects.create(source=source,wishlist=self,work=work) 
-            work.update_num_wishes()       
+            work.update_num_wishes()
+        wishlist_added.send(sender=self, work=work, supporter=self.user)
     
     def remove_work(self, work):
         w = Wishes.objects.filter(wishlist=self, work=work)
