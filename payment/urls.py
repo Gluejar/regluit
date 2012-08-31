@@ -6,11 +6,6 @@ urlpatterns = patterns(
     url(r"^handleipn/(?P<module>\w+)$", "handleIPN", name="HandleIPN"),
 )
 
-# Amazon payment URLs
-urlpatterns += patterns(
-    "regluit.payment.amazon",
-     url(r"^amazonpaymentreturn", "amazonPaymentReturn", name="AmazonPaymentReturn"),
-)
 
 # this should be on only if DEBUG is on
 

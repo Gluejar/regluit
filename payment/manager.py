@@ -4,15 +4,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from regluit.payment.parameters import *
-from regluit.payment.paypal import IPN_SENDER_STATUS_COMPLETED
 from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
 
-if settings.PAYMENT_PROCESSOR == 'paypal':
-    from regluit.payment.paypal import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
-    from regluit.payment.paypal import Pay as Execute
-    
-elif settings.PAYMENT_PROCESSOR == 'amazon':
-    from regluit.payment.amazon import Pay, Execute, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
 import uuid
 import traceback
 from regluit.utils.localdatetime import now
@@ -37,10 +30,7 @@ def append_element(doc, parent, name, text):
 
 # at this point, there is no internal context and therefore, the methods of PaymentManager can be recast into static methods
 class PaymentManager( object ): 
-    
-    def __init__( self, embedded=False):
-        self.embedded = embedded
-        
+            
     def processIPN(self, request, module):
         
         # Forward to our payment processor
@@ -903,11 +893,7 @@ class PaymentManager( object ):
             t.status = TRANSACTION_STATUS_CREATED
             t.save()
             
-            if self.embedded:
-                url = p.embedded_url()
-                logger.info(url)
-            else:
-                url = p.next_url()
+            url = p.next_url()
                 
             logger.info("Pledge Success: " + url)
             return t, url

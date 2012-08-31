@@ -108,8 +108,6 @@
     	</form>    	
     </div>
 </div>
-<div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
-{% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
 <div id="pass_supporter_name" style="display: none;">{{ request.user.username }}</div>
 {% if transaction.ack_name %}
 <div id="pass_ack_name" style="display: none;">{{ transaction.ack_name }}</div>

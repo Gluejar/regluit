@@ -52,7 +52,6 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TARGET_TYPE_CAMPAIGN, TARGET_TYPE_DONATION, PAYMENT_TYPE_AUTHORIZATION
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
-from regluit.payment.paypal import Preapproval
 from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction
@@ -584,7 +583,6 @@ class DonationView(TemplateView):
 class PledgeView(FormView):
     template_name="pledge.html"
     form_class = CampaignPledgeForm
-    embedded = False
     
     def get(self, request, *args, **kwargs):
     # change the default behavior from https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/views/generic/edit.py#L129
