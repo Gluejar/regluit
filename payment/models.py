@@ -82,7 +82,7 @@ class Transaction(models.Model):
     
     @property
     def ack_link(self):
-        return 'https://unglue.it/supporter/%s'%urllib.urlencode(self.user.username) if self.anonymous else ''
+        return 'https://unglue.it/supporter/%s'%urllib.urlencode(self.user.username) if not self.anonymous else ''
         
     def save(self, *args, **kwargs):
         if not self.secret:
