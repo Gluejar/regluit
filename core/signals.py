@@ -173,6 +173,7 @@ def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
     # we need to know if pledges were modified up or down because Amazon handles the
     # transactions in different ways, resulting in different user-visible behavior;
     # we need to set expectations appropriately
+    # up_or_down is 'increased', 'decreased', or 'canceled'
     if transaction==None or up_or_down==None:
         return
     notification.queue([transaction.user], "pledge_status_change", {
