@@ -1,6 +1,9 @@
 # https://github.com/stripe/stripe-python
 # https://stripe.com/docs/api?lang=python#top
 
+from datetime import datetime
+from pytz import utc
+
 import stripe
 
 try:
@@ -56,15 +59,18 @@ ERROR_TESTING = dict((
     ('ADDRESS1_FAIL', ('4000000000000028', 'address_line1_check will fail.')),
     ('ADDRESS_ZIP_FAIL', ('4000000000000036', 'address_zip_check will fail.')),
     ('CVC_CHECK_FAIL', ('4000000000000101', 'cvc_check will fail.')),
-    ('CHARGE_FAIL', ('4000000000000341', 'Attaching this card to a Customer object will succeed, but attempts to charge the customer will fail.')),
+    ('BAD_ATTACHED_CARD', ('4000000000000341', 'Attaching this card to a Customer object will succeed, but attempts to charge the customer will fail.')),
     ('CHARGE_DECLINE', ('4000000000000002', 'Charges with this card will always be declined.'))
 ))
+
+# types of errors / when they can be handled
 
 #card_declined: Use this special card number - 4000000000000002.
 #incorrect_number: Use a number that fails the Luhn check, e.g. 4242424242424241.
 #invalid_expiry_month: Use an invalid month e.g. 13.
 #invalid_expiry_year: Use a year in the past e.g. 1970.
 #invalid_cvc: Use a two digit number e.g. 99.
+
 
 
 def filter_none(d):
@@ -110,10 +116,15 @@ class StripeClient(object):
     @property
     def token(self):
         return stripe.Token(api_key=self.api_key)
+        
+    @property
+    def transfer(self):
+        return stripe.Transfer(api_key=self.api_key)
     
     @property    
     def event(self):
         return stripe.Event(api_key=self.api_key)
+        
 
     def create_token(self, card):
         return stripe.Token(api_key=self.api_key).create(card=card)
@@ -161,12 +172,23 @@ class StripeClient(object):
    
 # what to work through?
 
+# can't test Transfer in test mode: "There are no transfers in test mode."
+
 #pledge scenario
 # bad card -- what types of erros to handle?
 # https://stripe.com/docs/api#errors
 
 # what errors are handled in the python library and how?
 
+# Account?
+
+# events of interest
+# charge.succeeded, charge.failed, charge.refunded, charge.disputed
+# customer.created, customer.updated, customer.deleted
+# transfer.created, transfer.updated, transfer.failed
+
+# When will the money I charge with Stripe end up in my bank account?
+# Every day, we transfer the money that you charged seven days previously?that is, you receive the money for your March 1st charges on March 8th.
 
 # pending payments?
 # how to tell whether money transferred to bank account yet
@@ -183,15 +205,22 @@ class PledgeScenarioTest(TestCase):
         cls._good_cust = cls._sc.create_customer(card=card0, description="test good customer", email="raymond.yee@gmail.com")
         
         # bad card
-        test_card_num_to_get_charge_fail = ERROR_TESTING['CHARGE_FAIL'][0]
-        card1 = card(number=test_card_num_to_get_charge_fail)
+        test_card_num_to_get_BAD_ATTACHED_CARD = ERROR_TESTING['BAD_ATTACHED_CARD'][0]
+        card1 = card(number=test_card_num_to_get_BAD_ATTACHED_CARD)
         cls._cust_bad_card = cls._sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
     
     def test_charge_good_cust(self):
         charge = self._sc.create_charge(10, customer=self._good_cust, description="$10 for good cust")
-        print charge
+        print charge.id
+     
         
+    def test_error_creating_customer_with_declined_card(self):
+        # should get a CardError upon attempt to create Customer with this card
+        _card = card(number=card(ERROR_TESTING['CHARGE_DECLINE'][0]))
+        self.assertRaises(stripe.CardError, self._sc.create_customer, card=_card)
+    
     def test_charge_bad_cust(self):
+        # expect the card to be declined -- and for us to get CardError
         self.assertRaises(stripe.CardError, self._sc.create_charge, 10,
                           customer = self._cust_bad_card, description="$10 for bad cust")
     @classmethod
@@ -199,9 +228,15 @@ class PledgeScenarioTest(TestCase):
         # clean up stuff we create in test
         print "in tearDown"
         cls._good_cust.delete()
-        print "list of customers", cls._sc.customer.all()
-        print "list of charges", cls._sc.charge.all()
+        print "list of customers"
+        print [(i, c.id, c.description, datetime.fromtimestamp(c.created, tz=utc), c.account_balance) for(i,  c) in enumerate(cls._sc.customer.all()["data"])]
+        
+        print "list of charges"
+        print [(i, c.id, c.amount, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid, c.fee, c.disputed, c.amount_refunded, c.failure_message, c.card.fingerprint, c.card.last4) for (i, c) in enumerate(cls._sc.charge.all()['data'])]
+        
+        # can retrieve events since a certain time
         print "list of events", cls._sc.event.all()
+        # [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(s.event.all()['data'])]
 
 def suite():
     
