@@ -10,7 +10,9 @@ IS_PREVIEW = False
 SITE_ID = 3
 
 ADMINS = (
-    ('Ed Summers', 'ehs@pobox.com'),
+    ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
+    ('Eric Hellman', 'eric@gluejar.com'),
+    ('Andromeda Yelton', 'andromeda@gluejar.com'),
 )
 
 MANAGERS = ADMINS

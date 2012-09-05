@@ -8,7 +8,6 @@ IS_PREVIEW = False
 SITE_ID = 1
 
 ADMINS = (
-    ('Ed Summers', 'ed.summers@gmail.com'),
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
     ('Eric Hellman', 'eric@gluejar.com'),
     ('Andromeda Yelton', 'andromeda@gluejar.com'),
