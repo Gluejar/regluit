@@ -13,12 +13,14 @@ except:
     from django.test import TestCase
     from django.utils import unittest
 
-
 # if customer.id doesn't exist, create one and then charge the customer
 # we probably should ask our users whether they are ok with our creating a customer id account -- or ask for credit
 # card info each time....
 
 # should load the keys for Stripe from db -- but for now just hardcode here
+# moving towards not having the stripe api key for the non profit partner in the unglue.it code -- but in a logically
+# distinct application
+
 try:
     from regluit.core.models import Key
     STRIPE_PK = Key.objects.get(name="STRIPE_PK").value
@@ -179,13 +181,18 @@ class StripeClient(object):
 # https://stripe.com/docs/api#errors
 
 # what errors are handled in the python library and how?
+# 
 
 # Account?
 
-# events of interest
-# charge.succeeded, charge.failed, charge.refunded, charge.disputed
+# https://stripe.com/docs/api#event_types
+# events of interest -- especially ones that do not directly arise immediately (synchronously) from something we do -- I think
+# especially:  charge.disputed
+# I think following (charge.succeeded, charge.failed, charge.refunded) pretty much sychronous to our actions
 # customer.created, customer.updated, customer.deleted
-# transfer.created, transfer.updated, transfer.failed
+
+# transfer
+# I expect the ones related to transfers all happen asynchronously: transfer.created, transfer.updated, transfer.failed
 
 # When will the money I charge with Stripe end up in my bank account?
 # Every day, we transfer the money that you charged seven days previously?that is, you receive the money for your March 1st charges on March 8th.
@@ -248,7 +255,6 @@ def suite():
     return suites
 
 
- 
 # IPNs/webhooks: https://stripe.com/docs/webhooks
 # how to use pending_webhooks ?
 
