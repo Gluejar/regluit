@@ -778,6 +778,7 @@ class DonationCredit(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(DonationCredit, self).get_context_data(**kwargs)
+        context['faqmenu']="donation"
         try:
             envelope=signing.loads(kwargs['token'])
             context['envelope']=envelope
