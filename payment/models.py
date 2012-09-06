@@ -6,6 +6,7 @@ from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added
 from regluit.utils.localdatetime import now
 from decimal import Decimal, NaN
+from datetime import timedelta
 import uuid
 import urllib
 import logging
