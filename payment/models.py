@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
-from regluit.payment.signals import credit_balance_added
+from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now
 from decimal import Decimal, NaN
 from datetime import timedelta
@@ -121,6 +121,7 @@ class Transaction(models.Model):
         self.date_authorized = now_val
         self.date_expired = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
         self.save()
+        pledge_created.send(sender=self, transaction=self)
 
 class PaymentResponse(models.Model):
     # The API used
