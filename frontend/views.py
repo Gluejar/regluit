@@ -766,7 +766,9 @@ class NonprofitCampaign(FormView):
         username=form.cleaned_data['username']
         forward={'username':username}
         forward['work_id']= form.cleaned_data['work_id']
-        forward['amount']= int(form.cleaned_data['preapproval_amount'])
+        amount=form.cleaned_data['preapproval_amount']
+        forward['cents']=int(100*(amount-int(amount)))
+        forward['amount']= int(amount)
         forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
         token=signing.dumps(forward)
         return HttpResponseRedirect(settings.BASE_URL + reverse('donation_credit',kwargs={'token':token}))
@@ -805,18 +807,19 @@ class DonationCredit(TemplateView):
             return context
         except CreditLog.DoesNotExist:
             #not used yet!
-            CreditLog.objects.create(user=user,amount=envelope['amount'],action='deposit',sent=envelope['sent'])
+            amount=envelope['amount']+envelope['cents']/D(100)
+            CreditLog.objects.create(user=user,amount=amount,action='deposit',sent=envelope['sent'])
             ts=Transaction.objects.filter(user=user,campaign=campaign,status=TRANSACTION_STATUS_NONE)
             if ts.count()>0:
                 t=ts[0]
-                credit_transaction(t,user, envelope['amount'])
+                credit_transaction(t,user, amount)
                 for t in ts[1:]:
                     t.status=TRANSACTION_STATUS_CANCELED
                     t.save()
                 context['transaction']=t
                 return context
             else:
-                user.credit.add_to_balance(envelope['amount'])
+                user.credit.add_to_balance(amount)
                 return context
                 
             
