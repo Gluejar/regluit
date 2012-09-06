@@ -335,20 +335,26 @@ class CampaignPledgeForm(forms.Form):
             
         return cleaned_data
 
-class DonateForm(forms.Form):
-    donation_amount = forms.DecimalField(
+class CCForm(forms.Form):
+    username = forms.CharField(max_length=30, required=True )
+    work_id = forms.IntegerField(required=False,  widget=forms.HiddenInput() )
+    preapproval_amount= forms.DecimalField(
         required=False,
         min_value=D('1.00'), 
         max_value=D('100000.00'), 
-        decimal_places=2, 
-        label="Donation",
+        decimal_places=0, 
+        label="Pledge",
     )
-    anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the donors' list"))
-        
-    def clean(self):
-        cleaned_data = self.cleaned_data         
-        return cleaned_data
+    
 
+
+class DonateForm(forms.Form):
+    preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )
+    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput() )
+    work_id = forms.IntegerField(required=False,  widget=forms.HiddenInput() )
+    title = forms.CharField(max_length=30, required=False, widget=forms.HiddenInput() )
+    
+    
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
                 ('all','all'),

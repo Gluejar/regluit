@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from regluit.payment.parameters import *
-from regluit.utils.localdatetime import now
 from regluit.payment.baseprocessor import BasePaymentRequest
 
 
@@ -16,19 +15,19 @@ def pledge_transaction(t,user,amount):
         user.credit.add_to_pledged(amount-t.amount)
     else:  
         user.credit.add_to_pledged(amount)
-    t.amount=amount
     t.max_amount=amount
-    t.host = PAYMENT_HOST_CREDIT
-    t.type = PAYMENT_TYPE_AUTHORIZATION
-    t.status=TRANSACTION_STATUS_ACTIVE
-    t.approved=True
-    now_val = now()
-    t.date_authorized = now_val
-    t.date_expired = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+    t.set_credit_approved(amount)
 
-    t.save()
-
+def credit_transaction(t,user,amount):
+    '''user has new credit, use it to fund the transaction'''
+    # first, credit the user's account
+    user.credit.add_to_balance(amount)
     
+    # now pledge to the transaction
+    pledge_amount = t.max_amount if t.max_amount <= amount else amount
+    user.credit.add_to_pledged(pledge_amount)
+    t.set_credit_approved(pledge_amount)
+
 class CancelPreapproval(BasePaymentRequest):
     '''
         Cancels an exisiting token.  

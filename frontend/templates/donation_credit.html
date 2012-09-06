@@ -1,0 +1,42 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}Fund Your Pledge{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+{% endblock %}
+
+{% block doccontent %}
+<div style="height:15px"></div>
+    
+<div class="jsmodule rounded clearfix">
+    <div class="jsmod-content">
+
+	<div><h2>Congratulations, your donation credits have been registered!</h2>
+		<div>
+		
+		{{ envelope.amount }}<br />
+		{{ envelope.username }}<br />
+		{{ envelope.work_id }}<br />
+		{{ envelope.sent }}<br />
+		{{ error }}<br />
+		{{ transaction }}<br />
+<p>
+You have a balance of {{ request.user.credit.balance }} donation credits. <br />
+You have pledged {{ request.user.credit.pledged }} donation credits to ungluing campaigns.<br />
+You have {{ request.user.credit.available }} donation credits available to pledge or transfer.<br />
+</p>
+
+		
+        </div>
+	</div>
+
+	</div>
+</div>
+{% endblock %}
+
+

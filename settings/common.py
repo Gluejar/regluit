@@ -49,7 +49,7 @@ STATIC_URL = '/static/'
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
 # Examples: "http://foo.com/static/admin/", "/static/admin/".
-ADMIN_MEDIA_PREFIX = '/static/admin/'
+# ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -282,3 +282,7 @@ SECRET_KEY = ''
 MAINTENANCE_MODE = False
 # Sequence of URL path regexes to exclude from the maintenance mode.
 MAINTENANCE_IGNORE_URLS = {}
+
+class NONPROFIT:
+    name = 'Library Renewal'
+    link = 'http://127.0.0.1:8000/donate_to_campaign/'

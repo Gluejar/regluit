@@ -17,6 +17,7 @@ import oauth2 as oauth
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core import signing
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
@@ -47,14 +48,15 @@ from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPle
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment.credit import credit_transaction
 from regluit.core import goodreads
 from tastypie.models import ApiKey
-from regluit.payment.models import Transaction
+from regluit.payment.models import Transaction, Sent, CreditLog
 from notification import models as notification
 
 
@@ -707,7 +709,7 @@ class PledgeView(FormView):
                     host = None, 
                     campaign=self.campaign, 
                     user=self.request.user,
-                    premium=premium,
+                    premium=self.get_premium(form),
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
                     ack_name=form.cleaned_data["ack_name"], 
                     ack_dedication=form.cleaned_data["ack_dedication"],
@@ -720,7 +722,104 @@ class PledgeView(FormView):
                 logger.error("Attempt to produce transaction id {0} failed".format(t.id))
                 return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
 
+class FundPledgeView(FormView):
+    template_name="fund_the_pledge.html"
+    form_class = CCForm
+    transaction = None
 
+    def get_form_kwargs(self):
+        assert self.request.user.is_authenticated()
+        if self.transaction is None:
+            self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
+        return {'data':{'preapproval_amount':self.transaction.max_amount,
+                'username':self.request.user.username,
+                'work_id':self.transaction.campaign.work.id,
+                'title':self.transaction.campaign.work.title} }
+
+    def get_context_data(self, **kwargs):
+        context = super(FundPledgeView, self).get_context_data(**kwargs)
+        context['preapproval_amount']=self.transaction.max_amount
+        context['transaction']=self.transaction
+        context['nonprofit'] = settings.NONPROFIT
+        context['donate_form'] = DonateForm(**self.get_form_kwargs())
+        return context
+        
+class NonprofitCampaign(FormView):
+    template_name="nonprofit.html"
+    form_class = CCForm
+    
+    def get_context_data(self, **kwargs):
+        context = super(NonprofitCampaign, self).get_context_data(**kwargs)
+        context['nonprofit'] = settings.NONPROFIT
+        context['get'] = self.request.GET
+        return context
+
+    def get_form_kwargs(self):
+        if self.request.method == 'POST':
+            return {'data':self.request.POST}
+        else:
+            return {'initial':self.request.GET }
+
+        
+
+    def form_valid(self, form):
+        username=form.cleaned_data['username']
+        forward={'username':username}
+        forward['work_id']= form.cleaned_data['work_id']
+        forward['amount']= int(form.cleaned_data['preapproval_amount'])
+        forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
+        token=signing.dumps(forward)
+        return HttpResponseRedirect(settings.BASE_URL + reverse('donation_credit',kwargs={'token':token}))
+
+class DonationCredit(TemplateView):
+    template_name="donation_credit.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(DonationCredit, self).get_context_data(**kwargs)
+        try:
+            envelope=signing.loads(kwargs['token'])
+            context['envelope']=envelope
+        except signing.BadSignature:
+            self.template_name="donation_error.html"
+            return context
+        try:
+            work = models.Work.objects.get(id=envelope['work_id'])
+            campaign=work.last_campaign()
+        except models.Work.DoesNotExist:
+            campaign = None
+        context['work']=work
+        try:
+            user = User.objects.get(username=envelope['username'])
+        except User.DoesNotExist:
+            self.template_name="donation_user_error.html"
+            context['error']='user does not exist'
+            return context
+        if user != self.request.user:
+            self.template_name="donation_user_error.html"
+            context['error']='wrong user logged in'
+            return context
+        try:
+            # check token not used
+            CreditLog.objects.get(sent=envelope['sent'])
+            context['error']='credit already registered'
+            return context
+        except CreditLog.DoesNotExist:
+            #not used yet!
+            CreditLog.objects.create(user=user,amount=envelope['amount'],action='deposit',sent=envelope['sent'])
+            ts=Transaction.objects.filter(user=user,campaign=campaign,status=TRANSACTION_STATUS_NONE)
+            if ts.count()>0:
+                t=ts[0]
+                credit_transaction(t,user, envelope['amount'])
+                for t in ts[1:]:
+                    t.status=TRANSACTION_STATUS_CANCELED
+                    t.save()
+                context['transaction']=t
+                return context
+            else:
+                user.credit.add_to_balance(envelope['amount'])
+                return context
+                
+            
 class PledgeRechargeView(TemplateView):
     """
     a view to allow for recharge of a transaction for failed transactions or ones with errors

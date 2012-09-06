@@ -4,6 +4,7 @@ from django.conf import settings
 from regluit.core.models import Campaign, Wishlist, Premium
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added
+from regluit.utils.localdatetime import now
 from decimal import Decimal, NaN
 import uuid
 import urllib
@@ -108,8 +109,18 @@ class Transaction(models.Model):
         else:
             mod = __import__("regluit.payment." + self.host, fromlist=[str(self.host)])
             return mod
-                
-    
+
+    def set_credit_approved(self, amount):
+        self.amount=amount
+        self.host = PAYMENT_HOST_CREDIT
+        self.type = PAYMENT_TYPE_AUTHORIZATION
+        self.status=TRANSACTION_STATUS_ACTIVE
+        self.approved=True
+        now_val = now()
+        self.date_authorized = now_val
+        self.date_expired = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+        self.save()
+
 class PaymentResponse(models.Model):
     # The API used
     api = models.CharField(max_length=64, null=False)
@@ -155,6 +166,8 @@ class CreditLog(models.Model):
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=16)
+    # used to record the sent id when action = 'deposit'
+    sent=models.IntegerField(null=True)
     
 class Credit(models.Model):
     user = models.OneToOneField(User, related_name='credit')
@@ -224,7 +237,13 @@ class Credit(models.Model):
                 return False
         else:
             return False
-            
+
+class Sent(models.Model):
+    '''used by donation view to record donations it has sent'''
+    user = models.CharField(max_length=32, null=True)
+    amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
+    timestamp = models.DateTimeField(auto_now=True)
+           
 from django.db.models.signals import post_save, post_delete
 import regluit.payment.manager
 

@@ -1,0 +1,46 @@
+{% extends "nonprofit_base.html" %}
+{% load humanize %}
+
+{% block title %}Donate to {{nonprofit.name}}{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+{% endblock %}
+
+{% block doccontent %}
+<div style="height:15px"></div>
+    
+<div class="jsmodule rounded clearfix">
+    <div class="jsmod-content">
+
+	<div><h1>Supporting <i>{{ get.title }}</i> through {{nonprofit.name}}</h1>
+		<div><p>{{nonprofit.name}} is cooperating with Unglue.it to make books free to the world. On this page, you can make a donation to us, and we'll hold the money until the ungluing campaign you've selected succeeds. Then we'll make a payment to the rightsholder along side unglue.it. Once you've made the donation, we'll ad donation credits to your unglue.it account, <code>{{get.username}}</code>. 
+		</p>
+		<p>
+		To fund the pledge of ${{get.preapproval_amount|intcomma}} that you've made at unglue.it, you'll need to make a donation of at least that amount. You can donate more than that of course- you'll get additional donation credits to use on other campaigns. The larger your donation, the less percentage-wise that gets eaten up by processing fees.
+		</p>
+		<p>Any interest we earn will be used for our public purpose of helping libraries remain relevant into the future. If your unglue.it donation credits don't get used for 5 years, we'll use it in the same way. Your donation to {{nonprofit.name}} is deductible as a Charitable donation in the US.</p>
+        </div>
+	</div>
+	<div id="donate" class="clearfix">
+	    <h2>Donate by Credit Card</h2>
+	    <p>{{nonprofit.name}} uses Stripe to securely manage your Credit Card information.
+	    </p>
+	    <div id="cc_pledge">
+    	<form method="POST" action="#">
+        	{% csrf_token %}
+			{{ form.non_field_errors }}
+			{{form}}
+			<input name="cc_submit" type="submit" value="Verify Credit Card" id="cc_submit" />
+    	</form>    	
+	    </div>
+	</div>
+
+	</div>
+</div>
+{% endblock %}
+
+

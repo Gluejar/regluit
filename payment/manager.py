@@ -640,7 +640,7 @@ class PaymentManager( object ):
         t = Transaction.objects.create(amount=0, 
                                    max_amount=amount,
                                    currency=currency,
-                                   status='NONE',
+                                   status=TRANSACTION_STATUS_NONE,
                                    campaign=campaign,
                                    user=user,
                                    anonymous=anonymous,
@@ -659,8 +659,8 @@ class PaymentManager( object ):
             pledge_created.send(sender=self, transaction=t)
             return t, return_url
         else:
-            #TODO send user to choose payment path
-            return t, None
+            # send user to choose payment path
+            return t, reverse('fund_pledge', args=[t.id])
 
         
     def cancel_related_transaction(self, transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=None):
