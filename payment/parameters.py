@@ -20,12 +20,14 @@ TRANSACTION_STATUS_NONE = 'None'
 # Indicates a transaction has been sent to the co-branded API
 TRANSACTION_STATUS_CREATED = 'Created'
 
-# A general complete code to indicate payment is comlete to all receivers
+# A general complete code to indicate payment is complete to all receivers
 TRANSACTION_STATUS_COMPLETE = 'Complete'
 
 # A general pending code that means in process
 TRANSACTION_STATUS_PENDING = 'Pending'
 
+# This means that the max amount has increased but the increase hasn't been executed
+TRANSACTION_STATUS_MODIFIED = 'Modified'
 
 # Indicates a preapproval is active
 TRANSACTION_STATUS_ACTIVE = 'Active'

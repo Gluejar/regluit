@@ -21,12 +21,12 @@
 	<p>{% if error %}
 	    Your donation credit of ${{ envelope.amount }}.{{ envelope.cents }} has already been registered! {% if work %} If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
 		{% else %}
-		Congratulations, your donation credit of ${{ envelope.amount }}.{{ envelope.cents }} has been registered! {% if transaction.campaign %} ${{transaction.amount}} of that had been pledged to the {{ transaction.campaign.title }}. If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
+		Congratulations, your donation credit of ${{ envelope.amount }}.{{ envelope.cents }} has been registered! {% if transaction.campaign %} ${{transaction.amount}} of that had been pledged to {{ transaction.campaign.name }}. If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
 		{% endif %}
 		</p>
-				<!-- sent log: {{ envelope.sent }} -->
+		<!-- sent log: {{ envelope.sent }} -->
 		<!-- error: {{ error }} -->
-		{{ transaction }}<br />
+		<!-- {{ transaction }} -->
 	<div>
 	<h2> Your donation credits </h2>
 <p>

@@ -51,7 +51,7 @@ from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersFor
 from regluit.frontend.forms import getTransferCreditForm, CCForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 from regluit.payment.credit import credit_transaction
 from regluit.core import goodreads
@@ -738,9 +738,12 @@ class FundPledgeView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(FundPledgeView, self).get_context_data(**kwargs)
+        context['modified'] = self.transaction.status==TRANSACTION_STATUS_MODIFIED
         context['preapproval_amount']=self.transaction.max_amount
+        context['needed'] = self.transaction.max_amount - self.request.user.credit.available
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
+        # note that get_form_kwargs() will already have been called once
         context['donate_form'] = DonateForm(**self.get_form_kwargs())
         return context
         
@@ -779,6 +782,7 @@ class DonationCredit(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(DonationCredit, self).get_context_data(**kwargs)
         context['faqmenu']="donation"
+        context['nonprofit'] = settings.NONPROFIT
         try:
             envelope=signing.loads(kwargs['token'])
             context['envelope']=envelope
@@ -810,7 +814,9 @@ class DonationCredit(TemplateView):
             #not used yet!
             amount=envelope['amount']+envelope['cents']/D(100)
             CreditLog.objects.create(user=user,amount=amount,action='deposit',sent=envelope['sent'])
-            ts=Transaction.objects.filter(user=user,campaign=campaign,status=TRANSACTION_STATUS_NONE)
+            ts=Transaction.objects.filter(user=user,campaign=campaign,status=TRANSACTION_STATUS_NONE).order_by('-pk')
+            if ts.count()==0:
+                ts=Transaction.objects.filter(user=user,campaign=campaign,status=TRANSACTION_STATUS_MODIFIED).order_by('-pk')
             if ts.count()>0:
                 t=ts[0]
                 credit_transaction(t,user, amount)

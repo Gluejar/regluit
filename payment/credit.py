@@ -24,7 +24,7 @@ def credit_transaction(t,user,amount):
     user.credit.add_to_balance(amount)
     
     # now pledge to the transaction
-    pledge_amount = t.max_amount if t.max_amount <= amount else amount
+    pledge_amount = t.max_amount if t.max_amount <= user.credit.available else amount
     user.credit.add_to_pledged(pledge_amount)
     t.set_credit_approved(pledge_amount)
 

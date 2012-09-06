@@ -755,8 +755,24 @@ class PaymentManager( object ):
                 pledge_modified.send(sender=self, transaction=transaction,up_or_down="decreased" if amount-transaction.amount<0 else "increased")
                 return transaction, return_url
             else:
-                #TODO send user to choose payment path
-                return t, None
+                # cancel old transaction, send user to choose new payment path
+                # set the expiry date based on the campaign deadline
+                expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+                t = Transaction.objects.create(amount=0, 
+                           max_amount=amount,
+                           currency=transaction.currency,
+                           status=TRANSACTION_STATUS_MODIFIED,
+                           campaign=transaction.campaign,
+                           user=transaction.user,
+                           anonymous=anonymous,
+                           premium=premium,
+                           ack_name=ack_name,
+                           ack_dedication=ack_dedication
+                           )
+
+                credit.CancelPreapproval(transaction)
+                return t, reverse('fund_pledge', args=[t.id])
+
         elif amount > transaction.max_amount or expiry != transaction.date_expired:
 
             # set the expiry date based on the campaign deadline
