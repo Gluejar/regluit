@@ -131,8 +131,8 @@ class CCLicense():
         )
     CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
     
-    @classmethod
-    def url(klass, license):
+    @staticmethod
+    def url(license):
         if license == 'PD-US':
             return 'http://creativecommons.org/publicdomain/mark/1.0/'
         elif license == 'CC0':
@@ -152,8 +152,8 @@ class CCLicense():
         else:
             return ''
     
-    @classmethod
-    def badge(klass,license):
+    @staticmethod
+    def badge(license):
         if license == 'PD-US':
             return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
         elif license == 'CC0':
@@ -439,8 +439,8 @@ class Identifier(models.Model):
     class Meta:
         unique_together = ("type", "value")
     
-    @classmethod
-    def get_or_add(klass, type='goog', value=None, edition=None, work=None):
+    @staticmethod
+    def get_or_add( type='goog', value=None, edition=None, work=None):
         try:
             return Identifier.objects.get(type=type, value=value)
         except Identifier.DoesNotExist:
@@ -744,8 +744,8 @@ class Edition(models.Model):
         except IndexError:
             return ''
 
-    @classmethod
-    def get_by_isbn(klass, isbn):
+    @staticmethod
+    def get_by_isbn( isbn):
         if len(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
         try:
@@ -784,8 +784,8 @@ class Ebook(models.Model):
             return CCLicense.badge('PD-US')
         return CCLicense.badge(self.rights)
     
-    @classmethod
-    def infer_provider(klass, url):
+    @staticmethod
+    def infer_provider( url):
         if not url:
             return None
         # provider derived from url. returns provider value. remember to call save() afterward
