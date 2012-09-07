@@ -171,10 +171,6 @@ def work(request, work_id, action='display'):
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
         
-    try:
-        pubdate = work.publication_date[:4]
-    except IndexError:
-        pubdate = 'unknown'
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
         for edition in editions:
@@ -227,7 +223,6 @@ def work(request, work_id, action='display'):
         'wishers': wishers,
         'base_url': base_url,
         'editions': editions,
-        'pubdate': pubdate,
         'pledged': pledged,
         'activetab': activetab,
         'alert': alert,
@@ -394,11 +389,6 @@ def manage_campaign(request, id):
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
     work = campaign.work
-
-    try:
-        pubdate = work.publication_date[:4]
-    except IndexError:
-        pubdate = 'unknown'
                
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
@@ -407,7 +397,6 @@ def manage_campaign(request, id):
         'alerts': alerts, 
         'premiums' : campaign.effective_premiums(),
         'premium_form' : new_premium_form,
-        'pubdate': pubdate,
         'work': work,
         'activetab': activetab,
     })
@@ -649,18 +638,12 @@ class PledgeView(FormView):
         
         context = super(PledgeView, self).get_context_data(**kwargs)
               
-        try:
-            pubdate = self.work.publication_date[:4]
-        except IndexError:
-            pubdate = 'unknown'
-
         context.update({
                 'work':self.work,
                 'campaign':self.campaign, 
                 'premiums':self.premiums, 
                 'premium_id':self.data['premium_id'], 
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
-                'pubdate':pubdate,
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
                 'premium_description': self.data['premium_description'], 

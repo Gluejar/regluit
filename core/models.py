@@ -655,6 +655,13 @@ class Work(models.Model):
                 return edition.publication_date
         return ''
 
+    @property
+    def publication_date_year(self):
+        try:
+            return self.publication_date[:4]
+        except IndexError:
+            return 'unknown'
+
     def __unicode__(self):
         return self.title
 
