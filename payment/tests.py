@@ -284,7 +284,7 @@ class AuthorizeTest(TestCase):
     
         # Note, set this to 1-5 different receivers with absolute amounts for each
         
-        t, url = p.authorize('USD', 100.0, campaign=None, list=None, user=None)
+        t, url = p.authorize(t)
         
         self.validateRedirect(t, url)
         

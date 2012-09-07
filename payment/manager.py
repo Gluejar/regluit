@@ -891,13 +891,6 @@ class PaymentManager( object ):
         Performs an instant payment
         
         currency: a 3-letter paypal currency code, i.e. USD
-        receiver_list: a list of receivers for the transaction, in this format:
-        
-                [
-                    {'email':'email-1', 'amount':amount1}, 
-                    {'email':'email-2', 'amount':amount2}
-                ]
-        
         campaign: required campaign object
         user: optional user object
         return_url: url to redirect supporter to after a successful PayPal transaction
@@ -931,7 +924,9 @@ class PaymentManager( object ):
                                        ack_dedication=ack_dedication
                                        )
     
-        t.create_receivers(receiver_list)
+        t.date_payment=now()
+        t.execution=EXECUTE_TYPE_CHAINED_INSTANT
+        t.type=PAYMENT_TYPE_INSTANT
         method = getattr(t.get_payment_class(), "Pay")
         p = method(t,return_url=return_url, nevermind_url=nevermind_url) 
         

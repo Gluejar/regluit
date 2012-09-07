@@ -114,7 +114,7 @@ def testAuthorize(request):
                      {'email': TEST_RECEIVERS[1], 'amount':10.00}]
         
     campaign = Campaign.objects.get(id=int(campaign_id))
-    t, url = p.authorize('USD', amount, campaign=campaign, return_url=None, list=None, user=None)
+    t, url = p.authorize(Transaction.objects.create(currency='USD', max_amount=amount, campaign=campaign, user=None), return_url=None)
     
     if url:
         logger.info("testAuthorize: " + url)
