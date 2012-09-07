@@ -647,7 +647,6 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
-                'payment_processor':self.transaction.host if self.transaction else None,
            })
             
         return context
