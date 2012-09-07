@@ -5,9 +5,3 @@ logger = logging.getLogger(__name__)
 
 class StripePledgeForm(forms.Form):
     stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
-    
-class BalancedPledgeForm(forms.Form):
-    card_uri = forms.CharField(required=False, widget=forms.HiddenInput())
-    
-class WepayPledgeForm(forms.Form):
-    pass

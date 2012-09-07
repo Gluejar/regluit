@@ -29,5 +29,3 @@ django-maintenancemode
 django-smtp-ssl
 django-ckeditor
 stripe
-balanced
-git+ssh://git@github.com/wepay/Python-SDK.git
