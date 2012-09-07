@@ -607,8 +607,11 @@ class PledgeView(FormView):
                 preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
             except:
                 preapproval_amount = None
-        if not preapproval_amount and self.transaction:
-            preapproval_amount = self.transaction.amount
+        if self.transaction:
+            if preapproval_amount: 
+                preapproval_amount = preapproval_amount if preapproval_amount>self.transaction.amount else self.transaction.amount
+            else:
+                preapproval_amount = self.transaction.amount
         return preapproval_amount
     
     def get_form_kwargs(self):
@@ -626,30 +629,26 @@ class PledgeView(FormView):
             raise e
 
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
+        premium_id = self.request.REQUEST.get('premium_id', None)
         if transactions.count() == 0:
-            premium_id = self.request.REQUEST.get('premium_id', None)
             ack_name=''
             ack_dedication=''
             anonymous=''
         else:
-            self.transaction = transactions[0]            
-            if self.transaction.premium is not None:
+            self.transaction = transactions[0]   
+            if premium_id == None and self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
-            else:
-                premium_id = None
             ack_name=self.transaction.ack_name
             ack_dedication=self.transaction.ack_dedication
             anonymous=self.transaction.anonymous
 
-        self.data = {'preapproval_amount':self.get_preapproval_amount(), 
-                'premium_id':premium_id, 
-                'ack_name':ack_name, 'ack_dedication':ack_dedication, 'anonymous':anonymous}
+        self.data = {'preapproval_amount':self.get_preapproval_amount(), 'premium_id':premium_id, 
+                    'ack_name':ack_name, 'ack_dedication':ack_dedication, 'anonymous':anonymous}
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
-        if self.request.method == 'POST' or premium_id:
             return {'data':self.data}
         else:
-            return {}
+            return {'initial':self.data}
         
     def get_context_data(self, **kwargs):
         """set up the pledge page"""
