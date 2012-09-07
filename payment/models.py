@@ -5,7 +5,7 @@ from regluit.core.models import Campaign, Wishlist, Premium, PledgeExtra
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now
-from decimal import Decimal, NaN
+from decimal import Decimal
 from datetime import timedelta
 import uuid
 import urllib
@@ -231,7 +231,7 @@ class Credit(models.Model):
     
     def add_to_pledged(self, num_credits):
         num_credits=Decimal(num_credits)
-        if num_credits is NaN:
+        if num_credits is Decimal('NaN'):
             return False
         if self.balance - self.pledged <  num_credits :
             return False
