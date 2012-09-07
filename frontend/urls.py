@@ -10,7 +10,7 @@ from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -59,6 +59,7 @@ urlpatterns = patterns(
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
     url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
+    url(r"^pledge/modified/$", login_required(PledgeModifiedView.as_view()), name="pledge_modified"),
     url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeView.as_view()), name="pledge_modify"),
     url(r"^pledge/fund/(?P<t_id>\d+)$", login_required(FundPledgeView.as_view()), name="fund_pledge"),
     url(r"^pledge/recharge/(?P<work_id>\d+)$", login_required(PledgeRechargeView.as_view()), name="pledge_recharge"),

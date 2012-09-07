@@ -684,7 +684,7 @@ class PledgeView(FormView):
                 logger.info("PledgeView (Modify): " + url)
                 return HttpResponseRedirect(url)
             elif status and url is None:
-                return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_complete'), self.transaction.id))
+                return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_modified'), self.transaction.id))
             else:
                 return HttpResponse("No modification made")
         else:
@@ -875,10 +875,6 @@ class PledgeCompleteView(TemplateView):
     def get_context_data(self):
         # pick up all get and post parameters and display
         context = super(PledgeCompleteView, self).get_context_data()
-
-        output = "pledge complete"
-        output += self.request.method + "\n" + str(self.request.REQUEST.items())
-        context["output"] = output
         
         if self.request.user.is_authenticated():
             user = self.request.user
@@ -898,12 +894,8 @@ class PledgeCompleteView(TemplateView):
             work = None
         
         # we need to check whether the user tied to the transaction is indeed the authenticated user.
-        
-        correct_user = False 
         try:
-            if user.id == transaction.user.id:
-                correct_user = True
-            else:
+            if user.id != transaction.user.id:
                 # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
                 raise Http404
         except Exception, e:
@@ -921,7 +913,7 @@ class PledgeCompleteView(TemplateView):
             correct_transaction_type = False
             
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
-        if user is not None and correct_user and correct_transaction_type and (campaign is not None) and (work is not None):
+        if user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging')
             
@@ -930,8 +922,6 @@ class PledgeCompleteView(TemplateView):
         works2 = worklist[4:8]
 
         context["transaction"] = transaction
-        context["correct_user"] = correct_user
-        context["correct_transaction_type"] = correct_transaction_type
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
@@ -940,7 +930,12 @@ class PledgeCompleteView(TemplateView):
         context["site"] = Site.objects.get_current()
         
         return context        
-                
+
+class PledgeModifiedView(PledgeCompleteView):
+    def get_context_data(self):
+        context = super(PledgeModifiedView, self).get_context_data()
+        context['modified']=True
+        return context
     
 class PledgeCancelView(FormView):
     """A view for allowing a user to cancel the active transaction for specified campaign"""
