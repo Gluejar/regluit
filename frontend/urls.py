@@ -9,7 +9,7 @@ from django.conf import settings
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
+from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
 from regluit.frontend.views import NonprofitCampaign, DonationCredit
 
 urlpatterns = patterns(
@@ -87,6 +87,5 @@ if settings.DEBUG:
         "regluit.frontend.views",
         url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
         url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
-        url(r"^donate/$", DonateView.as_view(), name="donate"),
         url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
 )

@@ -1060,50 +1060,6 @@ class PledgeCancelView(FormView):
             return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
     
     
-class DonateView(FormView):
-    template_name="donate.html"
-    form_class = DonateForm
-    
-    #def get_context_data(self, **kwargs):
-    #    context = super(DonateView, self).get_context_data(**kwargs)
-    #    
-    #    form = CampaignPledgeForm(data)
-    #
-    #    context.update({'work':work,'campaign':campaign, 'premiums':premiums, 'form':form, 'premium_id':premium_id})
-    #    return context
-    
-    def form_valid(self, form):
-        donation_amount = form.cleaned_data["donation_amount"]
-        anonymous = form.cleaned_data["anonymous"]
-        
-        # right now, if there is a non-zero pledge amount, go with that.  otherwise, do the pre_approval
-        campaign = None
-        
-        p = PaymentManager()
-                    
-        # we should force login at this point -- or if no account, account creation, login, and return to this spot
-        if self.request.user.is_authenticated():
-            user = self.request.user
-        else:
-            user = None
-
-        # instant payment:  send to the partnering RH
-        receiver_list = [{'email':settings.PAYPAL_NONPROFIT_PARTNER_EMAIL, 'amount':donation_amount}]
-        
-        #redirect the page back to campaign page on success
-        return_url = self.request.build_absolute_uri(reverse('donate'))
-        
-        t, url = p.pledge('USD',  receiver_list, campaign=campaign, list=None, user=user,
-                          return_url=return_url, anonymous=anonymous, ack_name=ack_name,  
-                          ack_dedication=ack_dedication)
-    
-        if url:
-            return HttpResponseRedirect(url)
-        else:
-            response = t.reference
-            logger.info("PledgeView paypal: Error " + str(t.reference))
-            return HttpResponse(response)
-    
     
 def claim(request):
     if  request.method == 'GET': 
