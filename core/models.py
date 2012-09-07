@@ -414,7 +414,7 @@ class Campaign(models.Model):
 
     def custom_premiums(self):
         """returns only the active custom premiums for the Campaign"""
-        return Premium.objects.filter(campaign=self).filter(type='CU')
+        return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
         
     @property
     def rightsholder(self):
