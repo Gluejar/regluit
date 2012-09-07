@@ -1,0 +1,152 @@
+/* variables and mixins used in multiple less files go here */
+.header-text {
+  height: 36px;
+  line-height: 36px;
+  display: block;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 13px;
+  letter-spacing: -0.05em;
+}
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF;
+}
+.roundedspan {
+  border: 1px solid #d4d4d4;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  padding: 1px;
+  color: #fff;
+  margin: 0 8px 0 0;
+  display: inline-block;
+}
+.roundedspan > span {
+  padding: 7px 7px;
+  min-width: 15px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: inline-block;
+}
+.roundedspan > span .hovertext {
+  display: none;
+}
+.roundedspan > span:hover .hovertext {
+  display: inline;
+}
+.mediaborder {
+  padding: 5px;
+  border: solid 5px #EDF3F4;
+}
+.google_signup_div {
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+}
+.google_signup_div img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.actionbuttons {
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+.errors {
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
+  width: 90%;
+  height: auto;
+  line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+}
+.errors li {
+  list-style: none;
+  border: none;
+}
+.download_container {
+  width: 50%;
+  margin: auto;
+}
+#lightbox_content a {
+  color: #6994a3;
+}
+#lightbox_content .signuptoday a {
+  color: white;
+}
+#lightbox_content h2,
+#lightbox_content h3,
+#lightbox_content h4 {
+  margin-top: 15px;
+}
+#lightbox_content .ebook_download {
+  margin-bottom: 15px;
+}
+#lightbox_content .ebook_download a {
+  margin: auto 5px auto 0;
+  font-size: 15px;
+}
+#lightbox_content .ebook_download img {
+  vertical-align: middle;
+}
+#lightbox_content .logo {
+  font-size: 15px;
+}
+#lightbox_content .logo img {
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  height: 50px;
+  width: 50px;
+  margin-right: 5px;
+}
+#lightbox_content .unglued {
+  border: solid 2px #8dc63f;
+  margin-left: -2px;
+  padding: 5px;
+}
+#lightbox_content .unglued h3 {
+  margin-top: 5px;
+}
+#lightbox_content a.add-wishlist .on-wishlist,
+#lightbox_content a.success,
+a.success:hover {
+  text-decoration: none;
+  color: #3d4e53;
+}
+#lightbox_content a.success,
+a.success:hover {
+  cursor: default;
+}
+#lightbox_content ul {
+  padding-left: 50px;
+}
+#lightbox_content ul li {
+  margin-bottom: 4px;
+}
