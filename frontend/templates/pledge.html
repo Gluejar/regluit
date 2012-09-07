@@ -23,6 +23,7 @@
 			<div>
 				<div class="pubinfo">
 					<h3 class="book-author">{{ work.author }}</h3>
+					<h3 class="book-year">{{ work.publication_date_year }}</h3>
 				</div>
 			</div>
 		</div>
@@ -52,7 +53,7 @@
 	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
 		<div>
 		Amount: ${{preapproval_amount|intcomma}}.<br />
-		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
+		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
 		</div>
 	<br /> You can modify your pledge below.
 	</div>

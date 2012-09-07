@@ -598,7 +598,6 @@ class PledgeView(FormView):
         if transactions.count() == 0:
             premium_id = self.request.REQUEST.get('premium_id', None)
             preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
-            premium_description = None
             ack_name=''
             ack_dedication=''
             anonymous=''
@@ -609,10 +608,8 @@ class PledgeView(FormView):
             # preapproval_amount, premium_id (which we don't have stored yet)
             if self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
-                premium_description = self.transaction.premium.description
             else:
                 premium_id = None
-                premium_description = None
             preapproval_amount = self.transaction.amount
             ack_name=self.transaction.ack_name
             ack_dedication=self.transaction.ack_dedication
@@ -646,7 +643,6 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
-                'premium_description': self.data['premium_description'], 
                 'preapproval_amount':self.data['preapproval_amount'], 
                 'payment_processor':self.transaction.host if self.transaction else None,
            })
