@@ -6,7 +6,6 @@ TEMPLATE_DEBUG = DEBUG
 SITE_ID = 2
 
 ADMINS = (
-    ('Ed Summers', 'ed.summers@gmail.com'),
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
     ('Eric Hellman', 'eric@gluejar.com'),
     ('Andromeda Yelton', 'andromeda@gluejar.com'),

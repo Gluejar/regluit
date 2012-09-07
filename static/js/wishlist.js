@@ -4,7 +4,7 @@ $j().ready(function() {
 	// only do the lookup once, then cache it
 	var contentblock = $j('#content-block');
 	
-    contentblock.on("click", "div.add-wishlist", function () {
+    contentblock.on("click", ".add-wishlist", function () {
         var span = $j(this).find("span");
         var id_val = span.attr('id').substring(1);
         var id_type = span.attr('class');
@@ -24,6 +24,11 @@ $j().ready(function() {
         });}
         else {
             span.html('a type error occurred');
+        }
+        
+        // prevent perversities on download page
+        if ($j(this).is("a")) {
+        	$j(this).removeClass("add-wishlist").addClass("success");
         }
     });
     

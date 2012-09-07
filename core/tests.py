@@ -11,12 +11,14 @@ from django.conf import settings
 from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.http import Http404
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+from regluit.frontend.views import safe_get_work
 
 from regluit.core import tasks
 from celery.task.sets import TaskSet
@@ -591,3 +593,46 @@ class EncryptedKeyTest(TestCase):
         # just checking that the encrypted value is not the same as the value
         self.assertNotEqual(key.encrypted_value, value)  # is this always true?
         
+class SafeGetWorkTest(TestCase):    
+    def test_good_work(self):
+        w1 = models.Work()
+        w1.save()
+        w2 = models.Work()
+        w2.save()
+        w2_id = w2.id
+        bookloader.merge_works(w1, w2)
+        
+        work = safe_get_work(w1.id)
+        self.assertEqual(work, w1)
+        work = safe_get_work(w2_id)
+        self.assertEqual(work, w1)
+        self.assertRaises(Http404, safe_get_work, 3)
+        
+class DownloadPageTest(TestCase):
+    def test_download_page(self):
+        w = models.Work()
+        w.save()
+
+        e1 = models.Edition()
+        e1.work = w
+        e2 = models.Edition()
+        e2.work = w
+        e1.save()
+        e2.save()
+        
+        eb1 = models.Ebook()
+        eb1.url = "http://example.com"
+        eb1.edition = e1
+        eb1.unglued = True
+        
+        eb2 = models.Ebook()
+        eb2.url = "http://example2.com"
+        eb2.edition = e2
+        
+        eb1.save()
+        eb2.save()
+        
+        anon_client = Client()
+        response = anon_client.get("/work/%s/download/" % w.id)
+        self.assertContains(response, "http://example.com", count=2)
+        self.assertContains(response, "http://example2.com", count=2)

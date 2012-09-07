@@ -91,7 +91,7 @@ Please fix the following before launching your campaign:
 	{% ifequal campaign_status 'INITIALIZED' %}
 		<a href="{% url work_preview campaign.work.id %}" class="manage" target="_blank">Preview Your Campaign</a>
 	{% else %}
-		<a href="{% url work_preview campaign.work.id %}" class="manage" target="_blank">See Your Campaign</a>
+		<a href="{% url work campaign.work.id %}" class="manage" target="_blank">See Your Campaign</a>
 	{% endifequal %}
 	</div>
 
