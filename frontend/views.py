@@ -744,7 +744,9 @@ class FundPledgeView(FormView):
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
         # note that get_form_kwargs() will already have been called once
-        context['donate_form'] = DonateForm(**self.get_form_kwargs())
+        donate_args=self.get_form_kwargs()
+        donate_args['data']['preapproval_amount']=context['needed']
+        context['donate_form'] = DonateForm(**donate_args)
         return context
         
 class NonprofitCampaign(FormView):
