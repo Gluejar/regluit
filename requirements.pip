@@ -28,3 +28,4 @@ pycrypto
 django-maintenancemode
 django-smtp-ssl
 django-ckeditor
+stripe

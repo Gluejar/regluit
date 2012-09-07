@@ -1,6 +1,11 @@
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
+
+from regluit.payment.stripelib import STRIPE_PK
+
+from regluit.payment.forms import StripePledgeForm
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -11,6 +16,9 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpRes
 from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
 from django.template import RequestContext
+
+from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
 
 from unittest import TestResult
 
@@ -283,5 +291,25 @@ def checkStatus(request):
 def _render(request, template, template_vars={}):
     return render_to_response(template, template_vars, RequestContext(request))
     
+class StripeView(FormView):
+    template_name="stripe.html"
+    form_class = StripePledgeForm
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(StripeView, self).get_context_data(**kwargs)
     
+        context.update({
+                'STRIPE_PK':STRIPE_PK
+                })
+        return context
     
+    def form_valid(self, form):
+        stripe_token = form.cleaned_data["stripe_token"]
+        # e.g., tok_0C0k4jG5B2Oxox
+        # 
+        return HttpResponse("stripe_token: {0}".format(stripe_token))
+
+  
+        
+        
