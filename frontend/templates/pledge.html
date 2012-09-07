@@ -52,7 +52,7 @@
 	{% if faqmenu == 'modify' %}	
 	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
 		<div>
-		Amount: ${{preapproval_amount|intcomma}}.<br />
+		Amount: ${{transaction.amount|intcomma}}.<br />
 		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
 		</div>
 	<br /> You can modify your pledge below.

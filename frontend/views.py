@@ -580,6 +580,20 @@ class PledgeView(FormView):
     premiums = None
     data = None
     
+    def get_preapproval_amount(self):
+        preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
+        if preapproval_amount:
+            return preapproval_amount
+        premium_id = self.request.REQUEST.get('premium_id', None)
+        if premium_id != None:
+            try:
+                preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
+            except:
+                preapproval_amount = None
+        if not preapproval_amount and self.transaction:
+            preapproval_amount = self.transaction.amount
+        return preapproval_amount
+    
     def get_form_kwargs(self):
         assert self.request.user.is_authenticated()
         self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
@@ -597,31 +611,21 @@ class PledgeView(FormView):
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
         if transactions.count() == 0:
             premium_id = self.request.REQUEST.get('premium_id', None)
-            preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
             ack_name=''
             ack_dedication=''
             anonymous=''
-
         else:
             self.transaction = transactions[0]            
-            # what stuff do we need to pull out to populate form?
-            # preapproval_amount, premium_id (which we don't have stored yet)
             if self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
             else:
                 premium_id = None
-            preapproval_amount = self.transaction.amount
             ack_name=self.transaction.ack_name
             ack_dedication=self.transaction.ack_dedication
             anonymous=self.transaction.anonymous
-        
-        if premium_id is not None and preapproval_amount is None:
-            try:
-                preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
-            except:
-                preapproval_amount = None
-        self.data = {'preapproval_amount':preapproval_amount, 
-                'premium_id':premium_id, 'premium_description':premium_description,
+
+        self.data = {'preapproval_amount':self.get_preapproval_amount(), 
+                'premium_id':premium_id, 
                 'ack_name':ack_name, 'ack_dedication':ack_dedication, 'anonymous':anonymous}
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
@@ -643,7 +647,6 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
-                'preapproval_amount':self.data['preapproval_amount'], 
                 'payment_processor':self.transaction.host if self.transaction else None,
            })
             
