@@ -111,6 +111,16 @@ class Premium(models.Model):
         t_model=get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
     
+class PledgeExtra:
+    premium=None
+    anonymous=False
+    ack_name=''
+    ack_dedication=''
+    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication=''):
+        self.premium=premium
+        self.anonymous=anonymous
+        self.ack_name=ack_name
+        self.ack_dedication=ack_dedication
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)

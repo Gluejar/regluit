@@ -670,17 +670,6 @@ class PledgeView(FormView):
             
         return context
     
-    def get_premium(self,form):
-        premium_id = form.cleaned_data["premium_id"]
-        # confirm that the premium_id is a valid one for the campaign in question
-        try:
-            premium = models.Premium.objects.get(id=premium_id)
-            if not (premium.campaign is None or premium.campaign == self.campaign):
-                 premium = None
-        except models.Premium.DoesNotExist, e:
-            premium = None
-        return premium
-        
     def form_valid(self, form):
         # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
         
@@ -689,11 +678,8 @@ class PledgeView(FormView):
             # modifying the transaction...
             assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and self.transaction.status == TRANSACTION_STATUS_ACTIVE        
             status,  url = p.modify_transaction(self.transaction, form.cleaned_data["preapproval_amount"],  
-                    premium=self.get_premium(form),
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
-                    ack_name=form.cleaned_data["ack_name"], 
-                    ack_dedication=form.cleaned_data["ack_dedication"],
-                    anonymous=form.cleaned_data["anonymous"], 
+                    pledge_extra=form.pledge_extra
                     )
             logger.info("status: {0}, url:{1}".format(status, url))
             
@@ -709,11 +695,8 @@ class PledgeView(FormView):
                     host = None, 
                     campaign=self.campaign, 
                     user=self.request.user,
-                    premium=self.get_premium(form),
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
-                    ack_name=form.cleaned_data["ack_name"], 
-                    ack_dedication=form.cleaned_data["ack_dedication"],
-                    anonymous=form.cleaned_data["anonymous"], 
+                    pledge_extra=form.pledge_extra
                     )    
             if url:
                 logger.info("PledgeView url: " + url)
@@ -860,16 +843,11 @@ class PledgeRechargeView(TemplateView):
         nevermind_url = None
         
         if transaction is not None:
-            # the recipients of this authorization is not specified here but rather by the PaymentManager.
-            ack_name = transaction.ack_name
-            ack_dedication = transaction.ack_dedication
-    
+            # the recipients of this authorization is not specified here but rather by the PaymentManager.    
             paymentReason = "Unglue.it Recharge for {0}".format(campaign.name)
             
             p = PaymentManager()
-            t, url = p.authorize('USD', transaction.amount, campaign=campaign, list=None, user=user,
-                            return_url=return_url,  anonymous=transaction.anonymous, premium=transaction.premium,
-                            paymentReason=paymentReason, ack_name=ack_name,  ack_dedication=ack_dedication)
+            t, url = p.authorize(transaction, return_url=return_url, paymentReason=paymentReason)
             logger.info("Recharge url: {0}".format(url))
         else:
             url = None
@@ -1059,9 +1037,7 @@ class PledgeCancelView(FormView):
                 return HttpResponse("Our attempt to cancel your transaction failed. We have logged this error.")
         except Exception, e:
             logger.error("Exception from attempt to cancel pledge for campaign id {0} for username {1}: {2}".format(campaign_id, user.username, e))
-            return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
-    
-    
+            return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")    
     
 def claim(request):
     if  request.method == 'GET': 

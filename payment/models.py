@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
-from regluit.core.models import Campaign, Wishlist, Premium
+from regluit.core.models import Campaign, Wishlist, Premium, PledgeExtra
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now
@@ -122,7 +122,39 @@ class Transaction(models.Model):
         self.date_expired = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
         self.save()
         pledge_created.send(sender=self, transaction=self)
+        
+    def set_pledge_extra(self, pledge_extra):
+        if pledge_extra:
+            self.anonymous = pledge_extra.anonymous
+            self.premium = pledge_extra.premium
+            self.ack_name = pledge_extra.ack_name
+            self.ack_dedication = pledge_extra.ack_dedication
 
+    def get_pledge_extra(self, pledge_extra):
+        return PledgeExtra(anonymous=self.anonymous, 
+                            premium=self.premium, 
+                            ack_name=self.ack_name, 
+                            ack_dedication=self.ack_dedication)
+
+    @classmethod
+    def create(cls,amount=0.00, max_amount=0.00, currency='USD',
+                status=TRANSACTION_STATUS_NONE,campaign=None, user=None, pledge_extra=None):
+        if pledge_extra:
+            return cls.objects.create(amount=amount, 
+                                max_amount=max_amount, 
+                                currency=currency,
+                                status=status,
+                                campaign=campaign,
+                                user=user,
+                                premium=pledge_extra.premium, 
+                                anonymous=pledge_extra.anonymous,
+                                ack_name=pledge_extra.ack_name, 
+                                ack_dedication=pledge_extra.ack_dedication
+                                )
+        else:
+            return cls.objects.create(amount=amount, max_amount=max_amount, currency=currency,status=status,
+                                campaign=campaign, user=user)
+                            
 class PaymentResponse(models.Model):
     # The API used
     api = models.CharField(max_length=64, null=False)

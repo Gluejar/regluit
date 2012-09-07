@@ -611,8 +611,7 @@ class PaymentManager( object ):
             return transaction, None
             
     def process_transaction(self, currency,  amount, host=None, campaign=None,  user=None,
-                  return_url=None,  anonymous=False, premium=None,
-                  paymentReason="unglue.it Pledge",  ack_name=None, ack_dedication=None, 
+                  return_url=None, paymentReason="unglue.it Pledge",  pledge_extra=None,
                   modification=False):
         '''
         process
@@ -625,11 +624,9 @@ class PaymentManager( object ):
         campaign: required campaign object
         user: optional user object
         return_url: url to redirect supporter to after a successful transaction
-        anonymous: whether this pledge is anonymous
-        premium: the premium selected by the supporter for this transaction
         paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
         modification: whether this authorize call is part of a modification of an existing pledge
-        ack_name, ack_dedication: how the user will be credited in the unglued ebook, if applicable
+        pledge_extra: extra pledge stuff
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
@@ -637,18 +634,14 @@ class PaymentManager( object ):
         # set the expiry date based on the campaign deadline
         expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
 
-        t = Transaction.objects.create(amount=0, 
+        t = Transaction.create(amount=0, 
                                    max_amount=amount,
                                    currency=currency,
-                                   status=TRANSACTION_STATUS_NONE,
                                    campaign=campaign,
                                    user=user,
-                                   anonymous=anonymous,
-                                   premium=premium,
-                                   ack_name=ack_name,
-                                   ack_dedication=ack_dedication
+                                   pledge_extra=pledge_extra
                                    )
-    
+        t.save()
         # does user have enough credit to pledge now?
         if user.credit.available >= amount :
             # YES!
@@ -705,9 +698,8 @@ class PaymentManager( object ):
             
         return canceled
     
-    def modify_transaction(self, transaction, amount, expiry=None,  premium=None,
-                           return_url=None, nevermind_url=None, paymentReason=None, 
-                           ack_name=None,  ack_dedication=None, anonymous=None):
+    def modify_transaction(self, transaction, amount, expiry=None, pledge_extra=None,
+                           return_url=None, nevermind_url=None, paymentReason=None):
         '''
         modify
         
@@ -720,8 +712,6 @@ class PaymentManager( object ):
         
         amount: the new amount
         expiry: the new expiration date, or if none the current expiration date will be used
-        anonymous:  new anonymous value; if None, then keep old value
-        premium: new premium selected; if None, then keep old value
         return_url: the return URL after the preapproval(if needed)
         paymentReason: a memo line that will show up in the Payer's Amazon (and Paypal?) account
         
@@ -742,10 +732,7 @@ class PaymentManager( object ):
             # does user have enough credit to pledge now?
             if transaction.user.credit.available >= amount-transaction.amount :
                 # YES!
-                transaction.anonymous = anonymous
-                transaction.premium = premium
-                transaction.ack_name = ack_name
-                transaction.ack_dedication = ack_dedication
+                transaction.set_pledge_extra(pledge_extra)
                 credit.pledge_transaction(transaction,transaction.user,amount)
                 return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                     urllib.urlencode({'tid':transaction.id})) 
@@ -758,18 +745,15 @@ class PaymentManager( object ):
                 # cancel old transaction, send user to choose new payment path
                 # set the expiry date based on the campaign deadline
                 expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
-                t = Transaction.objects.create(amount=0, 
+                t = Transaction.create(amount=0, 
                            max_amount=amount,
                            currency=transaction.currency,
                            status=TRANSACTION_STATUS_MODIFIED,
                            campaign=transaction.campaign,
                            user=transaction.user,
-                           anonymous=anonymous,
-                           premium=premium,
-                           ack_name=ack_name,
-                           ack_dedication=ack_dedication
+                           pledge_extra=pledge_extra
                            )
-
+                t.save()
                 credit.CancelPreapproval(transaction)
                 return t, reverse('fund_pledge', args=[t.id])
 
@@ -779,19 +763,16 @@ class PaymentManager( object ):
             expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
                 
             # Start a new transaction for the new amount
-            t = Transaction.objects.create(amount=amount, 
+            t = Transaction.create(amount=amount, 
                                        max_amount=amount,
                                        host=transaction.host,
                                        currency=currency,
                                        status=TRANSACTION_STATUS_CREATED,
                                        campaign=transaction.campaign,
                                        user=transaction.user,
-                                       anonymous=anonymous if anonymous!=None else transaction.anonymous,
-                                       premium=premium if premium != None else transaction.premium,
-                                       ack_name=ack_name,
-                                       ack_dedication=ack_dedication
+                                       pledge_extra=pledge_extra
                                        )
-            
+            t.save()
             t, url = self.authorize(transaction,
                                     expiry=expiry if expiry else transaction.date_expired, 
                                     return_url=return_url, 
@@ -822,10 +803,7 @@ class PaymentManager( object ):
         elif amount <= transaction.max_amount:
             # Update transaction but leave the preapproval alone
             transaction.amount = amount
-            transaction.anonymous = anonymous
-            transaction.premium = premium
-            transaction.ack_name = ack_name
-            transaction.ack_dedication = ack_dedication
+            transaction.set_pledge_extra(pledge_extra)
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
@@ -882,9 +860,8 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def pledge(self, currency, receiver_list, campaign=None,  user=None, 
-    		   return_url=None, nevermind_url=None, anonymous=False, premium=None, ack_name=None, 
-    		    ack_dedication=None):
+    def pledge(self, currency, campaign=None,  user=None, 
+    		   return_url=None, nevermind_url=None, pledge_extra=None):
         '''
         pledge
         
@@ -895,9 +872,7 @@ class PaymentManager( object ):
         user: optional user object
         return_url: url to redirect supporter to after a successful PayPal transaction
         nevermind_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
-        anonymous: whether this pledge is anonymous
-        premium: the premium selected by the supporter for this transaction        
-        
+                
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
                       the redirect url will be None
                       
@@ -905,24 +880,14 @@ class PaymentManager( object ):
         
         amount = D('0.00')
         
-        # for chained payments, first amount is the total amount
-        amount = D(receiver_list[0]['amount'])
-            
-        t = Transaction.objects.create(amount=amount,
-                                       max_amount=amount, 
-                                       type=PAYMENT_TYPE_INSTANT,
-                                       execution=EXECUTE_TYPE_CHAINED_INSTANT,
-                                       target=target,
-                                       currency=currency,
-                                       status='NONE',
-                                       campaign=campaign,
-                                       user=user,
-                                       date_payment=now(),
-                                       anonymous=anonymous,
-                                       premium=premium,
-                                       ack_name=ack_name,
-                                       ack_dedication=ack_dedication
-                                       )
+        t = Transaction.create(amount=amount,
+                               max_amount=amount, 
+                               currency=currency,
+                               status=TRANSACTION_STATUS_NONE,
+                               campaign=campaign,
+                               user=user,
+                               pledge_extra=pledge_extra
+                               )
     
         t.date_payment=now()
         t.execution=EXECUTE_TYPE_CHAINED_INSTANT
