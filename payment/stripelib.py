@@ -153,10 +153,12 @@ class StripeClient(object):
     # customer or card required but not both
     # charge the Customer instead of the card
     # amount in cents
+    
         charge = stripe.Charge(api_key=self.api_key).create(
             amount=int(100*amount), # in cents
             currency=currency,
-            customer=customer.id,
+            customer=customer.id if customer is not None else None,
+            card=card,
             description=description
         )
         
@@ -230,6 +232,7 @@ class PledgeScenarioTest(TestCase):
         # expect the card to be declined -- and for us to get CardError
         self.assertRaises(stripe.CardError, self._sc.create_charge, 10,
                           customer = self._cust_bad_card, description="$10 for bad cust")
+    
     @classmethod
     def tearDownClass(cls):
         # clean up stuff we create in test
