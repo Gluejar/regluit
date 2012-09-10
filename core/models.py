@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
-from regluit.core.signals import successful_campaign, unsuccessful_campaign
+from regluit.core.signals import successful_campaign, unsuccessful_campaign, wishlist_added
 import binascii
 
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
@@ -649,6 +649,7 @@ class Edition(models.Model):
     public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
+    unglued = models.BooleanField(blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -738,7 +739,6 @@ class Ebook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
-    unglued = models.BooleanField()
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES)

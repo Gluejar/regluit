@@ -75,6 +75,9 @@
 		{% endcomment %}
 		<p><b>Cover Image</b>: {{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}<br />
 		(<i>Enter a link to an image, ideally 120px wide.  You can't upload an image through this form at this time.  If you have a cover image file and you're not sure how to put it online, email us and we can upload it for you.</I>)</p>
+		{% if request.user.is_staff %}
+		    <p><b>Is this the unglued edition?</b> {{ form.unglued }}</p>
+		{% endif %}
 	</div>    
 	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>

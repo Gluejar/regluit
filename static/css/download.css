@@ -105,9 +105,6 @@
 #lightbox_content h4 {
   margin-top: 15px;
 }
-#lightbox_content .ebook_download {
-  margin-bottom: 15px;
-}
 #lightbox_content .ebook_download a {
   margin: auto 5px auto 0;
   font-size: 15px;
@@ -126,13 +123,25 @@
   width: 50px;
   margin-right: 5px;
 }
-#lightbox_content .unglued {
-  border: solid 2px #8dc63f;
+#lightbox_content .unglued,
+#lightbox_content .not_unglued {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
   margin-left: -2px;
   padding: 5px;
+  padding-bottom: 15px;
+  margin-bottom: 5px;
 }
-#lightbox_content .unglued h3 {
+#lightbox_content .unglued h3,
+#lightbox_content .not_unglued h3 {
   margin-top: 5px;
+}
+#lightbox_content .unglued {
+  border: solid 2px #8dc63f;
+}
+#lightbox_content .not_unglued {
+  border: solid 2px #d6dde0;
 }
 #lightbox_content a.add-wishlist .on-wishlist,
 #lightbox_content a.success,
@@ -149,4 +158,13 @@ a.success:hover {
 }
 #lightbox_content ul li {
   margin-bottom: 4px;
+}
+.border {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: solid 2px #d6dde0;
+  margin: 5px auto;
+  padding-right: 5px;
+  padding-left: 5px;
 }
