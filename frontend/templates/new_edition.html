@@ -10,48 +10,76 @@
 
 {% block doccontent %}
 {% if edition.pk %}
-<h2>Edit Edition {{edition.pk}}</h2>
+<h2>Edit Edition</h2>
 {% else %}
 <h2>Create New Edition</h2>
 {% endif %}
+
+<p>Title and ISBN 13 are required; the rest is optional, though a cover image link is strongly recommended.</p>
 <form method="POST" action="#">
-    {% csrf_token %}
-    {{ form.work }}
-   <div> 
-   Title: {{ form.title.errors }}{{ form.title }}<br />
-   Authors:<ul>
-   {% if edition.pk and edition.authors %}
-        {% for author in edition.authors.all %}
-        <li>{{ author.name }}</li>
-        {% endfor %}
-    {% endif %}
-        {% for author in edition.new_author_names %}
-        <li>{{ author }}<input type="hidden" name="new_author" value="{{ author }}" /></li>
-        {% endfor %}
-    </ul>
-    Add an Author: {{ form.add_author.errors }}{{ form.add_author }}
-    <input type="submit" name="add_author_submit" value="Add Author" id="submit_author"><br />
-    Language: {{ form.language.errors }}{{ form.language }}<br />
-    ISBN: {{ form.isbn_13.errors }}{{ form.isbn_13 }}<br />
-    Description: <br />{{ form.description.errors }}{{ form.description }}<br />
-    Publisher: {{ form.publisher.errors }}{{ form.publisher }}<br />
-    Publish Date: {{ form.publication_date.errors }}{{ form.publication_date }}<br />
-    Public Domain?: {{ form.public_domain.errors }}{{ form.public_domain }}<br />
-   Subjects:<ul>
-   {% if edition.work.subjects %}
-        {% for subject in edition.work.subjects.all %}
-        <li>{{ subject.name }}</li>
-        {% endfor %}
-    {% endif %}
-        {% for new_subject in edition.new_subjects %}
-        <li>{{ new_subject }}<input type="hidden" name="new_subject" value="{{ new_subject }}" /></li>
-        {% endfor %}
-    </ul>
-    Add a Subject: {{ form.add_subject.errors }}{{ form.add_subject }}
-    <input type="submit" name="add_subject_submit" value="Add Subject" id="submit_subject"><br />
-    Cover Image (Small): {{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}<br />
-</div>    
-    <input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
+	{% csrf_token %}
+	{{ form.work }}
+	<div> 
+		<p><b>Title</b>: {{ form.title.errors }}{{ form.title }}</p>
+		
+		<p>
+		<b>Authors</b>:
+		{% if edition.authors or edition.new_author_names %}
+		<ul>
+			{% if edition.pk and edition.authors %}
+				{% for author in edition.authors.all %}
+					<li>{{ author.name }}</li>
+				{% endfor %}
+			{% endif %}
+			{% for author in edition.new_author_names %}
+				<li>{{ author }}<input type="hidden" name="new_author" value="{{ author }}" /></li>
+			{% endfor %}
+		</ul>
+        {% else %}
+        (None listed)
+		{% endif %}
+		</p>
+		
+		<p><b>Add an Author</b> (<I>Firstname Lastname</I>): {{ form.add_author.errors }}{{ form.add_author }}
+		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
+
+		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
+
+		<p><b>ISBN-13</b>: {{ form.isbn_13.errors }}{{ form.isbn_13 }}</p>
+
+		<p><b>Description</b>: <br />
+		{{ form.description.errors }}{{ form.description }}<br />
+		(<I>This will appear in the Description tab on the book page.  If you create a campaign for this work, the campaign pitch will override this description</i>)</p>
+
+		<p><b>Publisher</b>: {{ form.publisher.errors }}{{ form.publisher }}</p>
+
+		<p><b>Publish Date</b> (<I>four-digit year</I>): {{ form.publication_date.errors }}{{ form.publication_date }}</p>
+
+		<p><b>Public Domain?</b>: {{ form.public_domain.errors }}{{ form.public_domain }}</p>
+		{% comment %}
+		this has been removed since there's no point in exposing subject functionality when we're not doing anything with it -- will just confuse people.
+		
+            <p><b>Subjects</b>:
+            <ul>
+                {% if edition.work.subjects %}
+                    {% for subject in edition.work.subjects.all %}
+                        <li>{{ subject.name }}</li>
+                    {% endfor %}
+                {% endif %}
+                {% for new_subject in edition.new_subjects %}
+                    <li>{{ new_subject }}<input type="hidden" name="new_subject" value="{{ new_subject }}" /></li>
+                {% endfor %}
+            </ul>
+            <b>Add a Subject</b>: {{ form.add_subject.errors }}{{ form.add_subject }}
+            <input type="submit" name="add_subject_submit" value="Add Subject" id="submit_subject"></p>
+		{% endcomment %}
+		<p><b>Cover Image</b>: {{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}<br />
+		(<i>Enter a link to an image, ideally 120px wide.  You can't upload an image through this form at this time.  If you have a cover image file and you're not sure how to put it online, email us and we can upload it for you.</I>)</p>
+		{% if request.user.is_staff %}
+		    <p><b>Is this the unglued edition?</b> {{ form.unglued }}</p>
+		{% endif %}
+	</div>    
+	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>
 
 

@@ -1944,22 +1944,11 @@ def download(request, work_id):
     work = safe_get_work(work_id)
     context.update({'work': work})
 
-    unglued_ebook = work.ebooks().filter(unglued=True)
-    other_ebooks = work.ebooks().filter(unglued=False)
-    
-    try:
-        ungluedcount = unglued_ebook.count()
-        assert (ungluedcount == 1 or ungluedcount == 0)
-    except:
-        logger.warning("There is more than one unglued edition for %s" % work.title)
-        
-    try:
-    	unglued_ebook = unglued_ebook[0]
-    except:
-    	pass
-    
+    unglued_ebooks = work.ebooks().filter(edition__unglued=True)
+    other_ebooks = work.ebooks().filter(edition__unglued=False)
+
     context.update({
-        'unglued_ebook': unglued_ebook,
+        'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks
     })
     

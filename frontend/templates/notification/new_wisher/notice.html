@@ -1,0 +1,9 @@
+{% extends "notification/notice_template.html" %}
+
+{% block comments_book %}
+	<a href="{% url work work.id %}?tab=2"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+	<a href="{% url supporter supporter %}">{{ supporter }}</a> has wished for a work you hold rights to, <a href="{% url work work.id %}?tab=2">{{ work.title }}</a>.  Hooray!
+{% endblock %}

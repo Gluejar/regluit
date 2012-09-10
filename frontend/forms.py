@@ -45,12 +45,13 @@ class EditionForm(forms.ModelForm):
                 'title': forms.TextInput(attrs={'size': 40}),
                 'add_author': forms.TextInput(attrs={'size': 30}),
                 'add_subject': forms.TextInput(attrs={'size': 30}),
+                'unglued': forms.CheckboxInput(),
             }
 
 class EbookForm(forms.ModelForm):
     class Meta:
         model = Ebook
-        exclude =( 'created', 'unglued',)
+        exclude =( 'created',)
         widgets = { 
                 'edition': forms.HiddenInput, 
                 'user': forms.HiddenInput, 

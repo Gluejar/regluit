@@ -27,9 +27,6 @@
 	img {
 		vertical-align: middle;
 	}
-	
-	margin-bottom: 15px;	
-	
 }
 
 #lightbox_content  .logo {
@@ -43,14 +40,24 @@
 	font-size: @font-size-larger;
 }
 
-#lightbox_content .unglued {
-	border: solid 2px @call-to-action;
+#lightbox_content .unglued, #lightbox_content .not_unglued {
+    .one-border-radius(5px);
 	margin-left: -2px;
 	padding: 5px;
+	padding-bottom: 15px;
+	margin-bottom: 5px;
 	
 	h3 {
 		margin-top: 5px;
 	}
+}
+
+#lightbox_content .unglued {
+	border: solid 2px @call-to-action;
+}
+
+#lightbox_content .not_unglued {
+	border: solid 2px @blue-grey;
 }
 
 #lightbox_content a.add-wishlist .on-wishlist, #lightbox_content a.success, a.success:hover {
@@ -68,4 +75,12 @@
 	li {
 		margin-bottom: 4px;
 	}
+}
+
+.border {
+    .one-border-radius(5px);
+    border: solid 2px @blue-grey;
+    margin: 5px auto;
+    padding-right: 5px;
+    padding-left: 5px;
 }
