@@ -317,45 +317,53 @@ $j(document).ready(function(){
                                     {% endif %}
 
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
-                        {% for edition in editions %}
-                        <div class="editions">{% if edition.googlebooks_id %}<div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>{% endif %}
-                            <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: {{edition.publisher}}<br />{% endif %}
-                            	{% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
-                            		{% if edition.isbn_13 %}
-                            			ISBN: {{ edition.isbn_13 }}<br />
-                            		{% endif %}
-                            		{% if edition.oclc %}
-                            			OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
-                            		{% endif %}
-                            		{% if user.is_staff %}
-                                    <a href="{% url new_edition work_id edition.id %}">Edit this edition</a><br />
+                       {% for edition in editions %}
+                           <div class="clearfix">
+                                <div class="editions">
+                                    {% if edition.googlebooks_id %}
+                                        <div class="image">
+                                            <img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" />
+                                        </div>
                                     {% endif %}
-                            		{% if edition.googlebooks_id %}
-                            	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
-                            		{% endif %}                            	    
-                            	</div>
-                            </div>
-                            {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
-                                {% if edition.hide_details %}<div class="show_more_edition" >more...</div>{% endif %}
-                                <div {% if edition.hide_details %} class="more_edition" {% endif %}>
-                                    {% if edition.ebooks.count %}
-                                        <h5>eBooks for this Edition</h5>
-                                        {% for ebook in edition.ebooks.all %}
-                                            <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
-                                        {% endfor %}
-                                    {% endif %}
-                                    <h5>Add an eBook for this Edition:</h5>
-                                    <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
-                                	<form method="POST" action="#edition_{{edition.id}}">
-    	    	                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
-    	    	                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
-    	    	                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
-    	    	                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
-    	    	                    <input type="submit" name="add_ebook" value="add ebook" />
-                                    </form>
+                                    <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: {{edition.publisher}}<br />{% endif %}
+                                        {% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
+                                            {% if edition.isbn_13 %}
+                                                ISBN: {{ edition.isbn_13 }}<br />
+                                            {% endif %}
+                                            {% if edition.oclc %}
+                                                OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
+                                            {% endif %}
+                                            {% if user.is_staff %}
+                                                <a href="{% url new_edition work_id edition.id %}">Edit this edition</a><br />
+                                            {% endif %}
+                                            {% if edition.googlebooks_id %}
+                                                See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
+                                            {% endif %}                            	    
+                                    </div>
                                 </div>
-                            {% endifnotequal %}{% endif %}
-                            
+                                {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
+                                    {% if edition.hide_details %}
+                                        <div class="show_more_edition" >more...</div>
+                                    {% endif %}
+                                    <div {% if edition.hide_details %} class="more_edition" {% endif %}>
+                                        {% if edition.ebooks.count %}
+                                            <h5>eBooks for this Edition</h5>
+                                            {% for ebook in edition.ebooks.all %}
+                                                <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                            {% endfor %}
+                                        {% endif %}
+                                        <h5>Add an eBook for this Edition:</h5>
+                                        <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
+                                        <form method="POST" action="#edition_{{edition.id}}">
+                                            {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
+                                            {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
+                                            {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+                                            {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
+                                            <input type="submit" name="add_ebook" value="add ebook" />
+                                        </form>
+                                    </div>
+                                {% endifnotequal %}{% endif %}
+                            </div>
                         {% endfor %}
                     </div>
                     </div>
