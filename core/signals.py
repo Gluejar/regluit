@@ -97,10 +97,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
     notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
     notification.create_notice_type("pledge_donation_credit", _("Donation Credit Balance"), _("You have a donation credit balance"))
-<<<<<<< HEAD
-=======
     notification.create_notice_type("new_wisher", _("New wisher"), _("Someone new has wished for a book that you're the rightsholder for"))
->>>>>>> master
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
