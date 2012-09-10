@@ -1,0 +1,4 @@
+{{ supporter }} has wished for a work you hold rights to, {{ work.title }}.  Hooray!  There are now {{ work.num_wishes }} people wishing for this work.
+
+
+The Unglue.it team
