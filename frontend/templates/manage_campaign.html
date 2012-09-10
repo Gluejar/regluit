@@ -111,18 +111,30 @@ Please fix the following before launching your campaign:
 	{% csrf_token %}
 	{{ form.media }}
 	<h3>Select the edition</h3>
-	<p> Please choose the edition that most closely matches the edition to be unglued:</p>
+	<p> Please choose the edition that most closely matches the edition to be unglued.  This is the edition whose cover image will display on your book's page.  Your unglued edition should be identical to this edition if possible; you should note any differences under Rights Details below.</p>
 	
 	{{ form.edition.errors }}{{ form.edition }}
 	{% if campaign.edition %}
-	<p>You can edit the campaign's <a href="{% url rh_edition work.id campaign.edition.id %}">preferred edition</a>.</p>
+	<p>If the details of the edition you've chosen aren't accurate, you can <a href="{% url rh_edition work.id campaign.edition.id %}">edit the edition</a>.</p>
 	{% else %}
-	<p>If none of the existing editions matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
+	<p>If the edition details are inaccurate (e.g. wrong cover image), go ahead and set up the campaign with that edition anyway.  You'll be able to edit the edition details from this page later on.</p>
 	{% endif %}
+	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
+
 	<h3>Make Your Pitch</h3>
-		<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.  It should include:</p>
+	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.</p>
+	
+	<p>This isn't a dry synopsis in a catalog.  It's your chance to be creative, to share your passion for this work, and to inspire readers.  A strong pitch:</p>
+	
 	<ul class="terms">
-	<li>A synopsis of the work.</li>
+	<li>Introduces the work.  What's this book like?</li>
+	<li>Shows why it matters.  How will someone or something -- the world, readers, some cause that matters -- be better off if this book is freely available?  What kind of impact has the book had already?  What will ungluers get out of supporting this campaign?</li>
+	<li>Has visual appeal (photos and/or videos).</li>
+	<li>Defines important but potentially unfamiliar things.  What's an ungluing campaign, and why are you running one?  Is there anything unusual about the book, its genre, et cetera?  For those who aren't already familiar with you (or the author), who are you?  Are you offering any particularly great premiums you want to call people's attention to?</li>
+	<li>Gives examples of the author's work.  This could be links to your site or places people can find more information about you or the book.  You can also add quotes, embed a free sample chapter or story, display images, et cetera.  These work samples might be from the campaign book itself, or from your (or the author's) other creative works.</li>
+	<li>Has personality.  The writing should be thoroughly proofread but it should have a point of view.  This is the place to be conversational, opinionated, funny, quirky -- whatever reflects your style.  Be you.</li>
+	<li>Optionally, provides extra incentives (like new or improved premiums) that will kick in if the campaign is unusually successful.  Will you do something special when you reach 10% or 50% or 75% of your goal?  Or if you reach that milestone before a particular deadline (e.g. in the first week of your campaign)?</li>
+	{% comment %}
 	<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself. <span class="rh_help" id="helpHyperlink">(How do I hyperlink?)</span>
 	<div class="rh_answer" id="helpHyperlink2">
 	<p>Format a hyperlink like this:</p>
@@ -144,23 +156,41 @@ Please fix the following before launching your campaign:
 	<p>If you'd like to change the size of the video, feel free; just don't make it more than 445px wide.  Leaving it the default size is fine, too.</p>
 	<p>If you'd like to embed a video from another source, please talk to us. You certainly can; we just want to make sure we've given you the right instructions.</p>
 	</div></li>
+	{% endcomment %}
 	</ul>
-	<p>Make it concise and emotionally appealing.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
+	<p>Above all, be engaging.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
+	
+	<p>Looking for inspiration?  Check out the all-time most-funded projects on crowdfunding sites <a href="http://www.kickstarter.com/discover/most-funded">Kickstarter</a> or <a href="http://www.indiegogo.com/projects?filter_quick=most_funded">IndieGogo</a>, or have a look at <a href="http://www.kickstarter.com/discover/categories/publishing">Kickstarter's Publishing category</a> or <a href="http://www.indiegogo.com/projects?filter_category=Writing">IndieGogo's Writing category</a>.</p>
 	{{ form.description.errors }}{{ form.description }}
-	<h3>Offer details</h3>
-	<p>This will be displayed on the Rights tab for your work.  It's the fine print for your offer.  For example, if your unglued edition will exclude certain illustrations due to rights issues, or otherwise differ from existing editions, this is the place to disclose that.  If your offer doesn't have any fine print, you can leave this blank.</p>
+	<h3>Edition and Rights Details</h3>
+	<p>This will be displayed on the Rights tab for your work.  It's the fine print for your campaign.  Make sure to disclose any ways the unglued edition will differ from the existing edition; for example:
+	<ul>
+	<li>Any material that may have to be excluded due to permissions issues: illustrations, forewords, etc.</li>
+	<li>Any additional materials that will be included, if not already covered in your pitch -- but we encourage you to cover them there to show supporters the value of ungluing!</li>
+	<li>If the cover image will differ.</li>
+	</ul>
+	
+	<p>In short, is there a fact about this campaign that you think would matter to your agent or another publishing wonk, but that no one else is likely to care about?  Put it here.  If your campaign doesn't have any fine print, you can leave this blank.</p>
 	{{ form.details.errors }}{{ form.details }}
 
 	{% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>Target Price</h3>
-	<p> This is the target price for your campaign. Once you launch the campaign, you won't be able to increase it. The <i>mimimum</i> target is ${{form.minimum_target|intcomma}} .</p>
+	<p>This is the target price for your campaign. The <i>mimimum</i> target is ${{form.minimum_target|intcomma}}.</p>
+	
+	<p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
+	
+	<p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
+	
+	<p>Please email us if you want to talk about pricing strategy.</p>
+	
 	{{ form.target.errors }}${{ form.target }}
 	<h3>License being offered</h3>
-	<p> This is the license you are offering to use once the campaign succeeds. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
+	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.</p>
 	{{ form.license.errors }}{{ form.license }}
 	<h3>Ending date</h3>
-	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.
-	The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ form.latest_ending }}</p>
+	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
+	
+	<p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ form.latest_ending }}</p>
 	
 	{{ form.deadline.errors }}{{ form.deadline }}
 	
@@ -171,7 +201,7 @@ Please fix the following before launching your campaign:
 
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
-	<p>During a campaign, you may only change the license to remove restrictions. For more info on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
+	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	<h3>Ending date</h3>
 	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
@@ -179,7 +209,9 @@ Please fix the following before launching your campaign:
 	{% endifnotequal %}
 	
 	<h3>Paypal collection address</h3>
-	<p> If your campaign succeeds, the funds raised (less commission and fees) will be deposited in a paypal account bearing this email address.</p>
+	<p>Enter the email address associated with your PayPal account.</p>
+	
+	<p>We don't support PayPal yet; if your campaign succeeds we'll be paying you by check.  However, we've applied PayPal for a merchant account, and should that application be approved PayPal expects us to have this information.</p>
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
 	{% ifequal campaign_status 'ACTIVE' %}
