@@ -221,7 +221,7 @@ def handle_wishlist_added(supporter, work, **kwargs):
     """send notification to confirmed rights holder when someone wishes for their work"""
     claim = work.claim.filter(status="active")
     if claim:
-        notification.queue([claim.user], "new_wisher", {
+        notification.queue([claim[0].user], "new_wisher", {
             'supporter': supporter,
             'work': work
         }, True)
