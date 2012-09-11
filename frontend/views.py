@@ -59,6 +59,7 @@ from tastypie.models import ApiKey
 from regluit.payment.models import Transaction, Sent, CreditLog
 from notification import models as notification
 
+from regluit.payment.stripelib import STRIPE_PK
 
 logger = logging.getLogger(__name__)
 
@@ -75,7 +76,7 @@ def slideshow(max):
         # add all the works with active campaigns
         for campaign in ending:
             worklist.append(campaign.work)
-			
+    
         # then fill out the rest of the list with popular but inactive works
         remainder = max - count
         remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
@@ -183,7 +184,7 @@ def work(request, work_id, action='display'):
             countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "right now"
-    	
+    
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
         
@@ -708,13 +709,27 @@ class FundPledgeView(FormView):
     transaction = None
 
     def get_form_kwargs(self):
+        kwargs = super(FundPledgeView, self).get_form_kwargs()
+        
         assert self.request.user.is_authenticated()
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
-        return {'data':{'preapproval_amount':self.transaction.max_amount,
+        
+        if kwargs.has_key('data'):
+            data = kwargs['data'].copy()
+        else:
+            data = {}
+        
+        data.update(
+            {'preapproval_amount':self.transaction.max_amount,
                 'username':self.request.user.username,
                 'work_id':self.transaction.campaign.work.id,
-                'title':self.transaction.campaign.work.title} }
+                'title':self.transaction.campaign.work.title}
+            )
+        
+        kwargs['data'] = data
+        
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(FundPledgeView, self).get_context_data(**kwargs)
@@ -723,11 +738,22 @@ class FundPledgeView(FormView):
         context['needed'] = self.transaction.max_amount - self.request.user.credit.available
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
+        context['STRIPE_PK'] = STRIPE_PK
         # note that get_form_kwargs() will already have been called once
         donate_args=self.get_form_kwargs()
         donate_args['data']['preapproval_amount']=context['needed']
         context['donate_form'] = DonateForm(**donate_args)
         return context
+    
+    def post(self, request, *args, **kwargs):
+        logger.info('request.POST: {0}'.format(request.POST))
+        return super(FundPledgeView, self).post(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        stripe_token = form.cleaned_data["stripe_token"]
+        
+        return HttpResponse("cleaned_data: {0}".format(form.cleaned_data.items()))
+
         
 class NonprofitCampaign(FormView):
     template_name="nonprofit.html"

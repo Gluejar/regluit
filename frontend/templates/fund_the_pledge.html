@@ -6,8 +6,11 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
 
-<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+<script type="text/javascript" src="/static/stripe/tag.js"></script>
+
+
 {% endblock %}
 
 {% block doccontent %}
@@ -30,11 +33,13 @@
 	    <p> Click the button to be sent to the {{nonprofit.name}} donation site. When you complete your donation of at least ${{ needed }}, you'll be sent back to Unglue.it and your pledge will automatically be entered. You can move your donation credit to another campaign or campaigns at any time. {{nonprofit.name}} will hold all funds and earn any interest until a campaign you support succeeds.
 	    </p>
 	    <div id="donate_charity">
+
     	<form method="GET" action="{{nonprofit.link}}">
 			{{ donate_form.non_field_errors }}
 			{{donate_form}}
 			<input name="donate_submit" type="submit" value="Go Donate!" id="donate_submit" />
-    	</form>    	
+    	</form>
+	
 	    </div>
 	</div>
 	<div id="authorize" class="clearfix">
@@ -43,17 +48,30 @@
 	    </p>
 	    {% if request.user.credit.available %}<p>Although you have ${{request.user.credit.available}} in donation credits, you can't support a campaign with a mixture of credit card pledges and donations.{% endif %}
 	    <div id="cc_pledge">
-    	<form method="POST" action="#">
-        	{% csrf_token %}
-			{{ form.non_field_errors }}
-			{{form}}
-			<input name="cc_submit" type="submit" value="Verify Credit Card" id="cc_submit" />
-    	</form>    	
+		<span class="payment-errors"></span>
+		<form action="" method="post" id="payment-form">
+		  {% csrf_token %}
+		  {{ form.non_field_errors }}
+		  {{form}}	
+		  <payment key="{{STRIPE_PK}}"></payment>
+		  <input name="cc_submit" type="submit" value="Verify Credit Card" id="cc_submit" />
+		</form>
 	    </div>
 	</div>
 
 	</div>
 </div>
+
+<script type="application/x-javascript">
+
+var $j = jQuery.noConflict();
+console.debug('setting up handlers in stripe.html');
+
+$j('payment').bind('success.payment', function () {
+  console.debug('success.payment ev');
+});
+
+</script>
 {% endblock %}
 
 
