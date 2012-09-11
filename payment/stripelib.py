@@ -74,7 +74,6 @@ ERROR_TESTING = dict((
 #invalid_cvc: Use a two digit number e.g. 99.
 
 
-
 def filter_none(d):
     return dict([(k,v) for (k,v) in d.items() if v is not None])
     

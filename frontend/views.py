@@ -59,7 +59,7 @@ from tastypie.models import ApiKey
 from regluit.payment.models import Transaction, Sent, CreditLog
 from notification import models as notification
 
-from regluit.payment.stripelib import STRIPE_PK
+from regluit.payment import stripelib
 
 logger = logging.getLogger(__name__)
 
@@ -738,7 +738,7 @@ class FundPledgeView(FormView):
         context['needed'] = self.transaction.max_amount - self.request.user.credit.available
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
-        context['STRIPE_PK'] = STRIPE_PK
+        context['STRIPE_PK'] = stripelib.STRIPE_PK
         # note that get_form_kwargs() will already have been called once
         donate_args=self.get_form_kwargs()
         donate_args['data']['preapproval_amount']=context['needed']
@@ -750,9 +750,18 @@ class FundPledgeView(FormView):
         return super(FundPledgeView, self).post(request, *args, **kwargs)
     
     def form_valid(self, form):
-        stripe_token = form.cleaned_data["stripe_token"]
+        """ note desire to pledge; make sure there is a credit card to charge"""
         
-        return HttpResponse("cleaned_data: {0}".format(form.cleaned_data.items()))
+        # first pass -- we have a token  -- also do more direct coupling to stripelib -- then move to
+        # abstraction of payment.manager / payment.baseprocessor
+        
+        stripe_token = form.cleaned_data["stripe_token"]
+        preapproval_amount = form.cleaned_data["preapproval_amount"]
+        
+        sc = stripelib.StripeClient()
+        charge = sc.create_charge(preapproval_amount, card=stripe_token, description="{0} for test".format(preapproval_amount))
+        
+        return HttpResponse("charge id: {0}".format(charge.id))
 
         
 class NonprofitCampaign(FormView):
