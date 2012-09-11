@@ -76,7 +76,7 @@ def slideshow(max):
         # add all the works with active campaigns
         for campaign in ending:
             worklist.append(campaign.work)
-    
+
         # then fill out the rest of the list with popular but inactive works
         remainder = max - count
         remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
@@ -148,7 +148,7 @@ def work(request, work_id, action='display'):
             
     context = {}
     campaign = work.last_campaign()
-    if campaign and campaign.edition:
+    if campaign and campaign.edition and not request.user.is_staff:
         editions = [campaign.edition]
     else:
         editions = work.editions.all().order_by('-publication_date')
@@ -160,10 +160,10 @@ def work(request, work_id, action='display'):
     countdown = ""
     
     try:
-    	assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
+        assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
     except:
-    	logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
-    	
+        logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
+    
     if work.last_campaign_status() == 'ACTIVE':
         from math import ceil
         time_remaining = campaign.deadline - now()
