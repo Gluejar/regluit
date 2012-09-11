@@ -314,7 +314,7 @@ a.success:hover {
   clear: both;
   padding: 5px 10px;
   font-size: 13px;
-  line-height: 17px;
+  width: 90%;
 }
 .preview a {
   color: #8dc63f;
@@ -330,9 +330,8 @@ a.success:hover {
   clear: both;
   padding: 5px 10px;
   font-size: 13px;
-  line-height: 17px;
-  border-color: #8dc63f;
   width: 90%;
+  border-color: #8dc63f;
   margin: 10px auto 0 auto;
   font-size: 120%;
 }
@@ -353,7 +352,7 @@ a.success:hover {
   clear: both;
   padding: 5px 10px;
   font-size: 13px;
-  line-height: 17px;
+  width: 90%;
   width: 80%;
   margin: 10px auto;
 }
