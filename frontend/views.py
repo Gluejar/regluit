@@ -145,7 +145,7 @@ def work(request, work_id, action='display'):
             
     context = {}
     campaign = work.last_campaign()
-    if campaign and campaign.edition:
+    if campaign and campaign.edition and not request.user.is_staff:
         editions = [campaign.edition]
     else:
         editions = work.editions.all().order_by('-publication_date')
