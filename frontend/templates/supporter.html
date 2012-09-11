@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load truncatechars %}
-{% comment %} we don't need "with request.user.wishlist.works.all as wishlist" here to make book_panel work, because wishlist is already in the context {% endcomment %}
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
@@ -347,9 +346,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}
+					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-1">
@@ -364,9 +364,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}
+					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-2">
@@ -381,9 +382,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}
+					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-3">
