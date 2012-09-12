@@ -220,6 +220,7 @@ ul.tabs li.active a {
 }
 .book-detail-info > div.layout div.btn_support {
   float: right;
+  margin-top: 9px;
 }
 .book-detail-info > div.layout div.btn_support input {
   font-size: 15px;
