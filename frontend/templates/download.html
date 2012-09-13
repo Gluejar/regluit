@@ -22,6 +22,8 @@
                 {% with ebook.url as url %}
                     <a href="{{ url }}"><img src="{{ ebook.rights_badge }}"></a>
                     <a href="{{ url }}">{{ ebook.format }}</a>
+                    {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
+                    {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                     {% if not forloop.last %}<br /><br />{% endif %}
                 {% endwith %}
             {% endfor %}		
@@ -35,19 +37,19 @@
         {% else %}
             <h4>Freely available editions</h4>
         {% endif %}
-        {% for edition in other_ebooks %}
-            <div class="ebook_download">
-                {% with edition.url as url %}
-                    <a href="{{ url }}"><img src="{{ edition.rights_badge }}"></a>
-                    <a href="{{ url }}">{{ edition.format }}</a>
+            {% for ebook in other_ebooks %}
+                {% with ebook.url as url %}
+                    <a href="{{ url }}"><img src="{{ ebook.rights_badge }}"></a>
+                    <a href="{{ url }}">{{ ebook.format }}</a>
+                    {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
+                    {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                     {% if not forloop.last %}<br /><br />{% endif %}
                 {% endwith %}
-            </div>
-        {% endfor %}
+            {% endfor %}		
     </div>
     {% endif %}
 </div>
-{% if unglued_ebook or other_ebooks %}
+{% if unglued_ebooks or other_ebooks %}
     <div class="border">
         <h3>How to download</h3>
         <p>Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>

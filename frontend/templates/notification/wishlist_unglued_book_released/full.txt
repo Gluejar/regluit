@@ -1,8 +1,8 @@
 {% if work.last_campaign_status == 'SUCCESSFUL' %}
-Great news, {{ user.username }}!  {{ work.title }}, which you have supported on Unglue.it, is now available for download as an Unglued Ebook.  
+Great news!  {{ work.title }}, which you have supported on Unglue.it, is now available for download as an Unglued Ebook.  
 
 {% else %}
-Good News, {{ user.username }}!  {{ work.title }}, which is on your wishlist, is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
+Good News!  {{ work.title }}, which is on your wishlist, is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
 
 {% if work.ebooks.0.user %}
 We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link(s). 
