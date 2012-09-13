@@ -274,8 +274,13 @@ class Campaign(models.Model):
         
     def transactions(self,  **kwargs):
         p = PaymentManager()
-        return p.query_campaign(self, summary=False, campaign_total=True, **kwargs)
         
+        # handle default parameter values
+        kw = {'summary':False, 'campaign_total':True}
+        kw.update(kwargs)
+        
+        return p.query_campaign(self, **kw)
+
     
     def activate(self):
         status = self.status
