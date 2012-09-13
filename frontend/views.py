@@ -763,14 +763,27 @@ class FundPledgeView(FormView):
 
         sc = stripelib.StripeClient()
         
+        # let's figure out what part of transaction can be used to store info
+        # try placing charge id in transaction.pay_key
+        # need to set amount
+        # how does max_amount get set? -- coming from /pledge/xxx/?
+        # max_amount is set -- but I don't think we need it for stripe
+        
         if retain_cc_info:
             # create customer and charge id and then charge the customer
             customer = sc.create_customer(card=stripe_token, description="test customer", email="test@unglue.it")
             charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
+ 
         else:
             customer = None
             charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
         
+        self.transaction.pay_key = charge.id
+        self.transaction.amount = preapproval_amount
+        self.transaction.status = TRANSACTION_STATUS_COMPLETE
+            
+        self.transaction.save()
+            
         return HttpResponse("charge id: {0} / customer: {1}".format(charge.id, customer))
 
         
