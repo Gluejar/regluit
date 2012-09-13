@@ -1964,12 +1964,12 @@ def lockss(request, work_id):
     """
     work = safe_get_work(work_id)
     try:
-        ebook = work.ebooks().filter(unglued=True)[0]
+        ebooks = work.ebooks().filter(edition__unglued=True)
     except:
-        ebook = None
+        ebooks = None
     authors = list(models.Author.objects.filter(editions__work=work).all())
     
-    return render(request, "lockss.html", {'work':work, 'ebook':ebook, 'authors':authors})
+    return render(request, "lockss.html", {'work':work, 'ebooks':ebooks, 'authors':authors})
     
 def download(request, work_id):
     context = {}
