@@ -278,6 +278,15 @@ class Sent(models.Model):
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
            
+class Account(models.Model):
+    """holds references to accounts at third party payment gateways, especially for representing credit cards"""
+    # host: the payment processor.  Named after the payment module that hosts the payment processing functions
+    host = models.CharField(default=PAYMENT_HOST_NONE, max_length=32, null=False)
+    account_id = models.CharField(max_length=128, null=True)
+    
+    # associated User
+    user = models.ForeignKey(User, null=True)
+    
 from django.db.models.signals import post_save, post_delete
 import regluit.payment.manager
 
