@@ -52,7 +52,7 @@ from regluit.frontend.forms import getTransferCreditForm, CCForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
-from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.credit import credit_transaction
 from regluit.core import goodreads
 from tastypie.models import ApiKey
@@ -157,6 +157,7 @@ def work(request, work_id, action='display'):
     except:
         pledged = None
         
+    logger.info("pledged: {0}".format(pledged))
     countdown = ""
     
     try:
@@ -763,14 +764,34 @@ class FundPledgeView(FormView):
 
         sc = stripelib.StripeClient()
         
+        # let's figure out what part of transaction can be used to store info
+        # try placing charge id in transaction.pay_key
+        # need to set amount
+        # how does max_amount get set? -- coming from /pledge/xxx/?
+        # max_amount is set -- but I don't think we need it for stripe
+        
         if retain_cc_info:
             # create customer and charge id and then charge the customer
             customer = sc.create_customer(card=stripe_token, description="test customer", email="test@unglue.it")
             charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
+ 
         else:
             customer = None
             charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
         
+        # change to PAYMENT_TYPE_AUTHORIZATION when we are doing a real preapproval
+        self.transaction.type = PAYMENT_TYPE_INSTANT
+        
+        # set True for now -- wondering whether we should actually wait for a webhook -- don't think so.
+        
+        self.transaction.approved = True
+        self.transaction.pay_key = charge.id
+        self.transaction.currency = 'USD'
+        self.transaction.amount = preapproval_amount
+        self.transaction.status = TRANSACTION_STATUS_COMPLETE
+            
+        self.transaction.save()
+            
         return HttpResponse("charge id: {0} / customer: {1}".format(charge.id, customer))
 
         
