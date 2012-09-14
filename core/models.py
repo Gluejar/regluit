@@ -439,6 +439,9 @@ class Work(models.Model):
 
     @property
     def googlebooks_id(self):
+        preferred_id=self.preferred_edition.googlebooks_id
+        if preferred_id:
+            return preferred_id
         try:
             return self.identifiers.filter(type='goog')[0].value
         except IndexError:
@@ -453,6 +456,9 @@ class Work(models.Model):
 
     @property 
     def goodreads_id(self):
+        preferred_id=self.preferred_edition.goodreads_id
+        if preferred_id:
+            return preferred_id
         try:
             return self.identifiers.filter(type='gdrd')[0].value
         except IndexError:
@@ -604,6 +610,9 @@ class Work(models.Model):
         self.save()
 
     def first_isbn_13(self):
+        preferred_id=self.preferred_edition.isbn_13
+        if preferred_id:
+            return preferred_id
         try:
             return self.identifiers.filter(type='isbn')[0].value
         except IndexError:
