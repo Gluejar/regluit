@@ -105,6 +105,9 @@
 #lightbox_content h4 {
   margin-top: 15px;
 }
+#lightbox_content h2 a {
+  font-size: 18.75px;
+}
 #lightbox_content .ebook_download a {
   margin: auto 5px auto 0;
   font-size: 15px;

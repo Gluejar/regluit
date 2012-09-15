@@ -13,7 +13,7 @@
 <div class="download_container">
 <div id="lightbox_content">
 <div class="border">
-    <h2>Downloads for {{ work.title }}</h2>
+    <h2>Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
     {% if unglued_ebooks %}
     <div class="unglued">
         <h3>Read the unglued edition!</h3>
