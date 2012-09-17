@@ -12,6 +12,10 @@ import urllib
 import logging
 logger = logging.getLogger(__name__)
 
+# in fitting stripe -- here are possible fields to fit in with Transaction
+# c.id, c.amount, c.amount_refunded, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid,
+# c.fee, c.disputed, c.amount_refunded, c.failure_message,
+# c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year
     
 class Transaction(models.Model):
     
@@ -278,6 +282,21 @@ class Sent(models.Model):
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
            
+class Account(models.Model):
+    """holds references to accounts at third party payment gateways, especially for representing credit cards"""
+    
+    # the following fields from stripe Customer might be relevant to Account -- we need to pick good selection
+    # c.id, c.description, c.email, datetime.fromtimestamp(c.created, tz=utc), c.account_balance, c.delinquent,
+    # c.active_card.fingerprint, c.active_card.type, c.active_card.last4, c.active_card.exp_month, c.active_card.exp_year,
+    # c.active_card.country
+    
+    # host: the payment processor.  Named after the payment module that hosts the payment processing functions
+    host = models.CharField(default=PAYMENT_HOST_NONE, max_length=32, null=False)
+    account_id = models.CharField(max_length=128, null=True)
+    
+    # associated User
+    user = models.ForeignKey(User, null=True)
+    
 from django.db.models.signals import post_save, post_delete
 import regluit.payment.manager
 

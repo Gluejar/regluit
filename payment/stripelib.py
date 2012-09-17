@@ -205,7 +205,6 @@ class StripeClient(object):
 class PledgeScenarioTest(TestCase):
     @classmethod
     def setUpClass(cls):
-        print "in setUp"
         cls._sc = StripeClient(api_key=STRIPE_SK)
         
         # valid card
@@ -219,8 +218,11 @@ class PledgeScenarioTest(TestCase):
     
     def test_charge_good_cust(self):
         charge = self._sc.create_charge(10, customer=self._good_cust, description="$10 for good cust")
-        print charge.id
-     
+        self.assertEqual(type(charge.id), str)
+
+        # print out all the pieces of Customer and Charge objects
+        print dir(charge)
+        print dir(self._good_cust)
         
     def test_error_creating_customer_with_declined_card(self):
         # should get a CardError upon attempt to create Customer with this card
@@ -231,21 +233,23 @@ class PledgeScenarioTest(TestCase):
         # expect the card to be declined -- and for us to get CardError
         self.assertRaises(stripe.CardError, self._sc.create_charge, 10,
                           customer = self._cust_bad_card, description="$10 for bad cust")
+        
     
     @classmethod
     def tearDownClass(cls):
-        # clean up stuff we create in test
-        print "in tearDown"
-        cls._good_cust.delete()
+        # clean up stuff we create in test -- right now list current objects
+
+        #cls._good_cust.delete()
+        
         print "list of customers"
-        print [(i, c.id, c.description, datetime.fromtimestamp(c.created, tz=utc), c.account_balance) for(i,  c) in enumerate(cls._sc.customer.all()["data"])]
+        print [(i, c.id, c.description, c.email, datetime.fromtimestamp(c.created, tz=utc), c.account_balance, c.delinquent, c.active_card.fingerprint, c.active_card.type, c.active_card.last4, c.active_card.exp_month, c.active_card.exp_year, c.active_card.country) for(i,  c) in enumerate(cls._sc.customer.all()["data"])]
         
         print "list of charges"
-        print [(i, c.id, c.amount, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid, c.fee, c.disputed, c.amount_refunded, c.failure_message, c.card.fingerprint, c.card.last4) for (i, c) in enumerate(cls._sc.charge.all()['data'])]
+        print [(i, c.id, c.amount, c.amount_refunded, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid, c.fee, c.disputed, c.amount_refunded, c.failure_message, c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year) for (i, c) in enumerate(cls._sc.charge.all()['data'])]
         
-        # can retrieve events since a certain time
+        # can retrieve events since a certain time?
         print "list of events", cls._sc.event.all()
-        # [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(s.event.all()['data'])]
+        print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
 
 def suite():
     
