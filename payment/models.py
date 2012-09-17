@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 # c.id, c.amount, c.amount_refunded, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid,
 # c.fee, c.disputed, c.amount_refunded, c.failure_message,
 # c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year
+
+# promising fields
     
 class Transaction(models.Model):
     
@@ -293,6 +295,21 @@ class Account(models.Model):
     # host: the payment processor.  Named after the payment module that hosts the payment processing functions
     host = models.CharField(default=PAYMENT_HOST_NONE, max_length=32, null=False)
     account_id = models.CharField(max_length=128, null=True)
+    
+    # card related info
+    card_last4 = models.CharField(max_length=4, null=True)
+    
+    # Visa, American Express, MasterCard, Discover, JCB, Diners Club, or Unknown
+    card_type = models.CharField(max_length=32, null=True)
+    card_exp_month = models.IntegerField(null=True)
+    card_exp_year = models.IntegerField(null=True)
+    card_fingerprint = models.CharField(max_length=32, null=True)
+    card_country = models.CharField(max_length=2, null=True)
+    
+    # creation and last modified timestamps
+    date_created = models.DateTimeField(auto_now=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    date_deactivated = models.DateTimeField(null=True)
     
     # associated User
     user = models.ForeignKey(User, null=True)
