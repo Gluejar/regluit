@@ -143,10 +143,11 @@ class Transaction(models.Model):
                             ack_dedication=self.ack_dedication)
 
     @classmethod
-    def create(cls,amount=0.00, max_amount=0.00, currency='USD',
+    def create(cls,amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
                 status=TRANSACTION_STATUS_NONE,campaign=None, user=None, pledge_extra=None):
         if pledge_extra:
-            return cls.objects.create(amount=amount, 
+            return cls.objects.create(amount=amount,
+                                host=host,
                                 max_amount=max_amount, 
                                 currency=currency,
                                 status=status,
@@ -158,7 +159,7 @@ class Transaction(models.Model):
                                 ack_dedication=pledge_extra.ack_dedication
                                 )
         else:
-            return cls.objects.create(amount=amount, max_amount=max_amount, currency=currency,status=status,
+            return cls.objects.create(amount=amount, host=host, max_amount=max_amount, currency=currency,status=status,
                                 campaign=campaign, user=user)
                             
 class PaymentResponse(models.Model):

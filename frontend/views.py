@@ -793,20 +793,27 @@ class FundPledgeView(FormView):
  
         else:
             customer = None
+            
             charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
-        
-        # change to PAYMENT_TYPE_AUTHORIZATION when we are doing a real preapproval
-        self.transaction.type = PAYMENT_TYPE_INSTANT
         
         # set True for now -- wondering whether we should actually wait for a webhook -- don't think so.
         
+        ## settings to apply to transaction for TRANSACTION_STATUS_COMPLETE
+        #self.transaction.type = PAYMENT_TYPE_INSTANT
+        #self.transaction.approved = True
+        #self.transaction.status = TRANSACTION_STATUS_COMPLETE
+        #self.transaction.pay_key = charge.id
+        
+        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+        # should approved be set to False and wait for a webhook?
+        self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
         self.transaction.approved = True
-        self.transaction.pay_key = charge.id
+        self.transaction.status = TRANSACTION_STATUS_ACTIVE
+        self.transaction.preapproval_key = charge.id        
+        
         self.transaction.currency = 'USD'
         self.transaction.amount = preapproval_amount
         self.transaction.date_payment = now()
-        
-        self.transaction.status = TRANSACTION_STATUS_COMPLETE
             
         self.transaction.save()
             
