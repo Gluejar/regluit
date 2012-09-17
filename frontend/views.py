@@ -50,9 +50,10 @@ from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAd
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm
 from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction
+from regluit.payment.models import Transaction, Account
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
+from regluit.payment.parameters import PAYMENT_HOST_STRIPE
 from regluit.payment.credit import credit_transaction
 from regluit.core import goodreads
 from tastypie.models import ApiKey
@@ -772,7 +773,12 @@ class FundPledgeView(FormView):
         
         if retain_cc_info:
             # create customer and charge id and then charge the customer
-            customer = sc.create_customer(card=stripe_token, description="test customer", email="test@unglue.it")
+            customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
+                                          email=self.request.user.email)
+            account = Account(host = PAYMENT_HOST_STRIPE, account_id = customer.id)
+            account.user = self.request.user
+            account.save()
+            
             charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
  
         else:
