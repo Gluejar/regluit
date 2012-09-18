@@ -51,8 +51,8 @@
 </div>
 {% if unglued_ebooks or other_ebooks %}
     <div class="border">
-        <h3>How to download</h3>
-        <p>Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>
+        <a href="http://www.defectivebydesign.org/drm-free" style="float:right;"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" width="150" height="150" border="0" align="middle" /></a><h3>How to download</h3>
+        <p style="float:left" >Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>
         
         <h4>Any device</h4>
         <p>You may already have an app which reads our ebook formats.  If so, when you download the file, you will be given an option to open the file using that app.  You're done!</p>
@@ -114,9 +114,11 @@
         <p>Need help with something not listed here?  Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
     </div>
 {% else %}
-    <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their wishlists!{% endif %}</p>
-    
-    <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url work work.id %}?tab=4">Rights tab of the book page</a>.</p>
+    <div class="border">
+        <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their wishlists!{% endif %}</p>
+        
+        <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url work work.id %}?tab=4">Rights tab of the book page</a>.</p>
+    </div>
 {% endif %}
 </div>
 </div>
