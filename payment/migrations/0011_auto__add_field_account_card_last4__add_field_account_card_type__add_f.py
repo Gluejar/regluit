@@ -40,7 +40,7 @@ class Migration(SchemaMigration):
 
         # Adding field 'Account.date_created'
         db.add_column('payment_account', 'date_created',
-                      self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default=datetime.datetime(2012, 9, 17, 0, 0), blank=True),
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default=datetime.datetime(2012, 9, 17, 0, 0), blank=True),
                       keep_default=False)
 
         # Adding field 'Account.date_modified'

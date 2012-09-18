@@ -308,7 +308,7 @@ class Account(models.Model):
     card_country = models.CharField(max_length=2, null=True)
     
     # creation and last modified timestamps
-    date_created = models.DateTimeField(auto_now=True)
+    date_created = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     date_deactivated = models.DateTimeField(null=True)
     
