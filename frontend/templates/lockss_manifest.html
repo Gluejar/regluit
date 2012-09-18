@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block news %}
+{% endblock %}
+
+{% block content %}
+Books unglued in {{ year }} for the LOCKSS harvester to crawl.<br /><br />
+    {% for ebook in ebooks %}
+        <a href="{% url lockss ebook.work.id %}">{{ ebook.work.title }}</a><br />
+    {% endfor %}
+{% endblock %}
+
+{% block footer %}
+{% endblock %}
