@@ -16,6 +16,8 @@ logger = logging.getLogger(__name__)
 # c.id, c.amount, c.amount_refunded, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid,
 # c.fee, c.disputed, c.amount_refunded, c.failure_message,
 # c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year
+
+# promising fields
     
 class Transaction(models.Model):
     
@@ -141,10 +143,11 @@ class Transaction(models.Model):
                             ack_dedication=self.ack_dedication)
 
     @classmethod
-    def create(cls,amount=0.00, max_amount=0.00, currency='USD',
+    def create(cls,amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
                 status=TRANSACTION_STATUS_NONE,campaign=None, user=None, pledge_extra=None):
         if pledge_extra:
-            return cls.objects.create(amount=amount, 
+            return cls.objects.create(amount=amount,
+                                host=host,
                                 max_amount=max_amount, 
                                 currency=currency,
                                 status=status,
@@ -156,7 +159,7 @@ class Transaction(models.Model):
                                 ack_dedication=pledge_extra.ack_dedication
                                 )
         else:
-            return cls.objects.create(amount=amount, max_amount=max_amount, currency=currency,status=status,
+            return cls.objects.create(amount=amount, host=host, max_amount=max_amount, currency=currency,status=status,
                                 campaign=campaign, user=user)
                             
 class PaymentResponse(models.Model):
@@ -293,6 +296,21 @@ class Account(models.Model):
     # host: the payment processor.  Named after the payment module that hosts the payment processing functions
     host = models.CharField(default=PAYMENT_HOST_NONE, max_length=32, null=False)
     account_id = models.CharField(max_length=128, null=True)
+    
+    # card related info
+    card_last4 = models.CharField(max_length=4, null=True)
+    
+    # Visa, American Express, MasterCard, Discover, JCB, Diners Club, or Unknown
+    card_type = models.CharField(max_length=32, null=True)
+    card_exp_month = models.IntegerField(null=True)
+    card_exp_year = models.IntegerField(null=True)
+    card_fingerprint = models.CharField(max_length=32, null=True)
+    card_country = models.CharField(max_length=2, null=True)
+    
+    # creation and last modified timestamps
+    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    date_deactivated = models.DateTimeField(null=True)
     
     # associated User
     user = models.ForeignKey(User, null=True)

@@ -775,26 +775,45 @@ class FundPledgeView(FormView):
             # create customer and charge id and then charge the customer
             customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
                                           email=self.request.user.email)
-            account = Account(host = PAYMENT_HOST_STRIPE, account_id = customer.id)
-            account.user = self.request.user
+                
+            account = Account(host = PAYMENT_HOST_STRIPE,
+                              account_id = customer.id,
+                              card_last4 = customer.active_card.last4,
+                              card_type = customer.active_card.type,
+                              card_exp_month = customer.active_card.exp_month,
+                              card_exp_year = customer.active_card.exp_year,
+                              card_fingerprint = customer.active_card.fingerprint,
+                              card_country = customer.active_card.country,
+                              user = self.request.user
+                              )
+
             account.save()
             
             charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
  
         else:
             customer = None
+            
             charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
-        
-        # change to PAYMENT_TYPE_AUTHORIZATION when we are doing a real preapproval
-        self.transaction.type = PAYMENT_TYPE_INSTANT
         
         # set True for now -- wondering whether we should actually wait for a webhook -- don't think so.
         
+        ## settings to apply to transaction for TRANSACTION_STATUS_COMPLETE
+        #self.transaction.type = PAYMENT_TYPE_INSTANT
+        #self.transaction.approved = True
+        #self.transaction.status = TRANSACTION_STATUS_COMPLETE
+        #self.transaction.pay_key = charge.id
+        
+        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+        # should approved be set to False and wait for a webhook?
+        self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
         self.transaction.approved = True
-        self.transaction.pay_key = charge.id
+        self.transaction.status = TRANSACTION_STATUS_ACTIVE
+        self.transaction.preapproval_key = charge.id        
+        
         self.transaction.currency = 'USD'
         self.transaction.amount = preapproval_amount
-        self.transaction.status = TRANSACTION_STATUS_COMPLETE
+        self.transaction.date_payment = now()
             
         self.transaction.save()
             
