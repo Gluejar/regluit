@@ -72,13 +72,19 @@ $j(document).ready(function(){
                             Campaign suspended. <br />See <a href="/faq">FAQ</a>.
                         {% else %}{% if status == 'WITHDRAWN' %}
                             Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
+                        {% else %}{% if wishers == 0 %}
+                            <span class="findtheungluers">No ungluers are wishing yet.</span>
+                            <br />
+                            Be the first!
                         {% else %}{% if wishers == 1 %}
                             <span class="findtheungluers">{{ wishers }} Ungluer is wishing</span>
+                            <br />
+                            You can too!
                         {% else %}
                             <span class="findtheungluers">{{ wishers }} Ungluers are wishing</span>
+                            <br />
+                            You can too!
                         {% endif %}
-                        <br />
-                        You can too!
                         {% endif %}{% endif %}{% endif %}{% endif %}
                     {% endif %}
                 {% else %}
