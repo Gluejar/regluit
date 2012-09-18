@@ -88,14 +88,21 @@ $j(document).ready(function(){
                     {% endif %}
                 {% else %}
                 	<span class="findtheungluers">
-                    {% if wishers == 1 %}
+                    {% if wishers == 0 %}
+                        No ungluers are wishing yet.</span>
+                        <br />
+                        Be the first!
+                    {% else %}{% if wishers == 1 %}
                         {{ wishers }} Ungluer is wishing
+                        </span>
+                        <br />
+                        You can too!
                     {% else %}
                         {{ wishers }} Ungluers are wishing
-                    {% endif %}
-                    </span>
-					<br />
-					You can too!
+                        </span>
+                        <br />
+                        You can too!
+                    {% endif %}{% endif %}
                 {% endif %}{% endif %}
                     </span>
                 </div>
