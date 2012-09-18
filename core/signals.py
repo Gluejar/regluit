@@ -222,7 +222,8 @@ def handle_wishlist_added(supporter, work, **kwargs):
     if claim:
         notification.queue([claim[0].user], "new_wisher", {
             'supporter': supporter,
-            'work': work
+            'work': work,
+            'base_url': settings.BASE_URL,
         }, True)
         
         from regluit.core.tasks import emit_notifications
