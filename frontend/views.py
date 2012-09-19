@@ -4,7 +4,7 @@ import json
 import logging
 import urllib
 
-from datetime import timedelta
+from datetime import timedelta, date
 from regluit.utils.localdatetime import now, date_today
 
 from random import randint
@@ -1990,7 +1990,7 @@ def campaign_archive_js(request):
 
 def lockss(request, work_id):
     """
-    manifest pages for lockss harvester
+    manifest pages for lockss harvester -- individual works
     """
     work = safe_get_work(work_id)
     try:
@@ -2000,6 +2000,22 @@ def lockss(request, work_id):
     authors = list(models.Author.objects.filter(editions__work=work).all())
     
     return render(request, "lockss.html", {'work':work, 'ebooks':ebooks, 'authors':authors})
+    
+def lockss_manifest(request, year):
+    """
+    manifest pages for lockss harvester -- yearly indices
+    (lockss needs pages listing all books unglued by year, with 
+    programmatically determinable URLs)
+    """
+    year = int(year)
+    start_date = date(year, 1, 1)
+    end_date = date(year, 12, 31)
+    try:
+        ebooks = models.Edition.objects.filter(unglued=True).filter(created__range=(start_date, end_date))
+    except:
+        ebooks = None
+    
+    return render(request, "lockss_manifest.html", {'ebooks':ebooks, 'year': year})
     
 def download(request, work_id):
     context = {}
