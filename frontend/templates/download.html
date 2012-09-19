@@ -61,7 +61,7 @@
         
         <h4>Readmill users</h4>
         <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
-        <div class="send-to-readmill" data-download-url="http://archive.org/download/OralLiteratureInAfrica/Oral_Literature_in_Africa.epub"; data-buy-url="https://unglue.it/work/81834/"; data-display="small" ></div>
+        <div class="send-to-readmill" data-download-url="{{ unglued_epub_url }}"; data-buy-url="{{ base_url }}{% url work work.id %}"; data-display="small" ></div>
 
         <script type="text/javascript">
         (function() {
