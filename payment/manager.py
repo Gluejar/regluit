@@ -551,7 +551,7 @@ class PaymentManager( object ):
                       
         '''    
         
-        if host==None:
+        if transaction.host == PAYMENT_HOST_NONE:
             #TODO send user to select a payment processor
             pass    
                 
@@ -561,10 +561,10 @@ class PaymentManager( object ):
             
         if return_url is None:
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-                                urllib.urlencode({'tid':t.id})) 
+                                urllib.urlencode({'tid':transaction.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
-        method = getattr(t.get_payment_class(), "Preapproval")
+        method = getattr(transaction.get_payment_class(), "Preapproval")
         p = method(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
          # Create a response for this
@@ -610,7 +610,7 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return transaction, None
             
-    def process_transaction(self, currency,  amount, host=None, campaign=None,  user=None,
+    def process_transaction(self, currency,  amount, host=PAYMENT_HOST_NONE, campaign=None,  user=None,
                   return_url=None, paymentReason="unglue.it Pledge",  pledge_extra=None,
                   modification=False):
         '''
@@ -634,7 +634,8 @@ class PaymentManager( object ):
         # set the expiry date based on the campaign deadline
         expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
 
-        t = Transaction.create(amount=0, 
+        t = Transaction.create(amount=0,
+                                   host = host,
                                    max_amount=amount,
                                    currency=currency,
                                    campaign=campaign,

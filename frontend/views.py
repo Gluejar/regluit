@@ -53,7 +53,7 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
-from regluit.payment.parameters import PAYMENT_HOST_STRIPE
+from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
 from regluit.payment.credit import credit_transaction
 from regluit.core import goodreads
 from tastypie.models import ApiKey
@@ -692,7 +692,7 @@ class PledgeView(FormView):
                 return HttpResponse("No modification made")
         else:
             t, url = p.process_transaction('USD',  form.cleaned_data["preapproval_amount"],  
-                    host = None, 
+                    host = PAYMENT_HOST_NONE, 
                     campaign=self.campaign, 
                     user=self.request.user,
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
@@ -768,7 +768,7 @@ class FundPledgeView(FormView):
         # let's figure out what part of transaction can be used to store info
         # try placing charge id in transaction.pay_key
         # need to set amount
-        # how does max_amount get set? -- coming from /pledge/xxx/?
+        # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
         # max_amount is set -- but I don't think we need it for stripe
         
         if retain_cc_info:
@@ -799,6 +799,7 @@ class FundPledgeView(FormView):
         # set True for now -- wondering whether we should actually wait for a webhook -- don't think so.
         
         ## settings to apply to transaction for TRANSACTION_STATUS_COMPLETE
+        #self.transaction.host = PAYMENT_HOST_STRIPE
         #self.transaction.type = PAYMENT_TYPE_INSTANT
         #self.transaction.approved = True
         #self.transaction.status = TRANSACTION_STATUS_COMPLETE
@@ -807,6 +808,7 @@ class FundPledgeView(FormView):
         # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
         # should approved be set to False and wait for a webhook?
         self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
+        self.transaction.host = PAYMENT_HOST_STRIPE
         self.transaction.approved = True
         self.transaction.status = TRANSACTION_STATUS_ACTIVE
         self.transaction.preapproval_key = charge.id        
