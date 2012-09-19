@@ -29,16 +29,6 @@ $j(document).ready(function(){
     });
 });
 $j(document).ready(function(){
-    $j('.show_more_ebooks').click(function(){
-        if ($j(this).html() == '<br>hide downloads') {
-        	$j(this).html('<br>more downloads...')
-        } else {
-        	$j(this).html('<br>hide downloads')
-        }
-        $j(this).next().toggle();
-    });
-});
-$j(document).ready(function(){
 	var img = $j('#book-detail-img');
 	var googimg = $j('#find-google img');
     img.mouseover(function(){
@@ -126,7 +116,7 @@ $j(document).ready(function(){
                         <div>
                           <div class="pubinfo">
                             <h3 class="book-author">{{ work.author }}</h3>
-                            <h3 class="book-year">{{ pubdate }}</h3>
+                            <h3 class="book-year">{{ work.publication_date_year }}</h3>
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
@@ -134,33 +124,15 @@ $j(document).ready(function(){
                           {% else %}
                           	<div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Support" /></form></div>
                           {% endif %}
+                          {% else %}
+							  {% if work.first_ebook %}
+								<div class="btn_support">
+									<a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
+								</div>
+							  {% endif %}
                           {% endif %}
 					  	</div>
 					  </div>
-                    {% if work.first_ebook %}
-					  <div class="get-book">
-                            <label>Read it now!</label>
-                                <span class="find-link">
-                                {% for ebook in work.ebooks %}
-                                    {% if forloop.first %}
-                                        <span class="first_ebook">
-                                    {% endif %}
-                                    {% if forloop.counter == 2 %}
-                                        </span>
-                                        <span class="show_more_ebooks"><br />More downloads...</span>
-                                        <span class="more_ebooks">
-                                    {% endif %}
-                                    {% if not forloop.first %}
-                                        <br />
-                                    {% endif %}
-                                <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt=" {{ ebook.format }} at {{ebook.provider}}" title=" {{ ebook.format }} at {{ebook.provider}}" /><img src="{{ebook.rights_badge}}" height="31" width="88" alt="{{ebook.rights}}" title="{{ebook.rights}}" /></a>
-                                    {% if forloop.last %}
-                                        </span>
-                                    {% endif %}
-                                {% endfor %}
-                                </span>
-                        </div>
-                      {% endif %}
                         <div class="find-book">
                             <label>Learn more at...</label>
                              <div class="find-link">
@@ -344,45 +316,53 @@ $j(document).ready(function(){
                                     {% endif %}
 
                        {% if alert %}<div class="alert"><b>Ebook Contribution:</b><br />{{ alert }}</div>{% endif %}
-                        {% for edition in editions %}
-                        <div class="editions">{% if edition.googlebooks_id %}<div class="image"><img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" /></div>{% endif %}
-                            <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: {{edition.publisher}}<br />{% endif %}
-                            	{% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
-                            		{% if edition.isbn_13 %}
-                            			ISBN: {{ edition.isbn_13 }}<br />
-                            		{% endif %}
-                            		{% if edition.oclc %}
-                            			OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
-                            		{% endif %}
-                            		{% if user.is_staff %}
-                                    <a href="{% url new_edition work_id edition.id %}">Edit this edition</a><br />
+                       {% for edition in editions %}
+                           <div class="clearfix">
+                                <div class="editions">
+                                    {% if edition.googlebooks_id %}
+                                        <div class="image">
+                                            <img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" />
+                                        </div>
                                     {% endif %}
-                            		{% if edition.googlebooks_id %}
-                            	See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
-                            		{% endif %}                            	    
-                            	</div>
-                            </div>
-                            {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
-                                {% if edition.hide_details %}<div class="show_more_edition" >more...</div>{% endif %}
-                                <div {% if edition.hide_details %} class="more_edition" {% endif %}>
-                                    {% if edition.ebooks.count %}
-                                        <h5>eBooks for this Edition</h5>
-                                        {% for ebook in edition.ebooks.all %}
-                                            <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
-                                        {% endfor %}
-                                    {% endif %}
-                                    <h5>Add an eBook for this Edition:</h5>
-                                    <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
-                                	<form method="POST" action="#edition_{{edition.id}}">
-    	    	                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
-    	    	                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
-    	    	                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
-    	    	                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
-    	    	                    <input type="submit" name="add_ebook" value="add ebook" />
-                                    </form>
+                                    <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: {{edition.publisher}}<br />{% endif %}
+                                        {% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
+                                            {% if edition.isbn_13 %}
+                                                ISBN: {{ edition.isbn_13 }}<br />
+                                            {% endif %}
+                                            {% if edition.oclc %}
+                                                OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
+                                            {% endif %}
+                                            {% if user.is_staff %}
+                                                <a href="{% url new_edition work_id edition.id %}">Edit this edition</a><br />
+                                            {% endif %}
+                                            {% if edition.googlebooks_id %}
+                                                See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
+                                            {% endif %}                            	    
+                                    </div>
                                 </div>
-                            {% endifnotequal %}{% endif %}
-                            
+                                {% if edition.ebook_form %}{% ifnotequal status 'ACTIVE' %}
+                                    {% if edition.hide_details %}
+                                        <div class="show_more_edition" >more...</div>
+                                    {% endif %}
+                                    <div {% if edition.hide_details %} class="more_edition" {% endif %}>
+                                        {% if edition.ebooks.count %}
+                                            <h5>eBooks for this Edition</h5>
+                                            {% for ebook in edition.ebooks.all %}
+                                                <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                            {% endfor %}
+                                        {% endif %}
+                                        <h5>Add an eBook for this Edition:</h5>
+                                        <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
+                                        <form method="POST" action="#edition_{{edition.id}}">
+                                            {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
+                                            {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
+                                            {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+                                            {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
+                                            <input type="submit" name="add_ebook" value="add ebook" />
+                                        </form>
+                                    </div>
+                                {% endifnotequal %}{% endif %}
+                            </div>
                         {% endfor %}
                     </div>
                     </div>
@@ -415,7 +395,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Pledged!</div>{% endif %}
+								<span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Pledged!</div>{% endif %}
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>

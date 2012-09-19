@@ -49,7 +49,7 @@ STATIC_URL = '/static/'
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
 # Examples: "http://foo.com/static/admin/", "/static/admin/".
-ADMIN_MEDIA_PREFIX = '/static/admin/'
+# ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (
@@ -271,12 +271,8 @@ EBOOK_NOTIFICATIONS_JOB = {
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
-# set -- sandbox or production Amazon FPS?
-AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
-#AMAZON_FPS_HOST = "fps.amazonaws.com"
-
 # amazon or paypal for now.
-PAYMENT_PROCESSOR = 'amazon'
+PAYMENT_PROCESSOR = 'test'
 
 # a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
 SECRET_KEY = ''
@@ -286,3 +282,7 @@ SECRET_KEY = ''
 MAINTENANCE_MODE = False
 # Sequence of URL path regexes to exclude from the maintenance mode.
 MAINTENANCE_IGNORE_URLS = {}
+
+class NONPROFIT:
+    name = 'Library Renewal'
+    link = 'http://127.0.0.1:8000/donate_to_campaign/'

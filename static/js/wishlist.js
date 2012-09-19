@@ -4,7 +4,7 @@ $j().ready(function() {
 	// only do the lookup once, then cache it
 	var contentblock = $j('#content-block');
 	
-    contentblock.on("click", "div.add-wishlist", function () {
+    contentblock.on("click", ".add-wishlist", function () {
         var span = $j(this).find("span");
         var id_val = span.attr('id').substring(1);
         var id_type = span.attr('class');
@@ -24,6 +24,11 @@ $j().ready(function() {
         });}
         else {
             span.html('a type error occurred');
+        }
+        
+        // prevent perversities on download page
+        if ($j(this).is("a")) {
+        	$j(this).removeClass("add-wishlist").addClass("success");
         }
     });
     
@@ -50,7 +55,7 @@ $j().ready(function() {
 	// we're going to have to tell /wishlist/ that we're feeding it a different identifier
     contentblock.on("click", "div.remove-wishlist-workpage", function () {
         var span = $j(this).find("span");
-        var work_id = span.attr('id').substring(1)
+        var work_id = span.attr('id').substring(1);
             
         // provide feedback
         span.html('Removing...');
@@ -64,4 +69,20 @@ $j().ready(function() {
             newDiv.fadeIn('slow');
         });
     });
+});
+
+var $k = jQuery.noConflict();
+// allows user to re-add on work page after erroneously removing, without page reload
+// can't bind this to document ready because the .add-wishlist-workpage div doesn't exist until remove-wishlist is executed
+$k(document).on("click", ".add-wishlist-workpage span", function() {
+	var span = $k(this);
+	var work_id = span.attr("class");
+	if (!work_id) return;
+	jQuery.post('/wishlist/', {'add_work_id': work_id}, function(data) {
+		span.fadeOut();
+		var newSpan = $k('<span class="on-wishlist">On Wishlist!</span>').hide();
+		span.replaceWith(newSpan);
+		newSpan.fadeIn('slow');
+		newSpan.removeAttr("id");
+	});
 });

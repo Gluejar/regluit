@@ -1,7 +1,11 @@
 from regluit.payment.manager import PaymentManager
-from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
+
+from regluit.payment.stripelib import STRIPE_PK
+
+from regluit.payment.forms import StripePledgeForm
+
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
@@ -13,8 +17,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.test.utils import setup_test_environment
 from django.template import RequestContext
 
+from django.views.generic.edit import FormView
+from django.views.generic.base import TemplateView
+
 from unittest import TestResult
-from regluit.payment.tests import PledgeTest, AuthorizeTest
+
+
 import uuid
 from decimal import Decimal as D
 
@@ -113,12 +121,8 @@ def testAuthorize(request):
     receiver_list = [{'email': TEST_RECEIVERS[0], 'amount':20.00}, 
                      {'email': TEST_RECEIVERS[1], 'amount':10.00}]
         
-    if campaign_id:
-        campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.authorize('USD', TARGET_TYPE_CAMPAIGN, amount, campaign=campaign, return_url=None, list=None, user=None)
-    
-    else:
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, amount, campaign=None, return_url=None, list=None, user=None)
+    campaign = Campaign.objects.get(id=int(campaign_id))
+    t, url = p.authorize(Transaction.objects.create(currency='USD', max_amount=amount, campaign=campaign, user=None), return_url=None)
     
     if url:
         logger.info("testAuthorize: " + url)
@@ -249,12 +253,9 @@ def testPledge(request):
     else:
         receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
         
-    if campaign_id:
-        campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=None)
+    campaign = Campaign.objects.get(id=int(campaign_id))
+    t, url = p.pledge('USD', receiver_list, campaign=campaign, list=None, user=user, return_url=None)
     
-    else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=None)
     
     if url:
         logger.info("testPledge: " + url)
@@ -265,33 +266,6 @@ def testPledge(request):
         logger.info("testPledge: Error " + str(t.error))
         return HttpResponse(response)
 
-def runTests(request):
-
-    try:
-        # Setup the test environement.  We need to run these tests on a live server
-        # so our code can receive IPN notifications from paypal
-        setup_test_environment()
-        result = TestResult()
-        
-        # Run the authorize test
-        test = AuthorizeTest('test_authorize')
-        test.run(result)   
-    
-        # Run the pledge test
-        test = PledgeTest('test_pledge_single_receiver')
-        test.run(result)
-        
-        # Run the pledge failure test
-        test = PledgeTest('test_pledge_too_much')
-        test.run(result)
-
-        output = "Tests Run: " + str(result.testsRun) + str(result.errors) + str(result.failures)
-        logger.info(output)
-    
-        return HttpResponse(output)
-    
-    except:
-        traceback.print_exc()
     
 @csrf_exempt
 def handleIPN(request, module):
@@ -304,11 +278,6 @@ def handleIPN(request, module):
     return HttpResponse("ipn")
     
     
-def paymentcomplete(request):
-    # pick up all get and post parameters and display
-    output = "payment complete"
-    output += request.method + "\n" + str(request.REQUEST.items())
-    return HttpResponse(output)
 
 def checkStatus(request):
     # Check the status of all PAY transactions and flag any errors
@@ -322,5 +291,25 @@ def checkStatus(request):
 def _render(request, template, template_vars={}):
     return render_to_response(template, template_vars, RequestContext(request))
     
+class StripeView(FormView):
+    template_name="stripe.html"
+    form_class = StripePledgeForm
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(StripeView, self).get_context_data(**kwargs)
     
+        context.update({
+                'STRIPE_PK':STRIPE_PK
+                })
+        return context
     
+    def form_valid(self, form):
+        stripe_token = form.cleaned_data["stripe_token"]
+        # e.g., tok_0C0k4jG5B2Oxox
+        # 
+        return HttpResponse("stripe_token: {0}".format(stripe_token))
+
+  
+        
+        

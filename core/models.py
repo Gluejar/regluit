@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
-from regluit.core.signals import successful_campaign, unsuccessful_campaign
+from regluit.core.signals import successful_campaign, unsuccessful_campaign, wishlist_added
 import binascii
 
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
@@ -111,6 +111,16 @@ class Premium(models.Model):
         t_model=get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
     
+class PledgeExtra:
+    premium=None
+    anonymous=False
+    ack_name=''
+    ack_dedication=''
+    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication=''):
+        self.premium=premium
+        self.anonymous=anonymous
+        self.ack_name=ack_name
+        self.ack_dedication=ack_dedication
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -131,8 +141,8 @@ class CCLicense():
         )
     CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
     
-    @classmethod
-    def url(klass, license):
+    @staticmethod
+    def url(license):
         if license == 'PD-US':
             return 'http://creativecommons.org/publicdomain/mark/1.0/'
         elif license == 'CC0':
@@ -152,8 +162,8 @@ class CCLicense():
         else:
             return ''
     
-    @classmethod
-    def badge(klass,license):
+    @staticmethod
+    def badge(license):
         if license == 'PD-US':
             return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
         elif license == 'CC0':
@@ -264,8 +274,13 @@ class Campaign(models.Model):
         
     def transactions(self,  **kwargs):
         p = PaymentManager()
-        return p.query_campaign(self, summary=False, campaign_total=True, **kwargs)
         
+        # handle default parameter values
+        kw = {'summary':False, 'campaign_total':True}
+        kw.update(kwargs)
+        
+        return p.query_campaign(self, **kw)
+
     
     def activate(self):
         status = self.status
@@ -404,7 +419,7 @@ class Campaign(models.Model):
 
     def custom_premiums(self):
         """returns only the active custom premiums for the Campaign"""
-        return Premium.objects.filter(campaign=self).filter(type='CU')
+        return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
         
     @property
     def rightsholder(self):
@@ -439,8 +454,8 @@ class Identifier(models.Model):
     class Meta:
         unique_together = ("type", "value")
     
-    @classmethod
-    def get_or_add(klass, type='goog', value=None, edition=None, work=None):
+    @staticmethod
+    def get_or_add( type='goog', value=None, edition=None, work=None):
         try:
             return Identifier.objects.get(type=type, value=value)
         except Identifier.DoesNotExist:
@@ -468,6 +483,9 @@ class Work(models.Model):
 
     @property
     def googlebooks_id(self):
+        preferred_id=self.preferred_edition.googlebooks_id
+        if preferred_id:
+            return preferred_id
         try:
             return self.identifiers.filter(type='goog')[0].value
         except IndexError:
@@ -482,6 +500,9 @@ class Work(models.Model):
 
     @property 
     def goodreads_id(self):
+        preferred_id=self.preferred_edition.goodreads_id
+        if preferred_id:
+            return preferred_id
         try:
             return self.identifiers.filter(type='gdrd')[0].value
         except IndexError:
@@ -633,6 +654,9 @@ class Work(models.Model):
         self.save()
 
     def first_isbn_13(self):
+        preferred_id=self.preferred_edition.isbn_13
+        if preferred_id:
+            return preferred_id
         try:
             return self.identifiers.filter(type='isbn')[0].value
         except IndexError:
@@ -644,6 +668,13 @@ class Work(models.Model):
             if edition.publication_date:
                 return edition.publication_date
         return ''
+
+    @property
+    def publication_date_year(self):
+        try:
+            return self.publication_date[:4]
+        except IndexError:
+            return 'unknown'
 
     def __unicode__(self):
         return self.title
@@ -678,6 +709,7 @@ class Edition(models.Model):
     public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
+    unglued = models.BooleanField(blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -744,8 +776,8 @@ class Edition(models.Model):
         except IndexError:
             return ''
 
-    @classmethod
-    def get_by_isbn(klass, isbn):
+    @staticmethod
+    def get_by_isbn( isbn):
         if len(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
         try:
@@ -767,7 +799,6 @@ class Ebook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
-    unglued = models.BooleanField()
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES)
@@ -784,8 +815,8 @@ class Ebook(models.Model):
             return CCLicense.badge('PD-US')
         return CCLicense.badge(self.rights)
     
-    @classmethod
-    def infer_provider(klass, url):
+    @staticmethod
+    def infer_provider( url):
         if not url:
             return None
         # provider derived from url. returns provider value. remember to call save() afterward

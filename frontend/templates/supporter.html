@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load truncatechars %}
-{% comment %} we don't need "with request.user.wishlist.works.all as wishlist" here to make book_panel work, because wishlist is already in the context {% endcomment %}
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
@@ -321,23 +320,23 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% if request.user.is_anonymous %}
                     <div class="tabs-1 anon_about">
                     {% if works_unglued %}
-                    {{ supporter }} is sharing these books with you.  <a href="#" class="about_expander" id="about_unglued">Find out how.</a>
+                    {{ supporter }} is sharing these books with you.  <a href="/about/unglued/" class="hijax">Find out how.</a>
                     {% else %}
-                    {{ supporter }} isn't sharing any books with the world yet.  <a href="#" class="about_expander" id="about_unglued_empty">Find out how you can.</a>
+                    {{ supporter }} isn't sharing any books with the world yet.  <a href="/about/unglued_empty/" class="hijax">Find out how you can.</a>
                     {% endif %}
                     </div>
                     <div class="tabs-2 anon_about">
                     {% if works_active %}
-                    {{ supporter }} is giving these books to you.  <a href="#" class="about_expander" id="about_active">Find out how.</a>
+                    {{ supporter }} is giving these books to you.  <a href="/about/active/" class="hijax">Find out how.</a>
                     {% else %}
-                    {{ supporter }} isn't giving any books to the world right now.  <a href="#" class="about_expander" id="about_active_empty">Find out how you can.</a>
+                    {{ supporter }} isn't giving any books to the world right now.  <a href="/about/active_empty" class="hijax">Find out how you can.</a>
                     {% endif %}
                     </div>
                     <div class="tabs-3 anon_about">
                     {% if works_wished %}
-                    {{ supporter }} wants to give these books to you.  <a href="#" class="about_expander" id="about_wishlist">Find out how.</a>
+                    {{ supporter }} wants to give these books to you.  <a href="/about/wishlist/" class="hijax">Find out how.</a>
                     {% else %}
-                    {{ supporter }} hasn't decided which books to give the world yet.  <a href="#" class="about_expander" id="about_wishlist_empty">Learn more.</a>
+                    {{ supporter }} hasn't decided which books to give the world yet.  <a href="/about/wishlist_empty/" class="hijax">Learn more.</a>
                     {% endif %}
                     </div>
                     {% endif %}
@@ -347,9 +346,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}
+					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-1">
@@ -364,9 +364,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}
+					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-2">
@@ -381,9 +382,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     <div class="{% cycle 'row1' 'row2' %}">
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}					
+					{% with work.googlebooks_id as googlebooks_id %}
+					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-3">

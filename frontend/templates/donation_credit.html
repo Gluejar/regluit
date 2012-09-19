@@ -1,0 +1,46 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}You Have Donation Credits{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+{% endblock %}
+
+{% block doccontent %}
+<div style="height:15px"></div>
+    
+<div class="jsmodule rounded clearfix">
+    <div class="jsmod-content">
+
+	<div>
+	<h2> Donation Credited </h2>
+	<p>{% if error %}
+	    Your donation credit of ${{ envelope.amount }}.{{ envelope.cents }} has already been registered! {% if work %} If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
+		{% else %}
+		Congratulations, your donation credit of ${{ envelope.amount }}.{{ envelope.cents }} has been registered! {% if transaction.campaign %} ${{transaction.amount}} of that had been pledged to {{ transaction.campaign.name }}. If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
+		{% endif %}
+		</p>
+		<!-- sent log: {{ envelope.sent }} -->
+		<!-- error: {{ error }} -->
+		<!-- {{ transaction }} -->
+	<div>
+	<h2> Your donation credits </h2>
+<p>
+You have a balance of {{ request.user.credit.balance }} donation credits. <br />
+You have pledged {{ request.user.credit.pledged }} donation credits to ungluing campaigns.<br />
+You have {{ request.user.credit.available }} donation credits available to pledge or <a href="{% url donation %}">transfer</a>.<br />
+</p>
+
+		
+        </div>
+	</div>
+
+	</div>
+</div>
+{% endblock %}
+
+

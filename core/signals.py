@@ -174,6 +174,7 @@ def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
     # we need to know if pledges were modified up or down because Amazon handles the
     # transactions in different ways, resulting in different user-visible behavior;
     # we need to set expectations appropriately
+    # up_or_down is 'increased', 'decreased', or 'canceled'
     if transaction==None or up_or_down==None:
         return
     notification.queue([transaction.user], "pledge_status_change", {
@@ -220,7 +221,7 @@ def handle_wishlist_added(supporter, work, **kwargs):
     """send notification to confirmed rights holder when someone wishes for their work"""
     claim = work.claim.filter(status="active")
     if claim:
-        notification.queue([claim.user], "new_wisher", {
+        notification.queue([claim[0].user], "new_wisher", {
             'supporter': supporter,
             'work': work
         }, True)

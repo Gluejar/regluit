@@ -220,6 +220,7 @@ ul.tabs li.active a {
 }
 .book-detail-info > div.layout div.btn_support {
   float: right;
+  margin-top: 9px;
 }
 .book-detail-info > div.layout div.btn_support input {
   font-size: 15px;
@@ -429,6 +430,10 @@ div#content-block-content #tabs-3 {
 .tabs-content form {
   margin-left: -5px;
 }
+.tabs-content .clearfix {
+  margin-bottom: 10px;
+  border-bottom: 2px solid #d6dde0;
+}
 .work_supporter {
   height: auto;
   min-height: 50px;
@@ -461,12 +466,10 @@ div#content-block-content #tabs-3 {
   padding: 3px;
   margin-left: -5px;
 }
-.editions {
-  clear: both;
-}
 .editions div {
   float: left;
   padding-bottom: 5px;
+  margin-bottom: 5px;
 }
 .editions .image {
   width: 60px;

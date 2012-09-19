@@ -8,31 +8,79 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Transaction.ack_name'
-        db.add_column('payment_transaction', 'ack_name',
-                      self.gf('django.db.models.fields.CharField')(max_length=64, null=True),
+        # Adding field 'Account.card_last4'
+        db.add_column('payment_account', 'card_last4',
+                      self.gf('django.db.models.fields.CharField')(max_length=4, null=True),
                       keep_default=False)
 
-        # Adding field 'Transaction.ack_link'
-        db.add_column('payment_transaction', 'ack_link',
-                      self.gf('django.db.models.fields.URLField')(max_length=200, null=True),
+        # Adding field 'Account.card_type'
+        db.add_column('payment_account', 'card_type',
+                      self.gf('django.db.models.fields.CharField')(max_length=32, null=True),
                       keep_default=False)
 
-        # Adding field 'Transaction.ack_dedication'
-        db.add_column('payment_transaction', 'ack_dedication',
-                      self.gf('django.db.models.fields.CharField')(max_length=140, null=True),
+        # Adding field 'Account.card_exp_month'
+        db.add_column('payment_account', 'card_exp_month',
+                      self.gf('django.db.models.fields.IntegerField')(null=True),
+                      keep_default=False)
+
+        # Adding field 'Account.card_exp_year'
+        db.add_column('payment_account', 'card_exp_year',
+                      self.gf('django.db.models.fields.IntegerField')(null=True),
+                      keep_default=False)
+
+        # Adding field 'Account.card_fingerprint'
+        db.add_column('payment_account', 'card_fingerprint',
+                      self.gf('django.db.models.fields.CharField')(max_length=32, null=True),
+                      keep_default=False)
+
+        # Adding field 'Account.card_country'
+        db.add_column('payment_account', 'card_country',
+                      self.gf('django.db.models.fields.CharField')(max_length=2, null=True),
+                      keep_default=False)
+
+        # Adding field 'Account.date_created'
+        db.add_column('payment_account', 'date_created',
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, default=datetime.datetime(2012, 9, 17, 0, 0), blank=True),
+                      keep_default=False)
+
+        # Adding field 'Account.date_modified'
+        db.add_column('payment_account', 'date_modified',
+                      self.gf('django.db.models.fields.DateTimeField')(auto_now=True, default=datetime.datetime(2012, 9, 17, 0, 0), blank=True),
+                      keep_default=False)
+
+        # Adding field 'Account.date_deactivated'
+        db.add_column('payment_account', 'date_deactivated',
+                      self.gf('django.db.models.fields.DateTimeField')(null=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Transaction.ack_name'
-        db.delete_column('payment_transaction', 'ack_name')
+        # Deleting field 'Account.card_last4'
+        db.delete_column('payment_account', 'card_last4')
 
-        # Deleting field 'Transaction.ack_link'
-        db.delete_column('payment_transaction', 'ack_link')
+        # Deleting field 'Account.card_type'
+        db.delete_column('payment_account', 'card_type')
 
-        # Deleting field 'Transaction.ack_dedication'
-        db.delete_column('payment_transaction', 'ack_dedication')
+        # Deleting field 'Account.card_exp_month'
+        db.delete_column('payment_account', 'card_exp_month')
+
+        # Deleting field 'Account.card_exp_year'
+        db.delete_column('payment_account', 'card_exp_year')
+
+        # Deleting field 'Account.card_fingerprint'
+        db.delete_column('payment_account', 'card_fingerprint')
+
+        # Deleting field 'Account.card_country'
+        db.delete_column('payment_account', 'card_country')
+
+        # Deleting field 'Account.date_created'
+        db.delete_column('payment_account', 'date_created')
+
+        # Deleting field 'Account.date_modified'
+        db.delete_column('payment_account', 'date_modified')
+
+        # Deleting field 'Account.date_deactivated'
+        db.delete_column('payment_account', 'date_deactivated')
 
 
     models = {
@@ -78,8 +126,8 @@ class Migration(SchemaMigration):
             'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
             'deadline': ('django.db.models.fields.DateTimeField', [], {}),
-            'description': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'description': ('ckeditor.fields.RichTextField', [], {'null': 'True'}),
+            'details': ('ckeditor.fields.RichTextField', [], {'null': 'True', 'blank': 'True'}),
             'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'null': 'True', 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'left': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '14', 'decimal_places': '2'}),
@@ -100,6 +148,7 @@ class Migration(SchemaMigration):
             'publication_date': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
             'publisher': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
+            'unglued': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'editions'", 'null': 'True', 'to': "orm['core.Work']"})
         },
         'core.premium': {
@@ -112,21 +161,6 @@ class Migration(SchemaMigration):
             'limit': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '2'})
         },
-        'core.wishes': {
-            'Meta': {'object_name': 'Wishes', 'db_table': "'core_wishlist_works'"},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'source': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'wishlist': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Wishlist']"}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'wishes'", 'to': "orm['core.Work']"})
-        },
-        'core.wishlist': {
-            'Meta': {'object_name': 'Wishlist'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'wishlist'", 'unique': 'True', 'to': "orm['auth.User']"}),
-            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'wishlists'", 'symmetrical': 'False', 'through': "orm['core.Wishes']", 'to': "orm['core.Work']"})
-        },
         'core.work': {
             'Meta': {'ordering': "['title']", 'object_name': 'Work'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
@@ -136,6 +170,39 @@ class Migration(SchemaMigration):
             'num_wishes': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'openlibrary_lookup': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
+        },
+        'payment.account': {
+            'Meta': {'object_name': 'Account'},
+            'account_id': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True'}),
+            'card_country': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True'}),
+            'card_exp_month': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
+            'card_exp_year': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
+            'card_fingerprint': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
+            'card_last4': ('django.db.models.fields.CharField', [], {'max_length': '4', 'null': 'True'}),
+            'card_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'date_deactivated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'host': ('django.db.models.fields.CharField', [], {'default': "'none'", 'max_length': '32'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
+        },
+        'payment.credit': {
+            'Meta': {'object_name': 'Credit'},
+            'balance': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'last_activity': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'pledged': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'credit'", 'unique': 'True', 'to': "orm['auth.User']"})
+        },
+        'payment.creditlog': {
+            'Meta': {'object_name': 'CreditLog'},
+            'action': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
+            'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'sent': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
         },
         'payment.paymentresponse': {
             'Meta': {'object_name': 'PaymentResponse'},
@@ -160,10 +227,16 @@ class Migration(SchemaMigration):
             'transaction': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['payment.Transaction']"}),
             'txn_id': ('django.db.models.fields.CharField', [], {'max_length': '64'})
         },
+        'payment.sent': {
+            'Meta': {'object_name': 'Sent'},
+            'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'timestamp': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'})
+        },
         'payment.transaction': {
             'Meta': {'object_name': 'Transaction'},
             'ack_dedication': ('django.db.models.fields.CharField', [], {'max_length': '140', 'null': 'True'}),
-            'ack_link': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True'}),
             'ack_name': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
             'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
             'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -178,9 +251,8 @@ class Migration(SchemaMigration):
             'date_payment': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'error': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True'}),
             'execution': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'host': ('django.db.models.fields.CharField', [], {'default': "'amazon'", 'max_length': '32'}),
+            'host': ('django.db.models.fields.CharField', [], {'default': "'none'", 'max_length': '32'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'list': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Wishlist']", 'null': 'True'}),
             'local_status': ('django.db.models.fields.CharField', [], {'default': "'NONE'", 'max_length': '32', 'null': 'True'}),
             'max_amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
             'pay_key': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True'}),
@@ -190,7 +262,6 @@ class Migration(SchemaMigration):
             'receipt': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True'}),
             'secret': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'default': "'None'", 'max_length': '32'}),
-            'target': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
         }

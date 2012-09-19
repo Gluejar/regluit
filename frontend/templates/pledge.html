@@ -23,7 +23,7 @@
 			<div>
 				<div class="pubinfo">
 					<h3 class="book-author">{{ work.author }}</h3>
-					<h3 class="book-year">{{ pubdate }}</h3>
+					<h3 class="book-year">{{ work.publication_date_year }}</h3>
 				</div>
 			</div>
 		</div>
@@ -52,8 +52,8 @@
 	{% if faqmenu == 'modify' %}	
 	<div class="modify_notification clearfix"><h4>You've already pledged to this campaign:</h4>
 		<div>
-		Amount: ${{preapproval_amount|intcomma}}.<br />
-		Your premium: {% if premium_description %}{{ premium_description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
+		Amount: ${{transaction.amount|intcomma}}.<br />
+		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
 		</div>
 	<br /> You can modify your pledge below.
 	</div>
@@ -108,8 +108,8 @@
     	</form>    	
     </div>
 </div>
-<div class="cancel_notice">(You will be sent to <b>{{ payment_processor|capfirst }}</b>
-{% if faqmenu == 'modify' %}, if needed, to modify your pledge. We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>{% else %} to complete your pledge.{% endif %}.)</div>
+<div class="cancel_notice">
+{% if faqmenu == 'modify' %}We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>.{% endif %}</div>
 <div id="pass_supporter_name" style="display: none;">{{ request.user.username }}</div>
 {% if transaction.ack_name %}
 <div id="pass_ack_name" style="display: none;">{{ transaction.ack_name }}</div>

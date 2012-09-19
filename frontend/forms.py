@@ -13,7 +13,7 @@ from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra
 from regluit.core.lookups import OwnerLookup
 
 from regluit.utils.localdatetime import now
@@ -45,12 +45,13 @@ class EditionForm(forms.ModelForm):
                 'title': forms.TextInput(attrs={'size': 40}),
                 'add_author': forms.TextInput(attrs={'size': 30}),
                 'add_subject': forms.TextInput(attrs={'size': 30}),
+                'unglued': forms.CheckboxInput(),
             }
 
 class EbookForm(forms.ModelForm):
     class Meta:
         model = Ebook
-        exclude =( 'created', 'unglued',)
+        exclude =( 'created',)
         widgets = { 
                 'edition': forms.HiddenInput, 
                 'user': forms.HiddenInput, 
@@ -296,60 +297,69 @@ class CampaignPledgeForm(forms.Form):
     )
     anonymous = forms.BooleanField(required=False, label=_("Don't display my name in the acknowledgements"))
     ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
-    ack_link = forms.URLField(required=False, label=_("Your web site:"))
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
     premium_id = forms.IntegerField(required=False)
+    premium=None
     
+    @property
+    def pledge_extra(self):
+        return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
+                            ack_name=self.cleaned_data['ack_name'],
+                            ack_dedication=self.cleaned_data['ack_dedication'],
+                            premium=self.premium)
+        
     def clean_preapproval_amount(self):
-        data = self.cleaned_data['preapproval_amount']
-        if data is None:
+        preapproval_amount = self.cleaned_data['preapproval_amount']
+        if preapproval_amount is None:
             raise forms.ValidationError(_("Please enter a pledge amount."))
-        return data
+        return preapproval_amount
     
-    # should we do validation on the premium_id here?
-    # can see whether it corresponds to a real premium -- do that here?
-    # can also figure out moreover whether it's one of the allowed premiums for that campaign....
+    def clean_premium_id(self):
+        premium_id = self.cleaned_data['premium_id']
+        try:
+            self.premium= Premium.objects.get(id=premium_id)
+            if self.premium.limit>0:
+                if self.premium.limit<=self.premium.premium_count:
+                    raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
+        except  Premium.DoesNotExist:
+            raise forms.ValidationError(_("Sorry, that premium is not valid."))
         
     def clean(self):
-        cleaned_data = self.cleaned_data
         # check on whether the preapproval amount is < amount for premium tier. If so, put an error message
         try:
-            preapproval_amount = cleaned_data.get("preapproval_amount")
-            premium_id =  int(cleaned_data.get("premium_id"))
-            premium_amount = Premium.objects.get(id=premium_id).amount
-            logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, premium_id, premium_amount))
-            if preapproval_amount < premium_amount:
+            preapproval_amount = self.cleaned_data.get("preapproval_amount")
+            logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, self.premium.id, self.premium.amount))
+            if preapproval_amount < self.premium.amount:
                 logger.info("raising form validating error")
-                raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (premium_amount)))
-            try:
-                premium= Premium.objects.get(id=premium_id)
-                if premium.limit>0:
-                    if premium.limit<=premium.premium_count:
-                        raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
-            except  Premium.DoesNotExist:
-                raise forms.ValidationError(_("Sorry, that premium is not valid."))
+                raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
 
         except Exception, e:
             if isinstance(e, forms.ValidationError):
                 raise e
             
-        return cleaned_data
+        return self.cleaned_data
 
-class DonateForm(forms.Form):
-    donation_amount = forms.DecimalField(
+class CCForm(forms.Form):
+    username = forms.CharField(max_length=30, required=True )
+    work_id = forms.IntegerField(required=False,  widget=forms.HiddenInput() )
+    stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
+    preapproval_amount= forms.DecimalField(
         required=False,
         min_value=D('1.00'), 
         max_value=D('100000.00'), 
         decimal_places=2, 
-        label="Donation",
+        label="Pledge",
     )
-    anonymous = forms.BooleanField(required=False, label=_("Don't display my username in the donors' list"))
-        
-    def clean(self):
-        cleaned_data = self.cleaned_data         
-        return cleaned_data
+    retain_cc_info = forms.BooleanField(required=False, initial=True, label=_("Keep my credit card on record"))
 
+class DonateForm(forms.Form):
+    preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )
+    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput() )
+    work_id = forms.IntegerField(required=False,  widget=forms.HiddenInput() )
+    title = forms.CharField(max_length=30, required=False, widget=forms.HiddenInput() )
+    
+    
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
                 ('all','all'),

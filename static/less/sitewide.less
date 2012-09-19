@@ -1,6 +1,7 @@
 /* For sitewide elements of unglue.it. */
 
 @import "variables.less";
+@import "download.less";
 
 /* remove before beta */
 .preview {
@@ -9,9 +10,8 @@
     clear:both;
     padding: 5px 10px;
     font-size: @font-size-default;
+	width: 90%;
 
-    line-height: 17px;
-    
     a {
     	color: @call-to-action;
     }
@@ -20,7 +20,6 @@
 .launch_top {
 	.preview;
 	border-color: @green;
-	width: 90%;
     margin:10px auto 0 auto;
     font-size: 120%;
     
@@ -118,11 +117,27 @@ a {
     }
 }
 
+h1 {
+	font-size: @font-size-larger*1.5;
+}
+
+h2 {
+	font-size: @font-size-larger*1.25;
+}
+
+h3 {
+	font-size: @font-size-larger*1.17;
+}
+
+h4 {
+	font-size: @font-size-larger;
+}
+
 img {
     border:none;
 }
 
-input, textarea {
+input, textarea, a.fakeinput {
 	border: 2px solid @blue-grey;
 	.one-border-radius(5px);
 	
@@ -130,6 +145,10 @@ input, textarea {
 		border: 2px solid @call-to-action;
 		outline: none;
 	}
+}
+
+a.fakeinput:hover {
+	text-decoration: none;
 }
 
 .js-search input {
@@ -170,7 +189,7 @@ h3 {
     }
 }
 
-input[type="submit"] {
+input[type="submit"], a.fakeinput {
 	background: @call-to-action;
 	color: white;
 	font-weight: bold;
@@ -585,6 +604,13 @@ a.nounderline {
 	margin-left: 0;
 	padding: 9px;
 	
+	.collapser_x {
+		margin-top: -27px;
+		margin-right: -27px;
+	}
+}
+
+#lightbox_content {
 	p {
 		padding: 9px 0;
 		font-size: @font-size-larger;
@@ -617,10 +643,15 @@ a.nounderline {
 		clear: none;
 	}
 	
-	.collapser_x {
-		margin-top: -27px;
-		margin-right: -27px;
-	}
+}
+
+// need to style /about/X pages such that they will not conflict with lightboxed About from header
+.nonlightbox .about_page {
+    .one-border-radius(5px);
+	border: solid 5px @blue-grey;
+	width: 75%;
+	margin: 10px auto auto auto;
+	padding: 9px;
 }
 
 .collapser_x {

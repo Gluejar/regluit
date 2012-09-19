@@ -22,7 +22,7 @@
 	{% block base_js %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     {% endblock %}
-	<script type="text/javascript" src="/static/js/expand_about.js"></script>
+	<script type="text/javascript" src="/static/js/hijax.js"></script>
     {% block extra_js %}
     {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
@@ -50,16 +50,8 @@
 <div id="about_expandable">
  	<div id="about_collapser" class="collapser_x">X</div>
 	<div id="lightbox">
-	<!-- content will be inserted here by expand_about.js -->
+	<!-- content will be inserted here by hijax.js -->
 	</div>
-    <div class="right_border"><a href="{{ faqurl }}">Read the FAQ</a></div>
-    <div class="right_border"><a href="{% url faq_location 'rightsholders' %}">Read the FAQ for authors and publishers</a></div>
-    <div class="right_border"><a href="{% url press %}">Our press coverage</a></div>
-    {% if not user.is_authenticated %}
-    <div class="signuptoday"><a href="{% url registration_register %}">Sign up today</a></div>
-    {% else %}
-    <div class="signuptoday"><a href="{% url campaign_list 'ending' %}">Our campaigns</a></div>
-    {% endif %}
 </div>
 
 <div id="js-page-wrap">
@@ -97,7 +89,7 @@
                     {% else %}
                     <li class="first"><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
                     {% endif %}
-                    <li class="about_expander" id="about_main"><a href="#"><span>About</span></a></li>   
+                    <li><a href="/about/main/"  class="hijax"><span>About</span></a></li>   
                     <li><a href="{{ landingurl }}"><span>Home</span></a></li>   
                     {% if not user.is_authenticated %}
                     <li class="last" id="expander"><a href="{% url registration_register %}"><span>sign up</span></a></li>
@@ -107,8 +99,8 @@
         </div>
     </div>
 
-<div class="preview">
-Amazon has forced us to suspend crowdfunding. The <a href="http://wp.me/p2omBl-3B">full story is on our blog</a>! The <a href="/work/81724/">first unglued book</a> is almost ready.
+<div class="launch_top">
+It's here: our first unglued edition.  You can now <a href="/work/81724/">download <I>Oral Literature in Africa</I></a>.<br /><br />Campaigns to unglue more books <a href="http://blog.unglue.it/2012/09/13/update-on-unglue-it-relaunch/">will relaunch soon</a>.
 </div>
     {% block topsection %}{% endblock %}
     {% block content %}{% endblock %}

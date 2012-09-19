@@ -1,4 +1,10 @@
-    <p>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="nonlightbox">
+<div id="lightbox_content">
+<div class="clearfix about_page">
+<p>
         Do you have a <b>book you love so much</b> you'd like to give it to the world?  These are the books that <span class="ungluer"></span> wants to give to the world.
     </p>
     <p>
@@ -13,3 +19,9 @@
     <p class="last">
         What if you could <b>unglue it</b>?
     </p>
+
+	{% include "about_lightbox_footer.html" %}
+</div>
+</div>
+</div>
+{% endblock %}
