@@ -7,7 +7,9 @@ from regluit.utils.localdatetime import now, zuluformat
 import datetime
 import time
 
-import stripe as stripe
+from regluit.payment import stripelib
+from regluit.payment.parameters import PAYMENT_HOST_STRIPE
+from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
 
 def ProcessIPN(request):
     return HttpResponseForbidden()
@@ -113,7 +115,28 @@ class Execute(BasePaymentRequest):
     
     def __init__(self, transaction=None):
         self.transaction = transaction
+        
+        # execute transaction
+        assert transaction.host == PAYMENT_HOST_STRIPE
+        
+        sc = stripelib.StripeClient()
+        
+        # look at transaction.preapproval_key
+        # is it a customer or a token?
+        
+        # BUGBUG:  replace description with somethin more useful
+        if transaction.preapproval_key.startswith('cus_'):
+            charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
+        elif transaction.preapproval_key.startswith('tok_'):
+            charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
+
+        transaction.status = TRANSACTION_STATUS_COMPLETE
+        transaction.pay_key = charge.id
+        transaction.date_payment = now()
+        transaction.save()
             
+        self.charge = charge
+
     def api(self):
         return "Base Pay"
     

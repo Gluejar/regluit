@@ -789,21 +789,13 @@ class FundPledgeView(FormView):
 
             account.save()
             
-            charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
+            # don't make charge -- just store away
+            # charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
  
         else:
             customer = None
-            
-            charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
-        
-        # set True for now -- wondering whether we should actually wait for a webhook -- don't think so.
-        
-        ## settings to apply to transaction for TRANSACTION_STATUS_COMPLETE
-        #self.transaction.host = PAYMENT_HOST_STRIPE
-        #self.transaction.type = PAYMENT_TYPE_INSTANT
-        #self.transaction.approved = True
-        #self.transaction.status = TRANSACTION_STATUS_COMPLETE
-        #self.transaction.pay_key = charge.id
+            # don't make charge
+            #charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
         
         # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
         # should approved be set to False and wait for a webhook?
@@ -811,15 +803,18 @@ class FundPledgeView(FormView):
         self.transaction.host = PAYMENT_HOST_STRIPE
         self.transaction.approved = True
         self.transaction.status = TRANSACTION_STATUS_ACTIVE
-        self.transaction.preapproval_key = charge.id        
+        
+        if customer is None:
+            self.transaction.preapproval_key = stripe_token
+        else:
+            self.transaction.preapproval_key = customer.id
         
         self.transaction.currency = 'USD'
         self.transaction.amount = preapproval_amount
-        self.transaction.date_payment = now()
-            
+        
         self.transaction.save()
             
-        return HttpResponse("charge id: {0} / customer: {1}".format(charge.id, customer))
+        return HttpResponse("preapproval_key: {0}".format(self.transaction.preapproval_key))
 
         
 class NonprofitCampaign(FormView):
