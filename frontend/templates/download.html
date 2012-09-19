@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src="/static/js/readmill.js"></script>
 {% endblock %}
 
 {% block content %}
@@ -61,16 +61,8 @@
         
         <h4>Readmill users</h4>
         <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
-        <div class="send-to-readmill" data-download-url="{{ unglued_epub_url }}"; data-buy-url="{{ base_url }}{% url work work.id %}"; data-display="small" ></div>
+        <div class="send-to-readmill" data-download-url="{{ unglued_epub_url }}"; data-buy-url="{{ base_url }}{% url work work.id %}"; data-display="small" onload="/static/js/readmill.js"></div>
 
-        <script type="text/javascript">
-        (function() {
-          var st = document.createElement('script'); st.type = 'text/javascript'; st.async = true;
-          st.src = 'https://platform.readmill.com/send.js';
-          var p = document.getElementsByTagName('script')[0]; p.parentNode.insertBefore(st, p);
-        })();
-        </script>
-        
         <h4>Android devices</h4>
         <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png">Aldiko</p>
         
