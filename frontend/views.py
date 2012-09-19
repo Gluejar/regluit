@@ -618,6 +618,7 @@ class PledgeView(FormView):
         return preapproval_amount
     
     def get_form_kwargs(self):
+        
         assert self.request.user.is_authenticated()
         self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
         
