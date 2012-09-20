@@ -6,8 +6,9 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
 
-<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+<script type="text/javascript" src="/static/stripe/tag.js"></script>
 {% endblock %}
 
 {% block doccontent %}
@@ -33,7 +34,8 @@
     	<form method="POST" action="#">
         	{% csrf_token %}
 			{{ form.non_field_errors }}
-			{{form}}
+			{{form.as_p}}
+		    <payment key="{{STRIPE_PK}}"></payment>
 			<input name="cc_submit" type="submit" value="Verify Credit Card" id="cc_submit" />
     	</form>    	
 	    </div>
