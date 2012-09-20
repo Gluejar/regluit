@@ -46,6 +46,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/preview/$", "work", {'action': 'preview'}, name="work_preview"),
     url(r"^work/(?P<work_id>\d+)/acks/$", "work", {'action': 'acks'}, name="work_acks"),
     url(r"^work/(?P<work_id>\d+)/lockss/$", "lockss", name="lockss"),
+    url(r"^lockss/(?P<year>\d+)/$", "lockss_manifest", name="lockss_manifest"),
     url(r"^work/(?P<work_id>\d+)/download/$", "download", name="download"),
     url(r"^work/\d+/acks/images/(?P<file_name>[\w\.]*)$", "static_redirect_view",{'dir': 'images'}), 
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),

@@ -149,14 +149,14 @@ class StripeClient(object):
 
     def create_charge(self, amount, currency="usd", customer=None, card=None, description=None ):
     # https://stripe.com/docs/api?lang=python#create_charge
-    # customer or card required but not both
+    # customer.id or card required but not both
     # charge the Customer instead of the card
     # amount in cents
     
         charge = stripe.Charge(api_key=self.api_key).create(
             amount=int(100*amount), # in cents
             currency=currency,
-            customer=customer.id if customer is not None else None,
+            customer=customer,
             card=card,
             description=description
         )
@@ -217,7 +217,7 @@ class PledgeScenarioTest(TestCase):
         cls._cust_bad_card = cls._sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
     
     def test_charge_good_cust(self):
-        charge = self._sc.create_charge(10, customer=self._good_cust, description="$10 for good cust")
+        charge = self._sc.create_charge(10, customer=self._good_cust.id, description="$10 for good cust")
         self.assertEqual(type(charge.id), str)
 
         # print out all the pieces of Customer and Charge objects
@@ -232,7 +232,7 @@ class PledgeScenarioTest(TestCase):
     def test_charge_bad_cust(self):
         # expect the card to be declined -- and for us to get CardError
         self.assertRaises(stripe.CardError, self._sc.create_charge, 10,
-                          customer = self._cust_bad_card, description="$10 for bad cust")
+                          customer = self._cust_bad_card.id, description="$10 for bad cust")
         
     
     @classmethod
