@@ -24,7 +24,7 @@ git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 fabric
 paramiko
 pyasn1
-pycrypto
+pycrypto==2.5
 django-maintenancemode
 django-smtp-ssl
 django-ckeditor
