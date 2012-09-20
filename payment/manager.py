@@ -766,7 +766,7 @@ class PaymentManager( object ):
             t = Transaction.create(amount=amount, 
                                        max_amount=amount,
                                        host=transaction.host,
-                                       currency=currency,
+                                       currency=transaction.currency,
                                        status=TRANSACTION_STATUS_CREATED,
                                        campaign=transaction.campaign,
                                        user=transaction.user,
