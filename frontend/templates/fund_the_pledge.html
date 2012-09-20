@@ -1,0 +1,77 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}Fund Your Pledge{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
+
+<script type="text/javascript" src="/static/stripe/tag.js"></script>
+
+
+{% endblock %}
+
+{% block doccontent %}
+<div style="height:15px"></div>
+    
+<div class="jsmodule rounded clearfix">
+    <div class="jsmod-content">
+
+	<div><h2>Funding Your Pledge</h2>
+		<div>We're so happy that you've decided to {% if modified %}increase your pledge{% else %}join{% endif %} this campaign. We have two ways we can fund your pledge of ${{preapproval_amount}}.
+		<ol>
+		    <li>You can <a href="#donate">make a donation now</a> to {{nonprofit.name}}, a non-profit charity that's working with Unglue.it to give books to the world.</li>
+		    <li>You can <a href="#authorize">give us your credit card</a> information now; we'll charge your card only if the campaign succeeds.</li>
+		</ol>
+        </div>
+	</div>
+	<div id="donate" class="clearfix">
+	    <h3>Donate to Charity</h3>
+	    {% if request.user.credit.balance %}You have a donation credit of ${{ request.user.credit.balance }}. The amount that's uncommitted is ${{ request.user.credit.available }}, so you need to add at least ${{ needed }}.{% endif %}
+	    <p> Click the button to be sent to the {{nonprofit.name}} donation site. When you complete your donation of at least ${{ needed }}, you'll be sent back to Unglue.it and your pledge will automatically be entered. You can move your donation credit to another campaign or campaigns at any time. {{nonprofit.name}} will hold all funds and earn any interest until a campaign you support succeeds.
+	    </p>
+	    <div id="donate_charity">
+
+    	<form method="GET" action="{{nonprofit.link}}">
+			{{ donate_form.non_field_errors }}
+			{{donate_form}}
+			<input name="donate_submit" type="submit" value="Go Donate!" id="donate_submit" />
+    	</form>
+	
+	    </div>
+	</div>
+	<div id="authorize" class="clearfix">
+	    <h3>Pledge by Credit Card</h3>
+	    <p>Unglue.it uses Stripe to securely manage your Credit Card information.
+	    </p>
+	    {% if request.user.credit.available %}<p>Although you have ${{request.user.credit.available}} in donation credits, you can't support a campaign with a mixture of credit card pledges and donations.{% endif %}
+	    <div id="cc_pledge">
+		<span class="payment-errors"></span>
+		<form action="" method="post" id="payment-form">
+		  {% csrf_token %}
+		  {{ form.non_field_errors }}
+		  {{form}}	
+		  <payment key="{{STRIPE_PK}}"></payment>
+		  <input name="cc_submit" type="submit" value="Verify Credit Card" id="cc_submit" />
+		</form>
+	    </div>
+	</div>
+
+	</div>
+</div>
+
+<script type="application/x-javascript">
+
+var $j = jQuery.noConflict();
+console.debug('setting up handlers in stripe.html');
+
+$j('payment').bind('success.payment', function () {
+  console.debug('success.payment ev');
+});
+
+</script>
+{% endblock %}
+
+
