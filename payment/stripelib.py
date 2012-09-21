@@ -4,6 +4,11 @@
 from datetime import datetime
 from pytz import utc
 
+from regluit.payment.parameters import PAYMENT_HOST_STRIPE
+from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
+from regluit.payment.baseprocessor import BasePaymentRequest
+from regluit.utils.localdatetime import now, zuluformat
+
 import stripe
 
 try:
@@ -250,6 +255,49 @@ class PledgeScenarioTest(TestCase):
         # can retrieve events since a certain time?
         print "list of events", cls._sc.event.all()
         print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
+
+class StripePaymentRequest(BasePaymentRequest):
+    pass
+
+class Execute(StripePaymentRequest):
+    
+    '''
+        The Execute function sends an existing token(generated via the URL from the pay operation), and collects
+        the money.
+    '''
+    
+    def __init__(self, transaction=None):
+        self.transaction = transaction
+        
+        # execute transaction
+        assert transaction.host == PAYMENT_HOST_STRIPE
+        
+        sc = StripeClient()
+        
+        # look at transaction.preapproval_key
+        # is it a customer or a token?
+        
+        # BUGBUG:  replace description with somethin more useful
+        if transaction.preapproval_key.startswith('cus_'):
+            charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
+        elif transaction.preapproval_key.startswith('tok_'):
+            charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
+
+        transaction.status = TRANSACTION_STATUS_COMPLETE
+        transaction.pay_key = charge.id
+        transaction.date_payment = now()
+        transaction.save()
+            
+        self.charge = charge
+
+    def api(self):
+        return "Base Pay"
+    
+    def key(self):
+        # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
+        return self.transaction.pay_key
+    
+
 
 def suite():
     
