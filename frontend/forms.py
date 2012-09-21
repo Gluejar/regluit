@@ -351,7 +351,6 @@ class CCForm(forms.Form):
         decimal_places=2, 
         label="Pledge",
     )
-    retain_cc_info = forms.BooleanField(required=False, initial=True, label=_("Keep my credit card on record"))
 
 class DonateForm(forms.Form):
     preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )

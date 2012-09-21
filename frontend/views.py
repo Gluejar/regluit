@@ -758,11 +758,8 @@ class FundPledgeView(FormView):
         # first pass -- we have a token  -- also do more direct coupling to stripelib -- then move to
         # abstraction of payment.manager / payment.baseprocessor
         
-        # demonstrate two possibilities:  1) token -> charge or 2) token->customer->charge
-        
         stripe_token = form.cleaned_data["stripe_token"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
-        retain_cc_info = form.cleaned_data["retain_cc_info"]
 
         sc = stripelib.StripeClient()
         
@@ -771,44 +768,32 @@ class FundPledgeView(FormView):
         # need to set amount
         # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
         # max_amount is set -- but I don't think we need it for stripe
-        
-        if retain_cc_info:
-            # create customer and charge id and then charge the customer
-            customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
-                                          email=self.request.user.email)
-                
-            account = Account(host = PAYMENT_HOST_STRIPE,
-                              account_id = customer.id,
-                              card_last4 = customer.active_card.last4,
-                              card_type = customer.active_card.type,
-                              card_exp_month = customer.active_card.exp_month,
-                              card_exp_year = customer.active_card.exp_year,
-                              card_fingerprint = customer.active_card.fingerprint,
-                              card_country = customer.active_card.country,
-                              user = self.request.user
-                              )
 
-            account.save()
+        # create customer and charge id and then charge the customer
+        customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
+                                      email=self.request.user.email)
             
-            # don't make charge -- just store away
-            # charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
- 
-        else:
-            customer = None
-            # don't make charge
-            #charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
+        account = Account(host = PAYMENT_HOST_STRIPE,
+                          account_id = customer.id,
+                          card_last4 = customer.active_card.last4,
+                          card_type = customer.active_card.type,
+                          card_exp_month = customer.active_card.exp_month,
+                          card_exp_year = customer.active_card.exp_year,
+                          card_fingerprint = customer.active_card.fingerprint,
+                          card_country = customer.active_card.country,
+                          user = self.request.user
+                          )
+
+        account.save()
         
         # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
         # should approved be set to False and wait for a webhook?
+        self.transaction.approved = True
         self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
         self.transaction.host = PAYMENT_HOST_STRIPE
-        self.transaction.approved = True
         self.transaction.status = TRANSACTION_STATUS_ACTIVE
-        
-        if customer is None:
-            self.transaction.preapproval_key = stripe_token
-        else:
-            self.transaction.preapproval_key = customer.id
+    
+        self.transaction.preapproval_key = customer.id
         
         self.transaction.currency = 'USD'
         self.transaction.amount = preapproval_amount

@@ -226,13 +226,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     support_button.click()    
     
     # now fill out the credit card
-    
-    # click the retain CC box
-    retain_cc_box = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[id*='retain_cc_info']"))
-    if not retain_cc_box.is_selected():
-        retain_cc_box.click()
         
-    #cc_num = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[id*='paymentNumber']"))
     sel.execute_script("""document.getElementById("paymentNumber").value="4242424242424242";""")
     sel.execute_script("""document.getElementById("paymentExpiryMonth").value="01";""")
     sel.execute_script("""document.getElementById("paymentExpiryYear").value="14";""")
