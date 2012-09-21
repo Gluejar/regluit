@@ -219,6 +219,7 @@ class Campaign(models.Model):
             self.created = None
             self.name = 'copy of %s' % self.name
             self.activated = None
+            self.update_left()
             self.save()
             self.managers=old_managers
             new_premiums= self.premiums.filter(type='CU')
@@ -367,7 +368,9 @@ class Campaign(models.Model):
     @property
     def supporters_count(self):
         # avoid transmitting the whole list if you don't need to; let the db do the count.
-        return self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        active = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE).values_list('user', flat=True).distinct().count()
+        return active+complete
 
     def transaction_to_recharge(self, user):
         """given a user, return the transaction to be recharged if there is one -- None otherwise"""

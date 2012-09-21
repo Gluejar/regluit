@@ -30,7 +30,8 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<div class="campaign_info">
 			Campaign: {{ campaign.name }}<br />
 			Campaign status: {{ campaign.status }}	<br />
-			Created: {{ campaign.created }}
+			Created: {{ campaign.created }}<br />
+			${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 			</div>
 			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
 				<div>
@@ -98,6 +99,8 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
 						Created: {{ campaign.created }}<br />
 						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+						<br />
+						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 					</div>
 				{% endif %}
 			</div>
