@@ -59,10 +59,11 @@
         
         <p>If this doesn't work, use the instructions below for your device.</p>
         
+        {% if unglued_epub_url %}
         <h4>Readmill users</h4>
         <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
         <div class="send-to-readmill" data-download-url="{{ unglued_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small" onload="/static/js/readmill.js"></div>
-
+        {% endif %}
         <h4>Android devices</h4>
         <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png">Aldiko</p>
         

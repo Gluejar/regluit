@@ -2065,7 +2065,7 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
-    unglued_epub_url = unglued_ebooks.filter(format='epub')[0].url
+    unglued_epub_url =  work.ebooks().filter(format='epub')[0].url if work.ebooks().filter(format='epub').count() else None
 
     context.update({
         'unglued_ebooks': unglued_ebooks,
