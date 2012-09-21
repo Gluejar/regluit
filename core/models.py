@@ -213,6 +213,7 @@ class Campaign(models.Model):
     def clone(self):
         if self.clonable():
             old_managers= self.managers.all()
+            new_premiums= self.premiums.filter(type='CU')
             self.pk = None
             self.status = 'INITIALIZED'
             self.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
@@ -222,12 +223,12 @@ class Campaign(models.Model):
             self.update_left()
             self.save()
             self.managers=old_managers
-            new_premiums= self.premiums.filter(type='CU')
             for premium in new_premiums:
                 premium.pk=None
                 premium.created = None
                 premium.campaign = self
                 premium.save()
+            return self
         else:
             return None
 

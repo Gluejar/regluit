@@ -1184,11 +1184,9 @@ def rh_tools(request):
             if request.method == 'POST' and  request.POST.has_key('c%s-campaign_id'% campaign.id):
                 clone_form= CloneCampaignForm(data=request.POST, prefix = 'c%s' % campaign.id)
                 if clone_form.is_valid():
-                    new_campaign= campaign.clone()
+                    campaign.clone()
             else:
                 campaign.clone_form= CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix = 'c%s' % campaign.id)
-    if new_campaign:
-        campaigns=campaigns.list().append(new_campaign)
     return render(request, "rh_tools.html", {'claims': claims ,'campaigns': campaigns}) 
 
 def rh_admin(request):
