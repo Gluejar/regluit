@@ -20,10 +20,10 @@
 Any questions not covered here?  Please email us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
 </div></div>
 
-{% if request.user.campaigns.all %}
+{% if campaigns %}
 <h2>Campaigns You Manage</h2>
 	<dl>
-	{% for campaign in request.user.campaigns.all %}
+	{% for campaign in campaigns %}
 		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
 		<dd>
 			<div class="work_campaigns clearfix">
@@ -32,9 +32,20 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			Campaign status: {{ campaign.status }}	<br />
 			Created: {{ campaign.created }}
 			</div>
-			<div>
-				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
-			</div>
+			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+				<div>
+					<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+				</div>
+			{% endif %}
+			{% if campaign.clone_form %}
+				<div>
+				<form method="POST" action="#">
+					{% csrf_token %}
+					{{ campaign.clone_form }}{{ campaign.clone_form.errors }}				
+					<input type="submit" name="clone" value="Clone this Campaign">
+				</form>
+				</div>
+			{% endif %}
 			</div>
 		</dd>
 	{% endfor %}
@@ -51,7 +62,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />Date of Claim : {{ claim.created }}
 			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.can_open_new  %}
-			<h3>Open a campaign for this work</h3>
+			<h3>Open a blank campaign for this work</h3>
 			<form method="POST" action="#">
 				{% csrf_token %}
 				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
@@ -67,20 +78,28 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
 			<div class="work_campaigns clearfix">
-			<div class="campaign_info">
-				Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
-				Created: {{ campaign.created }}<br />
-				Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
-				<form method="POST" action="#">{% csrf_token %}
-					Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
-					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
-				</form>
-			</div>
-			{% if request.user in campaign.managers.all %}
-			<div>
-				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
-			</div>
-			{% endif %}
+				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+					<div class="campaign_info">
+						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+							<form method="POST" action="#">{% csrf_token %}
+								Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+								<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
+							</form>
+					</div>
+					{% if request.user in campaign.managers.all %}
+						<div>
+							<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+						</div>
+					{% endif %}
+				{% else %}
+					<div class="campaign_info">
+						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+					</div>
+				{% endif %}
 			</div>
 			{% endfor %}
 			{% endif %}

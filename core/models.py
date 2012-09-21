@@ -210,6 +210,32 @@ class Campaign(models.Model):
         except:
             return u"Campaign %s (no associated work)" % self.name
     
+    def clone(self):
+        if self.clonable():
+            old_managers= self.managers.all()
+            self.pk = None
+            self.status = 'INITIALIZED'
+            self.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+            self.created = None
+            self.name = 'copy of %s' % self.name
+            self.activated = None
+            self.save()
+            self.managers=old_managers
+            new_premiums= self.premiums.filter(type='CU')
+            for premium in new_premiums:
+                premium.pk=None
+                premium.created = None
+                premium.campaign = self
+                premium.save()
+        else:
+            return None
+
+    def clonable(self):
+        if self.status == 'UNSUCCESSFUL' and self.work.last_campaign().id==self.id:
+            return True
+        else:
+            return False
+            
     @property
     def launchable(self):
         may_launch=True

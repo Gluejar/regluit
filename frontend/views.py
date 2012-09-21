@@ -48,7 +48,7 @@ from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPle
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
@@ -1152,7 +1152,7 @@ def rh_tools(request):
             claim.campaigns = claim.work.campaigns.all()
         else:
             claim.campaigns = []
-        claim.can_open_new=True
+        claim.can_open_new=False if claim.work.last_campaign_status in ['ACTIVE','INITIALIZED'] else True
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
                 claim.can_open_new=False
@@ -1177,7 +1177,19 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
         else:
             claim.can_open_new=False
-    return render(request, "rh_tools.html", {'claims': claims ,}) 
+    campaigns = request.user.campaigns.all()
+    new_campaign = None
+    for campaign in campaigns:
+        if campaign.clonable():
+            if request.method == 'POST' and  request.POST.has_key('c%s-campaign_id'% campaign.id):
+                clone_form= CloneCampaignForm(data=request.POST, prefix = 'c%s' % campaign.id)
+                if clone_form.is_valid():
+                    new_campaign= campaign.clone()
+            else:
+                campaign.clone_form= CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix = 'c%s' % campaign.id)
+    if new_campaign:
+        campaigns=campaigns.list().append(new_campaign)
+    return render(request, "rh_tools.html", {'claims': claims ,'campaigns': campaigns}) 
 
 def rh_admin(request):
     if not request.user.is_authenticated() :
