@@ -19,13 +19,13 @@
         <h3>Read the unglued edition!</h3>
         <div class="ebook_download">
             {% for ebook in unglued_ebooks %}
-                {% with ebook.url as url %}
-                    <a href="{{ url }}"><img src="{{ ebook.rights_badge }}"></a>
-                    <a href="{{ url }}">{{ ebook.format }}</a>
-                    {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
-                    {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
-                    {% if not forloop.last %}<br /><br />{% endif %}
-                {% endwith %}
+                <a href="{{ ebook.url }}">
+                <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
+                <img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /> 
+                {{ ebook.format }}</a>
+                {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
+                {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
+                {% if not forloop.last %}<br /><br />{% endif %}
             {% endfor %}		
         </div>
     </div>
@@ -38,13 +38,13 @@
             <h4>Freely available editions</h4>
         {% endif %}
             {% for ebook in other_ebooks %}
-                {% with ebook.url as url %}
-                    <a href="{{ url }}"><img src="{{ ebook.rights_badge }}"></a>
-                    <a href="{{ url }}">{{ ebook.format }}</a>
-                    {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
-                    {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
-                    {% if not forloop.last %}<br /><br />{% endif %}
-                {% endwith %}
+                <a href="{{ ebook.url }}">
+                <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
+                <img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" />
+                {{ ebook.format }} at {{ebook.provider}}</a>
+                {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
+                {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
+                {% if not forloop.last %}<br /><br />{% endif %}
             {% endfor %}		
     </div>
     {% endif %}
@@ -65,7 +65,7 @@
         <div class="send-to-readmill" data-download-url="{{ unglued_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small" onload="/static/js/readmill.js"></div>
         {% endif %}
         <h4>Android devices</h4>
-        <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png">Aldiko</p>
+        <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
         
         <ul>
         <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
@@ -77,7 +77,7 @@
         {% endcomment %}
         
         <h4>iOS devices</h4>
-        <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg">iBooks</p>
+        <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
         {% comment %}test{% endcomment %}
         <ul>
         <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
@@ -86,7 +86,7 @@
         </ul>
         
         <h4>PC, Mac, or Linux</h4>
-        <p class="ebook_download logo"><img src="/static/images/calibre_logo.png">Calibre</p>
+        <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
         <ul>
         <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
         <li>Download your book from this page using your device's web browser.</li>
