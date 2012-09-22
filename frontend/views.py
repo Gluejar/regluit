@@ -761,44 +761,9 @@ class FundPledgeView(FormView):
         stripe_token = form.cleaned_data["stripe_token"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
 
-        sc = stripelib.StripeClient()
-        
-        # let's figure out what part of transaction can be used to store info
-        # try placing charge id in transaction.pay_key
-        # need to set amount
-        # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
-        # max_amount is set -- but I don't think we need it for stripe
-
-        # create customer and charge id and then charge the customer
-        customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
-                                      email=self.request.user.email)
-            
-        account = Account(host = PAYMENT_HOST_STRIPE,
-                          account_id = customer.id,
-                          card_last4 = customer.active_card.last4,
-                          card_type = customer.active_card.type,
-                          card_exp_month = customer.active_card.exp_month,
-                          card_exp_year = customer.active_card.exp_year,
-                          card_fingerprint = customer.active_card.fingerprint,
-                          card_country = customer.active_card.country,
-                          user = self.request.user
-                          )
-
-        account.save()
-        
-        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
-        # should approved be set to False and wait for a webhook?
-        self.transaction.approved = True
-        self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
-        self.transaction.host = PAYMENT_HOST_STRIPE
-        self.transaction.status = TRANSACTION_STATUS_ACTIVE
-    
-        self.transaction.preapproval_key = customer.id
-        
-        self.transaction.currency = 'USD'
-        self.transaction.amount = preapproval_amount
-        
-        self.transaction.save()
+        p = PaymentManager()
+        t, url = p.authorize(self.transaction, preapproval_amount)
+        logger.info("t, url: {0} {1}".format(t, url))
             
         return HttpResponse("preapproval_key: {0}".format(self.transaction.preapproval_key))
 

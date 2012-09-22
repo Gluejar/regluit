@@ -552,8 +552,8 @@ class PaymentManager( object ):
         '''    
         
         if transaction.host == PAYMENT_HOST_NONE:
-            #TODO send user to select a payment processor
-            pass    
+            #TODO send user to select a payment processor -- for now, set to a system setting
+            transaction.host = settings.PAYMENT_PROCESSOR    
                 
         # we might want to not allow for a return_url  to be passed in but calculated
         # here because we have immediate access to the Transaction object.
