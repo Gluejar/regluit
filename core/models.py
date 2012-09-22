@@ -211,6 +211,7 @@ class Campaign(models.Model):
             return u"Campaign %s (no associated work)" % self.name
     
     def clone(self):
+        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign"""
         if self.clonable():
             old_managers= self.managers.all()
             new_premiums= self.premiums.filter(type='CU')
