@@ -895,6 +895,10 @@ class Badge(models.Model):
     name = models.CharField(max_length=72, blank=True)
     description = models.TextField(default='', null=True)
     
+    @property
+    def path(self):
+        return '/static/images/%s.png' % self.name
+    
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
