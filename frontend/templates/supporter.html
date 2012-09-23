@@ -66,8 +66,6 @@ function highlightTarget(targetdiv) {
 {% comment %}
 To do:
 create topsection file for inclusion in multiple contexts, if needed
-figure out how to configure date display 
-    decide if we're even including date joined in profile
 Goodreads 
     be sure words display correctlydja
     do I need both add-wishlist and remove-wishlist classes? do they differ?
@@ -94,7 +92,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             {% ifequal supporter request.user %}
                             <div id="user-block1">
                             <div class="block-inner">
-                            <span class="my-setting">My Profile</span>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -104,7 +101,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                 {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username|truncatechars:20 }}</a></span>
-                                <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
                             {% else %}
@@ -116,7 +112,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                 {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
-                                <span class="user-date">{{ date }}</span>
                             </div>
                             </div>
                             <div class="user-block2">
