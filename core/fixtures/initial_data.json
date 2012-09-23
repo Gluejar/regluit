@@ -99,7 +99,15 @@
     "model": "core.badge", 
     "fields": {
       "name": "pledger", 
-      "description": "has made a pledge in at least one ungluing campaign" 
+      "description": "a pledger" 
+    }
+  },
+  {
+    "pk": 2, 
+    "model": "core.badge", 
+    "fields": {
+      "name": "pledger2", 
+      "description": "a repeat pledger" 
     }
   }
 ]
