@@ -1358,6 +1358,8 @@ def supporter(request, supporter_username, template_name):
     else:
         activetab = "#3"
     
+    date = supporter.date_joined.strftime("%B %d, %Y")
+    
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
 
@@ -1413,6 +1415,7 @@ def supporter(request, supporter_username, template_name):
             "backed": backed,
             "backing": backing,
             "wished": wished,
+            "date": date,
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
             "goodreads_auth_url": reverse('goodreads_auth'),
