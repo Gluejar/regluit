@@ -588,7 +588,8 @@ class DonationView(TemplateView):
         return self.render_to_response(context)
         
     def get_context_data(self, *args, **kwargs):
-        context = {'user' : self.request.user}
+        context = {'user' : self.request.user,'nonprofit': settings.NONPROFIT}
+        context['donate_form'] = DonateForm(initial={'username':self.request.user.username})
         return context
             
 class PledgeView(FormView):
