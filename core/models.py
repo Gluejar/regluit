@@ -609,6 +609,15 @@ class Work(models.Model):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
 
+    def first_oclc(self):
+        preferred_id=self.preferred_edition.oclc
+        if preferred_id:
+            return preferred_id
+        try:
+            return self.identifiers.filter(type='oclc')[0].value
+        except IndexError:
+            return ''
+
     def first_isbn_13(self):
         preferred_id=self.preferred_edition.isbn_13
         if preferred_id:
