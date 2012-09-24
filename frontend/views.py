@@ -759,49 +759,33 @@ class FundPledgeView(FormView):
         # first pass -- we have a token  -- also do more direct coupling to stripelib -- then move to
         # abstraction of payment.manager / payment.baseprocessor
         
+        # we should getting a stripe_token only if we had asked for CC data
+        
+        # BUGBUG -- don't know whether transaction.host should be None -- but if it is, set to the
+        # default processor
+        
+        transaction = self.transaction
+        if transaction.host is None or transaction.host == PAYMENT_HOST_NONE:
+            transaction.host = settings.PAYMENT_PROCESSOR
+            
         stripe_token = form.cleaned_data["stripe_token"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
 
-        sc = stripelib.StripeClient()
+        p = PaymentManager()
         
-        # let's figure out what part of transaction can be used to store info
-        # try placing charge id in transaction.pay_key
-        # need to set amount
-        # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
-        # max_amount is set -- but I don't think we need it for stripe
-
-        # create customer and charge id and then charge the customer
-        customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
-                                      email=self.request.user.email)
+        # if we get a stripe_token, create a new stripe account
+        
+        account = p.make_account(transaction.user, stripe_token, host=transaction.host)
+        logger.info('account.id: {0}'.format(account.id))
+        
+        # GOAL: deactivate any older accounts associated with user
+        
+        # with the Account in hand, now authorize transaction
+        transaction.amount = preapproval_amount
+        t, url = p.authorize(transaction)
+        logger.info("t, url: {0} {1}".format(t, url))
             
-        account = Account(host = PAYMENT_HOST_STRIPE,
-                          account_id = customer.id,
-                          card_last4 = customer.active_card.last4,
-                          card_type = customer.active_card.type,
-                          card_exp_month = customer.active_card.exp_month,
-                          card_exp_year = customer.active_card.exp_year,
-                          card_fingerprint = customer.active_card.fingerprint,
-                          card_country = customer.active_card.country,
-                          user = self.request.user
-                          )
-
-        account.save()
-        
-        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
-        # should approved be set to False and wait for a webhook?
-        self.transaction.approved = True
-        self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
-        self.transaction.host = PAYMENT_HOST_STRIPE
-        self.transaction.status = TRANSACTION_STATUS_ACTIVE
-    
-        self.transaction.preapproval_key = customer.id
-        
-        self.transaction.currency = 'USD'
-        self.transaction.amount = preapproval_amount
-        
-        self.transaction.save()
-            
-        return HttpResponse("preapproval_key: {0}".format(self.transaction.preapproval_key))
+        return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
 
         
 class NonprofitCampaign(FormView):

@@ -1,15 +1,24 @@
 # https://github.com/stripe/stripe-python
 # https://stripe.com/docs/api?lang=python#top
 
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 from pytz import utc
 
+from django.conf import settings
+
+from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
-from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
-from regluit.payment.baseprocessor import BasePaymentRequest
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment import baseprocessor
 from regluit.utils.localdatetime import now, zuluformat
 
 import stripe
+
+logger = logging.getLogger(__name__)
+
+class StripeError(Exception):
+    pass
 
 try:
     import unittest
@@ -256,9 +265,87 @@ class PledgeScenarioTest(TestCase):
         print "list of events", cls._sc.event.all()
         print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
 
-class StripePaymentRequest(BasePaymentRequest):
+class StripePaymentRequest(baseprocessor.BasePaymentRequest):
     pass
 
+def make_account(user, token):
+    """returns a payment.models.Account based on stripe token and user"""
+    
+    sc = StripeClient()
+    
+    # create customer and charge id and then charge the customer
+    customer = sc.create_customer(card=token, description=user.username,
+                                  email=user.email)
+        
+    account = Account(host = PAYMENT_HOST_STRIPE,
+                      account_id = customer.id,
+                      card_last4 = customer.active_card.last4,
+                      card_type = customer.active_card.type,
+                      card_exp_month = customer.active_card.exp_month,
+                      card_exp_year = customer.active_card.exp_year,
+                      card_fingerprint = customer.active_card.fingerprint,
+                      card_country = customer.active_card.country,
+                      user = user
+                      )
+
+    account.save()
+    
+    return account
+
+class Pay(StripePaymentRequest, baseprocessor.Pay):
+    pass
+    
+class Preapproval(StripePaymentRequest, baseprocessor.Preapproval):
+    
+    def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
+      
+        # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
+        
+        self.transaction = transaction
+        
+        now_val = now()
+        if expiry is None:
+            expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+        transaction.date_authorized = now_val
+        transaction.date_expired = expiry
+          
+        sc = StripeClient()
+        
+        # let's figure out what part of transaction can be used to store info
+        # try placing charge id in transaction.pay_key
+        # need to set amount
+        # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
+        # max_amount is set -- but I don't think we need it for stripe
+
+        # ASSUMPTION:  a user has any given moment one and only one active payment Account
+
+        if transaction.user.account_set.filter(date_deactivated__isnull=True).count() > 1:
+            logger.warning("user {0} has more than one active payment account".format(transaction.user))
+        elif transaction.user.account_set.filter(date_deactivated__isnull=True).count() == 0:
+            logger.warning("user {0} has no active payment account".format(transaction.user))
+            raise StripeError("user {0} has no active payment account".format(transaction.user))
+                
+        account = transaction.user.account_set.filter(date_deactivated__isnull=True)[0]
+        logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
+        
+        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+        # should approved be set to False and wait for a webhook?
+        transaction.approved = True
+        transaction.type = PAYMENT_TYPE_AUTHORIZATION
+        transaction.host = PAYMENT_HOST_STRIPE
+        transaction.status = TRANSACTION_STATUS_ACTIVE
+    
+        transaction.preapproval_key = account.account_id
+        
+        transaction.currency = 'USD'
+        transaction.amount = amount
+        
+        transaction.save()
+        
+    def key(self):
+        return self.transaction.preapproval_key
+  
+  
 class Execute(StripePaymentRequest):
     
     '''
@@ -297,7 +384,6 @@ class Execute(StripePaymentRequest):
         # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
         return self.transaction.pay_key
     
-
 
 def suite():
     

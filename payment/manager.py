@@ -552,8 +552,8 @@ class PaymentManager( object ):
         '''    
         
         if transaction.host == PAYMENT_HOST_NONE:
-            #TODO send user to select a payment processor
-            pass    
+            #TODO send user to select a payment processor -- for now, set to a system setting
+            transaction.host = settings.PAYMENT_PROCESSOR    
                 
         # we might want to not allow for a return_url  to be passed in but calculated
         # here because we have immediate access to the Transaction object.
@@ -565,7 +565,7 @@ class PaymentManager( object ):
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
         method = getattr(transaction.get_payment_class(), "Preapproval")
-        p = method(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
+        p = method(transaction, transaction.amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
@@ -583,7 +583,7 @@ class PaymentManager( object ):
             
             url = p.next_url()
                 
-            logger.info("Authorize Success: " + url)
+            logger.info("Authorize Success: " + url if url is not None else '')
             
             # modification and initial pledge use different notification templates --
             # decide which to send
@@ -922,5 +922,14 @@ class PaymentManager( object ):
             t.save()
             logger.info("Pledge Error: %s" % p.error_string())
             return t, None
+        
+    def make_account(self, user, token, host):
+        
+        """delegate to a specific payment module the task of creating a payment account"""
+        mod = __import__("regluit.payment." + host, fromlist=[host])
+        method = getattr(mod, "make_account")
+        return method(user, token)
+        
+        
     
     
