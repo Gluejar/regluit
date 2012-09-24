@@ -759,14 +759,33 @@ class FundPledgeView(FormView):
         # first pass -- we have a token  -- also do more direct coupling to stripelib -- then move to
         # abstraction of payment.manager / payment.baseprocessor
         
+        # we should getting a stripe_token only if we had asked for CC data
+        
+        # BUGBUG -- don't know whether transaction.host should be None -- but if it is, set to the
+        # default processor
+        
+        transaction = self.transaction
+        if transaction.host is None or transaction.host == PAYMENT_HOST_NONE:
+            transaction.host = settings.PAYMENT_PROCESSOR
+            
         stripe_token = form.cleaned_data["stripe_token"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
 
         p = PaymentManager()
-        t, url = p.authorize(self.transaction, preapproval_amount)
+        
+        # if we get a stripe_token, create a new stripe account
+        
+        account = p.make_account(transaction.user, stripe_token, host=transaction.host)
+        logger.info('account.id: {0}'.format(account.id))
+        
+        # GOAL: deactivate any older accounts associated with user
+        
+        # with the Account in hand, now authorize transaction
+        transaction.amount = preapproval_amount
+        t, url = p.authorize(transaction)
         logger.info("t, url: {0} {1}".format(t, url))
             
-        return HttpResponse("preapproval_key: {0}".format(self.transaction.preapproval_key))
+        return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
 
         
 class NonprofitCampaign(FormView):

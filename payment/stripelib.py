@@ -1,15 +1,24 @@
 # https://github.com/stripe/stripe-python
 # https://stripe.com/docs/api?lang=python#top
 
-from datetime import datetime
+import logging
+from datetime import datetime, timedelta
 from pytz import utc
 
+from django.conf import settings
+
+from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
-from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
-from regluit.payment.baseprocessor import BasePaymentRequest
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment import baseprocessor
 from regluit.utils.localdatetime import now, zuluformat
 
 import stripe
+
+logger = logging.getLogger(__name__)
+
+class StripeError(Exception):
+    pass
 
 try:
     import unittest
@@ -256,7 +265,7 @@ class PledgeScenarioTest(TestCase):
         print "list of events", cls._sc.event.all()
         print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
 
-class StripePaymentRequest(BasePaymentRequest):
+class StripePaymentRequest(baseprocessor.BasePaymentRequest):
     pass
 
 def make_account(user, token):
@@ -265,10 +274,10 @@ def make_account(user, token):
     sc = StripeClient()
     
     # create customer and charge id and then charge the customer
-    customer = sc.create_customer(card=stripe_token, description=user.username,
+    customer = sc.create_customer(card=token, description=user.username,
                                   email=user.email)
         
-    self.account = Account(host = PAYMENT_HOST_STRIPE,
+    account = Account(host = PAYMENT_HOST_STRIPE,
                       account_id = customer.id,
                       card_last4 = customer.active_card.last4,
                       card_type = customer.active_card.type,
@@ -280,14 +289,13 @@ def make_account(user, token):
                       )
 
     account.save()
+    
     return account
 
+class Pay(StripePaymentRequest, baseprocessor.Pay):
+    pass
     
-class Account(BasePaymentRequest):
-    def __init__(self, user, token):
-
-    
-class Preapproval(StripePaymentRequest):
+class Preapproval(StripePaymentRequest, baseprocessor.Preapproval):
     
     def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
       
@@ -309,9 +317,16 @@ class Preapproval(StripePaymentRequest):
         # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
         # max_amount is set -- but I don't think we need it for stripe
 
- 
         # ASSUMPTION:  a user has any given moment one and only one active payment Account
-        customer = transaction.user
+
+        if transaction.user.account_set.filter(date_deactivated__isnull=True).count() > 1:
+            logger.warning("user {0} has more than one active payment account".format(transaction.user))
+        elif transaction.user.account_set.filter(date_deactivated__isnull=True).count() == 0:
+            logger.warning("user {0} has no active payment account".format(transaction.user))
+            raise StripeError("user {0} has no active payment account".format(transaction.user))
+                
+        account = transaction.user.account_set.filter(date_deactivated__isnull=True)[0]
+        logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
         
         # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
         # should approved be set to False and wait for a webhook?
@@ -320,12 +335,15 @@ class Preapproval(StripePaymentRequest):
         transaction.host = PAYMENT_HOST_STRIPE
         transaction.status = TRANSACTION_STATUS_ACTIVE
     
-        transaction.preapproval_key = customer.id
+        transaction.preapproval_key = account.account_id
         
         transaction.currency = 'USD'
-        transaction.amount = preapproval_amount
+        transaction.amount = amount
         
         transaction.save()
+        
+    def key(self):
+        return self.transaction.preapproval_key
   
   
 class Execute(StripePaymentRequest):
@@ -366,7 +384,6 @@ class Execute(StripePaymentRequest):
         # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
         return self.transaction.pay_key
     
-
 
 def suite():
     
