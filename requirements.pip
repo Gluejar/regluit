@@ -24,7 +24,7 @@ https://github.com/aladagemre/django-notification/tarball/master
 fabric
 paramiko
 pyasn1
-pycrypto
+pycrypto==2.5
 django-maintenancemode
 django-smtp-ssl
 django-ckeditor
