@@ -615,6 +615,7 @@ class DownloadPageTest(TestCase):
 
         e1 = models.Edition()
         e1.work = w
+        e1.unglued = True
         e2 = models.Edition()
         e2.work = w
         e1.save()
@@ -623,7 +624,7 @@ class DownloadPageTest(TestCase):
         eb1 = models.Ebook()
         eb1.url = "http://example.com"
         eb1.edition = e1
-        eb1.unglued = True
+        eb1.format = 'epub'
         
         eb2 = models.Ebook()
         eb2.url = "http://example2.com"
@@ -634,5 +635,5 @@ class DownloadPageTest(TestCase):
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id)
-        self.assertContains(response, "http://example.com", count=2)
+        self.assertContains(response, "http://example.com", count=3)
         self.assertContains(response, "http://example2.com", count=2)

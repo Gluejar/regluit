@@ -7,14 +7,14 @@
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 {% endblock %}
 
-{% block base_js %}
-<script type="text/javascript" src="{{ jquery_home }}"></script>
+{% block extra_js %}
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+<script type="text/javascript" src="/static/js/readmill.js"></script>
 
 <script>
 var $j = jQuery.noConflict();
@@ -72,27 +72,41 @@ $j(document).ready(function(){
                             Campaign suspended. <br />See <a href="/faq">FAQ</a>.
                         {% else %}{% if status == 'WITHDRAWN' %}
                             Campaign withdrawn. <br />See <a href="/faq">FAQ</a>.
+                        {% else %}{% if wishers == 0 %}
+                            <span class="findtheungluers">No ungluers are wishing yet.</span>
+                            <br />
+                            Be the first!
                         {% else %}{% if wishers == 1 %}
                             <span class="findtheungluers">{{ wishers }} Ungluer is wishing</span>
+                            <br />
+                            You can too!
                         {% else %}
                             <span class="findtheungluers">{{ wishers }} Ungluers are wishing</span>
-                        {% endif %}
-                        <br />
-                        You can too!
-                        {% endif %}{% endif %}{% endif %}{% endif %}
+                            <br />
+                            You can too!
+                        {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
                     {% endif %}
                 {% else %}
-                	<span class="findtheungluers">
-                    {% if wishers == 1 %}
-                        {{ wishers }} Ungluer is wishing
+                    {% if wishers == 0 %}
+                    	<span class="findtheungluers">
+                            No ungluers are wishing yet.
+                        </span>
+                        <br />
+                        Be the first!
+                    {% else %}{% if wishers == 1 %}
+                    	<span class="findtheungluers">
+                            {{ wishers }} Ungluer is wishing
+                        </span>
+                        <br />
+                        You can too!
                     {% else %}
-                        {{ wishers }} Ungluers are wishing
-                    {% endif %}
-                    </span>
-					<br />
-					You can too!
+                    	<span class="findtheungluers">
+                            {{ wishers }} Ungluers are wishing
+                        </span>
+                        <br />
+                        You can too!
+                    {% endif %}{% endif %}
                 {% endif %}{% endif %}
-                    </span>
                 </div>
             </div>
             {% include "explore.html" %}

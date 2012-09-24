@@ -8,6 +8,10 @@ $j(document).ready(function() {
         event.preventDefault();
 		$j("#lightbox").load( $j(this).attr("href") + " #lightbox_content");
 		
+		if ($j(this).attr("href").substr(-9,8) == "download") {
+		    jQuery.getScript('/static/js/readmill.js');
+		}
+		
 		// fade-out rest of page elements on expand
 		$j('#js-topsection').css({"opacity": "0.07"});
 		$j('.launch_top').css({"opacity": "0.07"});
