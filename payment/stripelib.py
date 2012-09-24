@@ -259,6 +259,34 @@ class PledgeScenarioTest(TestCase):
 class StripePaymentRequest(BasePaymentRequest):
     pass
 
+def make_account(user, token):
+    """returns a payment.models.Account based on stripe token and user"""
+    
+    sc = StripeClient()
+    
+    # create customer and charge id and then charge the customer
+    customer = sc.create_customer(card=stripe_token, description=user.username,
+                                  email=user.email)
+        
+    self.account = Account(host = PAYMENT_HOST_STRIPE,
+                      account_id = customer.id,
+                      card_last4 = customer.active_card.last4,
+                      card_type = customer.active_card.type,
+                      card_exp_month = customer.active_card.exp_month,
+                      card_exp_year = customer.active_card.exp_year,
+                      card_fingerprint = customer.active_card.fingerprint,
+                      card_country = customer.active_card.country,
+                      user = user
+                      )
+
+    account.save()
+    return account
+
+    
+class Account(BasePaymentRequest):
+    def __init__(self, user, token):
+
+    
 class Preapproval(StripePaymentRequest):
     
     def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
@@ -281,22 +309,9 @@ class Preapproval(StripePaymentRequest):
         # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
         # max_amount is set -- but I don't think we need it for stripe
 
-        # create customer and charge id and then charge the customer
-        customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
-                                      email=self.request.user.email)
-            
-        account = Account(host = PAYMENT_HOST_STRIPE,
-                          account_id = customer.id,
-                          card_last4 = customer.active_card.last4,
-                          card_type = customer.active_card.type,
-                          card_exp_month = customer.active_card.exp_month,
-                          card_exp_year = customer.active_card.exp_year,
-                          card_fingerprint = customer.active_card.fingerprint,
-                          card_country = customer.active_card.country,
-                          user = transaction.user
-                          )
-
-        account.save()
+ 
+        # ASSUMPTION:  a user has any given moment one and only one active payment Account
+        customer = transaction.user
         
         # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
         # should approved be set to False and wait for a webhook?
