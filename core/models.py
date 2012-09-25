@@ -414,19 +414,19 @@ class Identifier(models.Model):
     def set(type=None, value=None, edition=None, work=None):
         # if there's already an id of this type for this work and edition, change it 
         # if not, create it. if the id exists and points to something else, change it.
-        id= Identifier.get_or_add(type=type, value=value, edition = edition, work=work)
-        if id.work.id != work.id:
-            id.work=work
-            id.save()
-        if id.edition and edition:
-            if id.edition.id != edition.id:
-                id.edition = edition
-                id.save()
+        identifier= Identifier.get_or_add(type=type, value=value, edition = edition, work=work)
+        if identifier.work.id != work.id:
+            identifier.work=work
+            identifier.save()
+        if identifier.edition and edition:
+            if identifier.edition.id != edition.id:
+                identifier.edition = edition
+                identifier.save()
             others= Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
             if others.count()>0:
                 for other in others:
                     other.delete()
-        return id
+        return identifier
     
     @classmethod
     def get_or_add(klass, type='goog', value=None, edition=None, work=None):
