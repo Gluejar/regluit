@@ -20,9 +20,9 @@
         <div class="ebook_download">
             {% for ebook in unglued_ebooks %}
                 <a href="{{ ebook.url }}">
-                <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
-                <img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /> 
-                {{ ebook.format }}</a>
+                <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
+                <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
+                <a href="{{ ebook.url }}">{{ ebook.format }}</a>
                 {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
                 {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
@@ -39,9 +39,9 @@
         {% endif %}
             {% for ebook in other_ebooks %}
                 <a href="{{ ebook.url }}">
-                <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
-                <img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" />
-                {{ ebook.format }} at {{ebook.provider}}</a>
+                <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
+                <a href="{{ ebook.url }}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
+                <a href="{{ ebook.url }}">{{ ebook.format }} at {{ebook.provider}}</a>
                 {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
                 {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
