@@ -581,7 +581,13 @@ class PaymentManager( object ):
             transaction.preapproval_key = p.key()
             transaction.save()
             
+            # it make sense for the payment processor library to calculate next_url when
+            # user is redirected there.  But if no redirection is required, send user
+            # straight on to the return_url
             url = p.next_url()
+            
+            if url is None:
+                url = return_url
                 
             logger.info("Authorize Success: " + url if url is not None else '')
             

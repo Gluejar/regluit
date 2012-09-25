@@ -784,8 +784,13 @@ class FundPledgeView(FormView):
         transaction.amount = preapproval_amount
         t, url = p.authorize(transaction)
         logger.info("t, url: {0} {1}".format(t, url))
-            
-        return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
+        
+        # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
+        # BUGBUG:  Make sure we are testing properly for successful authorization properly here  
+        if url is not None:
+            return HttpResponseRedirect(url)
+        else:
+            return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
 
         
 class NonprofitCampaign(FormView):

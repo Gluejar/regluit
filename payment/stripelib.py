@@ -266,6 +266,7 @@ class PledgeScenarioTest(TestCase):
         print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
 
 class StripePaymentRequest(baseprocessor.BasePaymentRequest):
+    """so far there is no need to have a separate class here"""
     pass
 
 def make_account(user, token):
@@ -344,6 +345,10 @@ class Preapproval(StripePaymentRequest, baseprocessor.Preapproval):
         
     def key(self):
         return self.transaction.preapproval_key
+    
+    def next_url(self):
+        """return None because no redirection to stripe is required"""
+        return None
   
   
 class Execute(StripePaymentRequest):
