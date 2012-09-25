@@ -164,6 +164,9 @@ class UserData(forms.Form):
             return username
         raise forms.ValidationError(_("Your username is already "+username))
 
+class CloneCampaignForm(forms.Form):
+    campaign_id = forms.IntegerField(required = True, widget = forms.HiddenInput)
+
 class OpenCampaignForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(
             OwnerLookup,

@@ -208,10 +208,9 @@ Please fix the following before launching your campaign:
 	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% endifnotequal %}
 	
-	<h3>Paypal collection address</h3>
-	<p>Enter the email address associated with your PayPal account.</p>
+	<h3>e-mail contact address</h3>
+	<p>Enter the email address where notifications about this campaign should be sent. If your campaign succeeds, this email needs to work if you want to get paid!</p>
 	
-	<p>We don't support PayPal yet; if your campaign succeeds we'll be paying you by check.  However, we've applied PayPal for a merchant account, and should that application be approved PayPal expects us to have this information.</p>
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
 	{% ifequal campaign_status 'ACTIVE' %}
