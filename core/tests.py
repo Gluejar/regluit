@@ -629,7 +629,7 @@ class DownloadPageTest(TestCase):
         eb2 = models.Ebook()
         eb2.url = "http://example2.com"
         eb2.edition = e2
-        eb1.format = 'mobi'
+        eb2.format = 'mobi'
         
         eb1.save()
         eb2.save()
