@@ -1,5 +1,5 @@
 {% extends "basedocumentation.html" %}
-{% block title %}Open Access eBooks{% endblock %}
+{% block title %}Ungluers supporting the {{ campaign }}{% endblock %}
 {% block extra_extra_head %}
     <link rel="stylesheet" type="text/css" href="/static/css/vanilla.css" class="day" title="day" /> 
 {% endblock %}  
@@ -9,43 +9,45 @@
     <div class="agate-info">
     <p>© {{ campaign.work.preferred_edition.publication_date }} by {{ campaign.work.author }}</p>
     <p>ISBN: {{ campaign.work.preferred_edition.isbn_13 }} .</p>
-    <p>URI: <a href="https://unglue.it/{{ campaign.work.id }}/">https://unglue.it/work/{{ campaign.work.id }}/</a> (this work).</p>
+    <p>URI: <a href="https://unglue.it/work/{{ campaign.work.id }}/">https://unglue.it/work/{{ campaign.work.id }}/</a> (this work).</p>
     <p><img src="images/unglueitlogo.png" alt="unglue.it logo" /></p>
     <p>
     This <i>unglued</i> edition is distributed under the terms of the Creative Commons  (<a href="{{ campaign.license_url }}">{{ campaign.license }}</a>) license.
     The Creative Commons licensing is made possible by the support of readers like you.
-    Become an ungluer at <a href="https://unglue.it/">https://unglue.it/</a>
+    Become an ungluer at <a href="https://unglue.it/">https://unglue.it/</a> .
     </p>
     </div>
 </section>
 <section epub:type="other-credits" id="other-credits">
     <h2>This is an unglued ebook</h2>
+    {% with campaign.ungluer_transactions as transactions %}
     <p>
-    Unglued ebooks are made possible through the Unglue.it website by contributions from {{ campaign.ungluers.all|length }} readers like you.</p>
-    {% if campaign.ungluers.supporters %}
-        <p>Supporters of this edition include ungluers:
-        {% for ungluer in campaign.ungluers.supporters %}
-            {% if forloop.last %}and {% endif %}{{ ungluer.username }}{% if forloop.last %}. {% else %}, {% endif %}
+    Unglued ebooks are made possible through the Unglue.it website by contributions from {{ transactions.all|length }} readers like you.</p>
+    {% if transactions.supporters %}
+        <p>Supporters of this edition:
+        {% for transaction in transactions.supporters %}
+            {% if forloop.last %}{% if transactions.supporters|length > 1 %}and {% endif %}{% endif %}{{ transaction.ack_name }}{% if forloop.last %}. {% else %}, {% endif %}
         {% endfor %}
         </p>
     {% endif %}
-    {% if campaign.ungluers.patrons %}
-        <p>Benefactors of this edition include ungluers:
-        {% for ungluer in campaign.ungluers.patrons %}
-            {% if forloop.last %}and {% endif %}<a href="{% if ungluer.profile.home_url %}{{ungluer.profile.home_url}}{% else %}https://unglue.it{% url supporter supporter_username=ungluer.username %}{% endif %}">{{ ungluer.username }}</a>{% if forloop.last %}. {% else %}, {% endif %}
+    {% if transactions.patrons %}
+        <p>Benefactors of this edition:
+        {% for transaction in transactions.patrons %}
+            {% if forloop.last %}{% if transactions.patrons|length > 1 %}and {% endif %}{% endif %}{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}{% if forloop.last %}. {% else %}, {% endif %}
         {% endfor %}
         </p>
     {% endif %}
-    {% if campaign.ungluers.bibliophiles %}
-        <p>Bibliophiles of this edition include ungluers:<dl>
-        {% for ungluer in campaign.ungluers.bibliophiles %}
-            <dt><a href="{% if ungluer.profile.home_url %}{{ungluer.profile.home_url}}{% else %}https://unglue.it{% url supporter supporter_username=ungluer.username %}{% endif %}">{{ ungluer.username }}</a></dt><dd>{{ ungluer.profile.tagline }}</dd>
+    {% if transactions.bibliophiles %}
+        <p>Bibliophiles of this edition:<dl>
+        {% for transaction in transactions.bibliophiles %}
+            <dt>{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}</dt><dd>{{ transaction.ack_dedication }}</dd>
         {% endfor %}
         </dl>
         </p>
     {% endif %}
+    {% endwith %}
     <p>
-    You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a>
+    You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a> .
     </p>
 </section>
 <!-- trim here -->

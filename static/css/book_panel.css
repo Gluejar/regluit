@@ -102,8 +102,8 @@
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
+  border-top-color: #FFF;
+  border-bottom-color: #FFF;
 }
 .panelhoverlink {
   text-decoration: none;
@@ -113,7 +113,7 @@
   width: 118px;
   height: 35px;
   padding: 0px 0px;
-  background: #FFFFFF;
+  background: #FFF;
   margin: 0px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
@@ -177,6 +177,9 @@
   max-height: 32px;
   color: #3d4e53;
   overflow: hidden;
+}
+.panelview.book-name div a {
+  color: #6994a3;
 }
 .panelview.booklist-status {
   display: none;
@@ -276,7 +279,7 @@ div.panelview.side2 {
   width: 118px;
   height: 35px;
   padding: 0px 0px;
-  background: #FFFFFF;
+  background: #FFF;
   margin: 0px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
@@ -330,7 +333,7 @@ div.panelview.side2 {
   width: 118px;
   height: 35px;
   padding: 0px 0px;
-  background: #FFFFFF;
+  background: #FFF;
   margin: 0px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
@@ -356,7 +359,7 @@ div.panelview.side2 {
   width: 118px;
   height: 35px;
   padding: 0px 0px;
-  background: #FFFFFF;
+  background: #FFF;
   margin: 0px;
   -moz-border-radius: 4px;
   -webkit-border-radius: 4px;
@@ -388,8 +391,8 @@ div.panelview.side2 {
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
+  border-top-color: #FFF;
+  border-bottom-color: #FFF;
   background: url("/static/images/book-panel/add_wish_icon.png") no-repeat left center;
   padding-right: 0;
 }
@@ -423,8 +426,8 @@ div.panelview.side2 {
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
+  border-top-color: #FFF;
+  border-bottom-color: #FFF;
   background: url("/static/images/booklist/remove-wishlist-white.png") no-repeat left center;
 }
 .moreinfo.remove-wishlist a,
@@ -453,8 +456,8 @@ div.panelview.side2 {
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
+  border-top-color: #FFF;
+  border-bottom-color: #FFF;
   background: url("/static/images/checkmark_small-white.png") no-repeat left center;
 }
 .moreinfo.on-wishlist a,
@@ -482,7 +485,7 @@ div.panelview.side2 {
   margin: 0px;
 }
 .white_text a {
-  color: #FFFFFF;
+  color: #FFF;
   text-decoration: none;
 }
 .white_text a:hover {
@@ -505,8 +508,8 @@ div.panelview.side2 {
   border-bottom-width: 1px;
   border-top-style: solid;
   border-bottom-style: solid;
-  border-top-color: #FFFFFF;
-  border-bottom-color: #FFFFFF;
+  border-top-color: #FFF;
+  border-bottom-color: #FFF;
   background: url("/static/images/book-panel/more_icon.png") no-repeat left center;
   cursor: pointer;
 }
