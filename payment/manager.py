@@ -725,6 +725,12 @@ class PaymentManager( object ):
         return value: True if successful, False otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
         '''
         
+        logger.info("transaction.id: {0}, amount:{1}".format(transaction.id, amount))
+        
+        # if expiry is None, use the existing value          
+        if expiry is None:
+            expiry = transaction.date_expired    
+        
         if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
             logger.info("Error, attempt to modify an invalid transaction type")
             return False, None
