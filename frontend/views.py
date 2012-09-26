@@ -2088,12 +2088,15 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
-    unglued_epub_url =  work.ebooks().filter(format='epub')[0].url if work.ebooks().filter(format='epub').count() else None
-
+    try:
+        readmill_epub_url = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0].url
+    except:
+        readmill_epub_url = None
+        
     context.update({
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
-        'unglued_epub_url': unglued_epub_url,
+        'readmill_epub_url': readmill_epub_url,
         'base_url': settings.BASE_URL
     })
     
