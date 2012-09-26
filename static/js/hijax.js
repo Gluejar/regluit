@@ -9,7 +9,7 @@ $j(document).ready(function() {
 		$j("#lightbox").load( $j(this).attr("href") + " #lightbox_content");
 		
 		if ($j(this).attr("href").substr(-9,8) == "download") {
-		    jQuery.getScript('/static/js/readmill.js');
+		    jQuery.getScript('https://platform.readmill.com/send.js');
 		}
 		
 		// fade-out rest of page elements on expand
