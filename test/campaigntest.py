@@ -227,10 +227,10 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     # now fill out the credit card
         
-    sel.execute_script("""document.getElementById("paymentNumber").value="4242424242424242";""")
-    sel.execute_script("""document.getElementById("paymentExpiryMonth").value="01";""")
-    sel.execute_script("""document.getElementById("paymentExpiryYear").value="14";""")
-    sel.execute_script("""document.getElementById("paymentCVC").value="123";""")
+    sel.execute_script("""document.getElementById("card_Number").value="4242424242424242";""")
+    sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
+    sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    sel.execute_script("""document.getElementById("card_CVC").value="123";""")
     
     verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Verify Credit Card']"))
     verify_cc_button.click()

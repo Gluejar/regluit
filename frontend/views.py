@@ -770,13 +770,18 @@ class FundPledgeView(FormView):
             
         stripe_token = form.cleaned_data["stripe_token"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
+        
+        logger.info('stripe_token:{0}, preapproval_amount:{1}'.format(stripe_token, preapproval_amount))
 
         p = PaymentManager()
         
         # if we get a stripe_token, create a new stripe account
         
-        account = p.make_account(transaction.user, stripe_token, host=transaction.host)
-        logger.info('account.id: {0}'.format(account.id))
+        try:
+            account = p.make_account(transaction.user, stripe_token, host=transaction.host)
+            logger.info('account.id: {0}'.format(account.id))
+        except Exception, e:
+            raise e
         
         # GOAL: deactivate any older accounts associated with user
         

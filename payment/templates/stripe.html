@@ -6,6 +6,7 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
 
@@ -31,7 +32,7 @@ function stripeResponseHandler(status, response) {
 	    // token contains id, last4, and card type
 	    var token = response['id'];
 	    // insert the token into the form so it gets submitted to the server
-	    form$.append("<input type='hidden' name='stripeToken' value='" + token + "' />");
+	    form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
 	    // and submit
 	    form$.get(0).submit();
 	}
