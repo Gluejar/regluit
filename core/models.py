@@ -409,6 +409,24 @@ class Identifier(models.Model):
     
     class Meta:
         unique_together = ("type", "value")
+        
+    @staticmethod
+    def set(type=None, value=None, edition=None, work=None):
+        # if there's already an id of this type for this work and edition, change it 
+        # if not, create it. if the id exists and points to something else, change it.
+        identifier= Identifier.get_or_add(type=type, value=value, edition = edition, work=work)
+        if identifier.work.id != work.id:
+            identifier.work=work
+            identifier.save()
+        if identifier.edition and edition:
+            if identifier.edition.id != edition.id:
+                identifier.edition = edition
+                identifier.save()
+            others= Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
+            if others.count()>0:
+                for other in others:
+                    other.delete()
+        return identifier
     
     @classmethod
     def get_or_add(klass, type='goog', value=None, edition=None, work=None):
@@ -608,6 +626,15 @@ class Work(models.Model):
     def update_num_wishes(self):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
+
+    def first_oclc(self):
+        preferred_id=self.preferred_edition.oclc
+        if preferred_id:
+            return preferred_id
+        try:
+            return self.identifiers.filter(type='oclc')[0].value
+        except IndexError:
+            return ''
 
     def first_isbn_13(self):
         preferred_id=self.preferred_edition.isbn_13

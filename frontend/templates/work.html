@@ -153,6 +153,9 @@ $j(document).ready(function(){
                                 {% if work.googlebooks_id %}
                                 <a id="find-google" href="{{ work.googlebooks_url }}"><img src="/static/images/supporter_icons/googlebooks_square.png" title="Find on Google Books" alt="Find on Google Books" /></a>
                                 {% endif %}
+                                {% if work.first_oclc %}
+                                <a rel="nofollow" id="find-oclc" href="http://www.worldcat.org/oclc/{{ work.first_oclc }}"><img src="/static/images/supporter_icons/worldcat_square.png" title="Find on Worldcat" alt="Find on Worldcat" /></a>
+                                {% endif %}
                                 <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work_id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
                                 {% if not request.user.is_anonymous %}
                                 {% if request.user.profile.goodreads_user_link %}
