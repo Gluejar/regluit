@@ -36,6 +36,15 @@ class EditionForm(forms.ModelForm):
             'required': _("Yes, we need an ISBN."),
         }
     )
+    oclcnum = forms.RegexField(
+        label=_("OCLCnum"), 
+        regex=r'^\d\d\d\d\d\d\d\d\d*$',
+        required = False,
+        help_text = _("8 or more digits."),
+        error_messages = {
+            'invalid': _("This value must be 8 or more digits."),
+        }
+    )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
     class Meta:
