@@ -7,6 +7,13 @@ import datetime
 import time
 
 
+def requires_explicit_preapprovals():
+    """a function that returns for the given payment processor"""
+    return False
+
+def make_account(user, token):
+    """template function for return a payment.Account corresponding to the payment system"""
+    return None
 
 def ProcessIPN(request):
     return HttpResponseForbidden()

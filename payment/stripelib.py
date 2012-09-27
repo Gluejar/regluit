@@ -9,7 +9,7 @@ from django.conf import settings
 
 from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, PAYMENT_TYPE_AUTHORIZATION
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
 from regluit.payment import baseprocessor
 from regluit.utils.localdatetime import now, zuluformat
 
@@ -269,6 +269,10 @@ class StripePaymentRequest(baseprocessor.BasePaymentRequest):
     """so far there is no need to have a separate class here"""
     pass
 
+def requires_explicit_preapprovals():
+    """a function that returns for the given payment processor"""
+    return False
+
 def make_account(user, token):
     """returns a payment.models.Account based on stripe token and user"""
     
@@ -389,6 +393,31 @@ class Execute(StripePaymentRequest):
         # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
         return self.transaction.pay_key
     
+    
+class PreapprovalDetails(StripePaymentRequest):
+    '''
+       Get details about an authorized token
+       
+       This api must set 4 different class variables to work with the code in manager.py
+       
+       status - one of the global transaction status codes
+       approved - boolean value
+       currency - not used in this API, but we can get some more info via other APIs - TODO
+       amount - not used in this API, but we can get some more info via other APIs - TODO
+       
+    '''
+    def __init__(self, transaction):
+ 
+        self.transaction = transaction
+        self.status = self.transaction.status
+        if self.status == TRANSACTION_STATUS_CANCELED:
+            self.approved = False
+        else:
+            self.approved = True
+
+        # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
+        self.currency = transaction.currency
+        self.amount = transaction.amount
 
 def suite():
     

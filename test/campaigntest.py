@@ -252,7 +252,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     change_pledge_button.click()
     
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
-    print "changing pledge to $5 -- should not need to go to PayPal"
+    print "changing pledge to $5 -- should not need to go to Stripe"
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="5";""")
     radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
     radio_button.click()
@@ -260,16 +260,38 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
     
-    ## return to the Work page again
-    #work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
-    #work_url.click()
-    #change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
-    #change_pledge_button.click()    
+    # return to the Work page again
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    
+    # modify pledge to $25
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="25";""")
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
+    
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    pledge_button.click()
+    
+    # now cancel transaction
+    # now go back to the work page, hit modify pledge, and then the cancel link
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    cancel_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('a[href*="/pledge/cancel"]'))
+    cancel_url.click()
+    
+    # hit the confirm cancellation button
+    cancel_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Confirm Pledge Cancellation']"))
+    cancel_pledge_button.click()    
     
     time.sleep(10)
     django.db.transaction.commit()
     
     yield sel
+    
 
     # now use the transaction manager to make the charge
     w = models.Work.objects.get(id=48)
