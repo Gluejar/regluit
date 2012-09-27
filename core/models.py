@@ -214,16 +214,26 @@ class Campaign(models.Model):
         """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign"""
         if self.clonable():
             old_managers= self.managers.all()
+            
+            # copy custom premiums
             new_premiums= self.premiums.filter(type='CU')
+ 
+            # setting pk to None will insert new copy http://stackoverflow.com/a/4736172/7782
             self.pk = None
             self.status = 'INITIALIZED'
+ 
+            # set deadline far in future -- presumably RH will set deadline to proper value before campaign launched
             self.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+            
+            # allow created, activated dates to be autoset by db
             self.created = None
             self.name = 'copy of %s' % self.name
             self.activated = None
             self.update_left()
             self.save()
             self.managers=old_managers
+            
+            # clone associated premiums
             for premium in new_premiums:
                 premium.pk=None
                 premium.created = None
@@ -234,6 +244,8 @@ class Campaign(models.Model):
             return None
 
     def clonable(self):
+        """campaign clonable if it's UNSUCCESSFUL and is the last campaign associated with a Work"""
+        
         if self.status == 'UNSUCCESSFUL' and self.work.last_campaign().id==self.id:
             return True
         else:
