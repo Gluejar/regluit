@@ -213,14 +213,16 @@ Please fix the following before launching your campaign:
 	
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
-	{% ifequal campaign_status 'ACTIVE' %}
-	<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
-	<input type="submit" name="save" value="Modify Campaign" />
-	{% else %}
-	<br /><br /><input type="submit" name="save" value="Save Campaign" />
-	{% endifequal %}
-	{% if campaign_status == 'INITIALIZED' %}
-	<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
+	{% if not is_preview or request.user.is_staff %}
+		{% ifequal campaign_status 'ACTIVE' %}
+		<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
+		<input type="submit" name="save" value="Modify Campaign" />
+		{% else %}
+		<br /><br /><input type="submit" name="save" value="Save Campaign" />
+		{% endifequal %}
+		{% if campaign_status == 'INITIALIZED' %}
+		<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
+		{% endif %}
 	{% endif %}
 	</form>
 </div>
@@ -265,20 +267,24 @@ Please fix the following before launching your campaign:
 
 {% ifequal campaign_status 'INITIALIZED' %}
 <div class="tabs-3">
-	{% if campaign.description and campaign.target and campaign.deadline %}
-	<p>Before you hit launch:</p>
-	<ul>
-		<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
-		<li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
-	</ul>
+	{% if not is_preview or request.user.is_staff %}
+		{% if campaign.description and campaign.target and campaign.deadline %}
+		<p>Before you hit launch:</p>
+		<ul>
+			<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
+			<li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
+		</ul>
+			
+		<p>If it doesn't look exactly the way you like, or you're having any trouble with your description or premiums, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
 		
-	<p>If it doesn't look exactly the way you like, or you're having any trouble with your description or premiums, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
-	
-	<p>If you're happy with your campaign, here's your moment of truth!</p>
-	
-	<div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
+		<p>If you're happy with your campaign, here's your moment of truth!</p>
+		
+		<div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
+		{% else %}
+		<p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
+		{% endif %}
 	{% else %}
-	<p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
+		While you're free to edit your campaign, it won't be launchable until we've fully tested our new payment processor.
 	{% endif %}
 	
 </div>
