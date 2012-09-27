@@ -386,7 +386,7 @@ def manage_campaign(request, id):
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
                 activetab = '#3'
-                if (campaign.launchable and form.is_valid()):
+                if (campaign.launchable and form.is_valid()) and (not settings.IS_PREVIEW or request.user.is_staff):
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
                 else:
