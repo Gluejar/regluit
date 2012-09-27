@@ -3,9 +3,11 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from django.contrib.auth.models import User
+
 
 class Migration(SchemaMigration):
-
+    no_dry_run = True
     def forwards(self, orm):
         
         # Adding model 'Credit'
@@ -17,6 +19,12 @@ class Migration(SchemaMigration):
             ('last_activity', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
         db.send_create_signal('payment', ['Credit'])
+        
+        users = orm['auth.User'].objects.all()
+        for user in users:
+            orm.Credit(user=user).save()
+        print "credit records installed"
+
 
         # Adding model 'CreditLog'
         db.create_table('payment_creditlog', (
