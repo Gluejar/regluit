@@ -228,9 +228,9 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             
     class ManageCampaignForm(forms.ModelForm):
         paypal_receiver = forms.EmailField(
-            label=_("email address to collect Paypal funds"), 
+            label=_("contact email address for this campaign"), 
             max_length=100, 
-            error_messages={'required': 'You must enter the email associated with your Paypal account.'},
+            error_messages={'required': 'You must enter the email we should contact you at for this campaign.'},
             )
         target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a target price.'} )
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)

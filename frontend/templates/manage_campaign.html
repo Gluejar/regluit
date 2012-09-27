@@ -175,7 +175,7 @@ Please fix the following before launching your campaign:
 
 	{% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>Target Price</h3>
-	<p>This is the target price for your campaign. The <i>mimimum</i> target is ${{form.minimum_target|intcomma}}.</p>
+	<p>This is the target price for your campaign. The <i>minimum</i> target is ${{form.minimum_target|intcomma}}.</p>
 	
 	<p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
 	
@@ -208,10 +208,9 @@ Please fix the following before launching your campaign:
 	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% endifnotequal %}
 	
-	<h3>Paypal collection address</h3>
-	<p>Enter the email address associated with your PayPal account.</p>
+	<h3>Email address</h3>
+	<p>Enter the email address we should contact you at for issues relating to managing this campaign.</p>
 	
-	<p>We don't support PayPal yet; if your campaign succeeds we'll be paying you by check.  However, we've applied PayPal for a merchant account, and should that application be approved PayPal expects us to have this information.</p>
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
 	{% ifequal campaign_status 'ACTIVE' %}
