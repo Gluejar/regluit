@@ -29,7 +29,7 @@ feedparser==5.1.2
 freebase==1.0.8
 httplib2==0.7.5
 kombu==2.4.5
-lxml==3.0alpha2
+lxml==2.3.5
 mechanize==0.2.5
 mimeparse==0.1.3
 nose==1.1.2
@@ -46,7 +46,9 @@ requests==0.14.0
 selenium==2.25.0
 six==1.2.0
 ssh==1.7.14
+stevedore==0.4
 stripe==1.7.4
 virtualenv==1.4.9
-virtualenvwrapper==2.2.2
+virtualenv-clone==0.2.4
+virtualenvwrapper==3.6
 wsgiref==0.1.2
