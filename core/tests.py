@@ -14,7 +14,7 @@ from django.contrib.sites.models import Site
 from django.http import Http404
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -388,6 +388,8 @@ class CampaignTests(TestCase):
         
         w = Work()
         w.save()
+        w2 = Work()
+        w2.save()
         # INITIALIZED
         c1 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c1.save()
@@ -402,6 +404,8 @@ class CampaignTests(TestCase):
         rh.save()
         cl = Claim(rights_holder = rh, work = w, user = u, status = 'active')
         cl.save()
+        cl2 = Claim(rights_holder = rh, work = w2, user = u, status = 'active')
+        cl2.save()
         c2.activate()
         self.assertEqual(c2.status, 'ACTIVE')
         # SUSPENDED
@@ -414,14 +418,25 @@ class CampaignTests(TestCase):
         # should not let me suspend a campaign that hasn't been initialized
         self.assertRaises(UnglueitError, c1.suspend, "for testing")
         # UNSUCCESSFUL
-        c3 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w)
+        c3 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w2)
         c3.save()
         c3.activate()
         self.assertEqual(c3.status, 'ACTIVE')
         # at this point, since the deadline has passed, the status should change and be UNSUCCESSFUL
         self.assertTrue(c3.update_status())
         self.assertEqual(c3.status, 'UNSUCCESSFUL')
-            
+        
+        # premiums
+        pr1= Premium(type='CU', campaign=c3, amount=10, description='botsnack', limit=1)
+        pr1.save()
+        self.assertEqual(pr1.premium_remaining,1)
+        
+        #cloning (note we changed c3 to w2 to make it clonable)
+        c7= c3.clone()
+        self.assertEqual(c7.status, 'INITIALIZED')
+        self.assertEqual(c7.premiums.all()[0].description , 'botsnack')
+        
+        
         # SUCCESSFUL
         c4 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w)
         c4.save()
@@ -629,11 +644,12 @@ class DownloadPageTest(TestCase):
         eb2 = models.Ebook()
         eb2.url = "http://example2.com"
         eb2.edition = e2
+        eb2.format = 'mobi'
         
         eb1.save()
         eb2.save()
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id)
-        self.assertContains(response, "http://example.com", count=3)
-        self.assertContains(response, "http://example2.com", count=2)
+        self.assertContains(response, "http://example.com", count=4)
+        self.assertContains(response, "http://example2.com", count=3)
