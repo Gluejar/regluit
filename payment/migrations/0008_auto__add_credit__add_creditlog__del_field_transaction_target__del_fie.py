@@ -23,8 +23,6 @@ class Migration(SchemaMigration):
         users = orm['auth.User'].objects.all()
         for user in users:
             orm.Credit(user=user).save()
-        print "credit records installed"
-
 
         # Adding model 'CreditLog'
         db.create_table('payment_creditlog', (
