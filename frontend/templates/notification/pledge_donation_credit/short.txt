@@ -1,0 +1,1 @@
+{% if amount > 0 %}{{ amount }} donation credits have been added to your unglue.it donation credit account.{% else %}{{ minus_amount }} donation credits have been deducted from your unglue.it donation credit account.{% endif %}

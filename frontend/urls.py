@@ -3,12 +3,14 @@ from django.views.generic.simple import direct_to_template
 from django.views.generic.base import TemplateView
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeModifyView, PledgeCancelView, PledgeNeverMindView, PledgeRechargeView, FAQView
-from regluit.frontend.views import CampaignListView, DonateView, WorkListView, UngluedListView, InfoPageView, InfoLangView
+from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
+from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -53,12 +55,16 @@ urlpatterns = patterns(
     url(r"^new_edition/(?P<work_id>)(?P<edition_id>)$", "new_edition", name="new_edition"),
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", "new_edition", name="new_edition"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
+    url(r"^donation/$", login_required(DonationView.as_view()), name="donation"),
+    url(r"^donation/credit/(?P<token>.+)/$", login_required(DonationCredit.as_view()), name="donation_credit"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
     url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
-    url(r"^pledge/nevermind/$", login_required(PledgeNeverMindView.as_view()), name="pledge_nevermind"),
-    url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeModifyView.as_view()), name="pledge_modify"),
+    url(r"^pledge/modified/$", login_required(PledgeModifiedView.as_view()), name="pledge_modified"),
+    url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeView.as_view()), name="pledge_modify"),
+    url(r"^pledge/fund/(?P<t_id>\d+)$", login_required(FundPledgeView.as_view()), name="fund_pledge"),
     url(r"^pledge/recharge/(?P<work_id>\d+)$", login_required(PledgeRechargeView.as_view()), name="pledge_recharge"),
+    url(r"^donate_to_campaign/$", csrf_exempt(NonprofitCampaign.as_view()), name="nonprofit"),
     url(r"^subjects/$", "subjects", name="subjects"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
@@ -85,6 +91,5 @@ if settings.DEBUG:
         "regluit.frontend.views",
         url(r"^goodreads/$", login_required(GoodreadsDisplayView.as_view()), name="goodreads_display"),
         url(r"^goodreads/clear_wishlist/$","clear_wishlist", name="clear_wishlist"),
-        url(r"^donate/$", DonateView.as_view(), name="donate"),
         url(r"^celery/clear/$","clear_celery_tasks", name="clear_celery_tasks"),
 )

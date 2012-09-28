@@ -1,0 +1,38 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}Stripe{% endblock %}
+
+{% block extra_extra_head %}
+<link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
+<link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="/static/stripe/tag.js"></script>
+
+
+{% endblock %}
+
+{% block doccontent %}
+Stripe Test!:
+
+<span class="payment-errors"></span>
+<form action="" method="post" id="payment-form">
+  {% csrf_token %}
+  <payment key="{{STRIPE_PK}}"></payment>
+  <input type="submit" value="Submit">
+</form>
+
+<script type="application/x-javascript">
+
+var $j = jQuery.noConflict();
+console.debug('setting up handlers in stripe.html');
+
+$j('payment').bind('success.payment', function () {
+  console.debug('success.payment ev');
+});
+
+</script>
+
+{% endblock %}
+
