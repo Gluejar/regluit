@@ -84,6 +84,18 @@ class Claim(models.Model):
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
     status = models.CharField(max_length=7, choices= STATUSES, default='pending')
     
+    def can_open_new(self):
+        # whether a campaign can be opened for this claim
+        
+        #must be an active claim
+        if self.status != 'active':
+            return False
+        #can't already be a campaign
+        for campaign in self.campaigns:
+            if campaign.status in ['ACTIVE','INITIALIZED', 'SUCCESSFUL']:
+                return False
+        return True
+    
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
