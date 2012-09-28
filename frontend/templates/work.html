@@ -129,7 +129,7 @@ $j(document).ready(function(){
                         <div>
                           <div class="pubinfo">
                             <h3 class="book-author">{{ work.author }}</h3>
-                            <h3 class="book-year">{{ pubdate }}</h3>
+                            <h3 class="book-year">{{ work.publication_date_year }}</h3>
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}

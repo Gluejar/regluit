@@ -190,7 +190,7 @@ class PledgeTest(TestCase):
     
             # Note, set this to 1-5 different receivers with absolute amounts for each
             receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}]
-            t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+            t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
         
             self.validateRedirect(t, url, 1)
         
@@ -220,7 +220,7 @@ class PledgeTest(TestCase):
         receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}, 
                          {'email':settings.PAYPAL_TEST_RH_EMAIL, 'amount':10.00}]
         
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+        t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
         
         self.validateRedirect(t, url, 2)
         
@@ -244,7 +244,7 @@ class PledgeTest(TestCase):
     
         # Note, set this to 1-5 different receivers with absolute amounts for each
         receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':50000.00}]
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=None)
+        t, url = p.pledge('USD',  receiver_list, campaign=None, list=None, user=None)
         
         self.validateRedirect(t, url, 1)
 
@@ -284,7 +284,7 @@ class AuthorizeTest(TestCase):
     
         # Note, set this to 1-5 different receivers with absolute amounts for each
         
-        t, url = p.authorize('USD', TARGET_TYPE_NONE, 100.0, campaign=None, list=None, user=None)
+        t, url = p.authorize(t)
         
         self.validateRedirect(t, url)
         
@@ -300,6 +300,31 @@ class AuthorizeTest(TestCase):
         
     def tearDown(self):
         self.selenium.quit()
+
+class CreditTest(TestCase):
+    user1=None
+    user2=None
+    def setUp(self):
+        """
+        """
+        self.user1 = User.objects.create_user('credit_test1', 'support@gluejar.com', 'credit_test1')
+        self.user2 = User.objects.create_user('credit_test2', 'support+1@gluejar.com', 'credit_test2')
+
+    def testSimple(self):
+        """
+        """
+        self.assertFalse(self.user1.credit.add_to_balance(-100))
+        self.assertTrue(self.user1.credit.add_to_balance(100))
+        self.assertTrue(self.user1.credit.add_to_pledged(50))
+        self.assertFalse(self.user1.credit.add_to_pledged(60))
+        self.assertFalse(self.user1.credit.use_pledge(60))
+        self.assertTrue(self.user1.credit.use_pledge(50))
+        self.assertFalse(self.user1.credit.transfer_to(self.user2,60))
+        self.assertTrue(self.user1.credit.transfer_to(self.user2,50))
+        self.assertEqual(self.user1.credit.balance, 0)
+        self.assertEqual(self.user2.credit.balance, 50)
+       
+
         
 class TransactionTest(TestCase):
     def setUp(self):
@@ -363,7 +388,7 @@ class BasicGuiTest(TestCase):
 def suite():
 
     #testcases = [PledgeTest, AuthorizeTest, TransactionTest]
-    testcases = [TransactionTest]
+    testcases = [TransactionTest, CreditTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     return suites    
         

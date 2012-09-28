@@ -111,6 +111,16 @@ class Premium(models.Model):
         t_model=get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
     
+class PledgeExtra:
+    premium=None
+    anonymous=False
+    ack_name=''
+    ack_dedication=''
+    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication=''):
+        self.premium=premium
+        self.anonymous=anonymous
+        self.ack_name=ack_name
+        self.ack_dedication=ack_dedication
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -131,8 +141,8 @@ class CCLicense():
         )
     CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
     
-    @classmethod
-    def url(klass, license):
+    @staticmethod
+    def url(license):
         if license == 'PD-US':
             return 'http://creativecommons.org/publicdomain/mark/1.0/'
         elif license == 'CC0':
@@ -152,8 +162,8 @@ class CCLicense():
         else:
             return ''
     
-    @classmethod
-    def badge(klass,license):
+    @staticmethod
+    def badge(license):
         if license == 'PD-US':
             return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
         elif license == 'CC0':
@@ -200,6 +210,47 @@ class Campaign(models.Model):
         except:
             return u"Campaign %s (no associated work)" % self.name
     
+    def clone(self):
+        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign"""
+        if self.clonable():
+            old_managers= self.managers.all()
+            
+            # copy custom premiums
+            new_premiums= self.premiums.filter(type='CU')
+ 
+            # setting pk to None will insert new copy http://stackoverflow.com/a/4736172/7782
+            self.pk = None
+            self.status = 'INITIALIZED'
+ 
+            # set deadline far in future -- presumably RH will set deadline to proper value before campaign launched
+            self.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+            
+            # allow created, activated dates to be autoset by db
+            self.created = None
+            self.name = 'copy of %s' % self.name
+            self.activated = None
+            self.update_left()
+            self.save()
+            self.managers=old_managers
+            
+            # clone associated premiums
+            for premium in new_premiums:
+                premium.pk=None
+                premium.created = None
+                premium.campaign = self
+                premium.save()
+            return self
+        else:
+            return None
+
+    def clonable(self):
+        """campaign clonable if it's UNSUCCESSFUL and is the last campaign associated with a Work"""
+        
+        if self.status == 'UNSUCCESSFUL' and self.work.last_campaign().id==self.id:
+            return True
+        else:
+            return False
+            
     @property
     def launchable(self):
         may_launch=True
@@ -264,8 +315,13 @@ class Campaign(models.Model):
         
     def transactions(self,  **kwargs):
         p = PaymentManager()
-        return p.query_campaign(self, summary=False, campaign_total=True, **kwargs)
         
+        # handle default parameter values
+        kw = {'summary':False, 'campaign_total':True}
+        kw.update(kwargs)
+        
+        return p.query_campaign(self, **kw)
+
     
     def activate(self):
         status = self.status
@@ -326,7 +382,9 @@ class Campaign(models.Model):
     @property
     def supporters_count(self):
         # avoid transmitting the whole list if you don't need to; let the db do the count.
-        return self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        active = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE).values_list('user', flat=True).distinct().count()
+        return active+complete
 
     def transaction_to_recharge(self, user):
         """given a user, return the transaction to be recharged if there is one -- None otherwise"""
@@ -368,6 +426,35 @@ class Campaign(models.Model):
         
         return ungluers
 
+    def ungluer_transactions(self):
+    	"""
+    	returns a list of authorized transactions for campaigns in progress,
+    	or completed transactions for successful campaigns
+    	used to build the acks page -- because ack_name, _link, _dedication adhere to transactions,
+    	it's easier to return transactions than ungluers
+    	"""
+        p = PaymentManager()
+        ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
+        anons = 0
+        if self.status == "ACTIVE":
+            translist = p.query_campaign(self, summary=False, pledged=True, authorized=True)
+        elif self.status == "SUCCESSFUL":
+            translist = p.query_campaign(self, summary=False, pledged=True, completed=True)
+        else:
+            translist = []
+        for transaction in translist:
+            ungluers['all'].append(transaction.user)
+            if transaction.anonymous:
+            	anons += 1
+            if transaction.amount >= Premium.TIERS["bibliophile"]:
+            	ungluers['bibliophiles'].append(transaction)
+            elif transaction.amount >= Premium.TIERS["patron"]:
+            	ungluers['patrons'].append(transaction)
+            elif transaction.amount >= Premium.TIERS["supporter"]:
+            	ungluers['supporters'].append(transaction)
+                
+        return ungluers
+
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
         q = Q(campaign=self) | Q(campaign__isnull=True)
@@ -375,7 +462,7 @@ class Campaign(models.Model):
 
     def custom_premiums(self):
         """returns only the active custom premiums for the Campaign"""
-        return Premium.objects.filter(campaign=self).filter(type='CU')
+        return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
         
     @property
     def rightsholder(self):
@@ -428,8 +515,8 @@ class Identifier(models.Model):
                     other.delete()
         return identifier
     
-    @classmethod
-    def get_or_add(klass, type='goog', value=None, edition=None, work=None):
+    @staticmethod
+    def get_or_add( type='goog', value=None, edition=None, work=None):
         try:
             return Identifier.objects.get(type=type, value=value)
         except Identifier.DoesNotExist:
@@ -652,6 +739,13 @@ class Work(models.Model):
                 return edition.publication_date
         return ''
 
+    @property
+    def publication_date_year(self):
+        try:
+            return self.publication_date[:4]
+        except IndexError:
+            return 'unknown'
+
     def __unicode__(self):
         return self.title
 
@@ -752,8 +846,8 @@ class Edition(models.Model):
         except IndexError:
             return ''
 
-    @classmethod
-    def get_by_isbn(klass, isbn):
+    @staticmethod
+    def get_by_isbn( isbn):
         if len(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
         try:
@@ -791,8 +885,8 @@ class Ebook(models.Model):
             return CCLicense.badge('PD-US')
         return CCLicense.badge(self.rights)
     
-    @classmethod
-    def infer_provider(klass, url):
+    @staticmethod
+    def infer_provider( url):
         if not url:
             return None
         # provider derived from url. returns provider value. remember to call save() afterward
@@ -859,13 +953,18 @@ class UserProfile(models.Model):
     twitter_id =  models.CharField(max_length=15, blank=True)
     facebook_id =  models.PositiveIntegerField(null=True)
     librarything_id =  models.CharField(max_length=31, blank=True)
+    badges = models.ManyToManyField('Badge', related_name='holders')
     
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-  
+
+class Badge(models.Model):
+    name = models.CharField(max_length=72, blank=True)
+    description = models.TextField(default='', null=True)
+    
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)

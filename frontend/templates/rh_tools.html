@@ -20,21 +20,33 @@
 Any questions not covered here?  Please email us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
 </div></div>
 
-{% if request.user.campaigns.all %}
+{% if campaigns %}
 <h2>Campaigns You Manage</h2>
 	<dl>
-	{% for campaign in request.user.campaigns.all %}
+	{% for campaign in campaigns %}
 		<dt>Work: <a href="{% url work work_id=campaign.work.id %}">{{campaign.work.title }}</a></dt>
 		<dd>
 			<div class="work_campaigns clearfix">
 			<div class="campaign_info">
 			Campaign: {{ campaign.name }}<br />
 			Campaign status: {{ campaign.status }}	<br />
-			Created: {{ campaign.created }}
+			Created: {{ campaign.created }}<br />
+			${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 			</div>
-			<div>
-				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
-			</div>
+			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+				<div>
+					<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+				</div>
+			{% endif %}
+			{% if campaign.clone_form %}
+				<div>
+				<form method="POST" action="#">
+					{% csrf_token %}
+					{{ campaign.clone_form }}{{ campaign.clone_form.errors }}				
+					<input type="submit" name="clone" value="Clone this Campaign">
+				</form>
+				</div>
+			{% endif %}
 			</div>
 		</dd>
 	{% endfor %}
@@ -51,7 +63,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />Date of Claim : {{ claim.created }}
 			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.can_open_new  %}
-			<h3>Open a campaign for this work</h3>
+			<h3>Open a blank campaign for this work</h3>
 			<form method="POST" action="#">
 				{% csrf_token %}
 				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
@@ -67,20 +79,30 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<h3>Campaigns for this work</h3>
 			{% for campaign in claim.campaigns %}
 			<div class="work_campaigns clearfix">
-			<div class="campaign_info">
-				Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
-				Created: {{ campaign.created }}<br />
-				Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
-				<form method="POST" action="#">{% csrf_token %}
-					Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
-					<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
-				</form>
-			</div>
-			{% if request.user in campaign.managers.all %}
-			<div>
-				<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
-			</div>
-			{% endif %}
+				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+					<div class="campaign_info">
+						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+							<form method="POST" action="#">{% csrf_token %}
+								Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+								<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
+							</form>
+					</div>
+					{% if request.user in campaign.managers.all %}
+						<div>
+							<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+						</div>
+					{% endif %}
+				{% else %}
+					<div class="campaign_info">
+						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+						<br />
+						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+					</div>
+				{% endif %}
 			</div>
 			{% endfor %}
 			{% endif %}
@@ -138,20 +160,19 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	</li> 
 </ol>
 
-<h2>Rightsholder social media tools</h2>
-
-Needs to be written.  What would you find helpful in a social media toolkit? <a href="/feedback">Send us feedback.</a>
-
 <h2>Rewards</h2>
 
-<p>Campaigns have rewards as a way to thank supporters.  unglue.it includes a standard set of rewards in all campaigns.  You are encouraged to add additional sweeteners to motivate people to contribute.</p>
+<p>Campaigns can have rewards as a way to motivate and thank supporters.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
 
-<p>Here are the standard rewards:</p>
+<p>What should you add as rewards?  Anything you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
+
+<h2>Acknowledgements</h2>
+<p>Here are the standard acknowledgements.  These automatically combine with your rewards.  For example, if you offer a $30 reward, ungluers who pledge $30 will receive the $25 acknowledgement as well.</p>
 <ul class="terms">
-<li><em>Any level ($1 minimum)</em> &#8212; The unglued ebook delivered to your inbox</li>
-<li><em>$25</em> &#8212; Your username under "supporters" in the acknowledgements section</li>
-<li><em>$50</em> &#8212; Your name &amp; profile link under "benefactors"</li>
-<li><em>$100</em> &#8212; Your name, profile link, &amp; profile tagline under "bibliophiles"</li>
+<li><em>Any amount</em> &#8212; The unglued ebook</li>
+<li><em>$25 and above</em> &#8212; Their name in the acknowledgements section under "supporters"</li>
+<li><em>$50 and above</em> &#8212; Their name &amp; profile link under "benefactors"</li>
+<li><em>$100 and above</em> &#8212; Their name, profile link, &amp; a dedication under "bibliophiles"</li>
 </ul>
 
 <h2>More Questions</h2>
