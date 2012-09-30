@@ -168,7 +168,7 @@ class GoodreadsClient(object):
           if r.status_code != httplib.OK:
               raise GoodreadsException('Error in review_list_unauth, http status_code: {0}'.format(r.status_code))
           else:
-              doc = ET.fromstring(r.content.encode('utf-8'))
+              doc = ET.fromstring(r.content)
               # for the moment convert to a iterable of book data presented as dict -- one the way to paging through all results
               reviews = doc.findall('reviews/review')
               for review in reviews:
