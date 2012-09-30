@@ -250,7 +250,7 @@ class GoodreadsClient(object):
             raise GoodreadsException('Error in shelves_list: %s ' % (r.headers))
         else:
             logger.info('headers: %s' % (r.headers))
-            doc = ET.fromstring(r.content.encode('utf-8'))
+            doc = ET.fromstring(r.content)
             shelves = doc.find('shelves')
             # do a simple parsing to a dictionary
             
