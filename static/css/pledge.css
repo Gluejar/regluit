@@ -213,3 +213,31 @@ span.menu-item-price {
   border: none;
   cursor: default;
 }
+.fund_options a.fakeinput {
+  font-size: 19px;
+  margin: 10px auto;
+  float: left;
+  line-height: normal;
+}
+.fund_options input[type="submit"] {
+  float: left;
+}
+.fund_options div {
+  width: 50%;
+  float: left;
+}
+.fund_options ul {
+  padding: 5px 10px 5px 15px;
+  border: solid 1px #d6dde0;
+  margin-right: 15px;
+  list-style-type: none;
+}
+.fund_options ul li {
+  margin: 5px 0;
+}
+.fund_options ul a {
+  color: #6994a3;
+}
+#authorize {
+  display: none;
+}

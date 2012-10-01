@@ -10,6 +10,9 @@
 <script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
 {% endblock %}
 
+{% block news %}
+{% endblock %}
+
 {% block doccontent %}
 <div style="height:15px"></div>
 <div class="book-detail">
@@ -100,7 +103,7 @@
 			<div id="ack_link" class="ack_inactive"><div class="ack_level">$50+</div><div class="ack_header">Your acknowledgement will link to your Unglue.it supporter page.{{ form.ack_link }}</div></div>
 			<div id="ack_dedication" class="ack_inactive"><div class="ack_level">$100+</div><div class="ack_header">Your acknowledgement can include a dedication (140 characters max).&nbsp;{{ form.ack_dedication.label_tag }} {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div></div>
 			</div>
-			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" />
+			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Support"{% else %}value="Unglue it!"{% endif %} id="pledgesubmit" />
 			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
 			{% comment %}
 				When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.
