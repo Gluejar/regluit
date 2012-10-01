@@ -22,7 +22,7 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
         $j('#user-block-hide').hide();
-        $j('#user-block1 span').click(function() {
+        $j('#user-block1 > div > span').click(function() {
                 $j(this).toggleClass("active");
                 $j("#user-block-hide").slideToggle(300);
         });
@@ -66,8 +66,6 @@ function highlightTarget(targetdiv) {
 {% comment %}
 To do:
 create topsection file for inclusion in multiple contexts, if needed
-figure out how to configure date display 
-    decide if we're even including date joined in profile
 Goodreads 
     be sure words display correctlydja
     do I need both add-wishlist and remove-wishlist classes? do they differ?
@@ -94,7 +92,13 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             {% ifequal supporter request.user %}
                             <div id="user-block1">
                             <div class="block-inner">
-                            <span class="my-setting">My Profile</span>
+                            <span class="my-setting">My Profile
+                                <span class="user-badges">
+                                {% for badge in supporter.profile.badges.all %}
+                                    <img class="user-badge" src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
+                                {% endfor %}
+                                </span>
+                            </span>
                             </div>
                             </div>
                             <div class="user-block2">
@@ -104,7 +108,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                 {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username|truncatechars:20 }}</a></span>
-                                <span class="user-date">{{ date }}</span>
                                 <span class="user-short-info">{{ supporter.profile.tagline }}</span>
                             </div>
                             {% else %}
@@ -116,7 +119,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                 {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
-                                <span class="user-date">{{ date }}</span>
+                                <span class="user-badges">
+                                {% for badge in supporter.profile.badges.all %}
+                                    <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
+                                {% endfor %}
                             </div>
                             </div>
                             <div class="user-block2">
@@ -125,9 +131,15 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             {% endifequal %}
                             <div class="user-block3">
                                 <div class="badges">
-                                <span class="rounded"><span class="blue tabs1" {% ifequal request.user supporter %}title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I've unglued&nbsp;</span>{{ backed }}</span></span>
-                                <span class="rounded"><span class="orange tabs2" {% ifequal request.user supporter %}title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I'm ungluing&nbsp;</span>{{ backing }}</span></span>
-                                <span class="rounded"><span class="grey tabs3" {% ifequal request.user supporter %}title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% else %}title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."{% endifequal %}><span class="hovertext">I'm wishing for&nbsp;</span>{{ wished }}</span></span>
+                                {% ifequal request.user supporter %}
+                                    <span class="rounded"><span class="blue tabs1" title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I've unglued&nbsp;</span>{{ backed }}</span></span>
+                                    <span class="rounded"><span class="orange tabs2" title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I'm ungluing&nbsp;</span>{{ backing }}</span></span>
+                                    <span class="rounded"><span class="grey tabs3" title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I'm wishing for&nbsp;</span>{{ wished }}</span></span>
+                                {% else %}
+                                    <span class="rounded"><span class="blue tabs1" title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is unglued&nbsp;</span>{{ backed }}</span></span>
+                                    <span class="rounded"><span class="orange tabs2" title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is ungluing&nbsp;</span>{{ backing }}</span></span>
+                                    <span class="rounded"><span class="grey tabs3" title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is wishing for&nbsp;</span>{{ wished }}</span></span>
+                                {% endifequal %}
                                 </div>
                             </div>
                             <div class="user-block4">
