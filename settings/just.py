@@ -21,7 +21,8 @@ DATABASES = {
         'PASSWORD': 'forgetn0t',
         'HOST': 'justdb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
-        'TEST_CHARSET': 'utf8'
+        'TEST_CHARSET': 'utf8',
+        'TEST_COLLATION': 'utf8_bin'
     }
 }
 
