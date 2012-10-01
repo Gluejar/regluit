@@ -210,6 +210,47 @@ class Campaign(models.Model):
         except:
             return u"Campaign %s (no associated work)" % self.name
     
+    def clone(self):
+        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign"""
+        if self.clonable():
+            old_managers= self.managers.all()
+            
+            # copy custom premiums
+            new_premiums= self.premiums.filter(type='CU')
+ 
+            # setting pk to None will insert new copy http://stackoverflow.com/a/4736172/7782
+            self.pk = None
+            self.status = 'INITIALIZED'
+ 
+            # set deadline far in future -- presumably RH will set deadline to proper value before campaign launched
+            self.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+            
+            # allow created, activated dates to be autoset by db
+            self.created = None
+            self.name = 'copy of %s' % self.name
+            self.activated = None
+            self.update_left()
+            self.save()
+            self.managers=old_managers
+            
+            # clone associated premiums
+            for premium in new_premiums:
+                premium.pk=None
+                premium.created = None
+                premium.campaign = self
+                premium.save()
+            return self
+        else:
+            return None
+
+    def clonable(self):
+        """campaign clonable if it's UNSUCCESSFUL and is the last campaign associated with a Work"""
+        
+        if self.status == 'UNSUCCESSFUL' and self.work.last_campaign().id==self.id:
+            return True
+        else:
+            return False
+            
     @property
     def launchable(self):
         may_launch=True
@@ -341,7 +382,9 @@ class Campaign(models.Model):
     @property
     def supporters_count(self):
         # avoid transmitting the whole list if you don't need to; let the db do the count.
-        return self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        active = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
+        complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE).values_list('user', flat=True).distinct().count()
+        return active+complete
 
     def transaction_to_recharge(self, user):
         """given a user, return the transaction to be recharged if there is one -- None otherwise"""
@@ -453,6 +496,24 @@ class Identifier(models.Model):
     
     class Meta:
         unique_together = ("type", "value")
+        
+    @staticmethod
+    def set(type=None, value=None, edition=None, work=None):
+        # if there's already an id of this type for this work and edition, change it 
+        # if not, create it. if the id exists and points to something else, change it.
+        identifier= Identifier.get_or_add(type=type, value=value, edition = edition, work=work)
+        if identifier.work.id != work.id:
+            identifier.work=work
+            identifier.save()
+        if identifier.edition and edition:
+            if identifier.edition.id != edition.id:
+                identifier.edition = edition
+                identifier.save()
+            others= Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
+            if others.count()>0:
+                for other in others:
+                    other.delete()
+        return identifier
     
     @staticmethod
     def get_or_add( type='goog', value=None, edition=None, work=None):
@@ -652,6 +713,15 @@ class Work(models.Model):
     def update_num_wishes(self):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
+
+    def first_oclc(self):
+        preferred_id=self.preferred_edition.oclc
+        if preferred_id:
+            return preferred_id
+        try:
+            return self.identifiers.filter(type='oclc')[0].value
+        except IndexError:
+            return ''
 
     def first_isbn_13(self):
         preferred_id=self.preferred_edition.isbn_13

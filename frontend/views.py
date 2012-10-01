@@ -4,7 +4,7 @@ import json
 import logging
 import urllib
 
-from datetime import timedelta
+from datetime import timedelta, date
 from regluit.utils.localdatetime import now, date_today
 
 from random import randint
@@ -48,7 +48,7 @@ from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPle
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
@@ -249,7 +249,7 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'countdown': countdown,
-    })
+    })    
 
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
@@ -324,7 +324,13 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.description=form.cleaned_data['description']
                     work.title=form.cleaned_data['title']
                     work.save()
-                models.Identifier.get_or_add(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
+                
+                # note: this is very powerful. it can steal an isbn from another edition/work, and it will wipe the changed isbn from the db
+                models.Identifier.set(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
+                
+                if form.cleaned_data['oclcnum']:
+                    # note: this is very powerful.(same comment as for isbn) use with care!
+                    models.Identifier.set(type='oclc', value=form.cleaned_data['oclcnum'], edition=edition, work=work)
                 for author_name in edition.new_author_names:
                     try:
                         author= models.Author.objects.get(name=author_name)
@@ -343,6 +349,7 @@ def new_edition(request, work_id, edition_id, by=None):
         form = EditionForm(instance=edition, initial={
             'language':language,
             'isbn_13':edition.isbn_13, 
+            'oclcnum':edition.oclc,
             'description':description,
             'title': title
             })
@@ -386,7 +393,7 @@ def manage_campaign(request, id):
                 alerts.append(_('Campaign data has NOT been saved'))
             if 'launch' in request.POST.keys():
                 activetab = '#3'
-                if (campaign.launchable and form.is_valid()):
+                if (campaign.launchable and form.is_valid()) and (not settings.IS_PREVIEW or request.user.is_staff):
                     campaign.activate()
                     alerts.append(_('Campaign has been launched'))
                 else:
@@ -419,6 +426,7 @@ def manage_campaign(request, id):
         'premium_form' : new_premium_form,
         'work': work,
         'activetab': activetab,
+        'is_preview': settings.IS_PREVIEW
     })
         
 def googlebooks(request, googlebooks_id):
@@ -588,7 +596,8 @@ class DonationView(TemplateView):
         return self.render_to_response(context)
         
     def get_context_data(self, *args, **kwargs):
-        context = {'user' : self.request.user}
+        context = {'user' : self.request.user,'nonprofit': settings.NONPROFIT}
+        context['donate_form'] = DonateForm(initial={'username':self.request.user.username})
         return context
             
 class PledgeView(FormView):
@@ -1152,7 +1161,7 @@ def rh_tools(request):
             claim.campaigns = claim.work.campaigns.all()
         else:
             claim.campaigns = []
-        claim.can_open_new=True
+        claim.can_open_new=False if claim.work.last_campaign_status in ['ACTIVE','INITIALIZED'] else True
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
                 claim.can_open_new=False
@@ -1177,7 +1186,17 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
         else:
             claim.can_open_new=False
-    return render(request, "rh_tools.html", {'claims': claims ,}) 
+    campaigns = request.user.campaigns.all()
+    new_campaign = None
+    for campaign in campaigns:
+        if campaign.clonable():
+            if request.method == 'POST' and  request.POST.has_key('c%s-campaign_id'% campaign.id):
+                clone_form= CloneCampaignForm(data=request.POST, prefix = 'c%s' % campaign.id)
+                if clone_form.is_valid():
+                    campaign.clone()
+            else:
+                campaign.clone_form= CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix = 'c%s' % campaign.id)
+    return render(request, "rh_tools.html", {'claims': claims ,'campaigns': campaigns}) 
 
 def rh_admin(request):
     if not request.user.is_authenticated() :
@@ -1990,7 +2009,7 @@ def campaign_archive_js(request):
 
 def lockss(request, work_id):
     """
-    manifest pages for lockss harvester
+    manifest pages for lockss harvester -- individual works
     """
     work = safe_get_work(work_id)
     try:
@@ -2001,6 +2020,22 @@ def lockss(request, work_id):
     
     return render(request, "lockss.html", {'work':work, 'ebooks':ebooks, 'authors':authors})
     
+def lockss_manifest(request, year):
+    """
+    manifest pages for lockss harvester -- yearly indices
+    (lockss needs pages listing all books unglued by year, with 
+    programmatically determinable URLs)
+    """
+    year = int(year)
+    start_date = date(year, 1, 1)
+    end_date = date(year, 12, 31)
+    try:
+        ebooks = models.Edition.objects.filter(unglued=True).filter(created__range=(start_date, end_date))
+    except:
+        ebooks = None
+    
+    return render(request, "lockss_manifest.html", {'ebooks':ebooks, 'year': year})
+    
 def download(request, work_id):
     context = {}
     work = safe_get_work(work_id)
@@ -2008,10 +2043,16 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
-
+    try:
+        readmill_epub_url = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0].url
+    except:
+        readmill_epub_url = None
+        
     context.update({
         'unglued_ebooks': unglued_ebooks,
-        'other_ebooks': other_ebooks
+        'other_ebooks': other_ebooks,
+        'readmill_epub_url': readmill_epub_url,
+        'base_url': settings.BASE_URL
     })
     
     return render(request, "download.html", context)
