@@ -3,9 +3,6 @@
 
 {% block title %}Fund Your Pledge{% endblock %}
 
-{% block news %}
-{% endblock %}
-
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
@@ -13,7 +10,50 @@
 
 <script type="text/javascript" src="/static/stripe/tag.js"></script>
 
+<script>
+var $j = jQuery.noConflict();
 
+$j(document).ready(function() {
+    $j("#pledge_option").click(function() {
+        $j("#authorize").show();
+    });
+    
+    $j("#donate_area").mouseenter(function() {
+        $j("#donate_explanation").addClass("highlight");
+    });
+
+    $j("#donate_area").mouseleave(function() {
+        $j("#donate_explanation").removeClass("highlight");
+    });
+
+    $j("#donate_explanation").mouseenter(function() {
+        $j("#donate_explanation").addClass("highlight");
+    });
+
+    $j("#donate_explanation").mouseleave(function() {
+        $j("#donate_explanation").removeClass("highlight");
+    });
+
+    $j("#pledge_area").mouseenter(function() {
+        $j("#pledge_explanation").addClass("highlight");
+    });
+
+    $j("#pledge_area").mouseleave(function() {
+        $j("#pledge_explanation").removeClass("highlight");
+    });
+
+    $j("#pledge_explanation").mouseenter(function() {
+        $j("#pledge_explanation").addClass("highlight");
+    });
+
+    $j("#pledge_explanation").mouseleave(function() {
+        $j("#pledge_explanation").removeClass("highlight");
+    });
+});
+</script>
+{% endblock %}
+
+{% block news %}
 {% endblock %}
 
 {% block content %}   
@@ -21,15 +61,15 @@
     <div class="jsmod-content">
     
     <div class="fund_options clearfix">
-        <div>
+        <div id="donate_area">
             <form method="GET" action="{{nonprofit.link}}">
                 {{ donate_form.non_field_errors }}
                 {{donate_form}}
                 <input name="donate_submit" type="submit" value="Donate" id="donate_submit" />
             </form>
         </div>
-        <div>    	
-    	    <a class="fakeinput">Pledge</a>
+        <div id="pledge_area">    	
+    	    <a class="fakeinput" id="pledge_option">Pledge</a>
     	</div>
     </div>
     
@@ -102,7 +142,7 @@ kept around for reference as the page is overhauled
 		  {{ form.non_field_errors }}
 		  {{ form.as_p }}	
 		  <payment key="{{STRIPE_PK}}"></payment>
-		  <input name="cc_submit" type="submit" value="Verify Credit Card" id="cc_submit" />
+		  <input name="cc_submit" type="submit" value="Complete pledge" id="cc_submit" />
 		</form>
 	    </div>
 	</div>

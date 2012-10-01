@@ -226,6 +226,16 @@ span.menu-item-price {
   width: 50%;
   float: left;
 }
+.fund_options div ul {
+  background: #edf3f4;
+}
+.fund_options div.highlight {
+  color: #73a334;
+}
+.fund_options div.highlight ul {
+  border-color: #a7c1ca;
+  background: white;
+}
 .fund_options ul {
   padding: 5px 10px 5px 15px;
   border: solid 1px #d6dde0;
@@ -240,4 +250,10 @@ span.menu-item-price {
 }
 #authorize {
   display: none;
+  border: 3px solid #d6dde0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 10px;
 }
