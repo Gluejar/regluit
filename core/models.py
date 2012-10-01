@@ -84,6 +84,7 @@ class Claim(models.Model):
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
     status = models.CharField(max_length=7, choices= STATUSES, default='pending')
     
+    @property
     def can_open_new(self):
         # whether a campaign can be opened for this claim
         
