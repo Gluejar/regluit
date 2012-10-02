@@ -956,6 +956,18 @@ class Wishes(models.Model):
     class Meta:
         db_table = 'core_wishlist_works'
 
+class Badge(models.Model):
+    name = models.CharField(max_length=72, blank=True)
+    description = models.TextField(default='', null=True)
+    
+    @property
+    def path(self):
+        return '/static/images/%s.png' % self.name
+    
+
+pledger= Badge.objects.get(name='pledger')
+pledger2= Badge.objects.get(name='pledger2')
+
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
@@ -971,16 +983,32 @@ class UserProfile(models.Model):
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
-    goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
+    goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
+    
+    def add_pledge_badge(self):
+        #give user a badge
+        if self.badges.all().count():
+            if self.badges.all()[0].id == pledger.id:
+                self.badges.remove(pledger)
+                self.badges.add(pledger2)
+        else:
+            self.badges.add(pledger)
 
-class Badge(models.Model):
-    name = models.CharField(max_length=72, blank=True)
-    description = models.TextField(default='', null=True)
+    def reset_pledge_badge(self):    
+        #count user pledges  
+        n_pledges = self.pledge_count
+        if self.badges.exists():
+            self.badges.remove(pledger)
+            self.badges.remove(pledger2)
+        if n_pledges == 1:
+            self.badges.add(pledger)
+        elif n_pledges > 1:
+            self.badges.add(pledger2)
     
     @property
-    def path(self):
-        return '/static/images/%s.png' % self.name
-    
+    def pledge_count(self):
+        return self.user.transaction_set.exclude(status='NONE').exclude(status='Canceled',reason=None).exclude(anonymous=True).count()
+
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
