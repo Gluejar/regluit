@@ -1,4 +1,5 @@
 from regluit.payment.models import Transaction, PaymentResponse
+
 from django.http import  HttpResponseForbidden
 from datetime import timedelta
 from regluit.utils.localdatetime import now, zuluformat
@@ -7,6 +8,13 @@ import datetime
 import time
 
 
+def requires_explicit_preapprovals():
+    """a function that returns for the given payment processor"""
+    return False
+
+def make_account(user, token):
+    """template function for return a payment.Account corresponding to the payment system"""
+    return None
 
 def ProcessIPN(request):
     return HttpResponseForbidden()

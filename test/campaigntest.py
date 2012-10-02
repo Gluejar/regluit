@@ -154,6 +154,156 @@ def recipient_status(clist):
 
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
+def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='chrome'):
+    django.db.transaction.enter_transaction_management()
+
+    UNGLUE_IT_URL = unglue_it_url
+    USER = settings.UNGLUEIT_TEST_USER
+    PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
+    
+    setup_selenium()
+    
+    if browser == 'firefox':
+        sel = webdriver.Firefox()
+    elif browser == 'chrome':
+        sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
+    elif browser == 'htmlunit':
+        # HTMLUNIT with JS -- not successful
+        sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    else:
+        sel = webdriver.Firefox()
+
+    time.sleep(5)
+    
+    print "now opening unglue.it"
+    
+    #sel.get("http://www.google.com")
+    sel.get(UNGLUE_IT_URL)    
+    
+    # long wait because sel is slow after PayPal
+    sign_in_link = WebDriverWait(sel, 100).until(lambda d : d.find_element_by_xpath("//span[contains(text(),'Sign In')]/.."))
+    sign_in_link.click()
+
+    # enter unglue.it login info
+    input_username = WebDriverWait(sel,20).until(lambda d : d.find_element_by_css_selector("input#id_username"))
+    input_username.send_keys(USER)
+    sel.find_element_by_css_selector("input#id_password").send_keys(PASSWORD)
+    sel.find_element_by_css_selector("input[value*='sign in']").click()    
+    
+    # click on biggest campaign list
+    # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
+    # http://stackoverflow.com/a/6141678/7782
+    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
+    biggest_campaign_link.click()
+    time.sleep(1)
+    
+    # pull up one of the campaigns to pledge to
+    # for now, take the first book and click on the link to get to the work page
+    work_links = WebDriverWait(sel,10).until(lambda d: d.find_elements_by_css_selector("div.book-list div.title a"))
+    work_links[0].click()
+    
+    support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Support']"))
+    support_button.click()
+    
+    # just click Pledge button without filling out amount -- should have the form validation spot the error
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
+    pledge_button.click()
+    # check to see whether there is an error
+    error_messages = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("ul.errorlist"))
+    if len(error_messages):
+        print "yes:  Error in just hitting pledge button as expected"
+    else:
+        print "ooops:  there should be an error message when pledge button hit"
+    
+    print "making $10 pledge"
+    
+    # now we have to replace the current preapproval amount with 10
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="10";""")
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
+    
+    support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge Now']"))
+    support_button.click()    
+    
+    # now fill out the credit card
+        
+    sel.execute_script("""document.getElementById("card_Number").value="4242424242424242";""")
+    sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
+    sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    sel.execute_script("""document.getElementById("card_CVC").value="123";""")
+    
+    verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Verify Credit Card']"))
+    verify_cc_button.click()
+    
+    # verify that we are at pledge_complete
+    # sleep a bit to give enough time for redirecto pledge_complete to finish
+    
+    time.sleep(3)
+    
+    # should be back on a pledge complete page
+    print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
+    
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+
+    # change_pledge
+    print "clicking Modify Pledge button"
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    
+    # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
+    print "changing pledge to $5 -- should not need to go to Stripe"
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="5";""")
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
+    
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    pledge_button.click()
+    
+    # return to the Work page again
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    
+    # modify pledge to $25
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="25";""")
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
+    
+    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    pledge_button.click()
+    
+    # now cancel transaction
+    # now go back to the work page, hit modify pledge, and then the cancel link
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url.click()
+    change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
+    change_pledge_button.click()
+    cancel_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('a[href*="/pledge/cancel"]'))
+    cancel_url.click()
+    
+    # hit the confirm cancellation button
+    cancel_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Confirm Pledge Cancellation']"))
+    cancel_pledge_button.click()    
+    
+    time.sleep(10)
+    django.db.transaction.commit()
+    
+    yield sel
+    
+
+    # now use the transaction manager to make the charge
+    w = models.Work.objects.get(id=48)
+    c = w.campaigns.all()[0]
+    pm = PaymentManager()
+    result = pm.execute_campaign(c)
+    
+    # should have a Complete transaction
+    print result
+    
+    yield sel
+    
 
 def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='firefox'):
     """

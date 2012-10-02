@@ -8,7 +8,15 @@
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
 <link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
 
-<script type="text/javascript" src="/static/stripe/tag.js"></script>
+<script type="text/javascript" src="https://js.stripe.com/v1/"></script>
+
+<script type="text/javascript">
+    Stripe.setPublishableKey('{{STRIPE_PK}}');
+</script>
+
+<script type="application/x-javascript">
+
+var $j = jQuery.noConflict();
 
 <script>
 var $j = jQuery.noConflict();
@@ -49,6 +57,43 @@ $j(document).ready(function() {
     $j("#pledge_explanation").mouseleave(function() {
         $j("#pledge_explanation").removeClass("highlight");
     });
+});
+</script>
+
+function stripeResponseHandler(status, response) {
+    if (response.error) {
+	// re-enable the submit button
+	$j('.submit-button').removeAttr("disabled");
+	// show the errors on the form
+	$j(".payment-errors").html(response.error.message);
+    } else {
+	var form$ = $j("#payment-form");
+	// token contains id, last4, and card type
+	var token = response['id'];
+	
+	// insert the token into the form so it gets submitted to the server
+	form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+	// and submit
+	form$.get(0).submit();
+    }
+}
+	   
+	    
+$j().ready(function() {
+  $j("#payment-form").submit(function(event) {
+    // disable the submit button to prevent repeated clicks
+    $j('.submit-button').attr("disabled", "disabled");
+
+    Stripe.createToken({
+        number: $j('.card-number').val(),
+        cvc: $j('.card-cvc').val(),
+        exp_month: $j('.card-expiry-month').val(),
+        exp_year: $j('.card-expiry-year').val()
+    }, stripeResponseHandler);
+
+    // prevent the form from submitting with the default action
+    return false;
+  });
 });
 </script>
 {% endblock %}
@@ -136,6 +181,7 @@ kept around for reference as the page is overhauled
 	    </p>
 	    {% if request.user.credit.available %}<p>Although you have ${{request.user.credit.available}} in donation credits, you can't support a campaign with a mixture of credit card pledges and donations.{% endif %}
 	    <div id="cc_pledge">
+<<<<<<< HEAD
 		<span class="payment-errors"></span>
 		<form action="" method="post" id="payment-form">
 		  {% csrf_token %}
@@ -144,22 +190,33 @@ kept around for reference as the page is overhauled
 		  <payment key="{{STRIPE_PK}}"></payment>
 		  <input name="cc_submit" type="submit" value="Complete pledge" id="cc_submit" />
 		</form>
+=======
+		  <span class="payment-errors"></span>
+		    <form action="" method="POST" id="payment-form">
+		      {% csrf_token %}
+		      {{ form.non_field_errors }}
+		      {{ form.as_p }}	
+		      <div class="form-row">
+			<label>Card Number</label>
+			<input id="card_Number" type="text" size="20" autocomplete="off" class="card-number"/>
+		      </div>
+		      <div class="form-row">
+			<label>CVC</label>
+			<input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc"/>
+		      </div>
+		      <div class="form-row">
+			<label>Expiration (MM/YYYY)</label>
+			<input id="card_ExpiryMonth" type="text" size="2" class="card-expiry-month"/>
+			<span> / </span>
+			<input id="card_ExpiryYear" type="text" size="4" class="card-expiry-year"/>
+		      </div>
+		      <input id="cc_submit" type="submit" class="submit-button" value="Verify Credit Card" />
+		    </form>
+>>>>>>> 166afece6276ebe0307f93fcd199f872797735da
 	    </div>
 	</div>
 
 	</div>
 </div>
-
-<script type="application/x-javascript">
-
-var $j = jQuery.noConflict();
-console.debug('setting up handlers in stripe.html');
-
-$j('payment').bind('success.payment', function () {
-  console.debug('success.payment ev');
-});
-
-</script>
 {% endblock %}
-
 
