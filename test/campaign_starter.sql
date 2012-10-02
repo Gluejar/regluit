@@ -583,19 +583,6 @@ INSERT INTO `core_identifier` VALUES (1,'goog','wtPxGztYx-UC',1,1),(2,'isbn','97
 UNLOCK TABLES;
 
 --
--- Create empty core_key
---
-DROP TABLE IF EXISTS `core_key`;
-CREATE TABLE `core_key` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `encrypted_value` longtext,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `core_key_name_2fdc7c2d_uniq` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
---
 -- Table structure for table `core_premium`
 --
 
