@@ -1,7 +1,15 @@
 {% if amount > 0 %}
-{{ user.username }}, {{ amount }} donation credits have been added to your unglue.it donation credit account.
+    {% if amount == 1 %}
+        {{ user.username }}, 1 donation credit has been added to your unglue.it donation credit account.
+    {% else %}
+        {{ user.username }}, {{ amount }} donation credits have been added to your unglue.it donation credit account.
+    {% endif %}
 {% else %}
-{{ user.username }}, {{ minus_amount }} donation credits have been deducted from your unglue.it donation credit account.
+    {% if amount == 1 %}
+        {{ user.username }}, 1 donation credit has been deducted from your unglue.it donation credit account.
+    {% else %}
+        {{ user.username }}, {{ minus_amount }} donation credits have been deducted from your unglue.it donation credit account.
+    {% endif %}
 {% endif %}
 You have a balance of {{ user.credit.balance }} donation credits.
 You have pledged {{ user.credit.pledged }} donation credits to ungluing campaigns.
