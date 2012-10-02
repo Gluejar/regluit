@@ -23,8 +23,8 @@
     border-bottom-width: 1px;
     border-top-style: solid;
     border-bottom-style: solid;
-    border-top-color: #FFFFFF;
-   	border-bottom-color: #FFFFFF;
+    border-top-color: #FFF;
+   	border-bottom-color: #FFF;
 }
 
 .panelhoverlink {
@@ -36,7 +36,7 @@
     width:118px;
     height:35px;
     padding:0px 0px;
-    background:#FFFFFF;
+    background:#FFF;
     margin:0px;
     .one-border-radius(4px);
     border: 1px solid #81bb38;    
@@ -127,8 +127,12 @@
     font-size: 12px;
     line-height:16px;
     max-height:32px;
-    color: #3d4e53;
+    color: @text-blue;
     overflow: hidden;    
+    
+    a {
+    	color: @medium-blue;
+    }
 }
 
 .panelview.booklist-status {
@@ -280,7 +284,7 @@ div.panelview.side2  {
     margin:0px;
 
 	 a {
-    	color:#FFFFFF;
+    	color:#FFF;
     	text-decoration:none;
     	
     	&:hover { .panelhoverlink;}
