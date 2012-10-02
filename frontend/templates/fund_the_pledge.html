@@ -18,9 +18,6 @@
 
 var $j = jQuery.noConflict();
 
-<script>
-var $j = jQuery.noConflict();
-
 $j(document).ready(function() {
     $j("#pledge_option").click(function() {
         $j("#authorize").show();
@@ -60,6 +57,7 @@ $j(document).ready(function() {
 });
 </script>
 
+<script>
 function stripeResponseHandler(status, response) {
     if (response.error) {
 	// re-enable the submit button
@@ -181,16 +179,6 @@ kept around for reference as the page is overhauled
 	    </p>
 	    {% if request.user.credit.available %}<p>Although you have ${{request.user.credit.available}} in donation credits, you can't support a campaign with a mixture of credit card pledges and donations.{% endif %}
 	    <div id="cc_pledge">
-<<<<<<< HEAD
-		<span class="payment-errors"></span>
-		<form action="" method="post" id="payment-form">
-		  {% csrf_token %}
-		  {{ form.non_field_errors }}
-		  {{ form.as_p }}	
-		  <payment key="{{STRIPE_PK}}"></payment>
-		  <input name="cc_submit" type="submit" value="Complete pledge" id="cc_submit" />
-		</form>
-=======
 		  <span class="payment-errors"></span>
 		    <form action="" method="POST" id="payment-form">
 		      {% csrf_token %}
@@ -210,9 +198,8 @@ kept around for reference as the page is overhauled
 			<span> / </span>
 			<input id="card_ExpiryYear" type="text" size="4" class="card-expiry-year"/>
 		      </div>
-		      <input id="cc_submit" type="submit" class="submit-button" value="Verify Credit Card" />
+		      <input id="cc_submit" type="submit" class="submit-button" value="Complete Pledge" />
 		    </form>
->>>>>>> 166afece6276ebe0307f93fcd199f872797735da
 	    </div>
 	</div>
 
