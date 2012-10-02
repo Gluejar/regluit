@@ -7,14 +7,15 @@ from pytz import utc
 
 from django.conf import settings
 
+from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
+from regluit.payment import baseprocessor
 from regluit.utils.localdatetime import now, zuluformat
 
 import stripe
 
 logger = logging.getLogger(__name__)
-
 
 class StripeError(Exception):
     pass
@@ -38,11 +39,15 @@ try:
     from regluit.core.models import Key
     STRIPE_PK = Key.objects.get(name="STRIPE_PK").value
     STRIPE_SK = Key.objects.get(name="STRIPE_SK").value
+    STRIPE_PARTNER_PK = Key.objects.get(name="STRIPE_PARTNER_PK").value
+    STRIPE_PARTNER_SK = Key.objects.get(name="STRIPE_PARTNER_SK").value    
     logger.info('Successful loading of STRIPE_*_KEYs')
 except Exception, e:
     # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
     STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
     STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
+    STRIPE_PARTNER_PK ='pk_0AnIkNu4WRiJYzxMKgruiUwxzXP2T'
+    STRIPE_PARTNER_SK = 'sk_0AnIvBrnrJoFpfD3YmQBVZuTUAbjs'
     
 # set default stripe api_key to that of unglue.it
 
@@ -260,56 +265,9 @@ class PledgeScenarioTest(TestCase):
         print "list of events", cls._sc.event.all()
         print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
 
-class StripePaymentRequest(object):
-    '''
-       Handles common information incident to payment processing
-        
-    '''
-    
-    # Global values for the class
-    response = None
-    raw_response = None
-    errorMessage = None
-    status = None
-    url = None
-            
-    def ack( self ):
-        return None
-        
-    def success(self):
-        
-        if self.errorMessage:
-            return False
-        else:
-            return True 
-        
-    def error(self):
-        if self.errorMessage:
-            return True
-        else:
-            return False
-        
-    def error_data(self):
-        return None
-    
-    def error_id(self):
-        return None
-    
-    def error_string(self):
-        return self.errorMessage
-    
-    def envelope(self):
-        # The envelope is used to store info about this request
-        if self.response:
-            return str(self.response)
-        else:
-            return None
-      
-    def correlation_id(self):
-        return None
-        
-    def timestamp(self):
-        return str(datetime.datetime.now())
+class StripePaymentRequest(baseprocessor.BasePaymentRequest):
+    """so far there is no need to have a separate class here"""
+    pass
 
 def requires_explicit_preapprovals():
     """a function that returns for the given payment processor"""
@@ -323,10 +281,7 @@ def make_account(user, token):
     # create customer and charge id and then charge the customer
     customer = sc.create_customer(card=token, description=user.username,
                                   email=user.email)
-    
-    
-    from regluit.payment.models import Account
-    
+        
     account = Account(host = PAYMENT_HOST_STRIPE,
                       account_id = customer.id,
                       card_last4 = customer.active_card.last4,
@@ -342,31 +297,10 @@ def make_account(user, token):
     
     return account
 
-class Pay(StripePaymentRequest):
-
-  '''
-    The pay function generates a redirect URL to approve the transaction
-  '''
+class Pay(StripePaymentRequest, baseprocessor.Pay):
+    pass
     
-  def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
-      self.transaction=transaction
-      
-  def api(self):
-      return "null api"
-    
-  def exec_status( self ):
-      return None 
-      
-  def amount( self ):
-      return None
-      
-  def key( self ):
-      return None
-
-  def next_url( self ):
-      return self.url
-  
-class Preapproval(StripePaymentRequest):
+class Preapproval(StripePaymentRequest, baseprocessor.Preapproval):
     
     def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
       
