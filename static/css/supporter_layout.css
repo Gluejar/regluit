@@ -161,6 +161,7 @@
   line-height: normal;
   float: left;
   width: 25%;
+  position: relative;
 }
 .user-block3,
 .user-block4 {
@@ -195,11 +196,14 @@ img.user-avatar {
   -webkit-border-radius: 7px;
   border-radius: 7px;
 }
-img.user-badge{
-  vertical-align:middle;
+img.user-badge {
+  position: absolute;
+  margin-left: 30px;
+  margin-top: -12px;
+  z-index: 100;
 }
-.user-badges{
-  font-size:32px;
+.user-badges {
+  font-size: 32px;
 }
 .social {
   width: 100%;
