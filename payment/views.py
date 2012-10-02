@@ -1,5 +1,4 @@
 from regluit.payment.manager import PaymentManager
-from regluit.payment.paypal import IPN
 from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist
 

@@ -124,6 +124,13 @@ Configure Terminal to automatically notice this at startup:
 Terminal –> Preferences –> Settings –> Shell
 Click "run command"; add `source ~/.bashrc`
 
+If you get 'EnvironmentError: mysql_config not found'
+edit the line ~/.virtualenvs/regluit/build/MySQL-python/setup_posix.py
+1. mysql_config.path = "mysql_config"
+to be (using a path that exists on your system)
+1. mysql_config.path = "/usr/local/mysql-5.5.20-osx10.6-x86_64/bin/mysql_config"
+
+
 Selenium Install
 ---------------
 
