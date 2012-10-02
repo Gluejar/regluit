@@ -420,7 +420,7 @@ def manage_campaign(request, id):
         'form':form, 
         'problems': campaign.problems, 
         'alerts': alerts, 
-        'premiums' : campaign.effective_premiums(),
+        'premiums' : campaign.custom_premiums(),
         'premium_form' : new_premium_form,
         'pubdate': pubdate,
         'work': work,

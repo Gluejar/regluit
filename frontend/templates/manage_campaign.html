@@ -238,7 +238,6 @@ Please fix the following before launching your campaign:
 				<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 				<span class="menu-item-desc">{{ premium.description }}</span>
 			</i>
-			   {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
 			{% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
 			{% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
 			</li>
@@ -249,9 +248,7 @@ Please fix the following before launching your campaign:
 		 {% endif %}
 		</form>
 	</div>
-	<h4>Editing premiums</h4>
-	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
-	<h4>Add a custom premium for this campaign</h4>
+	<h4>Add a premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
 	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
@@ -262,6 +259,8 @@ Please fix the following before launching your campaign:
 	<br />
 	<input type="submit" name="add_premium" value="Add Premium" />
 	</form>
+	<h4>Editing premiums</h4>
+	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
 </div>
 
 {% ifequal campaign_status 'INITIALIZED' %}
