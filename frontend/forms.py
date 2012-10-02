@@ -353,8 +353,8 @@ class CampaignPledgeForm(forms.Form):
         return self.cleaned_data
 
 class CCForm(forms.Form):
-    username = forms.CharField(max_length=30, required=True )
-    work_id = forms.IntegerField(required=False,  widget=forms.HiddenInput() )
+    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput())
+    work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
     preapproval_amount= forms.DecimalField(
         required=False,
