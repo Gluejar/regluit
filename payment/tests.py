@@ -14,7 +14,6 @@ from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist, Work
 from regluit.core.signals import handle_transaction_charged
 from regluit.payment.parameters import *
-from regluit.payment.paypal import *
 import traceback
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
