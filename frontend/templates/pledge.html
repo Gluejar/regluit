@@ -71,30 +71,40 @@
 			{{ form.non_field_errors }}
         	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
         	
-        	<div class="pledge_amount premium_level">Choose your premium:</div>
-
-        	<ul class="support menu" id="premiums_list">
-            	{% for premium_item in premiums %}
-            	{% if premium_item.limit == 0  or  premium_item.limit > premium_item.premium_count  %}
-            	<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-            	<label for="premium_{{premium_item.id}}">
-                	<input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %} />
-                	{% if premium_item.amount == 0 %}
-                    <span class="menu-item-price">
-                    	Any amount
-                    </span>
-                    {% else %}
-                    <span class="menu-item-price">
-                    	${{ premium_item.amount|intcomma }}
-                    </span>
+        	{% if premiums|length > 1 %}
+                <div class="pledge_amount premium_level">Choose your premium:</div>
+                
+                <div style="height:10px;"></div>
+    
+                <ul class="support menu" id="premiums_list">
+                    {% for premium_item in premiums %}
+                    {% if premium_item.limit == 0  or  premium_item.limit > premium_item.premium_count  %}
+                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                    <label for="premium_{{premium_item.id}}">
+                        <input type="radio" name="premium_id" id="premium_{{premium_item.id}}" value="{{premium_item.id}}" {% ifequal request.REQUEST.premium_id premium_item.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal premium_id premium_item.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                        {% if premium_item.amount == 0 %}
+                        <span class="menu-item-price">
+                            Any amount
+                        </span>
+                        {% else %}
+                        <span class="menu-item-price">
+                            ${{ premium_item.amount|intcomma }}
+                        </span>
+                        {% endif %}
+                        <span class="menu-item-desc">
+                            {{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
+                        </span>
+                    </label></li>
                     {% endif %}
-                	<span class="menu-item-desc">
-                		{{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
-                	</span>
-           		</label></li>
-            	{% endif %}
-            	{% endfor %}
-         	</ul>
+                    {% endfor %}
+                </ul>
+            {% else %}
+            <div style="height:10px;"></div>
+            <input type="hidden" name="premium_id" id="premium_{{ premiums.0.id }}" value="{{ premiums.0.id }}" checked="checked" />
+                {% comment %}
+                If the RH hasn't added any premiums, there's no point in displaying the "no premium" option, but we do need to check it off so the form will validate.
+                {% endcomment %}
+         	{% endif %}
 
 			<div class="pledge_amount clearfix" id="mandatory_premiums">
 			<div>Depending on your pledge amount, you'll also get these acknowledgements.</div>
