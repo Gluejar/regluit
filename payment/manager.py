@@ -37,7 +37,7 @@ class PaymentManager( object ):
         
         # Forward to our payment processor
         mod = __import__("regluit.payment." + module, fromlist=[str(module)])
-        return  = mod.Processor().ProcessIPN(request)
+        return mod.Processor().ProcessIPN(request)
 
     def update_preapproval(self, transaction):
         """Update a transaction to hold the data from a PreapprovalDetails on that transaction"""
