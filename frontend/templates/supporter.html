@@ -104,8 +104,6 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                         {% for badge in supporter.profile.badges.all %}
                                             <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
                                         {% endfor %}
-                                    {% else %}
-                                        <img src="/static/images/empty_badge.png" alt="empty badge" {% ifequal request.user supporter %}title="Make a pledge to earn this badge."{% else %}title="{{ supporter }} hasn't made any pledges yet"{% endifequal %}  />                                
                                     {% endif %}
                                 </span>
                             </div>
@@ -132,7 +130,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             <div class="user-block4">
                                 {% ifequal request.user supporter %}
                                 <div id="edit_profile">
-                                    <img src="/static/images/header/icon-edit.png">
+                                    <img src="/static/images/header/icon-edit.png" alt="Edit Your Profile" title="Edit Your Profile" />
                                 </div>
                                 {% endifequal %}
                                 <div class="social">
