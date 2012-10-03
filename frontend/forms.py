@@ -307,7 +307,7 @@ class CampaignPledgeForm(forms.Form):
         decimal_places=2, 
         label="Pledge Amount",
     )
-    anonymous = forms.BooleanField(required=False, label=_("Don't display my name in the acknowledgements"))
+    anonymous = forms.BooleanField(required=False, label=_("Make this pledge anonymous, please"))
     ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
