@@ -49,6 +49,5 @@ ssh==1.7.14
 stevedore==0.4
 stripe==1.7.4
 virtualenv==1.4.9
-virtualenv-clone==0.2.4
 virtualenvwrapper==3.6
 wsgiref==0.1.2

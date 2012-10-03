@@ -1139,10 +1139,8 @@ def rh_tools(request):
             claim.campaigns = claim.work.campaigns.all()
         else:
             claim.campaigns = []
-        claim.can_open_new=False if claim.work.last_campaign_status in ['ACTIVE','INITIALIZED'] else True
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
-                claim.can_open_new=False
                 if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
                     campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
                     if campaign.edit_managers_form.is_valid():
@@ -1150,7 +1148,7 @@ def rh_tools(request):
                         campaign.edit_managers_form = EditManagersForm(instance=campaign, prefix=campaign.id)
                 else:
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
-        if claim.status == 'active' and claim.can_open_new:
+        if claim.can_open_new:
             if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
@@ -1159,11 +1157,8 @@ def rh_tools(request):
                     new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
-                    claim.can_open_new=False
             else:
                 claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
-        else:
-            claim.can_open_new=False
     campaigns = request.user.campaigns.all()
     new_campaign = None
     for campaign in campaigns:
