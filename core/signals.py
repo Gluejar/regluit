@@ -194,7 +194,8 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
         return
         
     #give user a badge
-    transaction.user.profile.add_pledge_badge()
+    if not transaction.anonymous:
+        transaction.user.profile.add_pledge_badge()
     
     notification.queue([transaction.user], "pledge_you_have_pledged", {
             'site':Site.objects.get_current(),
