@@ -177,8 +177,6 @@ def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
     # up_or_down is 'increased', 'decreased', or 'canceled'
     if transaction==None or up_or_down==None:
         return
-    if up_or_down == 'canceled':
-        transaction.user.profile.reset_pledge_badge()
     notification.queue([transaction.user], "pledge_status_change", {
             'site':Site.objects.get_current(),
             'transaction': transaction,
@@ -192,10 +190,6 @@ pledge_modified.connect(handle_pledge_modified)
 def handle_you_have_pledged(sender, transaction=None, **kwargs):
     if transaction==None:
         return
-        
-    #give user a badge
-    transaction.user.profile.add_pledge_badge()
-    
     notification.queue([transaction.user], "pledge_you_have_pledged", {
             'site':Site.objects.get_current(),
             'transaction': transaction
