@@ -14,7 +14,6 @@ from regluit.payment.models import Transaction
 from regluit.core.models import Campaign, Wishlist, Work
 from regluit.core.signals import handle_transaction_charged
 from regluit.payment.parameters import *
-from regluit.payment.paypal import *
 import traceback
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
@@ -351,6 +350,12 @@ class TransactionTest(TestCase):
         t.campaign = c
         t.user = user
         t.save()
+        
+        #test pledge adders
+        user.profile.reset_pledge_badge()
+        self.assertEqual(user.profile.badges.all()[0].name,'pledger')
+        user.profile.reset_pledge_badge()
+        self.assertEqual(user.profile.badges.all()[0].name,'pledger2')
         
         p = PaymentManager()
         results = p.query_campaign(c,campaign_total=True, summary=False)

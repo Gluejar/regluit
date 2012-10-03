@@ -154,6 +154,7 @@
 #user-block1 {
   float: left;
   width: 25%;
+  position: relative;
 }
 .user-block2 {
   color: #6994a3;
@@ -195,8 +196,33 @@ img.user-avatar {
   -webkit-border-radius: 7px;
   border-radius: 7px;
 }
+.user-badges {
+  position: absolute;
+  bottom: 0;
+  left: 60px;
+}
+.user-badges img {
+  vertical-align: text-bottom;
+  border: 1px solid #D4D4D4;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
 .social {
   width: 100%;
+}
+#edit_profile {
+  float: right;
+  margin-top: -12px;
+  margin-right: -5px;
+  border: 2px solid white;
+  padding: 3px 2px 2px 3px;
+}
+#edit_profile:hover {
+  border: 2px solid #8dc63f;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 span.special-user-name {
   display: block;
@@ -207,7 +233,6 @@ span.special-user-name {
   height: 50px;
 }
 span.user-name,
-span.user-date,
 span.user-short-info {
   display: block;
 }
@@ -313,10 +338,10 @@ span.my-setting {
   -moz-border-radius: 7px;
   -webkit-border-radius: 7px;
   border-radius: 7px;
-  height: 50px;
-  line-height: 50px;
+  height: 40px;
+  line-height: 40px;
   display: block;
-  padding: 0 0 0 10px;
+  padding: 0 0 10px 10px;
   font-size: 19px;
   font-weight: bold;
   cursor: pointer;
