@@ -1,4 +1,4 @@
-from regluit.payment.models import Transaction, PaymentResponse
+from regluit.payment.models import  PaymentResponse
 
 from django.http import  HttpResponseForbidden
 from datetime import timedelta

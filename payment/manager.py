@@ -1,4 +1,3 @@
-from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
