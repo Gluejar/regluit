@@ -203,18 +203,10 @@ img.user-avatar {
 }
 .user-badges img {
   vertical-align: text-bottom;
-}
-.user-badges img.pledger {
-  border: 3px solid #efd45e;
-  -moz-border-radius: 7px;
-  -webkit-border-radius: 7px;
-  border-radius: 7px;
-}
-.user-badges img.pledger2 {
-  border: 3px solid #e18551;
-  -moz-border-radius: 7px;
-  -webkit-border-radius: 7px;
-  border-radius: 7px;
+  border: 1px solid #D4D4D4;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 .social {
   width: 100%;
