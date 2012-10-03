@@ -109,13 +109,13 @@ class Transaction(models.Model):
             
     def get_payment_class(self):
         '''
-            Returns the specific payment module that implements this transaction
+            Returns the specific payment processor that implements this transaction
         '''
         if self.host == PAYMENT_HOST_NONE:
             return None
         else:
             mod = __import__("regluit.payment." + self.host, fromlist=[str(self.host)])
-            return mod
+            return mod.Processor()
 
     def set_credit_approved(self, amount):
         self.amount=amount

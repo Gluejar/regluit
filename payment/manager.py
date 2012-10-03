@@ -6,8 +6,6 @@ from regluit.payment.parameters import *
 from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
 from regluit.payment import credit
 
-from regluit.payment.baseprocessor import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
-
 import uuid
 import traceback
 from regluit.utils.localdatetime import now
@@ -39,14 +37,13 @@ class PaymentManager( object ):
         
         # Forward to our payment processor
         mod = __import__("regluit.payment." + module, fromlist=[str(module)])
-        method = getattr(mod, "ProcessIPN")
+        method = getattr(mod.Processor, "ProcessIPN")
         return method(request)
 
     def update_preapproval(self, transaction):
         """Update a transaction to hold the data from a PreapprovalDetails on that transaction"""
         t = transaction
-        method = getattr(transaction.get_payment_class(), "PreapprovalDetails")
-        p = method(t)
+        p = transaction.get_payment_class().PreapprovalDetails(t)
                     
         preapproval_status = {'id':t.id, 'key':t.preapproval_key}
         
@@ -98,8 +95,7 @@ class PaymentManager( object ):
         t = transaction
         payment_status = {'id':t.id}
             
-        method = getattr(transaction.get_payment_class(), "PaymentDetails")
-        p = method(t)
+        p = transaction.get_payment_class().PaymentDetails(t)
         
         if p.error() or not p.success():
             logger.info("Error retrieving payment details for transaction %d" % t.id)
@@ -413,8 +409,7 @@ class PaymentManager( object ):
         transaction.date_executed = now()
         transaction.save()
         
-        method = getattr(transaction.get_payment_class(), "Finish")
-        p = method(transaction)            
+        p = transaction.get_payment_class().Finish(transaction)            
         
         # Create a response for this
         envelope = p.envelope()
@@ -468,8 +463,7 @@ class PaymentManager( object ):
         transaction.date_payment = now()
         transaction.save()
         
-        method = getattr(transaction.get_payment_class(), "Execute")
-        p = method(transaction)
+        p = transaction.get_payment_class().Execute(transaction)
         
         # Create a response for this
         envelope = p.envelope()
@@ -509,12 +503,11 @@ class PaymentManager( object ):
         '''        
         
         # does this transaction explicity require preapprovals?
-        requires_explicit_preapprovals = getattr(transaction.get_payment_class(), "requires_explicit_preapprovals")
+        requires_explicit_preapprovals = transaction.get_payment_class().requires_explicit_preapprovals
         
-        if requires_explicit_preapprovals():
+        if requires_explicit_preapprovals:
                 
-            method = getattr(transaction.get_payment_class(), "CancelPreapproval")
-            p = method(transaction) 
+            p = transaction.get_payment_class().CancelPreapproval(transaction) 
             
             # Create a response for this
             envelope = p.envelope()
@@ -575,8 +568,7 @@ class PaymentManager( object ):
                                 urllib.urlencode({'tid':transaction.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
-        method = getattr(transaction.get_payment_class(), "Preapproval")
-        p = method(transaction, transaction.amount, expiry, return_url=return_url, paymentReason=paymentReason) 
+        p = transaction.get_payment_class().Preapproval(transaction, transaction.amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
@@ -744,7 +736,7 @@ class PaymentManager( object ):
             
         # does this transaction explicity require preapprovals?
         
-        requires_explicit_preapprovals = getattr(transaction.get_payment_class(), "requires_explicit_preapprovals")
+        requires_explicit_preapprovals = transaction.get_payment_class().requires_explicit_preapprovals
         
         if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
             logger.info("Error, attempt to modify an invalid transaction type")
@@ -785,7 +777,7 @@ class PaymentManager( object ):
                 credit.CancelPreapproval(transaction)
                 return t, reverse('fund_pledge', args=[t.id])
 
-        elif requires_explicit_preapprovals() and (amount > transaction.max_amount or expiry != transaction.date_expired):
+        elif requires_explicit_preapprovals and (amount > transaction.max_amount or expiry != transaction.date_expired):
 
             # set the expiry date based on the campaign deadline
             expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
@@ -828,7 +820,7 @@ class PaymentManager( object ):
                 # corresponding notification to the user? that would go here.
                 return False, None
             
-        elif (requires_explicit_preapprovals() and amount <= transaction.max_amount) or (not requires_explicit_preapprovals()):
+        elif (requires_explicit_preapprovals and amount <= transaction.max_amount) or (not requires_explicit_preapprovals):
             # Update transaction but leave the preapproval alone
             transaction.amount = amount
             transaction.set_pledge_extra(pledge_extra)
@@ -861,8 +853,7 @@ class PaymentManager( object ):
             logger.info("Refund Transaction failed, invalid transaction status")
             return False
         
-        method = getattr(transaction.get_payment_class(), "RefundPayment")
-        p = method(transaction) 
+        p = transaction.get_payment_class().RefundPayment(transaction) 
         
         # Create a response for this
         envelope = p.envelope()
@@ -920,8 +911,7 @@ class PaymentManager( object ):
         t.date_payment=now()
         t.execution=EXECUTE_TYPE_CHAINED_INSTANT
         t.type=PAYMENT_TYPE_INSTANT
-        method = getattr(t.get_payment_class(), "Pay")
-        p = method(t,return_url=return_url, nevermind_url=nevermind_url) 
+        p = t.get_payment_class().Pay(t,return_url=return_url, nevermind_url=nevermind_url) 
         
          # Create a response for this
         envelope = p.envelope()
@@ -954,8 +944,7 @@ class PaymentManager( object ):
         
         """delegate to a specific payment module the task of creating a payment account"""
         mod = __import__("regluit.payment." + host, fromlist=[host])
-        method = getattr(mod, "make_account")
-        return method(user, token)
+        return mod.Processor().make_account(user, token)
         
         
     

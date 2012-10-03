@@ -265,155 +265,153 @@ class StripePaymentRequest(baseprocessor.BasePaymentRequest):
     """so far there is no need to have a separate class here"""
     pass
 
-def requires_explicit_preapprovals():
-    """a function that returns for the given payment processor"""
-    return False
-
-def make_account(user, token):
-    """returns a payment.models.Account based on stripe token and user"""
+class Processor(baseprocessor.Processor):
     
-    sc = StripeClient()
-    
-    # create customer and charge id and then charge the customer
-    customer = sc.create_customer(card=token, description=user.username,
-                                  email=user.email)
-        
-    account = Account(host = PAYMENT_HOST_STRIPE,
-                      account_id = customer.id,
-                      card_last4 = customer.active_card.last4,
-                      card_type = customer.active_card.type,
-                      card_exp_month = customer.active_card.exp_month,
-                      card_exp_year = customer.active_card.exp_year,
-                      card_fingerprint = customer.active_card.fingerprint,
-                      card_country = customer.active_card.country,
-                      user = user
-                      )
-
-    account.save()
-    
-    return account
-
-class Pay(StripePaymentRequest, baseprocessor.Pay):
-    pass
-    
-class Preapproval(StripePaymentRequest, baseprocessor.Preapproval):
-    
-    def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
-      
-        # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
-        
-        self.transaction = transaction
-        
-        now_val = now()
-        if expiry is None:
-            expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
-        transaction.date_authorized = now_val
-        transaction.date_expired = expiry
-          
-        sc = StripeClient()
-        
-        # let's figure out what part of transaction can be used to store info
-        # try placing charge id in transaction.pay_key
-        # need to set amount
-        # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
-        # max_amount is set -- but I don't think we need it for stripe
-
-        # ASSUMPTION:  a user has any given moment one and only one active payment Account
-
-        if transaction.user.account_set.filter(date_deactivated__isnull=True).count() > 1:
-            logger.warning("user {0} has more than one active payment account".format(transaction.user))
-        elif transaction.user.account_set.filter(date_deactivated__isnull=True).count() == 0:
-            logger.warning("user {0} has no active payment account".format(transaction.user))
-            raise StripeError("user {0} has no active payment account".format(transaction.user))
-                
-        account = transaction.user.account_set.filter(date_deactivated__isnull=True)[0]
-        logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
-        
-        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
-        # should approved be set to False and wait for a webhook?
-        transaction.approved = True
-        transaction.type = PAYMENT_TYPE_AUTHORIZATION
-        transaction.host = PAYMENT_HOST_STRIPE
-        transaction.status = TRANSACTION_STATUS_ACTIVE
-    
-        transaction.preapproval_key = account.account_id
-        
-        transaction.currency = 'USD'
-        transaction.amount = amount
-        
-        transaction.save()
-        
-    def key(self):
-        return self.transaction.preapproval_key
-    
-    def next_url(self):
-        """return None because no redirection to stripe is required"""
-        return None
-  
-  
-class Execute(StripePaymentRequest):
-    
-    '''
-        The Execute function sends an existing token(generated via the URL from the pay operation), and collects
-        the money.
-    '''
-    
-    def __init__(self, transaction=None):
-        self.transaction = transaction
-        
-        # execute transaction
-        assert transaction.host == PAYMENT_HOST_STRIPE
+    def make_account(self, user, token):
+        """returns a payment.models.Account based on stripe token and user"""
         
         sc = StripeClient()
         
-        # look at transaction.preapproval_key
-        # is it a customer or a token?
-        
-        # BUGBUG:  replace description with somethin more useful
-        if transaction.preapproval_key.startswith('cus_'):
-            charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
-        elif transaction.preapproval_key.startswith('tok_'):
-            charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
-
-        transaction.status = TRANSACTION_STATUS_COMPLETE
-        transaction.pay_key = charge.id
-        transaction.date_payment = now()
-        transaction.save()
+        # create customer and charge id and then charge the customer
+        customer = sc.create_customer(card=token, description=user.username,
+                                      email=user.email)
             
-        self.charge = charge
-
-    def api(self):
-        return "Base Pay"
+        account = Account(host = PAYMENT_HOST_STRIPE,
+                          account_id = customer.id,
+                          card_last4 = customer.active_card.last4,
+                          card_type = customer.active_card.type,
+                          card_exp_month = customer.active_card.exp_month,
+                          card_exp_year = customer.active_card.exp_year,
+                          card_fingerprint = customer.active_card.fingerprint,
+                          card_country = customer.active_card.country,
+                          user = user
+                          )
     
-    def key(self):
-        # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
-        return self.transaction.pay_key
+        account.save()
+        
+        return account
     
+    class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
+        pass
+        
+    class Preapproval(StripePaymentRequest, baseprocessor.Processor.Preapproval):
+        
+        def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
+          
+            # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
+            
+            self.transaction = transaction
+            
+            now_val = now()
+            if expiry is None:
+                expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+            transaction.date_authorized = now_val
+            transaction.date_expired = expiry
+              
+            sc = StripeClient()
+            
+            # let's figure out what part of transaction can be used to store info
+            # try placing charge id in transaction.pay_key
+            # need to set amount
+            # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
+            # max_amount is set -- but I don't think we need it for stripe
     
-class PreapprovalDetails(StripePaymentRequest):
-    '''
-       Get details about an authorized token
-       
-       This api must set 4 different class variables to work with the code in manager.py
-       
-       status - one of the global transaction status codes
-       approved - boolean value
-       currency - not used in this API, but we can get some more info via other APIs - TODO
-       amount - not used in this API, but we can get some more info via other APIs - TODO
-       
-    '''
-    def __init__(self, transaction):
- 
-        self.transaction = transaction
-        self.status = self.transaction.status
-        if self.status == TRANSACTION_STATUS_CANCELED:
-            self.approved = False
-        else:
-            self.approved = True
-
-        # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
-        self.currency = transaction.currency
-        self.amount = transaction.amount
+            # ASSUMPTION:  a user has any given moment one and only one active payment Account
+    
+            if transaction.user.account_set.filter(date_deactivated__isnull=True).count() > 1:
+                logger.warning("user {0} has more than one active payment account".format(transaction.user))
+            elif transaction.user.account_set.filter(date_deactivated__isnull=True).count() == 0:
+                logger.warning("user {0} has no active payment account".format(transaction.user))
+                raise StripeError("user {0} has no active payment account".format(transaction.user))
+                    
+            account = transaction.user.account_set.filter(date_deactivated__isnull=True)[0]
+            logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
+            
+            # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+            # should approved be set to False and wait for a webhook?
+            transaction.approved = True
+            transaction.type = PAYMENT_TYPE_AUTHORIZATION
+            transaction.host = PAYMENT_HOST_STRIPE
+            transaction.status = TRANSACTION_STATUS_ACTIVE
+        
+            transaction.preapproval_key = account.account_id
+            
+            transaction.currency = 'USD'
+            transaction.amount = amount
+            
+            transaction.save()
+            
+        def key(self):
+            return self.transaction.preapproval_key
+        
+        def next_url(self):
+            """return None because no redirection to stripe is required"""
+            return None
+      
+      
+    class Execute(StripePaymentRequest):
+        
+        '''
+            The Execute function sends an existing token(generated via the URL from the pay operation), and collects
+            the money.
+        '''
+        
+        def __init__(self, transaction=None):
+            self.transaction = transaction
+            
+            # execute transaction
+            assert transaction.host == PAYMENT_HOST_STRIPE
+            
+            sc = StripeClient()
+            
+            # look at transaction.preapproval_key
+            # is it a customer or a token?
+            
+            # BUGBUG:  replace description with somethin more useful
+            if transaction.preapproval_key.startswith('cus_'):
+                charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
+            elif transaction.preapproval_key.startswith('tok_'):
+                charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
+    
+            transaction.status = TRANSACTION_STATUS_COMPLETE
+            transaction.pay_key = charge.id
+            transaction.date_payment = now()
+            transaction.save()
+                
+            self.charge = charge
+    
+        def api(self):
+            return "Base Pay"
+        
+        def key(self):
+            # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
+            return self.transaction.pay_key
+        
+        
+    class PreapprovalDetails(StripePaymentRequest):
+        '''
+           Get details about an authorized token
+           
+           This api must set 4 different class variables to work with the code in manager.py
+           
+           status - one of the global transaction status codes
+           approved - boolean value
+           currency - not used in this API, but we can get some more info via other APIs - TODO
+           amount - not used in this API, but we can get some more info via other APIs - TODO
+           
+        '''
+        def __init__(self, transaction):
+     
+            self.transaction = transaction
+            self.status = self.transaction.status
+            if self.status == TRANSACTION_STATUS_CANCELED:
+                self.approved = False
+            else:
+                self.approved = True
+    
+            # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
+            self.currency = transaction.currency
+            self.amount = transaction.amount
 
 def suite():
     
