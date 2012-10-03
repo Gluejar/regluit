@@ -985,15 +985,6 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    def add_pledge_badge(self):
-        #give user a badge
-        if self.badges.all().count():
-            if self.badges.all()[0].id == pledger.id:
-                self.badges.remove(pledger)
-                self.badges.add(pledger2)
-        else:
-            self.badges.add(pledger)
-
     def reset_pledge_badge(self):    
         #count user pledges  
         n_pledges = self.pledge_count
