@@ -93,15 +93,15 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             <div id="user-block1">
                             <div class="block-inner">
                             <span class="my-setting">My Profile
-                            </span>
-                            </div>
-                            </div>
-                            <div class="user-block2">
                                 <span class="user-badges">
                                 {% for badge in supporter.profile.badges.all %}
                                     <img class="user-badge" src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
                                 {% endfor %}
                                 </span>
+                            </span>
+                            </div>
+                            </div>
+                            <div class="user-block2">
                             	{% if supporter.profile.pic_url %}
                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
                            		{% else %}
@@ -113,17 +113,16 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             {% else %}
                             <div id="user-block1">
                             <div class="block-inner">
-                                <span class="user-badges">
-                                {% for badge in supporter.profile.badges.all %}
-                                    <img class="user-badge" src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
-                                {% endfor %}
-                                </span>
                             	{% if supporter.profile.pic_url %}
                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
                            		{% else %}
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                 {% endif %}
                                 <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
+                                <span class="user-badges">
+                                {% for badge in supporter.profile.badges.all %}
+                                    <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
+                                {% endfor %}
                             </div>
                             </div>
                             <div class="user-block2">
