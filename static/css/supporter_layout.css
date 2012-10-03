@@ -204,6 +204,12 @@ img.user-avatar {
 .user-badges img {
   vertical-align: text-bottom;
 }
+.user-badges img.pledger {
+  border: 3px solid orange;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+}
 .social {
   width: 100%;
 }
