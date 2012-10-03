@@ -154,6 +154,7 @@
 #user-block1 {
   float: left;
   width: 25%;
+  position: relative;
 }
 .user-block2 {
   color: #6994a3;
@@ -195,14 +196,29 @@ img.user-avatar {
   -webkit-border-radius: 7px;
   border-radius: 7px;
 }
-img.user-badge{
-  vertical-align:middle;
+.user-badges {
+  position: absolute;
+  bottom: 0;
+  left: 60px;
 }
-.user-badges{
-  font-size:32px;
+.user-badges img {
+  vertical-align: text-bottom;
 }
 .social {
   width: 100%;
+}
+#edit_profile {
+  float: right;
+  margin-top: -12px;
+  margin-right: -5px;
+  border: 2px solid white;
+  padding: 3px 2px 2px 3px;
+}
+#edit_profile:hover {
+  border: 2px solid #8dc63f;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
 }
 span.special-user-name {
   display: block;

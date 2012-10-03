@@ -22,8 +22,7 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
         $j('#user-block-hide').hide();
-        $j('#user-block1 > div > span').click(function() {
-                $j(this).toggleClass("active");
+        $j('#edit_profile').click(function() {
                 $j("#user-block-hide").slideToggle(300);
         });
     });
@@ -89,46 +88,34 @@ there's no tab for seeing ALL my books, only the filters! huh.
                 <div class="js-topnews2">
                     <div class="js-topnews3">
                         <div class="user-block">
-                            {% ifequal supporter request.user %}
                             <div id="user-block1">
-                            <div class="block-inner">
-                            <span class="my-setting">My Profile
+                                <div class="block-inner">
+                                    {% if supporter.profile.pic_url %}
+                                        <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                    {% else %}
+                                        <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                    {% endif %}
+                                    <span class="user-name">
+                                        <a href="#">{{ supporter.username }}</a>
+                                    </span>
+                                </div>
                                 <span class="user-badges">
-                                {% for badge in supporter.profile.badges.all %}
-                                    <img class="user-badge" src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
-                                {% endfor %}
+                                    {% if supporter.profile.badges.all %}
+                                        {% for badge in supporter.profile.badges.all %}
+                                            <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
+                                        {% endfor %}
+                                    {% else %}
+                                        <img src="/static/images/empty_badge.png" alt="empty badge" {% ifequal request.user supporter %}title="Make a pledge to earn this badge."{% else %}title="{{ supporter }} hasn't made any pledges yet"{% endifequal %}  />                                
+                                    {% endif %}
                                 </span>
-                            </span>
                             </div>
-                            </div>
+
                             <div class="user-block2">
-                            	{% if supporter.profile.pic_url %}
-                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                           		{% else %}
-                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                {% endif %}
-                                <span class="user-name"><a href="#">{{ supporter.username|truncatechars:20 }}</a></span>
-                                <span class="user-short-info">{{ supporter.profile.tagline }}</span>
+                                <span class="user-short-info">
+                                    {% with supporter.profile.tagline as tagline %}{% if tagline %}{{ tagline }}{% else %}&nbsp;{% endif %}{% endwith %}
+                                </span>
                             </div>
-                            {% else %}
-                            <div id="user-block1">
-                            <div class="block-inner">
-                            	{% if supporter.profile.pic_url %}
-                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                           		{% else %}
-                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                {% endif %}
-                                <span class="user-name"><a href="#">{{ supporter.username }}</a></span>
-                                <span class="user-badges">
-                                {% for badge in supporter.profile.badges.all %}
-                                    <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}"  />                                
-                                {% endfor %}
-                            </div>
-                            </div>
-                            <div class="user-block2">
-                                <span class="user-short-info">{% with supporter.profile.tagline as tagline %}{% if tagline %}{{ tagline }}{% else %}&nbsp;{% endif %}{% endwith %}</span>
-                            </div>
-                            {% endifequal %}
+
                             <div class="user-block3">
                                 <div class="badges">
                                 {% ifequal request.user supporter %}
@@ -143,6 +130,11 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 </div>
                             </div>
                             <div class="user-block4">
+                                {% ifequal request.user supporter %}
+                                <div id="edit_profile">
+                                    <img src="/static/images/header/icon-edit.png">
+                                </div>
+                                {% endifequal %}
                                 <div class="social">
                                 {% if supporter.profile.home_url %}
                                    <a href="{{ supporter.profile.home_url }}" class="nounderline">
