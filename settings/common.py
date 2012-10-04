@@ -33,6 +33,12 @@ CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_CONFIGS = {
     'default': {
         'width': 700,
+        'toolbar': [
+            ['Cut','Copy','Paste', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source'],
+            ['Bold', 'Italic', '-', 'NumberedList','BulletedList', '-','Blockquote'],
+            ['Find','Replace','-', 'Scayt'],
+            ['Link', 'Unlink', '-', 'Image', 'HorizontalRule']
+         ],
     },
 }
 

@@ -77,6 +77,7 @@
 #user-block1 {
 	float:left;
 	width:25%;
+	position: relative;
 }
 
 .user-block2 {
@@ -121,10 +122,35 @@ img.user-avatar {
 	.one-border-radius(7px);
 }
 
+.user-badges {
+    position: absolute;
+    bottom: 0;
+    left: 60px;
+    
+    img {
+        vertical-align:text-bottom;
+        border:1px solid #d4d4d4;
+        .one-border-radius(5px);
+        }
+    }
+}
+
 .social { 
 	width:100%;
 }
 
+#edit_profile {
+    float: right;
+    margin-top: -12px;
+    margin-right: -5px;
+    border: 2px solid white;
+    padding: 3px 2px 2px 3px;
+    
+    &:hover {
+        border: 2px solid @call-to-action;
+        .one-border-radius(5px);
+    }
+}
 span.special-user-name {
 	display: block;
 	font-size: @font-size-header;
@@ -135,7 +161,6 @@ span.special-user-name {
 }
 
 span.user-name,
-span.user-date, 
 span.user-short-info { 
 	display: block;
 }
@@ -234,9 +259,9 @@ input.profile-save {
 span.my-setting { 
 	background:@blue-grey url("@{image-base}header/explane.png") 90% center no-repeat; 
 	.one-border-radius(7px); 
-	.height(50px);
+	.height(40px);
 	display:block; 
-	padding:0 0 0 10px; 
+	padding:0 0 10px 10px; 
 	font-size: @font-size-header;
 	font-weight: bold;
 	cursor:pointer;
