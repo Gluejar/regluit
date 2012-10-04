@@ -214,13 +214,14 @@ Please fix the following before launching your campaign:
 	
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
-	{% if not is_preview or request.user.is_staff %}
-		{% ifequal campaign_status 'ACTIVE' %}
+	{% ifequal campaign_status 'ACTIVE' %}
 		<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
 		<input type="submit" name="save" value="Modify Campaign" />
-		{% else %}
+	{% else %}
 		<br /><br /><input type="submit" name="save" value="Save Campaign" />
-		{% endifequal %}
+	{% endifequal %}
+	
+	{% if not is_preview or request.user.is_staff %}
 		{% if campaign_status == 'INITIALIZED' %}
 		<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
 		{% endif %}
