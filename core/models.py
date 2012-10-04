@@ -965,9 +965,16 @@ class Badge(models.Model):
     def path(self):
         return '/static/images/%s.png' % self.name
     
-
-pledger= Badge.objects.get(name='pledger')
-pledger2= Badge.objects.get(name='pledger2')
+def pledger():
+    if not pledger.instance:
+        pledger.instance = Badge.objects.get(name='pledger')
+    return pledger.instance
+pledger.instance=None
+def pledger2():
+    if not pledger2.instance:
+        pledger2.instance = Badge.objects.get(name='pledger2')
+    return pledger2.instance
+pledger2.instance=None
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -986,25 +993,16 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    def add_pledge_badge(self):
-        #give user a badge
-        if self.badges.all().count():
-            if self.badges.all()[0].id == pledger.id:
-                self.badges.remove(pledger)
-                self.badges.add(pledger2)
-        else:
-            self.badges.add(pledger)
-
     def reset_pledge_badge(self):    
         #count user pledges  
         n_pledges = self.pledge_count
         if self.badges.exists():
-            self.badges.remove(pledger)
-            self.badges.remove(pledger2)
+            self.badges.remove(pledger())
+            self.badges.remove(pledger2())
         if n_pledges == 1:
-            self.badges.add(pledger)
+            self.badges.add(pledger())
         elif n_pledges > 1:
-            self.badges.add(pledger2)
+            self.badges.add(pledger2())
     
     @property
     def pledge_count(self):
