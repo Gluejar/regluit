@@ -198,7 +198,7 @@ Please fix the following before launching your campaign:
 	
 	{{ form.target.errors }}${{ form.target }}
 	<h3>License being offered</h3>
-	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.</p>
+	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
 	{{ form.license.errors }}{{ form.license }}
 	<h3>Ending date</h3>
 	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
@@ -266,16 +266,16 @@ Please fix the following before launching your campaign:
 	</div>
 	<h4>Add a premium for this campaign</h4>
 
-	<form action="#" method="POST">
+	<form action="#" method="POST" id="premium_add">
 	{% csrf_token %}
-	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
-	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
-	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
+	<span class="premium_add_label">Pledge Amount ($2000 maximum):</span> {{ premium_form.amount.errors }}<span class="premium_field_label">$</span>{{ premium_form.amount }}<br /><br />
+	<span class="premium_add_label">Premium Description:</span> {{ premium_form.description.errors }}{{ premium_form.description }}<br /><br />
+	<span class="premium_add_label">Number Available (0 if no limit):</span> {{ premium_form.limit.errors }}{{ premium_form.limit }}<br /><br />
 	{{ premium_form.campaign }}
 	{{ premium_form.type.errors }}{{ premium_form.type }}
 	<br />
 	<input type="submit" name="add_premium" value="Add Premium" />
-	</form>
+	</form><br /><br />
 
 	<h4>Editing premiums</h4>
 	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
