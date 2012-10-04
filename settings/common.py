@@ -33,6 +33,12 @@ CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_CONFIGS = {
     'default': {
         'width': 700,
+        'toolbar': [
+            ['Cut','Copy','Paste', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source'],
+            ['Bold', 'Italic', '-', 'NumberedList','BulletedList', '-','Blockquote'],
+            ['Find','Replace','-', 'Scayt'],
+            ['Link', 'Unlink', '-', 'Image', 'HorizontalRule']
+         ],
     },
 }
 
@@ -272,7 +278,7 @@ EBOOK_NOTIFICATIONS_JOB = {
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # amazon or paypal for now.
-PAYMENT_PROCESSOR = 'test'
+PAYMENT_PROCESSOR = 'stripelib'
 
 # a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
 SECRET_KEY = ''

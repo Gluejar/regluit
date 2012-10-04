@@ -36,6 +36,15 @@ class EditionForm(forms.ModelForm):
             'required': _("Yes, we need an ISBN."),
         }
     )
+    oclcnum = forms.RegexField(
+        label=_("OCLCnum"), 
+        regex=r'^\d\d\d\d\d\d\d\d\d*$',
+        required = False,
+        help_text = _("8 or more digits."),
+        error_messages = {
+            'invalid': _("This value must be 8 or more digits."),
+        }
+    )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
     class Meta:
@@ -298,7 +307,7 @@ class CampaignPledgeForm(forms.Form):
         decimal_places=2, 
         label="Pledge Amount",
     )
-    anonymous = forms.BooleanField(required=False, label=_("Don't display my name in the acknowledgements"))
+    anonymous = forms.BooleanField(required=False, label=_("Make this pledge anonymous, please"))
     ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
@@ -354,7 +363,6 @@ class CCForm(forms.Form):
         decimal_places=2, 
         label="Pledge",
     )
-    retain_cc_info = forms.BooleanField(required=False, initial=True, label=_("Keep my credit card on record"))
 
 class DonateForm(forms.Form):
     preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )

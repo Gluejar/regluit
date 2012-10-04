@@ -213,3 +213,10 @@ span.menu-item-price {
   border: none;
   cursor: default;
 }
+#anonbox {
+  margin-top: 10px;
+  background: #edf3f4;
+  float: left;
+  width: 48%;
+  padding: 1%;
+}

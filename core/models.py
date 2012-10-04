@@ -84,6 +84,19 @@ class Claim(models.Model):
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
     status = models.CharField(max_length=7, choices= STATUSES, default='pending')
     
+    @property
+    def can_open_new(self):
+        # whether a campaign can be opened for this claim
+        
+        #must be an active claim
+        if self.status != 'active':
+            return False
+        #can't already be a campaign
+        for campaign in self.campaigns:
+            if campaign.status in ['ACTIVE','INITIALIZED', 'SUCCESSFUL']:
+                return False
+        return True
+    
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
@@ -496,6 +509,24 @@ class Identifier(models.Model):
     
     class Meta:
         unique_together = ("type", "value")
+        
+    @staticmethod
+    def set(type=None, value=None, edition=None, work=None):
+        # if there's already an id of this type for this work and edition, change it 
+        # if not, create it. if the id exists and points to something else, change it.
+        identifier= Identifier.get_or_add(type=type, value=value, edition = edition, work=work)
+        if identifier.work.id != work.id:
+            identifier.work=work
+            identifier.save()
+        if identifier.edition and edition:
+            if identifier.edition.id != edition.id:
+                identifier.edition = edition
+                identifier.save()
+            others= Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
+            if others.count()>0:
+                for other in others:
+                    other.delete()
+        return identifier
     
     @staticmethod
     def get_or_add( type='goog', value=None, edition=None, work=None):
@@ -695,6 +726,15 @@ class Work(models.Model):
     def update_num_wishes(self):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
+
+    def first_oclc(self):
+        preferred_id=self.preferred_edition.oclc
+        if preferred_id:
+            return preferred_id
+        try:
+            return self.identifiers.filter(type='oclc')[0].value
+        except IndexError:
+            return ''
 
     def first_isbn_13(self):
         preferred_id=self.preferred_edition.isbn_13
@@ -917,6 +957,25 @@ class Wishes(models.Model):
     class Meta:
         db_table = 'core_wishlist_works'
 
+class Badge(models.Model):
+    name = models.CharField(max_length=72, blank=True)
+    description = models.TextField(default='', null=True)
+    
+    @property
+    def path(self):
+        return '/static/images/%s.png' % self.name
+    
+def pledger():
+    if not pledger.instance:
+        pledger.instance = Badge.objects.get(name='pledger')
+    return pledger.instance
+pledger.instance=None
+def pledger2():
+    if not pledger2.instance:
+        pledger2.instance = Badge.objects.get(name='pledger2')
+    return pledger2.instance
+pledger2.instance=None
+
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
@@ -932,12 +991,23 @@ class UserProfile(models.Model):
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
-    goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)        
-
-class Badge(models.Model):
-    name = models.CharField(max_length=72, blank=True)
-    description = models.TextField(default='', null=True)
+    goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
+    def reset_pledge_badge(self):    
+        #count user pledges  
+        n_pledges = self.pledge_count
+        if self.badges.exists():
+            self.badges.remove(pledger())
+            self.badges.remove(pledger2())
+        if n_pledges == 1:
+            self.badges.add(pledger())
+        elif n_pledges > 1:
+            self.badges.add(pledger2())
+    
+    @property
+    def pledge_count(self):
+        return self.user.transaction_set.exclude(status='NONE').exclude(status='Canceled',reason=None).exclude(anonymous=True).count()
+
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)

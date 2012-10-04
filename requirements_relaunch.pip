@@ -46,7 +46,6 @@ requests==0.14.0
 selenium==2.25.0
 six==1.2.0
 ssh==1.7.14
-stevedore==0.4
 stripe==1.7.4
 virtualenv==1.4.9
 virtualenvwrapper==3.6

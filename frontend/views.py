@@ -53,7 +53,7 @@ from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
-from regluit.payment.parameters import PAYMENT_HOST_STRIPE
+from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
 from regluit.payment.credit import credit_transaction
 from regluit.core import goodreads
 from tastypie.models import ApiKey
@@ -249,7 +249,7 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'countdown': countdown,
-    })
+    })    
 
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
@@ -324,7 +324,13 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.description=form.cleaned_data['description']
                     work.title=form.cleaned_data['title']
                     work.save()
-                models.Identifier.get_or_add(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
+                
+                # note: this is very powerful. it can steal an isbn from another edition/work, and it will wipe the changed isbn from the db
+                models.Identifier.set(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
+                
+                if form.cleaned_data['oclcnum']:
+                    # note: this is very powerful.(same comment as for isbn) use with care!
+                    models.Identifier.set(type='oclc', value=form.cleaned_data['oclcnum'], edition=edition, work=work)
                 for author_name in edition.new_author_names:
                     try:
                         author= models.Author.objects.get(name=author_name)
@@ -343,6 +349,7 @@ def new_edition(request, work_id, edition_id, by=None):
         form = EditionForm(instance=edition, initial={
             'language':language,
             'isbn_13':edition.isbn_13, 
+            'oclcnum':edition.oclc,
             'description':description,
             'title': title
             })
@@ -415,7 +422,7 @@ def manage_campaign(request, id):
         'form':form, 
         'problems': campaign.problems, 
         'alerts': alerts, 
-        'premiums' : campaign.effective_premiums(),
+        'premiums' : campaign.custom_premiums(),
         'premium_form' : new_premium_form,
         'work': work,
         'activetab': activetab,
@@ -620,6 +627,7 @@ class PledgeView(FormView):
         return preapproval_amount
     
     def get_form_kwargs(self):
+        
         assert self.request.user.is_authenticated()
         self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
         
@@ -694,7 +702,7 @@ class PledgeView(FormView):
                 return HttpResponse("No modification made")
         else:
             t, url = p.process_transaction('USD',  form.cleaned_data["preapproval_amount"],  
-                    host = None, 
+                    host = PAYMENT_HOST_NONE, 
                     campaign=self.campaign, 
                     user=self.request.user,
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
@@ -759,67 +767,43 @@ class FundPledgeView(FormView):
         # first pass -- we have a token  -- also do more direct coupling to stripelib -- then move to
         # abstraction of payment.manager / payment.baseprocessor
         
-        # demonstrate two possibilities:  1) token -> charge or 2) token->customer->charge
+        # we should getting a stripe_token only if we had asked for CC data
         
+        # BUGBUG -- don't know whether transaction.host should be None -- but if it is, set to the
+        # default processor
+        
+        transaction = self.transaction
+        if transaction.host is None or transaction.host == PAYMENT_HOST_NONE:
+            transaction.host = settings.PAYMENT_PROCESSOR
+            
         stripe_token = form.cleaned_data["stripe_token"]
         preapproval_amount = form.cleaned_data["preapproval_amount"]
-        retain_cc_info = form.cleaned_data["retain_cc_info"]
-
-        sc = stripelib.StripeClient()
         
-        # let's figure out what part of transaction can be used to store info
-        # try placing charge id in transaction.pay_key
-        # need to set amount
-        # how does max_amount get set? -- coming from /pledge/xxx/?
-        # max_amount is set -- but I don't think we need it for stripe
-        
-        if retain_cc_info:
-            # create customer and charge id and then charge the customer
-            customer = sc.create_customer(card=stripe_token, description=self.request.user.username,
-                                          email=self.request.user.email)
-                
-            account = Account(host = PAYMENT_HOST_STRIPE,
-                              account_id = customer.id,
-                              card_last4 = customer.active_card.last4,
-                              card_type = customer.active_card.type,
-                              card_exp_month = customer.active_card.exp_month,
-                              card_exp_year = customer.active_card.exp_year,
-                              card_fingerprint = customer.active_card.fingerprint,
-                              card_country = customer.active_card.country,
-                              user = self.request.user
-                              )
+        logger.info('stripe_token:{0}, preapproval_amount:{1}'.format(stripe_token, preapproval_amount))
 
-            account.save()
-            
-            charge = sc.create_charge(preapproval_amount, customer=customer, description="${0} for test / retain cc".format(preapproval_amount))
- 
+        p = PaymentManager()
+        
+        # if we get a stripe_token, create a new stripe account
+        
+        try:
+            account = p.make_account(transaction.user, stripe_token, host=transaction.host)
+            logger.info('account.id: {0}'.format(account.id))
+        except Exception, e:
+            raise e
+        
+        # GOAL: deactivate any older accounts associated with user
+        
+        # with the Account in hand, now authorize transaction
+        transaction.amount = preapproval_amount
+        t, url = p.authorize(transaction)
+        logger.info("t, url: {0} {1}".format(t, url))
+        
+        # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
+        # BUGBUG:  Make sure we are testing properly for successful authorization properly here  
+        if url is not None:
+            return HttpResponseRedirect(url)
         else:
-            customer = None
-            
-            charge = sc.create_charge(preapproval_amount, card=stripe_token, description="${0} for test / cc not retained".format(preapproval_amount))
-        
-        # set True for now -- wondering whether we should actually wait for a webhook -- don't think so.
-        
-        ## settings to apply to transaction for TRANSACTION_STATUS_COMPLETE
-        #self.transaction.type = PAYMENT_TYPE_INSTANT
-        #self.transaction.approved = True
-        #self.transaction.status = TRANSACTION_STATUS_COMPLETE
-        #self.transaction.pay_key = charge.id
-        
-        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
-        # should approved be set to False and wait for a webhook?
-        self.transaction.type = PAYMENT_TYPE_AUTHORIZATION
-        self.transaction.approved = True
-        self.transaction.status = TRANSACTION_STATUS_ACTIVE
-        self.transaction.preapproval_key = charge.id        
-        
-        self.transaction.currency = 'USD'
-        self.transaction.amount = preapproval_amount
-        self.transaction.date_payment = now()
-            
-        self.transaction.save()
-            
-        return HttpResponse("charge id: {0} / customer: {1}".format(charge.id, customer))
+            return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
 
         
 class NonprofitCampaign(FormView):
@@ -1154,10 +1138,8 @@ def rh_tools(request):
             claim.campaigns = claim.work.campaigns.all()
         else:
             claim.campaigns = []
-        claim.can_open_new=False if claim.work.last_campaign_status in ['ACTIVE','INITIALIZED'] else True
         for campaign in claim.campaigns:
             if campaign.status in ['ACTIVE','INITIALIZED']:
-                claim.can_open_new=False
                 if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
                     campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
                     if campaign.edit_managers_form.is_valid():
@@ -1165,7 +1147,7 @@ def rh_tools(request):
                         campaign.edit_managers_form = EditManagersForm(instance=campaign, prefix=campaign.id)
                 else:
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
-        if claim.status == 'active' and claim.can_open_new:
+        if claim.can_open_new:
             if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
@@ -1174,11 +1156,8 @@ def rh_tools(request):
                     new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
-                    claim.can_open_new=False
             else:
                 claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
-        else:
-            claim.can_open_new=False
     campaigns = request.user.campaigns.all()
     new_campaign = None
     for campaign in campaigns:
@@ -1370,8 +1349,6 @@ def supporter(request, supporter_username, template_name):
     else:
         activetab = "#3"
     
-    date = supporter.date_joined.strftime("%B %d, %Y")
-    
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
 
@@ -1427,7 +1404,6 @@ def supporter(request, supporter_username, template_name):
             "backed": backed,
             "backing": backing,
             "wished": wished,
-            "date": date,
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
             "goodreads_auth_url": reverse('goodreads_auth'),
@@ -2039,12 +2015,15 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
-    unglued_epub_url =  work.ebooks().filter(format='epub')[0].url if work.ebooks().filter(format='epub').count() else None
-
+    try:
+        readmill_epub_url = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0].url
+    except:
+        readmill_epub_url = None
+        
     context.update({
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
-        'unglued_epub_url': unglued_epub_url,
+        'readmill_epub_url': readmill_epub_url,
         'base_url': settings.BASE_URL
     })
     

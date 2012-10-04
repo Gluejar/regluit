@@ -1,4 +1,3 @@
-from regluit.core.models import Campaign, Wishlist
 from regluit.payment.models import Transaction, Receiver, PaymentResponse
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -6,8 +5,6 @@ from django.conf import settings
 from regluit.payment.parameters import *
 from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
 from regluit.payment import credit
-
-from regluit.payment.baseprocessor import Pay, Finish, Preapproval, ProcessIPN, CancelPreapproval, PaymentDetails, PreapprovalDetails, RefundPayment
 
 import uuid
 import traceback
@@ -40,14 +37,12 @@ class PaymentManager( object ):
         
         # Forward to our payment processor
         mod = __import__("regluit.payment." + module, fromlist=[str(module)])
-        method = getattr(mod, "ProcessIPN")
-        return method(request)
+        return mod.Processor().ProcessIPN(request)
 
     def update_preapproval(self, transaction):
         """Update a transaction to hold the data from a PreapprovalDetails on that transaction"""
         t = transaction
-        method = getattr(transaction.get_payment_class(), "PreapprovalDetails")
-        p = method(t)
+        p = transaction.get_payment_class().PreapprovalDetails(t)
                     
         preapproval_status = {'id':t.id, 'key':t.preapproval_key}
         
@@ -99,8 +94,7 @@ class PaymentManager( object ):
         t = transaction
         payment_status = {'id':t.id}
             
-        method = getattr(transaction.get_payment_class(), "PaymentDetails")
-        p = method(t)
+        p = transaction.get_payment_class().PaymentDetails(t)
         
         if p.error() or not p.success():
             logger.info("Error retrieving payment details for transaction %d" % t.id)
@@ -414,8 +408,7 @@ class PaymentManager( object ):
         transaction.date_executed = now()
         transaction.save()
         
-        method = getattr(transaction.get_payment_class(), "Finish")
-        p = method(transaction)            
+        p = transaction.get_payment_class().Finish(transaction)            
         
         # Create a response for this
         envelope = p.envelope()
@@ -469,8 +462,7 @@ class PaymentManager( object ):
         transaction.date_payment = now()
         transaction.save()
         
-        method = getattr(transaction.get_payment_class(), "Execute")
-        p = method(transaction)
+        p = transaction.get_payment_class().Execute(transaction)
         
         # Create a response for this
         envelope = p.envelope()
@@ -509,32 +501,43 @@ class PaymentManager( object ):
         return value: True if successful, false otherwise
         '''        
         
-        method = getattr(transaction.get_payment_class(), "CancelPreapproval")
-        p = method(transaction) 
+        # does this transaction explicity require preapprovals?
+        requires_explicit_preapprovals = transaction.get_payment_class().requires_explicit_preapprovals
         
-        # Create a response for this
-        envelope = p.envelope()
-        
-        if envelope:
-        
-            correlation = p.correlation_id()
-            timestamp = p.timestamp()
-        
-            r = PaymentResponse.objects.create(api=p.url,
-                                              correlation_id = correlation,
-                                              timestamp = timestamp,
-                                              info = p.raw_response,
-                                              transaction=transaction)
-        
-        if p.success() and not p.error():
-            logger.info("Cancel Transaction " + str(transaction.id) + " Completed")
-            return True
-        
+        if requires_explicit_preapprovals:
+                
+            p = transaction.get_payment_class().CancelPreapproval(transaction) 
+            
+            # Create a response for this
+            envelope = p.envelope()
+            
+            if envelope:
+            
+                correlation = p.correlation_id()
+                timestamp = p.timestamp()
+            
+                r = PaymentResponse.objects.create(api=p.url,
+                                                  correlation_id = correlation,
+                                                  timestamp = timestamp,
+                                                  info = p.raw_response,
+                                                  transaction=transaction)
+            
+            if p.success() and not p.error():
+                logger.info("Cancel Transaction " + str(transaction.id) + " Completed")
+                return True
+            
+            else:
+                transaction.error = p.error_string()
+                transaction.save()
+                logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+                return False
+            
         else:
-            transaction.error = p.error_string()
+            
+        # if no explicit preapproval required, we just have to mark the transaction as cancelled.
+            transaction.status = TRANSACTION_STATUS_CANCELED
             transaction.save()
-            logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
-            return False
+            return True
         
     def authorize(self, transaction, expiry= None, return_url=None,  paymentReason="unglue.it Pledge", modification=False):
         '''
@@ -551,9 +554,9 @@ class PaymentManager( object ):
                       
         '''    
         
-        if host==None:
-            #TODO send user to select a payment processor
-            pass    
+        if transaction.host == PAYMENT_HOST_NONE:
+            #TODO send user to select a payment processor -- for now, set to a system setting
+            transaction.host = settings.PAYMENT_PROCESSOR    
                 
         # we might want to not allow for a return_url  to be passed in but calculated
         # here because we have immediate access to the Transaction object.
@@ -561,11 +564,10 @@ class PaymentManager( object ):
             
         if return_url is None:
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-                                urllib.urlencode({'tid':t.id})) 
+                                urllib.urlencode({'tid':transaction.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
-        method = getattr(t.get_payment_class(), "Preapproval")
-        p = method(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
+        p = transaction.get_payment_class().Preapproval(transaction, transaction.amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
@@ -581,9 +583,15 @@ class PaymentManager( object ):
             transaction.preapproval_key = p.key()
             transaction.save()
             
+            # it make sense for the payment processor library to calculate next_url when
+            # user is redirected there.  But if no redirection is required, send user
+            # straight on to the return_url
             url = p.next_url()
+            
+            if url is None:
+                url = return_url
                 
-            logger.info("Authorize Success: " + url)
+            logger.info("Authorize Success: " + url if url is not None else '')
             
             # modification and initial pledge use different notification templates --
             # decide which to send
@@ -610,7 +618,7 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return transaction, None
             
-    def process_transaction(self, currency,  amount, host=None, campaign=None,  user=None,
+    def process_transaction(self, currency,  amount, host=PAYMENT_HOST_NONE, campaign=None,  user=None,
                   return_url=None, paymentReason="unglue.it Pledge",  pledge_extra=None,
                   modification=False):
         '''
@@ -634,7 +642,8 @@ class PaymentManager( object ):
         # set the expiry date based on the campaign deadline
         expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
 
-        t = Transaction.create(amount=0, 
+        t = Transaction.create(amount=0,
+                                   host = host,
                                    max_amount=amount,
                                    currency=currency,
                                    campaign=campaign,
@@ -718,6 +727,16 @@ class PaymentManager( object ):
         return value: True if successful, False otherwise.  An optional second parameter for the forward URL if a new authorhization is needed
         '''
         
+        logger.info("transaction.id: {0}, amount:{1}".format(transaction.id, amount))
+        
+        # if expiry is None, use the existing value          
+        if expiry is None:
+            expiry = transaction.date_expired
+            
+        # does this transaction explicity require preapprovals?
+        
+        requires_explicit_preapprovals = transaction.get_payment_class().requires_explicit_preapprovals
+        
         if transaction.type != PAYMENT_TYPE_AUTHORIZATION:
             logger.info("Error, attempt to modify an invalid transaction type")
             return False, None
@@ -757,7 +776,7 @@ class PaymentManager( object ):
                 credit.CancelPreapproval(transaction)
                 return t, reverse('fund_pledge', args=[t.id])
 
-        elif amount > transaction.max_amount or expiry != transaction.date_expired:
+        elif requires_explicit_preapprovals and (amount > transaction.max_amount or expiry != transaction.date_expired):
 
             # set the expiry date based on the campaign deadline
             expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
@@ -800,7 +819,7 @@ class PaymentManager( object ):
                 # corresponding notification to the user? that would go here.
                 return False, None
             
-        elif amount <= transaction.max_amount:
+        elif (requires_explicit_preapprovals and amount <= transaction.max_amount) or (not requires_explicit_preapprovals):
             # Update transaction but leave the preapproval alone
             transaction.amount = amount
             transaction.set_pledge_extra(pledge_extra)
@@ -833,8 +852,7 @@ class PaymentManager( object ):
             logger.info("Refund Transaction failed, invalid transaction status")
             return False
         
-        method = getattr(transaction.get_payment_class(), "RefundPayment")
-        p = method(transaction) 
+        p = transaction.get_payment_class().RefundPayment(transaction) 
         
         # Create a response for this
         envelope = p.envelope()
@@ -892,8 +910,7 @@ class PaymentManager( object ):
         t.date_payment=now()
         t.execution=EXECUTE_TYPE_CHAINED_INSTANT
         t.type=PAYMENT_TYPE_INSTANT
-        method = getattr(t.get_payment_class(), "Pay")
-        p = method(t,return_url=return_url, nevermind_url=nevermind_url) 
+        p = t.get_payment_class().Pay(t,return_url=return_url, nevermind_url=nevermind_url) 
         
          # Create a response for this
         envelope = p.envelope()
@@ -921,5 +938,13 @@ class PaymentManager( object ):
             t.save()
             logger.info("Pledge Error: %s" % p.error_string())
             return t, None
+        
+    def make_account(self, user, token, host):
+        
+        """delegate to a specific payment module the task of creating a payment account"""
+        mod = __import__("regluit.payment." + host, fromlist=[host])
+        return mod.Processor().make_account(user, token)
+        
+        
     
     
