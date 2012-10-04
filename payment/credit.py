@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from regluit.payment.parameters import *
+from regluit.payment import baseprocessor
 from regluit.payment.baseprocessor import BasePaymentRequest
 
 
@@ -28,28 +29,29 @@ def credit_transaction(t,user,amount):
     user.credit.add_to_pledged(pledge_amount)
     t.set_credit_approved(pledge_amount)
 
-class CancelPreapproval(BasePaymentRequest):
-    '''
-        Cancels an exisiting token.  
-    '''
+class Processor(baseprocessor.Processor):
+    class CancelPreapproval(BasePaymentRequest):
+        '''
+            Cancels an exisiting token.  
+        '''
+        
+        def __init__(self, transaction):
+            self.transaction = transaction
+            if transaction.user.credit.add_to_pledged(-transaction.amount):
+                #success
+                transaction.status=TRANSACTION_STATUS_CANCELED
+                transaction.save()
+            else:
+                self.errorMessage="couldn't cancel the transaction"
+                self.status = 'Credit Cancel Failure'
     
-    def __init__(self, transaction):
-        self.transaction = transaction
-        if transaction.user.credit.add_to_pledged(-transaction.amount):
-            #success
-            transaction.status=TRANSACTION_STATUS_CANCELED
-            transaction.save()
-        else:
-            self.errorMessage="couldn't cancel the transaction"
-            self.status = 'Credit Cancel Failure'
-
-class PreapprovalDetails(BasePaymentRequest):
-    status = None
-    approved = None
-    currency = None
-    amount = None
-    def __init__(self, transaction):
-        self.status = transaction.status
-        self.approved = transaction.approved
-        self.currency = transaction.currency
-        self.amount = transaction.amount
+    class PreapprovalDetails(BasePaymentRequest):
+        status = None
+        approved = None
+        currency = None
+        amount = None
+        def __init__(self, transaction):
+            self.status = transaction.status
+            self.approved = transaction.approved
+            self.currency = transaction.currency
+            self.amount = transaction.amount

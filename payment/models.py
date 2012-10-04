@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
-from regluit.core.models import Campaign, Wishlist, Premium, PledgeExtra
+
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 # c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year
 
 # promising fields
-    
+
 class Transaction(models.Model):
     
     # type e.g., PAYMENT_TYPE_INSTANT or PAYMENT_TYPE_AUTHORIZATION -- defined in parameters.py
@@ -78,8 +78,8 @@ class Transaction(models.Model):
     
     # associated User, Campaign, and Premium for this Transaction
     user = models.ForeignKey(User, null=True)
-    campaign = models.ForeignKey(Campaign, null=True)
-    premium = models.ForeignKey(Premium, null=True)
+    campaign = models.ForeignKey('core.Campaign', null=True)
+    premium = models.ForeignKey('core.Premium', null=True)
     
     # how to acknowledge the user on the supporter page of the campaign ebook
     ack_name = models.CharField(max_length=64, null=True)
@@ -109,13 +109,13 @@ class Transaction(models.Model):
             
     def get_payment_class(self):
         '''
-            Returns the specific payment module that implements this transaction
+            Returns the specific payment processor that implements this transaction
         '''
         if self.host == PAYMENT_HOST_NONE:
             return None
         else:
             mod = __import__("regluit.payment." + self.host, fromlist=[str(self.host)])
-            return mod
+            return mod.Processor()
 
     def set_credit_approved(self, amount):
         self.amount=amount
@@ -137,10 +137,12 @@ class Transaction(models.Model):
             self.ack_dedication = pledge_extra.ack_dedication
 
     def get_pledge_extra(self, pledge_extra):
-        return PledgeExtra(anonymous=self.anonymous, 
-                            premium=self.premium, 
-                            ack_name=self.ack_name, 
-                            ack_dedication=self.ack_dedication)
+        class pe:
+            premium=self.premium
+            anonymous=self.anonymous
+            ack_name=self.ack_name
+            ack_dedication=self.ack_dedication
+        return pe
 
     @classmethod
     def create(cls,amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
