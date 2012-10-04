@@ -228,7 +228,7 @@ class CustomPremiumForm(forms.ModelForm):
         model = Premium
         fields = 'campaign', 'amount', 'description', 'type', 'limit'
         widgets = { 
-                'description': forms.Textarea(attrs={'cols': 80, 'rows': 2}),
+                'description': forms.Textarea(attrs={'cols': 80, 'rows': 4}),
                 'campaign': forms.HiddenInput,
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
                 'limit': forms.TextInput(attrs={'value':'0'}),
