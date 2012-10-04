@@ -1,7 +1,6 @@
 from regluit.core import models
 from regluit.payment.models import Transaction, PaymentResponse, Receiver
 from regluit.payment.manager import PaymentManager
-from regluit.payment.paypal import IPN_PREAPPROVAL_STATUS_ACTIVE, IPN_PAY_STATUS_INCOMPLETE, IPN_PAY_STATUS_COMPLETED
 
 import django
 from django.conf import settings
@@ -13,9 +12,6 @@ import unittest, time, re
 
 import logging
 import os
-
-# PayPal developer sandbox
-from regluit.payment.tests import loginSandbox, paySandbox, payAmazonSandbox
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -154,15 +150,9 @@ def recipient_status(clist):
 
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
-
-def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='firefox'):
-    """
-    programatically fire up selenium to make a Pledge
-    do_local should be True only if you are running support_campaign on db tied to LIVE_SERVER_TEST_URL
-    """
-
+def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='chrome'):
     django.db.transaction.enter_transaction_management()
-    
+
     UNGLUE_IT_URL = unglue_it_url
     USER = settings.UNGLUEIT_TEST_USER
     PASSWORD = settings.UNGLUEIT_TEST_PASSWORD
@@ -179,17 +169,12 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     else:
         sel = webdriver.Firefox()
 
-    time.sleep(10)
+    time.sleep(5)
     
-    # find a campaign to pledge to
-    if backend == 'paypal':
-        loginSandbox(sel)
-        time.sleep(2)
-        
     print "now opening unglue.it"
     
     #sel.get("http://www.google.com")
-    sel.get(UNGLUE_IT_URL)
+    sel.get(UNGLUE_IT_URL)    
     
     # long wait because sel is slow after PayPal
     sign_in_link = WebDriverWait(sel, 100).until(lambda d : d.find_element_by_xpath("//span[contains(text(),'Sign In')]/.."))
@@ -199,7 +184,7 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     input_username = WebDriverWait(sel,20).until(lambda d : d.find_element_by_css_selector("input#id_username"))
     input_username.send_keys(USER)
     sel.find_element_by_css_selector("input#id_password").send_keys(PASSWORD)
-    sel.find_element_by_css_selector("input[value*='sign in']").click()
+    sel.find_element_by_css_selector("input[value*='sign in']").click()    
     
     # click on biggest campaign list
     # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
@@ -225,62 +210,49 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
         print "yes:  Error in just hitting pledge button as expected"
     else:
         print "ooops:  there should be an error message when pledge button hit"
-
-    # fill out a premium -- the first one for now
-    premium_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('input[type="radio"][value="1"]'))
-    premium_button.click()
     
     print "making $10 pledge"
     
     # now we have to replace the current preapproval amount with 10
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="10";""")
-    # must also pick a premium level -- otherwise there will not be a pledge_button -- let's pick the first premium ($1)
-    premium_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('input[type="radio"][value="1"]'))
-    premium_button.click()
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
     
-    pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
-    pledge_button.click()
+    support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge Now']"))
+    support_button.click()    
     
-    # grab the URL where sel is now?
-    
-    if backend == 'paypal':
-        print  "Now trying to pay PayPal", sel.current_url
-        paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
-    elif backend == 'amazon':
-        payAmazonSandbox(sel)    
+    # now fill out the credit card
         
+    sel.execute_script("""document.getElementById("card_Number").value="4242424242424242";""")
+    sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
+    sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    sel.execute_script("""document.getElementById("card_CVC").value="123";""")
+    
+    verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Verify Credit Card']"))
+    verify_cc_button.click()
+    
+    # verify that we are at pledge_complete
+    # sleep a bit to give enough time for redirecto pledge_complete to finish
+    
+    time.sleep(3)
+    
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
     
-    time.sleep(2)
-    django.db.transaction.commit()
-
-    # time out to simulate an IPN -- update all the transactions
-    if do_local:
-        django.db.transaction.enter_transaction_management()
-        pm = PaymentManager()
-        print pm.checkStatus()
-        transaction0 = Transaction.objects.all()[0]
-        print "transaction amount:{0}, transaction premium:{1}".format(transaction0.amount, transaction0.premium.id)        
-        django.db.transaction.commit()
-        
-    
-    django.db.transaction.enter_transaction_management()
-
-    # I have no idea what the a[href*="/work/"] is not displayed....so that's why I'm going up one element.
     work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
     work_url.click()
-    
+
     # change_pledge
     print "clicking Modify Pledge button"
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
     
     # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
-    print "changing pledge to $5 -- should not need to go to PayPal"
-    preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
-    preapproval_amount_input.clear()  # get rid of existing pledge
-    preapproval_amount_input.send_keys("5")
+    print "changing pledge to $5 -- should not need to go to Stripe"
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="5";""")
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
+    
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
     
@@ -289,31 +261,16 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     work_url.click()
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
-
-    # enter a new pledge, which is more than the previous amount and therefore requires a new PayPal transaction
-    preapproval_amount_input = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#id_preapproval_amount"))
-    preapproval_amount_input.clear()  # get rid of existing pledge
-    preapproval_amount_input.send_keys("25")
+    
+    # modify pledge to $25
+    sel.execute_script("""document.getElementById("id_preapproval_amount").value="25";""")
+    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
+    radio_button.click()
+    
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
-    if backend == 'paypal':
-        paySandbox(None, sel, sel.current_url, authorize=True, already_at_url=True, sleep_time=5)
-    elif backend == 'amazon':
-        payAmazonSandbox(sel)    
-
-    # wait a bit to allow PayPal sandbox to be update the status of the Transaction    
-    time.sleep(10)
-    django.db.transaction.commit()
-
-    # time out to simulate an IPN -- update all the transactions
-    if do_local:
-        django.db.transaction.enter_transaction_management()
-        pm = PaymentManager()
-        print pm.checkStatus() 
-        django.db.transaction.commit()    
-
-    django.db.transaction.enter_transaction_management()
     
+    # now cancel transaction
     # now go back to the work page, hit modify pledge, and then the cancel link
     work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
     work_url.click()
@@ -324,26 +281,27 @@ def support_campaign(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=Tru
     
     # hit the confirm cancellation button
     cancel_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Confirm Pledge Cancellation']"))
-    cancel_pledge_button.click()
+    cancel_pledge_button.click()    
     
+    time.sleep(10)
     django.db.transaction.commit()
-
-    # Why is the status of the new transaction not being updated?
     
-    # force a db lookup -- see whether there are 1 or 2 transactions
-    # they should both be cancelled
-    if do_local:
-        transactions = list(Transaction.objects.all())
-        print "number of transactions", Transaction.objects.count()
-        
-        print "transactions before pm.checkStatus"
-        print [(t.id, t.type, t.preapproval_key, t.status, t.premium, t.amount) for t in Transaction.objects.all()]
-    
-        print "checkStatus:", pm.checkStatus(transactions=transactions)
-
-
     yield sel
-    #sel.quit()
+    
+
+    # now use the transaction manager to make the charge
+    w = models.Work.objects.get(id=48)
+    c = w.campaigns.all()[0]
+    pm = PaymentManager()
+    result = pm.execute_campaign(c)
+    
+    # should have a Complete transaction
+    print result
+    
+    yield sel
+    
+
+
     
 def successful_campaign_signal():
     """fire off a success_campaign signal and send notifications"""
