@@ -157,6 +157,7 @@ $j().ready(function() {
 		current = inputbox.val();
 		if (current == "" && !isNaN(amount)) {
 		    inputbox.val(amount);
+		    rectifyAcknowledgements(amount);
 		} else if (current<amount) {
 			mayday();
 		} else if (submitbutton.attr('disabled')) {
