@@ -151,10 +151,13 @@ $j().ready(function() {
 	}
 
 	// when user clicks a premium, ensure it is compatible with the pledge box amount
+	// if pledge box was empty, assume they wanted value of premium
 	$j('#premiums_list input').on("click", function() {
 		amount = canonicalize($j(this));
 		current = inputbox.val();
-		if (current<amount) {
+		if (current == "" && !isNaN(amount)) {
+		    inputbox.val(amount);
+		} else if (current<amount) {
 			mayday();
 		} else if (submitbutton.attr('disabled')) {
 			allclear();
