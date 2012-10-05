@@ -351,6 +351,10 @@ class TransactionTest(TestCase):
         t.user = user
         t.save()
         
+        #test pledge adders
+        user.profile.reset_pledge_badge()
+        self.assertEqual(user.profile.badges.all()[0].name,'pledger')
+        
         p = PaymentManager()
         results = p.query_campaign(c,campaign_total=True, summary=False)
         self.assertEqual(results[0].amount, D('12.34'))

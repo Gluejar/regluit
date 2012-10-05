@@ -213,6 +213,7 @@ span.menu-item-price {
   border: none;
   cursor: default;
 }
+<<<<<<< HEAD
 .fund_options a.fakeinput {
   font-size: 19px;
   margin: 10px auto;
@@ -288,4 +289,12 @@ span.level2.menu.answer {
 }
 span.level2.menu.answer a {
   font-size: 15px;
+=======
+#anonbox {
+  margin-top: 10px;
+  background: #edf3f4;
+  float: left;
+  width: 48%;
+  padding: 1%;
+>>>>>>> master
 }

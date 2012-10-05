@@ -214,13 +214,14 @@ Please fix the following before launching your campaign:
 	
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	
-	{% if not is_preview or request.user.is_staff %}
-		{% ifequal campaign_status 'ACTIVE' %}
+	{% ifequal campaign_status 'ACTIVE' %}
 		<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
 		<input type="submit" name="save" value="Modify Campaign" />
-		{% else %}
+	{% else %}
 		<br /><br /><input type="submit" name="save" value="Save Campaign" />
-		{% endifequal %}
+	{% endifequal %}
+	
+	{% if not is_preview or request.user.is_staff %}
 		{% if campaign_status == 'INITIALIZED' %}
 		<input id="campaign_launcher" type="submit" name="launch" value="Launch Campaign" />
 		{% endif %}
@@ -240,7 +241,6 @@ Please fix the following before launching your campaign:
 				<span class="menu-item-price">${{ premium.amount|intcomma }}</span>
 				<span class="menu-item-desc">{{ premium.description }}</span>
 			</i>
-			   {% if premium.type %}<span class="custom-premium"> <br />Type: {{ premium.get_type_display }}</span>{% endif %}
 			{% ifnotequal premium.limit 0 %}<br />Limit:  {{ premium.limit }}{% endifnotequal %}
 			{% ifequal premium.type 'CU' %}<br />Deactivate?  <input type="checkbox" name="premium_id" value="{{ premium.id }}" />{% endifequal %}
 			</li>
@@ -251,9 +251,7 @@ Please fix the following before launching your campaign:
 		 {% endif %}
 		</form>
 	</div>
-	<h4>Editing premiums</h4>
-	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
-	<h4>Add a custom premium for this campaign</h4>
+	<h4>Add a premium for this campaign</h4>
 	<form action="#" method="POST">
 	{% csrf_token %}
 	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
@@ -264,6 +262,8 @@ Please fix the following before launching your campaign:
 	<br />
 	<input type="submit" name="add_premium" value="Add Premium" />
 	</form>
+	<h4>Editing premiums</h4>
+	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
 </div>
 
 {% ifequal campaign_status 'INITIALIZED' %}
