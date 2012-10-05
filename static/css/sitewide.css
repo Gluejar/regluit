@@ -1066,3 +1066,9 @@ a.nounderline {
 .signuptoday a:hover {
   text-decoration: none;
 }
+li.checked {
+  list-style-type: none;
+  background: transparent url(/static/images/checkmark_small.png) no-repeat 0 0;
+  margin-left: -20px;
+  padding-left: 20px;
+}
