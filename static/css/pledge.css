@@ -257,6 +257,32 @@ span.menu-item-price {
   margin-top: 10px;
   padding: 10px;
 }
+#authorize div.innards input {
+  font-size: 15px;
+  line-height: 22.5px;
+  float: left;
+  border-width: 1%;
+  padding: 1% 1%;
+  margin: 1% 0;
+  color: #3d4e53;
+}
+#authorize div.innards label {
+  width: 23%;
+  float: left;
+  line-height: 22.5px;
+  font-size: 15px;
+  border: solid white;
+  border-width: 1% 0;
+  padding: 1% 2% 1% 0;
+  margin: 1% 0;
+}
+#authorize div.innards .form-row span {
+  float: left;
+  line-height: 22.5px;
+  font-size: 15px;
+  margin: 1%;
+  padding: 1% 0;
+}
 span.level2.menu.answer {
   border-left: solid 7px #edf3f4;
 }

@@ -107,7 +107,7 @@ $j().ready(function() {
         <div id="donate_area">
             <form method="GET" action="{{nonprofit.link}}">
                 {{ donate_form.non_field_errors }}
-                {{donate_form}}
+                {{ donate_form }}
                 <input name="donate_submit" type="submit" value="Donate" id="donate_submit" />
             </form>
         </div>
@@ -119,7 +119,7 @@ $j().ready(function() {
     <div class="fund_options clearfix">
         <div id="donate_explanation">
             <ul>
-                <li>Donate to our partner charity, {{ nonprofit.name }}</li>
+                <li>Donate to our partner nonprofit, {{ nonprofit.name }}</li>
                 <li>Pay immediately</li>
                 <li>If the campaign succeeds, your donation will support it</li>
                 <li>If not, your donation will support {{ nonprofit.name }}</li>
@@ -129,9 +129,8 @@ $j().ready(function() {
         <div id="pledge_explanation">
             <ul>
                 <li>Pledge toward this campaign</li>
-                <li>Pay later</li>
-                <li>If the campaign succeeds, your pledge will support it</li>
-                <li>If not, you won't be charged</li>
+                <li>Pay later, only if this campaign succeeds</li>
+                <li>Your pledge will be used only to support this campaign.</li>
                 <li><a href="#">Learn more</a></li>
             </ul>
         </div>
@@ -177,29 +176,34 @@ kept around for reference as the page is overhauled
 	    <h3>Pledge by Credit Card</h3>
 	    <p>Unglue.it uses Stripe to securely manage your Credit Card information.
 	    </p>
-	    {% if request.user.credit.available %}<p>Although you have ${{request.user.credit.available}} in donation credits, you can't support a campaign with a mixture of credit card pledges and donations.{% endif %}
 	    <div id="cc_pledge">
-		  <span class="payment-errors"></span>
-		    <form action="" method="POST" id="payment-form">
-		      {% csrf_token %}
-		      {{ form.non_field_errors }}
-		      {{ form.as_p }}	
-		      <div class="form-row">
-			<label>Card Number</label>
-			<input id="card_Number" type="text" size="20" autocomplete="off" class="card-number"/>
-		      </div>
-		      <div class="form-row">
-			<label>CVC</label>
-			<input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc"/>
-		      </div>
-		      <div class="form-row">
-			<label>Expiration (MM/YYYY)</label>
-			<input id="card_ExpiryMonth" type="text" size="2" class="card-expiry-month"/>
-			<span> / </span>
-			<input id="card_ExpiryYear" type="text" size="4" class="card-expiry-year"/>
-		      </div>
-		      <input id="cc_submit" type="submit" class="submit-button" value="Complete Pledge" />
-		    </form>
+            <span class="payment-errors"></span>
+            <form action="" method="POST" id="payment-form">
+                <div class="innards">
+                    <div class="clearfix">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        {{ form.as_p }}	
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Card Number:</label>
+                        <input id="card_Number" type="text" size="20" autocomplete="off" class="card-number"/>
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>CVC:</label>
+                        <input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc"/>
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Expiration:</label>
+                        <input id="card_ExpiryMonth" type="text" size="2" value="MM" class="card-expiry-month" />
+                        <span> / </span>
+                        <input id="card_ExpiryYear" type="text" size="4" value="YYYY" class="card-expiry-year" />
+                    </div>
+                </div>
+
+                <input id="cc_submit" type="submit" class="submit-button" value="Complete Pledge" />
+
+            </form>
 	    </div>
 	</div>
 
