@@ -17,7 +17,7 @@ import stripe
 
 logger = logging.getLogger(__name__)
 
-class StripeError(Exception):
+class StripelibError(baseprocessor.ProcessorError):
     pass
 
 try:
@@ -75,6 +75,8 @@ ERROR_TESTING = dict((
     ('CHARGE_DECLINE', ('4000000000000002', 'Charges with this card will always be declined.'))
 ))
 
+CARD_FIELDS_TO_COMPARE = ('exp_month', 'exp_year', 'name', 'address_line1', 'address_line2', 'address_zip', 'address_state')
+
 # types of errors / when they can be handled
 
 #card_declined: Use this special card number - 4000000000000002.
@@ -91,14 +93,16 @@ def filter_none(d):
 
 # https://stripe.com/docs/tutorials/charges
 
-def card (number=TEST_CARDS[0][0], exp_month='01', exp_year='2020', cvc=None, name=None,
+def card (number=TEST_CARDS[0][0], exp_month=1, exp_year=2020, cvc=None, name=None,
           address_line1=None, address_line2=None, address_zip=None, address_state=None, address_country=None):
+    
+    """Note: there is no place to enter address_city in the API"""
     
     card = {
         "number": number,
-        "exp_month": str(exp_month),
-        "exp_year": str(exp_year),
-        "cvc": str(cvc) if cvc is not None else None,
+        "exp_month": int(exp_month),
+        "exp_year": int(exp_year),
+        "cvc": int(cvc) if cvc is not None else None,
         "name": name,
         "address_line1": address_line1,
         "address_line2": address_line2,
@@ -183,7 +187,6 @@ class StripeClient(object):
         # https://stripe.com/docs/api?lang=python#list_charges
         return stripe.Charge(api_key=self.api_key).all(count=count, offset=offset, customer=customer)
    
-# what to work through?
 
 # can't test Transfer in test mode: "There are no transfers in test mode."
 
@@ -191,10 +194,6 @@ class StripeClient(object):
 # bad card -- what types of erros to handle?
 # https://stripe.com/docs/api#errors
 
-# what errors are handled in the python library and how?
-# 
-
-# Account?
 
 # https://stripe.com/docs/api#event_types
 # events of interest -- especially ones that do not directly arise immediately (synchronously) from something we do -- I think
@@ -211,6 +210,68 @@ class StripeClient(object):
 # pending payments?
 # how to tell whether money transferred to bank account yet
 # best practices for calling Events -- not too often.
+
+class StripeErrorTest(TestCase):
+    """Make sure the exceptions returned by stripe act as expected"""
+    
+    def test_good_token(self):
+        """ verify normal operation """
+        sc = StripeClient()
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='Don Giovanni',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
+        token1 = sc.create_token(card=card1)
+        # use the token id -- which is what we get from JavaScript api -- and retrieve the token
+        token2 = sc.token.retrieve(id=token1.id)
+        self.assertEqual(token2.id, token1.id)
+        # make sure token id has a form tok_
+        self.assertEqual(token2.id[:4], "tok_")
+        
+        # should be only test mode
+        self.assertEqual(token2.livemode, False)
+        # token hasn't been used yet
+        self.assertEqual(token2.used, False)
+        # test that card info matches up with what was fed in.
+        for k in CARD_FIELDS_TO_COMPARE:
+            self.assertEqual(token2.card[k], card1[k])
+        # last4
+        self.assertEqual(token2.card.last4,  TEST_CARDS[0][0][-4:])
+        # fingerprint
+        self.assertGreaterEqual(len(token2.card.fingerprint), 16)
+        
+        # now charge the token
+        charge1 = sc.create_charge(10, 'usd', card=token2.id)
+        self.assertEqual(charge1.amount, 1000)
+        self.assertEqual(charge1.id[:3], "ch_")
+        # disputed, failure_message, fee, fee_details
+        self.assertEqual(charge1.disputed,False)
+        self.assertEqual(charge1.failure_message,None)
+        self.assertEqual(charge1.fee,59)
+        self.assertEqual(charge1.refunded,False)
+        
+        
+    def test_error_creating_customer_with_declined_card(self):
+        """Test whether we can get a charge decline error"""
+        sc = StripeClient()
+        card1 = card(number=ERROR_TESTING['CHARGE_DECLINE'][0])
+        try:
+            cust1 = sc.create_customer(card=card1, description="This card should fail")
+            self.fail("Attempt to create customer did not throw expected exception.")
+        except stripe.CardError as e:
+            self.assertEqual(e.code, "card_declined")
+            self.assertEqual(e.message, "Your card was declined.")
+            
+    def test_charge_bad_cust(self):
+        # expect the card to be declined -- and for us to get CardError
+        sc = StripeClient()
+        # bad card
+        card1 = card(number=ERROR_TESTING['BAD_ATTACHED_CARD'][0])
+        cust1 = sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
+        self.assertRaises(stripe.CardError, sc.create_charge, 10,
+                          customer = cust1.id, description="$10 for bad cust")
+
+
+class StripelibErrorTest(TestCase):
+    pass
 
 class PledgeScenarioTest(TestCase):
     @classmethod
@@ -273,8 +334,12 @@ class Processor(baseprocessor.Processor):
         sc = StripeClient()
         
         # create customer and charge id and then charge the customer
-        customer = sc.create_customer(card=token, description=user.username,
+        try:
+            customer = sc.create_customer(card=token, description=user.username,
                                       email=user.email)
+        except stripe.StripeError as e:
+            raise StripelibError(e.message, e)
+            
             
         account = Account(host = PAYMENT_HOST_STRIPE,
                           account_id = customer.id,
@@ -322,7 +387,7 @@ class Processor(baseprocessor.Processor):
                 logger.warning("user {0} has more than one active payment account".format(transaction.user))
             elif transaction.user.account_set.filter(date_deactivated__isnull=True).count() == 0:
                 logger.warning("user {0} has no active payment account".format(transaction.user))
-                raise StripeError("user {0} has no active payment account".format(transaction.user))
+                raise StripelibError("user {0} has no active payment account".format(transaction.user))
                     
             account = transaction.user.account_set.filter(date_deactivated__isnull=True)[0]
             logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
@@ -368,11 +433,18 @@ class Processor(baseprocessor.Processor):
             # is it a customer or a token?
             
             # BUGBUG:  replace description with somethin more useful
+            # TO DO: rewrapping StripeError to StripelibError -- but maybe we should be more specific
             if transaction.preapproval_key.startswith('cus_'):
-                charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
+                try:
+                    charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
+                except stripe.StripeError as e:
+                    raise StripelibError(e.message, e)
             elif transaction.preapproval_key.startswith('tok_'):
-                charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
-    
+                try:
+                    charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
+                except stripe.StripeError as e:
+                    raise StripelibError(e.message, e)
+                    
             transaction.status = TRANSACTION_STATUS_COMPLETE
             transaction.pay_key = charge.id
             transaction.date_payment = now()
@@ -415,8 +487,8 @@ class Processor(baseprocessor.Processor):
 
 def suite():
     
-    testcases = [PledgeScenarioTest]
-    #testcases = []
+    #testcases = [PledgeScenarioTest, StripeErrorTest]
+    testcases = [StripeErrorTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     #suites.addTest(LibraryThingTest('test_cache'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
