@@ -1116,15 +1116,22 @@ def claim(request):
     form =  UserClaimForm(request.user, data=data, prefix='claim')
     if form.is_valid():
         # make sure we're not creating a duplicate claim
-        if not models.Claim.objects.filter(work=data['claim-work'], rights_holder=data['claim-rights_holder'], status='pending').count():
+        if not models.Claim.objects.filter(work=form.cleaned_data['work'], rights_holder=form.cleaned_data['rights_holder']).exclude(status='release').count():
             form.save()
-        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['claim-work']}))
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': form.cleaned_data['work'].id}))
     else:
-        work = models.Work.objects.get(id=data['claim-work'])
+        try:
+            work = models.Work.objects.get(id=data['claim-work'])
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = data['claim-work']).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
         rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
         active_claims = work.claim.exclude(status = 'release')
         context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
         return render(request, "claim.html", context)
+            
 
 def rh_tools(request):
     if not request.user.is_authenticated() :
