@@ -91,6 +91,24 @@ def filter_none(d):
     
 # if you create a Customer object, then you'll be able to charge multiple times. You can create a customer with a token.
 
+# http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
+
+def luhn_checksum(card_number):
+    def digits_of(n):
+        return [int(d) for d in str(n)]
+    digits = digits_of(card_number)
+    odd_digits = digits[-1::-2]
+    even_digits = digits[-2::-2]
+    checksum = 0
+    checksum += sum(odd_digits)
+    for d in even_digits:
+        checksum += sum(digits_of(d*2))
+    return checksum % 10
+ 
+def is_luhn_valid(card_number):
+    return luhn_checksum(card_number) == 0
+    
+    
 # https://stripe.com/docs/tutorials/charges
 
 def card (number=TEST_CARDS[0][0], exp_month=1, exp_year=2020, cvc=None, name=None,
@@ -144,7 +162,7 @@ class StripeClient(object):
     def create_token(self, card):
         return stripe.Token(api_key=self.api_key).create(card=card)
 
-    def create_customer (self, card=None, description=None, email=None, account_balance=None, plan=None, trial_end=None):
+    def create_customer(self, card=None, description=None, email=None, account_balance=None, plan=None, trial_end=None):
         """card is a dictionary or a token"""
         # https://stripe.com/docs/api?lang=python#create_customer
     
@@ -211,9 +229,37 @@ class StripeClient(object):
 # how to tell whether money transferred to bank account yet
 # best practices for calling Events -- not too often.
 
+
+#  Errors we still need to catch:
+#
+#   * invalid_number -- can't get stripe to generate for us.  What it means: 
+#
+#      * that the card has been cancelled (or never existed to begin with
+#
+#      * the card is technically correct (Luhn valid?)
+#
+#      * the first 6 digits point to a valid bank
+#
+#      * but the account number (the rest of the digits) doesn't correspond to a credit account with that bank
+#
+#      * Brian of stripe.com suggests we could treat it the same way as we'd treat card_declined
+#
+#   * processing_error:
+#
+#      * means: something went wrong when stripe tried to make the charge (it could be that the card's issuing bank is down, or our connection to the bank isn't working properly)
+#      * we can retry -- e.g.,  a minute later, then 30 minutes, then an hour, 3 hours, a day.
+#      * we shouldn't see processing_error very often
+#
+#   * expired_card -- also not easily simulatable in test mode
+
+
 class StripeErrorTest(TestCase):
     """Make sure the exceptions returned by stripe act as expected"""
     
+    def test_cc_test_numbers_luhn_valid(self):
+        """Show that the test CC numbers supplied for testing as valid numbers are indeed Luhn valid"""
+        self.assertTrue(all([is_luhn_valid(c[0]) for c in ERROR_TESTING.values()]))
+        
     def test_good_token(self):
         """ verify normal operation """
         sc = StripeClient()
@@ -265,13 +311,85 @@ class StripeErrorTest(TestCase):
         sc = StripeClient()
         # bad card
         card1 = card(number=ERROR_TESTING['BAD_ATTACHED_CARD'][0])
+        # attaching card should be ok
         cust1 = sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
+        # trying to charge the card should fail
         self.assertRaises(stripe.CardError, sc.create_charge, 10,
                           customer = cust1.id, description="$10 for bad cust")
 
+    def test_bad_cc_number(self):
+        """send a bad cc and should get an error when trying to create a token"""
+        BAD_CC_NUM = '4242424242424241'
+        
+        # reason for decline is number is not Luhn valid
+        self.assertFalse(is_luhn_valid(BAD_CC_NUM))
+        
+        sc = StripeClient()
+        card1 = card(number=BAD_CC_NUM, exp_month=1, exp_year=2020, cvc='123', name='Don Giovanni',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
+            
+        try:
+            token1 = sc.create_token(card=card1)
+            self.fail("Attempt to create token with bad cc number did not throw expected exception.")
+        except stripe.CardError as e:
+            self.assertEqual(e.code, "incorrect_number")
+            self.assertEqual(e.message, "Your card number is incorrect")
+            
+    def test_invalid_expiry_month(self):
+        """Use an invalid month e.g. 13."""
+        
+        sc = StripeClient()
+        card1 = card(number=TEST_CARDS[0][0], exp_month=13, exp_year=2020, cvc='123', name='Don Giovanni',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)
 
-class StripelibErrorTest(TestCase):
-    pass
+        try:
+            token1 = sc.create_token(card=card1)
+            self.fail("Attempt to create token with invalid expiry month did not throw expected exception.")
+        except stripe.CardError as e:
+            self.assertEqual(e.code, "invalid_expiry_month")
+            self.assertEqual(e.message, "Your card's expiration month is invalid")
+
+    def test_invalid_expiry_year(self):
+        """Use a year in the past e.g. 1970."""
+        
+        sc = StripeClient()
+        card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=1970, cvc='123', name='Don Giovanni',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)
+
+        try:
+            token1 = sc.create_token(card=card1)
+            self.fail("Attempt to create token with invalid expiry year did not throw expected exception.")
+        except stripe.CardError as e:
+            self.assertEqual(e.code, "invalid_expiry_year")
+            self.assertEqual(e.message, "Your card's expiration year is invalid")
+            
+    def test_invalid_cvc(self):
+        """Use a two digit number e.g. 99."""
+        
+        sc = StripeClient()
+        card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=2020, cvc='99', name='Don Giovanni',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)
+
+        try:
+            token1 = sc.create_token(card=card1)
+            self.fail("Attempt to create token with invalid cvc did not throw expected exception.")
+        except stripe.CardError as e:
+            self.assertEqual(e.code, "invalid_cvc")
+            self.assertEqual(e.message, "Your card's security code is invalid")
+            
+    def test_missing_card(self):
+        """There is no card on a customer that is being charged"""
+        
+        sc = StripeClient()
+        # create a Customer with no attached card
+        cust1 = sc.create_customer(description="test cust w/ no card")
+        try:
+            sc.create_charge(10, customer = cust1.id, description="$10 for cust w/ no card")
+        except stripe.CardError as e:
+            self.assertEqual(e.code, "missing")
+            self.assertEqual(e.message, "Cannot charge a customer that has no active card")
+
+        
 
 class PledgeScenarioTest(TestCase):
     @classmethod
@@ -305,7 +423,6 @@ class PledgeScenarioTest(TestCase):
         self.assertRaises(stripe.CardError, self._sc.create_charge, 10,
                           customer = self._cust_bad_card.id, description="$10 for bad cust")
         
-    
     @classmethod
     def tearDownClass(cls):
         # clean up stuff we create in test -- right now list current objects
