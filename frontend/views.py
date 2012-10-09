@@ -51,6 +51,7 @@ from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersFor
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
+from regluit.payment import baseprocessor
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
@@ -788,8 +789,8 @@ class FundPledgeView(FormView):
         try:
             account = p.make_account(transaction.user, stripe_token, host=transaction.host)
             logger.info('account.id: {0}'.format(account.id))
-        except Exception, e:
-            raise e
+        except baseprocessor.ProcessorError as e:
+            return HttpResponse("baseprocessor.ProcessorError: {0}".format(e))
         
         # GOAL: deactivate any older accounts associated with user
         

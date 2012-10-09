@@ -1,4 +1,4 @@
-from regluit.payment.models import  PaymentResponse
+from regluit.payment.models import PaymentResponse
 
 from django.http import  HttpResponseForbidden
 from datetime import timedelta
@@ -6,6 +6,13 @@ from regluit.utils.localdatetime import now, zuluformat
 
 import datetime
 import time
+
+class ProcessorError(Exception):
+    """An abstraction around payment processor exceptions"""
+    def __init__(self, message=None, original_exception=None):
+        super(ProcessorError, self).__init__(message)
+        self.original_exception = original_exception
+        
 
 
 class BasePaymentRequest:
