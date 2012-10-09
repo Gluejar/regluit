@@ -51,7 +51,7 @@ p {
 .modify_notification {
 	width: 452px;
 	margin-bottom: 7px;
-	border: solid 2px @call-to-action;
+	border: solid 2px @blue-grey;
 	.one-border-radius(5px);
 	padding: 7px;
 		
@@ -191,7 +191,9 @@ span.menu-item-price {
 }
 
 #authorize {
-    display: none;
+    &.off {
+        display: none;
+    }
     
     border: 3px solid @blue-grey;
     .one-border-radius(5px);
@@ -203,10 +205,14 @@ span.menu-item-price {
             font-size: @font-size-larger;
             line-height: @font-size-larger*1.5;
             float: left;
-            border-width: 1%;
+            border-width: 2px;
             padding: 1% 1%;
             margin: 1% 0;
             color: @text-blue;
+            
+            &:disabled {
+                border-color: white;
+            }
         }
     
         label {
@@ -215,7 +221,7 @@ span.menu-item-price {
             line-height: @font-size-larger*1.5;
             font-size: @font-size-larger;
             border: solid white;
-            border-width: 1% 0;
+            border-width: 2px 0;
             padding: 1% 2% 1% 0;
             margin: 1% 0;
         } 
@@ -235,6 +241,7 @@ span.level2.menu.answer {
     a {
         font-size: @font-size-larger;
     }
+}
 
 #anonbox {
     margin-top: 10px;
