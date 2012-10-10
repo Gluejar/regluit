@@ -93,7 +93,14 @@ $j().ready(function() {
         number: $j('.card-number').val(),
         cvc: $j('.card-cvc').val(),
         exp_month: $j('.card-expiry-month').val(),
-        exp_year: $j('.card-expiry-year').val()
+        exp_year: $j('.card-expiry-year').val(),
+        address_line1: $j('#card_AddressLine1').val(),
+        address_line2: $j('#card_AddressLine2').val(),
+        address_state: $j('#card_AddressState').val(),
+        address_zip: $j('#card_AddressZip').val(),
+        address_city: $j('#card_AddressCity').val(),
+        address_country: $j('#card_AddressCountry').val(),
+        name: $j('#card_Name').val()
     }, stripeResponseHandler);
 
     // prevent the form from submitting with the default action
@@ -170,8 +177,35 @@ $j().ready(function() {
                     <div class="form-row clearfix">
                         <label>Expiration:</label>
                         <input id="card_ExpiryMonth" type="text" size="2" value="MM" class="card-expiry-month" />
-                        <span> / </span>
                         <input id="card_ExpiryYear" type="text" size="4" value="YYYY" class="card-expiry-year" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Name:</label>
+                        <input id="card_Name" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Address Line 1:</label>
+                        <input id="card_AddressLine1" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Address Line 2:</label>
+                        <input id="card_AddressLine2" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>City:</label>
+                        <input id="card_AddressCity" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>State / Province / Region:</label>
+                        <input id="card_AddressState" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>ZIP/Postal Code:</label>
+                        <input id="card_AddressZip" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Country:</label>
+                        <input id="card_AddressCountry" type="text" class="address" />
                     </div>
                 </div>
 

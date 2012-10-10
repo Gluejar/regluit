@@ -204,7 +204,7 @@ span.menu-item-price {
         input {
             font-size: @font-size-larger;
             line-height: @font-size-larger*1.5;
-            float: left;
+            vertical-align: middle;
             border-width: 2px;
             padding: 1% 1%;
             margin: 1% 0;
@@ -212,6 +212,10 @@ span.menu-item-price {
             
             &:disabled {
                 border-color: white;
+            }
+            
+            &.address {
+                width: 71%;
             }
         }
     
@@ -224,6 +228,7 @@ span.menu-item-price {
             border-width: 2px 0;
             padding: 1% 2% 1% 0;
             margin: 1% 0;
+            text-align: right;
         } 
         
         .form-row span {

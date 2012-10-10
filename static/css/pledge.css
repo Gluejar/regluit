@@ -262,7 +262,7 @@ span.menu-item-price {
 #authorize div.innards input {
   font-size: 15px;
   line-height: 22.5px;
-  float: left;
+  vertical-align: middle;
   border-width: 2px;
   padding: 1% 1%;
   margin: 1% 0;
@@ -270,6 +270,9 @@ span.menu-item-price {
 }
 #authorize div.innards input:disabled {
   border-color: white;
+}
+#authorize div.innards input.address {
+  width: 71%;
 }
 #authorize div.innards label {
   width: 23%;
@@ -280,6 +283,7 @@ span.menu-item-price {
   border-width: 2px 0;
   padding: 1% 2% 1% 0;
   margin: 1% 0;
+  text-align: right;
 }
 #authorize div.innards .form-row span {
   float: left;
