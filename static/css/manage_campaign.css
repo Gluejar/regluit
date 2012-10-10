@@ -275,3 +275,25 @@ input[name="launch"] {
 #launchme {
   margin: 15px auto;
 }
+#premium_add span,
+#premium_add input[type="text"],
+#premium_add textarea {
+  float: left;
+}
+#premium_add input[type="submit"] {
+  float: right;
+}
+#premium_add input[type="text"] {
+  width: 33%;
+}
+#premium_add textarea {
+  width: 60%;
+}
+#premium_add .premium_add_label {
+  width: 30%;
+  margin-right: 2%;
+}
+#premium_add .premium_field_label {
+  width: 1%;
+  margin-left: -1%;
+}

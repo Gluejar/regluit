@@ -51,6 +51,7 @@ from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersFor
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
+from regluit.payment import baseprocessor
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
@@ -789,8 +790,8 @@ class FundPledgeView(FormView):
         try:
             account = p.make_account(transaction.user, stripe_token, host=transaction.host)
             logger.info('account.id: {0}'.format(account.id))
-        except Exception, e:
-            raise e
+        except baseprocessor.ProcessorError as e:
+            return HttpResponse("baseprocessor.ProcessorError: {0}".format(e))
         
         # GOAL: deactivate any older accounts associated with user
         
@@ -1117,15 +1118,22 @@ def claim(request):
     form =  UserClaimForm(request.user, data=data, prefix='claim')
     if form.is_valid():
         # make sure we're not creating a duplicate claim
-        if not models.Claim.objects.filter(work=data['claim-work'], rights_holder=data['claim-rights_holder'], status='pending').count():
+        if not models.Claim.objects.filter(work=form.cleaned_data['work'], rights_holder=form.cleaned_data['rights_holder']).exclude(status='release').count():
             form.save()
-        return HttpResponseRedirect(reverse('work', kwargs={'work_id': data['claim-work']}))
+        return HttpResponseRedirect(reverse('work', kwargs={'work_id': form.cleaned_data['work'].id}))
     else:
-        work = models.Work.objects.get(id=data['claim-work'])
+        try:
+            work = models.Work.objects.get(id=data['claim-work'])
+        except models.Work.DoesNotExist:
+            try:
+                work = models.WasWork.objects.get(was = data['claim-work']).work
+            except models.WasWork.DoesNotExist:
+                raise Http404
         rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
         active_claims = work.claim.exclude(status = 'release')
         context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
         return render(request, "claim.html", context)
+            
 
 def rh_tools(request):
     if not request.user.is_authenticated() :

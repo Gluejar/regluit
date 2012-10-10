@@ -161,6 +161,19 @@ Please fix the following before launching your campaign:
 	<p>Above all, be engaging.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
 	
 	<p>Looking for inspiration?  Check out the all-time most-funded projects on crowdfunding sites <a href="http://www.kickstarter.com/discover/most-funded">Kickstarter</a> or <a href="http://www.indiegogo.com/projects?filter_quick=most_funded">IndieGogo</a>, or have a look at <a href="http://www.kickstarter.com/discover/categories/publishing">Kickstarter's Publishing category</a> or <a href="http://www.indiegogo.com/projects?filter_category=Writing">IndieGogo's Writing category</a>.</p>
+	
+	<h4>How to add video</h4>
+	<p>We strongly encourage you to include video that communicates directly with your supporters.  To add a video:</p>
+	<ul>
+	<li>Upload it to YouTube.</li>
+	<li>Underneath the video, click Share, then Embed.</li>
+	<li>In the embed options: click Use HTTPS.</li>
+	<li>In the Custom sizing area, enter a width of 445.</li>
+	<li>In the editor toolbar below, click Source.</li>
+	<li>Copy/paste the embed code from YouTube into your campaign below.</li>
+	<li>Click Source again to get back to the normal editing mode.</li>
+	</ul>
+	<p>You'll see an IFRAME code in the editor where your video will go.  The video will display normally on your campaign page.</p>
 	{{ form.description.errors }}{{ form.description }}
 	<h3>Edition and Rights Details</h3>
 	<p>This will be displayed on the Rights tab for your work.  It's the fine print for your campaign.  Make sure to disclose any ways the unglued edition will differ from the existing edition; for example:
@@ -185,7 +198,7 @@ Please fix the following before launching your campaign:
 	
 	{{ form.target.errors }}${{ form.target }}
 	<h3>License being offered</h3>
-	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.</p>
+	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
 	{{ form.license.errors }}{{ form.license }}
 	<h3>Ending date</h3>
 	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
@@ -252,18 +265,29 @@ Please fix the following before launching your campaign:
 		</form>
 	</div>
 	<h4>Add a premium for this campaign</h4>
-	<form action="#" method="POST">
+
+	<form action="#" method="POST" id="premium_add">
 	{% csrf_token %}
-	Pledge Amount: {{ premium_form.amount.errors }}${{ premium_form.amount }}<br />
-	Premium Description: {{ premium_form.description.errors }}{{ premium_form.description }}<br />
-	Number Available (0 if no limit): {{ premium_form.limit.errors }}{{ premium_form.limit }}<br />
+	<span class="premium_add_label">Pledge Amount ($2000 maximum):</span> {{ premium_form.amount.errors }}<span class="premium_field_label">$</span>{{ premium_form.amount }}<br /><br />
+	<span class="premium_add_label">Premium Description:</span> {{ premium_form.description.errors }}{{ premium_form.description }}<br /><br />
+	<span class="premium_add_label">Number Available (0 if no limit):</span> {{ premium_form.limit.errors }}{{ premium_form.limit }}<br /><br />
 	{{ premium_form.campaign }}
 	{{ premium_form.type.errors }}{{ premium_form.type }}
 	<br />
 	<input type="submit" name="add_premium" value="Add Premium" />
-	</form>
+	</form><br /><br />
+
 	<h4>Editing premiums</h4>
 	<p>At this time, you can't edit a premium you've created. But you can deactivate a premium and add a new one to replace it. So be sure to double-check your spelling before adding it.</p>
+	
+	<p>If you deactivate a premium that people have pledged toward, you are <b>still responsible for delivering it</b> to those pledgers.</p>
+	
+	<p>A few things to keep in mind:</p>
+	<ul>
+	<li>Are your premiums cumulative?  That is, if you have a $10 and a $25 premium, does the $25 pledger get everything that the $10 pledger gets also?  Either cumulative or not-cumulative is fine, but make sure you've communicated clearly</li>
+	<li>Adding new premiums during your campaign is a great way to build momentum.  If you do, make sure to leave a comment in the Comments tab of your campaign page to tell supporters (it will be automatically emailed to them).  Some of them may want to change (hopefully increase) their pledge to take advantage of it.</li>
+	<li>Also make sure to think about how your new premiums interact with old ones.  If you add a new premium at $10, will people who have already pledged $25 be automatically eligible for it or not?  Again, you can choose whatever you want; just be sure to communicate clearly.</li>
+	</ul>
 </div>
 
 {% ifequal campaign_status 'INITIALIZED' %}
@@ -299,14 +323,14 @@ Please fix the following before launching your campaign:
 <h3>What to do next</h3>
 <ul>
 <li>Tell your friends, relatives, media contacts, professional organizations, social media networks -- everyone!</li>
-<li>Check in with your campaign frequently.  Use comments, description updates, and maybe new custom premiums to spark additional interest, keep supporters engaged, and keep the momentum going.</li>
+<li>Check in with your campaign frequently.  Use comments, description updates, and maybe new premiums to spark additional interest, keep supporters engaged, and keep the momentum going.</li>
 <li>Watch media and social networks for mentions of your campaign, and engage in those conversations.</li>
 <li>Need help doing any of this?  Talk to us.</li>
 </ul>
 {% endif %}
-<h3>Campaign Summary</h3>
-<p> You can see what tiers people have pledged for (or earned) by looking at the <a href="{% url work_acks campaign.work.id %}">sample acknowledgement page</a>.
-After your campaign succeeds, you can used this page to generate epub code! 
+<h3>Acknowledgements</h3>
+<p>You can see who your biggest supporters are by looking at the <a href="{% url work_acks campaign.work.id %}">sample acknowledgement page</a>.
+After your campaign succeeds, you can used this page to generate epub code for the acknowledgements section of your unglued ebook.
 </p>
 {% endif %}
 </div>

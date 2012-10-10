@@ -126,45 +126,26 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>How to launch an Unglue.it campaign</h2>
 
 <ol>
-	<li>
-	In order to launch a campaign, the rights holder must first sign and submit an Unglue.it Platform Services Agreement. 
-	Unglue.it staff will review the credentials of the rights holder and enter it into the system, along with an email address and the username for the person who will use the Unglue.it rights holder tools on behalf of the rights holder.
-	If your unglue.it account has been associated with a rights holder, the name and contact address of that rights holder should appear above.
-	</li>
-	<li>
-	The next step for a rights holder is to claim works from the Unglue.it database. Find the work by adding it to you wishlist. 
-	On the "details" tab of the work's page, you will find a form that allows you to enter a claim.
-	When you enter a claim, you will be asked to agree to the website terms of use, in which you agree that you're making the claim in good faith, and that you can substantiate that you have legal control over rights to the work.
-	If you claim a work by mistake, please contact Unglue.it rights holder relations immediately: rights@gluejar.com
-	</li>
-	<li>
-	Once a claim is made, it will be reviewed by Unglue.it staff. 
-	We'll make sure that the the claim is in order, and we may contact you at {{ request.user.email }} if we have any questions.
-	We may want to look over publishing contracts, etc., to make sure you have sufficient rights to unglue the book.
-	</li>
-	<li>
-	When a claim has been approved, you're ready to open a campaign for the work. 
-	A form will appear with the claim listing, above.
-	You'll need to pick one or more managers for the campaign- someone who has an Unglue.it username. 
-	The campaign managers will be able to set more parameters for the campaign.
-	</li> 
-	<li>
-	If you've been appointed as a campaign manager, a list of campaigns will appear on your rights holder tools page.
-	Click on the link for the campaign you want to manage.
-	</li> 
-	<li>
-	On the campaign management page, you'll be able to configure the campaign.
-	When you're ready to launch the campaign, click the launch button.
-	The system will check that the campaign goal and and ending data are within allowed parameters.
-	Once the campaign is launched, you're off and running. Good Luck!
-	</li> 
+    {% if not request.user.is_authenticated %}<li>{% else %}<li class="checked">{% endif %}Set up an Unglue.it account (start at the Sign Up button at the top of the page).</li>
+	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Email rights@gluejar.com about becoming an authorized rights holder.</li>
+	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}After we review your credentials, sign a Platform Services Agreement (available from us).</li>
+	<li>Claim your work(s):</li>
+	<ul>
+	    <li>Find them through the search box at the top of every page.</li>
+	    <li>Use the Claim option on the Rights tab of each book's page.</li>
+	    <li>Agree to our <a href="{{ termsurl }}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
+	    <li>If you have any questions or you claim a work by mistake, email us.</li>
+	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="/accounts/edit">change the email address</a> for your account.</li>
+	</ul>
+	<li>Once your claim is approved, you can set up a campaign for it.  All the campaigns you can manage will be listed on this page.</li>
+	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page.</li> 
 </ol>
 
 <h2>Rewards</h2>
 
 <p>Campaigns can have rewards as a way to motivate and thank supporters.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
 
-<p>What should you add as rewards?  Anything you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
+<p>What should you add as rewards?  Anything (legal) that you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
 
 <h2>Acknowledgements</h2>
 <p>Here are the standard acknowledgements.  These automatically combine with your rewards.  For example, if you offer a $30 reward, ungluers who pledge $30 will receive the $25 acknowledgement as well.</p>
@@ -176,5 +157,5 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 </ul>
 
 <h2>More Questions</h2>
-<p> Check the FAQ to the left, or <a href="/feedback">Send us feedback.</a>
+<p> Check the FAQ to the left, or <a href="/feedback">send us feedback.</a>
 {% endblock %}
