@@ -4,8 +4,6 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.conf import settings
-
 from regluit.core.models import Work, Campaign, RightsHolder, Claim
 
 from decimal import Decimal as D
@@ -113,64 +111,3 @@ class CampaignUiTests(TestCase):
         
     def tearDown(self):
         pass
-    
-class PledgingUiTests(TestCase):
-    def setUp(self):
-        self.USERNAME = 'testname'
-        self.PASSWORD = 'testpw'
-        self.EMAIL = 'test@example.org'
-        self.user = User.objects.create_user(self.USERNAME, self.EMAIL, self.PASSWORD)
-        self.client = Client()
-        
-        # login and heck whether user logged in
-        self.assertTrue(self.client.login(username=self.USERNAME, password=self.PASSWORD))
-        # http://stackoverflow.com/a/6013115
-        self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)        
-        
-        # load a Work by putting it on the User's wishlist
-        r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
-                HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(self.user.wishlist.works.all().count(), 1)
-        wished= self.user.wishlist.works.all()[0]
-        # test the work page
-        r = self.client.get("/work/%s/" % wished.id)
-        self.assertEqual(r.status_code, 200)
-        anon_client = Client()
-        r = anon_client.get("/work/%s/" % wished.id)
-        self.assertEqual(r.status_code, 200)        
-        
-        # load a Work and a Campaign to create a Pledge page
-        self.work = self.user.wishlist.works.all()[0]
-        self.campaign = Campaign(target=D('1000.00'), deadline=now() + timedelta(days=180),
-                                 work=self.work)
-        self.campaign.save()
-
-        rh = RightsHolder(owner = self.user, rights_holder_name = 'rights holder name')
-        rh.save()
-        cl = Claim(rights_holder = rh, work = self.work, user = self.user, status = 'active')
-        cl.save()
-
-        self.campaign.activate()        
-
-        
-    def test_successful_stripe_pledge(self):
-        """can we land on the work page and submit a stripe token?"""
-        # work page and hit support
-        
-        r = self.client.get("/work/%s/" % self.work.id)
-        self.assertEqual(r.status_code, 200)
-
-        # go to pledge page
-        r = self.client.get("/pledge/%s" % self.work.id, data={}, follow=True)
-        self.assertEqual(r.status_code, 200)
-        
-        # submit to pledge page
-        r = self.client.post("/pledge/%s" % self.work.id, data={'preapproval_amount':'10',
-                                                                'premium_id':'150'}, follow=True)
-        self.assertEqual(r.status_code, 200)        
-        
-        
-    def tearDown(self):
-        pass
-    
