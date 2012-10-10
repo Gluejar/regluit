@@ -51,7 +51,7 @@ p {
 .modify_notification {
 	width: 452px;
 	margin-bottom: 7px;
-	border: solid 2px @call-to-action;
+	border: solid 2px @blue-grey;
 	.one-border-radius(5px);
 	padding: 7px;
 		
@@ -142,6 +142,105 @@ span.menu-item-price {
 #id_ack_link {
 	border: none;
 	cursor: default;
+}
+
+.fund_options {
+    a.fakeinput {
+        font-size: @font-size-header;
+        margin: 10px auto;
+        float: left;
+        line-height: normal;
+    }
+    
+    input[type="submit"] {
+        float: left;
+    }
+    
+    div {
+        width: 50%;
+        float: left;
+        
+        ul {
+            background: @pale-blue;
+        }
+       
+        &.highlight {
+            ul {
+                border-color: @medium-blue-grey;
+                background: white;
+            }
+            
+            color: @dark-green;
+        }
+    }
+    
+    ul {
+        padding: 5px 10px 5px 15px;
+        border: solid 1px @blue-grey;
+        margin-right: 15px;
+        list-style-type: none;
+        
+        li {
+            margin: 5px 0;
+        }
+        
+        a {
+            color: @medium-blue;
+        }
+    }
+}
+
+#authorize {
+    &.off {
+        display: none;
+    }
+    
+    border: 3px solid @blue-grey;
+    .one-border-radius(5px);
+    margin-top: 10px;
+    padding: 10px;
+    
+    div.innards {
+        input {
+            font-size: @font-size-larger;
+            line-height: @font-size-larger*1.5;
+            float: left;
+            border-width: 2px;
+            padding: 1% 1%;
+            margin: 1% 0;
+            color: @text-blue;
+            
+            &:disabled {
+                border-color: white;
+            }
+        }
+    
+        label {
+            width: 23%;
+            float: left;
+            line-height: @font-size-larger*1.5;
+            font-size: @font-size-larger;
+            border: solid white;
+            border-width: 2px 0;
+            padding: 1% 2% 1% 0;
+            margin: 1% 0;
+        } 
+        
+        .form-row span {
+            float: left;
+            line-height: @font-size-larger*1.5;
+            font-size: @font-size-larger;
+            margin: 1%;
+            padding: 1% 0;
+        }
+    }
+}
+
+span.level2.menu.answer {
+    border-left: solid 7px @pale-blue;
+    a {
+        font-size: @font-size-larger;
+    }
 }
 
 #anonbox {

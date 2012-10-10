@@ -133,7 +133,7 @@ p {
 .modify_notification {
   width: 452px;
   margin-bottom: 7px;
-  border: solid 2px #8dc63f;
+  border: solid 2px #d6dde0;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -212,6 +212,87 @@ span.menu-item-price {
 #id_ack_link {
   border: none;
   cursor: default;
+}
+.fund_options a.fakeinput {
+  font-size: 19px;
+  margin: 10px auto;
+  float: left;
+  line-height: normal;
+}
+.fund_options input[type="submit"] {
+  float: left;
+}
+.fund_options div {
+  width: 50%;
+  float: left;
+}
+.fund_options div ul {
+  background: #edf3f4;
+}
+.fund_options div.highlight {
+  color: #73a334;
+}
+.fund_options div.highlight ul {
+  border-color: #a7c1ca;
+  background: white;
+}
+.fund_options ul {
+  padding: 5px 10px 5px 15px;
+  border: solid 1px #d6dde0;
+  margin-right: 15px;
+  list-style-type: none;
+}
+.fund_options ul li {
+  margin: 5px 0;
+}
+.fund_options ul a {
+  color: #6994a3;
+}
+#authorize {
+  border: 3px solid #d6dde0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 10px;
+}
+#authorize.off {
+  display: none;
+}
+#authorize div.innards input {
+  font-size: 15px;
+  line-height: 22.5px;
+  float: left;
+  border-width: 2px;
+  padding: 1% 1%;
+  margin: 1% 0;
+  color: #3d4e53;
+}
+#authorize div.innards input:disabled {
+  border-color: white;
+}
+#authorize div.innards label {
+  width: 23%;
+  float: left;
+  line-height: 22.5px;
+  font-size: 15px;
+  border: solid white;
+  border-width: 2px 0;
+  padding: 1% 2% 1% 0;
+  margin: 1% 0;
+}
+#authorize div.innards .form-row span {
+  float: left;
+  line-height: 22.5px;
+  font-size: 15px;
+  margin: 1%;
+  padding: 1% 0;
+}
+span.level2.menu.answer {
+  border-left: solid 7px #edf3f4;
+}
+span.level2.menu.answer a {
+  font-size: 15px;
 }
 #anonbox {
   margin-top: 10px;

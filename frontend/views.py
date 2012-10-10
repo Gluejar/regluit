@@ -668,6 +668,7 @@ class PledgeView(FormView):
         """set up the pledge page"""
         
         context = super(PledgeView, self).get_context_data(**kwargs)
+        context['nonprofit'] = settings.NONPROFIT
               
         context.update({
                 'work':self.work,
