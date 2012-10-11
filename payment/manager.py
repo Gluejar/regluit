@@ -1,4 +1,4 @@
-from regluit.payment.models import Transaction, Receiver, PaymentResponse
+from regluit.payment.models import Transaction, Receiver, PaymentResponse, Account
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -944,6 +944,14 @@ class PaymentManager( object ):
         """delegate to a specific payment module the task of creating a payment account"""
         mod = __import__("regluit.payment." + host, fromlist=[host])
         return mod.Processor().make_account(user, token)
+    def retrieve_accounts(self, user, host, include_deactivated=False):
+        """return any accounts that match user, host -- only active ones by default"""
+        if include_deactivated:
+            return Account.objects.filter(user=user, host=host)
+        else:
+            return Account.objects.filter(user=user, host=host, date_deactivated__isnull=True)
+        
+        
         
         
     
