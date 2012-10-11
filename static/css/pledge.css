@@ -262,7 +262,6 @@ span.menu-item-price {
 #authorize div.innards input {
   font-size: 15px;
   line-height: 22.5px;
-  float: left;
   border-width: 2px;
   padding: 1% 1%;
   margin: 1% 0;
@@ -271,8 +270,11 @@ span.menu-item-price {
 #authorize div.innards input:disabled {
   border-color: white;
 }
+#authorize div.innards input.address {
+  width: 61%;
+}
 #authorize div.innards label {
-  width: 23%;
+  width: 31%;
   float: left;
   line-height: 22.5px;
   font-size: 15px;
@@ -280,6 +282,7 @@ span.menu-item-price {
   border-width: 2px 0;
   padding: 1% 2% 1% 0;
   margin: 1% 0;
+  text-align: right;
 }
 #authorize div.innards .form-row span {
   float: left;
@@ -287,6 +290,27 @@ span.menu-item-price {
   font-size: 15px;
   margin: 1%;
   padding: 1% 0;
+}
+.payment-errors {
+  display: none;
+  -moz-border-radius: 16px 16px 0 0;
+  -webkit-border-radius: 16px 16px 0 0;
+  border-radius: 16px 16px 0 0;
+  border: solid #e35351 3px;
+  clear: both;
+  width: 90%;
+  height: auto;
+  line-height: 16px;
+  padding: 7px 0;
+  font-weight: bold;
+  font-size: 13px;
+  text-align: center;
+  width: auto;
+  margin: auto;
+}
+.payment-errors li {
+  list-style: none;
+  border: none;
 }
 span.level2.menu.answer {
   border-left: solid 7px #edf3f4;
