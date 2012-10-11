@@ -119,7 +119,7 @@ $j(document).ready(function(){
                     </div>
                     {% else %}
                     <div id="book-detail-img">
-                        <img src="/static/images/generic_cover_larger.png" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                        <img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                     </div>
                     {% endif %}
                     <div class="book-detail-info">
