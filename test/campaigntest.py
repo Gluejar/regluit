@@ -159,6 +159,9 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     setup_selenium()
     
+    # this assumes that we don't have donation functionality on
+    assert settings.NONPROFIT.is_on == False
+    
     if browser == 'firefox':
         sel = webdriver.Firefox()
     elif browser == 'chrome':
@@ -215,8 +218,6 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     # now we have to replace the current preapproval amount with 10
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="10";""")
-    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
-    radio_button.click()
     
     support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge Now']"))
     support_button.click()    
@@ -228,7 +229,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
     sel.execute_script("""document.getElementById("card_CVC").value="123";""")
     
-    verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Verify Credit Card']"))
+    verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Complete Pledge']"))
     verify_cc_button.click()
     
     # verify that we are at pledge_complete
@@ -239,7 +240,8 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     # should be back on a pledge complete page
     print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
     
-    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    # need to pick out the actual work pledged.
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p.pledge_complete a[href*="/work/"]'))
     work_url.click()
 
     # change_pledge
@@ -247,32 +249,29 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
     
-    # enter a new pledge, which is less than the previous amount and therefore doesn't require a new PayPal transaction
+    # enter a new pledge, which is less than the previous amount 
     print "changing pledge to $5 -- should not need to go to Stripe"
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="5";""")
-    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
-    radio_button.click()
     
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
     
     # return to the Work page again
-    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p.pledge_complete a[href*="/work/"]'))
     work_url.click()
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
     
     # modify pledge to $25
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="25";""")
-    radio_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='150']"))
-    radio_button.click()
     
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     pledge_button.click()
     
     # now cancel transaction
     # now go back to the work page, hit modify pledge, and then the cancel link
-    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p > a[href*="/work/"]'))
+    
+    work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p.pledge_complete a[href*="/work/"]'))
     work_url.click()
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
@@ -287,7 +286,6 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     django.db.transaction.commit()
     
     yield sel
-    
 
     # now use the transaction manager to make the charge
     w = models.Work.objects.get(id=48)
