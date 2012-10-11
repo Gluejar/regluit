@@ -204,7 +204,6 @@ span.menu-item-price {
         input {
             font-size: @font-size-larger;
             line-height: @font-size-larger*1.5;
-            float: left;
             border-width: 2px;
             padding: 1% 1%;
             margin: 1% 0;
@@ -213,10 +212,14 @@ span.menu-item-price {
             &:disabled {
                 border-color: white;
             }
+            
+            &.address {
+                width: 61%;
+            }
         }
     
         label {
-            width: 23%;
+            width: 31%;
             float: left;
             line-height: @font-size-larger*1.5;
             font-size: @font-size-larger;
@@ -224,6 +227,7 @@ span.menu-item-price {
             border-width: 2px 0;
             padding: 1% 2% 1% 0;
             margin: 1% 0;
+            text-align: right;
         } 
         
         .form-row span {
@@ -234,6 +238,13 @@ span.menu-item-price {
             padding: 1% 0;
         }
     }
+}
+
+.payment-errors {
+    display: none;
+    .errors;
+    width: auto;
+    margin: auto;
 }
 
 span.level2.menu.answer {
