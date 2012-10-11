@@ -11,7 +11,7 @@
 <script type="text/javascript" src="https://js.stripe.com/v1/"></script>
 
 <script type="text/javascript">
-    Stripe.setPublishableKey('{{STRIPE_PK}}');
+    Stripe.setPublishableKey('{{ STRIPE_PK }}');
 </script>
 
 <script type="application/x-javascript">
@@ -67,19 +67,19 @@ $j(document).ready(function() {
 <script>
 function stripeResponseHandler(status, response) {
     if (response.error) {
-	// re-enable the submit button
-	$j('.submit-button').removeAttr("disabled");
-	// show the errors on the form
-	$j(".payment-errors").html(response.error.message);
+        // re-enable the submit button
+        $j('.submit-button').removeAttr("disabled");
+        // show the errors on the form
+        $j(".payment-errors").html(response.error.message).show();
     } else {
-	var form$ = $j("#payment-form");
-	// token contains id, last4, and card type
-	var token = response['id'];
-	
-	// insert the token into the form so it gets submitted to the server
-	form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
-	// and submit
-	form$.get(0).submit();
+        var form$ = $j("#payment-form");
+        // token contains id, last4, and card type
+        var token = response['id'];
+        
+        // insert the token into the form so it gets submitted to the server
+        form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
+        // and submit
+        form$.get(0).submit();
     }
 }
 	   
@@ -158,7 +158,6 @@ $j().ready(function() {
 	    <p>Unglue.it uses Stripe to securely manage your Credit Card information.
 	    </p>
 	    <div id="cc_pledge">
-            <span class="payment-errors"></span>
             <form action="" method="POST" id="payment-form">
                 <div class="innards">
                     <div class="clearfix">
@@ -196,7 +195,7 @@ $j().ready(function() {
                         <input id="card_AddressCity" type="text" class="address" />
                     </div>
                     <div class="form-row clearfix">
-                        <label>State / Province / Region:</label>
+                        <label>State/Province :</label>
                         <input id="card_AddressState" type="text" class="address" />
                     </div>
                     <div class="form-row clearfix">
@@ -209,6 +208,7 @@ $j().ready(function() {
                     </div>
                 </div>
 
+                <div class="payment-errors"></div>
                 <input id="cc_submit" type="submit" class="submit-button" value="Complete Pledge" />
 
             </form>
