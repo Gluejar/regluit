@@ -292,6 +292,37 @@ span.menu-item-price {
   margin: 1%;
   padding: 1% 0;
 }
+#authorize .cvc {
+  position: relative;
+  z-index: 0;
+}
+#authorize #cvc_help {
+  font-style: italic;
+  float: none;
+  font-size: 13px;
+  color: #6994a3;
+  cursor: pointer;
+}
+#authorize #cvc_answer {
+  display: none;
+  z-index: 100;
+  border: 2px solid #d6dde0;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  margin: 1% 0;
+  padding: 1%;
+  width: 46%;
+  position: absolute;
+  top: 90%;
+  right: 0;
+  opacity: 1;
+  background-color: white;
+}
+#authorize #cvc_answer img {
+  float: right;
+  margin-left: 5px;
+}
 .payment-errors {
   display: none;
   -moz-border-radius: 16px 16px 0 0;

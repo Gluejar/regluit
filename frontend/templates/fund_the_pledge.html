@@ -39,6 +39,19 @@ $j(document).ready(function() {
 });
 </script>
 
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function() {
+    $j('#cvc_help').on("mouseover", function() {
+        $j('#cvc_answer').show();
+    });
+    $j('#cvc_help').on("mouseleave", function() {
+        $j('#cvc_answer').hide();
+    });
+});
+</script>
+
 <script type="application/x-javascript">
 
 var $j = jQuery.noConflict();
@@ -194,9 +207,10 @@ $j().ready(function() {
                         <label>Card Number:</label>
                         <input id="card_Number" type="text" autocomplete="off" class="card-number"/>
                     </div>
-                    <div class="form-row clearfix">
+                    <div class="form-row clearfix cvc">
                         <label>CVC:</label>
-                        <input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc"/>
+                        <input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc"/> <span id="cvc_help">(what is this?)</span>
+                        <div id="cvc_answer"><img src="/static/images/cvcimage.jpeg">For most cards, this is a 3-digit number at the end of the signature strip on the back.  For American Express, it's a four-digit number in small print on the front.</div>
                     </div>
                     <div class="form-row clearfix initial_values">
                         <label>Expiration:</label>

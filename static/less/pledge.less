@@ -238,6 +238,39 @@ span.menu-item-price {
             padding: 1% 0;
         }
     }
+    
+    .cvc {
+        position: relative;
+        z-index: 0;
+    }
+    
+    #cvc_help {
+        font-style: italic;
+        float: none;
+        font-size: @font-size-default;
+        color: @link-color;
+        cursor: pointer;
+    }
+    
+    #cvc_answer {
+        display: none;
+        z-index: 100;
+        border: 2px solid @blue-grey;
+        .one-border-radius(5px);
+        margin: 1% 0;
+        padding: 1%;
+        width: 46%;
+        position: absolute;
+        top: 90%;
+        right: 0;
+        opacity: 1;
+        background-color: white;
+        
+        img {
+            float: right;
+            margin-left: 5px;
+        }
+    }
 }
 
 .payment-errors {
