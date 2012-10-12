@@ -445,31 +445,38 @@ class StripePaymentRequest(baseprocessor.BasePaymentRequest):
 
 class Processor(baseprocessor.Processor):
     
-    def make_account(self, user, token):
+    def make_account(self, user, token=None):
         """returns a payment.models.Account based on stripe token and user"""
         
         sc = StripeClient()
         
-        # create customer and charge id and then charge the customer
-        try:
-            customer = sc.create_customer(card=token, description=user.username,
-                                      email=user.email)
-        except stripe.StripeError as e:
-            raise StripelibError(e.message, e)
-            
-            
-        account = Account(host = PAYMENT_HOST_STRIPE,
-                          account_id = customer.id,
-                          card_last4 = customer.active_card.last4,
-                          card_type = customer.active_card.type,
-                          card_exp_month = customer.active_card.exp_month,
-                          card_exp_year = customer.active_card.exp_year,
-                          card_fingerprint = customer.active_card.fingerprint,
-                          card_country = customer.active_card.country,
-                          user = user
-                          )
-    
-        account.save()
+        # allow for the possibility that if token is None, just create a placeholder Account
+        
+        if token is not None:
+        
+            # create customer and charge id and then charge the customer
+            try:
+                customer = sc.create_customer(card=token, description=user.username,
+                                          email=user.email)
+            except stripe.StripeError as e:
+                raise StripelibError(e.message, e)
+                
+            account = Account(host = PAYMENT_HOST_STRIPE,
+                              account_id = customer.id,
+                              card_last4 = customer.active_card.last4,
+                              card_type = customer.active_card.type,
+                              card_exp_month = customer.active_card.exp_month,
+                              card_exp_year = customer.active_card.exp_year,
+                              card_fingerprint = customer.active_card.fingerprint,
+                              card_country = customer.active_card.country,
+                              user = user
+                              )
+        
+            account.save()
+        
+        else:
+            account = Account(host = PAYMENT_HOST_STRIPE, user= user)
+            account.save()
         
         return account
     

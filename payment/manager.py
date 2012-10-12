@@ -939,18 +939,28 @@ class PaymentManager( object ):
             logger.info("Pledge Error: %s" % p.error_string())
             return t, None
         
-    def make_account(self, user, token, host):
-        
+    def make_account(self, user, host, token=None):
         """delegate to a specific payment module the task of creating a payment account"""
+        
         mod = __import__("regluit.payment." + host, fromlist=[host])
-        return mod.Processor().make_account(user, token)
+        return mod.Processor().make_account(user=user, token=token)
+        
     def retrieve_accounts(self, user, host, include_deactivated=False):
         """return any accounts that match user, host -- only active ones by default"""
+        
         if include_deactivated:
             return Account.objects.filter(user=user, host=host)
         else:
             return Account.objects.filter(user=user, host=host, date_deactivated__isnull=True)
-        
+            
+    def retrieve_or_make_accounts(self, user, host, token=None, include_deactivated=False):
+        accounts = self.retrieve_accounts(user=user, host=host, include_deactivated=include_deactivated)
+        if len(accounts) > 0:
+            return (accounts, False)
+        else:
+            account = self.make_account(user=user, host=host, token=token)
+            return ((account,), True)
+
         
         
         
