@@ -32,10 +32,12 @@
     <h2 class="thank-you">Thank you!</h2>
     
 	<p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|intcomma }} to <I><a href="{% url work work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+
 	<div class="modify_notification clearfix">
 		<div>
 		Your pledge: ${{transaction.amount|intcomma}}.<br />
 		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
+		{% if transaction.anonymous %}You asked to pledge anonymously, so you will be counted but not named on the list of supporters.<br />{% endif %}
 		</div>
 	</div>
 
