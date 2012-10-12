@@ -314,8 +314,19 @@ class Account(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
     date_deactivated = models.DateTimeField(null=True)
     
-    # associated User
+    # associated User if any
     user = models.ForeignKey(User, null=True)
+    
+    def save(self, *args, **kwargs):
+        """Don't allow more than one active Account of given host to be associated with a given user"""
+        # https://www.pivotaltracker.com/story/show/37458303
+
+        if self.host is not None and self.user is not None and \
+           Account.objects.filter(host=self.host, user=self.user, date_deactivated__isnull=True).count():
+            raise Exception('Trying to create another active Account with host {0} for user {1}'.format(self.host, self.user))
+        else:
+            super(Account, self).save(*args, **kwargs) # Call the "real" save() method.
+            
     
 from django.db.models.signals import post_save, post_delete
 import regluit.payment.manager

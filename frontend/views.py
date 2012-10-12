@@ -788,7 +788,9 @@ class FundPledgeView(FormView):
         # if we get a stripe_token, create a new stripe account
         
         try:
-            account = p.make_account(transaction.user, stripe_token, host=transaction.host)
+            (accounts, created) = p.retrieve_or_make_accounts(user=transaction.user, host=transaction.host, token=stripe_token)
+            assert len(accounts) == 1  # only one active account/user at the moment
+            account = accounts[0]
             logger.info('account.id: {0}'.format(account.id))
         except baseprocessor.ProcessorError as e:
             return HttpResponse("baseprocessor.ProcessorError: {0}".format(e))
