@@ -290,6 +290,6 @@ MAINTENANCE_MODE = False
 MAINTENANCE_IGNORE_URLS = {}
 
 class NONPROFIT:
-    is_on = True
+    is_on = False
     name = 'Library Renewal'
     link = 'http://127.0.0.1:8000/donate_to_campaign/'
