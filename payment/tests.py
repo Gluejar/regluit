@@ -10,7 +10,7 @@ from django.utils import unittest
 from django.conf import settings
 from django.contrib.auth.models import User
 from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction
+from regluit.payment.models import Transaction, Account
 from regluit.core.models import Campaign, Wishlist, Work
 from regluit.core.signals import handle_transaction_charged
 from regluit.payment.parameters import *
@@ -387,6 +387,43 @@ class BasicGuiTest(TestCase):
     def tearDown(self):
         self.selenium.quit()
         
+
+class AccountTest(TestCase):
+    
+    def setUp(self):
+       # create a user
+        self.user1 = User.objects.create_user('account_test1', 'account_test1@gluejar.com', 'account_test1_pw')
+        self.user1.save()
+        self.user2 = User.objects.create_user('account_test2', 'account_test2@gluejar.com', 'account_test2_pw')
+        self.user2.save()
+        self.account1 = Account(host='host1', account_id='1', user=self.user1)
+        self.account1.save()
+        
+        self.account2 = Account(host='host1', account_id='2', user=self.user1)        
+ 
+    def test_constraint_at_most_one_active_account_per_user(self):
+        # https://www.pivotaltracker.com/story/show/37458303
+    
+        # hould not be allowed to save account2, which has same host and user
+        self.assertRaises(Exception, self.account2.save)
+    
+        # only 1 account left in total
+        self.assertEqual(Account.objects.count(),1)
+        
+    def test_payment_manager_retrieve_account(self):
+        pm = PaymentManager()
+        # test whether the retrieval process correct -- should add one for deactivated accounts
+        accts = pm.retrieve_accounts(host='host1', user=self.user1)
+        self.assertEqual(len(accts), 1)
+
+        accts = pm.retrieve_accounts(host='host1', user=self.user2)
+        self.assertEqual(len(accts), 0)
+        
+    def tearDown(self):
+        # shouldn't have to clean up account2
+        self.user1.delete()
+        self.user2.delete()
+        self.account1.delete()
 
 def suite():
 
