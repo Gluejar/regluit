@@ -270,7 +270,8 @@ span.menu-item-price {
 #authorize div.innards input:disabled {
   border-color: white;
 }
-#authorize div.innards input.address {
+#authorize div.innards input.address,
+#authorize div.innards input#card_Number {
   width: 61%;
 }
 #authorize div.innards label {
@@ -305,6 +306,9 @@ span.menu-item-price {
   font-weight: bold;
   font-size: 13px;
   text-align: center;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+  border-radius: 16px;
   width: auto;
   margin: auto;
 }
