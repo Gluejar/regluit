@@ -448,35 +448,31 @@ class Processor(baseprocessor.Processor):
     def make_account(self, user, token=None):
         """returns a payment.models.Account based on stripe token and user"""
         
+        if token == None:
+            # shouldn't happen
+            return None
+
         sc = StripeClient()
         
-        # allow for the possibility that if token is None, just create a placeholder Account
-        
-        if token is not None:
-        
-            # create customer and charge id and then charge the customer
-            try:
-                customer = sc.create_customer(card=token, description=user.username,
-                                          email=user.email)
-            except stripe.StripeError as e:
-                raise StripelibError(e.message, e)
-                
-            account = Account(host = PAYMENT_HOST_STRIPE,
-                              account_id = customer.id,
-                              card_last4 = customer.active_card.last4,
-                              card_type = customer.active_card.type,
-                              card_exp_month = customer.active_card.exp_month,
-                              card_exp_year = customer.active_card.exp_year,
-                              card_fingerprint = customer.active_card.fingerprint,
-                              card_country = customer.active_card.country,
-                              user = user
-                              )
-        
-            account.save()
-        
-        else:
-            account = Account(host = PAYMENT_HOST_STRIPE, user= user)
-            account.save()
+        # create customer and charge id and then charge the customer
+        try:
+            customer = sc.create_customer(card=token, description=user.username,
+                                      email=user.email)
+        except stripe.StripeError as e:
+            raise StripelibError(e.message, e)
+            
+        account = Account(host = PAYMENT_HOST_STRIPE,
+                          account_id = customer.id,
+                          card_last4 = customer.active_card.last4,
+                          card_type = customer.active_card.type,
+                          card_exp_month = customer.active_card.exp_month,
+                          card_exp_year = customer.active_card.exp_year,
+                          card_fingerprint = customer.active_card.fingerprint,
+                          card_country = customer.active_card.country,
+                          user = user
+                          )
+    
+        account.save()
         
         return account
     
@@ -507,13 +503,11 @@ class Processor(baseprocessor.Processor):
     
             # ASSUMPTION:  a user has any given moment one and only one active payment Account
     
-            if transaction.user.account_set.filter(date_deactivated__isnull=True).count() > 1:
-                logger.warning("user {0} has more than one active payment account".format(transaction.user))
-            elif transaction.user.account_set.filter(date_deactivated__isnull=True).count() == 0:
+            account = transaction.user.profile.account
+            if not account:
                 logger.warning("user {0} has no active payment account".format(transaction.user))
                 raise StripelibError("user {0} has no active payment account".format(transaction.user))
                     
-            account = transaction.user.account_set.filter(date_deactivated__isnull=True)[0]
             logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
             
             # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE

@@ -1008,6 +1008,15 @@ class UserProfile(models.Model):
     def pledge_count(self):
         return self.user.transaction_set.exclude(status='NONE').exclude(status='Canceled',reason=None).exclude(anonymous=True).count()
 
+    @property
+    def account(self):
+        # there should be only one active account per user
+        accounts = self.user.account_set.filter(date_deactivated__isnull=True)
+        if accounts.count()==0:
+            return None
+        else:
+            return accounts[0]
+    
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)

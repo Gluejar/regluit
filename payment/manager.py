@@ -567,7 +567,7 @@ class PaymentManager( object ):
                                 urllib.urlencode({'tid':transaction.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
-        p = transaction.get_payment_class().Preapproval(transaction, transaction.amount, expiry, return_url=return_url, paymentReason=paymentReason) 
+        p = transaction.get_payment_class().Preapproval(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
@@ -960,16 +960,6 @@ class PaymentManager( object ):
         else:
             return Account.objects.filter(user=user, host=host, date_deactivated__isnull=True)
             
-    def retrieve_or_make_accounts(self, user, host, token=None, include_deactivated=False):
-        accounts = self.retrieve_accounts(user=user, host=host, include_deactivated=include_deactivated)
-        num_acct=len(accounts)
-        if num_acct == 1:
-            return (accounts, False)
-        elif num_acct > 1:
-            return ((accounts[num_acct-1],), False)        
-        else:
-            account = self.make_account(user=user, host=host, token=token)
-            return ((account,), True)
 
         
         
