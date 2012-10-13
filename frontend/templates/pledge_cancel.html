@@ -10,9 +10,11 @@
 {% block doccontent %}
 
 {% if error %}
+<h2>Error</h2>
    {{error}}
 {% else %}
 {% if transaction %}
+<h2>Pledge Canceled</h2>
     <div>You have asked to cancel your pledge of ${{ transaction.amount|intcomma }} to <a href="{% url work work.id %}">{{ work.title }}</a>. </div>
     
     <form method="post" action="{% url pledge_cancel campaign_id=campaign.id %}">
