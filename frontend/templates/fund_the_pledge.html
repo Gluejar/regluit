@@ -198,10 +198,12 @@ $j().ready(function() {
 	    The last four digits of the card are {{ request.user.profile.account.card_last4 }}. 
 	    </p>
 	    <form action="#" method="POST" id="use-account-form">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            {{ form.as_p }}	
-            <input id="use_account_submit" name="use_account" type="submit" class="submit-button" value="Complete Pledge" />            
+            <div class="innards">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.as_p }}	
+                <input id="use_account_submit" name="use_account" type="submit" class="submit-button" value="Complete Pledge" /> 
+            </div>           
         </form>
 	    {% else %}
 	    <p>Unglue.it uses <a href="https://stripe.com/">Stripe</a> to securely manage your credit card information.
