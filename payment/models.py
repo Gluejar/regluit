@@ -136,7 +136,7 @@ class Transaction(models.Model):
             self.ack_name = pledge_extra.ack_name
             self.ack_dedication = pledge_extra.ack_dedication
 
-    def get_pledge_extra(self, pledge_extra):
+    def get_pledge_extra(self):
         class pe:
             premium=self.premium
             anonymous=self.anonymous
