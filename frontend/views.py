@@ -812,8 +812,10 @@ class FundPledgeView(FormView):
         # BUGBUG:  Make sure we are testing properly for successful authorization properly here  
         if url is not None:
             return HttpResponseRedirect(url)
-        else:
+        elif settings.DEBUG:
             return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
+        else:
+            raise Http404
 
         
 class NonprofitCampaign(FormView):
