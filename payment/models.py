@@ -87,7 +87,18 @@ class Transaction(models.Model):
     
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)
-    
+
+    @property
+    def tier(self):
+        if self.amount < 25:
+            return 0
+        if self.amount < 50:
+            return 1
+        if self.amount < 100:
+            return 2
+        else:
+            return 3
+            
     @property
     def ack_link(self):
         return 'https://unglue.it/supporter/%s'%urllib.urlencode(self.user.username) if not self.anonymous else ''
