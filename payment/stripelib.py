@@ -42,6 +42,7 @@ try:
     logger.info('Successful loading of STRIPE_*_KEYs')
 except Exception, e:
     # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
+    logger.info('Exception {0} Need to use TEST STRIPE_*_KEYs'.format(e))
     STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
     STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
     
