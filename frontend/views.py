@@ -798,8 +798,8 @@ class FundPledgeView(FormView):
         # GOAL: deactivate any older accounts associated with user
         
         # with the Account in hand, now authorize transaction
-        transaction.amount = preapproval_amount
         t, url = p.authorize(transaction)
+        self.transaction.max_amount = preapproval_amount
         logger.info("t, url: {0} {1}".format(t, url))
         
         # redirecting user to pledge_complete on successful preapproval (in the case of stripe)

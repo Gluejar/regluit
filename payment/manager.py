@@ -567,7 +567,7 @@ class PaymentManager( object ):
                                 urllib.urlencode({'tid':transaction.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL, return_path)
         
-        p = transaction.get_payment_class().Preapproval(transaction, transaction.amount, expiry, return_url=return_url, paymentReason=paymentReason) 
+        p = transaction.get_payment_class().Preapproval(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
          # Create a response for this
         envelope = p.envelope()
