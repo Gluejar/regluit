@@ -783,6 +783,10 @@ class FundPledgeView(FormView):
         
         logger.info('stripe_token:{0}, preapproval_amount:{1}'.format(stripe_token, preapproval_amount))
 
+        if self.transaction.user.id != self.request.user.id:
+            # trouble!
+            return render(request, "pledge_user_error.html", {'transaction': self.transaction }) 
+
         p = PaymentManager()
         
         # if we get a stripe_token, create a new stripe account
