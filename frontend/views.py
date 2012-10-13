@@ -660,6 +660,8 @@ class PledgeView(FormView):
                     'ack_name':ack_name, 'ack_dedication':ack_dedication, 'anonymous':anonymous}
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
+            if not self.request.POST.has_key('anonymous'):
+                del self.data['anonymous']
             return {'data':self.data}
         else:
             return {'initial':self.data}
