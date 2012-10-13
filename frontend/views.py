@@ -660,6 +660,12 @@ class PledgeView(FormView):
                     'ack_name':ack_name, 'ack_dedication':ack_dedication, 'anonymous':anonymous}
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
+            if not self.request.POST.has_key('anonymous'):
+                del self.data['anonymous']
+            if not self.request.POST.has_key('ack_name'):
+                del self.data['ack_name']
+            if not self.request.POST.has_key('ack_dedication'):
+                del self.data['ack_dedication']
             return {'data':self.data}
         else:
             return {'initial':self.data}
@@ -806,8 +812,10 @@ class FundPledgeView(FormView):
         # BUGBUG:  Make sure we are testing properly for successful authorization properly here  
         if url is not None:
             return HttpResponseRedirect(url)
-        else:
+        elif settings.DEBUG:
             return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
+        else:
+            raise Http404
 
         
 class NonprofitCampaign(FormView):

@@ -728,7 +728,14 @@ class PaymentManager( object ):
         '''
         
         logger.info("transaction.id: {0}, amount:{1}".format(transaction.id, amount))
-        
+        if amount < transaction.amount:
+            up_or_down = "decreased"
+        elif amount > transaction.amount:
+            up_or_down =  "increased"
+        else:
+            up_or_down =  "modified"
+
+
         # if expiry is None, use the existing value          
         if expiry is None:
             expiry = transaction.date_expired
@@ -758,7 +765,7 @@ class PaymentManager( object ):
                 return_url = urlparse.urljoin(settings.BASE_URL, return_path)
                 
                 logger.info("Updated amount of transaction to %f" % amount)
-                pledge_modified.send(sender=self, transaction=transaction,up_or_down="decreased" if amount-transaction.amount<0 else "increased")
+                pledge_modified.send(sender=self, transaction=transaction,up_or_down=up_or_down)
                 return transaction, return_url
             else:
                 # cancel old transaction, send user to choose new payment path
@@ -826,10 +833,10 @@ class PaymentManager( object ):
             
             transaction.save()
             logger.info("Updated amount of transaction to %f" % amount)
-            # since modifying pledges downwards happens immediately and only within our
-            # db, we don't have to wait until we hear back from amazon to be assured of
+            # when modifying pledges happens immediately and only within our
+            # db, we don't have to wait until we hear back to be assured of
             # success; send the notification immediately
-            pledge_modified.send(sender=self, transaction=transaction, up_or_down="decreased")
+            pledge_modified.send(sender=self, transaction=transaction, up_or_down=up_or_down)
             return True, None
         else:
             # this shouldn't happen

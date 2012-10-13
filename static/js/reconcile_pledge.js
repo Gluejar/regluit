@@ -91,14 +91,14 @@ $j().ready(function() {
 	var anonymizeName = function() {
 		deactivate('ack_name');
 		$j('#id_ack_name').val('Anonymous');
-		// clicking the anonbox should disable name field, but not render
-		// anonbox impossible to click again!
-		$j('#id_anonymous').removeAttr('disabled');
 	}
 	
 	// selectively highlight/grey out acknowledgements supporter is eligible for
 	var rectifyAcknowledgements = function(current) {
 		var anon = anonbox.prop("checked");
+		if (!current) {
+		    current = 0	;
+		}
 		if (current < 25) {
 			deactivate('ack_name');
 			deactivateLink();
@@ -139,16 +139,10 @@ $j().ready(function() {
 	// initialize the acknowledgements fields. if we've prefilled the pledge info,
 	// use that.
 	current = inputbox.val();
-	if (current) {
-		rectifyAcknowledgements(current);
-	} else {
-		rectifyAcknowledgements(0);
-	}
 	if (ackAnon == 'True') {
-		anonymizeName();
-		deactivateLink();
 		anonbox.prop("checked", true);
 	}
+	rectifyAcknowledgements(current);
 
 	// when user clicks a premium, ensure it is compatible with the pledge box amount
 	// if pledge box was empty, assume they wanted value of premium
@@ -207,10 +201,4 @@ $j().ready(function() {
 		acks['ack_dedication'] = $j(this).val();
 	});
 	
-	// input boxes must be enabled for values to be submitted
-	// we may have disabled them to prevent users from entering non-permitted values
-	// so re-enable all on submit
-	submitbutton.on("click", function() {
-		$j('#mandatory_premiums input').removeAttr('disabled');
-	});
 });
