@@ -303,7 +303,7 @@ class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
         min_value=D('1.00'),
-        max_value=D('10000.00'), 
+        max_value=D('2000.00'), 
         decimal_places=2, 
         label="Pledge Amount",
     )
@@ -339,17 +339,13 @@ class CampaignPledgeForm(forms.Form):
         
     def clean(self):
         # check on whether the preapproval amount is < amount for premium tier. If so, put an error message
-        try:
-            preapproval_amount = self.cleaned_data.get("preapproval_amount")
-            logger.info("preapproval_amount: {0}, premium_id: {1}, premium_amount:{2}".format(preapproval_amount, self.premium.id, self.premium.amount))
-            if preapproval_amount < self.premium.amount:
-                logger.info("raising form validating error")
-                raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
-
-        except Exception, e:
-            if isinstance(e, forms.ValidationError):
-                raise e
-            
+        preapproval_amount = self.cleaned_data.get("preapproval_amount")
+        if preapproval_amount is None:
+            # preapproval_amount failed validation, that error is the relevant one
+            return self.cleaned_data
+        elif preapproval_amount < self.premium.amount:
+            logger.info("raising form validating error")
+            raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
         return self.cleaned_data
 
 class CCForm(forms.Form):
