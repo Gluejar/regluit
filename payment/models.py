@@ -109,7 +109,7 @@ class Transaction(models.Model):
         super(Transaction, self).save(*args, **kwargs) # Call the "real" save() method.
     
     def __unicode__(self):
-        return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \treference: %s\n \terror: %s\n" % (self.status, str(self.amount),  self.error)
+        return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \terror: %s\n" % (self.status, str(self.amount),  self.error)
     
     def create_receivers(self, receiver_list):
         
