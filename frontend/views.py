@@ -728,7 +728,7 @@ class FundPledgeView(FormView):
         assert self.request.user.is_authenticated()
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
-        
+
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
         else:
@@ -765,53 +765,37 @@ class FundPledgeView(FormView):
     
     def form_valid(self, form):
         """ note desire to pledge; make sure there is a credit card to charge"""
-        
-        # first pass -- we have a token  -- also do more direct coupling to stripelib -- then move to
-        # abstraction of payment.manager / payment.baseprocessor
-        
-        # we should getting a stripe_token only if we had asked for CC data
-        
-        # BUGBUG -- don't know whether transaction.host should be None -- but if it is, set to the
-        # default processor
-        
-        transaction = self.transaction
-        if transaction.host is None or transaction.host == PAYMENT_HOST_NONE:
-            transaction.host = settings.PAYMENT_PROCESSOR
-            
-        stripe_token = form.cleaned_data["stripe_token"]
-        preapproval_amount = form.cleaned_data["preapproval_amount"]
-        
-        logger.info('stripe_token:{0}, preapproval_amount:{1}'.format(stripe_token, preapproval_amount))
 
         if self.transaction.user.id != self.request.user.id:
             # trouble!
             return render(request, "pledge_user_error.html", {'transaction': self.transaction }) 
 
         p = PaymentManager()
-        
-        # if we get a stripe_token, create a new stripe account
-        
-        try:
-            (accounts, created) = p.retrieve_or_make_accounts(user=transaction.user, host=transaction.host, token=stripe_token)
-            assert len(accounts) == 1  # only one active account/user at the moment
-            account = accounts[0]
-            logger.info('account.id: {0}'.format(account.id))
-        except baseprocessor.ProcessorError as e:
-            return HttpResponse("baseprocessor.ProcessorError: {0}".format(e))
-        
-        # GOAL: deactivate any older accounts associated with user
+
+        # if the user has  active account, use it. Otherwise...
+        if not self.request.user.profile.account:
+            stripe_token = form.cleaned_data["stripe_token"]
+            # if we get a stripe_token, create a new stripe account for the user
+            if stripe_token:
+                try:
+                    p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
+                except baseprocessor.ProcessorError as e:
+                    return HttpResponse("There was an error processing your credit card")
+            
+        self.transaction.host = settings.PAYMENT_PROCESSOR
+            
+        preapproval_amount = form.cleaned_data["preapproval_amount"]
         
         # with the Account in hand, now authorize transaction
-        t, url = p.authorize(transaction)
         self.transaction.max_amount = preapproval_amount
+        t, url = p.authorize(self.transaction)
         logger.info("t, url: {0} {1}".format(t, url))
         
         # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
-        # BUGBUG:  Make sure we are testing properly for successful authorization properly here  
         if url is not None:
             return HttpResponseRedirect(url)
         else:
-            return HttpResponse("preapproval_key: {0}".format(transaction.preapproval_key))
+            return render(request, "pledge_card_error.html", {'transaction': self.transaction }) 
 
         
 class NonprofitCampaign(FormView):

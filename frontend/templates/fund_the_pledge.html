@@ -193,7 +193,18 @@ $j().ready(function() {
     {% endif %}
 	<div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
 	    <h3>Pledge by Credit Card</h3>
-	    <p>Unglue.it uses Stripe to securely manage your Credit Card information.
+	    {% if request.user.profile.account %}
+	    <p>Unglue.it has a {{ request.user.profile.account.card_type }} credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
+	    The last four digits of the card are {{ request.user.profile.account.card_last4 }}. 
+	    </p>
+	    <form action="#" method="POST" id="use-account-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {{ form.as_p }}	
+            <input id="use_account_submit" name="use_account" type="submit" class="submit-button" value="Complete Pledge" />            
+        </form>
+	    {% else %}
+	    <p>Unglue.it uses <a href="https://stripe.com/">Stripe</a> to securely manage your credit card information.
 	    </p>
 	    <div id="cc_pledge">
             <form action="" method="POST" id="payment-form">
@@ -252,6 +263,7 @@ $j().ready(function() {
 
             </form>
 	    </div>
+	    {% endif %}
 	</div>
 
 	</div>
