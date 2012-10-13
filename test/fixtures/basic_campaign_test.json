@@ -1,0 +1,194 @@
+[{
+    "pk": 1, 
+    "model": "auth.user", 
+    "fields": {
+      "username": "RaymondYee", 
+      "first_name": "Raymond", 
+      "last_name": "Yee", 
+      "is_active": true, 
+      "is_superuser": true, 
+      "is_staff": true, 
+      "last_login": "2012-10-12T22:58:33", 
+      "groups": [], 
+      "user_permissions": [], 
+      "password": "pbkdf2_sha256$10000$zc7vkOO4vlqP$s1w18zWhceosicKg9mWDkrctFs0SPy4iPVHIrzoMJBg=", 
+      "email": "raymond.yee@gmail.com", 
+      "date_joined": "2012-10-12T22:58:33"
+    }
+},
+{
+    "pk": 1, 
+    "model": "core.userprofile", 
+    "fields": {
+      "goodreads_auth_secret": null, 
+      "goodreads_user_name": null, 
+      "created": "2012-10-12T22:58:33", 
+      "tagline": "", 
+      "twitter_id": "", 
+      "goodreads_user_id": null, 
+      "goodreads_auth_token": null, 
+      "goodreads_user_link": null, 
+      "user": 1, 
+      "facebook_id": null, 
+      "librarything_id": "", 
+      "home_url": "", 
+      "pic_url": "", 
+      "badges": []
+    }
+},
+  {
+    "pk": 1, 
+    "model": "core.wishlist", 
+    "fields": {
+      "user": 1, 
+      "created": "2012-10-12T23:17:16"
+    }
+  },
+    {
+    "pk": 1, 
+    "model": "core.identifier", 
+    "fields": {
+      "edition": 1, 
+      "work": 1, 
+      "type": "goog", 
+      "value": "eGdLbRZ5AX0C"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.identifier", 
+    "fields": {
+      "edition": 1, 
+      "work": 1, 
+      "type": "isbn", 
+      "value": "9781590598580"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.work", 
+    "fields": {
+      "description": "", 
+      "language": "en", 
+      "title": "Pro Web 2.0 Mashups", 
+      "created": "2012-10-12T23:27:53", 
+      "openlibrary_lookup": null, 
+      "num_wishes": 1
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.author", 
+    "fields": {
+      "editions": [
+        1
+      ], 
+      "name": "Raymond Yee", 
+      "created": "2012-10-12T23:27:53"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.edition", 
+    "fields": {
+      "publisher": "Apress", 
+      "title": "Pro Web 2.0 Mashups", 
+      "work": 1, 
+      "created": "2012-10-12T23:27:53", 
+      "public_domain": null, 
+      "cover_image": null, 
+      "publication_date": "2008-03-07", 
+      "unglued": false
+    }
+  },
+  {
+    "pk": 1, 
+    "model": "core.wishes", 
+    "fields": {
+      "source": "user", 
+      "work": 1, 
+      "wishlist": 1, 
+      "created": "2012-10-12T23:27:53"
+    }
+  },
+  {
+    "pk": 1, 
+    "model": "core.claim", 
+    "fields": {
+      "work": 1, 
+      "status": "active", 
+      "rights_holder": 1, 
+      "user": 1, 
+      "created": "2012-10-12T23:46:16"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.rightsholder", 
+    "fields": {
+      "owner": 1, 
+      "email": "raymond.yee@gmail.com", 
+      "rights_holder_name": "Raymond Yee", 
+      "created": "2012-10-12T23:45:07"
+    }
+  },
+  {
+    "pk": 151, 
+    "model": "core.premium", 
+    "fields": {
+      "description": "Premium Level 1", 
+      "campaign": 1, 
+      "created": "2012-10-12T23:49:47", 
+      "amount": "10", 
+      "limit": 0, 
+      "type": "CU"
+    }
+  }, 
+  {
+    "pk": 152, 
+    "model": "core.premium", 
+    "fields": {
+      "description": "Premium Level 2", 
+      "campaign": 1, 
+      "created": "2012-10-12T23:50:04", 
+      "amount": "25", 
+      "limit": 0, 
+      "type": "CU"
+    }
+  }, 
+  {
+    "pk": 153, 
+    "model": "core.premium", 
+    "fields": {
+      "description": "Premium level 3", 
+      "campaign": 1, 
+      "created": "2012-10-12T23:50:26", 
+      "amount": "2000", 
+      "limit": 2, 
+      "type": "CU"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.campaign", 
+    "fields": {
+      "status": "ACTIVE", 
+      "managers": [
+        1
+      ], 
+      "description": "<p>\r\n\tTEST DESCRIPTION</p>\r\n", 
+      "license": "CC BY-NC-SA", 
+      "created": "2012-10-12T23:48:05", 
+      "paypal_receiver": "raymond.yee@gmail.com", 
+      "work": 1, 
+      "activated": null, 
+      "name": "Pro Web 2.0 Mashups", 
+      "edition": null, 
+      "amazon_receiver": "", 
+      "deadline": "2013-04-10T23:59:00", 
+      "details": "<p>\r\n\tTEST EDITION/RIGHTS DETAILS</p>\r\n", 
+      "left": "5000.00", 
+      "target": "5000.00"
+    }
+  }  
+]
