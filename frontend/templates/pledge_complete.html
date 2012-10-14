@@ -37,7 +37,7 @@
 		<div>
 		Your pledge: ${{transaction.amount|intcomma}}.<br />
 		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
-		{% if transaction.anonymous %}You want your pledge to be anonymous.<br />{% endif %}<br />
+		{% if transaction.anonymous %}You asked to pledge anonymously, so you will be counted but not named on the list of supporters.<br />{% endif %}<br />
 		Acknowledgements: <ul>
 		<li>The unglued ebook will be delivered to your inbox.</li>
 	{% if not transaction.anonymous %}
