@@ -1,3 +1,4 @@
+{% load humanize %}
 Amount pledged: ${{ transaction.amount|intcomma }}
 Premium: {{ transaction.premium.description }}
 

@@ -8,7 +8,8 @@ You will not be acknowledged in the unglued ebook.
 
 Your new pledge summary
 {% include "notification/pledge_summary.txt" %}    
-    
+{% endif %}
+
 If you'd like to visit the campaign page or make changes, click here: 
 https://{{site.domain}}{% url work transaction.campaign.work.id %}
 
