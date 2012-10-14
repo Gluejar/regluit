@@ -2,7 +2,14 @@
 {% block title %}Your Unglue.it Account{% endblock %}
 {% block doccontent %}
 <h2>Your Pledges</h2>
-
+<dl>
+{% for transaction in request.user.profile.pledges %}
+    <dt><i><a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</i></a> (<a href="{% url pledge_modify transaction.campaign.work.id %}">modify pledge</a>)</dt>
+    <dd>
+	{% include "trans_summary.html" %}
+    </dd>
+{% endfor %}
+</dl>
 <h2>Your Payment Info</h2>
 
 <h2> Other Account Management Tools </h2>
