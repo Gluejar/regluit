@@ -643,7 +643,7 @@ class PledgeView(FormView):
             raise e
 
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
-        premium_id = self.request.REQUEST.get('premium_id', None)
+        premium_id = self.request.REQUEST.get('premium_id', 150)
         if transactions.count() == 0:
             ack_name=''
             ack_dedication=''
