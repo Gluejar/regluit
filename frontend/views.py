@@ -1446,7 +1446,9 @@ def edit_user(request):
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  
 
-
+class ManageAccount(TemplateView):
+    template_name="manage_account.html"
+    
 def search(request):
     q = request.GET.get('q', None)
     page = int(request.GET.get('page', 1))

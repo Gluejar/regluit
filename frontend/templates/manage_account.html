@@ -1,0 +1,15 @@
+{% extends "basedocumentation.html" %}
+{% block title %}Your Unglue.it Account{% endblock %}
+{% block doccontent %}
+<h2>Your Pledges</h2>
+
+<h2>Your Payment Info</h2>
+
+<h2> Other Account Management Tools </h2>
+<ul>
+<li>Want to <a href="{% url auth_password_change %}">change your password</a>?</li>
+<li>Want to <a href="/accounts/edit/">change your username or email address</a>?</li>
+</ul>
+{% endblock %}
+
+

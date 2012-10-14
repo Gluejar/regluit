@@ -10,7 +10,7 @@ from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -18,6 +18,7 @@ urlpatterns = patterns(
     url(r"^landing/$", "home", {'landing': True}, name="landing"),
     url(r"^next/$", "next", name="next"),
     url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
+    url(r"^accounts/manage/$", login_required(ManageAccount.as_view()), name="manage_account"),
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
