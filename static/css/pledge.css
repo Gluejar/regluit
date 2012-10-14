@@ -259,7 +259,7 @@ span.menu-item-price {
 #authorize.off {
   display: none;
 }
-#authorize div.innards input {
+#authorize div.innards input[type="text"] {
   font-size: 15px;
   line-height: 22.5px;
   border-width: 2px;
@@ -267,11 +267,11 @@ span.menu-item-price {
   margin: 1% 0;
   color: #3d4e53;
 }
-#authorize div.innards input:disabled {
+#authorize div.innards input[type="text"]:disabled {
   border-color: white;
 }
-#authorize div.innards input.address,
-#authorize div.innards input#card_Number {
+#authorize div.innards input[type="text"].address,
+#authorize div.innards input[type="text"]#card_Number {
   width: 61%;
 }
 #authorize div.innards label {
