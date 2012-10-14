@@ -17,6 +17,42 @@
     }
 },
 {
+  "pk": 2, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "hmelville", 
+    "first_name": "Hermann", 
+    "last_name": "Melville", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2012-10-14T10:06:11", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$10000$GCt0LGDcpeDI$7XMz81+zL9XsmDRMTVHAbzLfKHOwp7SYCdOzOdTP0EA=", 
+    "email": "rdhyee@yahoo.com", 
+    "date_joined": "2012-10-14T09:57:15"
+  }
+}, 
+{
+  "pk": 3, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "dataunbound", 
+    "first_name": "Data", 
+    "last_name": "Unbound", 
+    "is_active": true, 
+    "is_superuser": false, 
+    "is_staff": false, 
+    "last_login": "2012-10-14T10:03:43", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$10000$sILqnpDfTw8Z$djqLomeFeVJIEEqAbp+YqXVOVKI0onS6OwJvpiTEe2g=", 
+    "email": "raymond.yee@dataunbound.com", 
+    "date_joined": "2012-10-14T10:03:43"
+  }
+},
+{
     "pk": 1, 
     "model": "core.userprofile", 
     "fields": {
@@ -37,6 +73,76 @@
     }
 },
   {
+    "pk": 2, 
+    "model": "core.userprofile", 
+    "fields": {
+      "goodreads_auth_secret": null, 
+      "goodreads_user_name": null, 
+      "created": "2012-10-14T09:57:15", 
+      "tagline": "", 
+      "twitter_id": "", 
+      "goodreads_user_id": null, 
+      "goodreads_auth_token": null, 
+      "goodreads_user_link": null, 
+      "user": 2, 
+      "facebook_id": null, 
+      "librarything_id": "", 
+      "home_url": "", 
+      "pic_url": "", 
+      "badges": []
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.userprofile", 
+    "fields": {
+      "goodreads_auth_secret": null, 
+      "goodreads_user_name": null, 
+      "created": "2012-10-14T10:03:43", 
+      "tagline": "", 
+      "twitter_id": "", 
+      "goodreads_user_id": null, 
+      "goodreads_auth_token": null, 
+      "goodreads_user_link": null, 
+      "user": 3, 
+      "facebook_id": null, 
+      "librarything_id": "", 
+      "home_url": "", 
+      "pic_url": "", 
+      "badges": []
+    }
+  },
+  {
+    "pk": 1, 
+    "model": "payment.credit", 
+    "fields": {
+      "last_activity": "2012-10-14T09:51:07", 
+      "pledged": "0.00", 
+      "balance": "0.00", 
+      "user": 1
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "payment.credit", 
+    "fields": {
+      "last_activity": "2012-10-14T09:57:15", 
+      "pledged": "0.00", 
+      "balance": "0.00", 
+      "user": 2
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "payment.credit", 
+    "fields": {
+      "last_activity": "2012-10-14T10:03:43", 
+      "pledged": "0.00", 
+      "balance": "0.00", 
+      "user": 3
+    }
+  },
+  {
     "pk": 1, 
     "model": "core.wishlist", 
     "fields": {
@@ -44,7 +150,23 @@
       "created": "2012-10-12T23:17:16"
     }
   },
-    {
+  {
+    "pk": 2, 
+    "model": "core.wishlist", 
+    "fields": {
+      "user": 2, 
+      "created": "2012-10-14T09:57:15"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.wishlist", 
+    "fields": {
+      "user": 3, 
+      "created": "2012-10-14T10:03:43"
+    }
+  },   
+  {
     "pk": 1, 
     "model": "core.identifier", 
     "fields": {
@@ -62,6 +184,60 @@
       "work": 1, 
       "type": "isbn", 
       "value": "9781590598580"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.identifier", 
+    "fields": {
+      "edition": 2, 
+      "work": 2, 
+      "type": "goog", 
+      "value": "d4VNAAAAYAAJ"
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "core.identifier", 
+    "fields": {
+      "edition": 3, 
+      "work": 3, 
+      "type": "goog", 
+      "value": "nWtuhNK4aJQC"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "core.identifier", 
+    "fields": {
+      "edition": 3, 
+      "work": 3, 
+      "type": "isbn", 
+      "value": "9780486259925"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.work", 
+    "fields": {
+      "description": "", 
+      "language": "en", 
+      "title": "Mass in B Minor in Full Score", 
+      "created": "2012-10-14T10:01:54", 
+      "openlibrary_lookup": null, 
+      "num_wishes": 1
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.work", 
+    "fields": {
+      "description": "", 
+      "language": "en", 
+      "title": "Moby Dick", 
+      "created": "2012-10-14T09:54:17", 
+      "openlibrary_lookup": null, 
+      "num_wishes": 1
     }
   }, 
   {
@@ -88,6 +264,28 @@
     }
   }, 
   {
+    "pk": 2, 
+    "model": "core.author", 
+    "fields": {
+      "editions": [
+        2
+      ], 
+      "name": "Herman Melville", 
+      "created": "2012-10-14T09:54:17"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.author", 
+    "fields": {
+      "editions": [
+        3
+      ], 
+      "name": "Johann Sebastian Bach", 
+      "created": "2012-10-14T10:01:54"
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "core.edition", 
     "fields": {
@@ -100,7 +298,61 @@
       "publication_date": "2008-03-07", 
       "unglued": false
     }
-  },
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.edition", 
+    "fields": {
+      "publisher": "Scribner", 
+      "title": "Moby Dick", 
+      "work": 2, 
+      "created": "2012-10-14T09:54:17", 
+      "public_domain": null, 
+      "cover_image": null, 
+      "publication_date": "1902", 
+      "unglued": false
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.edition", 
+    "fields": {
+      "publisher": "Courier Dover Publications", 
+      "title": "Mass in B Minor in Full Score", 
+      "work": 3, 
+      "created": "2012-10-14T10:01:54", 
+      "public_domain": null, 
+      "cover_image": null, 
+      "publication_date": "1989-06-01", 
+      "unglued": false
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.ebook", 
+    "fields": {
+      "rights": null, 
+      "url": "http://books.google.com/books/download/Moby_Dick.epub?id=d4VNAAAAYAAJ&hl=&output=epub&source=gbs_api", 
+      "format": "epub", 
+      "created": "2012-10-14T09:54:17", 
+      "edition": 2, 
+      "user": null, 
+      "provider": "Google Books"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.ebook", 
+    "fields": {
+      "rights": null, 
+      "url": "http://books.google.com/books/download/Moby_Dick.pdf?id=d4VNAAAAYAAJ&hl=&output=pdf&sig=ACfU3U0oQ2JJmHz_veHQ5VITrYSGftNMyg&source=gbs_api", 
+      "format": "pdf", 
+      "created": "2012-10-14T09:54:17", 
+      "edition": 2, 
+      "user": null, 
+      "provider": "Google Books"
+    }
+  }, 
   {
     "pk": 1, 
     "model": "core.wishes", 
@@ -110,7 +362,27 @@
       "wishlist": 1, 
       "created": "2012-10-12T23:27:53"
     }
-  },
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.wishes", 
+    "fields": {
+      "source": "user", 
+      "work": 2, 
+      "wishlist": 1, 
+      "created": "2012-10-14T09:54:45"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.wishes", 
+    "fields": {
+      "source": "user", 
+      "work": 3, 
+      "wishlist": 1, 
+      "created": "2012-10-14T10:01:57"
+    }
+  }, 
   {
     "pk": 1, 
     "model": "core.claim", 
@@ -123,6 +395,17 @@
     }
   }, 
   {
+    "pk": 2, 
+    "model": "core.claim", 
+    "fields": {
+      "work": 2, 
+      "status": "active", 
+      "rights_holder": 2, 
+      "user": 2, 
+      "created": "2012-10-14T10:07:33"
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "core.rightsholder", 
     "fields": {
@@ -131,7 +414,29 @@
       "rights_holder_name": "Raymond Yee", 
       "created": "2012-10-12T23:45:07"
     }
-  },
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.rightsholder", 
+    "fields": {
+      "owner": 2, 
+      "email": "rdhyee@gluejar.com", 
+      "rights_holder_name": "Herman Melville", 
+      "created": "2012-10-14T10:07:18"
+    }
+  }, 
+  {
+    "pk": 150, 
+    "model": "core.premium", 
+    "fields": {
+      "description": "No premium, thanks!  I just want to help unglue.", 
+      "campaign": null, 
+      "created": "2011-11-17T22:03:37", 
+      "amount": "0", 
+      "limit": 0, 
+      "type": "00"
+    }
+  }, 
   {
     "pk": 151, 
     "model": "core.premium", 
@@ -168,7 +473,7 @@
       "type": "CU"
     }
   }, 
-  {
+   {
     "pk": 1, 
     "model": "core.campaign", 
     "fields": {
@@ -190,5 +495,28 @@
       "left": "5000.00", 
       "target": "5000.00"
     }
-  }  
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.campaign", 
+    "fields": {
+      "status": "ACTIVE", 
+      "managers": [
+        2
+      ], 
+      "description": "<p>\r\n\tUnfree the WHALE AGAIN!</p>\r\n", 
+      "license": "CC0", 
+      "created": "2012-10-14T10:08:35", 
+      "paypal_receiver": "rdhyee@gluejar.com", 
+      "work": 2, 
+      "activated": null, 
+      "name": "Moby Dick", 
+      "edition": null, 
+      "amazon_receiver": "", 
+      "deadline": "2013-04-12T23:59:00", 
+      "details": "<p>\r\n\tThe book is already in the public domain, but let&#39;s do this again.</p>\r\n", 
+      "left": "15000.00", 
+      "target": "15000.00"
+    }
+  }
 ]
