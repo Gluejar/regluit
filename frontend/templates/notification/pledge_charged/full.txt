@@ -6,37 +6,15 @@ Pledge Summary
 Amount pledged: ${{ transaction.amount|intcomma }}
 Premium: {{ transaction.premium.description }} 
 
-{% ifequal transaction.tier 1 %}
-    {% if transaction.anonymous %}
-        You chose to pledge anonymously, so you will not be named in the acknowledgements section.
-    {% else %}
-        You will also be listed on the acknowledgements page as {{ transaction.ack_name }}.
-    {% endif %}
-{% else %}{% ifequal transaction.tier 2 %}
-    {% if transaction.anonymous %}
-        You chose to pledge anonymously, so you will not be named in the acknowledgements section.
-    {% else %}
-        You will also be listed on the acknowledgements page as {{ transaction.ack_name }}, with a link to your Unglue.it profile page.
-        {% endif %}
-{% else %}{% ifequal transaction.tier 3 %}
-    {% if transaction.anonymous %}
-    You chose to pledge anonymously, so you will not be named in the acknowledgements section.
-        {% if transaction.ack_dedication %}
-            However, the acknowledgements page will include the following dedication, attributed to Anonymous:
-            "{{ transaction.ack_dedication }}"
-        {% else %}
-            You are eligible to include a dedication, but did not opt to do so.  If you'd like to, you can add one (attributed to Anonymous) at https://{{ site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
-        {% endif %}
-    {% else %}
-        You will also be listed on the acknowledgements page as {{ transaction.ack_name }}, with a link to your profile page.
-            {% if transaction.ack_dedication %}
-                Your acknowledgement will include the following dedication:
-                "{{ transaction.ack_dedication }}"
-            {% else %}
-                You are eligible to include a dedication, but did not opt to do so.  If you'd like to, you can add one at https://{{ site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
-            {% endif %}
-    {% endif %}
-{% endifequal %}{% endifequal %}{% endifequal %}
+You will also be acknowledged as follows:
+- The unglued ebook will be delivered to your inbox.{% if not transaction.anonymous %}{% ifequal transaction.tier 1  %}
+- You will be listed in the ebook as a Supporter using the name "{{ transaction.ack_name }}".{% endifequal %}{% ifequal transaction.tier 2  %}
+- You will be listed in the ebook as a Benefactor using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% ifequal transaction.tier 3 %}
+- You will be listed in the ebook as a Bibliophile using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% endif %}{% ifequal transaction.tier 3 %}{% if transaction.ack_dedication %}
+- The following dedication will be included in the ebook: 
+    {{ transaction.ack_dedication }}{% else %}
+- You were eligible to include a dedication in the unglued ebook, but did not choose to do so.  If you like, you can change this at https://{{ site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
+{% endif %}{% endifequal %}
 
 We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 

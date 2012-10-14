@@ -3,15 +3,17 @@ Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ trans
 
 Pledge summary
 Amount pledged: ${{ transaction.amount|intcomma }}
-Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}
+Premium: {{ transaction.premium.description }}
 
-Acknowledgements: 
-- The unglued ebook will be delivered to your inbox.</li>{% if not transaction.anonymous %}{% ifequal transaction.tier 1  %}
-- You will be listed as a Supporter using the name "{{ transaction.ack_name }}".{% endifequal %}{% ifequal transaction.tier 2  %}
-- You will be listed as a Benefactor using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% ifequal transaction.tier 3  %}
-- You will be listed as a Bibliophile using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% endif %}{% if transaction.ack_dedication %}
-- The following dedication will be included: 
-    {{ transaction.ack_dedication }}{% endif %}
+You will also be acknowledged as follows:
+- The unglued ebook will be delivered to your inbox.{% if not transaction.anonymous %}{% ifequal transaction.tier 1  %}
+- You will be listed in the ebook as a Supporter using the name "{{ transaction.ack_name }}".{% endifequal %}{% ifequal transaction.tier 2  %}
+- You will be listed in the ebook as a Benefactor using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% ifequal transaction.tier 3 %}
+- You will be listed in the ebook as a Bibliophile using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% endif %}{% ifequal transaction.tier 3 %}{% if transaction.ack_dedication %}
+- The following dedication will be included in the ebook: 
+    {{ transaction.ack_dedication }}{% else %}
+- You were eligible to include a dedication in the unglued ebook, but did not choose to do so.  If you like, you can change this at https://{{ site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
+{% endif %}{% endifequal %}
     
 You can help even more by sharing this campaign with your friends.
 
