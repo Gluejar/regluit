@@ -2,17 +2,8 @@
 Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ transaction.campaign.work.title }}.  If this campaign successfully raises ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
 
 Pledge summary
-Amount pledged: ${{ transaction.amount|intcomma }}
-Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}
+{% include "notification/pledge_summary.txt" %}    
 
-Acknowledgements: 
-- The unglued ebook will be delivered to your inbox.</li>{% if not transaction.anonymous %}{% ifequal transaction.tier 1  %}
-- You will be listed as a Supporter using the name "{{ transaction.ack_name }}".{% endifequal %}{% ifequal transaction.tier 2  %}
-- You will be listed as a Benefactor using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% ifequal transaction.tier 3  %}
-- You will be listed as a Bibliophile using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% endif %}{% if transaction.ack_dedication %}
-- The following dedication will be included: 
-    {{ transaction.ack_dedication }}{% endif %}
-    
 You can help even more by sharing this campaign with your friends.
 
 Facebook: https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work transaction.campaign.work.id %}
