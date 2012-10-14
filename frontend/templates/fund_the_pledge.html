@@ -24,7 +24,7 @@ $j(document).ready(function() {
 
     // remove help text when input is selected
     // user-entered text should be in usual text color
-    inputs.on("click", function() {
+    inputs.on("focus", function() {
         defaultValue = $j(this).val();
         $j(this).val('');
         $j(this).css('color', '#3d4e53')
