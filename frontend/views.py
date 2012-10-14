@@ -81,7 +81,7 @@ def slideshow(max):
 
         # then fill out the rest of the list with popular but inactive works
         remainder = max - count
-        remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+        remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').order_by('-num_wishes')[:remainder]
         worklist.extend(remainder_works)
     else:
         # if the active campaign list has more works than we can fit 
