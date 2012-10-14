@@ -344,6 +344,10 @@ a.success:hover {
 .launch_top a {
   font-size: 110%;
 }
+.launch_top.pale {
+  border-color: #d6dde0;
+  font-size: 13px;
+}
 .preview_content {
   border: solid 3px #e35351;
   -moz-border-radius: 7px;
