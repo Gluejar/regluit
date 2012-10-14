@@ -343,6 +343,8 @@ class CampaignPledgeForm(forms.Form):
         if preapproval_amount is None:
             # preapproval_amount failed validation, that error is the relevant one
             return self.cleaned_data
+        elif self.premium is None:
+            raise forms.ValidationError(_("Please select a premium." ))            
         elif preapproval_amount < self.premium.amount:
             logger.info("raising form validating error")
             raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
