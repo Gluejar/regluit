@@ -37,7 +37,24 @@
 		<div>
 		Your pledge: ${{transaction.amount|intcomma}}.<br />
 		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
-		{% if transaction.anonymous %}You asked to pledge anonymously, so you will be counted but not named on the list of supporters.<br />{% endif %}
+		{% if transaction.anonymous %}You want your pledge to be anonymous.<br />{% endif %}<br />
+		Acknowledgements: <ul>
+		<li>The unglued ebook will be delivered to your inbox.</li>
+	{% if not transaction.anonymous %}
+		{% ifequal transaction.tier 1  %}
+		<li>You will be listed as a Supporter using the name "<i>{{ transaction.ack_name }}</i>".</li>
+		{% endifequal %}
+		{% ifequal transaction.tier 2  %}
+		<li>You will be listed as a Benefactor using the name "<i>{{ transaction.ack_name }}</i>" with a link to your Unglue.it supporter page.</li>
+		{% endifequal %}
+		{% ifequal transaction.tier 3  %}
+		<li>You will be listed as a Bibliophile using the name "<i>{{ transaction.ack_name }}</i>" with a link to your Unglue.it supporter page.</li>
+		{% endifequal %}
+	{% endif %}
+	{% if transaction.ack_dedication %}
+	    <li>The following dedication will be included: <i>{{ transaction.ack_dedication }}</i>.</li>
+	{% endif %}
+		</ul>
 		</div>
 	</div>
 

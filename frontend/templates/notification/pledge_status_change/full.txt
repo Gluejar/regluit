@@ -9,7 +9,15 @@ Your new pledge summary
 Amount pledged: ${{ transaction.amount|intcomma }}
 Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}{% endif %}
 
-If you'd like to visit the project page, click here: 
+Acknowledgements: 
+- The unglued ebook will be delivered to your inbox.</li>{% if not transaction.anonymous %}{% ifequal transaction.tier 1  %}
+- You will be listed as a Supporter using the name "{{ transaction.ack_name }}".{% endifequal %}{% ifequal transaction.tier 2  %}
+- You will be listed as a Benefactor using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% ifequal transaction.tier 3  %}
+- You will be listed as a Bibliophile using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% endif %}{% if transaction.ack_dedication %}
+- The following dedication will be included: 
+    {{ transaction.ack_dedication }}{% endif %}
+
+If you'd like to visit the campaign page or make changes, click here: 
 https://{{site.domain}}{% url work transaction.campaign.work.id %}
 
 Thank you again for your support.

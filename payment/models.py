@@ -87,7 +87,18 @@ class Transaction(models.Model):
     
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)
-    
+
+    @property
+    def tier(self):
+        if self.amount < 25:
+            return 0
+        if self.amount < 50:
+            return 1
+        if self.amount < 100:
+            return 2
+        else:
+            return 3
+            
     @property
     def ack_link(self):
         return 'https://unglue.it/supporter/%s'%urllib.urlencode(self.user.username) if not self.anonymous else ''
@@ -98,7 +109,7 @@ class Transaction(models.Model):
         super(Transaction, self).save(*args, **kwargs) # Call the "real" save() method.
     
     def __unicode__(self):
-        return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \treference: %s\n \terror: %s\n" % (self.status, str(self.amount), self.preapproval_key, self.error)
+        return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \terror: %s\n" % (self.status, str(self.amount),  self.error)
     
     def create_receivers(self, receiver_list):
         
@@ -136,7 +147,7 @@ class Transaction(models.Model):
             self.ack_name = pledge_extra.ack_name
             self.ack_dedication = pledge_extra.ack_dedication
 
-    def get_pledge_extra(self, pledge_extra):
+    def get_pledge_extra(self):
         class pe:
             premium=self.premium
             anonymous=self.anonymous
