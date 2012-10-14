@@ -101,7 +101,12 @@
 
 {% block news %}
 <div class="launch_top">
-It's here: our first unglued edition.  You can now download <a href="/work/81834/"><I>Oral Literature in Africa</I></a>.<br /><br />Campaigns to unglue more books <a href="http://blog.unglue.it/2012/09/13/update-on-unglue-it-relaunch/">will relaunch soon</a>.
+    {% if is_preview %}
+        It's here: our first unglued edition.  You can now download <a href="/work/81834/"><I>Oral Literature in Africa</I></a>.<br /><br />Campaigns to unglue more books <a href="http://blog.unglue.it/2012/09/13/update-on-unglue-it-relaunch/">will relaunch soon</a>.
+    {% else %}
+        We're back, with five books that <a href="https://unglue.it/campaigns/ending">you can help unglue</a>. Keywords: <a href="/work/88498/">Obama</a>, <a href="/work/113782/ ">sci-fi</a>, <a href="/work/76348/">librarianship</a>, <a href="/work/493/">coming out</a>, <a href="/work/82055/">learning to read</a>.<br /><br />
+        You can also download <a href="/work/81834/">the first unglued book</a>.
+    {% endif %}
 </div>
 {% endblock %}
 
