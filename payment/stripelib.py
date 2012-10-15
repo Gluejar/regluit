@@ -603,6 +603,9 @@ class Processor(baseprocessor.Processor):
             # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
             self.currency = transaction.currency
             self.amount = transaction.amount
+    def ProcessIPN(self, request):
+        return HttpResponse("hello from Stripe IPN")
+
 
 def suite():
     
