@@ -6,52 +6,7 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
-<link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
-
-<script type="text/javascript" src="https://js.stripe.com/v1/"></script>
-
-<script type="text/javascript">
-    Stripe.setPublishableKey('{{ STRIPE_PK }}');
-</script>
-
-<script type="text/javascript">
-var $j = jQuery.noConflict();
-
-$j(document).ready(function() {
-    // provide gently grey help text
-    var inputs = $j('.initial_values input');
-    inputs.css('color', '#D6DDE0');
-
-    // remove help text when input is selected
-    // user-entered text should be in usual text color
-    inputs.on("focus", function() {
-        defaultValue = $j(this).val();
-        $j(this).val('');
-        $j(this).css('color', '#3d4e53')
-    });
-
-    // restore iff user hasn't entered anything
-    inputs.on("blur", function() {
-        if($j(this).val() == '') {
-            $j(this).val(defaultValue).css('color', '#D6DDE0');
-        }
-    });
-});
-</script>
-
-<script type="text/javascript">
-var $j = jQuery.noConflict();
-
-$j(document).ready(function() {
-    $j('#cvc_help').on("mouseover", function() {
-        $j('#cvc_answer').show();
-    });
-    $j('#cvc_help').on("mouseleave", function() {
-        $j('#cvc_answer').hide();
-    });
-});
-</script>
-
+{% include "stripe_stuff.html" %}
 <script type="application/x-javascript">
 
 var $j = jQuery.noConflict();
@@ -102,50 +57,6 @@ $j(document).ready(function() {
 });
 </script>
 
-<script>
-function stripeResponseHandler(status, response) {
-    if (response.error) {
-        // re-enable the submit button
-        $j('.submit-button').removeAttr("disabled");
-        // show the errors on the form
-        $j(".payment-errors").html(response.error.message).show();
-    } else {
-        var form$ = $j("#payment-form");
-        // token contains id, last4, and card type
-        var token = response['id'];
-        
-        // insert the token into the form so it gets submitted to the server
-        form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
-        // and submit
-        form$.get(0).submit();
-    }
-}
-	   
-	    
-$j().ready(function() {
-  $j("#payment-form").submit(function(event) {
-    // disable the submit button to prevent repeated clicks
-    $j('.submit-button').attr("disabled", "disabled");
-
-    Stripe.createToken({
-        number: $j('.card-number').val(),
-        cvc: $j('.card-cvc').val(),
-        exp_month: $j('.card-expiry-month').val(),
-        exp_year: $j('.card-expiry-year').val(),
-        address_line1: $j('#card_AddressLine1').val(),
-        address_line2: $j('#card_AddressLine2').val(),
-        address_state: $j('#card_AddressState').val(),
-        address_zip: $j('#card_AddressZip').val(),
-        address_city: $j('#card_AddressCity').val(),
-        address_country: $j('#card_AddressCountry').val(),
-        name: $j('#card_Name').val()
-    }, stripeResponseHandler);
-
-    // prevent the form from submitting with the default action
-    return false;
-  });
-});
-</script>
 {% endblock %}
 
 {% block news %}
@@ -218,7 +129,7 @@ $j().ready(function() {
                     </div>
                     <div class="form-row clearfix">
                         <label>Card Number:</label>
-                        <input id="card_Number" type="text" autocomplete="off" class="card-number"/>
+                        <input id="card_Number" type="text" class="card-number"/>
                     </div>
                     <div class="form-row clearfix cvc">
                         <label>CVC:</label>
