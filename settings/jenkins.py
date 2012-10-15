@@ -2,6 +2,7 @@ from regluit.settings.common import *
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+IS_PREVIEW = False
 
 ADMINS = (
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
