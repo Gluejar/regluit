@@ -350,10 +350,12 @@ class CampaignPledgeForm(forms.Form):
             raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
         return self.cleaned_data
 
-class CCForm(forms.Form):
+class PlainCCForm(forms.Form):
+    stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
+
+class CCForm(PlainCCForm):
     username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput())
     work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
     preapproval_amount= forms.DecimalField(
         required=False,
         min_value=D('1.00'), 

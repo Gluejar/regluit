@@ -1016,6 +1016,18 @@ class UserProfile(models.Model):
             return None
         else:
             return accounts[0]
+    @property
+    def old_account(self):
+        accounts = self.user.account_set.filter(date_deactivated__isnull=False).order_by('-date_deactivated')
+        if accounts.count()==0:
+            return None
+        else:
+            return accounts[0]
+    
+    @property
+    def pledges(self):
+        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE)
+    
     
 #class CampaignSurveyResponse(models.Model):
 #    # generic
