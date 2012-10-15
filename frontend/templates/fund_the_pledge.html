@@ -116,6 +116,8 @@ $j(document).ready(function() {
                 <input id="use_account_submit" name="use_account" type="submit" class="submit-button" value="Complete Pledge" /> 
             </div>           
         </form>
+        <p> You can change your credit card info on your <a href="{% url manage_account %}?next={{ request.path }}#your_payment_info">account management page</a>.
+        </p>
 	    {% else %}
 	    <p>Unglue.it uses <a href="https://stripe.com/">Stripe</a> to securely manage your credit card information.
 	    </p>

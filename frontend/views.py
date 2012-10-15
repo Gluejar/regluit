@@ -1466,7 +1466,11 @@ class ManageAccount(FormView):
                 p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
             except baseprocessor.ProcessorError as e:
                 return render(self.request, "pledge_card_error.html")
-        return render(self.request, self.template_name, self.get_context_data())
+        next = self.request.REQUEST.get('next', None)
+        if next :
+            return HttpResponseRedirect(next)
+        else:
+            return render(self.request, self.template_name, self.get_context_data())
 
 def search(request):
     q = request.GET.get('q', None)

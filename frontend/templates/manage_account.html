@@ -22,7 +22,7 @@ $j(document).ready(function(){
     </dd>
 {% endfor %}
 </dl>
-<h2>Your Payment Info</h2>
+<h2 id="your_payment_info">Your Payment Info</h2>
 {% if request.user.profile.account %}
     <p>Unglue.it has a {{ request.user.profile.account.card_type }} credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
     The last four digits of the card are {{ request.user.profile.account.card_last4 }}, and the expiration date is {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}. 
