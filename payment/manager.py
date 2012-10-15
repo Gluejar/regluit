@@ -780,7 +780,7 @@ class PaymentManager( object ):
                            pledge_extra=pledge_extra
                            )
                 t.save()
-                credit.CancelPreapproval(transaction)
+                credit.Processor.CancelPreapproval(transaction)
                 return t, reverse('fund_pledge', args=[t.id])
 
         elif requires_explicit_preapprovals and (amount > transaction.max_amount or expiry != transaction.date_expired):
