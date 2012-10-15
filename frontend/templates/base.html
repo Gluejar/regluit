@@ -2,7 +2,7 @@
 {# raw url references raise test errors in tests for django registration; this is a workaround #}
 {% url privacy as privacyurl %}
 {% url terms as termsurl %}
-{% url regluit.frontend.views.edit_user as editurl %}
+{% url manage_account as editurl %}
 {% url rightsholders as rhtoolsurl %}
 {% url faq as faqurl %}
 {% url about as abouturl %}
@@ -124,21 +124,21 @@ It's here: our first unglued edition.  You can now download <a href="/work/81834
         <span>Your account</span>
         <ul>
         {% if user.is_authenticated %}
-        <li><a href="{{editurl}}">Account Settings</a></li>
+        <li><a href="{{ editurl }}">Account Settings</a></li>
         {% endif %}
-        <li><a href="{{rhtoolsurl}}">Rights Holder Tools</a></li>
-        <li><a href="{{privacyurl}}">Privacy</a></li>
-        <li><a href="{{termsurl}}">Terms of Use</a></li>
+        <li><a href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
+        <li><a href="{{ privacyurl }}">Privacy</a></li>
+        <li><a href="{{ termsurl }}">Terms of Use</a></li>
         {% if user.is_staff %}
-        <li><a href="{{adminurl}}">Unglue.it Administration</a></li>
-        <li><a href="{{editionurl}}">Create New Editions</a></li>
+        <li><a href="{{ adminurl }}">Unglue.it Administration</a></li>
+        <li><a href="{{ editionurl }}">Create New Editions</a></li>
         {% endif %}
         </ul>
     </div>
     <div class="column">
         <span>Help</span>
         <ul>
-        <li><a href="{{faqurl}}">General FAQ</a></li>
+        <li><a href="{{ faqurl }}">General FAQ</a></li>
         <li><a href="/faq/rightsholders/">Rights Holder FAQ</a></li>
         <li><a href="{% url api_help %}">API</a></li>
         <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
