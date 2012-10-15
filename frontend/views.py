@@ -650,7 +650,7 @@ class PledgeView(FormView):
             anonymous=''
         else:
             self.transaction = transactions[0]   
-            if premium_id == None and self.transaction.premium is not None:
+            if premium_id == 150 and self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
             ack_name=self.transaction.ack_name
             ack_dedication=self.transaction.ack_dedication
