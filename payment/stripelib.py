@@ -35,6 +35,9 @@ except:
 # moving towards not having the stripe api key for the non profit partner in the unglue.it code -- but in a logically
 # distinct application
 
+TEST_STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
+TEST_STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
+
 try:
     from regluit.core.models import Key
     STRIPE_PK = Key.objects.get(name="STRIPE_PK").value
