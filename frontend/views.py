@@ -774,7 +774,7 @@ class FundPledgeView(FormView):
 
         if self.transaction.user.id != self.request.user.id:
             # trouble!
-            return render(request, "pledge_user_error.html", {'transaction': self.transaction }) 
+            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction }) 
 
         p = PaymentManager()
 
@@ -786,7 +786,7 @@ class FundPledgeView(FormView):
                 try:
                     p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
                 except baseprocessor.ProcessorError as e:
-                    return HttpResponse("There was an error processing your credit card")
+                    return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e }) 
             
         self.transaction.host = settings.PAYMENT_PROCESSOR
             
@@ -801,7 +801,7 @@ class FundPledgeView(FormView):
         if url is not None:
             return HttpResponseRedirect(url)
         else:
-            return render(request, "pledge_card_error.html", {'transaction': self.transaction }) 
+            return render(self.request, "pledge_card_error.html", {'transaction': self.transaction }) 
         
 class NonprofitCampaign(FormView):
     template_name="nonprofit.html"
