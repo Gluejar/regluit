@@ -472,9 +472,9 @@ class Processor(baseprocessor.Processor):
                           card_country = customer.active_card.country,
                           user = user
                           )
-    
-        account.save()
-        
+        if user.profile.account:
+            user.profile.account.deactivate()
+        account.save()       
         return account
     
     class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
