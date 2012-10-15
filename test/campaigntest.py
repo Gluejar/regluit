@@ -2,6 +2,8 @@ from regluit.core import models
 from regluit.payment.models import Transaction, PaymentResponse, Receiver
 from regluit.payment.manager import PaymentManager
 
+from regluit.payment import stripelib
+
 import django
 from django.conf import settings
 
@@ -222,12 +224,38 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge Now']"))
     support_button.click()    
     
-    # now fill out the credit card
-        
-    sel.execute_script("""document.getElementById("card_Number").value="4242424242424242";""")
+    ## now fill out the credit card
+    ## CVC should fail but doesn't for now -- hmmm.
+    #
+    #sel.execute_script("""document.getElementById("card_Number").value={0};""".format(stripelib.ERROR_TESTING['CVC_CHECK_FAIL'][0]))
+    #sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
+    #sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    #sel.execute_script("""document.getElementById("card_CVC").value="123";""")
+    #
+    #verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Complete Pledge']"))
+    #verify_cc_button.click()
+    #
+    #yield sel
+    
+    # let's put in a Luhn-invalid # e.g., 4242424242424241
+    sel.execute_script("""document.getElementById("card_Number").value="4242424242424241";""")
     sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
     sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
-    sel.execute_script("""document.getElementById("card_CVC").value="123";""")
+    sel.execute_script("""document.getElementById("card_CVC").value="321";""")
+    
+    verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Complete Pledge']"))
+    verify_cc_button.click()    
+       
+    # should do a check for "Your card number is incorrect" -- but this doesn't stall -- so we're ok
+    time.sleep(2)
+    
+    # should succeed
+    sel.execute_script("""document.getElementById("card_Number").value={0};""".format(stripelib.TEST_CARDS[0][0]))
+    sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
+    sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    sel.execute_script("""document.getElementById("card_CVC").value="321";""")
+    
+    time.sleep(2)
     
     verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Complete Pledge']"))
     verify_cc_button.click()
