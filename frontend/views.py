@@ -48,7 +48,7 @@ from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPle
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -1446,9 +1446,28 @@ def edit_user(request):
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  
 
-class ManageAccount(TemplateView):
+class ManageAccount(FormView):
     template_name="manage_account.html"
+    form_class = PlainCCForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ManageAccount, self).get_context_data(**kwargs)
+        context['STRIPE_PK'] = stripelib.STRIPE_PK
+        return context
     
+    def form_valid(self, form):
+        """ save the token, make an account"""
+
+        p = PaymentManager()
+        stripe_token = form.cleaned_data["stripe_token"]
+        # if we get a stripe_token, create a new stripe account for the user
+        if stripe_token:
+            try:
+                p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
+            except baseprocessor.ProcessorError as e:
+                return render(self.request, "pledge_card_error.html")
+        return render(self.request, self.template_name, self.get_context_data())
+
 def search(request):
     q = request.GET.get('q', None)
     page = int(request.GET.get('page', 1))
