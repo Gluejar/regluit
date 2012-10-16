@@ -987,9 +987,10 @@ class PledgeCompleteView(TemplateView):
             correct_transaction_type = False
             
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
+        # fire add-wishlist notification if needed
         if user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
-            user.wishlist.add_work(work, 'pledging')
+            user.wishlist.add_work(work, 'pledging', notify=True)
             
         worklist = slideshow(8)
         works = worklist[:4]
@@ -1512,7 +1513,7 @@ def wishlist(request):
             if edition.new:
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
-            request.user.wishlist.add_work(edition.work,'user')
+            request.user.wishlist.add_work(edition.work,'user', notify=True)
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
         except Exception, e:
@@ -1540,7 +1541,7 @@ def wishlist(request):
             except models.WasWork.DoesNotExist:
                 raise Http404
 
-        request.user.wishlist.add_work(work,'user')
+        request.user.wishlist.add_work(work,'user', notify=True)
         return HttpResponseRedirect('/')
   
 class InfoPageView(TemplateView):
