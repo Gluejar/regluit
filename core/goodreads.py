@@ -296,7 +296,7 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             match = re.search('/show/(\d+)', link)
             if match:
                 identifier= models.Identifier.get_or_add(type = 'gdrd', value = match.group(1), edition = edition, work = edition.work)
-                user.wishlist.add_work(edition.work, 'goodreads')
+                user.wishlist.add_work(edition.work, 'goodreads', notify=True)
                 logger.info("Work with isbn %s added to wishlist.", isbn)
             else:
                 logger.error("unable to extract goodreads id from %s", link)

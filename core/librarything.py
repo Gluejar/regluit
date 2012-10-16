@@ -228,7 +228,7 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
             identifier= models.Identifier.get_or_add(type = 'ltwk', value = book['work_id'], work = edition.work)
             if book['lc_call_number']:
                 identifier= models.Identifier.get_or_add(type = 'lccn', value = book['lc_call_number'], edition = edition, work = edition.work)
-            user.wishlist.add_work(edition.work, 'librarything')
+            user.wishlist.add_work(edition.work, 'librarything', notify=True)
             if edition.new:
                 tasks.populate_edition.delay(edition.isbn_13)
             logger.info("Work with isbn %s added to wishlist.", isbn)

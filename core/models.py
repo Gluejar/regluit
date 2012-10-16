@@ -928,13 +928,16 @@ class Wishlist(models.Model):
     def __unicode__(self):
         return "%s's Wishlist" % self.user.username
         
-    def add_work(self, work, source):
+    def add_work(self, work, source, notify=False):
         try:
             w = Wishes.objects.get(wishlist=self,work=work)
         except:
             Wishes.objects.create(source=source,wishlist=self,work=work) 
             work.update_num_wishes()
-        wishlist_added.send(sender=self, work=work, supporter=self.user)
+            # only send notification in case of new wishes
+            # and only when they result from user action, not (e.g.) our tests
+            if notify:
+                wishlist_added.send(sender=self, work=work, supporter=self.user)
     
     def remove_work(self, work):
         w = Wishes.objects.filter(wishlist=self, work=work)
