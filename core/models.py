@@ -928,7 +928,7 @@ class Wishlist(models.Model):
     def __unicode__(self):
         return "%s's Wishlist" % self.user.username
         
-    def add_work(self, work, source):
+    def add_work(self, work, source, notify=False):
         try:
             w = Wishes.objects.get(wishlist=self,work=work)
         except:
@@ -936,7 +936,7 @@ class Wishlist(models.Model):
             work.update_num_wishes()
             # only send notification in case of new wishes
             # and only when they result from user action, not (e.g.) our tests
-            if source=='user' or source=='pledging':
+            if notify:
                 wishlist_added.send(sender=self, work=work, supporter=self.user)
     
     def remove_work(self, work):
