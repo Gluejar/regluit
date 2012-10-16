@@ -934,7 +934,10 @@ class Wishlist(models.Model):
         except:
             Wishes.objects.create(source=source,wishlist=self,work=work) 
             work.update_num_wishes()
-        wishlist_added.send(sender=self, work=work, supporter=self.user)
+            # only send notification in case of new wishes
+            # and only when they result from user action, not (e.g.) our tests
+            if source=='user' or source=='pledging':
+                wishlist_added.send(sender=self, work=work, supporter=self.user)
     
     def remove_work(self, work):
         w = Wishes.objects.filter(wishlist=self, work=work)
