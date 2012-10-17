@@ -679,7 +679,7 @@ class PledgeView(FormView):
         # use preferences from last transaction, if any
         try:
             last_transaction = Transaction.objects.filter(user=self.request.user).order_by('-date_modified')[0]
-        except:
+        except IndexError:
             last_transaction = None
             
         if last_transaction:
