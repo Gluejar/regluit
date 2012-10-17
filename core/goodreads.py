@@ -42,9 +42,9 @@ def filter_none(d):
     return d2
 
 def safe_strip(a_string): 
-    if a_string: 
+    try:
         return a_string.strip()
-    else: 
+    except:
         return '' 
 
 class GoodreadsClient(object):
@@ -220,15 +220,15 @@ class GoodreadsClient(object):
               reviews = doc.findall('reviews/review')
               for review in reviews:
                   yield ({'id':review.find('id').text,
-                          'book': {'id': review.find('book/id').text.strip(),
+                          'book': {'id': safe_strip(review.find('book/id').text),
                                    'isbn10':review.find('book/isbn').text,
                                    'isbn13':review.find('book/isbn13').text,
-                                   'title':review.find('book/title').text.strip(),
-                                   'text_reviews_count':review.find('book/text_reviews_count').text.strip(),
-                                   'link':review.find('book/link').text.strip(),
-                                   'small_image_url':review.find('book/small_image_url').text.strip(),
-                                   'ratings_count':review.find('book/ratings_count').text.strip(),
-                                   'description':review.find('book/description').text.strip()}
+                                   'title':safe_strip(review.find('book/title').text),
+                                   'text_reviews_count':safe_strip(review.find('book/text_reviews_count').text),
+                                   'link':safe_strip(review.find('book/link').text),
+                                   'small_image_url':safe_strip(review.find('book/small_image_url').text),
+                                   'ratings_count':safe_strip(review.find('book/ratings_count').text),
+                                   'description':safe_strip(review.find('book/description').text)}
                           })
               if len(reviews) == 0:
                   more_pages = False
@@ -296,7 +296,7 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             match = re.search('/show/(\d+)', link)
             if match:
                 identifier= models.Identifier.get_or_add(type = 'gdrd', value = match.group(1), edition = edition, work = edition.work)
-                user.wishlist.add_work(edition.work, 'goodreads')
+                user.wishlist.add_work(edition.work, 'goodreads', notify=True)
                 logger.info("Work with isbn %s added to wishlist.", isbn)
             else:
                 logger.error("unable to extract goodreads id from %s", link)

@@ -24,19 +24,22 @@ $j(document).ready(function(){
 </dl>
 <h2 id="your_payment_info">Your Payment Info</h2>
 {% if request.user.profile.account %}
-    <p>Unglue.it has a {{ request.user.profile.account.card_type }} credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
-    The last four digits of the card are {{ request.user.profile.account.card_last4 }}, and the expiration date is {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}. 
-    </p>
-    <p>If you'd like to update your card info, or use a different card to fund your pledges, <a id="show_cc_form">click here</a>. 
-    </p>
+    <p>Unglue.it has a credit card on file for you. We'll use this to fund your pledges.</p>
+    <b>Card type:</b> {{ request.user.profile.account.card_type }}<br />
+    <b>Number:</b> ************{{ request.user.profile.account.card_last4 }}<br />
+    <b>Expiration date:</b> {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}.<br />
+    <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
+    <p><a class="fakeinput" id="show_cc_form">Update Card</a></p>
 {% else %}
-    <p>Unglue.it has no active credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
-    </p>
     {% if request.user.profile.old_account %}
-        <p>The card you previously gave us has become inactive, perhaps because of the expiration date, or because it was declined when we attempted to charge a pledge.
+        <p>The card you previously gave us has become inactive; for example, because of its expiration date. You'll need to provide a current one before you can support ungluing campaigns.</p>
+        <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
+        <p><a class="fakeinput" id="show_cc_form">Update Card</a></p>
+    {% else %}
+        <p>Unglue.it has no active credit card on file for you.  You'll need to provide one before you can support ungluing campaigns.</p>
+        <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
+        <p><a class="fakeinput" id="show_cc_form">Add A Card</a></p>
     {% endif %}
-    <p>If you'd like to enter or update a card, <a id="show_cc_form">click here</a>. 
-    </p>
 {% endif %}
 <div id="cc_pledge" style="display: none;">
     <div id="authorize" class="clearfix">

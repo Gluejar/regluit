@@ -81,7 +81,7 @@ def slideshow(max):
 
         # then fill out the rest of the list with popular but inactive works
         remainder = max - count
-        remainder_works = models.Work.objects.exclude(campaigns__status='ACTIVE').order_by('-num_wishes')[:remainder]
+        remainder_works = models.Work.objects.filter(wishlists__user=recommended_user).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL')[:remainder]
         worklist.extend(remainder_works)
     else:
         # if the active campaign list has more works than we can fit 
@@ -650,7 +650,7 @@ class PledgeView(FormView):
             anonymous=''
         else:
             self.transaction = transactions[0]   
-            if premium_id == None and self.transaction.premium is not None:
+            if premium_id == 150 and self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
             ack_name=self.transaction.ack_name
             ack_dedication=self.transaction.ack_dedication
@@ -987,9 +987,10 @@ class PledgeCompleteView(TemplateView):
             correct_transaction_type = False
             
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
+        # fire add-wishlist notification if needed
         if user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
-            user.wishlist.add_work(work, 'pledging')
+            user.wishlist.add_work(work, 'pledging', notify=True)
             
         worklist = slideshow(8)
         works = worklist[:4]
@@ -1512,7 +1513,7 @@ def wishlist(request):
             if edition.new:
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
-            request.user.wishlist.add_work(edition.work,'user')
+            request.user.wishlist.add_work(edition.work,'user', notify=True)
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
         except Exception, e:
@@ -1540,7 +1541,7 @@ def wishlist(request):
             except models.WasWork.DoesNotExist:
                 raise Http404
 
-        request.user.wishlist.add_work(work,'user')
+        request.user.wishlist.add_work(work,'user', notify=True)
         return HttpResponseRedirect('/')
   
 class InfoPageView(TemplateView):
