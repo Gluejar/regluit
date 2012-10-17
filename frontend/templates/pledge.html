@@ -8,6 +8,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
 
 <script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+
 {% endblock %}
 
 {% block news %}
@@ -128,11 +129,15 @@
 {% if transaction.ack_name %}
 <div id="pass_ack_name" style="display: none;">{{ transaction.ack_name }}</div>
 {% else %}
-<div id="pass_ack_name" style="display: none;">{{ request.user.username }}</div>
+<div id="pass_ack_name" style="display: none;">{{ ack_name }}</div>
 {% endif %}
 <div id="pass_ack_link" style="display: none;">{{ transaction.ack_link }}</div>
 <div id="pass_ack_dedication" style="display: none;">{{ transaction.ack_dedication }}</div>
+{% if transaction.anonymous %}
 <div id="pass_anon" style="display: none;">{{ transaction.anonymous }}</div>
+{% else %}
+<div id="pass_anon" style="display: none;">{{ anonymous }}</div>
+{% endif %}
 {% endblock %}
 
 
