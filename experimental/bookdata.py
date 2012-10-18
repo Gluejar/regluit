@@ -58,7 +58,8 @@ def grouper(iterable, page_size):
         if len(page) == page_size:
             yield page
             page= []
-    yield page
+    if len(page):
+        yield page
 
 class FreebaseException(Exception):
     pass

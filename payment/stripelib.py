@@ -4,6 +4,7 @@
 import logging
 from datetime import datetime, timedelta
 from pytz import utc
+from itertools import islice
 
 from django.conf import settings
 
@@ -16,6 +17,17 @@ from regluit.utils.localdatetime import now, zuluformat
 import stripe
 
 logger = logging.getLogger(__name__)
+
+# http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
+def grouper(iterable, page_size):
+    page= []
+    for item in iterable:
+        page.append( item )
+        if len(page) == page_size:
+            yield page
+            page= []
+    if len(page):
+        yield page
 
 class StripelibError(baseprocessor.ProcessorError):
     pass
@@ -46,8 +58,8 @@ try:
 except Exception, e:
     # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
     logger.info('Exception {0} Need to use TEST STRIPE_*_KEYs'.format(e))
-    STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
-    STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
+    STRIPE_PK = TEST_STRIPE_PK
+    STRIPE_SK = TEST_STRIPE_SK
     
 # set default stripe api_key to that of unglue.it
 
@@ -162,7 +174,6 @@ class StripeClient(object):
     def event(self):
         return stripe.Event(api_key=self.api_key)
         
-
     def create_token(self, card):
         return stripe.Token(api_key=self.api_key).create(card=card)
 
@@ -208,8 +219,26 @@ class StripeClient(object):
     def list_all_charges(self, count=None, offset=None, customer=None):
         # https://stripe.com/docs/api?lang=python#list_charges
         return stripe.Charge(api_key=self.api_key).all(count=count, offset=offset, customer=customer)
-   
+        
+    def list_events(self, **kwargs):
+        """a generator for events"""
+        # type=None, created=None, count=None, offset=0
+        # 
 
+        kwargs2 = kwargs.copy()
+        kwargs2.setdefault('offset', 0)
+        kwargs2.setdefault('count', 100)  
+                
+        more_items = True
+        while more_items:
+            items = self.event.all(**kwargs2)['data']
+            for item in items:
+                yield item
+            if len(items):
+                kwargs2['offset'] += len(items)
+            else:
+                more_items = False       
+            
 # can't test Transfer in test mode: "There are no transfers in test mode."
 
 #pledge scenario
