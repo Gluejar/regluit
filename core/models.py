@@ -973,12 +973,20 @@ def pledger():
         pledger.instance = Badge.objects.get(name='pledger')
     return pledger.instance
 pledger.instance=None
+
 def pledger2():
     if not pledger2.instance:
         pledger2.instance = Badge.objects.get(name='pledger2')
     return pledger2.instance
 pledger2.instance=None
 
+def last_transaction(user):
+    from regluit.payment.models import Transaction
+    try:
+        return Transaction.objects.filter(user=user).order_by('-date_modified')[0]
+    except IndexError:
+        return None
+    
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
@@ -1019,6 +1027,7 @@ class UserProfile(models.Model):
             return None
         else:
             return accounts[0]
+            
     @property
     def old_account(self):
         accounts = self.user.account_set.filter(date_deactivated__isnull=False).order_by('-date_deactivated')
@@ -1030,7 +1039,24 @@ class UserProfile(models.Model):
     @property
     def pledges(self):
         return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE)
-    
+        
+    @property
+    def ack_name(self):
+        # use preferences from last transaction, if any
+        last = last_transaction(self.user)
+        if last:
+            return last.ack_name
+        else:
+            return self.user.username
+
+    @property
+    def anon_pref(self):
+        # use preferences from last transaction, if any
+        last = last_transaction(self.user)
+        if last:
+            return last.anonymous
+        else:
+            return ''    
     
 #class CampaignSurveyResponse(models.Model):
 #    # generic
