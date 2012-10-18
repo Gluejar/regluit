@@ -980,13 +980,6 @@ def pledger2():
     return pledger2.instance
 pledger2.instance=None
 
-def last_transaction(user):
-    from regluit.payment.models import Transaction
-    try:
-        return Transaction.objects.filter(user=user).order_by('-date_modified')[0]
-    except IndexError:
-        return None
-    
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
@@ -1039,11 +1032,19 @@ class UserProfile(models.Model):
     @property
     def pledges(self):
         return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE)
-        
+
+    @property
+    def last_transaction(self):
+        from regluit.payment.models import Transaction
+        try:
+            return Transaction.objects.filter(user=self.user).order_by('-date_modified')[0]
+        except IndexError:
+            return None
+    
     @property
     def ack_name(self):
         # use preferences from last transaction, if any
-        last = last_transaction(self.user)
+        last = self.last_transaction
         if last:
             return last.ack_name
         else:
@@ -1052,7 +1053,7 @@ class UserProfile(models.Model):
     @property
     def anon_pref(self):
         # use preferences from last transaction, if any
-        last = last_transaction(self.user)
+        last = self.last_transaction
         if last:
             return last.anonymous
         else:
