@@ -21,7 +21,7 @@ to install python-setuptools in step 1:
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
 1. `mkvirtualenv regluit`
-1. `pip install -r requirements.pip`
+1. `pip install -r requirements_versioned.pip`
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
 1. edit `settings/me.py` and set `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD`  to your gmail username and password, if you want to see that registration emails will work properly.
@@ -60,7 +60,7 @@ Instructions for setting please are slightly different.
 1. update settings/prod.py with database credentials
 1. `virtualenv ENV`
 1. `source ENV/bin/activate`
-1. `pip install -r requirements.pip`
+1. `pip install -r requirements_versioned.pip`
 1. `echo "/opt/" > ENV/lib/python2.7/site-packages/regluit.pth`
 1. `django-admin.py syncdb --migrate --settings regluit.settings.prod`
 1. `sudo mkdir /var/www/static`
