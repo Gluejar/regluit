@@ -16,10 +16,12 @@ $j(document).ready(function(){
 <h2>Your Pledges</h2>
 <dl>
 {% for transaction in request.user.profile.pledges %}
-    <dt><i><a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</i></a> (<a href="{% url pledge_modify transaction.campaign.work.id %}">modify pledge</a>)</dt>
+    <dt><i><a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a></i> (<a href="{% url pledge_modify transaction.campaign.work.id %}">modify pledge</a>)</dt>
     <dd><div class="modify_notification">
 	{% include "trans_summary.html" %}
     </div></dd>
+{% empty %}
+<dt> You don't have any active pledges.</dt>
 {% endfor %}
 </dl>
 <h2 id="your_payment_info">Your Payment Info</h2>
@@ -44,7 +46,7 @@ $j(document).ready(function(){
 <div id="cc_pledge" style="display: none;">
     <div id="authorize" class="clearfix">
 
-        <form action="" method="POST" id="payment-form">
+        <form action="#" method="POST" id="payment-form">
             <div class="innards">
                 <div class="clearfix">
                     {% csrf_token %}
@@ -53,12 +55,12 @@ $j(document).ready(function(){
                 </div>
                 <div class="form-row clearfix">
                     <label>Card Number:</label>
-                    <input id="card_Number" type="text" class="card-number"/>
+                    <input id="card_Number" type="text" class="card-number" />
                 </div>
                 <div class="form-row clearfix cvc">
                     <label>CVC:</label>
-                    <input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc"/> <span id="cvc_help">(what is this?)</span>
-                    <div id="cvc_answer"><img src="/static/images/cvcimage.jpeg">For most cards, this is a 3-digit number at the end of the signature strip on the back.  For American Express, it's a four-digit number in small print on the front.</div>
+                    <input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc" /> <span id="cvc_help">(what is this?)</span>
+                    <div id="cvc_answer"><img src="/static/images/cvcimage.jpeg" alt="a typical credit card with CVC">For most cards, this is a 3-digit number at the end of the signature strip on the back.  For American Express, it's a four-digit number in small print on the front.</div>
                 </div>
                 <div class="form-row clearfix initial_values">
                     <label>Expiration:</label>
