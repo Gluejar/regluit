@@ -610,6 +610,11 @@ class PledgeView(FormView):
     premiums = None
     data = None
     
+    def get_initial(self):
+        return { 'anonymous': self.request.user.profile.anonymous, 
+                 'ack_name': self.request.user.profile.ack_name 
+               }
+        
     def get_preapproval_amount(self):
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         if preapproval_amount:
@@ -676,19 +681,6 @@ class PledgeView(FormView):
         context = super(PledgeView, self).get_context_data(**kwargs)
         context['nonprofit'] = settings.NONPROFIT
               
-        # use preferences from last transaction, if any
-        try:
-            last_transaction = Transaction.objects.filter(user=self.request.user).order_by('-date_modified')[0]
-        except IndexError:
-            last_transaction = None
-            
-        if last_transaction:
-            ack_name=last_transaction.ack_name
-            anonymous=last_transaction.anonymous
-        else:
-            ack_name=self.request.user.username
-            anonymous=''
-
         context.update({
                 'work':self.work,
                 'campaign':self.campaign, 
@@ -697,8 +689,6 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
-                'ack_name':ack_name,
-                'anonymous':anonymous,
            })
             
         return context
