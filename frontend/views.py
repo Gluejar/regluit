@@ -610,11 +610,6 @@ class PledgeView(FormView):
     premiums = None
     data = None
     
-    def get_initial(self):
-        return { 'anonymous': self.request.user.profile.anonymous, 
-                 'ack_name': self.request.user.profile.ack_name 
-               }
-        
     def get_preapproval_amount(self):
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
         if preapproval_amount:
@@ -650,9 +645,9 @@ class PledgeView(FormView):
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
         premium_id = self.request.REQUEST.get('premium_id', 150)
         if transactions.count() == 0:
-            ack_name=''
+            ack_name=self.request.user.profile.ack_name
             ack_dedication=''
-            anonymous=''
+            anonymous=self.request.user.profile.anon_pref
         else:
             self.transaction = transactions[0]   
             if premium_id == 150 and self.transaction.premium is not None:
