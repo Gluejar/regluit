@@ -126,18 +126,7 @@
 <div class="cancel_notice">
 {% if faqmenu == 'modify' %}We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>.{% endif %}</div>
 <div id="pass_supporter_name" style="display: none;">{{ request.user.username }}</div>
-{% if transaction.ack_name %}
-<div id="pass_ack_name" style="display: none;">{{ transaction.ack_name }}</div>
-{% else %}
-<div id="pass_ack_name" style="display: none;">{{ ack_name }}</div>
-{% endif %}
-<div id="pass_ack_link" style="display: none;">{{ transaction.ack_link }}</div>
-<div id="pass_ack_dedication" style="display: none;">{{ transaction.ack_dedication }}</div>
-{% if transaction.anonymous %}
-<div id="pass_anon" style="display: none;">{{ transaction.anonymous }}</div>
-{% else %}
-<div id="pass_anon" style="display: none;">{{ anonymous }}</div>
-{% endif %}
+
 {% endblock %}
 
 
