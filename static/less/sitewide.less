@@ -265,12 +265,42 @@ ul.menu{
 
 .js-topmenu {
     float:right;
-    padding-top:25px;
+    margin-top:25px;
+
+    &#authenticated:hover, &#authenticated.highlight {
+        background: @blue-grey;
+        cursor: pointer;
+        position: relative;
+    }
 
     ul {
+        &#user_menu {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            top: 36px;
+            left: 0;
+            padding: 0;
+            overflow: visible;
+            
+            li {
+                border-top: 1px solid white;
+                list-style-type: none;
+                float: none;
+                background: @blue-grey;
+                padding: 0 10px;
+                
+                &:hover {
+                    background: @call-to-action;
+                    a {
+                        color: white;
+                    }
+                }
+            }
+        }
+
         li {
             float:left;
-            padding:0 10px;
             position: relative;
             z-index: 50;
             
@@ -282,9 +312,13 @@ ul.menu{
             span#welcome {
                 color:@green;
                 .header-text;
-                overflow:auto;
-                //emergency backstop to prevent usernames too long for truncate filter to force header into content area
-                max-width: 240px;                
+                padding: 0 10px;
+                margin-right: 5px;                
+            }
+            
+            img {
+                padding: 0;
+                margin: 0;
             }
             
             #unseen_count {
@@ -314,6 +348,8 @@ ul.menu{
             }
 
             &.last {
+                padding-left: 20px;
+                
                 a {
                     background: url(@background-header) right top no-repeat;
                     

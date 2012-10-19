@@ -610,11 +610,38 @@ ul.menu {
 }
 .js-topmenu {
   float: right;
-  padding-top: 25px;
+  margin-top: 25px;
+}
+.js-topmenu#authenticated:hover,
+.js-topmenu#authenticated.highlight {
+  background: #d6dde0;
+  cursor: pointer;
+  position: relative;
+}
+.js-topmenu ul#user_menu {
+  display: none;
+  z-index: 100;
+  position: absolute;
+  top: 36px;
+  left: 0;
+  padding: 0;
+  overflow: visible;
+}
+.js-topmenu ul#user_menu li {
+  border-top: 1px solid white;
+  list-style-type: none;
+  float: none;
+  background: #d6dde0;
+  padding: 0 10px;
+}
+.js-topmenu ul#user_menu li:hover {
+  background: #8dc63f;
+}
+.js-topmenu ul#user_menu li:hover a {
+  color: white;
 }
 .js-topmenu ul li {
   float: left;
-  padding: 0 10px;
   position: relative;
   z-index: 50;
 }
@@ -651,8 +678,12 @@ ul.menu {
   font-weight: bold;
   font-size: 13px;
   letter-spacing: -0.05em;
-  overflow: auto;
-  max-width: 240px;
+  padding: 0 10px;
+  margin-right: 5px;
+}
+.js-topmenu ul li img {
+  padding: 0;
+  margin: 0;
 }
 .js-topmenu ul li #unseen_count div {
   border: solid 2px;
@@ -678,6 +709,9 @@ ul.menu {
   border-color: #d6dde0;
   background-color: #d6dde0;
   color: #edf3f4;
+}
+.js-topmenu ul li.last {
+  padding-left: 20px;
 }
 .js-topmenu ul li.last a {
   background: url("/static/images/bg.png") right top no-repeat;
