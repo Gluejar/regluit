@@ -640,6 +640,11 @@ ul.menu {
 .js-topmenu ul#user_menu li:hover a {
   color: white;
 }
+.js-topmenu ul#user_menu li:hover #i_haz_notifications {
+  border-color: white;
+  background-color: white;
+  color: #3d4e53;
+}
 .js-topmenu ul li {
   float: left;
   position: relative;
@@ -685,31 +690,6 @@ ul.menu {
   padding: 0;
   margin: 0;
 }
-.js-topmenu ul li #unseen_count div {
-  border: solid 2px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  padding: 3px;
-  line-height: 16px;
-  width: 16px;
-  cursor: pointer;
-  text-align: center;
-  margin-left: -10px;
-}
-.js-topmenu ul li #unseen_count div#i_haz_notifications {
-  background-color: #8dc63f;
-  color: white;
-  border-color: #8dc63f;
-}
-.js-topmenu ul li #unseen_count div#no_notifications_for_you {
-  border-color: #d6dde0;
-  background-color: #d6dde0;
-  color: #edf3f4;
-}
 .js-topmenu ul li.last {
   padding-left: 20px;
 }
@@ -728,6 +708,31 @@ ul.menu {
   display: block;
   padding: 0 5px 0 15px;
   color: white;
+}
+.js-topmenu ul .unseen_count {
+  border: solid 2px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  padding: 3px;
+  line-height: 16px;
+  width: 16px;
+  cursor: pointer;
+  text-align: center;
+  margin-left: 10px;
+}
+.js-topmenu ul .unseen_count#i_haz_notifications {
+  background-color: #8dc63f;
+  color: white;
+  border-color: #8dc63f;
+}
+.js-topmenu ul .unseen_count#no_notifications_for_you {
+  border-color: #edf3f4;
+  background-color: #edf3f4;
+  color: #3d4e53;
 }
 .js-search {
   float: left;

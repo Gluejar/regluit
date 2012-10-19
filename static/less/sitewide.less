@@ -295,6 +295,13 @@ ul.menu{
                     a {
                         color: white;
                     }
+
+                    #i_haz_notifications {
+                        border-color: white;
+                        background-color: white;
+                        color: @text-blue;
+                    }
+        
                 }
             }
         }
@@ -321,32 +328,6 @@ ul.menu{
                 margin: 0;
             }
             
-            #unseen_count {
-            	
-            	div {
-					border: solid 2px;
-					.one-border-radius(5px);
-					padding: 3px;
-					line-height: 16px;
-					width: 16px;
-					cursor: pointer;
-					text-align: center;
-					margin-left: -10px;
-					
-					&#i_haz_notifications {
-						background-color: @call-to-action;
-						color: white;
-						border-color: @call-to-action;
-					}
-					
-					&#no_notifications_for_you {
-						border-color: @blue-grey;
-						background-color: @blue-grey;
-						color: @pale-blue;
-					}
-            	}
-            }
-
             &.last {
                 padding-left: 20px;
                 
@@ -363,6 +344,29 @@ ul.menu{
                         color: white;
                     }
                 }
+            }
+        }
+        
+        .unseen_count {	
+            border: solid 2px;
+            .one-border-radius(5px);
+            padding: 3px;
+            line-height: 16px;
+            width: 16px;
+            cursor: pointer;
+            text-align: center;
+            margin-left: 10px;
+            
+            &#i_haz_notifications {
+                background-color: @call-to-action;
+                color: white;
+                border-color: @call-to-action;
+            }
+            
+            &#no_notifications_for_you {
+                border-color: @pale-blue;
+                background-color: @pale-blue;
+                color: @text-blue;
             }
         }
     }

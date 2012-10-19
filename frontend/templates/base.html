@@ -89,17 +89,20 @@
                         </li>
                         <ul id="user_menu">
                             <li><a href="{% url supporter supporter_username=user.username %}">Wishlist</a></li>
-                            <li><a href="/notification"><span>Messages</span></a></li>
+                            <li>
+                                <a href="/notification"><span>Messages</span>
+                                    {% if unseen_count %}
+                                        <span id="i_haz_notifications" class="unseen_count">{{ unseen_count }}</span>
+                                    {% else %}
+                                        <span id="no_notifications_for_you" class="unseen_count">0</span>
+                                    {% endif %}
+                                </a>
+                            </li>
                             <li><a href="{% url manage_account %}"><span>Account Settings</span></a></li>
                             <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                         </ul>
                         <li>
                             {% comment %}
-                                {% if unseen_count %}
-                                <a href="/notification" id="unseen_count"><div id="i_haz_notifications">{{ unseen_count }}</div></a>
-                                {% else %}
-                                <a href="/notification" id="unseen_count"><div id="no_notifications_for_you">0</div></a>
-                                {% endif %}
                             {% endcomment %}
                             {% if supporter.profile.pic_url %}
                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height=36 width="36" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
