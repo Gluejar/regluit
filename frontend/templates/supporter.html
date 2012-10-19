@@ -21,7 +21,13 @@
 <script type="text/javascript">
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
-        $j('#user-block-hide').hide();
+        if(window.location.hash!="#edit") {
+            $j('#user-block-hide').hide();
+        } else {
+            $j('#user-block-hide').css({"background": "#8dc63f"}).animate(
+                {backgroundColor: "white"}, 1500
+            );
+        }
         $j('#edit_profile').click(function() {
                 $j("#user-block-hide").slideToggle(300);
         });
