@@ -267,12 +267,17 @@ ul.menu{
     float:right;
     margin-top:25px;
 
+    &#authenticated {
+        .one-border-radius(5px);
+        height: 36px;
+    }
+    
     &#authenticated:hover, &#authenticated.highlight {
         background: @blue-grey;
         cursor: pointer;
         position: relative;
     }
-
+    
     ul {
         &#user_menu {
             display: none;
@@ -320,7 +325,11 @@ ul.menu{
                 color:@green;
                 .header-text;
                 padding: 0 10px;
-                margin-right: 5px;                
+                margin-right: 5px;    
+                
+                img {
+                    vertical-align: middle;
+                }
             }
             
             img {

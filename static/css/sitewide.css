@@ -612,6 +612,15 @@ ul.menu {
   float: right;
   margin-top: 25px;
 }
+.js-topmenu#authenticated {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  height: 36px;
+}
 .js-topmenu#authenticated:hover,
 .js-topmenu#authenticated.highlight {
   background: #d6dde0;
@@ -685,6 +694,9 @@ ul.menu {
   letter-spacing: -0.05em;
   padding: 0 10px;
   margin-right: 5px;
+}
+.js-topmenu ul li span#welcome img {
+  vertical-align: middle;
 }
 .js-topmenu ul li img {
   padding: 0;
