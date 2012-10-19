@@ -1057,7 +1057,7 @@ class UserProfile(models.Model):
         if last:
             return last.anonymous
         else:
-            return ''    
+            return None    
     
 #class CampaignSurveyResponse(models.Model):
 #    # generic
