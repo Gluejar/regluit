@@ -147,6 +147,12 @@ def card (number=TEST_CARDS[0][0], exp_month=1, exp_year=2020, cvc=None, name=No
     
     return filter_none(card)
 
+def _isListableAPIResource(x):
+    """test whether x is an instance of the stripe.ListableAPIResource class"""
+    try:
+        return issubclass(x, stripe.ListableAPIResource)
+    except:
+        return False
 
 class StripeClient(object):
     def __init__(self, api_key=STRIPE_SK):
@@ -214,30 +220,59 @@ class StripeClient(object):
         # https://stripe.com/docs/api?lang=python#refund_charge
         ch = stripe.Charge(api_key=self.api_key).retrieve(charge_id)
         ch.refund()
-        return ch
-
-    def list_all_charges(self, count=None, offset=None, customer=None):
-        # https://stripe.com/docs/api?lang=python#list_charges
-        return stripe.Charge(api_key=self.api_key).all(count=count, offset=offset, customer=customer)
+        return ch 
         
-    def list_events(self, **kwargs):
-        """a generator for events"""
+    def _all_objs(self, class_type, **kwargs):
+        """a generic iterator for all classes of type stripe.ListableAPIResource"""
         # type=None, created=None, count=None, offset=0
-        # 
+        # obj_type: one of  'Charge','Coupon','Customer', 'Event','Invoice', 'InvoiceItem', 'Plan', 'Transfer'
 
-        kwargs2 = kwargs.copy()
-        kwargs2.setdefault('offset', 0)
-        kwargs2.setdefault('count', 100)  
-                
-        more_items = True
-        while more_items:
-            items = self.event.all(**kwargs2)['data']
-            for item in items:
-                yield item
-            if len(items):
-                kwargs2['offset'] += len(items)
+        try:
+            stripe_class = getattr(stripe, class_type)
+        except:
+            yield StopIteration
+        else:
+            if _isListableAPIResource(stripe_class):
+                kwargs2 = kwargs.copy()
+                kwargs2.setdefault('offset', 0)
+                kwargs2.setdefault('count', 100)  
+                        
+                more_items = True
+                while more_items:
+                    
+                    items = stripe_class(api_key=self.api_key).all(**kwargs2)['data']
+                    for item in items:
+                        yield item
+                    if len(items):
+                        kwargs2['offset'] += len(items)
+                    else:
+                        more_items = False
             else:
-                more_items = False       
+                yield StopIteration
+             
+    def __getattribute__(self, name):
+        """ handle list_* calls"""
+        mapping = {'list_charges':"Charge",
+                   'list_coupons': "Coupon",
+                   'list_customers':"Customer", 
+                   'list_events':"Event",
+                   'list_invoices':"Invoice",
+                   'list_invoiceitems':"InvoiceItem",
+                   'list_plans':"Plan",
+                   'list_transfers':"Transfer"
+                    }
+        if name in mapping.keys():
+            class_value = mapping[name]
+            def list_events(**kwargs):
+                for e in self._all_objs(class_value, **kwargs):
+                    yield e                
+            return list_events                    
+        else:
+            return object.__getattribute__(self, name)
+            
+            
+
+
             
 # can't test Transfer in test mode: "There are no transfers in test mode."
 
@@ -284,6 +319,7 @@ class StripeClient(object):
 #      * we shouldn't see processing_error very often
 #
 #   * expired_card -- also not easily simulatable in test mode
+
 
 
 class StripeErrorTest(TestCase):
