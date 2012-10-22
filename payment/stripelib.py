@@ -684,7 +684,19 @@ class Processor(baseprocessor.Processor):
             # not able to parse request.body -- throw a "Bad Request" error
             return HttpResponse(status=400)
         else:
-            return HttpResponse("hello from Stripe IPN: {0}".format(event_json))
+            # now parse out pieces of the webhook
+            event_id = event_json.get("id")
+            # use Stripe to ask for details -- ignore what we're sent for security
+            
+            sc = StripeClient()
+            try:
+                event = sc.event.retrieve(event_id)
+            except stripe.InvalidRequestError:
+                logger.info("Invalid Event ID: {0}".format(event_id))
+                return HttpResponse(status=400)
+            else:
+                event_type = event.get("type")
+                return HttpResponse("event_id: {0} event_type: {1}".format(event_id, event_type))
 
 
 def suite():
