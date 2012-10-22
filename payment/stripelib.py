@@ -2,6 +2,7 @@
 # https://stripe.com/docs/api?lang=python#top
 
 import logging
+import json
 from datetime import datetime, timedelta
 from pytz import utc
 from itertools import islice
@@ -673,7 +674,17 @@ class Processor(baseprocessor.Processor):
             self.currency = transaction.currency
             self.amount = transaction.amount
     def ProcessIPN(self, request):
-        return HttpResponse("hello from Stripe IPN")
+        # retrieve the request's body and parse it as JSON in, e.g. Django
+        #event_json = json.loads(request.body)
+        # what places to put in db to log?
+        try:
+            event_json = json.loads(request.body)
+            logger.info("event_json: {0}".format(event_json))
+        except ValueError:
+            # not able to parse request.body -- throw a "Bad Request" error
+            return HttpResponse(status=400)
+        else:
+            return HttpResponse("hello from Stripe IPN: {0}".format(event_json))
 
 
 def suite():
