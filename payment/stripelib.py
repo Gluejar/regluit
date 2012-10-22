@@ -7,6 +7,7 @@ from pytz import utc
 from itertools import islice
 
 from django.conf import settings
+from django.http import  HttpResponse
 
 from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
