@@ -1045,7 +1045,7 @@ class UserProfile(models.Model):
     def ack_name(self):
         # use preferences from last transaction, if any
         last = self.last_transaction
-        if last:
+        if last and last.ack_name:
             return last.ack_name
         else:
             return self.user.username
