@@ -6,6 +6,7 @@ import json
 from datetime import datetime, timedelta
 from pytz import utc
 from itertools import islice
+import re
 
 from django.conf import settings
 from django.http import  HttpResponse
@@ -678,9 +679,10 @@ class Processor(baseprocessor.Processor):
         # retrieve the request's body and parse it as JSON in, e.g. Django
         try:
             event_json = json.loads(request.body)
-            logger.info("event_json: {0}".format(event_json))
-        except ValueError:
+            logger.debug("event_json: {0}".format(event_json))
+        except ValueError, e:
             # not able to parse request.body -- throw a "Bad Request" error
+            logger.warning("Non-json being sent to Stripe IPN: {0}".format(e))
             return HttpResponse(status=400)
         else:
             # now parse out pieces of the webhook
@@ -691,7 +693,7 @@ class Processor(baseprocessor.Processor):
             try:
                 event = sc.event.retrieve(event_id)
             except stripe.InvalidRequestError:
-                logger.info("Invalid Event ID: {0}".format(event_id))
+                logger.warning("Invalid Event ID: {0}".format(event_id))
                 return HttpResponse(status=400)
             else:
                 event_type = event.get("type")
@@ -700,7 +702,8 @@ class Processor(baseprocessor.Processor):
                 # use signals?
                 try:
                     (resource, action) = re.match("([^\.]+)\.(.*)", event_type).groups()
-                except:
+                except Exception, e:
+                    logger.warning("Parsing of event_type into resource, action failed: {0}".format(e))
                     return HttpResponse(status=400)
                 
                 if event_type == 'account.updated':
@@ -711,18 +714,20 @@ class Processor(baseprocessor.Processor):
                     # we need to handle: succeeded, failed, refunded, disputed
                     pass
                 elif resource == 'customer':
-                    if 'action' == 'created':
+                    if action == 'created':
                         # test application: email Raymond
                         # do we have a flag to indicate production vs non-production? -- or does it matter?
                         try:
                             ev_object = event.get("data").get("object")
-                        except:
-                            pass
+                        except Exception, e:
+                            logger.warning("attempt to retrieve event object failed: {0}".format(e))                            
+                            return HttpResponse(status=400)
                         else:
-                            send_mail("Stripe Customer for {0} created".format(ev_object.get("description")),
+                            send_mail("Stripe Customer (id {0};  description: {1}) created".format(ev_object.get("id"), ev_object.get("description")),
                                       "Stripe Customer email: {0}".format(ev_object.get("email")),
                                       "notices@gluejar.com",
                                       ["rdhyee@gluejar.com"])
+                            logger.info("email sent for customer.created for {0}".format(ev_object.get("id")))
                     # handle updated, deleted
                     else:
                         pass
