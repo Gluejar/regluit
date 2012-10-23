@@ -427,7 +427,6 @@ def manage_campaign(request, id):
         'premium_form' : new_premium_form,
         'work': work,
         'activetab': activetab,
-        'is_preview': settings.IS_PREVIEW
     })
         
 def googlebooks(request, googlebooks_id):
