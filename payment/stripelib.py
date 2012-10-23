@@ -678,7 +678,6 @@ class Processor(baseprocessor.Processor):
         # retrieve the request's body and parse it as JSON in, e.g. Django
         try:
             event_json = json.loads(request.body)
-            logger.info("event_json: {0}".format(event_json))
         except ValueError:
             # not able to parse request.body -- throw a "Bad Request" error
             return HttpResponse(status=400)
@@ -700,7 +699,8 @@ class Processor(baseprocessor.Processor):
                 # use signals?
                 try:
                     (resource, action) = re.match("([^\.]+)\.(.*)", event_type).groups()
-                except:
+                except Exception, e:
+                    logger.error("exception {0} -- had problem parsing resource, action out of {1}".format(e, event_type))
                     return HttpResponse(status=400)
                 
                 if event_type == 'account.updated':
@@ -716,8 +716,8 @@ class Processor(baseprocessor.Processor):
                         # do we have a flag to indicate production vs non-production? -- or does it matter?
                         try:
                             ev_object = event.get("data").get("object")
-                        except:
-                            pass
+                        except Exception, e:
+                            logger.error(e)
                         else:
                             send_mail("Stripe Customer for {0} created".format(ev_object.get("description")),
                                       "Stripe Customer email: {0}".format(ev_object.get("email")),
