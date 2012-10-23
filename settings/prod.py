@@ -151,3 +151,6 @@ try:
     from regluit.settings.local import *
 except ImportError:
     pass
+    
+# we should suppress Google Analytics outside of production
+SHOW_GOOGLE_ANALYTICS = True
