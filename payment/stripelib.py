@@ -675,8 +675,6 @@ class Processor(baseprocessor.Processor):
             self.amount = transaction.amount
     def ProcessIPN(self, request):
         # retrieve the request's body and parse it as JSON in, e.g. Django
-        #event_json = json.loads(request.body)
-        # what places to put in db to log?
         try:
             event_json = json.loads(request.body)
             logger.info("event_json: {0}".format(event_json))
@@ -696,6 +694,27 @@ class Processor(baseprocessor.Processor):
                 return HttpResponse(status=400)
             else:
                 event_type = event.get("type")
+                # https://stripe.com/docs/api?lang=python#event_types -- type to delegate things
+                # parse out type as resource.action
+                # use signals?
+                try:
+                    (resource, action) = re.match("([^\.]+)\.(.*)", event_type).groups()
+                except:
+                    return HttpResponse(status=400)
+                
+                if event_type == 'account.updated':
+                    # should we alert ourselves?
+                    # how about account.application.deauthorized ?
+                    pass
+                elif resource == 'charge':
+                    # we need to handle: succeeded, failed, refunded, disputed
+                    pass
+                elif resource == 'customer':
+                    # handle created, updated, deleted
+                    pass
+                else:
+                    pass
+                
                 return HttpResponse("event_id: {0} event_type: {1}".format(event_id, event_type))
 
 
