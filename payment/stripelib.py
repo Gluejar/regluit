@@ -9,6 +9,7 @@ from itertools import islice
 
 from django.conf import settings
 from django.http import  HttpResponse
+from django.core.mail import send_mail
 
 from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
@@ -710,8 +711,21 @@ class Processor(baseprocessor.Processor):
                     # we need to handle: succeeded, failed, refunded, disputed
                     pass
                 elif resource == 'customer':
-                    # handle created, updated, deleted
-                    pass
+                    if 'action' == 'created':
+                        # test application: email Raymond
+                        # do we have a flag to indicate production vs non-production? -- or does it matter?
+                        try:
+                            ev_object = event.get("data").get("object")
+                        except:
+                            pass
+                        else:
+                            send_mail("Stripe Customer for {0} created".format(ev_object.get("description")),
+                                      "Stripe Customer email: {0}".format(ev_object.get("email")),
+                                      "notices@gluejar.com",
+                                      ["rdhyee@gluejar.com"])
+                    # handle updated, deleted
+                    else:
+                        pass
                 else:
                     pass
                 
