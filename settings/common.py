@@ -293,3 +293,6 @@ class NONPROFIT:
     is_on = False
     name = 'Library Renewal'
     link = 'http://127.0.0.1:8000/donate_to_campaign/'
+    
+# we should suppress Google Analytics outside of production
+SHOW_GOOGLE_ANALYTICS = False
