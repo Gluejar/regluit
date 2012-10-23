@@ -12,19 +12,17 @@ $j().ready(function() {
 	var anonbox = $j('#anonbox input');
 	var ackSection = $j('#ack_section');
 	var supporterName = $j('#pass_supporter_name').html();
-	var ackName = $j('#pass_ack_name').html();
-	var ackLink = $j('#pass_ack_link').html();
-	var ackDedication = $j('#pass_ack_dedication').html();
+	var ackName = $j('#id_ack_name').val();
+	var ackDedication = $j('#id_ack_dedication').val();
 	if(ackDedication == 'None') {
 		ackDedication = '';
 	}
 	var acks = {
 		ack_name: ackName,
-		ack_link: ackLink,
 		ack_dedication: ackDedication
 	};
 		
-	var ackAnon = $j('#pass_anon').html();
+	var ackAnon = $j('#id_anonymous').val();
 
 	// we're not letting people submit arbitrary links
 	$j('#id_ack_link').attr('disabled', 'disabled');
@@ -75,17 +73,11 @@ $j().ready(function() {
 	// fill mandatory premium link input with supporter page
 	var activateLink = function() {
 		$j('#ack_link').removeClass('ack_inactive').addClass('ack_active');
-		if(ackLink) {
-			$j('input#id_ack_link').val(ackLink);
-		} else {
-			$j('input#id_ack_link').val('https://unglue.it/supporter/'+supporterName);
-		}
 	}
 	
 	// empty mandatory premium link
 	var deactivateLink = function() {
 		$j('#ack_link').removeClass('ack_active').addClass('ack_inactive');
-		$j('input#id_ack_link').val('');
 	}
 	
 	var anonymizeName = function() {
