@@ -407,36 +407,38 @@ $j(document).ready(function(){
                 </div>
             </div>
             {% if status == 'ACTIVE' %}
-            <div class="jsmodule">
-                <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
-                <div class="jsmod-content">
-                    <ul class="support menu">
-                        {% if pledged %}
-							{% for premium in premiums %}
-							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Yours!</div>{% endif %}
-								<span class="menu-item-desc">{{ premium.description }}</span>
-								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
-							</a></li>
-							{% endif %}
-							{% endfor %}
-                        {% else %}
-							{% for premium in premiums %}
-							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-							<a href="{% url pledge work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>
-								<span class="menu-item-desc">{{ premium.description }}</span>
-								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
-							</a></li>
-							{% endif %}
-							{% endfor %}
-                        {% endif %}                        
-                     </ul>
-                </div>
-            </div>
+                {% if premiums %}
+                    <div class="jsmodule">
+                        <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
+                        <div class="jsmod-content">
+                            <ul class="support menu">
+                                {% if pledged %}
+                                    {% for premium in premiums %}
+                                    {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
+                                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                    <a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
+                                        <span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Yours!</div>{% endif %}
+                                        <span class="menu-item-desc">{{ premium.description }}</span>
+                                        {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+                                    </a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    {% for premium in premiums %}
+                                    {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
+                                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                    <a href="{% url pledge work_id %}?premium_id={{premium.id}}">
+                                        <span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ premium.description }}</span>
+                                        {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+                                    </a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                {% endif %}                        
+                             </ul>
+                        </div>
+                    </div>
+                {% endif %}
             <div class="jsmodule">
                 <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
                 <div class="jsmod-content">
