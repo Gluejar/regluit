@@ -198,7 +198,7 @@ $j(document).ready(function(){
                                 </div>
                             {% else %}{% if request.user.id in work.last_campaign.supporters %}
 								<div class="add-wishlist">
-							        <span class="on-wishlist">Pledged!</span>
+							        <span class="on-wishlist">Yours!</span>
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
@@ -416,7 +416,7 @@ $j(document).ready(function(){
 							{% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
 							<li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
 							<a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
-								<span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Pledged!</div>{% endif %}
+								<span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Yours!</div>{% endif %}
 								<span class="menu-item-desc">{{ premium.description }}</span>
 								{% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
 							</a></li>
@@ -437,6 +437,43 @@ $j(document).ready(function(){
                      </ul>
                 </div>
             </div>
+            <div class="jsmodule">
+                <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
+                <div class="jsmod-content">
+                    <ul class="support menu">
+                        {% if pledged %}
+                        {% with pledged.0.amount as amount %}
+							<li class="first">
+                                <a href="{% url pledge_modify work_id %}">
+                                    <span class="menu-item-price">Any amount</span>{% if amount < 25 %}<div class="you_pledged">Yours!</div>{% endif %}
+                                    <span class="menu-item-desc">The unglued ebook, free for you to read and share.</span>
+                                </a>
+							</li>
+							<li>
+                                <a href="{% url pledge_modify work_id %}">
+                                    <span class="menu-item-price">$25 and up</span>{% if amount >= 25 and amount < 50 %}<div class="you_pledged">Yours!</div>{% endif %}
+                                    <span class="menu-item-desc">Your name in the acknowledgements section under "Supporters".</span>
+                                </a>
+							</li>
+							<li>
+                                <a href="{% url pledge_modify work_id %}">
+                                    <span class="menu-item-price">$50 and up</span>{% if amount >= 50 and amount < 100 %}<div class="you_pledged">Yours!</div>{% endif %}
+                                    <span class="menu-item-desc">Your name &amp; profile link in the acknowledgements section under "Benefactors".</span>
+                                </a>
+							</li>
+							<li class="last">
+                                <a href="{% url pledge_modify work_id %}">
+                                    <span class="menu-item-price">$100 and up</span>{% if amount >= 100 %}<div class="you_pledged">Yours!</div>{% endif %}
+                                    <span class="menu-item-desc">Your name, profile link, &amp; a dedication of your choice in the acknowledgements section under "Bibliophiles".</span>
+                                </a>
+							</li>
+						{% endwith %}
+						{% else %}
+						{% endif %}
+                    </ul>
+                </div>
+            </div>
+
             {% endif %}
         </div>
         </div>
