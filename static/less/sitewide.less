@@ -265,12 +265,54 @@ ul.menu{
 
 .js-topmenu {
     float:right;
-    padding-top:25px;
+    margin-top:25px;
 
+    &#authenticated {
+        .one-border-radius(5px);
+        height: 36px;
+    }
+    
+    &#authenticated:hover, &#authenticated.highlight {
+        background: @blue-grey;
+        cursor: pointer;
+        position: relative;
+    }
+    
     ul {
+        &#user_menu {
+            display: none;
+            z-index: 100;
+            position: absolute;
+            top: 36px;
+            left: 0;
+            padding: 0;
+            overflow: visible;
+            
+            li {
+                border-top: 1px solid white;
+                list-style-type: none;
+                float: none;
+                background: @blue-grey;
+                padding: 0 10px;
+                
+                &:hover {
+                    background: @call-to-action;
+                    a {
+                        color: white;
+                    }
+
+                    #i_haz_notifications {
+                        border-color: white;
+                        background-color: white;
+                        color: @text-blue;
+                    }
+        
+                }
+            }
+        }
+
         li {
             float:left;
-            padding:0 10px;
             position: relative;
             z-index: 50;
             
@@ -282,43 +324,26 @@ ul.menu{
             span#welcome {
                 color:@green;
                 .header-text;
-                overflow:auto;
-                //emergency backstop to prevent usernames too long for truncate filter to force header into content area
-                max-width: 240px;                
+                padding: 0 10px;
+                margin-right: 5px;    
+                
+                img {
+                    vertical-align: middle;
+                }
             }
             
-            #unseen_count {
-            	
-            	div {
-					border: solid 2px;
-					.one-border-radius(5px);
-					padding: 3px;
-					line-height: 16px;
-					width: 16px;
-					cursor: pointer;
-					text-align: center;
-					margin-left: -10px;
-					
-					&#i_haz_notifications {
-						background-color: @call-to-action;
-						color: white;
-						border-color: @call-to-action;
-					}
-					
-					&#no_notifications_for_you {
-						border-color: @blue-grey;
-						background-color: @blue-grey;
-						color: @pale-blue;
-					}
-            	}
+            img {
+                padding: 0;
+                margin: 0;
             }
-
+            
             &.last {
+                padding-left: 20px;
+                
                 a {
                     background: url(@background-header) right top no-repeat;
                     
                     span {
-                        //background:url(@background-header) -770px -36px no-repeat;
                         .border-radius(32px, 0, 0, 32px);
                         background-color: @call-to-action;
                         margin-right:29px;
@@ -327,6 +352,29 @@ ul.menu{
                         color: white;
                     }
                 }
+            }
+        }
+        
+        .unseen_count {	
+            border: solid 2px;
+            .one-border-radius(5px);
+            padding: 3px;
+            line-height: 16px;
+            width: 16px;
+            cursor: pointer;
+            text-align: center;
+            margin-left: 10px;
+            
+            &#i_haz_notifications {
+                background-color: @call-to-action;
+                color: white;
+                border-color: @call-to-action;
+            }
+            
+            &#no_notifications_for_you {
+                border-color: @pale-blue;
+                background-color: @pale-blue;
+                color: @text-blue;
             }
         }
     }
