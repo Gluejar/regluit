@@ -630,6 +630,9 @@ ul.support li {
   padding: 10px 5px 10px 10px;
   background: url("/static/images/icons/pledgearrow.png") 98% center no-repeat;
 }
+ul.support li.last {
+  border-bottom: none;
+}
 ul.support li span {
   display: block;
   padding-right: 10px;
