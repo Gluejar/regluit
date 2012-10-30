@@ -706,32 +706,43 @@ class Processor(baseprocessor.Processor):
                     logger.warning("Parsing of event_type into resource, action failed: {0}".format(e))
                     return HttpResponse(status=400)
                 
+                try:
+                    ev_object = event.get("data").get("object")
+                except Exception, e:
+                    logger.warning("attempt to retrieve event object failed: {0}".format(e))                            
+                    return HttpResponse(status=400)
+                
                 if event_type == 'account.updated':
                     # should we alert ourselves?
                     # how about account.application.deauthorized ?
                     pass
                 elif resource == 'charge':
                     # we need to handle: succeeded, failed, refunded, disputed
-                    pass
+                    if action == 'succeeded':
+                        logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
+                    elif action == 'failed':
+                        pass
+                    elif action == 'refunded':
+                        pass
+                    elif action == 'disputed':
+                        pass                    
+                    else:
+                        pass
                 elif resource == 'customer':
                     if action == 'created':
                         # test application: email Raymond
                         # do we have a flag to indicate production vs non-production? -- or does it matter?
-                        try:
-                            ev_object = event.get("data").get("object")
-                        except Exception, e:
-                            logger.warning("attempt to retrieve event object failed: {0}".format(e))                            
-                            return HttpResponse(status=400)
-                        else:
-                            send_mail("Stripe Customer (id {0};  description: {1}) created".format(ev_object.get("id"), ev_object.get("description")),
-                                      "Stripe Customer email: {0}".format(ev_object.get("email")),
-                                      "notices@gluejar.com",
-                                      ["rdhyee@gluejar.com"])
-                            logger.info("email sent for customer.created for {0}".format(ev_object.get("id")))
+                        # email RY whenever a new Customer created -- we probably want to replace this with some other
+                        # more useful long tem action.
+                        send_mail("Stripe Customer (id {0};  description: {1}) created".format(ev_object.get("id"), ev_object.get("description")),
+                                  "Stripe Customer email: {0}".format(ev_object.get("email")),
+                                  "notices@gluejar.com",
+                                  ["rdhyee@gluejar.com"])
+                        logger.info("email sent for customer.created for {0}".format(ev_object.get("id")))
                     # handle updated, deleted
                     else:
                         pass
-                else:
+                else:  # other events
                     pass
                 
                 return HttpResponse("event_id: {0} event_type: {1}".format(event_id, event_type))
