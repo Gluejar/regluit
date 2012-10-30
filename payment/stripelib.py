@@ -623,8 +623,8 @@ class Processor(baseprocessor.Processor):
             # look at transaction.preapproval_key
             # is it a customer or a token?
             
-            # BUGBUG:  replace description with somethin more useful
-            # TO DO: rewrapping StripeError to StripelibError -- but maybe we should be more specific
+            # BUGBUG:  replace description with something more useful
+            # BUGBUG: we should charge transaction against the User's current account -- not a cus_ token....
             if transaction.preapproval_key.startswith('cus_'):
                 try:
                     charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
@@ -719,7 +719,10 @@ class Processor(baseprocessor.Processor):
                 elif resource == 'charge':
                     # we need to handle: succeeded, failed, refunded, disputed
                     if action == 'succeeded':
+                        from regluit.payment.signals import transaction_charged
                         logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
+                        # figure out how to pull related transaction if any
+                        
                     elif action == 'failed':
                         pass
                     elif action == 'refunded':
