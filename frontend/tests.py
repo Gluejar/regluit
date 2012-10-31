@@ -179,6 +179,7 @@ class UnifiedCampaignTests(TestCase):
     def test_setup(self):
         # testing basics:  are there 3 users?
         from django.contrib.auth.models import User
+
         self.assertEqual(User.objects.count(), 3)
         # make sure we know the passwords for the users
         #RaymondYee / raymond.yee@gmail.com / Test_Password_
@@ -188,9 +189,29 @@ class UnifiedCampaignTests(TestCase):
         self.assertTrue(self.client.login(username="RaymondYee", password="Test_Password_"))
         self.assertTrue(self.client.login(username="hmelville", password="gofish!"))
         self.assertTrue(self.client.login(username="dataunbound", password="numbers_unbound"))
-
         
-    def test_relaunch(self):
+        # how many works and campaigns?
+        self.assertEqual(Work.objects.count(), 3)
+        self.assertEqual(Campaign.objects.count(), 2)
+        
+
+    def test_pledge1(self):
         # how much of test.campaigntest.test_relaunch can be done here?
-        pass
+        self.assertTrue(self.client.login(username="RaymondYee", password="Test_Password_"))
+        
+        # Pro Web 2.0 Mashups
+        self.work = Work.objects.get(id=1)
+        r = self.client.get("/work/%s/" % (self.work.id))
+        
+        r = self.client.get("/work/%s/" % self.work.id)
+        self.assertEqual(r.status_code, 200)
+
+        # go to pledge page
+        r = self.client.get("/pledge/%s" % self.work.id, data={}, follow=True)
+        self.assertEqual(r.status_code, 200)
+        
+        # submit to pledge page
+        r = self.client.post("/pledge/%s" % self.work.id, data={'preapproval_amount':'10',
+                                                                'premium_id':'150'}, follow=True)
+        self.assertEqual(r.status_code, 200)                
     
