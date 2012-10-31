@@ -14,7 +14,7 @@ from django.core.mail import send_mail
 
 from regluit.payment.models import Account
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
+from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_ERROR, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
 from regluit.payment import baseprocessor
 from regluit.utils.localdatetime import now, zuluformat
 
@@ -548,9 +548,6 @@ class Processor(baseprocessor.Processor):
             user.profile.account.deactivate()
         account.save()       
         return account
-    
-    class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
-        pass
         
     class Preapproval(StripePaymentRequest, baseprocessor.Processor.Preapproval):
         
@@ -615,33 +612,46 @@ class Processor(baseprocessor.Processor):
         def __init__(self, transaction=None):
             self.transaction = transaction
             
-            # execute transaction
-            assert transaction.host == PAYMENT_HOST_STRIPE
+            # make sure we are dealing with a stripe transaction
+            if transaction.host <> PAYMENT_HOST_STRIPE:
+                raise StripeLibError("transaction.host {0} is not the expected {1}".format(transaction.host, PAYMENT_HOST_STRIPE))
             
             sc = StripeClient()
             
-            # look at transaction.preapproval_key
-            # is it a customer or a token?
+            # look first for transaction.user.profile.account.account_id
+            try:
+                customer_id = transaction.user.profile.account.account_id
+            except:
+                customer_id = transaction.preapproval_key
             
-            # BUGBUG:  replace description with somethin more useful
-            # TO DO: rewrapping StripeError to StripelibError -- but maybe we should be more specific
-            if transaction.preapproval_key.startswith('cus_'):
+            if customer_id is not None:    
                 try:
-                    charge = sc.create_charge(transaction.amount, customer=transaction.preapproval_key, description="${0} for test / retain cc".format(transaction.amount))
+                    # useful things to put in description: transaction.id, transaction.user.id,  customer_id, transaction.amount
+                    charge = sc.create_charge(transaction.amount, customer=customer_id,
+                                              description="t.id:{0}\temail:{1}\tcus.id:{2}\tc.id:{3}\tamount:{4}".format(transaction.id,
+                                                    transaction.user.email, customer_id, transaction.campaign.id,
+                                                    transaction.amount) )
+
                 except stripe.StripeError as e:
-                    raise StripelibError(e.message, e)
-            elif transaction.preapproval_key.startswith('tok_'):
-                try:
-                    charge = sc.create_charge(transaction.amount, card=transaction.preapproval_key, description="${0} for test / cc not retained".format(transaction.amount))
-                except stripe.StripeError as e:
+                    # what to record in terms of errors?
+
+                    transaction.status = TRANSACTION_STATUS_ERROR
+                    transaction.error = e.message
+                    transaction.save()                    
+                    
                     raise StripelibError(e.message, e)
                     
-            transaction.status = TRANSACTION_STATUS_COMPLETE
-            transaction.pay_key = charge.id
-            transaction.date_payment = now()
-            transaction.save()
-                
-            self.charge = charge
+                else:
+                    self.charge = charge
+                    
+                    transaction.status = TRANSACTION_STATUS_COMPLETE
+                    transaction.pay_key = charge.id
+                    transaction.date_payment = now()
+                    transaction.save()
+            else:
+                # nothing to charge
+                raise StripeLibError("No customer id available to charge tor transaction {0}".format(transaction.id), None)
+    
     
         def api(self):
             return "Base Pay"

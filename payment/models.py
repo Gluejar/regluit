@@ -56,7 +56,7 @@ class Transaction(models.Model):
     # whether a Preapproval has been approved or not
     approved = models.NullBooleanField(null=True)
     
-    # error message from a PayPal transaction
+    # error message from a transaction
     error = models.CharField(max_length=256, null=True)
     
     # IPN.reason_code
