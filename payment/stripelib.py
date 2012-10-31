@@ -729,7 +729,10 @@ class Processor(baseprocessor.Processor):
                 elif resource == 'charge':
                     # we need to handle: succeeded, failed, refunded, disputed
                     if action == 'succeeded':
+                        from regluit.payment.signals import transaction_charged
                         logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
+                        # figure out how to pull related transaction if any
+                        
                     elif action == 'failed':
                         pass
                     elif action == 'refunded':
