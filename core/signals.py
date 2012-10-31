@@ -31,20 +31,21 @@ def facebook_extra_values(sender, user, response, details, **kwargs):
 
 pre_update.connect(facebook_extra_values, sender=FacebookBackend)
 
-
 # create Wishlist and UserProfile to associate with User
 def create_user_objects(sender, created, instance, **kwargs):
     # use get_model to avoid circular import problem with models
-    try:
-        Wishlist = get_model('core', 'Wishlist')
-        UserProfile = get_model('core', 'UserProfile')
-        if created:
-            Wishlist.objects.create(user=instance)
-            UserProfile.objects.create(user=instance)
-    except DatabaseError:
-        # this can happen when creating superuser during syncdb since the
-        # core_wishlist table doesn't exist yet
-        return
+    # don't create Wishlist or UserProfile if we are loading fixtures http://stackoverflow.com/a/3500009/7782
+    if not kwargs.get('raw', False):
+        try:
+            Wishlist = get_model('core', 'Wishlist')
+            UserProfile = get_model('core', 'UserProfile')
+            if created:
+                Wishlist.objects.create(user=instance)
+                UserProfile.objects.create(user=instance)
+        except DatabaseError:
+            # this can happen when creating superuser during syncdb since the
+            # core_wishlist table doesn't exist yet
+            return
 
 post_save.connect(create_user_objects, sender=User)
 

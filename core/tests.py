@@ -326,9 +326,6 @@ class BookLoaderTests(TestCase):
         ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
         self.assertEqual(ebook.url, epub_url)
         
-        
-        
-
 
 class SearchTests(TestCase):
 
@@ -380,7 +377,6 @@ class CampaignTests(TestCase):
         self.assertEqual(c.license_url, 'http://creativecommons.org/licenses/by-nc/3.0/')
         self.assertEqual(c.license_badge, 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png')
         
-
     def test_campaign_status(self):
         
         # need a user to associate with a transaction

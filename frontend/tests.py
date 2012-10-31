@@ -173,4 +173,24 @@ class PledgingUiTests(TestCase):
         
     def tearDown(self):
         pass
+
+class UnifiedCampaignTests(TestCase):
+    fixtures=['basic_campaign_test.json']
+    def test_setup(self):
+        # testing basics:  are there 3 users?
+        from django.contrib.auth.models import User
+        self.assertEqual(User.objects.count(), 3)
+        # make sure we know the passwords for the users
+        #RaymondYee / raymond.yee@gmail.com / Test_Password_
+        #hmelville / rdhyee@yahoo.com / gofish!
+        #dataunbound / raymond.yee@dataunbound.com / numbers_unbound
+        self.client = Client()
+        self.assertTrue(self.client.login(username="RaymondYee", password="Test_Password_"))
+        self.assertTrue(self.client.login(username="hmelville", password="gofish!"))
+        self.assertTrue(self.client.login(username="dataunbound", password="numbers_unbound"))
+
+        
+    def test_relaunch(self):
+        # how much of test.campaigntest.test_relaunch can be done here?
+        pass
     

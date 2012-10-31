@@ -3,5 +3,5 @@
 django-admin.py syncdb --migrate <<'EOF'
 no
 EOF
-django-admin.py loaddata ../test/fixtures/basic_campaign_test.json 
+django-admin.py loaddata ../core/fixtures/basic_campaign_test.json 
 
