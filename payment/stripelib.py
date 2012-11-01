@@ -689,7 +689,6 @@ class Processor(baseprocessor.Processor):
         # retrieve the request's body and parse it as JSON in, e.g. Django
         try:
             event_json = json.loads(request.body)
-            logger.debug("event_json: {0}".format(event_json))
         except ValueError, e:
             # not able to parse request.body -- throw a "Bad Request" error
             logger.warning("Non-json being sent to Stripe IPN: {0}".format(e))

@@ -7,10 +7,14 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 
 from regluit.core.models import Work, Campaign, RightsHolder, Claim
+from regluit.payment.models import Transaction
+from regluit.payment.manager import PaymentManager
+from regluit.payment.stripelib import StripeClient, TEST_CARDS, card
 
 from decimal import Decimal as D
 from regluit.utils.localdatetime import now
 from datetime import timedelta
+import time
 
 class WishlistTests(TestCase):
 
@@ -178,7 +182,6 @@ class UnifiedCampaignTests(TestCase):
     fixtures=['basic_campaign_test.json']
     def test_setup(self):
         # testing basics:  are there 3 users?
-        from django.contrib.auth.models import User
 
         self.assertEqual(User.objects.count(), 3)
         # make sure we know the passwords for the users
@@ -211,7 +214,52 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(r.status_code, 200)
         
         # submit to pledge page
-        r = self.client.post("/pledge/%s" % self.work.id, data={'preapproval_amount':'10',
+        r = self.client.post("/pledge/%s/" % self.work.id, data={'preapproval_amount':'10',
                                                                 'premium_id':'150'}, follow=True)
-        self.assertEqual(r.status_code, 200)                
+        self.assertEqual(r.status_code, 200)
+        
+        # Should now be on the fund page
+        pledge_fund_path = r.request.get('PATH_INFO')
+        self.assertTrue(pledge_fund_path.startswith('/pledge/fund'))
+        # pull out the transaction info
+        t_id = int(pledge_fund_path.replace('/pledge/fund/',''))
+        
+        # r.content holds the page content
+        # create a stripe token to submit to form
+        
+        # track start time and end time of these stipe interactions so that we can limit the window of Events to look for
+        time0 = time.time()
+        
+        sc = StripeClient()
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='Raymond Yee',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
+        stripe_token = sc.create_token(card=card1)
+        r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token.id}, follow=True)
+        
+        # where are we now?
+        self.assertEqual(r.request.get('PATH_INFO'), '/pledge/complete/')
+        self.assertEqual(r.status_code, 200)
+        
+        # dig up the transaction and charge it
+        pm = PaymentManager()
+        transaction = Transaction.objects.get(id=t_id)
+        self.assertTrue(pm.execute_transaction(transaction, ()))
+        
+        time1 = time.time()
+        
+        # retrieve events from this period -- need to pass in ints for event creation times
+        events = list(sc._all_objs('Event', created={'gte':int(time0), 'lte':int(time1+1.0)}))
+
+        # expect to have 2 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
+        # events returned sorted in reverse chronological order.        
+        
+        self.assertEqual(len(events), 2)
+        self.assertEqual(events[0].type, 'charge.succeeded')
+        self.assertEqual(events[1].type, 'customer.created')
+        
+
+        
+        
+
+       
     
