@@ -688,6 +688,7 @@ class Processor(baseprocessor.Processor):
     def ProcessIPN(self, request):
         # retrieve the request's body and parse it as JSON in, e.g. Django
         try:
+            logger.info("request.body: {0}".format(request.body))
             event_json = json.loads(request.body)
         except ValueError, e:
             # not able to parse request.body -- throw a "Bad Request" error

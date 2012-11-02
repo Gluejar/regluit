@@ -5,6 +5,8 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.core import mail
+
 
 from regluit.core.models import Work, Campaign, RightsHolder, Claim
 from regluit.payment.models import Transaction
@@ -15,6 +17,7 @@ from decimal import Decimal as D
 from regluit.utils.localdatetime import now
 from datetime import timedelta
 import time
+import json
 
 class WishlistTests(TestCase):
 
@@ -197,6 +200,16 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(Work.objects.count(), 3)
         self.assertEqual(Campaign.objects.count(), 2)
         
+    def test_junk_webhook(self):
+        """send in junk json and then an event that doesn't exist"""
+        # non-json
+        ipn_url = reverse("HandleIPN", args=('stripelib',))
+        r = self.client.post(ipn_url, data="X", content_type="application/json; charset=utf-8")
+        self.assertEqual(r.status_code, 400)
+        # junk event_id
+        r = self.client.post(ipn_url, data='{"id": "evt_XXXXXXXXX"}', content_type="application/json; charset=utf-8")
+        self.assertEqual(r.status_code, 400)        
+        
 
     def test_pledge1(self):
         # how much of test.campaigntest.test_relaunch can be done here?
@@ -256,6 +269,22 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(len(events), 2)
         self.assertEqual(events[0].type, 'charge.succeeded')
         self.assertEqual(events[1].type, 'customer.created')
+        
+        # now feed each of the events to the IPN processor.
+        ipn_url = reverse("HandleIPN", args=('stripelib',))
+        
+        for (i, event) in enumerate(events):
+            r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
+            self.assertEqual(r.status_code, 200)
+            
+        # confirm that an email was sent out for the customer.created event
+        
+        # Test that one message has been sent.
+        # for initial pledging, for successful campaign, for Customer.created event
+        self.assertEqual(len(mail.outbox), 3)
+        
+
+
         
 
         
