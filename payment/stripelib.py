@@ -12,13 +12,27 @@ from django.conf import settings
 from django.http import  HttpResponse
 from django.core.mail import send_mail
 
-from regluit.payment.models import Account
+from regluit.payment.models import Account, Transaction
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_ERROR, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
 from regluit.payment import baseprocessor
 from regluit.utils.localdatetime import now, zuluformat
 
 import stripe
+
+# as of 2012.11.05
+STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized',
+                      'charge.succeeded', 'charge.failed', 'charge.refunded', 'charge.disputed',
+                      'customer.created', 'customer.updated', 'customer.deleted',
+                      'customer.subscription.created', 'customer.subscription.updated',
+                      'customer.subscription.deleted', 'customer.subscription.trial_will_end',
+                      'customer.discount.created', 'customer.discount.updated', 'customer.discount.deleted',
+                      'invoice.created', 'invoice.updated', 'invoice.payment_succeeded', 'invoice.payment_failed',
+                      'invoiceitem.created', 'invoiceitem.updated', 'invoiceitem.deleted',
+                      'plan.created', 'plan.updated', 'plan.deleted',
+                      'coupon.created', 'coupon.updated', 'coupon.deleted',
+                      'transfer.created', 'transfer.updated', 'transfer.failed',
+                      'ping']
 
 logger = logging.getLogger(__name__)
 
@@ -461,8 +475,7 @@ class StripeErrorTest(TestCase):
         except stripe.CardError as e:
             self.assertEqual(e.code, "missing")
             self.assertEqual(e.message, "Cannot charge a customer that has no active card")
-
-        
+ 
 
 class PledgeScenarioTest(TestCase):
     @classmethod
@@ -628,10 +641,11 @@ class Processor(baseprocessor.Processor):
                 try:
                     # useful things to put in description: transaction.id, transaction.user.id,  customer_id, transaction.amount
                     charge = sc.create_charge(transaction.amount, customer=customer_id,
-                                              description="t.id:{0}\temail:{1}\tcus.id:{2}\tc.id:{3}\tamount:{4}".format(transaction.id,
-                                                    transaction.user.email, customer_id, transaction.campaign.id,
-                                                    transaction.amount) )
-
+                                              description=json.dumps({"t.id":transaction.id,
+                                                                      "email":transaction.user.email,
+                                                                      "cus.id":customer_id,
+                                                                      "tc.id": transaction.campaign.id,
+                                                                      "amount": float(transaction.amount)}))
                 except stripe.StripeError as e:
                     # what to record in terms of errors?
 
@@ -685,10 +699,10 @@ class Processor(baseprocessor.Processor):
             # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
             self.currency = transaction.currency
             self.amount = transaction.amount
+            
     def ProcessIPN(self, request):
         # retrieve the request's body and parse it as JSON in, e.g. Django
         try:
-            logger.info("request.body: {0}".format(request.body))
             event_json = json.loads(request.body)
         except ValueError, e:
             # not able to parse request.body -- throw a "Bad Request" error
@@ -707,17 +721,21 @@ class Processor(baseprocessor.Processor):
                 return HttpResponse(status=400)
             else:
                 event_type = event.get("type")
+                if event_type not in STRIPE_EVENT_TYPES:
+                    logger.warning("Unrecognized Stripe event type {0} for event {1}".format(event_type, event_id))
+                    # is this the right code to respond with?
+                    return HttpResponse(status=400)
                 # https://stripe.com/docs/api?lang=python#event_types -- type to delegate things
                 # parse out type as resource.action
-                # use signals?
+
                 try:
-                    (resource, action) = re.match("([^\.]+)\.(.*)", event_type).groups()
+                    (resource, action) = re.match("^(.+)\.([^\.]*)$", event_type).groups()
                 except Exception, e:
                     logger.warning("Parsing of event_type into resource, action failed: {0}".format(e))
                     return HttpResponse(status=400)
                 
                 try:
-                    ev_object = event.get("data").get("object")
+                    ev_object = event.data.object
                 except Exception, e:
                     logger.warning("attempt to retrieve event object failed: {0}".format(e))                            
                     return HttpResponse(status=400)
@@ -731,8 +749,22 @@ class Processor(baseprocessor.Processor):
                     if action == 'succeeded':
                         from regluit.payment.signals import transaction_charged
                         logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
-                        # figure out how to pull related transaction if any
-                        
+                        # try to parse description of object to pull related transaction if any
+                        # wrapping this in a try statement because it possible that we have a charge.succeeded outside context of unglue.it
+                        try:
+                            charge_meta = json.loads(ev_object["description"])
+                            transaction = Transaction.objects.get(id=charge_meta["t.id"])
+                            # now check that account associated with the transaction matches
+                            # ev.data.object.id, t.pay_key
+                            if ev_object.id == transaction.pay_key:
+                                logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
+                            else:
+                                logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
+                            # now -- should fire off transaction_charged here -- if so we need to move it from ?
+                            transaction_charged.send(sender=self, transaction=transaction)
+                        except Exception, e:
+                            logger.warning(e)
+                            
                     elif action == 'failed':
                         pass
                     elif action == 'refunded':
@@ -740,6 +772,7 @@ class Processor(baseprocessor.Processor):
                     elif action == 'disputed':
                         pass                    
                     else:
+                        # unexpected
                         pass
                 elif resource == 'customer':
                     if action == 'created':
