@@ -14,7 +14,7 @@ from social_auth.signals import pre_update
 from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
-from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
+from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
 
 import registration.signals
 import django.dispatch
@@ -94,6 +94,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("pledge_you_have_pledged", _("Thanks For Your Pledge!"), _("Your ungluing pledge has been entered."))
     notification.create_notice_type("pledge_status_change", _("Your Pledge Has Been Modified"), _("Your ungluing pledge has been modified."))
     notification.create_notice_type("pledge_charged", _("Your Pledge has been Executed"), _("You have contributed to a successful ungluing campaign."))
+    notification.create_notice_type("pledge_failed", _("Unable to charge your credit card"), _("A charge to your credit card did not go through."))
     notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You have become a verified Unglue.it rights holder."))
     notification.create_notice_type("rights_holder_claim_approved", _("Claim Accepted"), _("A claim you've entered has been accepted."))
     notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
@@ -170,6 +171,21 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
     emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
+
+# dealing with failed transactions
+
+def handle_transaction_failed(sender,transaction=None, **kwargs):
+    if transaction==None:
+        return
+    notification.queue([transaction.user], "pledge_failed", {
+            'site':Site.objects.get_current(),
+            'transaction':transaction
+        }, True)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
+
+transaction_failed.connect(handle_transaction_failed)
+
 
 def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
     # we need to know if pledges were modified up or down because Amazon handles the

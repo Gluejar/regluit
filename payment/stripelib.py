@@ -16,6 +16,8 @@ from regluit.payment.models import Account, Transaction
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_ERROR, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
 from regluit.payment import baseprocessor
+from regluit.payment.signals import transaction_charged, transaction_failed
+
 from regluit.utils.localdatetime import now, zuluformat
 
 import stripe
@@ -391,7 +393,7 @@ class StripeErrorTest(TestCase):
             self.fail("Attempt to create customer did not throw expected exception.")
         except stripe.CardError as e:
             self.assertEqual(e.code, "card_declined")
-            self.assertEqual(e.message, "Your card was declined.")
+            self.assertEqual(e.message, "Your card was declined")
             
     def test_charge_bad_cust(self):
         # expect the card to be declined -- and for us to get CardError
@@ -747,7 +749,6 @@ class Processor(baseprocessor.Processor):
                 elif resource == 'charge':
                     # we need to handle: succeeded, failed, refunded, disputed
                     if action == 'succeeded':
-                        from regluit.payment.signals import transaction_charged
                         logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
                         # try to parse description of object to pull related transaction if any
                         # wrapping this in a try statement because it possible that we have a charge.succeeded outside context of unglue.it
@@ -766,7 +767,20 @@ class Processor(baseprocessor.Processor):
                             logger.warning(e)
                             
                     elif action == 'failed':
-                        pass
+                        logger.info("charge.failed webhook for {0}".format(ev_object.get("id")))
+                        try:
+                            charge_meta = json.loads(ev_object["description"])
+                            transaction = Transaction.objects.get(id=charge_meta["t.id"])
+                            # now check that account associated with the transaction matches
+                            # ev.data.object.id, t.pay_key
+                            if ev_object.id == transaction.pay_key:
+                                logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
+                            else:
+                                logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
+                            # now -- should fire off transaction_charged here -- if so we need to move it from ?
+                            transaction_failed.send(sender=self, transaction=transaction)
+                        except Exception, e:
+                            logger.warning(e)
                     elif action == 'refunded':
                         pass
                     elif action == 'disputed':

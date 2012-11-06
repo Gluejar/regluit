@@ -11,7 +11,7 @@ from django.core import mail
 from regluit.core.models import Work, Campaign, RightsHolder, Claim
 from regluit.payment.models import Transaction
 from regluit.payment.manager import PaymentManager
-from regluit.payment.stripelib import StripeClient, TEST_CARDS, card
+from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, card
 
 from decimal import Decimal as D
 from regluit.utils.localdatetime import now
@@ -209,14 +209,14 @@ class UnifiedCampaignTests(TestCase):
         # junk event_id
         r = self.client.post(ipn_url, data='{"id": "evt_XXXXXXXXX"}', content_type="application/json; charset=utf-8")
         self.assertEqual(r.status_code, 400)        
-        
 
-    def test_pledge1(self):
+    def pledge_to_work_with_cc(self, username, password, work_id, card, preapproval_amount='10', premium_id='150'):
+        
         # how much of test.campaigntest.test_relaunch can be done here?
-        self.assertTrue(self.client.login(username="RaymondYee", password="Test_Password_"))
+        self.assertTrue(self.client.login(username=username, password=password))
         
         # Pro Web 2.0 Mashups
-        self.work = Work.objects.get(id=1)
+        self.work = Work.objects.get(id=work_id)
         r = self.client.get("/work/%s/" % (self.work.id))
         
         r = self.client.get("/work/%s/" % self.work.id)
@@ -227,8 +227,8 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(r.status_code, 200)
         
         # submit to pledge page
-        r = self.client.post("/pledge/%s/" % self.work.id, data={'preapproval_amount':'10',
-                                                                'premium_id':'150'}, follow=True)
+        r = self.client.post("/pledge/%s/" % self.work.id, data={'preapproval_amount': preapproval_amount,
+                                                                'premium_id':premium_id}, follow=True)
         self.assertEqual(r.status_code, 200)
         
         # Should now be on the fund page
@@ -244,9 +244,7 @@ class UnifiedCampaignTests(TestCase):
         time0 = time.time()
         
         sc = StripeClient()
-        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='Raymond Yee',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
-        stripe_token = sc.create_token(card=card1)
+        stripe_token = sc.create_token(card=card)
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token.id}, follow=True)
         
         # where are we now?
@@ -256,12 +254,32 @@ class UnifiedCampaignTests(TestCase):
         # dig up the transaction and charge it
         pm = PaymentManager()
         transaction = Transaction.objects.get(id=t_id)
-        self.assertTrue(pm.execute_transaction(transaction, ()))
+        
+        # catch any exception and pass it along
+        try:
+            self.assertTrue(pm.execute_transaction(transaction, ()))
+        except Exception, charge_exception:
+            pass
+        else:
+            charge_exception = None
         
         time1 = time.time()
         
         # retrieve events from this period -- need to pass in ints for event creation times
         events = list(sc._all_objs('Event', created={'gte':int(time0), 'lte':int(time1+1.0)}))
+        
+        return (events, charge_exception)
+
+    def good_cc_scenario(self):
+        # how much of test.campaigntest.test_relaunch can be done here?
+        
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='Raymond Yee',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
+        
+        (events, charge_exception) = self.pledge_to_work_with_cc(username="RaymondYee", password="Test_Password_", work_id=1, card=card1,
+                               preapproval_amount='10', premium_id='150')
+        
+        self.assertEqual(charge_exception, None)
 
         # expect to have 2 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
         # events returned sorted in reverse chronological order.        
@@ -276,19 +294,52 @@ class UnifiedCampaignTests(TestCase):
         for (i, event) in enumerate(events):
             r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
             self.assertEqual(r.status_code, 200)
+
+    def bad_cc_scenario(self):
+        """Goal of this scenario: enter a CC that will cause a charge.failed event, have user repledge succesfully"""
+        
+        card1 = card(number=ERROR_TESTING['BAD_ATTACHED_CARD'][0])
+        
+        (events, charge_exception) = self.pledge_to_work_with_cc(username="dataunbound", password="numbers_unbound", work_id=2, card=card1,
+                               preapproval_amount='10', premium_id='150')
+        
+        # we should have an exception when the charge was attempted
+        self.assertTrue(charge_exception is not None)
+
+        # expect to have 2 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
+        # events returned sorted in reverse chronological order.        
+        
+        self.assertEqual(len(events), 2)
+        self.assertEqual(events[0].type, 'charge.failed')
+        self.assertEqual(events[1].type, 'customer.created')
+        
+        # now feed each of the events to the IPN processor.
+        ipn_url = reverse("HandleIPN", args=('stripelib',))
+        
+        for (i, event) in enumerate(events):
+            r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
+            self.assertEqual(r.status_code, 200)
             
-        # confirm that an email was sent out for the customer.created event
-        
-        # Test that one message has been sent.
-        # for initial pledging, for successful campaign, for Customer.created event
-        self.assertEqual(len(mail.outbox), 3)
-        
 
+    def test_good_bad_cc_scenarios(self):
+        self.good_cc_scenario()
+        self.bad_cc_scenario()
+        
+        
+        # look at emails generated through these scenarios 
+        #print len(mail.outbox)
+        #for (i, m) in enumerate(mail.outbox):
+        #    print i, m.subject
 
-        
-
-        
-        
+#0 [localhost:8000] Thank you for supporting Pro Web 2.0 Mashups at Unglue.it!
+#1 [localhost:8000] Thanks to you, the campaign for Pro Web 2.0 Mashups has succeeded!
+#2 Stripe Customer (id cus_0gf9OjXHDhBwjw;  description: RaymondYee) created
+#3 [localhost:8000] Thank you for supporting Moby Dick at Unglue.it!
+#4 [localhost:8000] Someone new has wished for your work at Unglue.it
+#5 [localhost:8000] Thanks to you, the campaign for Moby Dick has succeeded!  However, your credit card charge failed.
+#6 Stripe Customer (id cus_0gf93tJp036kmG;  description: dataunbound) created
+            
+        self.assertEqual(len(mail.outbox), 7)
 
        
     
