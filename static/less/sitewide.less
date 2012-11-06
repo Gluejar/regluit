@@ -142,6 +142,12 @@ img {
     border:none;
 }
 
+img.user-avatar { 
+	float:left; 
+	margin-right:10px;
+	.one-border-radius(7px);
+}
+
 input, textarea, a.fakeinput {
 	border: 2px solid @blue-grey;
 	.one-border-radius(5px);
@@ -279,6 +285,10 @@ ul.menu{
         position: relative;
     }
     
+    &#authenticated.highlight span#welcome {
+        background-image: url("/static/images/menu_bar_up_arrow.png");
+    }
+    
     ul {
         &#user_menu {
             display: none;
@@ -326,11 +336,16 @@ ul.menu{
                 color:@green;
                 .header-text;
                 padding: 0 10px;
-                margin-right: 5px;    
+                margin-right: 5px;
+                padding-right: 22px;
                 
                 img {
                     vertical-align: middle;
                 }
+                
+                background-image: url("/static/images/menu_bar_down_arrow.png");
+                background-repeat: no-repeat;
+                background-position: right;
             }
             
             img {

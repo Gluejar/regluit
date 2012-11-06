@@ -453,6 +453,16 @@ h4 {
 img {
   border: none;
 }
+img.user-avatar {
+  float: left;
+  margin-right: 10px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+}
 input,
 textarea,
 a.fakeinput {
@@ -626,6 +636,9 @@ ul.menu {
   cursor: pointer;
   position: relative;
 }
+.js-topmenu#authenticated.highlight span#welcome {
+  background-image: url("/static/images/menu_bar_up_arrow.png");
+}
 .js-topmenu ul#user_menu {
   display: none;
   z-index: 100;
@@ -689,6 +702,10 @@ ul.menu {
   letter-spacing: -0.05em;
   padding: 0 10px;
   margin-right: 5px;
+  padding-right: 22px;
+  background-image: url("/static/images/menu_bar_down_arrow.png");
+  background-repeat: no-repeat;
+  background-position: right;
 }
 .js-topmenu ul li span#welcome img {
   vertical-align: middle;

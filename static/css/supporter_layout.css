@@ -188,13 +188,6 @@
 .user-block4 {
   margin-top: 7px;
 }
-img.user-avatar {
-  float: left;
-  margin-right: 10px;
-  -moz-border-radius: 7px;
-  -webkit-border-radius: 7px;
-  border-radius: 7px;
-}
 .user-badges {
   position: absolute;
   bottom: 0;
