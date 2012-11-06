@@ -118,7 +118,12 @@
                 <div class="js-topmenu">
                     <ul class="menu">
                         <li><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
-                        <li id="expander" class="last"><a href="{% url registration_register %}"><span>Sign Up</span></a></li>
+                        {% if not suppress_search_box %}
+                        {% comment %}
+                        don't display this on landing page where it's superseded by big signup box in splash area
+                        {% endcomment %}
+                            <li id="expander" class="last"><a href="{% url registration_register %}"><span>Sign Up</span></a></li>
+                        {% endif %}
                     </ul>
                 </div>
             {% endif %}
