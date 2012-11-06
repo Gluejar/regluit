@@ -85,7 +85,7 @@
                 <div class="js-topmenu" id="authenticated">
                     <ul class="menu">
                         <li>
-                            <a href="#"><span id="welcome">Hi, {{ user.username }} {% if unseen_count %}<img src="/static/images/menu_bar_down_arrow.png">{% endif %}</span></a>
+                            <a href="#"><span id="welcome">Hi, {{ user.username }}</span></a>
                         </li>
                         <ul id="user_menu">
                             <li><a href="{% url supporter supporter_username=user.username %}">Wishlist</a></li>
@@ -103,10 +103,13 @@
                             <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                         </ul>
                         <li>
-                            {% if supporter.profile.pic_url %}
-                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height=36 width="36" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                            {% if user.profile.pic_url %}
+                                <img class="user-avatar" src="{{ user.profile.pic_url }}" height=36 width="36" alt="Picture of {{ user.username }}" title="{{ user.username }}" />
                             {% else %}
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="36" width="36" alt="Generic Ungluer Avatar" title="Ungluer" />
+                            {% endif %}
+                            {% if unseen_count %}
+                                <span id="i_haz_notifications_badge#">{{ unseen_count }}</span>
                             {% endif %}
                         </li>
                         {% comment %}
