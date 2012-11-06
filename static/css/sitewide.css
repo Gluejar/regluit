@@ -432,7 +432,7 @@ body {
 }
 a {
   font-weight: bold;
-  font-size: 13px;
+  font-size: inherit;
   text-decoration: none;
   cursor: pointer;
   color: #6994a3;
