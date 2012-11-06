@@ -6,7 +6,6 @@
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .panelborders {
@@ -114,7 +113,6 @@
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .panelborders {
@@ -667,14 +665,12 @@ ul.menu {
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
   height: 36px;
   line-height: 36px;
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .js-topmenu ul li span#welcome {
@@ -684,14 +680,12 @@ ul.menu {
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
   height: 36px;
   line-height: 36px;
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
   padding: 0 10px;
   margin-right: 5px;
