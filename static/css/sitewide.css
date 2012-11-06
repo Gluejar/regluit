@@ -611,6 +611,7 @@ ul.menu {
 .js-topmenu {
   float: right;
   margin-top: 25px;
+  font-size: 15px;
 }
 .js-topmenu#authenticated {
   -moz-border-radius: 5px;
