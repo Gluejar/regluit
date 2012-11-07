@@ -40,9 +40,14 @@
     <script>
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
+        // make drop-down menu happen when they click on their name
         $j('#authenticated').click(function(){
             $j('#user_menu').toggle();
-            $j(this).toggleClass("highlight");
+            $j(this).toggleClass('highlight');
+        });
+        // but suppress it if they're clicking on the badge link to the notifications page
+        $j('#i_haz_notifications_badge').click(function() {
+            event.stopPropagation();
         });
     });
     </script>
@@ -109,7 +114,7 @@
                                 <img class="user-avatar" src="/static/images/header/avatar.png" height="36" width="36" alt="Generic Ungluer Avatar" title="Ungluer" />
                             {% endif %}
                             {% if unseen_count %}
-                                <span id="i_haz_notifications_badge">{{ unseen_count }}</span>
+                                <a href="/notification"><span id="i_haz_notifications_badge">{{ unseen_count }}</span></a>
                             {% endif %}
                         </li>
                         {% comment %}
