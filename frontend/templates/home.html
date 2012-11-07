@@ -67,7 +67,7 @@
                         	<input type="submit" class="signup" value="Sign Up" />
                         </div>
                         </form>
-                        <div class="google_signup">
+                        <div class="google_signup_div">
                             <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
                     {% else %}
@@ -142,8 +142,8 @@
 						<div class="button">
                         	<input type="submit" class="signup" value="sign up" />
                         </div>
-                        <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
+                        <div class="google_signup_div">
+                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div><a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
                         </div>
                       </form>
                     </div>

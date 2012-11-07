@@ -101,6 +101,21 @@
   padding: 10px;
   width: 50%;
 }
+#login .google_signup {
+  padding: 14px 0;
+}
+#login .google_signup div {
+  height: 32px;
+  line-height: 32px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+#login .google_signup img {
+  float: left;
+  height: 32px;
+  width: 32px;
+}
 .actionbutton {
   width: auto;
   height: 36px;

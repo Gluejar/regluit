@@ -360,6 +360,38 @@
   clear: both;
   padding: 10px 0 5px 16px;
 }
+.google_signup_div {
+  padding: 14px 0;
+  padding: 14px 0;
+}
+.google_signup_div div {
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+.google_signup_div img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
+.google_signup_div div {
+  height: 24px;
+  line-height: 24px;
+  height: 24px;
+  line-height: 24px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+.google_signup_div img {
+  float: left;
+  height: 24px;
+  width: 24px;
+}
 .js-rightcol-padd {
   padding: 0;
 }

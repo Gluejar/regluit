@@ -810,6 +810,38 @@ form.login span.helptext {
   font-style: italic;
   font-size: 13px;
 }
+#lightbox_content .google_signup_div {
+  padding: 14px 0;
+  padding: 14px 0;
+}
+#lightbox_content .google_signup_div div {
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+#lightbox_content .google_signup_div img {
+  float: left;
+  height: 36px;
+  width: 36px;
+}
+#lightbox_content .google_signup_div div {
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+#lightbox_content .google_signup_div img {
+  float: left;
+  height: 36px;
+  width: 36px;
+}
 .js-search {
   float: left;
   padding-top: 25px;
