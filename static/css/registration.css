@@ -115,59 +115,6 @@
   padding: 10px;
   width: 50%;
 }
-#login form label {
-  display: block;
-}
-#login form input {
-  width: 90%;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  border: 1px solid #d6dde0;
-  height: 18px;
-  line-height: 18px;
-  margin-bottom: 16px;
-}
-#login form input[type=submit] {
-  text-decoration: capitalize;
-  width: auto;
-  height: 36px;
-  line-height: 36px;
-  background: #8dc63f;
-  -moz-border-radius: 32px;
-  -webkit-border-radius: 32px;
-  border-radius: 32px;
-  color: white;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: bold;
-  padding: 0 15px;
-  border: none;
-  margin: 5px 0;
-}
-#login form input:focus {
-  border: solid 1px #8dc63f;
-}
-#login form span.helptext {
-  display: block;
-  margin-top: -11px;
-  font-style: italic;
-  font-size: 13px;
-}
-#login .google_signup {
-  padding: 14px 0;
-}
-#login .google_signup div {
-  height: 24px;
-  line-height: 24px;
-  float: left;
-  padding-left: 5px;
-}
-#login .google_signup img {
-  float: left;
-  height: 24px;
-  width: 24px;
-}
 .actionbutton {
   width: auto;
   height: 36px;
