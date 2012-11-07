@@ -4,6 +4,7 @@
     {{ form.username }}
     {{ form.password.label_tag }}
     {{ form.password }}
+    <br />
     <input type="submit" value="Sign In" />
 
 <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}/{% endif %}" />

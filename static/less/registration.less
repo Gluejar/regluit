@@ -14,11 +14,6 @@
 	line-height: 18px;
 }
 
-#registration input[type="submit"] {
-    margin: 0 auto;
-    padding: 5px 0;
-}
-
 #login {
 	border: solid 3px @blue-grey;
 	.one-border-radius(5px);
@@ -26,10 +21,13 @@
 	float: left;
 	padding: 10px;
 	width: 50%;	
-
 	
 	.google_signup {
 		.google_signup_div(32px);
+	}
+	
+	input[type="text"], input[type="password"] {
+	    width: 90%;
 	}
 }
 

@@ -87,10 +87,6 @@
   font-size: 13px;
   line-height: 18px;
 }
-#registration input[type="submit"] {
-  margin: 0 auto;
-  padding: 5px 0;
-}
 #login {
   border: solid 3px #d6dde0;
   -moz-border-radius: 5px;
@@ -115,6 +111,10 @@
   float: left;
   height: 32px;
   width: 32px;
+}
+#login input[type="text"],
+#login input[type="password"] {
+  width: 90%;
 }
 .actionbutton {
   width: auto;

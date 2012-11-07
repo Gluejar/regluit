@@ -744,9 +744,10 @@ ul.menu {
 }
 form.login label {
   display: block;
+  line-height: 18px;
 }
 form.login input {
-  width: 90%;
+  width: 50%;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -810,11 +811,11 @@ form.login span.helptext {
   font-style: italic;
   font-size: 13px;
 }
-#lightbox_content .google_signup_div {
+#lightbox_content .google_signup {
   padding: 14px 0;
   padding: 14px 0;
 }
-#lightbox_content .google_signup_div div {
+#lightbox_content .google_signup div {
   height: 36px;
   line-height: 36px;
   height: 36px;
@@ -823,12 +824,12 @@ form.login span.helptext {
   padding-left: 5px;
   font-size: 15px;
 }
-#lightbox_content .google_signup_div img {
+#lightbox_content .google_signup img {
   float: left;
   height: 36px;
   width: 36px;
 }
-#lightbox_content .google_signup_div div {
+#lightbox_content .google_signup div {
   height: 36px;
   line-height: 36px;
   height: 36px;
@@ -837,7 +838,7 @@ form.login span.helptext {
   padding-left: 5px;
   font-size: 15px;
 }
-#lightbox_content .google_signup_div img {
+#lightbox_content .google_signup img {
   float: left;
   height: 36px;
   width: 36px;
