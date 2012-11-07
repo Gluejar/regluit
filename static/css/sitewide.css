@@ -772,6 +772,7 @@ ul.menu {
   background: #8dc63f;
   color: white;
   position: absolute;
+  line-height: normal;
 }
 .js-search {
   float: left;
