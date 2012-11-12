@@ -605,7 +605,7 @@ ul.menu {
   position: relative;
 }
 .js-topmenu#authenticated.highlight span#welcome {
-  background-image: url("/static/images/menu_bar_up_arrow.png");
+  background-image: url("/static/images/menu_bar_up_arrow_textblue.png");
 }
 .js-topmenu ul#user_menu {
   display: none;
@@ -655,7 +655,6 @@ ul.menu {
   letter-spacing: -0.05em;
 }
 .js-topmenu ul li span#welcome {
-  color: #8dc63f;
   height: 36px;
   line-height: 36px;
   display: block;
@@ -671,7 +670,7 @@ ul.menu {
   padding: 0 10px;
   margin-right: 5px;
   padding-right: 22px;
-  background-image: url("/static/images/menu_bar_down_arrow.png");
+  background-image: url("/static/images/menu_bar_down_arrow_textblue.png");
   background-repeat: no-repeat;
   background-position: right;
 }
@@ -703,12 +702,12 @@ ul.menu {
 }
 .js-topmenu ul .unseen_count {
   border: solid 2px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
   padding: 3px;
   line-height: 16px;
   width: 16px;
@@ -719,7 +718,7 @@ ul.menu {
 .js-topmenu ul .unseen_count#i_haz_notifications {
   background-color: #8dc63f;
   color: white;
-  border-color: #8dc63f;
+  border-color: white;
 }
 .js-topmenu ul .unseen_count#no_notifications_for_you {
   border-color: #edf3f4;
@@ -727,12 +726,12 @@ ul.menu {
   color: #3d4e53;
 }
 #i_haz_notifications_badge {
-  -moz-border-radius: 18px;
-  -webkit-border-radius: 18px;
-  border-radius: 18px;
-  -moz-border-radius: 18px;
-  -webkit-border-radius: 18px;
-  border-radius: 18px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
   font-size: 13px;
   border: solid 2px white;
   margin-left: -7px;
@@ -741,6 +740,7 @@ ul.menu {
   background: #8dc63f;
   color: white;
   position: absolute;
+  line-height: normal;
 }
 form.login label {
   display: block;
@@ -886,9 +886,6 @@ form.login span.helptext {
 }
 .js-search-inner {
   float: right;
-}
-#welcome {
-  overflow: hidden;
 }
 #locationhash {
   /* used solely to contain template variables for tabs.js; should not display */
