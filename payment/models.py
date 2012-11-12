@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models import Q
 
-import regluit.payment.manager
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now
@@ -357,22 +356,30 @@ def handle_transaction_delete(sender, instance, **kwargs):
 post_save.connect(handle_transaction_change,sender=Transaction)
 post_delete.connect(handle_transaction_delete,sender=Transaction)
 
+# handle recharging failed transactions
+
 def recharge_failed_transactions(sender, created, instance, **kwargs):
     """When a new Account is saved, check whether this is the new active account for a user.  If so, recharge any
     outstanding failed transactions
     """
-
-    transactions_to_recharge = instance.user.transaction_set.filter((Q(status=TRANSACTION_STATUS_FAILED) | Q(status=TRANSACTION_STATUS_ERROR)) & Q(campaign__status='UNSUCCESSFUL')).all()
+    
+    # make sure the new account is active
+    if instance.date_deactivated is not None:
+        return False
+    
+    transactions_to_recharge = instance.user.transaction_set.filter((Q(status=TRANSACTION_STATUS_FAILED) | Q(status=TRANSACTION_STATUS_ERROR)) & Q(campaign__status='SUCCESSFUL')).all()
 
     if transactions_to_recharge:
-        pm = manager.PaymentManager()
+        from regluit.payment.manager import PaymentManager
+        pm = PaymentManager()
         for transaction in transactions_to_recharge:
             # check whether we are still within the window to recharge
             if (now() - transaction.campaign.deadline) < datetime.timedelta(settings.RECHARGE_WINDOW):
-                pm.execute_transaction(transaction)
+                logger.info("Recharging transaction {0} w/ status {1}".format(transaction.id, transaction.status))
+                pm.execute_transaction(transaction, [])
 
 post_save.connect(recharge_failed_transactions, sender=Account)
 
-# handle recharging failed transactions
+
 
 

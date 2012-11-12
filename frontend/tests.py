@@ -320,11 +320,26 @@ class UnifiedCampaignTests(TestCase):
             r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
             self.assertEqual(r.status_code, 200)
             
+    def recharge_with_new_card(self):        
+        
+        # mark campaign as SUCCESSFUL -- campaign for work 2
+        c = Work.objects.get(id=2).last_campaign()
+        c.status = 'SUCCESSFUL'
+        c.save()
+        
+        # set up a good card
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='dataunbound',
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
 
+        sc = StripeClient()
+        stripe_token = sc.create_token(card=card1)
+        
+        r = self.client.post("/accounts/manage/", data={'stripe_token':stripe_token.id}, follow=True)
+        
     def test_good_bad_cc_scenarios(self):
         self.good_cc_scenario()
         self.bad_cc_scenario()
-        
+        self.recharge_with_new_card()
         
         # look at emails generated through these scenarios 
         #print len(mail.outbox)
@@ -341,5 +356,8 @@ class UnifiedCampaignTests(TestCase):
             
         self.assertEqual(len(mail.outbox), 7)
 
-       
-    
+       # list all transactions
+
+        for t in Transaction.objects.all():
+            print t.id, t.status
+            
