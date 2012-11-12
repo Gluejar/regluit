@@ -11,7 +11,26 @@
 	margin: 0 auto;
 	padding: 10px 0;
 	font-size: @font-size-default;
-	line-height: 18px;
+	line-height: @font-size-default*1.5;
+	
+	input[type="text"], input[type="password"] {
+    	.height(@font-size-default*1.75);
+        margin-bottom: @font-size-default;
+        border-width: 2px;
+	}
+	
+	input[type="submit"] {
+	    font-size: @font-size-larger;
+	}
+	
+	.helptext {
+	    font-style: italic;
+
+	    &:before {
+	        white-space: pre;
+	        content: "\A";
+	    }
+	}
 }
 
 #login {
@@ -94,4 +113,9 @@
 	border-top: 1px solid @blue-grey;
 	margin-top: 10px;
 	padding-top: 5px;
+}
+
+label:before {
+    content: "\A";
+    white-space: pre;
 }

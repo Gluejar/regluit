@@ -759,7 +759,7 @@ form.login input {
   line-height: 18px;
   height: 18px;
   line-height: 18px;
-  margin-bottom: 16px;
+  margin-bottom: 6px;
 }
 form.login input[type=submit] {
   text-decoration: capitalize;

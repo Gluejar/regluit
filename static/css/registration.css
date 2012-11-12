@@ -85,7 +85,24 @@
   margin: 0 auto;
   padding: 10px 0;
   font-size: 13px;
-  line-height: 18px;
+  line-height: 19.5px;
+}
+#registration input[type="text"],
+#registration input[type="password"] {
+  height: 22.75px;
+  line-height: 22.75px;
+  margin-bottom: 13px;
+  border-width: 2px;
+}
+#registration input[type="submit"] {
+  font-size: 15px;
+}
+#registration .helptext {
+  font-style: italic;
+}
+#registration .helptext:before {
+  white-space: pre;
+  content: "\A";
 }
 #login {
   border: solid 3px #d6dde0;
@@ -184,4 +201,8 @@
   border-top: 1px solid #d6dde0;
   margin-top: 10px;
   padding-top: 5px;
+}
+label:before {
+  content: "\A";
+  white-space: pre;
 }
