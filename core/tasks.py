@@ -81,7 +81,7 @@ def send_mail_task(subject, message, from_email, recipient_list,
 @task
 def update_active_campaign_status():
     """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
-    return [c.update_status(send_notice=True) for c in Campaign.objects.filter(status='Active') ]
+    return [c.update_status(send_notice=True, ignore_deadline_for_success=True, process_transactions=True) for c in Campaign.objects.filter(status='Active') ]
  
 @task
 def emit_notifications():
