@@ -6,7 +6,6 @@
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .panelborders {
@@ -114,7 +113,6 @@
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .panelborders {
@@ -432,7 +430,7 @@ body {
 }
 a {
   font-weight: bold;
-  font-size: 13px;
+  font-size: inherit;
   text-decoration: none;
   cursor: pointer;
   color: #6994a3;
@@ -454,6 +452,16 @@ h4 {
 }
 img {
   border: none;
+}
+img.user-avatar {
+  float: left;
+  margin-right: 10px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
+  -moz-border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border-radius: 7px;
 }
 input,
 textarea,
@@ -611,6 +619,7 @@ ul.menu {
 .js-topmenu {
   float: right;
   margin-top: 25px;
+  font-size: 15px;
 }
 .js-topmenu#authenticated {
   -moz-border-radius: 5px;
@@ -626,6 +635,9 @@ ul.menu {
   background: #d6dde0;
   cursor: pointer;
   position: relative;
+}
+.js-topmenu#authenticated.highlight span#welcome {
+  background-image: url("/static/images/menu_bar_up_arrow_textblue.png");
 }
 .js-topmenu ul#user_menu {
   display: none;
@@ -666,34 +678,33 @@ ul.menu {
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
   height: 36px;
   line-height: 36px;
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .js-topmenu ul li span#welcome {
-  color: #8dc63f;
   height: 36px;
   line-height: 36px;
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
   height: 36px;
   line-height: 36px;
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
   padding: 0 10px;
   margin-right: 5px;
+  padding-right: 22px;
+  background-image: url("/static/images/menu_bar_down_arrow_textblue.png");
+  background-repeat: no-repeat;
+  background-position: right;
 }
 .js-topmenu ul li span#welcome img {
   vertical-align: middle;
@@ -723,12 +734,12 @@ ul.menu {
 }
 .js-topmenu ul .unseen_count {
   border: solid 2px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  border-radius: 5px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
   padding: 3px;
   line-height: 16px;
   width: 16px;
@@ -739,12 +750,29 @@ ul.menu {
 .js-topmenu ul .unseen_count#i_haz_notifications {
   background-color: #8dc63f;
   color: white;
-  border-color: #8dc63f;
+  border-color: white;
 }
 .js-topmenu ul .unseen_count#no_notifications_for_you {
   border-color: #edf3f4;
   background-color: #edf3f4;
   color: #3d4e53;
+}
+#i_haz_notifications_badge {
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
+  -moz-border-radius: 700px;
+  -webkit-border-radius: 700px;
+  border-radius: 700px;
+  font-size: 13px;
+  border: solid 2px white;
+  margin-left: -7px;
+  margin-top: -10px;
+  padding: 3px;
+  background: #8dc63f;
+  color: white;
+  position: absolute;
+  line-height: normal;
 }
 .js-search {
   float: left;
@@ -789,9 +817,6 @@ ul.menu {
 }
 .js-search-inner {
   float: right;
-}
-#welcome {
-  overflow: hidden;
 }
 #locationhash {
   /* used solely to contain template variables for tabs.js; should not display */

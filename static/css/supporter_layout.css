@@ -5,7 +5,6 @@
   display: block;
   text-decoration: none;
   font-weight: bold;
-  font-size: 13px;
   letter-spacing: -0.05em;
 }
 .panelborders {
@@ -188,13 +187,6 @@
 }
 .user-block4 {
   margin-top: 7px;
-}
-img.user-avatar {
-  float: left;
-  margin-right: 10px;
-  -moz-border-radius: 7px;
-  -webkit-border-radius: 7px;
-  border-radius: 7px;
 }
 .user-badges {
   position: absolute;
