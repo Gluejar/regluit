@@ -286,7 +286,7 @@ ul.menu{
     }
     
     &#authenticated.highlight span#welcome {
-        background-image: url("/static/images/menu_bar_up_arrow.png");
+        background-image: url("/static/images/menu_bar_up_arrow_textblue.png");
     }
     
     ul {
@@ -333,7 +333,6 @@ ul.menu{
             }
             
             span#welcome {
-                color:@green;
                 .header-text;
                 padding: 0 10px;
                 margin-right: 5px;
@@ -343,7 +342,7 @@ ul.menu{
                     vertical-align: middle;
                 }
                 
-                background-image: url("/static/images/menu_bar_down_arrow.png");
+                background-image: url("/static/images/menu_bar_down_arrow_textblue.png");
                 background-repeat: no-repeat;
                 background-position: right;
             }
@@ -373,7 +372,7 @@ ul.menu{
         
         .unseen_count {	
             border: solid 2px;
-            .one-border-radius(5px);
+            .one-border-radius(700px);
             padding: 3px;
             line-height: 16px;
             width: 16px;
@@ -384,7 +383,7 @@ ul.menu{
             &#i_haz_notifications {
                 background-color: @call-to-action;
                 color: white;
-                border-color: @call-to-action;
+                border-color: white;
             }
             
             &#no_notifications_for_you {
@@ -397,7 +396,7 @@ ul.menu{
 }
 
 #i_haz_notifications_badge {
-    .one-border-radius(18px);
+    .one-border-radius(700px);
     font-size: @font-size-default;
     border: solid 2px white;
     margin-left: -7px;
@@ -406,6 +405,7 @@ ul.menu{
     background: @call-to-action;
     color: white;
     position: absolute;
+    line-height: normal;
 }
 
 .js-search {
@@ -449,10 +449,6 @@ ul.menu{
 
 .js-search-inner { 
     float:right;
-}
-
-#welcome {
-	overflow: hidden;
 }
 
 #locationhash {

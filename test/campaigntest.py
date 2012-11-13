@@ -189,7 +189,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     input_username = WebDriverWait(sel,20).until(lambda d : d.find_element_by_css_selector("input#id_username"))
     input_username.send_keys(USER)
     sel.find_element_by_css_selector("input#id_password").send_keys(PASSWORD)
-    sel.find_element_by_css_selector("input[value*='sign in']").click()    
+    sel.find_element_by_css_selector("input[value*='Sign In']").click()    
     
     # click on biggest campaign list
     # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
