@@ -449,9 +449,8 @@ class Processor(baseprocessor.Processor):
     def make_account(self, user, token=None):
         """returns a payment.models.Account based on stripe token and user"""
         
-        if token == None:
-            # shouldn't happen
-            return None
+        if token is None:
+           raise StripelibError("input token is None", None)
 
         sc = StripeClient()
         
