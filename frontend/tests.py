@@ -360,4 +360,42 @@ class UnifiedCampaignTests(TestCase):
 
         for t in Transaction.objects.all():
             print t.id, t.status
-            
+    
+    def test_stripe_token_none(self):
+        # how much of test.campaigntest.test_relaunch can be done here?
+        username="RaymondYee"
+        password="Test_Password_"
+        work_id =1
+        preapproval_amount='10'
+        premium_id='150'
+        
+        self.assertTrue(self.client.login(username=username, password=password))
+        
+        # Pro Web 2.0 Mashups
+        self.work = Work.objects.get(id=work_id)
+        r = self.client.get("/work/%s/" % (self.work.id))
+        
+        r = self.client.get("/work/%s/" % self.work.id)
+        self.assertEqual(r.status_code, 200)
+
+        # go to pledge page
+        r = self.client.get("/pledge/%s" % self.work.id, data={}, follow=True)
+        self.assertEqual(r.status_code, 200)
+        
+        # submit to pledge page
+        r = self.client.post("/pledge/%s/" % self.work.id, data={'preapproval_amount': preapproval_amount,
+                                                                'premium_id':premium_id}, follow=True)
+        self.assertEqual(r.status_code, 200)
+        
+        # Should now be on the fund page
+        pledge_fund_path = r.request.get('PATH_INFO')
+        self.assertTrue(pledge_fund_path.startswith('/pledge/fund'))
+        # pull out the transaction info
+        t_id = int(pledge_fund_path.replace('/pledge/fund/',''))        
+        
+        stripe_token = ''
+        r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token}, follow=True)
+        print r.status_code, r.request.get('PATH_INFO')
+        print dir(r)
+
+        
