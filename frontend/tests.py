@@ -362,7 +362,8 @@ class UnifiedCampaignTests(TestCase):
             print t.id, t.status
     
     def test_stripe_token_none(self):
-        # how much of test.campaigntest.test_relaunch can be done here?
+        """Test that if an empty stripe_token is submitted to pledge page, we catch that issue and present normal error page to user"""
+        
         username="RaymondYee"
         password="Test_Password_"
         work_id =1
@@ -394,8 +395,9 @@ class UnifiedCampaignTests(TestCase):
         t_id = int(pledge_fund_path.replace('/pledge/fund/',''))        
         
         stripe_token = ''
+
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token}, follow=True)
-        print r.status_code, r.request.get('PATH_INFO')
-        print dir(r)
+        self.assertEqual(r.status_code, 200)
+
 
         
