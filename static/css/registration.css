@@ -87,16 +87,6 @@
   font-size: 13px;
   line-height: 19.5px;
 }
-#registration input[type="text"],
-#registration input[type="password"] {
-  height: 22.75px;
-  line-height: 22.75px;
-  margin-bottom: 13px;
-  border-width: 2px;
-}
-#registration input[type="submit"] {
-  font-size: 15px;
-}
 #registration .helptext {
   font-style: italic;
 }

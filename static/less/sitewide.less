@@ -415,7 +415,7 @@ form.login {
     }
     
     input {
-        width: 50%;
+        width: 90%;
         .one-border-radius(5px);
         border: 1px solid @blue-grey;
         .height(18px);
@@ -430,6 +430,17 @@ form.login {
             border: solid 1px @call-to-action;
         }
     }
+
+	input[type="text"], input[type="password"] {
+    	.height(@font-size-default*1.75);
+        margin-bottom: @font-size-default;
+        border-width: 2px;
+	}
+	
+	input[type="submit"] {
+	    font-size: @font-size-larger;
+	}
+	
     
     span.helptext {
         display: block;
@@ -709,12 +720,9 @@ a.nounderline {
 	border: solid 5px @blue-grey;
 	background: white;
 	z-index: 500;
-	position: absolute;
-	left: 12.5%;
-	width: 75%;
 	top: 25%;
-	margin-left: 0;
 	padding: 9px;
+	max-width: 90%;
 	
 	.collapser_x {
 		margin-top: -27px;
@@ -755,6 +763,9 @@ a.nounderline {
 		clear: none;
 	}
 	
+	h2 + form, h3 + form, h4 + form {
+	    margin-top: 15px;
+	}
 }
 
 // need to style /about/X pages such that they will not conflict with lightboxed About from header

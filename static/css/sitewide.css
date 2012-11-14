@@ -747,7 +747,7 @@ form.login label {
   line-height: 18px;
 }
 form.login input {
-  width: 50%;
+  width: 90%;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
   border-radius: 5px;
@@ -804,6 +804,18 @@ form.login input[type=submit] {
 }
 form.login input:focus {
   border: solid 1px #8dc63f;
+}
+form.login input[type="text"],
+form.login input[type="password"] {
+  height: 22.75px;
+  line-height: 22.75px;
+  height: 22.75px;
+  line-height: 22.75px;
+  margin-bottom: 13px;
+  border-width: 2px;
+}
+form.login input[type="submit"] {
+  font-size: 15px;
 }
 form.login span.helptext {
   display: block;
@@ -1114,12 +1126,9 @@ a.nounderline {
   border: solid 5px #d6dde0;
   background: white;
   z-index: 500;
-  position: absolute;
-  left: 12.5%;
-  width: 75%;
   top: 25%;
-  margin-left: 0;
   padding: 9px;
+  max-width: 90%;
 }
 #about_expandable .collapser_x {
   margin-top: -27px;
@@ -1150,6 +1159,11 @@ a.nounderline {
   float: right;
   margin-top: 0;
   clear: none;
+}
+#lightbox_content h2 + form,
+#lightbox_content h3 + form,
+#lightbox_content h4 + form {
+  margin-top: 15px;
 }
 .nonlightbox .about_page {
   -moz-border-radius: 5px;
