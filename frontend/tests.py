@@ -331,41 +331,39 @@ class UnifiedCampaignTests(TestCase):
         card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='dataunbound',
           address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
 
+        # track start time and end time of these stipe interactions so that we can limit the window of Events to look for
+        time0 = time.time()
+        
         sc = StripeClient()
         stripe_token = sc.create_token(card=card1)
         
         r = self.client.post("/accounts/manage/", data={'stripe_token':stripe_token.id}, follow=True)
         
+        time1 = time.time()
+        
+        # retrieve events from this period -- need to pass in ints for event creation times
+        events = list(sc._all_objs('Event', created={'gte':int(time0), 'lte':int(time1+1.0)}))
+        
+        # now feed each of the events to the IPN processor.
+        ipn_url = reverse("HandleIPN", args=('stripelib',))
+        
+        for (i, event) in enumerate(events):
+            r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
+            self.assertEqual(r.status_code, 200)
+        
+        
     def test_good_bad_cc_scenarios(self):
         self.good_cc_scenario()
         self.bad_cc_scenario()
         self.recharge_with_new_card()
-        
-        # look at emails generated through these scenarios 
-        #print len(mail.outbox)
-        #for (i, m) in enumerate(mail.outbox):
-        #    print i, m.subject
-
-#0 [localhost:8000] Thank you for supporting Pro Web 2.0 Mashups at Unglue.it!
-#1 [localhost:8000] Thanks to you, the campaign for Pro Web 2.0 Mashups has succeeded!
-#2 Stripe Customer (id cus_0gf9OjXHDhBwjw;  description: RaymondYee) created
-#3 [localhost:8000] Thank you for supporting Moby Dick at Unglue.it!
-#4 [localhost:8000] Someone new has wished for your work at Unglue.it
-#5 [localhost:8000] Thanks to you, the campaign for Moby Dick has succeeded!  However, your credit card charge failed.
-#6 Stripe Customer (id cus_0gf93tJp036kmG;  description: dataunbound) created
-            
-        self.assertEqual(len(mail.outbox), 7)
-
-       # list all transactions
-
-        for t in Transaction.objects.all():
-            print t.id, t.status
+        self.stripe_token_none()
+        self.confirm_num_mail()
     
-    def test_stripe_token_none(self):
+    def stripe_token_none(self):
         """Test that if an empty stripe_token is submitted to pledge page, we catch that issue and present normal error page to user"""
         
-        username="RaymondYee"
-        password="Test_Password_"
+        username="hmelville"
+        password="gofish!"
         work_id =1
         preapproval_amount='10'
         premium_id='150'
@@ -399,5 +397,22 @@ class UnifiedCampaignTests(TestCase):
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token}, follow=True)
         self.assertEqual(r.status_code, 200)
 
+  
+    def confirm_num_mail(self):
+        # look at emails generated through these scenarios 
+        #print len(mail.outbox)
+        #for (i, m) in enumerate(mail.outbox):
+        #    print i, m.subject
+            
+        self.assertEqual(len(mail.outbox), 9)
 
-        
+#0 [localhost:8000] Thank you for supporting Pro Web 2.0 Mashups at Unglue.it!
+#1 [localhost:8000] Thanks to you, the campaign for Pro Web 2.0 Mashups has succeeded!
+#2 Stripe Customer (id cus_0ji1hFS8xLluuZ;  description: RaymondYee) created
+#3 [localhost:8000] Thank you for supporting Moby Dick at Unglue.it!
+#4 [localhost:8000] Someone new has wished for your work at Unglue.it
+#5 [localhost:8000] Thanks to you, the campaign for Moby Dick has succeeded!  However, your credit card charge failed.
+#6 Stripe Customer (id cus_0ji2Cmu6sXKBCi;  description: dataunbound) created
+#7 [localhost:8000] Thanks to you, the campaign for Moby Dick has succeeded!
+#8 Stripe Customer (id cus_0ji24dPDiFGWU2;  description: dataunbound) created
+
