@@ -46,22 +46,20 @@ from django.conf import settings
 # for Django 1.4 should switch to django.utils.timezone.now()
 # see https://code.djangoproject.com/browser/django/trunk/django/utils/timezone.py?rev=17642#L232
 
-# if there is a LOCALDATETIME_NOW in the Django settings, use that to be _now
-
-if hasattr(settings, 'LOCALDATETIME_NOW') and settings.LOCALDATETIME_NOW is not None:
-    _now = settings.LOCALDATETIME_NOW
-else:
-    try:
-        _now = django.utils.timezone.now
-    except AttributeError, e:
-        _now = datetime.datetime.now
+def now():
+    if hasattr(settings, 'LOCALDATETIME_NOW') and settings.LOCALDATETIME_NOW is not None:
+        return settings.LOCALDATETIME_NOW()
+    else:
+        try:
+            return django.utils.timezone.now()
+        except AttributeError, e:
+            return datetime.datetime.now()    
     
-now = lambda: _now()
-
 # provide a replacement for datetime.date.today()
 # this will be timezone naive -- is that what we really want?
 
-date_today = lambda: _now().date()
+def date_today():
+    return now().date()
 
 # borrow a lot of the routines/code that will be in Django 1.4+ django.utils.timezone
 # https://code.djangoproject.com/browser/django/trunk/django/utils/timezone.py
