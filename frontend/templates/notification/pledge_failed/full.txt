@@ -1,0 +1,16 @@
+{% load humanize %}Congratulations!
+
+Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.
+
+Pledge summary 
+{% include "notification/pledge_summary.txt" %}    
+
+We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
+
+If you'd like to visit the campaign page, click here: 
+https://{{ site.domain }}{% url work transaction.campaign.work.id %}
+
+Thank you again for your support.
+
+{{ transaction.campaign.rightsholder }} and the Unglue.it team
+

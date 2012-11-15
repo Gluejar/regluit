@@ -1,0 +1,31 @@
+{% extends "notification/notice_template.html" %}
+{% load humanize %}
+
+{% block comments_book %}
+			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.  Thank you again for your help.
+{% endblock %}
+
+{% block comments_textual %}
+		<p>Congratulations!</p>
+		
+		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
+                Our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.</p>
+		
+		<p><b>Pledge Summary</b><br />
+		Amount pledged: {{ transaction.amount|intcomma }}<br />
+		Premium: {{ transaction.premium.description }} <br />
+		</p>
+		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
+		</p>
+		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">campaign page</a>.
+		
+		</p>
+		<p>Thank you again for your support.
+		</p>
+		<p>{{ transaction.campaign.rightsholder }} and the Unglue.it team
+		</p>
+{% endblock %}
