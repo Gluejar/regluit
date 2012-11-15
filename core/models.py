@@ -306,6 +306,7 @@ class Campaign(models.Model):
             if process_transactions:
                 p = PaymentManager()
                 results = p.execute_campaign(self)
+            # should be more sophisticated in whether to return True -- look at all the transactions
             return True
         elif self.deadline < now() and self.current_total < self.target:
             self.status = 'UNSUCCESSFUL'
@@ -314,10 +315,11 @@ class Campaign(models.Model):
             action.save()
             if send_notice:
                 regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
-            return True
             if process_transactions:
                 p = PaymentManager()
                 results = p.cancel_campaign(self)
+            # should be more sophisticated in whether to return True -- look at all the transactions
+            return True
         else:
             return False
 
