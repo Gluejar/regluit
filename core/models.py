@@ -285,11 +285,13 @@ class Campaign(models.Model):
         return may_launch
 
     
-    def update_status(self, ignore_deadline_for_success=False, send_notice=False):
+    def update_status(self, ignore_deadline_for_success=False, send_notice=False, process_transactions=False):
         """Updates the campaign's status. returns true if updated.
         Computes UNSUCCESSFUL only after the deadline has passed
         Computes SUCCESSFUL only after the deadline has passed if ignore_deadline_for_success is TRUE -- otherwise looks just at amount of pledges accumulated
         by default, send_notice is False so that we have to explicitly send specify delivery of successful_campaign notice
+        
+        if process_transactions is True, also execute or cancel associated transactions
           
         """
         if not self.status=='ACTIVE':
@@ -301,6 +303,10 @@ class Campaign(models.Model):
             action.save()
             if send_notice:
                 successful_campaign.send(sender=None,campaign=self)
+            if process_transactions:
+                p = PaymentManager()
+                results = p.execute_campaign(self)
+            # should be more sophisticated in whether to return True -- look at all the transactions
             return True
         elif self.deadline < now() and self.current_total < self.target:
             self.status = 'UNSUCCESSFUL'
@@ -309,7 +315,11 @@ class Campaign(models.Model):
             action.save()
             if send_notice:
                 regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
-            return True            
+            if process_transactions:
+                p = PaymentManager()
+                results = p.cancel_campaign(self)
+            # should be more sophisticated in whether to return True -- look at all the transactions
+            return True
         else:
             return False
 
