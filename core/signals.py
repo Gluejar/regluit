@@ -239,22 +239,22 @@ def handle_wishlist_added(supporter, work, **kwargs):
 		
 wishlist_added.connect(handle_wishlist_added)
 
-deadline_impending = Signal(providing_args["campaign"])
+deadline_impending = Signal(providing_args=["campaign"])
 
 def handle_wishlist_near_deadline(campaign, **kwargs):
     """
     send two groups - one the nonpledgers, one the pledgers
     set the pledged flag differently in the context
     """
-    pledgers = campaign.supporters()
-    nonpledgers = campaign.work.wished_by().exclude(id__in=pledgers)
+    pledgers = campaign.ungluers()['all']
+    nonpledgers = campaign.work.wished_by().exclude(id__in=[p.id for p in pledgers])
     
     notification.queue(pledgers, "wishlist_near_deadline", {
             'campaign': campaign,
             'domain': settings.BASE_URL,
             'pledged': True,
     }, True)
-        
+    
     notification.queue(nonpledgers, "wishlist_near_deadline", {
             'campaign': campaign,
             'domain': settings.BASE_URL,
