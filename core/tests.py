@@ -5,6 +5,7 @@ from regluit.utils.localdatetime import now, date_today
 from django.test import TestCase
 from django.test.client import Client
 from django.utils import unittest
+from django.test.utils import override_settings
 from django.db import IntegrityError
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -24,7 +25,7 @@ from regluit.core import tasks
 from celery.task.sets import TaskSet
 from celery.task import chord
 
-from time import sleep
+from time import sleep, mktime
 from math import factorial
 from urlparse import parse_qs, urlparse
 
@@ -649,3 +650,46 @@ class DownloadPageTest(TestCase):
         response = anon_client.get("/work/%s/download/" % w.id)
         self.assertContains(response, "http://example.com", count=4)
         self.assertContains(response, "http://example2.com", count=3)
+
+
+class LocaldatetimeTest(TestCase):
+    @override_settings(LOCALDATETIME_NOW=None)
+    def test_LOCALDATETIME_NOW_none(self):
+        
+        try:
+            localdatetime.now
+        except NameError:
+            from regluit.utils import localdatetime
+        else:
+            reload(localdatetime)
+            
+        self.assertAlmostEqual(mktime(datetime.now().timetuple()), mktime(localdatetime.now().timetuple()), 1.0)
+        
+    @override_settings(LOCALDATETIME_NOW=lambda : datetime.now() + timedelta(365))
+    def test_LOCALDATETIME_NOW_year_ahead(self):
+                
+        try:
+            localdatetime.now
+        except NameError:
+            from regluit.utils import localdatetime
+        else:
+            reload(localdatetime)
+            
+        self.assertAlmostEqual(mktime((datetime.now() + timedelta(365)).timetuple()), mktime(localdatetime.now().timetuple()), 1.0)
+        
+    def test_no_time_override(self):
+
+        from regluit.utils import localdatetime
+        self.assertAlmostEqual(mktime(datetime.now().timetuple()), mktime(localdatetime.now().timetuple()), 1.0)
+    
+    def tearDown(self):
+        # restore localdatetime.now() to what's in the settings file
+        try:
+            localdatetime.now
+        except NameError:
+            from regluit.utils import localdatetime
+        else:
+            reload(localdatetime)
+        
+
+    
