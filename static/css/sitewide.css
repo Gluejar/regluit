@@ -302,13 +302,11 @@ a.success:hover {
   width: 90%;
   border-color: #8dc63f;
   margin: 10px auto 0 auto;
-  font-size: 120%;
+  font-size: 15px;
+  line-height: 22.5px;
 }
 .launch_top a {
   color: #8dc63f;
-}
-.launch_top a {
-  font-size: 110%;
 }
 .launch_top.pale {
   border-color: #d6dde0;
