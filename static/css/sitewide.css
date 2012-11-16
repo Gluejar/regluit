@@ -48,22 +48,6 @@
   padding: 5px;
   border: solid 5px #EDF3F4;
 }
-.google_signup_div {
-  padding: 14px 0;
-}
-.google_signup_div div {
-  height: 24px;
-  line-height: 24px;
-  height: 24px;
-  line-height: 24px;
-  float: left;
-  padding-left: 5px;
-}
-.google_signup_div img {
-  float: left;
-  height: 24px;
-  width: 24px;
-}
 .actionbuttons {
   width: auto;
   height: 36px;
@@ -154,22 +138,6 @@
 .mediaborder {
   padding: 5px;
   border: solid 5px #EDF3F4;
-}
-.google_signup_div {
-  padding: 14px 0;
-}
-.google_signup_div div {
-  height: 24px;
-  line-height: 24px;
-  height: 24px;
-  line-height: 24px;
-  float: left;
-  padding-left: 5px;
-}
-.google_signup_div img {
-  float: left;
-  height: 24px;
-  width: 24px;
 }
 .actionbuttons {
   width: auto;
@@ -334,13 +302,11 @@ a.success:hover {
   width: 90%;
   border-color: #8dc63f;
   margin: 10px auto 0 auto;
-  font-size: 120%;
+  font-size: 15px;
+  line-height: 22.5px;
 }
 .launch_top a {
   color: #8dc63f;
-}
-.launch_top a {
-  font-size: 110%;
 }
 .launch_top.pale {
   border-color: #d6dde0;
@@ -774,6 +740,127 @@ ul.menu {
   position: absolute;
   line-height: normal;
 }
+form.login label,
+#login form label {
+  display: block;
+  line-height: 18px;
+}
+form.login input,
+#login form input {
+  width: 90%;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+  border: 1px solid #d6dde0;
+  height: 18px;
+  line-height: 18px;
+  height: 18px;
+  line-height: 18px;
+  margin-bottom: 6px;
+}
+form.login input[type=submit],
+#login form input[type=submit] {
+  text-decoration: capitalize;
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+  width: auto;
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  background: #8dc63f;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  -moz-border-radius: 32px;
+  -webkit-border-radius: 32px;
+  border-radius: 32px;
+  color: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 0 15px;
+  border: none;
+  margin: 5px 0;
+}
+form.login input:focus,
+#login form input:focus {
+  border: solid 1px #8dc63f;
+}
+form.login input[type="text"],
+#login form input[type="text"],
+form.login input[type="password"],
+#login form input[type="password"] {
+  height: 22.75px;
+  line-height: 22.75px;
+  height: 22.75px;
+  line-height: 22.75px;
+  margin-bottom: 13px;
+  border-width: 2px;
+}
+form.login input[type="submit"],
+#login form input[type="submit"] {
+  font-size: 15px;
+}
+form.login span.helptext,
+#login form span.helptext {
+  display: block;
+  margin-top: -11px;
+  font-style: italic;
+  font-size: 13px;
+}
+#lightbox_content .google_signup {
+  padding: 14px 0;
+  padding: 14px 0;
+}
+#lightbox_content .google_signup div {
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+#lightbox_content .google_signup img {
+  float: left;
+  height: 36px;
+  width: 36px;
+}
+#lightbox_content .google_signup div {
+  height: 36px;
+  line-height: 36px;
+  height: 36px;
+  line-height: 36px;
+  float: left;
+  padding-left: 5px;
+  font-size: 15px;
+}
+#lightbox_content .google_signup img {
+  float: left;
+  height: 36px;
+  width: 36px;
+}
 .js-search {
   float: left;
   padding-top: 25px;
@@ -1045,12 +1132,9 @@ a.nounderline {
   border: solid 5px #d6dde0;
   background: white;
   z-index: 500;
-  position: absolute;
-  left: 12.5%;
-  width: 75%;
   top: 25%;
-  margin-left: 0;
   padding: 9px;
+  max-width: 90%;
 }
 #about_expandable .collapser_x {
   margin-top: -27px;
@@ -1081,6 +1165,11 @@ a.nounderline {
   float: right;
   margin-top: 0;
   clear: none;
+}
+#lightbox_content h2 + form,
+#lightbox_content h3 + form,
+#lightbox_content h4 + form {
+  margin-top: 15px;
 }
 .nonlightbox .about_page {
   -moz-border-radius: 5px;
