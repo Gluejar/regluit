@@ -482,8 +482,6 @@ class PaymentManager( object ):
         if p.success() and not p.error():
             transaction.pay_key = p.key()
             transaction.save()
-            logger.info("execute_transaction Success")
-            transaction_charged.send(sender=self, transaction=transaction)
             return True
         
         else:

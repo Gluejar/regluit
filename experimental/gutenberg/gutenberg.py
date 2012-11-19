@@ -24,7 +24,6 @@ import operator
 import time
 
 import re
-from itertools import islice, izip
 import logging
 import random
 import json
