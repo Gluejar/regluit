@@ -22,7 +22,7 @@
 	{% block base_js %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     {% endblock %}
-	<script type="text/javascript" src="/static/js/hijax.js"></script>
+	<script type="text/javascript" src="/static/js/hijax.js?v=1"></script>
     {% block extra_js %}
     {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
@@ -125,12 +125,14 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a href="{% url auth_login %}?next={% firstof request.path '/' %}"><span>Sign In</span></a></li>
+                        <li><a href="{% url auth_login %}?next={% firstof request.path '/' %}" class="hijax"><span>Sign In</span></a></li>
                         {% if not suppress_search_box %}
-                        {% comment %}
-                        don't display this on landing page where it's superseded by big signup box in splash area
-                        {% endcomment %}
-                            <li id="expander" class="last"><a href="{% url registration_register %}"><span>Sign Up</span></a></li>
+                            {% ifnotequal request.get_full_path "/accounts/register/" %}
+                                {% comment %}
+                                don't display this on landing page where it's superseded by big signup box in splash area
+                                {% endcomment %}
+                                <li id="expander" class="last"><a href="{% url registration_register %}"><span>Sign Up</span></a></li>
+                            {% endifnotequal %}
                         {% endif %}
                     </ul>
                 </div>

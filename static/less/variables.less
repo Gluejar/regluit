@@ -96,19 +96,20 @@
 	border: solid 5px #EDF3F4;
 }
 
-.google_signup_div {
+.google_signup_div(@x) {
 	padding: 14px 0;
 	
 	div {
-		.height(24px);
+		.height(@x);
 		float: left;
-		padding-left:5px;
+		padding-left: 5px;
+		font-size: 15px;
 	}
 	
-	img {
+	img {	
 		float: left;
-		height: 24px;
-		width:24px;
+		height: @x;
+		width: @x;
 	}
 }
 

@@ -6,7 +6,13 @@ var $j = jQuery.noConflict();
 $j(document).ready(function() {
     $j("a.hijax").click(function(event) {
         event.preventDefault();
-		$j("#lightbox").load( $j(this).attr("href") + " #lightbox_content");
+		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
+		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
+            var hijaxWidth = $j('#about_expandable').width() + 28;
+            var windowWidth = $j(document).width();
+            var marginWidth = (windowWidth - hijaxWidth)/2;
+            $j('#about_expandable').css({'margin-left': marginWidth});
+		});
 		
 		if ($j(this).attr("href").substr(-9,8) == "download") {
 		    jQuery.getScript('https://platform.readmill.com/send.js');
@@ -22,6 +28,7 @@ $j(document).ready(function() {
         $j('#js-header a').css({"cursor": "default"});
 		$j('#js-page-wrap').css({"opacity": "0.07"});
 		$j('#footer').css({"opacity": "0.07"});
+		$j('#about_expandable').css({'display':'inline-block', 'margin-top': '10%'});
 		$j('#about_expandable').fadeTo("slow", 1);
 		
 		// if we're on a supporter page, personalize our about box
