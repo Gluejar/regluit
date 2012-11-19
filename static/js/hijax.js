@@ -19,16 +19,10 @@ $j(document).ready(function() {
 		}
 		
 		// fade-out rest of page elements on expand
-		$j('#js-topsection').css({"opacity": "0.07"});
-		$j('.launch_top').css({"opacity": "0.07"});
-		$j('.preview').css({"opacity": "0.07"});
-		$j('#main-container').css({"opacity": "0.07"});
-		$j('#js-rightcol').css({"opacity": "0.07"});
-		$j('#js-header').css({"opacity": "0.07"});
-        $j('#js-header a').css({"cursor": "default"});
+		$j('#feedback').css({"opacity": "0.07"});
 		$j('#js-page-wrap').css({"opacity": "0.07"});
 		$j('#footer').css({"opacity": "0.07"});
-		$j('#about_expandable').css({'display':'inline-block', 'margin-top': '10%'});
+		$j('#about_expandable').css({'position': 'absolute'});
 		$j('#about_expandable').fadeTo("slow", 1);
 		
 		// if we're on a supporter page, personalize our about box
