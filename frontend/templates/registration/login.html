@@ -1,7 +1,7 @@
 {% extends "registration/registration_base.html" %}
 {% block title %}login{% endblock %}
 {% block doccontent %}
-
+<div id="lightbox_content">
 {% if form.errors %}
 <p class="errorlist">Your username and password didn't match. Please try again.</p>
 Make sure the username box has your <b>username, not your email</b> -- some browsers automatically fill in your email.  We're working on fixing this bug.
@@ -25,4 +25,5 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 You are already logged in as <a href="{% url supporter supporter_username=user.username %}">{{ user.username }}</a>.
 </div>
 {% endif %}
+</div>
 {% endblock %}
