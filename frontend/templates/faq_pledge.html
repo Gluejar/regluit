@@ -6,7 +6,7 @@
                     	<li class="first parent">
                     		<span class="faq">How do I pledge?</span>
                             <span class="menu level2 answer">
-                            Enter your pledge amount and select a premium. (You may select a premium at any level up to and including the amount you pledge.)  If you pledge enough, you're also eligible to be credited in the unglued ebook and to include a dedication, and toward the bottom of this page you can specify what you'd like those to say.  After you click Pledge, we'll collect your credit card information.
+                            Enter your pledge amount and select a premium. (You may select a premium at any level up to and including the amount you pledge.)  If you pledge enough, you're also eligible to be credited in the unglued ebook and to include a dedication, and toward the bottom of this page you can specify what you'd like those to say.  If this is your first pledge, we'll collect your card information after you click Pledge Now.  Otherwise, we'll use the card you used last time -- no need to type in your info again!
                             </span>
                     	</li>
 
@@ -20,7 +20,7 @@
                         <li class="parent">
                             <span class="faq">When will I be charged?</span>
                             <span class="menu level2 answer">
-                            Campaigns succeed if they reach their target price by their deadline.  If this campaign succeeds, you'll be charged within a day of when it reaches its target.  If it does not, your pledge will expire on {{ campaign.deadline }} (Eastern US time) and you will not be charged.
+                            If this campaign reaches its target before its deadline ({{ campaign.deadline }}), you'll be charged within a day of when the target is reached.  Otherwise, your pledge will expire at midnight on {{ campaign.deadline }} (Eastern US time) and you will not be charged.
                             </span>
                         </li>
                         
@@ -34,14 +34,14 @@
                         <li class="parent">
                             <span class="faq">What if I want to change my pledge?</span>
                             <span class="menu level2 answer">
-                            You can change or cancel your pledge at any time before the campaign ends.  This will be the campaign's deadline ({{ campaign.deadline }}) or midnight (Eastern US time) on the day the campaign succeeds, whichever comes first.  Go to your <a href="{% url manage_account %}">Account & Pledges page</a> (always accessible under "Hi, {{ username }}!" in the upper right corner of the site).
+                            You can change or cancel your pledge at any time before the campaign ends.  This will be the campaign's deadline ({{ campaign.deadline }}) or midnight (Eastern US time) on the day the campaign succeeds, whichever comes first.  You can change the credit card you unglue with, too.  Go to your <a href="{% url manage_account %}">Account & Pledges page</a> (always accessible under "Hi, {{ request.user.username }}!" in the upper right corner of the site).
                             </span>
                         </li>
                         
                         <li class="last parent">
                             <span class="faq">How and when will I receive my premiums?</span>
                             <span class="menu level2 answer">
-                            If the campaign succeeds and you requested a special premium, we will disclose to the rights holder your email address and any premiums you requested.  The rights holder will then be in touch with you about how your premiums will be fulfilled.  If you asked to be listed in the acknowledgements, this will be part of the unglued ebook, which should be emailed to you within 90 days of the close of the campaign.
+                            If the campaign succeeds and you requested a special premium, we will disclose to the rights holder your email address and any premiums you requested.  The rights holder will then be in touch with you about how your premiums will be fulfilled.  If you asked to be listed in the acknowledgements, this will be part of the unglued ebook.  We'll email you a link to it within 90 days of the close of the campaign.
                             </span>
                         </li>
                         
