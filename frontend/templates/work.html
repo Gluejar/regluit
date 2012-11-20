@@ -198,7 +198,7 @@ $j(document).ready(function(){
                                 </div>
                             {% else %}{% if request.user.id in work.last_campaign.supporters %}
 								<div class="add-wishlist">
-							        <span class="on-wishlist">Yours!</span>
+							        <span class="on-wishlist">On your wishlist!</span>
 							    </div>
                             {% else %}{% if work in request.user.wishlist.works.all %}
                                 <div class="remove-wishlist-workpage">
