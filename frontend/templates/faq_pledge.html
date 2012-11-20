@@ -25,9 +25,16 @@
                         </li>
                         
                         <li class="parent">
+                            <span class="faq">Will I be charged if the campaign doesn't succeed?</span>
+                            <span class="menu level2 answer">
+                            Nope!
+                            </span>
+                        </li>
+                        
+                        <li class="parent">
                             <span class="faq">What if I want to change my pledge?</span>
                             <span class="menu level2 answer">
-                            You can change or cancel your pledge at any time before the campaign ends.  This will be the campaign's deadline ({{ campaign.deadline }}) or midnight (Eastern US time) on the day the campaign succeeds, whichever comes first.  Go to <a href="{% url work work.id %}">this book's page</a> and click on the Modify Pledge button.
+                            You can change or cancel your pledge at any time before the campaign ends.  This will be the campaign's deadline ({{ campaign.deadline }}) or midnight (Eastern US time) on the day the campaign succeeds, whichever comes first.  Go to your <a href="{% url manage_account %}">Account & Pledges page</a> (always accessible under "Hi, {{ username }}!" in the upper right corner of the site).
                             </span>
                         </li>
                         

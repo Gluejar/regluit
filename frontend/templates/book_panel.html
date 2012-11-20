@@ -32,7 +32,7 @@
 					<p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
 					<p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
 					<p>by {{ deadline|naturalday:"M d, Y" }}</p>
-					<a href="/pledge/{{workid}}"><div class="read_itbutton pledge"><span>Support</span></div></a>
+					<a href="{% url pledge work_id=workid"><div class="read_itbutton pledge"><span>Pledge</span></div></a>
 
 				{% else %}{% if status == 'INITIALIZED' %}
 					<p>Campaign coming soon!</p>
@@ -129,7 +129,7 @@
     </div>
     {% else %}{% ifequal supporter request.user %}
     <div class="listview panelfront side1 remove-wishlist">
-        <span id="l{{ workid }}">Remove This</span>
+        <span id="l{{ workid }}">Un-wishlist</span>
     </div>
     {% else %}{% if work in wishlist %}
     <div class="listview panelfront side1 on-wishlist">
@@ -137,11 +137,15 @@
     </div>
     {% else %}
     <div class="listview panelfront side1 add-wishlist">
-		{% if on_search_page %}
-		<span class="gb_id" id="l{{ googlebooks_id }}">Add to Wishlist</span>
-		{% else %}
-		<span class="work_id" id="l{{ workid }}">Add to Wishlist</span>
-		{% endif %}
+        {% ifequal status "ACTIVE" %}
+            <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+        {% else %}
+            {% if on_search_page %}
+            <span class="gb_id" id="l{{ googlebooks_id }}">Add to Wishlist</span>
+            {% else %}
+            <span class="work_id" id="l{{ workid }}">Add to Wishlist</span>
+            {% endif %}
+        {% endifequal %}
     </div>
     {% endif %}{% endifequal %}{% endif %}{% endif %}
     
