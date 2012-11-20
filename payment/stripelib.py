@@ -12,7 +12,7 @@ from django.conf import settings
 from django.http import  HttpResponse
 from django.core.mail import send_mail
 
-from regluit.payment.models import Account, Transaction
+from regluit.payment.models import Account, Transaction, PaymentResponse
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_ERROR, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
 from regluit.payment import baseprocessor
@@ -651,10 +651,13 @@ class Processor(baseprocessor.Processor):
                     # use PaymentResponse to store error
 
                     r = PaymentResponse.objects.create(api="stripelib.Execute", correlation_id=None,
-                                                       timestamp=now(), info=e.message, status=TRANSACTION_STATUS_ERROR, transaction=transaction)
+                                                       timestamp=now(), info=e.message,
+                                                       status=TRANSACTION_STATUS_ERROR, transaction=transaction)
                     
-                    # what transaction status to set?
-                    
+                    transaction.status = TRANSACTION_STATUS_ERROR	  	
+                    transaction.error = e.message
+                    transaction.save()
+
                     raise StripelibError(e.message, e)
                     
                 else:

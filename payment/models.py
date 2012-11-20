@@ -366,7 +366,7 @@ def recharge_failed_transactions(sender, created, instance, **kwargs):
     # make sure the new account is active
     if instance.date_deactivated is not None:
         return False
-    
+        
     transactions_to_recharge = instance.user.transaction_set.filter((Q(status=TRANSACTION_STATUS_FAILED) | Q(status=TRANSACTION_STATUS_ERROR)) & Q(campaign__status='SUCCESSFUL')).all()
 
     if transactions_to_recharge:
