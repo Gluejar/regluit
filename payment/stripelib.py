@@ -619,8 +619,7 @@ class Processor(baseprocessor.Processor):
     class Execute(StripePaymentRequest):
         
         '''
-            The Execute function sends an existing token(generated via the URL from the pay operation), and collects
-            the money.
+            The Execute function attempts to charge the credit card of stripe Customer associated with user connected to transaction
         '''
         
         def __init__(self, transaction=None):
@@ -648,11 +647,13 @@ class Processor(baseprocessor.Processor):
                                                                       "tc.id": transaction.campaign.id,
                                                                       "amount": float(transaction.amount)}))
                 except stripe.StripeError as e:
-                    # what to record in terms of errors?
+                    # what to record in terms of errors?  (error log?)
+                    # use PaymentResponse to store error
 
-                    transaction.status = TRANSACTION_STATUS_ERROR
-                    transaction.error = e.message
-                    transaction.save()                    
+                    r = PaymentResponse.objects.create(api="stripelib.Execute", correlation_id=None,
+                                                       timestamp=now(), info=e.message, status=TRANSACTION_STATUS_ERROR, transaction=transaction)
+                    
+                    # what transaction status to set?
                     
                     raise StripelibError(e.message, e)
                     
@@ -665,7 +666,7 @@ class Processor(baseprocessor.Processor):
                     transaction.save()
             else:
                 # nothing to charge
-                raise StripeLibError("No customer id available to charge tor transaction {0}".format(transaction.id), None)
+                raise StripeLibError("No customer id available to charge for transaction {0}".format(transaction.id), None)
     
     
         def api(self):
