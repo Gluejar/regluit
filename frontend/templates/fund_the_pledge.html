@@ -118,7 +118,7 @@ $j(document).ready(function() {
             </form>
         </div>
         <br />
-        <p>Want to use a different card?  You can change your credit card info on your <a href="{% url manage_account %}?next={{ request.path }}#your_payment_info">Account & Pledges page</a>.
+        <p>Want to use a different card?  You can change your credit card info on your <a href="{% url manage_account %}?next={{ request.path }}#your_payment_info">Account &amp; Pledges page</a>.
         </p>
 	{% else %}
         <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
