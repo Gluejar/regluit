@@ -8,6 +8,9 @@ from django.contrib.sites.models import Site
 from django.conf import settings
 from django.utils.translation import ugettext_noop as _
 
+import datetime
+from regluit.utils.localdatetime import now
+
 from notification import models as notification
 
 from social_auth.signals import pre_update
@@ -175,11 +178,16 @@ transaction_charged.connect(handle_transaction_charged)
 # dealing with failed transactions
 
 def handle_transaction_failed(sender,transaction=None, **kwargs):
-    if transaction==None:
+    if transaction is None:
         return
+    
+    # window for recharging
+    recharge_deadline = transaction.campaign.deadline + datetime.timedelta(settings.RECHARGE_WINDOW)
+    
     notification.queue([transaction.user], "pledge_failed", {
             'site':Site.objects.get_current(),
-            'transaction':transaction
+            'transaction':transaction,
+            'recharge_deadline': recharge_deadline
         }, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()

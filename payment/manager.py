@@ -338,9 +338,9 @@ class PaymentManager( object ):
             try:
                 self.execute_transaction(t, receiver_list)
             except Exception as e:
-                results.append(t, e)
+                results.append((t, e))
             else:
-                results.append(t, None)
+                results.append((t, None))
 
         return results
 

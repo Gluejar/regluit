@@ -403,9 +403,16 @@ class UnifiedCampaignTests(TestCase):
         #print len(mail.outbox)
         #for (i, m) in enumerate(mail.outbox):
         #    print i, m.subject
+        #    if i in [5]:
+        #        print m.body
             
         self.assertEqual(len(mail.outbox), 9)
-
+        
+        # print out notices and eventually write tests here to check expected
+        
+        #from notification.models import Notice
+        #print [(n.id, n.notice_type.label) for n in Notice.objects.all()]
+        
 #0 [localhost:8000] Thank you for supporting Pro Web 2.0 Mashups at Unglue.it!
 #1 [localhost:8000] Thanks to you, the campaign for Pro Web 2.0 Mashups has succeeded!
 #2 Stripe Customer (id cus_0ji1hFS8xLluuZ;  description: RaymondYee) created

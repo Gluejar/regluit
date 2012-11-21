@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.  Thank you again for your help.
+			The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Our attempt to charge your credit card in the amount of n${{ transaction.amount|intcomma }} failed ({{transaction.error}}).  Thank you again for your help.
 {% endblock %}
 
 {% block comments_textual %}
@@ -14,7 +14,7 @@
 		
 		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
                 However, our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.  Please update your credit card information at
-                https://{{ site.domain }}{%url manage_account%} within 7 days so that you can fulfill your pledge.  Thank you!</p>
+                https://{{ site.domain }}{%url manage_account%} by {{recharge_deadline}} so that you can fulfill your pledge.  Thank you!</p>
 		
 		<p><b>Pledge Summary</b><br />
 		Amount pledged: {{ transaction.amount|intcomma }}<br />
@@ -29,4 +29,4 @@
 		</p>
 		<p>{{ transaction.campaign.rightsholder }} and the Unglue.it team
 		</p>
-{% endblock %}
+{% endblock %}  
