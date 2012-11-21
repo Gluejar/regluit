@@ -138,6 +138,7 @@ CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
 # update the statuses of campaigns
 CELERYBEAT_SCHEDULE['update_active_campaign_statuses'] = UPDATE_ACTIVE_CAMPAIGN_STATUSES
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
+CELERYBEAT_SCHEDULE['notify_ending_soon'] = NOTIFY_ENDING_SOON_JOB
 
 # set -- sandbox or production Amazon FPS?
 #AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"

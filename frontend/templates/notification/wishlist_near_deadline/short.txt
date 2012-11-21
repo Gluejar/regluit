@@ -1,1 +1,1 @@
-{{campaign.work.title}} is running out of time
+Almost out of time to unglue {{campaign.work.title}}
