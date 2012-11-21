@@ -16,7 +16,7 @@ from django.utils.translation import ugettext_lazy as _
 
 import regluit
 import regluit.core.isbn
-from regluit.core.signals import successful_campaign, unsuccessful_campaign, wishlist_added, deadline_impending
+from regluit.core.signals import successful_campaign, unsuccessful_campaign, wishlist_added
 import binascii
 
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
@@ -320,11 +320,6 @@ class Campaign(models.Model):
                 results = p.cancel_campaign(self)
             # should be more sophisticated in whether to return True -- look at all the transactions
             return True
-        elif self.deadline - now() < timedelta(7) and self.deadline - now() > timedelta(6):
-            """
-            if the campaign is still active and there's only a week left until it closes, send reminder notification
-            """
-            deadline_impending.send(sender=self, campaign=self)
         else:
             return False
 
