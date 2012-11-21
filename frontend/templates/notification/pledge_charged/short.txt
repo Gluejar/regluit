@@ -1,1 +1,1 @@
-Thanks to you, the campaign for {{transaction.campaign.work.title}} has succeeded!
+Your pledge to the campaign for {{transaction.campaign.work.title}} has been charged.

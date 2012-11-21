@@ -1,1 +1,1 @@
-Thanks to you, the campaign for {{transaction.campaign.work.title}} has succeeded!  However, your credit card charge failed.
+We were unable to collect your pledge to the campaign for {{transaction.campaign.work.title}}.

@@ -10,10 +10,11 @@
 {% endblock %}
 
 {% block comments_textual %}
-		<p>Congratulations!</p>
+		<p>Your Attention Required!</p>
 		
 		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
-                Our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.</p>
+                However, our attempt to charge your credit card in the amount ${{ transaction.amount|intcomma }} failed.  Please update your credit card information at
+                https://{{ site.domain }}{%url manage_account%} within 7 days so that you can fulfill your pledge.  Thank you!</p>
 		
 		<p><b>Pledge Summary</b><br />
 		Amount pledged: {{ transaction.amount|intcomma }}<br />
