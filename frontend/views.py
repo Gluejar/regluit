@@ -788,7 +788,10 @@ class FundPledgeView(FormView):
                 try:
                     p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
                 except baseprocessor.ProcessorError as e:
-                    return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e }) 
+                    return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
+            else: # empty token
+                e = baseprocessor.ProcessorError("Empty token")
+                return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
             
         self.transaction.host = settings.PAYMENT_PROCESSOR
             
