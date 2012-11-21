@@ -12,6 +12,7 @@ from django.conf import settings
 from regluit.core import bookloader, models
 from regluit.core import goodreads, librarything
 from regluit.core.models import Campaign
+from regluit.core.signals import deadline_impending
 from regluit.utils.localdatetime import now, date_today
 
 from django.core.mail import send_mail
@@ -97,5 +98,16 @@ def report_new_ebooks(created=None):   #created= creation date
     works = models.Work.objects.filter(editions__ebooks__created__range = period).distinct()
     for work in works:
         notification.send_now(work.wished_by(), "wishlist_unglued_book_released", {'work':work}, True)
+        
+@task
+def notify_ending_soon():
+    c_active = Campaign.objects.filter(status='Active')
+    for c in c_active:
+        if c.deadline - now() < timedelta(7) and c.deadline - now() >= timedelta(6):
+            """
+            if the campaign is still active and there's only a week left until it closes, send reminder notification
+            """
+            deadline_impending.send(sender=None, campaign=c)
+
 
     

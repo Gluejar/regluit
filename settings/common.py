@@ -275,6 +275,12 @@ EBOOK_NOTIFICATIONS_JOB = {
     "args": ()    
 }
 
+NOTIFY_ENDING_SOON_JOB = {
+    "task": "regluit.core.tasks.notify_ending_soon",
+    "schedule": crontab(hour=1, minute=0),
+    "args": ()
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # amazon or paypal for now.
