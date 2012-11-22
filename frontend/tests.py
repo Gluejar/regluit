@@ -7,11 +7,12 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.core import mail
 
-
 from regluit.core.models import Work, Campaign, RightsHolder, Claim
 from regluit.payment.models import Transaction
 from regluit.payment.manager import PaymentManager
 from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, card
+
+from notification.models import Notice
 
 from decimal import Decimal as D
 from regluit.utils.localdatetime import now
@@ -266,7 +267,7 @@ class UnifiedCampaignTests(TestCase):
         time1 = time.time()
         
         # retrieve events from this period -- need to pass in ints for event creation times
-        events = list(sc._all_objs('Event', created={'gte':int(time0), 'lte':int(time1+1.0)}))
+        events = list(sc._all_objs('Event', created={'gte':int(time0-1.0), 'lte':int(time1+1.0)}))
         
         return (events, charge_exception)
 
@@ -294,6 +295,12 @@ class UnifiedCampaignTests(TestCase):
         for (i, event) in enumerate(events):
             r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
             self.assertEqual(r.status_code, 200)
+            
+        # expected notices
+        
+        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_you_have_pledged', recipient__username='RaymondYee')), 1)
+        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_charged', recipient__username='RaymondYee')), 1)
+            
 
     def bad_cc_scenario(self):
         """Goal of this scenario: enter a CC that will cause a charge.failed event, have user repledge succesfully"""
@@ -320,6 +327,9 @@ class UnifiedCampaignTests(TestCase):
             r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
             self.assertEqual(r.status_code, 200)
             
+        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_you_have_pledged', recipient__username='dataunbound')), 1)
+        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_failed', recipient__username='dataunbound')), 1)            
+            
     def recharge_with_new_card(self):        
         
         # mark campaign as SUCCESSFUL -- campaign for work 2
@@ -342,7 +352,7 @@ class UnifiedCampaignTests(TestCase):
         time1 = time.time()
         
         # retrieve events from this period -- need to pass in ints for event creation times
-        events = list(sc._all_objs('Event', created={'gte':int(time0), 'lte':int(time1+1.0)}))
+        events = list(sc._all_objs('Event', created={'gte':int(time0-1.0), 'lte':int(time1+1.0)}))
         
         # now feed each of the events to the IPN processor.
         ipn_url = reverse("HandleIPN", args=('stripelib',))
@@ -350,6 +360,9 @@ class UnifiedCampaignTests(TestCase):
         for (i, event) in enumerate(events):
             r = self.client.post(ipn_url, data=json.dumps({"id": event.id}), content_type="application/json; charset=utf-8")
             self.assertEqual(r.status_code, 200)
+
+        # a charge should now go through
+        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_charged', recipient__username='dataunbound')), 1)
         
         
     def test_good_bad_cc_scenarios(self):
@@ -409,9 +422,16 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(len(mail.outbox), 9)
         
         # print out notices and eventually write tests here to check expected
-        
+                
         #from notification.models import Notice
-        #print [(n.id, n.notice_type.label) for n in Notice.objects.all()]
+        #print [(n.id, n.notice_type.label, n.recipient, n.added) for n in Notice.objects.all()]
+
+#[(6L, u'pledge_charged', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 15)),
+#(5L, u'pledge_failed', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 10)),
+#(4L, u'new_wisher', <User: hmelville>, datetime.datetime(2012, 11, 21, 18, 33, 8)),
+#(3L, u'pledge_you_have_pledged', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 7)),
+#(2L, u'pledge_charged', <User: RaymondYee>, datetime.datetime(2012, 11, 21, 18, 33, 3)),
+#(1L, u'pledge_you_have_pledged', <User: RaymondYee>, datetime.datetime(2012, 11, 21, 18, 32, 56))]        
         
 #0 [localhost:8000] Thank you for supporting Pro Web 2.0 Mashups at Unglue.it!
 #1 [localhost:8000] Thanks to you, the campaign for Pro Web 2.0 Mashups has succeeded!
