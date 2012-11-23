@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	The campaign for {{ campaign.work.title }} is almost over.
+	The campaign to unglue {{ campaign.work.title }} is almost over.
 {% endblock %}
 
 {% block comments_textual %}
@@ -13,8 +13,9 @@
 
 	{% if pledged %}
 	Your pledge is helping us reach that goal.  Will you help again by sharing this campaign with your friends?
+	
 	{% else %}
-	You can help us give this book to the world by <a href="{% url pledge work_id=campaign.work.id %}">pledging</a> or by sharing this campaign with your friends.
+	If you've been meaning to pledge, <a href="{% url pledge work_id=campaign.work.id %}">now's your chance</a>.  You can also help by sharing this campaign with your friends.
 	{% endif %}
 	
 	{% url work campaign.work.id as work_url %}
