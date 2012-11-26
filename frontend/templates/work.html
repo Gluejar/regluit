@@ -140,7 +140,7 @@ $j(document).ready(function(){
                           {% if pledged %}
                           	<div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                           {% else %}
-                          	<div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Support" /></form></div>
+                          	<div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                           {% endif %}
                           {% else %}
 							  {% if work.first_ebook %}

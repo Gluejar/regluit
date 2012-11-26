@@ -288,6 +288,7 @@ ul.menu{
     
     ul {
         &#user_menu {
+            white-space:nowrap;
             display: none;
             z-index: 100;
             position: absolute;
@@ -301,7 +302,7 @@ ul.menu{
                 list-style-type: none;
                 float: none;
                 background: @blue-grey;
-                padding: 0 10px;
+                padding: 7px 10px;
                 
                 &:hover {
                     background: @call-to-action;
@@ -314,7 +315,15 @@ ul.menu{
                         background-color: white;
                         color: @text-blue;
                     }
-        
+                }
+                
+                a {
+                    height: auto;
+                    line-height: @font-size-larger*1.75;
+                }
+                
+                span {
+                    margin-right: 10px;
                 }
             }
         }
@@ -375,7 +384,6 @@ ul.menu{
             width: 16px;
             cursor: pointer;
             text-align: center;
-            margin-left: 10px;
             
             &#i_haz_notifications {
                 background-color: @call-to-action;
