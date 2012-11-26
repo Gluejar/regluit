@@ -21,7 +21,7 @@ $j(document).ready(function(){
 	{% include "trans_summary.html" %}
     </div></dd>
 {% empty %}
-<dt> You don't have any active pledges.</dt>
+<dt>You don't have any active pledges.  To make one, click on a book you'd like to support among our <a href="{% url campaign_list facet="ending" %}">active campaigns</a>.  There's a "Support" button on every campaign page, or just click on your favorite premium to get started.</dt>
 {% endfor %}
 </dl>
 <h2 id="your_payment_info">Your Payment Info</h2>
