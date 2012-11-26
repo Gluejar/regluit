@@ -1,7 +1,7 @@
 {% load humanize %}Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
 
-However, our attempt to charge your credit card in the amount of ${{ transaction.amount|intcomma }} failed ({{transaction.error}}).  Please update your credit card information at
-https://{{ site.domain }}{%url manage_account%} by {{recharge_deadline}} so that you can fulfill your pledge.  Thank you!
+However, our attempt to charge your credit card in the amount of ${{ transaction.amount|intcomma }} failed ({{transaction.error}}).  Don't worry -- typically this means the card on file for you is expired, and once you update your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at
+https://{{ site.domain }}{% url manage_account %} by {{ recharge_deadline }} so that you can fulfill your pledge.  Thank you!
 
 Pledge summary 
 {% include "notification/pledge_summary.txt" %}    

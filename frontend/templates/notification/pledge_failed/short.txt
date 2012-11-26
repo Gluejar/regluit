@@ -1,1 +1,1 @@
-We were unable to collect your pledge to the campaign for {{transaction.campaign.work.title}}.
+Attention needed: your pledge to unglue {{transaction.campaign.work.title}}

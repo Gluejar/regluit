@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card has been charged ${{ transaction.amount }}.  Thank you again for your help.
+			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card has been charged ${{ transaction.amount|intcomma }}.  Thank you again for your help.
 {% endblock %}
 
 {% block comments_textual %}
