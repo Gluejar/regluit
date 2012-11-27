@@ -203,7 +203,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     work_links = WebDriverWait(sel,10).until(lambda d: d.find_elements_by_css_selector("div.book-list div.title a"))
     work_links[0].click()
     
-    support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Support']"))
+    support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     support_button.click()
     
     # just click Pledge button without filling out amount -- should have the form validation spot the error

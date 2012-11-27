@@ -46,6 +46,8 @@ $j(document).ready(function() {
 
 
 <script>
+var $j = jQuery.noConflict();
+
 function stripeResponseHandler(status, response) {
     if (response.error) {
         // re-enable the submit button
@@ -69,7 +71,7 @@ $j().ready(function() {
   $j("#payment-form").submit(function(event) {
     // disable the submit button to prevent repeated clicks
     $j('.submit-button').attr("disabled", "disabled");
-
+    
     Stripe.createToken({
         number: $j('.card-number').val(),
         cvc: $j('.card-cvc').val(),
