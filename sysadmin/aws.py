@@ -89,8 +89,12 @@ def instance_metrics(instance):
     
     for metric in metrics: 
         if 'InstanceId' in metric.dimensions:
-            if instance.id in metric.dimensions['InstanceId']:
-                my_metrics.append(metric)
+            # instance.id not guaranteed to be there
+            try:
+                if instance.id in metric.dimensions['InstanceId']:
+                    my_metrics.append(metric)
+            except:
+                pass
     
     return my_metrics
     
@@ -346,4 +350,5 @@ if __name__ == '__main__':
     pprint (stats_for_instances(all_instances()))
     web1 = instance('web1')
     print instance_metrics(web1)
+    print all_images()
 

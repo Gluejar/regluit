@@ -323,8 +323,6 @@ class CreditTest(TestCase):
         self.assertEqual(self.user1.credit.balance, 0)
         self.assertEqual(self.user2.credit.balance, 50)
        
-
-        
 class TransactionTest(TestCase):
     def setUp(self):
         """
@@ -387,7 +385,6 @@ class BasicGuiTest(TestCase):
     def tearDown(self):
         self.selenium.quit()
         
-
 class AccountTest(TestCase):
     
     def setUp(self):
