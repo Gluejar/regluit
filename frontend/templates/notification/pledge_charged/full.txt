@@ -1,6 +1,6 @@
 {% load humanize %}Congratulations!
 
-Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your credit card will be charged ${{ transaction.amount|intcomma }}.
+Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your credit card has been charged ${{ transaction.amount|intcomma }}.
 
 Pledge summary 
 {% include "notification/pledge_summary.txt" %}    

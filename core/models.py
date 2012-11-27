@@ -301,24 +301,29 @@ class Campaign(models.Model):
             self.save()
             action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
             action.save()
-            if send_notice:
-                successful_campaign.send(sender=None,campaign=self)
+
             if process_transactions:
                 p = PaymentManager()
                 results = p.execute_campaign(self)
-            # should be more sophisticated in whether to return True -- look at all the transactions
+                
+            if send_notice:
+                successful_campaign.send(sender=None,campaign=self)
+                
+            # should be more sophisticated in whether to return True -- look at all the transactions?
             return True
         elif self.deadline < now() and self.current_total < self.target:
             self.status = 'UNSUCCESSFUL'
             self.save()
             action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
             action.save()
-            if send_notice:
-                regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
+
             if process_transactions:
                 p = PaymentManager()
-                results = p.cancel_campaign(self)
-            # should be more sophisticated in whether to return True -- look at all the transactions
+                results = p.cancel_campaign(self)            
+            
+            if send_notice:
+                regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
+            # should be more sophisticated in whether to return True -- look at all the transactions?
             return True
         else:
             return False

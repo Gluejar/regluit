@@ -6,13 +6,17 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			Hooray! The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card has been charged ${{ transaction.amount|intcomma }}.  Thank you again for your help.
+			The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?
 {% endblock %}
 
 {% block comments_textual %}
-		<p>Congratulations!</p>
+		<p>Your attention needed!</p>
 		
-		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} has been charged to your credit card.</p>
+		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
+        However, our attempt to charge your credit card for ${{ transaction.amount|intcomma }} failed.</p>
+        
+        <p>Don't worry - normally this just means the card we have on file for you is expired.  Once you've updated your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at
+        https://{{ site.domain }}{% url manage_account %} by {{ recharge_deadline }} so that you can fulfill your pledge.  Thank you!</p>
 		
 		<p><b>Pledge Summary</b><br />
 		Amount pledged: {{ transaction.amount|intcomma }}<br />
@@ -27,4 +31,4 @@
 		</p>
 		<p>{{ transaction.campaign.rightsholder }} and the Unglue.it team
 		</p>
-{% endblock %}
+{% endblock %}  

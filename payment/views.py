@@ -301,14 +301,11 @@ def runTests(request):
     
 @csrf_exempt
 def handleIPN(request, module):
-    # Handler for paypal IPN notifications
+    # Handler for IPN /webhook notifications
     
     p = PaymentManager()
-    p.processIPN(request, module)
-    
     logger.info(str(request.POST))
-    return HttpResponse("ipn")
-    
+    return p.processIPN(request, module)
     
 def paymentcomplete(request):
     # pick up all get and post parameters and display

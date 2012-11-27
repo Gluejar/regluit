@@ -326,6 +326,8 @@ class PaymentManager( object ):
         # only allow active transactions to go through again, if there is an error, intervention is needed
         transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
         
+        results = []
+        
         for t in transactions:
             # 
             # Currently receivers are only used for paypal, so it is OK to leave the paypal info here
@@ -333,14 +335,14 @@ class PaymentManager( object ):
             receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':t.amount}, 
                             {'email':campaign.paypal_receiver, 'amount':D(t.amount) * (D('1.00') - D(str(settings.GLUEJAR_COMMISSION)))}]
             
-            self.execute_transaction(t, receiver_list) 
+            try:
+                self.execute_transaction(t, receiver_list)
+            except Exception as e:
+                results.append((t, e))
+            else:
+                results.append((t, None))
 
-        # TO DO:  update campaign status
-        # Should this be done first before executing the transactions?
-        # How does the success/failure of transactions affect states of campaigns
-        
-
-        return transactions
+        return results
 
     def finish_campaign(self, campaign):
         '''
@@ -482,8 +484,6 @@ class PaymentManager( object ):
         if p.success() and not p.error():
             transaction.pay_key = p.key()
             transaction.save()
-            logger.info("execute_transaction Success")
-            transaction_charged.send(sender=self, transaction=transaction)
             return True
         
         else:
