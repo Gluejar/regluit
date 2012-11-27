@@ -76,9 +76,6 @@ PAYPAL_SANDBOX_PASSWORD = ''
 PAYPAL_BUYER_LOGIN =''
 PAYPAL_BUYER_PASSWORD = ''
 
-# choice of payment processor
-PAYMENT_PROCESSOR = 'amazon'
-
 BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
 IPN_SECURE_URL = False
