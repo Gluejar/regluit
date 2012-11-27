@@ -7,6 +7,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
 {% include "stripe_stuff.html" %}
+<script type="text/javascript" src="/static/js/loader-gif.js"></script>
 <script type="application/x-javascript">
 
 var $j = jQuery.noConflict();
@@ -73,7 +74,7 @@ $j(document).ready(function() {
                 <form method="GET" action="{{ nonprofit.link }}">
                     {{ donate_form.non_field_errors }}
                     {{ donate_form }}
-                    <input name="donate_submit" type="submit" value="Donate" id="donate_submit" />
+                    <input name="donate_submit" type="submit" value="Donate" id="donate_submit" class="loader-gif" />
                 </form>
             </div>
             <div id="pledge_area">    	
@@ -113,7 +114,7 @@ $j(document).ready(function() {
                     {% csrf_token %}
                     {{ form.non_field_errors }}
                     {{ form.as_p }}	
-                    <input id="use_account_submit" name="use_account" type="submit" class="submit-button" value="Complete Pledge" /> 
+                    <input id="use_account_submit" name="use_account" type="submit" class="submit-button loader-gif" value="Complete Pledge" /> 
                 </div>           
             </form>
         </div>
@@ -178,7 +179,7 @@ $j(document).ready(function() {
                     </div>
     
                     <div class="payment-errors"></div>
-                    <input id="cc_submit" type="submit" class="submit-button" value="Complete Pledge" />
+                    <input id="cc_submit" type="submit" class="submit-button loader-gif" value="Complete Pledge" />
     
                 </form>
             </div>
@@ -215,7 +216,7 @@ kept around for reference as the page is overhauled
     	<form method="GET" action="{{nonprofit.link}}">
 			{{ donate_form.non_field_errors }}
 			{{donate_form}}
-			<input name="donate_submit" type="submit" value="Go Donate!" id="donate_submit" />
+			<input name="donate_submit" type="submit" value="Go Donate!" id="donate_submit" class="loader-gif"/>
     	</form>
 	
 	    </div>
