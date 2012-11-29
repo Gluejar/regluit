@@ -85,8 +85,6 @@ urlpatterns = patterns(
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
     url(r'^campaign_archive.js/$', "campaign_archive_js", name="campaign_archive_js"),
     url(r"^about/(?P<facet>\w*)/$", "about",  name="about"),
-    url(r"^smashwords/$", TemplateView.as_view(template_name="smashwords.html"),
-        name="smashwords"),
 )
 
 if settings.DEBUG:
