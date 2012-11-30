@@ -24,28 +24,30 @@
     <p>
     Unglued ebooks are made possible through the Unglue.it website by contributions from {{ transactions.all|length }} readers like you.</p>
     {% if transactions.supporters %}
-        <p>Supporters of this edition:
+        <h2>Supporters of this edition:</h2>
+        <p>
         {% for transaction in transactions.supporters %}
-            {% if forloop.last %}{% if transactions.supporters|length > 1 %}and {% endif %}{% endif %}{{ transaction.ack_name }}{% if forloop.last %}. {% else %}, {% endif %}
+            {{ transaction.ack_name }}<br />
         {% endfor %}
         </p>
     {% endif %}
     {% if transactions.patrons %}
-        <p>Benefactors of this edition:
+        <h2>Benefactors of this edition:</h2>
         {% for transaction in transactions.patrons %}
-            {% if forloop.last %}{% if transactions.patrons|length > 1 %}and {% endif %}{% endif %}{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}{% if forloop.last %}. {% else %}, {% endif %}
+            <a href="{{ transaction.ack_link }}">{{ transaction.ack_name }}</a><br />
         {% endfor %}
-        </p>
     {% endif %}
     {% if transactions.bibliophiles %}
-        <p>Bibliophiles of this edition:<dl>
+        <h2>Bibliophiles of this edition:</h2>
+        <dl>
         {% for transaction in transactions.bibliophiles %}
-            <dt>{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}</dt><dd>{{ transaction.ack_dedication }}</dd>
+            <dt class="nomargin"><a href="{{ transaction.ack_link }}">{{ transaction.ack_name }}</a></dt>
+            <dd class="margin">{{ transaction.ack_dedication }}</dd>
         {% endfor %}
         </dl>
-        </p>
     {% endif %}
     {% endwith %}
+    <hr>
     <p>
     You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a> .
     </p>
