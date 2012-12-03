@@ -478,7 +478,6 @@ class StripeErrorTest(TestCase):
             self.assertEqual(e.code, "missing")
             self.assertEqual(e.message, "Cannot charge a customer that has no active card")
  
-
 class PledgeScenarioTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -658,6 +657,14 @@ class Processor(baseprocessor.Processor):
                     transaction.error = e.message
                     transaction.save()
 
+                    # fire off the fact that transaction failed -- should actually do so only if not a transient error
+                    # if card_declined or expired card, ask user to update account
+                    if e.code in ('card_declined', 'expired_card'):
+                        transaction_failed.send(sender=self, transaction=transaction)
+                    # otherwise, report exception to us
+                    else:
+                        logger.exception("transaction id {0}, exception: {1}".format(transaction.id,  e.message))
+                    
                     raise StripelibError(e.message, e)
                     
                 else:
@@ -667,6 +674,11 @@ class Processor(baseprocessor.Processor):
                     transaction.pay_key = charge.id
                     transaction.date_payment = now()
                     transaction.save()
+                    
+                    # fire signal for sucessful transaction
+                    transaction_charged.send(sender=self, transaction=transaction)
+
+                    
             else:
                 # nothing to charge
                 raise StripeLibError("No customer id available to charge for transaction {0}".format(transaction.id), None)
@@ -751,7 +763,9 @@ class Processor(baseprocessor.Processor):
                     pass
                 elif resource == 'charge':
                     # we need to handle: succeeded, failed, refunded, disputed
+                    
                     if action == 'succeeded':
+                        # TO DO:  delete this logic since we don't do anything but look up transaction.
                         logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
                         # try to parse description of object to pull related transaction if any
                         # wrapping this in a try statement because it possible that we have a charge.succeeded outside context of unglue.it
@@ -764,12 +778,11 @@ class Processor(baseprocessor.Processor):
                                 logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
                             else:
                                 logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
-                            # now -- should fire off transaction_charged here -- if so we need to move it from ?
-                            transaction_charged.send(sender=self, transaction=transaction)
                         except Exception, e:
-                            logger.warning(e)
+                            logger.warning(e)    
                             
                     elif action == 'failed':
+                        # TO DO:  delete this logic since we don't do anything but look up transaction.
                         logger.info("charge.failed webhook for {0}".format(ev_object.get("id")))
                         try:
                             charge_meta = json.loads(ev_object["description"])
@@ -780,8 +793,7 @@ class Processor(baseprocessor.Processor):
                                 logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
                             else:
                                 logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
-                            # now -- should fire off transaction_charged here -- if so we need to move it from ?
-                            transaction_failed.send(sender=self, transaction=transaction)
+
                         except Exception, e:
                             logger.warning(e)
                     elif action == 'refunded':
