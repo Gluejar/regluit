@@ -22,7 +22,7 @@ $j(document).ready(function() {
 		$j('#feedback').css({"opacity": "0.07"});
 		$j('#js-page-wrap').css({"opacity": "0.07"});
 		$j('#footer').css({"opacity": "0.07"});
-		$j('#about_expandable').css({'position': 'absolute'});
+		$j('#about_expandable').css({'position': 'fixed'});
 		$j('#about_expandable').fadeTo("slow", 1);
 		
 		// if we're on a supporter page, personalize our about box
