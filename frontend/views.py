@@ -1599,7 +1599,7 @@ class InfoPageView(TemplateView):
         else:
             wishlists.yesterday = wishlists.month.filter(created__day = date_today().day-1)
             
-        transactions = Transaction.objects
+        transactions = Transaction.objects.all().exclude(status__in=['Error', 'Canceled', 'Refunded', 'Failed', 'Written-Off'])
         transactions.sum = transactions.aggregate(Sum('amount'))['amount__sum']
         transactions.today = transactions.filter(date_created__range = (date_today(), now()))
         transactions.today.sum = transactions.today.aggregate(Sum('amount'))['amount__sum']

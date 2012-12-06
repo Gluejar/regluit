@@ -95,6 +95,7 @@
 <h2>Pledges</h2>
 <dl>
 <dt>How much has been pledged to Unglue.it?</dt>
+<p>Excludes pledges canceled, failed, or otherwise uncollectable.</p>
 <dd> 
     <ul class="terms">
         <li>{{ transactions.today.count }} pledges have been made today totaling ${% if transactions.today.sum %}{{ transactions.today.sum }}{% else %}0{% endif %}.
