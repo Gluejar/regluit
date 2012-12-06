@@ -1568,6 +1568,7 @@ class InfoPageView(TemplateView):
         users.lt = users.exclude(profile__librarything_id = '')
         users.fb = users.filter(profile__facebook_id__isnull = False)
         users.tw = users.exclude(profile__twitter_id = '')
+        
         works = models.Work.objects
         works.today = works.filter(created__range = (date_today(), now()))
         works.days7 = works.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -1580,12 +1581,14 @@ class InfoPageView(TemplateView):
         works.wishedby50 = works.filter(num_wishes__gte = 50)
         works.wishedby10 = works.filter(num_wishes__gte = 10)
         works.wishedby100 = works.filter(num_wishes__gte = 100)
+        
         ebooks = models.Ebook.objects
         ebooks.today = ebooks.filter(created__range = (date_today(), now()))
         ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
         ebooks.year = ebooks.filter(created__year = date_today().year)
         ebooks.month = ebooks.year.filter(created__month = date_today().month)
         ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        
         wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
         wishlists.today = wishlists.filter(created__range = (date_today(), now()))
         wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -1595,11 +1598,26 @@ class InfoPageView(TemplateView):
             wishlists.yesterday = wishlists.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         else:
             wishlists.yesterday = wishlists.month.filter(created__day = date_today().day-1)
+            
+        transactions = Transaction.objects
+        transactions.sum = transactions.aggregate(Sum('amount'))['amount__sum']
+        transactions.today = transactions.filter(date_created__range = (date_today(), now()))
+        transactions.today.sum = transactions.today.aggregate(Sum('amount'))['amount__sum']
+        transactions.days7 = transactions.filter(date_created__range = (date_today()-timedelta(days=7), now()))
+        transactions.days7.sum = transactions.days7.aggregate(Sum('amount'))['amount__sum']
+        transactions.year = transactions.filter(date_created__year = date_today().year)
+        transactions.year.sum = transactions.year.aggregate(Sum('amount'))['amount__sum']
+        transactions.month = transactions.filter(date_created__month = date_today().month)
+        transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
+        transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
+        transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
+        
         return {
             'users': users, 
             'works': works,
             'ebooks': ebooks,
             'wishlists': wishlists,
+            'transactions': transactions,
         }
 
 class InfoLangView(TemplateView):

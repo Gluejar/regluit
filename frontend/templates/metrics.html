@@ -92,5 +92,20 @@
 </dd>
 </dl>
 
+<h2>Pledges</h2>
+<dl>
+<dt>How much has been pledged to Unglue.it?</dt>
+<dd> 
+    <ul class="terms">
+        <li>{{ transactions.today.count }} pledges have been made today totaling ${% if transactions.today.sum %}{{ transactions.today.sum }}{% else %}0{% endif %}.
+        <li>{{ transactions.yesterday.count }} pledges were made yesterday totaling ${% if transactions.yesterday.sum %}{{ transactions.yesterday.sum }}{% else %}0{% endif %}.
+        <li>{{ transactions.days7.count }} pledges have been made in the past 7 days totaling ${% if transactions.days7.sum %}{{ transactions.days7.sum }}{% else %}0{% endif %}.
+        <li>{{ transactions.month.count }} pledges have been made in the past month totaling ${% if transactions.month.sum %}{{ transactions.month.sum }}{% else %}0{% endif %}.
+        <li>{{ transactions.count }} pledges have been made altogether totaling ${{ transactions.sum }}.
+        </li>
+    </ul>
+</dd>
+</dl>
+
 {% endblock %}
 
