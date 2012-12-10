@@ -15,9 +15,9 @@
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
 
-	<div><h2>Error: Card authorization for a pledge transaction</h2>
+	<div><h2>Error: Card authorization</h2>
 		<div>
-		<p>Unglue.it would like to process your pledge, but there's been some problem processing your credit card (<b>{{exception.message}}</b>). Please <a href="{{ request.get_full_path }}">try again</a>, or  contact <a href="mailto:support@gluejar.com?subject={{ request.get_full_path|urlencode }}">unglue.it support</a>.
+		<p>Unglue.it would like to accept your credit card, but we encountered the following problem: <b>{{exception.message}}</b>. Please <a href="{{ request.get_full_path }}">try again</a>, or  contact <a href="mailto:support@gluejar.com?subject={{ request.get_full_path|urlencode }}">unglue.it support</a>.
         </p>
         </div>
 	</div>
