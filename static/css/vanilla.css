@@ -223,7 +223,7 @@ sub {
 div.picture-right {
     float: right ;
      margin-bottom: 1em; 
-     margin-left: 1em;"}
+     margin-left: 1em; }
 
 .aut {
     text-align: center ;
@@ -231,4 +231,3 @@ div.picture-right {
     
 .agate-info {
     font-size: 80%; }
-    

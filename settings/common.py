@@ -233,7 +233,7 @@ GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
 
 # unglue.it parameters
-UNGLUEIT_MINIMUM_TARGET = '1000' # in US Dollars
+UNGLUEIT_MINIMUM_TARGET = '500' # in US Dollars
 UNGLUEIT_LONGEST_DEADLINE = '180' # number of days allowed for a campaign
 UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
 

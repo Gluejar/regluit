@@ -1595,11 +1595,26 @@ class InfoPageView(TemplateView):
             wishlists.yesterday = wishlists.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         else:
             wishlists.yesterday = wishlists.month.filter(created__day = date_today().day-1)
+            
+        transactions = Transaction.objects.filter(status__in = [TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE])
+        transactions.sum = transactions.aggregate(Sum('amount'))['amount__sum']
+        transactions.today = transactions.filter(date_created__range = (date_today(), now()))
+        transactions.today.sum = transactions.today.aggregate(Sum('amount'))['amount__sum']
+        transactions.days7 = transactions.filter(date_created__range = (date_today()-timedelta(days=7), now()))
+        transactions.days7.sum = transactions.days7.aggregate(Sum('amount'))['amount__sum']
+        transactions.year = transactions.filter(date_created__year = date_today().year)
+        transactions.year.sum = transactions.year.aggregate(Sum('amount'))['amount__sum']
+        transactions.month = transactions.filter(date_created__month = date_today().month)
+        transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
+        transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
+        transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
+        
         return {
             'users': users, 
             'works': works,
             'ebooks': ebooks,
             'wishlists': wishlists,
+            'transactions': transactions,
         }
 
 class InfoLangView(TemplateView):
