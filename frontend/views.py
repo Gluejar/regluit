@@ -1614,6 +1614,7 @@ class InfoPageView(TemplateView):
             'works': works,
             'ebooks': ebooks,
             'wishlists': wishlists,
+            'transactions': transactions,
         }
 
 class InfoLangView(TemplateView):
