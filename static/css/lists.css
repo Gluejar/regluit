@@ -12,3 +12,8 @@
 #lang_list {
   display: none;
 }
+#tabs-1,
+#tabs-2,
+#tabs-3 {
+  margin-left: 0;
+}
