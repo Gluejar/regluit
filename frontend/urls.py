@@ -10,7 +10,7 @@ from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -49,6 +49,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/lockss/$", "lockss", name="lockss"),
     url(r"^lockss/(?P<year>\d+)/$", "lockss_manifest", name="lockss_manifest"),
     url(r"^work/(?P<work_id>\d+)/download/$", "download", name="download"),
+    url(r"^work/(?P<work_id>\d+)/merge/$", login_required(MergeView.as_view()), name="merge"),
     url(r"^work/\d+/acks/images/(?P<file_name>[\w\.]*)$", "static_redirect_view",{'dir': 'images'}), 
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
     url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),

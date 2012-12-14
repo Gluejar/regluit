@@ -775,7 +775,15 @@ class Work(models.Model):
 
     def __unicode__(self):
         return self.title
-
+        
+    @property
+    def has_unglued_edition(self):
+        """
+        allows us to distinguish successful campaigns with ebooks still in progress from successful campaigns with ebooks available
+        """
+        if self.ebooks().filter(edition__unglued=True):
+            return True
+        return False
 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)

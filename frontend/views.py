@@ -44,11 +44,12 @@ from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
+from regluit.core.bookloader import merge_works
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -578,6 +579,46 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+class MergeView(FormView):
+    template_name="merge.html"
+    work=None
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return render(request, "admins_only.html")
+        else:
+            return super(MergeView, self).dispatch(request, *args, **kwargs)
+            
+    def get_context_data(self, **kwargs):
+        context = super(MergeView, self).get_context_data(**kwargs)
+        context['work']=self.work
+        return context
+
+    def get_form_class(self):
+        if self.request.method == 'POST' and self.request.POST.has_key('confirm_merge_works'):
+            return WorkForm
+        else:
+            return OtherWorkForm
+                    
+    def get_form_kwargs(self):
+        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        form_kwargs= {'work':self.work}
+        if self.request.method == 'POST':
+            form_kwargs.update({'data':self.request.POST})
+        return form_kwargs
+
+    def form_valid(self, form):
+        other_work=form.cleaned_data['other_work']
+        context=self.get_context_data()
+        if self.request.POST.has_key('confirm_merge_works'):
+            context['old_work_id']=other_work.id
+            merge_works(self.work,other_work,self.request.user)
+            context['merge_complete']=True
+        else:
+            context['form']=WorkForm(initial={'other_work':other_work})
+            context['other_work']=other_work
+        return render(self.request, self.template_name, context)
 
 class DonationView(TemplateView):
     template_name = "donation.html"

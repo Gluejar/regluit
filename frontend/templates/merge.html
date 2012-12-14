@@ -1,0 +1,35 @@
+{% extends "basedocumentation.html" %}
+
+{% block extra_extra_head %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+{{ form.media.css }}
+<script type="text/javascript" src="{{ jquery_home }}"></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
+{{ form.media.js }}
+{% endblock %}
+
+{% block doccontent %}
+{% if merge_complete %}
+    <h2>Merge {{ old_work_id }} into {{ work.id }} Complete</h2>
+      {% include 'workbox.html' %}
+{% else %}
+    <h2>Merge Works</h2>
+    <form method="POST" action="#">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <h3>Merge this work...</h3>
+        {% if other_work %}
+            {% with other_work as work%}
+                {% include 'workbox.html' %}
+            {% endwith %}   
+        {% endif %}
+        <h3>... into the current work</h3>
+        {% include 'workbox.html' %}
+        {% if other_work %}
+            <input type="submit" name="confirm_merge_works" value="Confirm Merge" id="submit" />
+        {% else %}
+            <input type="submit" name="merge_works" value="Preview Merge Works" id="submit" />
+        {% endif %}
+    </form>
+{% endif %}
+{% endblock %}
