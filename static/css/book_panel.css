@@ -271,7 +271,10 @@ div.panelview.side2 {
   display: block;
 }
 .read_itbutton span {
+<<<<<<< HEAD
   height: 35px;
+=======
+>>>>>>> 73266f0... line up icons better and more clearly indicate status of books with successful campaigns
   line-height: 35px;
   font-size: 11px;
   background-repeat: no-repeat;
