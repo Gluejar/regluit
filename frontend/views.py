@@ -44,11 +44,12 @@ from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
+from regluit.core.bookloader import merge_works
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -567,6 +568,46 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+class MergeView(FormView):
+    template_name="merge.html"
+    work=None
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return render(request, "admins_only.html")
+        else:
+            return super(MergeView, self).dispatch(request, *args, **kwargs)
+            
+    def get_context_data(self, **kwargs):
+        context = super(MergeView, self).get_context_data(**kwargs)
+        context['work']=self.work
+        return context
+
+    def get_form_class(self):
+        if self.request.method == 'POST' and self.request.POST.has_key('confirm_merge_works'):
+            return WorkForm
+        else:
+            return OtherWorkForm
+                    
+    def get_form_kwargs(self):
+        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        form_kwargs= {'work':self.work}
+        if self.request.method == 'POST':
+            form_kwargs.update({'data':self.request.POST})
+        return form_kwargs
+
+    def form_valid(self, form):
+        other_work=form.cleaned_data['other_work']
+        context=self.get_context_data()
+        if self.request.POST.has_key('confirm_merge_works'):
+            context['old_work_id']=other_work.id
+            merge_works(self.work,other_work,self.request.user)
+            context['merge_complete']=True
+        else:
+            context['form']=WorkForm(initial={'other_work':other_work})
+            context['other_work']=other_work
+        return render(self.request, self.template_name, context)
 
 class DonationView(TemplateView):
     template_name = "donation.html"
@@ -1595,11 +1636,26 @@ class InfoPageView(TemplateView):
             wishlists.yesterday = wishlists.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         else:
             wishlists.yesterday = wishlists.month.filter(created__day = date_today().day-1)
+            
+        transactions = Transaction.objects.filter(status__in = [TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE])
+        transactions.sum = transactions.aggregate(Sum('amount'))['amount__sum']
+        transactions.today = transactions.filter(date_created__range = (date_today(), now()))
+        transactions.today.sum = transactions.today.aggregate(Sum('amount'))['amount__sum']
+        transactions.days7 = transactions.filter(date_created__range = (date_today()-timedelta(days=7), now()))
+        transactions.days7.sum = transactions.days7.aggregate(Sum('amount'))['amount__sum']
+        transactions.year = transactions.filter(date_created__year = date_today().year)
+        transactions.year.sum = transactions.year.aggregate(Sum('amount'))['amount__sum']
+        transactions.month = transactions.filter(date_created__month = date_today().month)
+        transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
+        transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
+        transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
+        
         return {
             'users': users, 
             'works': works,
             'ebooks': ebooks,
             'wishlists': wishlists,
+            'transactions': transactions,
         }
 
 class InfoLangView(TemplateView):
