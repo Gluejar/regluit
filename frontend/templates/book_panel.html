@@ -151,12 +151,18 @@
     
     <div class="listview panelfront side1 booklist-status">
 		{% ifequal status "ACTIVE" %}
-		<span class="booklist-status-text" style="width: 190px"><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b>/<b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b></span>
+		<span class="booklist-status-text"><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b>/<b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b></span>
 		{% else %}{% ifequal status "INITIALIZED" %}
 		<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
+		{% else %}{% ifequal status "SUCCESSFUL" %}
+		    {% if work.has_unglued_edition %}
+				<a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>		        
+		    {% else %}
+		        Ebook coming soon!
+		    {% endif %}
 		{% else %}
 		<span class="booklist-status-label"></span>
-		{% endifequal %}{% endifequal %}
+		{% endifequal %}{% endifequal %}{% endifequal %}
     </div>
     <div class="listview panelfront side1 icons">
     
