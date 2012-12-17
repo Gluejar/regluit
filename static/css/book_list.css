@@ -145,6 +145,12 @@ div.book-list.listview div.create-account span {
   text-transform: none;
   padding-left: 20px;
 }
+div.book-list.listview div.add-wishlist span.booklist_pledge,
+div.book-list.listview div.remove-wishlist span.booklist_pledge,
+div.book-list.listview div.on-wishlist span.booklist_pledge,
+div.book-list.listview div.create-account span.booklist_pledge {
+  padding-left: 18px;
+}
 div.book-list.listview div.add-wishlist span,
 div.book-list.listview div.create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;

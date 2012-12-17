@@ -22,9 +22,9 @@
 					<p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
 					<p><b>Raised:</b> {{ work.last_campaign.current_total|floatformat:0|intcomma }}</p>
 					{% if first_ebook %}
-						<a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>
+						<a href="{% url download workid %}" class="hijax"><span class="read_itbutton"><span>Read it Now</span></span></a>
 					{% else %}
-						<div class="read_itbutton"><span>Coming Soon</span></div>
+						<span class="read_itbutton"><span>Coming Soon</span></span>
 					{% endif %}
 				
 				{% else %}{% if status == 'ACTIVE' %}
@@ -32,7 +32,7 @@
 					<p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
 					<p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
 					<p>by {{ deadline|naturalday:"M d, Y" }}</p>
-					<a href="{% url pledge work_id=workid %}"><div class="read_itbutton pledge"><span>Pledge</span></div></a>
+					<a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge"><span>Pledge</span></span></a>
 
 				{% else %}{% if status == 'INITIALIZED' %}
 					<p>Campaign coming soon!</p>
@@ -50,7 +50,7 @@
 				{% else %}
 					{% if first_ebook %}
 						<b>AVAILABLE!</b>
-						<a href="{{ work.ebooks.0.url }}"><div class="read_itbutton"><span>Read it Now</span></div></a>
+						<a href="{{ work.ebooks.0.url }}"><span class="read_itbutton"><span>Read it Now</span></span></a>
 					{% else %}
 						<p>No campaign yet.</p><br /><p>But if lots of ungluers wishlist this book, maybe there will be!</p>
 					{% endif %}                        
@@ -156,7 +156,7 @@
 		<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 		{% else %}{% ifequal status "SUCCESSFUL" %}
 		    {% if work.has_unglued_edition %}
-				<a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>		        
+				<a href="{% url download workid %}" class="hijax"><span class="read_itbutton"><span>Read it Now</span></span></a>		        
 		    {% else %}
 		        Ebook coming soon!
 		    {% endif %}

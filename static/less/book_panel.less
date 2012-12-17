@@ -2,17 +2,16 @@
 
 /* Local variables */
 .greenpanelstuff {
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     width: 120px;
     line-height:16px;
 }
 
 .greenpanelactionitems(@pos, @lineheight) {
-    line-height:@lineheight;
+    .height(@lineheight);
     font-size:11px;
     background-repeat: no-repeat;
-    background-position: @pos center;
+    background-position: @pos auto;
     font-weight:bold;
     text-decoration:none;
     text-transform: uppercase;
@@ -34,7 +33,7 @@
 
 .readit {
     width:118px;
-    height:35px;
+    .height(35px);
     padding:0px 0px;
     background:#FFF;
     margin:0px;
@@ -123,7 +122,6 @@
 }
 
 .panelview.book-name div {
-    font-family: Arial, Helvetica, sans-serif;
     font-size: 12px;
     line-height:16px;
     max-height:32px;
@@ -221,6 +219,7 @@ div.panelview.side2  {
 /* White-background action buttons; vary by state of campaign */
 .read_itbutton {
 	.readit;
+	display: block;
 	span {
 		.readit_inner(30px, 35px);
 		background: url("@{image-base}book-panel/book_icon.png") no-repeat 10% center;
@@ -246,7 +245,7 @@ div.panelview.side2  {
 	.readit;
 	
 	span {
-		.readit_inner(15px, 40px);
+		.readit_inner(15px, 35px);
 		background: none;
 	}
 }
