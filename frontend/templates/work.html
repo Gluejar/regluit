@@ -67,7 +67,7 @@ $j(document).ready(function(){
                             Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
-                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />
+                            Unglued on {{ work.last_campaign.success_date|date:"M j, Y"}}! <br />
                             ${{ work.last_campaign.current_total|floatformat:0|intcomma }} raised of ${{ work.last_campaign.target|floatformat:0|intcomma }} goal<br />
                             Ebook in progress
                         {% else %}{% if status == 'INITIALIZED' %}

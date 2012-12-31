@@ -509,6 +509,12 @@ class Campaign(models.Model):
     @property
     def license_badge(self):
         return CCLicense.badge(self.license)
+        
+    @property
+    def success_date(self):
+        if self.status == 'SUCCESSFUL':
+            return self.actions.filter(type='succeeded')[0].timestamp
+        return ''
     
 
 class Identifier(models.Model):
