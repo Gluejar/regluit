@@ -513,8 +513,8 @@ class Campaign(models.Model):
     @property
     def success_date(self):
         if self.status == 'SUCCESSFUL':
-            return self.actions.filter(type="succeeded")[0].timestamp
-        return False
+            return self.actions.filter(type='succeeded')[0].timestamp
+        return ''
     
 
 class Identifier(models.Model):
