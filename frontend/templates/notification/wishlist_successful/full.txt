@@ -9,4 +9,4 @@ If necessary to provide you with any premiums you requested, {{ campaign.rightsh
 
 Thank you for your support.
 
-{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }} and the Unglue.it team
+{{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team
