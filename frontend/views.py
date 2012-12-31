@@ -1325,19 +1325,21 @@ def supporter(request, supporter_username, template_name):
     works_unglued = []
     works_active = []
     works_wished = []
+    works_on_wishlist = wishlist.works.all()
     
-    if (wishlist.works.all()):
+    if (works_on_wishlist):
         # querysets for tabs
-        # unglued tab is anything with an existing ebook
+        # unglued tab is anything with an existing ebook or successful campaign
         ## .order_by() may clash with .distinct() and this should be fixed
-        works_unglued = wishlist.works.all().filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
-        
-        # take the set complement of the unglued tab and filter it for active works to get middle tab
-        result = wishlist.works.all().exclude(pk__in=works_unglued.values_list('pk', flat=True))
-        works_active = result.filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).order_by('-campaigns__status', 'campaigns__deadline').distinct()
+        unglueit_works = works_on_wishlist.filter(campaigns__status="SUCCESSFUL").distinct()
+        works_otherwise_available = works_on_wishlist.filter(editions__ebooks__isnull=False).distinct()
+        works_unglued = unglueit_works | works_otherwise_available
+        works_unglued = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')
+
+        works_active = works_on_wishlist.filter(campaigns__status='ACTIVE').order_by('campaigns__deadline').distinct()
         
         # everything else goes in tab 3
-        works_wished = result.exclude(pk__in=works_active.values_list('pk', flat=True)).order_by('-num_wishes')
+        works_wished = works_on_wishlist.exclude(pk__in=works_active.values_list('pk', flat=True)).exclude(pk__in=works_unglued.values_list('pk', flat=True)).order_by('-num_wishes')
         
         # badge counts
         backed = works_unglued.count()
