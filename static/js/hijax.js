@@ -12,6 +12,11 @@ $j(document).ready(function() {
             var windowWidth = $j(document).width();
             var marginWidth = (windowWidth - hijaxWidth)/2;
             $j('#about_expandable').css({'margin-left': marginWidth});
+            
+            // position div vertically relative to top of viewport, to ensure visibility
+            // regardless of where on the page the user clicked to activate it
+            var marginTop = window.pageYOffset;
+            $j('#about_expandable').css({'margin-top': marginTop});
 		});
 		
 		if ($j(this).attr("href").substr(-9,8) == "download") {
@@ -22,7 +27,7 @@ $j(document).ready(function() {
 		$j('#feedback').css({"opacity": "0.07"});
 		$j('#js-page-wrap').css({"opacity": "0.07"});
 		$j('#footer').css({"opacity": "0.07"});
-		$j('#about_expandable').css({'position': 'fixed'});
+		$j('#about_expandable').css({'position': 'absolute'});
 		$j('#about_expandable').fadeTo("slow", 1);
 		
 		// if we're on a supporter page, personalize our about box
