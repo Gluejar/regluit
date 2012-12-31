@@ -1,7 +1,31 @@
 {% extends "basedocumentation.html" %}
 {% block title %}Ungluers supporting the {{ campaign }}{% endblock %}
 {% block extra_extra_head %}
-    <link rel="stylesheet" type="text/css" href="/static/css/vanilla.css" class="day" title="day" /> 
+    <link rel="stylesheet" type="text/css" href="/static/css/vanilla.css" class="day" title="day" />
+    <style>
+        .ackbox {
+            float: left;
+            min-width: 33%;
+            margin-right: 7px;
+        }
+        
+        h2 {
+            margin-top: 10px;
+        }
+        
+        dt {
+            margin-left: auto;
+            padding-left: 7px;
+        }
+        
+        dd {
+            margin-left: 7px;
+        }
+        
+        p {
+            text-indent: 0;
+        }
+    </style>
 {% endblock %}  
 {% block doccontent %}
 <!-- trim here -->
@@ -24,30 +48,54 @@
     <p>
     Unglued ebooks are made possible through the Unglue.it website by contributions from {{ transactions.all|length }} readers like you.</p>
     {% if transactions.supporters %}
-        <p>Supporters of this edition:
+        <h2>Supporters of this edition:</h2>
         {% for transaction in transactions.supporters %}
-            {% if forloop.last %}{% if transactions.supporters|length > 1 %}and {% endif %}{% endif %}{{ transaction.ack_name }}{% if forloop.last %}. {% else %}, {% endif %}
+            <div class="ackbox">
+                    {{ transaction.ack_name }}
+            </div>
         {% endfor %}
-        </p>
+        {% if transactions.anon_supporters %}
+            <div class="ackbox">
+                    Anonymous ({{ transactions.anon_supporters }})
+            </div>
+        {% endif %}
+        <br />
     {% endif %}
     {% if transactions.patrons %}
-        <p>Benefactors of this edition:
+        <h2>Benefactors of this edition:</h2>
         {% for transaction in transactions.patrons %}
-            {% if forloop.last %}{% if transactions.patrons|length > 1 %}and {% endif %}{% endif %}{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}{% if forloop.last %}. {% else %}, {% endif %}
+            <div class="ackbox">
+                {% if transaction.ack_link %}
+                    <a href="{{ transaction.ack_link }}">{{ transaction.ack_name }}</a>
+                {% else %}
+                    {{ transaction.ack_name }}
+                {% endif %}
+            </div>
         {% endfor %}
-        </p>
+        {% if transactions.anon_supporters %}
+            <div class="ackbox">
+                    Anonymous ({{ transactions.anon_patrons }})
+            </div>
+        {% endif %}
+        <br />
     {% endif %}
     {% if transactions.bibliophiles %}
-        <p>Bibliophiles of this edition:<dl>
+        <h2>Bibliophiles of this edition:</h2>
+        <dl>
         {% for transaction in transactions.bibliophiles %}
-            <dt>{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}</dt><dd>{{ transaction.ack_dedication }}</dd>
+            {% if not transaction.anonymous %}
+                <dt>{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}</dt>
+            {% else %}
+                <dt>Anonymous</dt>
+            {% endif %}
+            <dd>{{ transaction.ack_dedication }}</dd>
         {% endfor %}
         </dl>
-        </p>
     {% endif %}
     {% endwith %}
+    <hr>
     <p>
-    You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a> .
+        You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a> .
     </p>
 </section>
 <!-- trim here -->

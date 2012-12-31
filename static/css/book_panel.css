@@ -77,7 +77,6 @@
 }
 /* Local variables */
 .greenpanelstuff {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   width: 120px;
   line-height: 16px;
@@ -97,6 +96,7 @@
 .readit {
   width: 118px;
   height: 35px;
+  line-height: 35px;
   padding: 0px 0px;
   background: #FFF;
   margin: 0px;
@@ -130,7 +130,6 @@
 }
 /* styling of front side elements */
 .panelview.book-list {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   width: 120px;
   line-height: 16px;
@@ -156,7 +155,6 @@
   display: none;
 }
 .panelview.book-name div {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 16px;
   max-height: 32px;
@@ -236,7 +234,6 @@ div.panelview.side2 {
   position: relative;
 }
 .greenpanel2 {
-  font-family: Arial, Helvetica, sans-serif;
   font-size: 12px;
   width: 120px;
   line-height: 16px;
@@ -263,6 +260,7 @@ div.panelview.side2 {
 .read_itbutton {
   width: 118px;
   height: 35px;
+  line-height: 35px;
   padding: 0px 0px;
   background: #FFF;
   margin: 0px;
@@ -270,12 +268,14 @@ div.panelview.side2 {
   -webkit-border-radius: 4px;
   border-radius: 4px;
   border: 1px solid #81bb38;
+  display: block;
 }
 .read_itbutton span {
-  line-height: 40px;
+  height: 35px;
+  line-height: 35px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: 10px center;
+  background-position: 10px auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -296,10 +296,11 @@ div.panelview.side2 {
   background-position: 90% center;
 }
 .read_itbutton.pledge span {
+  height: 35px;
   line-height: 35px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: 10px center;
+  background-position: 10px auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -317,6 +318,7 @@ div.panelview.side2 {
 .read_itbutton_fail {
   width: 118px;
   height: 35px;
+  line-height: 35px;
   padding: 0px 0px;
   background: #FFF;
   margin: 0px;
@@ -326,10 +328,11 @@ div.panelview.side2 {
   border: 1px solid #81bb38;
 }
 .read_itbutton_fail span {
-  line-height: 40px;
+  height: 35px;
+  line-height: 35px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: 10px center;
+  background-position: 10px auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -343,6 +346,7 @@ div.panelview.side2 {
 .Unglue_itbutton {
   width: 118px;
   height: 35px;
+  line-height: 35px;
   padding: 0px 0px;
   background: #FFF;
   margin: 0px;
@@ -353,10 +357,11 @@ div.panelview.side2 {
 }
 .Unglue_itbutton a {
   background-image: url("/static/images/book-panel/unglue_icon.png");
+  height: 40px;
   line-height: 40px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: 10px center;
+  background-position: 10px auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -385,10 +390,11 @@ div.panelview.side2 {
 .moreinfo.create-account a,
 .moreinfo.add-wishlist span,
 .moreinfo.create-account span {
+  height: 30px;
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: left center;
+  background-position: left auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -417,10 +423,11 @@ div.panelview.side2 {
 }
 .moreinfo.remove-wishlist a,
 .moreinfo.remove-wishlist span {
+  height: 30px;
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: left center;
+  background-position: left auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -447,10 +454,11 @@ div.panelview.side2 {
 }
 .moreinfo.on-wishlist a,
 .moreinfo.on-wishlist span {
+  height: 30px;
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: left center;
+  background-position: left auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;
@@ -500,10 +508,11 @@ div.panelview.side2 {
 }
 .moreinfo a,
 .moreinfo span {
+  height: 30px;
   line-height: 30px;
   font-size: 11px;
   background-repeat: no-repeat;
-  background-position: left center;
+  background-position: left auto;
   font-weight: bold;
   text-decoration: none;
   text-transform: uppercase;

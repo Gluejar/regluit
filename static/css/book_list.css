@@ -145,6 +145,12 @@ div.book-list.listview div.create-account span {
   text-transform: none;
   padding-left: 20px;
 }
+div.book-list.listview div.add-wishlist span.booklist_pledge,
+div.book-list.listview div.remove-wishlist span.booklist_pledge,
+div.book-list.listview div.on-wishlist span.booklist_pledge,
+div.book-list.listview div.create-account span.booklist_pledge {
+  padding-left: 18px;
+}
 div.book-list.listview div.add-wishlist span,
 div.book-list.listview div.create-account span {
   background: url("/static/images/booklist/add-wishlist.png") left center no-repeat;
@@ -160,8 +166,7 @@ div.book-list.listview div > span.on-wishlist {
   background: url("/static/images/checkmark_small.png") left center no-repeat;
 }
 div.book-list.listview div.booklist-status {
-  width: 110px;
-  margin-right: 7px;
+  margin-right: 85px;
   float: left;
 }
 div.add-wishlist,
@@ -175,6 +180,9 @@ div.remove-wishlist {
   float: left;
   display: block;
   padding-right: 5px;
+}
+.booklist-status.listview .read_itbutton {
+  margin-top: 4px;
 }
 div.unglue-this a {
   text-transform: uppercase;
@@ -303,6 +311,9 @@ ul.navigation li.active a {
 }
 .listview.icons .booklist-status-label {
   display: none;
+}
+.listview.icons .boolist-ebook img {
+  margin-top: 6px;
 }
 div#content-block-content {
   padding-bottom: 100px;

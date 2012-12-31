@@ -525,6 +525,8 @@ class UngluedListView(FilterableListView):
         return counts
 
     def get_queryset_all(self):
+        # overrides get_queryset_all in FilterableListView,
+        # which overrides get_queryset method of ListView
         facet = self.kwargs['facet']
         if (facet == 'popular'):
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
@@ -538,7 +540,16 @@ class UngluedListView(FilterableListView):
             context['counts'] = self.work_set_counts(qs)
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
-            context['activetab'] = "#1"
+            context['activetab'] = '#1'
+            context['works_unglued'] = qs.filter(campaigns__status='SUCCESSFUL').distinct()
+            
+            works_pd = qs.exclude(campaigns__status='SUCCESSFUL').distinct()
+            # order_by('?') is slow, so let's take a slice of our unglued books from a random position instead
+            if works_pd.count() >= 20:
+                slice = randint(10, works_pd.count()-10)
+                context['works_pd'] = works_pd[slice-10:slice+10]
+            else:
+                context['works_pd'] = works_pd
             return context
 
         
