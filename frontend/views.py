@@ -1397,6 +1397,8 @@ def supporter(request, supporter_username, template_name):
     # default to showing the Active tab if there are active campaigns, else show Wishlist
     if backing > 0:
         activetab = "#2"
+    elif wished == 0:
+        activetab = "#1"
     else:
         activetab = "#3"
     
