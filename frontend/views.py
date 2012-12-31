@@ -501,8 +501,9 @@ class WorkListView(FilterableListView):
             qs=self.get_queryset()
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] = self.kwargs['facet']
-            context['works_unglued'] = qs.filter(editions__ebooks__isnull=False).distinct()[:20]
-            context['works_active'] = qs.exclude(editions__ebooks__isnull=False).filter(Q(campaigns__status='ACTIVE') | Q(campaigns__status='SUCCESSFUL')).distinct()[:20]
+            works_unglued = qs.filter(editions__ebooks__isnull=False).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
+            context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:20]
+            context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:20]
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:20]
             
             context['activetab'] = "#3"
@@ -529,8 +530,10 @@ class UngluedListView(FilterableListView):
         if (facet == 'popular'):
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
         else:
-            #return models.Work.objects.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).order_by('-created')
-            return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-created')
+            has_ebooks = models.Work.objects.filter(editions__ebooks__isnull=False).distinct()
+            successful_campaign = models.Work.objects.filter(campaigns__status="SUCCESSFUL").distinct()
+            unglued = successful_campaign | has_ebooks
+            return unglued.order_by('-campaigns__status', '-campaigns__deadline', '-created')
 
     def get_context_data(self, **kwargs):
             context = super(UngluedListView, self).get_context_data(**kwargs)
