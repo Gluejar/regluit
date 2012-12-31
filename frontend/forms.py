@@ -13,8 +13,8 @@ from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra
-from regluit.core.lookups import OwnerLookup
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work
+from regluit.core.lookups import OwnerLookup, WorkLookup
 
 from regluit.utils.localdatetime import now
 
@@ -208,6 +208,36 @@ def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
             )
     return TransferCreditForm( data=data )
 
+
+class WorkForm(forms.Form):
+    other_work = forms.ModelChoiceField(queryset=Work.objects.all(), 
+            widget=forms.HiddenInput(), 
+            required=True, 
+            error_messages={'required': 'Missing work to merge with.'},
+            )
+    work=None
+
+    def clean_other_work(self):
+        if self.cleaned_data["other_work"].id== self.work.id:
+            raise forms.ValidationError(_("You can't merge a work into itself"))
+        return self.cleaned_data["other_work"]
+
+    def __init__(self, work=None, *args, **kwargs):
+        super(WorkForm, self).__init__(*args, **kwargs)
+        self.work=work
+
+class OtherWorkForm(WorkForm):
+    other_work = AutoCompleteSelectField(
+            WorkLookup,
+            label='Other Work',
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+            error_messages={'required': 'Missing work to merge with.'},
+        )    
+
+    def __init__(self,  *args, **kwargs):
+        super(OtherWorkForm, self).__init__(*args, **kwargs)
+        self.fields['other_work'].widget.update_query_parameters({'language':self.work.language})
     
 class EditManagersForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(
