@@ -462,8 +462,7 @@ class Campaign(models.Model):
     	it's easier to return transactions than ungluers
     	"""
         p = PaymentManager()
-        ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
-        anons = 0
+        ungluers={"all":[],"supporters":[], "anon_supporters": 0, "patrons":[], "anon_patrons": 0, "bibliophiles":[]}
         if self.status == "ACTIVE":
             translist = p.query_campaign(self, summary=False, pledged=True, authorized=True)
         elif self.status == "SUCCESSFUL":
@@ -472,14 +471,18 @@ class Campaign(models.Model):
             translist = []
         for transaction in translist:
             ungluers['all'].append(transaction.user)
-            if transaction.anonymous:
-            	anons += 1
             if transaction.amount >= Premium.TIERS["bibliophile"]:
             	ungluers['bibliophiles'].append(transaction)
             elif transaction.amount >= Premium.TIERS["patron"]:
-            	ungluers['patrons'].append(transaction)
+                if transaction.anonymous:
+                    ungluers['anon_patrons'] += 1
+                else:
+            	    ungluers['patrons'].append(transaction)
             elif transaction.amount >= Premium.TIERS["supporter"]:
-            	ungluers['supporters'].append(transaction)
+                if transaction.anonymous:
+                    ungluers['anon_supporters'] += 1
+                else:
+                	ungluers['supporters'].append(transaction)
                 
         return ungluers
 
