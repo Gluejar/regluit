@@ -313,24 +313,16 @@ body {
   font-weight: bold;
 }
 .doc ul {
-  list-style: none;
+  list-style-type: disc;
   padding: 0;
   margin: 0;
-}
-.doc ul li {
-  margin-bottom: 7px;
-  -moz-border-radius: 14px;
-  -webkit-border-radius: 14px;
-  border-radius: 14px;
-  -moz-border-radius: 14px;
-  -webkit-border-radius: 14px;
-  border-radius: 14px;
-  padding: 10px;
-  background: #edf3f4;
 }
 .doc ul.errorlist li {
   background: none;
   margin-bottom: 0;
+}
+.doc ul li {
+  margin-left: 7px;
 }
 .doc ul.terms {
   list-style: inherit;
@@ -359,15 +351,12 @@ body {
   font-style: italic;
 }
 dt {
-  margin: 7px 0px 7px -7px;
-  -moz-border-radius: 14px;
-  -webkit-border-radius: 14px;
-  border-radius: 14px;
-  -moz-border-radius: 14px;
-  -webkit-border-radius: 14px;
-  border-radius: 14px;
-  padding: 10px 0px 10px 7px;
-  background: #edf3f4;
+  font-style: italic;
+  font-size: 15px;
+  margin-bottom: 7px;
+  border-top: solid #edf3f4 2px;
+  border-bottom: solid #edf3f4 2px;
+  padding: 7px 0;
 }
 dt.nomargin {
   margin: 7px 0px;
@@ -376,7 +365,7 @@ dt.nomargin a {
   margin-left: 7px;
 }
 dd {
-  margin: 0;
+  margin: 0 0 0 7px;
   padding-bottom: 7px;
 }
 dd.margin {
