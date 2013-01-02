@@ -271,14 +271,7 @@ div.panelview.side2 {
   display: block;
 }
 .read_itbutton span {
-<<<<<<< HEAD
-<<<<<<< HEAD
   height: 35px;
-=======
->>>>>>> 73266f0... line up icons better and more clearly indicate status of books with successful campaigns
-=======
-  height: 35px;
->>>>>>> 4a307a1... addressing CSS comments and also fixing some invalid html
   line-height: 35px;
   font-size: 11px;
   background-repeat: no-repeat;
@@ -350,7 +343,7 @@ div.panelview.side2 {
 .read_itbutton_fail span:hover {
   text-decoration: none;
 }
-.panelfront.icons .read_itbutton {
+.panelview.panelfront.icons .read_itbutton {
   margin-bottom: 7px;
   height: 30px !important;
   line-height: 30px !important;

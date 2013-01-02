@@ -2,7 +2,6 @@
 {% load endless %}
 {% load lang_utils %}
 {% with request.user.wishlist.works.all as wishlist %}
-{% with work_list.count as works_count %}
 
 {% block title %} Ready-to-Read Works {% if pub_lang %} in {{pub_lang|ez_lang_name}}{% endif %}{% endblock %}
 {% block extra_css %}
@@ -58,7 +57,7 @@
             <div id="content-block">
                 <div class="content-block-heading unglued" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1"><a href="#">All<br />{{ works_count }}</a></li>
+                        <li class="tabs1"><a href="#">All<br />({{ work_list.count }})</a></li>
                     </ul>
                     <ul class="book-list-view">
                         <li>View As:</li>
@@ -75,7 +74,7 @@
                     </ul>
                 </div>
                 <div id="content-block-content">
-                    {% ifequal works_count 0 %}
+                    {% ifequal work_list.count 0 %}
                     There aren't any {{ pub_lang|ez_lang_name }} works in this list. Why don't you add some?
                     {% else %}
                     {% lazy_paginate 20 work_list using "work_list" %}
@@ -102,5 +101,4 @@
     </div>
     </div>
 {% endblock %}
-{% endwith %}
 {% endwith %}
