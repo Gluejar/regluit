@@ -369,9 +369,18 @@ dt {
   padding: 10px 0px 10px 7px;
   background: #edf3f4;
 }
+dt.nomargin {
+  margin: 7px 0px;
+}
+dt.nomargin a {
+  margin-left: 7px;
+}
 dd {
   margin: 0;
   padding-bottom: 7px;
+}
+dd.margin {
+  margin-left: 7px;
 }
 .doc ol li {
   margin-bottom: 7px;
