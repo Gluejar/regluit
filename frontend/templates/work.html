@@ -224,7 +224,7 @@ $j(document).ready(function(){
                 </div>
                 
                 <div id="content-block-content">
-                   <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
+                       <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
                         {{ work.last_campaign.description|safe }}
