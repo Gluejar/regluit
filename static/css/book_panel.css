@@ -340,6 +340,11 @@ div.panelview.side2 {
 .read_itbutton_fail span:hover {
   text-decoration: none;
 }
+.panelfront.icons .read_itbutton {
+  margin-bottom: 7px;
+  height: 30px !important;
+  line-height: 30px !important;
+}
 .Unglue_itbutton {
   width: 118px;
   height: 35px;
