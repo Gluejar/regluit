@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load lang_utils %}
-{% with request.user.wishlist.works.all as wishlist %}
 
 {% block title %} Works {% endblock %}
 {% block extra_css %}
@@ -168,4 +167,3 @@
     </div>
     </div>
 {% endblock %}
-{% endwith %}

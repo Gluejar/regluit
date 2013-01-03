@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load lang_utils %}
-{% with request.user.wishlist.works.all as wishlist %}
 
 {% block title %} Ready-to-Read Works {% if pub_lang %} in {{pub_lang|ez_lang_name}}{% endif %}{% endblock %}
 {% block extra_css %}
@@ -101,4 +100,3 @@
     </div>
     </div>
 {% endblock %}
-{% endwith %}
