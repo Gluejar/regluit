@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load lang_utils %}
-{% with request.user.wishlist.works.all as wishlist %}
 
 {% block title %} Active Campaigns {% endblock %}
 {% block extra_css %}
@@ -106,4 +105,3 @@ location.hash = "#2";
     </div>
     </div>
 {% endblock %}
-{% endwith %}
