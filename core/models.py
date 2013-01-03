@@ -790,6 +790,14 @@ class Work(models.Model):
         if self.ebooks().filter(edition__unglued=True):
             return True
         return False
+        
+    @property
+    def rightsholders(self):
+        """
+        return all users who are rights holders with active claims to the work
+        """
+        rightsholders = RightsHolder.objects.filter(claim__in=Claim.objects.filter(work=self).filter(status='active'))
+        return User.objects.filter(rights_holder__in=rightsholders)
 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
