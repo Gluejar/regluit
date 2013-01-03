@@ -129,9 +129,15 @@
         <span>Pledged!</span>
     </div>
     {% else %}{% ifequal supporter request.user %}
-    <div class="listview panelfront side1 remove-wishlist">
-        <span id="l{{ workid }}">Un-wishlist</span>
-    </div>
+        {% ifequal status "ACTIVE" %}
+            <div class="listview panelfront side1 pledge">
+                <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+            </div>
+        {% else %}
+            <div class="listview panelfront side1 remove-wishlist">
+                <span id="l{{ workid }}">Un-wishlist</span>
+            </div>
+        {% endifequal %}
     {% else %}{% if work in wishlist %}
     <div class="listview panelfront side1 on-wishlist">
         <span>On Wishlist!</span>
