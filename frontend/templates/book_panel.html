@@ -33,11 +33,7 @@
 					<p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
 					<p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
 					<p>by {{ deadline|naturalday:"M d, Y" }}</p>
-					{% if request.user.id in supporters %}
-					    <span class="read_itbutton"><span>Pledged!</span></span>
-					{% else %}
-					    <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge"><span>Pledge</span></span></a>
-					{% endif %}
+					<a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge"><span>Pledge</span></span></a>
 
 				{% else %}{% if status == 'INITIALIZED' %}
 					<p>Campaign coming soon!</p>
