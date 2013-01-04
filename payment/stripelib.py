@@ -659,7 +659,7 @@ class Processor(baseprocessor.Processor):
 
                     # fire off the fact that transaction failed -- should actually do so only if not a transient error
                     # if card_declined or expired card, ask user to update account
-                    if e.code in ('card_declined', 'expired_card'):
+                    if e.code in ('card_declined', 'expired_card', 'incorrect_number', 'processing_error'):
                         transaction_failed.send(sender=self, transaction=transaction)
                     # otherwise, report exception to us
                     else:
