@@ -790,6 +790,18 @@ class Work(models.Model):
         if self.ebooks().filter(edition__unglued=True):
             return True
         return False
+        
+    @property
+    def user_with_rights(self):
+        """
+        return queryset of users (should be at most one) who act for rights holders with active claims to the work
+        """
+        claims = self.claim.filter(status='active')
+        assert claims.count() < 2, "There is more than one active claim on %r" % self.title
+        try:
+            return claims[0].user
+        except:
+            return False
 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
