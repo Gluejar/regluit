@@ -45,12 +45,12 @@ $j(document).ready(function(){
         <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a manager for this campaign, you can <a href="{% url manage_campaign id=work.last_campaign.id %}">edit this campaign</a>.</div>
     {% endif %}
 {% else %}
-    {% if not work.rightsholders %}
+    {% if not work.user_with_rights %}
         {% if request.user.rights_holder.all %}
             <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the Rights tab. Need help?  There's a screencast of the process at the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
         {% endif %}
     {% else %}
-        {% if request.user in work.rightsholders %}
+        {% if request.user == work.user_with_rights %}
             {% ifequal work.last_campaign.status 'SUCCESSFUL' %}
                 <div class="launch_top pale">Congratulations, {{ request.user.username }}; you successfully unglued this work!  What are your plans for publicity and distribution?  We're happy to brainstorm with you about next steps.</div>
             {% else %}

@@ -792,12 +792,16 @@ class Work(models.Model):
         return False
         
     @property
-    def rightsholders(self):
+    def user_with_rights(self):
         """
-        return all users who are rights holders with active claims to the work
+        return queryset of users (should be at most one) who act for rights holders with active claims to the work
         """
-        rightsholders = RightsHolder.objects.filter(claim__in=Claim.objects.filter(work=self).filter(status='active'))
-        return User.objects.filter(rights_holder__in=rightsholders)
+        claims = self.claim.filter(status='active')
+        assert claims.count() < 2, "There is more than one active claim on %r" % self.title
+        try:
+            return claims[0].user
+        except:
+            return False
 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
