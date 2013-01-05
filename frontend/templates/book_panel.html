@@ -125,14 +125,15 @@
     
     {% comment %}same logic as above{% endcomment %}
     {% if request.user.is_anonymous %}
-    <div class="listview panelfront side1 create-account">
-        <span title="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Add</span>
-    </div>
+        <div class="listview panelfront side1 create-account">
+            <span title="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Add</span>
+        </div>
     {% else %}{% if request.user.id in supporters %}
-    <div class="listview panelfront side1 on-wishlist">
-        <span>Pledged!</span>
-    </div>
+        <div class="listview panelfront side1 on-wishlist">
+            <span>Pledged!</span>
+        </div>
     {% else %}{% ifequal supporter request.user %}
+        {% comment %} used only on your own supporter page. {% endcomment %}
         {% ifequal status "ACTIVE" %}
             <div class="listview panelfront side1 pledge">
                 <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
@@ -142,23 +143,29 @@
                 <span id="l{{ workid }}">Un-wishlist</span>
             </div>
         {% endifequal %}
-    {% else %}{% if work in wishlist %}
-    <div class="listview panelfront side1 on-wishlist">
-        <span>On Wishlist!</span>
-    </div>
-    {% else %}
-    <div class="listview panelfront side1 add-wishlist">
-        {% ifequal status "ACTIVE" %}
-            <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+    {% else %}{% ifequal status "ACTIVE" %}
+        {% if request.user.id in supporters %}
+            <div class="listview panelfront side1 on-wishlist">
+                <span class="read_itbutton"><span>Pledged!</span></span>
+            </div>
         {% else %}
+            <div class="listview panelfront side1 add-wishlist">
+                <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+            </div>
+        {% endif %}
+    {% else %}{% if work in wishlist %}
+        <div class="listview panelfront side1 on-wishlist">
+            <span>On Wishlist!</span>
+        </div>
+    {% else %}
+        <div class="listview panelfront side1 add-wishlist">
             {% if on_search_page %}
             <span class="gb_id" id="l{{ googlebooks_id }}">Add to Wishlist</span>
             {% else %}
             <span class="work_id" id="l{{ workid }}">Add to Wishlist</span>
             {% endif %}
-        {% endifequal %}
-    </div>
-    {% endif %}{% endifequal %}{% endif %}{% endif %}
+        </div>
+    {% endif %}{% endifequal %}{% endifequal %}{% endif %}{% endif %}
     
     <div class="listview panelfront side1 booklist-status">
 		{% ifequal status "ACTIVE" %}
