@@ -40,8 +40,24 @@ $j(document).ready(function(){
 {% endblock %}
 
 {% block topsection %}
-{% if request.user in work.last_campaign.managers.all and work.last_campaign.status != 'SUCCESSFUL' %}
-    <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a manager for this campaign, you can <a href="{% url manage_campaign id=work.last_campaign.id %}">edit this campaign</a>.</div> 
+{% if work.last_campaign.status == 'ACTIVE' %}
+    {% if request.user in work.last_campaign.managers.all %}
+        <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a manager for this campaign, you can <a href="{% url manage_campaign id=work.last_campaign.id %}">edit this campaign</a>.</div>
+    {% endif %}
+{% else %}
+    {% if not work.user_with_rights %}
+        {% if request.user.rights_holder.all %}
+            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the Rights tab. Need help?  There's a screencast of the process at the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
+        {% endif %}
+    {% else %}
+        {% if request.user == work.user_with_rights %}
+            {% ifequal work.last_campaign.status 'SUCCESSFUL' %}
+                <div class="launch_top pale">Congratulations, {{ request.user.username }}; you successfully unglued this work!  What are your plans for publicity and distribution?  We're happy to brainstorm with you about next steps.</div>
+            {% else %}
+                <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a rights holder for this work, you can <a href="{% url rightsholders %}">launch a campaign</a>.</div>
+            {% endifequal %}
+        {% endif %}
+    {% endif %}
 {% endif %}
 {% endblock %}
 
@@ -67,7 +83,7 @@ $j(document).ready(function(){
                             Ending {{ countdown }}
                     {% else %}
                         {% if status == 'SUCCESSFUL' %}
-                            Unglued on {{ work.last_campaign.deadline|date:"M j, Y"}}! <br />
+                            Unglued on {{ work.last_campaign.success_date|date:"M j, Y"}}! <br />
                             ${{ work.last_campaign.current_total|floatformat:0|intcomma }} raised of ${{ work.last_campaign.target|floatformat:0|intcomma }} goal<br />
                             Ebook in progress
                         {% else %}{% if status == 'INITIALIZED' %}
@@ -215,10 +231,10 @@ $j(document).ready(function(){
                 {% get_comment_count for work as comment_count %}
                 <div class="content-block-heading" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#"><div>{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</div></a></li>
-                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#"><div>Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</div></a></li>
-                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#"><div>Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</div></a></li>
-                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#"><div>Rights</div></a></li>
+                        <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
+                        <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
+                        <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
+                        <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
                     </ul>
                         
                 </div>

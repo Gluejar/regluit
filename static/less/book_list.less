@@ -59,7 +59,7 @@ div.book-list.listview{
                 .height(19px);
             }
         }
-        &.add-wishlist, &.remove-wishlist, &.on-wishlist, &.create-account {
+        &.add-wishlist, &.remove-wishlist, &.on-wishlist, &.create-account, &.pledge {
             margin-right: 10px;
             padding-right: 10px;
             width: 136px;
@@ -73,6 +73,14 @@ div.book-list.listview{
                 padding-left:20px;
             }
             
+            span.booklist_pledge {
+                padding-left: 18px;
+            }
+            
+        }
+        
+        &.pledge span.booklist_pledge {
+            padding-left: 0;
         }
         
         &.add-wishlist span, &.create-account span {
@@ -92,8 +100,8 @@ div.book-list.listview{
         }
 
         &.booklist-status {
-            width: 110px;
-            margin-right:7px;
+            //width: 110px;
+            margin-right:85px;
             float: left;
         }
     }
@@ -112,6 +120,12 @@ div.add-wishlist, div.remove-wishlist {
         float:left;
         display:block;
         padding-right:5px;
+        max-width: 180px;
+        overflow: hidden;
+    }
+    
+    .read_itbutton {
+        margin-top: 4px;
     }
 }
 
@@ -254,6 +268,10 @@ ul.navigation li a:hover, ul.navigation li.active a {
     }
     .booklist-status-label, {
         display: none;
+    }
+    
+    .boolist-ebook img {
+        margin-top: 6px;
     }
 }
 

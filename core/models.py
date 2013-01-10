@@ -462,8 +462,7 @@ class Campaign(models.Model):
     	it's easier to return transactions than ungluers
     	"""
         p = PaymentManager()
-        ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
-        anons = 0
+        ungluers={"all":[],"supporters":[], "anon_supporters": 0, "patrons":[], "anon_patrons": 0, "bibliophiles":[]}
         if self.status == "ACTIVE":
             translist = p.query_campaign(self, summary=False, pledged=True, authorized=True)
         elif self.status == "SUCCESSFUL":
@@ -472,14 +471,18 @@ class Campaign(models.Model):
             translist = []
         for transaction in translist:
             ungluers['all'].append(transaction.user)
-            if transaction.anonymous:
-            	anons += 1
             if transaction.amount >= Premium.TIERS["bibliophile"]:
             	ungluers['bibliophiles'].append(transaction)
             elif transaction.amount >= Premium.TIERS["patron"]:
-            	ungluers['patrons'].append(transaction)
+                if transaction.anonymous:
+                    ungluers['anon_patrons'] += 1
+                else:
+            	    ungluers['patrons'].append(transaction)
             elif transaction.amount >= Premium.TIERS["supporter"]:
-            	ungluers['supporters'].append(transaction)
+                if transaction.anonymous:
+                    ungluers['anon_supporters'] += 1
+                else:
+                	ungluers['supporters'].append(transaction)
                 
         return ungluers
 
@@ -509,6 +512,12 @@ class Campaign(models.Model):
     @property
     def license_badge(self):
         return CCLicense.badge(self.license)
+        
+    @property
+    def success_date(self):
+        if self.status == 'SUCCESSFUL':
+            return self.actions.filter(type='succeeded')[0].timestamp
+        return ''
     
 
 class Identifier(models.Model):
@@ -772,7 +781,27 @@ class Work(models.Model):
 
     def __unicode__(self):
         return self.title
-
+        
+    @property
+    def has_unglued_edition(self):
+        """
+        allows us to distinguish successful campaigns with ebooks still in progress from successful campaigns with ebooks available
+        """
+        if self.ebooks().filter(edition__unglued=True):
+            return True
+        return False
+        
+    @property
+    def user_with_rights(self):
+        """
+        return queryset of users (should be at most one) who act for rights holders with active claims to the work
+        """
+        claims = self.claim.filter(status='active')
+        assert claims.count() < 2, "There is more than one active claim on %r" % self.title
+        try:
+            return claims[0].user
+        except:
+            return False
 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)

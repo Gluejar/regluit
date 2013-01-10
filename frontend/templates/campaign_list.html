@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load lang_utils %}
-{% with request.user.wishlist.works.all as wishlist %}
 
 {% block title %} Active Campaigns {% endblock %}
 {% block extra_css %}
@@ -59,7 +58,7 @@ location.hash = "#2";
             <div id="content-block">
                 <div class="content-block-heading ungluing" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs2 active"><a href="#">Active</a></li>
+                        <li class="tabs2 active"><a href="#">Active<br />({{ campaign_list.count }})</a></li>
                     </ul>
     
                         <ul class="book-list-view">
@@ -75,13 +74,10 @@ location.hash = "#2";
                                 </a>
                             </li>
                         </ul>
-                                <div class="badges listspage">
-                                <span class="rounded"><span class="orange" title="We're ungluing {{ campaign_list.count }} {% if campaign_list.count == 1 %}book{% else %}books{% endif %}."><span class="hovertext">We're ungluing&nbsp;</span>{{ campaign_list.count }}</span></span>
-                                </div>
                 </div>
                 <div id="content-block-content">
                     {% ifequal campaign_list.count 0 %}
-                    There aren't any {{pub_lang|ez_lang_name}} ungluing campaigns active yet.  If you're a rights holder, you can <a href="/faq/rightsholders">start one</a>.
+                    There aren't any {{ pub_lang|ez_lang_name }} ungluing campaigns active yet.  If you're a rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
                     {% lazy_paginate 20 campaign_list using "campaign_list" %}
 
@@ -109,4 +105,3 @@ location.hash = "#2";
     </div>
     </div>
 {% endblock %}
-{% endwith %}

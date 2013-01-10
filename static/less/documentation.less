@@ -100,20 +100,17 @@ body {
 }
 
 .doc ul {
-	list-style: none;
+    list-style-type: none;
 	padding:0;
 	margin:0;
 
-	li {
-		margin-bottom:7px;
-		.one-border-radius(14px);
-		padding:10px;
-		background:@pale-blue;
-	}
-	
 	&.errorlist li {
 		background: none;
 		margin-bottom: 0;
+	}
+	
+	li {
+	    margin-left: 7px;
 	}
 	
 	&.terms {
@@ -127,6 +124,11 @@ body {
 			background: inherit;
 		}
 	}
+	
+	&.bullets {
+        list-style-type: disc;
+        margin-left: 9px;
+	}
 }
 
 .doc div.inset {
@@ -137,15 +139,21 @@ body {
 }
 
 dt {
-	margin:7px 0px 7px -7px;
-	.one-border-radius(14px);
-	padding:10px 0px 10px 7px;
-	background:@pale-blue;
+	font-style: italic;
+	font-size: @font-size-larger;
+	margin-bottom: 7px;
+	border-top: solid @pale-blue 2px;
+	border-bottom: solid @pale-blue 2px;
+	padding: 7px 0;
 }
 
 dd {
-	margin: 0;
+	margin: 0 0 0 7px;
 	padding-bottom: 7px;
+	
+	&.margin {
+	    margin-left: 7px;
+	}
 }
 
 .doc ol li {

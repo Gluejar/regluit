@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load lang_utils %}
-{% with request.user.wishlist.works.all as wishlist %}
 
 {% block title %} Works {% endblock %}
 {% block extra_css %}
@@ -71,36 +70,30 @@
             <div id="content-block">
                 <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1"><a href="#">Unglued</a></li>
-                        <li class="tabs2"><a href="#">Active</a></li>
-                        <li class="tabs3"><a href="#">Unglue It!</a></li>
+                        <li class="tabs1"><a href="#">Unglued<br />({{ counts.unglued }})</a></li>
+                        <li class="tabs2"><a href="#">Active<br />({{ counts.unglueing }})</a></li>
+                        <li class="tabs3"><a href="#">Unglue It!<br />({{ counts.wished }})</a></li>
                     </ul>
-                                    <div class="badges listspage">
-                                    <span class="rounded"><span class="blue tabs1" title="Enjoy {{ counts.unglued }} unglued {% if counts.unglued == 1 %}book{% else %}books{% endif %}."><span class="hovertext">Enjoy&nbsp;</span>{{ counts.unglued }}</span></span>
-                                    <span class="rounded"><span class="orange tabs2" title="We're ungluing {{ counts.unglueing }} {% if counts.unglueing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">Ungluing&nbsp;</span>{{ counts.unglueing }}</span></span>
-                                    <span class="rounded"><span class="grey tabs3" title="We're wishing for {{ counts.wished }} {% if counts.wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">Wishing for&nbsp;</span>{{ counts.wished }}</span></span>
-                                </div>
-
-                        <ul class="book-list-view">
-                            <li>View As:</li>
-                            <li class="view-list">
-                                <a href="#" id="toggle-list">
-                                <img src="/static/images/booklist/view-list.png" alt="view list" title="view list" height="21" width="24" />
-                                </a>
-                            </li>
-                            <li class="view-list">
-                                <a href="#" id="toggle-panel">
-                                <img src="/static/images/booklist/view-icon.png" alt="view icon" title="view icon" height="22" width="22" />
-                                </a>
-                            </li>
-                        </ul>
+                    <ul class="book-list-view">
+                        <li>View As:</li>
+                        <li class="view-list">
+                            <a href="#" id="toggle-list">
+                            <img src="/static/images/booklist/view-list.png" alt="view list" title="view list" height="21" width="24" />
+                            </a>
+                        </li>
+                        <li class="view-list">
+                            <a href="#" id="toggle-panel">
+                            <img src="/static/images/booklist/view-icon.png" alt="view icon" title="view icon" height="22" width="22" />
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <div id="content-block-content">
                     {% ifequal work_list.count 0 %}
                     {% if facet == 'recommended' %}
                     Check back soon to see what we're recommending.
                     {% else %}
-                    There aren't any {{pub_lang|ez_lang_name}} works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
+                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
 					{% endif %}
                     {% else %}
                         {% comment %}
@@ -174,4 +167,3 @@
     </div>
     </div>
 {% endblock %}
-{% endwith %}

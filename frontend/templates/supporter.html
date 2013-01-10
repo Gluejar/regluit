@@ -111,7 +111,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 <span class="user-badges">
                                     {% if supporter.profile.badges.all %}
                                         {% for badge in supporter.profile.badges.all %}
-                                            <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}" width="26px" height="26px" class="{{ badge.name }}" />                                
+                                            <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}" width="26" height="26" class="{{ badge.name }}" />                                
                                         {% endfor %}
                                     {% endif %}
                                 </span>
@@ -340,7 +340,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% if works_active %}
                     {{ supporter }} is giving these books to you.  <a href="/about/active/" class="hijax">Find out how.</a>
                     {% else %}
-                    {{ supporter }} isn't giving any books to the world right now.  <a href="/about/active_empty" class="hijax">Find out how you can.</a>
+                    {{ supporter }} isn't giving any new books to the world right now.  <a href="/about/active_empty" class="hijax">Find out how you can.</a>
                     {% endif %}
                     </div>
                     <div class="tabs-3 anon_about">
@@ -358,9 +358,8 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}
-					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-1">
@@ -376,9 +375,8 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}
-					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-2">
@@ -394,9 +392,8 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}
-					{% with request.user.wishlist.works.all as wishlist %}					
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-3">
