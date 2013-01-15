@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
-from regluit.utils.localdatetime import now
+from regluit.utils.localdatetime import now, date_today
 
 from django.db.models.signals import post_save, post_delete
 
@@ -335,7 +335,43 @@ class Account(models.Model):
     def deactivate(self):
         """Don't allow more than one active Account of given host to be associated with a given user"""
         self.date_deactivated = now()
-        self.save()            
+        self.save()
+        
+    @property    
+    def status(self):
+        """returns ACTIVE, DEACTIVATED, EXPIRED, EXPIRING, or ERROR"""
+        
+    # TO DO:  integrate this method in to see whether we are using the right range of values
+    #         also, cache this status by having a value in the db in the future.
+        
+    # is it deactivated?
+    
+        today = date_today()
+        transactions_w_error_status_older_account = Transaction.objects.filter(host='stripelib', 
+                 status='Error', approved=True, user=self.user)
+        
+        if self.date_deactivated is not None:
+            return 'DEACTIVATED'
+    
+    # is it expired?
+    
+        elif self.card_exp_year < today.year or (self.card_exp_year == today.year and self.card_exp_month < today.month):
+            return 'EXPIRED'
+        
+    # about to expire?  do I want to distinguish from 'ACTIVE'?
+    
+        elif (self.card_exp_year == today.year and self.card_exp_month == today.month):
+            return 'EXPIRING'        
+    
+    # any transactions w/ errors after the account date?
+    # Transaction.objects.filter(host='stripelib', status='Error', approved=True).count()
+    
+        elif Transaction.objects.filter(host='stripelib', 
+                 status='Error', approved=True, user=self.user).filter(date_payment__gt=self.date_created):
+            return 'ERROR'
+        else:
+            return 'ACTIVE'
+                
     
 # handle any save, updates to a payment.Transaction
 
