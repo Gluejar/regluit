@@ -1,7 +1,8 @@
 @import "variables.less";
+@import "social_share.less";
 
 .download_container {
-	width: 50%;
+	width: 75%;
 	margin: auto;
 }
 
@@ -110,4 +111,15 @@
             font-style: normal;
         }
     }
+}
+
+#widgetcode2 {
+    display: none;
+	border:1px solid @blue-grey;
+	.one-border-radius(10px);
+	padding:10px;
+	
+	textarea {
+	    max-width: 90%;
+	}
 }
