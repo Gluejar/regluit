@@ -2113,7 +2113,8 @@ def lockss_manifest(request, year):
 def download(request, work_id):
     context = {}
     work = safe_get_work(work_id)
-    context.update({'work': work})
+    site = Site.objects.get_current()
+    context.update({'work': work, 'site': site})
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
