@@ -20,9 +20,9 @@
         <ul class="social menu">
             {% with site.domain as domain %}
             <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-            <a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work.id|urlencode:"" %}&amp;text=I%20just%20pledged%20to%20unglue%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+            <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
             {% endwith %}
-            <a href="{% url emailshare 'pledge' %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>
+            <a href="{% url emailshare '' %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>
             <a href="#" id="embed2"><li class="embed"><span>Embed</span></li></a>
             <div id="widgetcode2">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{ request.META.HTTP_HOST }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
         </ul>
