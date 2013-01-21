@@ -5,6 +5,7 @@ from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
@@ -86,7 +87,10 @@ urlpatterns = patterns(
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
     url(r'^campaign_archive.js/$', "campaign_archive_js", name="campaign_archive_js"),
     url(r"^about/(?P<facet>\w*)/$", "about",  name="about"),
-    url(r"^libraries/$", TemplateView.as_view(template_name="libraries.html"),
+    url(r"^libraries/$", TemplateView.as_view(
+            template_name="libraries.html",
+            get_context_data=lambda: {'site': Site.objects.get_current()}
+        ),
         name="libraries"),
 )
 
