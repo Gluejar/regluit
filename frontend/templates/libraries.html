@@ -1,0 +1,55 @@
+{% extends "basedocumentation.html" %}
+
+{% block extra_css %}
+    <link type="text/css" rel="stylesheet" href="/static/css/campaign.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/libraries.css" />
+{% endblock %}
+
+{% block extra_js %}
+	<script type="text/javascript" src="/static/js/embed.js"></script>
+{% endblock %}
+
+{% block news %}
+{% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+<div>
+<h2 class="fontawesome"><img src="/static/images/logo.png" alt="Unglue.it"><3lib</h2>
+
+<p><strong>We love libraries!</strong>  We want you to have books you can share with your patrons with no DRM, no simultaneous user limits, no device restrictions, no tracking of patron data, for free, forever.</p>
+
+<p>We love libraries because we're from the library world.  Our team includes a librarian; an iSchool teacher; and a library software entrepreneur.  We've built Unglue.it in part because we've seen that the ebook system we have now really doesn't work for libraries, and we believe in making things better.</p>
+
+<p><strong>We need your help, though.</strong>  We can't unglue ebooks all by ourselves; we need lots of people to pitch in.  If you'd like to share free, unlimited, no-DRM, privacy-respecting ebooks with your patrons, here are some ways you can help:</p>
+
+<dl>
+<dt><a href="{% url registration_register %}">Sign up.</a></dt>
+<dd>Starting an account, for yourself or your library, is free, and lets you add books to your wishlist, comment on them, and support campaigns.  <a href="{% url registration_register %}">Sign up here.</a></dd>
+<dt>Stay in touch.</dt>
+<dd>You can follow us on Twitter (<a href="http://twitter.com/unglueit">@unglueit</a>), <a href="http://facebook/com/unglueit">Facebook</a>, and our <a href="http://blog.unglue.it">blog</a>, and <a href="http://eepurl.com/fKLfI">subscribe to our newsletter</a> (1-2 emails per month).</dd>
+<dt>Add unglued ebooks to your collection.</dt>
+<dd>We strive to have OCLC and SkyRiver MARC records available for all unglued ebooks.  They can live in the catalog in your ILS; they link to an epub file in the Internet Archive.  Of course, because of unglued ebooks' Creative Commons licenses, you're free to shift that epub to other formats, host the file on your own servers, and edit the MARC record accordingly.</dd>
+<dt>Join our <a href="http://goo.gl/lCTLI">catalogers list</a>.</dt>
+<dd>We're able to get MARC records into OCLC and SkyRiver because of the support of catalogers like you.  Want to help?  <a href="http://goo.gl/lCTLI">Add yourself to the list.</a>  Usually all you'll need to do is modify an existing record for an earlier edition and upload the record.  We'll supply you with the link and the unglued edition.  We'll only contact you when there's an unglued book to be cataloged.</dd>
+<dt>Spread the word.</dt>
+<dd>There are social media sharing links on most pages on the site.  There are some right here!</dd>
+	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
+	<ul class="social menu pledge">
+		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}"><li class="facebook first"><span>Facebook</span></li></a>
+		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}&amp;text=I%20am%20learning%20about%20unglue%2Eit%20%2E%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+		<a href="{% url emailshare '' %}?next={% url libraries %}"><li class="email"><span>Email</span></li></a>
+		<a id="embed"><li class="embed"><span>Embed</span></li></a>
+	</ul>
+	<div class="clearfix"></div>
+<dt>Educate yourself and your patrons about ebook issues and Creative Commons licenses.</dt>
+<dd>Checkout limits, publishers who won't sell ebooks to libraries, DRM, companies tracking readers' behavior, library prices far in excess of consumer costs, incompatible technologies and formats, cataloging silos...you know why it's hard for you to deliver a seamless ereading experience to your patrons.  Make sure they know, too.  And make sure everyone knows how solutions, like <a href="http://creativecommons.org">Creative Commons</a> licenses, can help libraries and readers while respecting copyright and protecting creators' rights.</dd>
+<dt>Support <a href="{% url campaign_list 'ending' %}">our active campaigns</a>.</dt>
+<dd>Ultimately ebooks can't be unglued unless authors and publishers are paid for their work.  Many of our staunchest supporters are librarians.  There are also several libraries which have supported campaigns, including Leddy Library (University of Windsor, Ontario); the University of Alberta library; and the Z. Smith Reynolds library (Wake Forest University). [** get links and make sure this is OK **]</dd>
+<dt>Give feedback and ask questions.</dt>
+<dd>Want to know more?  Need help?  Have ideas for how we could improve the site or make it more library-friendly?  Contact our librarian Andromeda Yelton: <a href="mailto:andromeda@gluejar.com">andromeda@gluejar.com</a>.</dd>
+</dl>
+</div>
+{% endblock %}
