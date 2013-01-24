@@ -418,7 +418,15 @@ $j(document).ready(function(){
                 <div class="jsmod-content">
                     <ul class="social menu">
                         <a href="https://www.facebook.com/sharer.php?u={{request.build_absolute_uri|urlencode:"" }}"><li class="facebook first"><span>Facebook</span></li></a>
-                        <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"><li class="twitter"><span>Twitter</span></li></a>
+                        {% if work.first_ebook %}
+                            <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20DRM%2Dfree%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
+                        {% else %}
+                            {% ifequal status 'SUCCESSFUL' %}
+                                <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20looking%20forward%20to the%20free%2C%20non%2DDRM%20ebook%20of%20{{ work.title|urlencode }}%2E%20You%20can%20too%21 "><li class="twitter"><span>Twitter</span></li></a>
+                            {% else %}
+                                <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"><li class="twitter"><span>Twitter</span></li></a>
+                            {% endifequal %}
+                        {% endif %}
                         {% if request.user.is_authenticated %}<a href="{% url emailshare '' %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                         <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
                     </ul>

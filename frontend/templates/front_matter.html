@@ -92,6 +92,15 @@
     <p>
         You can say thank you by supporting the ungluing of more books at <a href="https://unglue.it/">https://unglue.it/</a> .
     </p>
+    <p>
+        If you're reading this book on an internet-connected device, you can also share it with your friends:
+        <ul>
+            {% url work campaign.work.id as work_url %}
+            <a href="mailto:?to=&subject=I%27m%20enjoying%20{{ campaign.work.title|urlencode }}%2C%20a%20free%2C%20DRM%2Dfree%20ebook%2E%20You%20can%20too%21&body=You%20can%20download%20it%20from%20Unglue%2Eit%20here%3A%20https://unglue.it{{ work_url|urlencode:"" }}%20%2E"><li>Email it</li></a>
+            <a href="https://twitter.com/intent/tweet?url=https://unglue.it{{ work_url|urlencode:"" }}&text=I%27m%20enjoying%20{{ campaign.work.title|urlencode:"" }}%2C%20a%20free%2C%20DRM%2Dfree%20ebook%2E%20You%20can%20too%21"><li>Tweet it</li></a>
+            <a href="https://www.facebook.com/sharer.php?u=https://unglue.it{{ work_url|urlencode:"" }}"><li>Share it on Facebook</li></a>
+        </ul>
+	</p>
 </section>
 <!-- trim here -->
 
