@@ -1,0 +1,3 @@
+Thanks to Unglue.it, I'm reading a free, non-DRM ebook of {{ work.title }}.  I think you'd enjoy reading it too.  You can download it at https://{{site}}{% url download work.id %}  You can also copy it, put it on your favorite ereader, and shift it to different formats, freely and legally.
+
+Unglue.it helps book lovers pay creators to make their ebooks free to everyone on earth.  You can help too at https://unglue.it/ .

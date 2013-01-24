@@ -2001,17 +2001,30 @@ def emailshare(request, action):
         
         try:
             next = request.GET['next']
-            urlsplit = next.split('/')
-            if urlsplit[-3] == u'work':
-                work_id = urlsplit[-2]
-                work_id = int(work_id)
-                work = models.Work.objects.get(pk=work_id)
-        except:
-            # allows for email sharing from non-campaign, non-pledge pages
-            pass
-
-        try:
-            status = work.last_campaign().status
+            work_id = next.split('/')[-2]
+            work_id = int(work_id)
+            work = models.Work.objects.get(pk=work_id)
+            if action == 'pledge':
+                message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                subject = "Help me unglue "+work.title
+            else:
+                try:
+                    status = work.last_campaign().status
+                except:
+                    status = None
+            
+                # customize the call to action depending on campaign status
+                if status == 'SUCCESSFUL' or work.first_ebook():
+                    message = render_to_string('emails/read_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                    subject = 'I think you\'d like this book I\'m reading'
+                elif status == 'ACTIVE':
+                    message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                    subject = 'Please help me give this book to the world'
+                else:
+                    message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                    subject = 'Come see one of my favorite books on Unglue.it'
+            
+            form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
         except:
             pass
 
@@ -2120,7 +2133,8 @@ def lockss_manifest(request, year):
 def download(request, work_id):
     context = {}
     work = safe_get_work(work_id)
-    context.update({'work': work})
+    site = Site.objects.get_current()
+    context.update({'work': work, 'site': site})
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
