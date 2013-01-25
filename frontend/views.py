@@ -2011,11 +2011,15 @@ def emailshare(request, action):
                     status = None
             
                 # customize the call to action depending on campaign status
-                if status == 'ACTIVE':
+                if status == 'SUCCESSFUL' or work.first_ebook():
+                    message = render_to_string('emails/read_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                    subject = 'I think you\'d like this book I\'m reading'
+                elif status == 'ACTIVE':
                     message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                    subject = 'Please help me give this book to the world'
                 else:
                     message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                subject = 'Come see one of my favorite books on Unglue.it'
+                    subject = 'Come see one of my favorite books on Unglue.it'
             
             form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
         except:
@@ -2109,7 +2113,8 @@ def lockss_manifest(request, year):
 def download(request, work_id):
     context = {}
     work = safe_get_work(work_id)
-    context.update({'work': work})
+    site = Site.objects.get_current()
+    context.update({'work': work, 'site': site})
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
