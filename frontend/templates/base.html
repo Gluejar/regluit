@@ -10,6 +10,7 @@
 {% url rh_admin as adminurl %}
 {% url landing as landingurl %}
 {% url new_edition '' '' as editionurl %}
+{% url libraries as librariesurl %}
 {% load truncatechars %}
 
 <html>
@@ -181,6 +182,7 @@
             <li><a href="/faq/rightsholders/">Rights Holder FAQ</a></li>
             <li><a href="{% url api_help %}">API</a></li>
             <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
+            <li><a href="{{ librariesurl }}">Unglue.it &hearts; Libraries</a>
         </ul>
     </div>
     <div class="column">
