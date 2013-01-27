@@ -36,7 +36,7 @@
 <dt>Join our <a href="http://goo.gl/lCTLI">catalogers list</a>.</dt>
 <dd>We're able to get MARC records into OCLC and SkyRiver because of the support of catalogers like you.  Want to help?  <a href="http://goo.gl/lCTLI">Add yourself to the list.</a>  Usually all you'll need to do is modify an existing record for an earlier edition and upload the record.  We'll supply you with the link and the unglued edition.  We'll only contact you when there's an unglued book to be cataloged.</dd>
 <dt>Spread the word.</dt>
-<dd>There are social media sharing links on most pages on the site.  There are some right here!</dd>
+<dd>There are social media sharing links on most pages on the site.  There are some right here!
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
 	<ul class="social menu pledge">
 		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}"><li class="facebook first"><span>Facebook</span></li></a>
@@ -44,7 +44,7 @@
 		<a href="{% url emailshare '' %}?next={{ request.build_absolute_uri|urlencode:"" }}"><li class="email"><span>Email</span></li></a>
 		<a id="embed"><li class="embed"><span>Embed</span></li></a>
 	</ul>
-	<div class="clearfix"></div>
+	<div class="clearfix"></div></dd>
 <dt>Educate yourself and your patrons about ebook issues and Creative Commons licenses.</dt>
 <dd>Checkout limits, publishers who won't sell ebooks to libraries, DRM, companies tracking readers' behavior, library prices far in excess of consumer costs, incompatible technologies and formats, cataloging silos...you know why it's hard for you to deliver a seamless ereading experience to your patrons.  Make sure they know, too.  And make sure everyone knows how solutions, like <a href="http://creativecommons.org">Creative Commons</a> licenses, can help libraries and readers while respecting copyright and protecting creators' rights.</dd>
 <dt>Support <a href="{% url campaign_list 'ending' %}">our active campaigns</a>.</dt>

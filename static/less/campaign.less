@@ -1,24 +1,7 @@
 @import "variables.less";
 @import "campaign_tabs.less";
 @import "book_detail.less";
-
-/* Common elements of share links -- just swap in the background image */
-.shareclass(@sharewhere) {
-	background:url("@{image-base}icons/@{sharewhere}.png") 10px center no-repeat;
-	cursor: pointer;
-		
-	span {
-		padding-left:10px;
-	}
-		
-	&:hover {
-		background:@call-to-action url("@{image-base}icons/@{sharewhere}-hover.png") 10px center no-repeat;
-	
-		span {
-			color: #fff;
-			}
-	}
-}
+@import "social_share.less";
 
 /* Page layout */
 #js-page-wrap {
@@ -317,37 +300,6 @@ div#content-block-content {
 	.one-border-radius(10px);
 	padding:10px;
 } 
-
-/* Right column - sharing */
-ul.social {
-	a:hover {
-		text-decoration: none;
-	}
-
-	li {
-		padding:5px 0 5px 30px !important;
-		height: 28px;
-		line-height: 28px !important;
-		margin: 0 !important;
-		.one-border-radius(0px);
-	
-		&.facebook {
-			.shareclass("facebook");
-		}
-	
-		&.twitter {
-			.shareclass("twitter");
-		}
-	
-		&.email {
-			.shareclass("email");
-		}
-	
-		&.embed {
-			.shareclass("embed");
-		}
-	}
-}
 
 #widgetcode {
 	display: none;
