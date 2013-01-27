@@ -1991,10 +1991,13 @@ def emailshare(request, action):
             try:
                 next = form.cleaned_data['next']
             except:
-                next = ''
+                # if we totally failed to have a next value, we should still redirect somewhere useful
+                next = 'http://unglue.it'
             return HttpResponseRedirect(next)
             
-    else:
+    else: 
+        work = None
+        status = None
         
         try:
             next = request.GET['next']
@@ -2023,8 +2026,25 @@ def emailshare(request, action):
             
             form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
         except:
-            next = ''
-            form = EmailShareForm(initial={'next':next, 'subject': 'Come join me on Unglue.it', 'message':render_to_string('emails/join_me.txt',{'request':request,'site': Site.objects.get_current()})})
+            pass
+
+        if action == 'pledge':
+            message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+            subject = "Help me unglue "+work.title
+        else:            
+            # customize the call to action depending on campaign status
+            if status == 'ACTIVE':
+                message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                subject = 'Please help me give this book to the world'
+            elif work:
+                message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                subject = 'Come see one of my favorite books on Unglue.it'
+            else:
+                # for email shares not bound to a campaign or pledge
+                message = render_to_string('emails/join_me.txt',{'request':request,'site': Site.objects.get_current()})
+                subject = "Help me give books to the world"
+
+        form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
 
     return render(request, "emailshare.html", {'form':form})    
     
