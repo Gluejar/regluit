@@ -15,7 +15,7 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
-<script type="text/javascript" src="/static/js/tabs.js"></script>
+<script type="text/javascript" src="/static/js/hijax_unglued.js"></script>
 {% endblock %}
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
@@ -56,9 +56,17 @@
             <div id="content-block">
                 <div class="content-block-heading unglued" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1"><a href="{% url unglued_list '' %}">Unglued</a></li>
-                        <li class="tabs2"><a href="{% url unglued_list 'cc' %}">Creative<br />Commons</a></li>
-                        <li class="tabs3"><a href="{% url unglued_list 'pd' %}">Public<br />Domain</a></li>
+                    {% if request.GET.pub_lang %}
+                        {% with request.GET.pub_lang as pub_lang %}
+                            <li class="tabs1"><a href="{% url unglued_list '' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Unglued</a></li>
+                            <li class="tabs2"><a href="{% url unglued_list 'cc' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Creative<br />Commons</a></li>
+                            <li class="tabs3"><a href="{% url unglued_list 'pd' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Public<br />Domain</a></li>
+                        {% endwith %}
+                    {% else %}
+                        <li class="tabs1"><a href="{% url unglued_list '' %}" class="hijax_unglued">Unglued</a></li>
+                        <li class="tabs2"><a href="{% url unglued_list 'cc' %}" class="hijax_unglued">Creative<br />Commons</a></li>
+                        <li class="tabs3"><a href="{% url unglued_list 'pd' %}" class="hijax_unglued">Public<br />Domain</a></li>
+                    {% endif %}
                     </ul>
                     <ul class="book-list-view">
                         <li>View As:</li>
