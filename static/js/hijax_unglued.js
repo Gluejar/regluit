@@ -6,6 +6,6 @@ var $j = jQuery.noConflict();
 $j(document).ready(function() {
     $j("a.hijax_unglued").click(function(event) {
         event.preventDefault();
-		$j("#content-block-content").load($j(this).attr("href") + " #content-block-content");
+		$j("#content-block-content").html('<img src="/static/images/loading.gif">').load($j(this).attr("href") + " #books-go-here");
 	});	
 });
