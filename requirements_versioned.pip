@@ -26,6 +26,7 @@ django-registration==0.8
 django-selectable==0.5.2
 django-smtp-ssl==1.0
 django-social-auth==0.7.5
+django-storages==1.1.6
 django-tastypie==0.9.11
 feedparser==5.1.2
 freebase==1.0.8
