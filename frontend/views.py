@@ -528,9 +528,15 @@ class UngluedListView(FilterableListView):
             return models.Work.objects.filter(campaigns__status="SUCCESSFUL").distinct().order_by('-campaigns__deadline')
         elif (facet == 'cc' or facet == 'creativecommons'):
             # assumes all ebooks have a PD or CC license. compare rights_badge property
-            return models.Work.objects.filter(editions__ebooks__isnull=False).exclude(editions__ebooks__rights__in=['PD-US', 'CC0', '']).distinct().order_by('-num_wishes')
+            return models.Work.objects.filter(
+                                              editions__ebooks__isnull=False,
+                                              editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                             ).distinct().order_by('-num_wishes')
         elif (facet == 'pd' or facet == 'publicdomain'):
-            return models.Work.objects.filter(editions__ebooks__isnull=False).filter(editions__ebooks__rights__in=['PD-US', 'CC0', '']).distinct().order_by('-num_wishes')
+            return models.Work.objects.filter(
+                                              editions__ebooks__isnull=False,
+                                              editions__ebooks__rights__in=['PD-US', 'CC0', '']
+                                             ).distinct().order_by('-num_wishes')
 
     def get_context_data(self, **kwargs):
         context = super(UngluedListView, self).get_context_data(**kwargs)
