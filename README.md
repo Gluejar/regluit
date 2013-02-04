@@ -88,6 +88,12 @@ Instructions for setting please are slightly different.
 1. `sudo chown celery:celery /var/log/celerybeat`
 1. `sudo /etc/init.d/celerybeat start`
 
+## setup to enable ckeditor to work properly
+
+1. `mkdir /var/www/static/media/`
+1. `sudo chown ubuntu:www-data /var/www/static/media/`
+
+
 Updating Production
 --------------------
 
