@@ -15,6 +15,7 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
+<script type="text/javascript" src="/static/js/hijax_unglued.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 {% endblock %}
 {% block topsection %}
@@ -27,7 +28,7 @@
                     <div class="js-topnews3">
                         <div class="user-block">
                             <div id="user-block1">
-                            	<div id="block-intro-text"><span class="special-user-name">{% if facet %}{{ facet|capfirst }}{% else %}Ready to Read{% endif %}</span></div>
+                            	<div id="block-intro-text"><span class="special-user-name">Ready to Read</span></div>
                             </div>
                             <div class="user-block2"><span class="user-short-info">These {% if pub_lang %}{{ pub_lang|ez_lang_name }} language {% endif %}ebooks are ready to read - either they're in the public domain, or they've been unglued by people like you.</span>
                             </div>
@@ -56,7 +57,17 @@
             <div id="content-block">
                 <div class="content-block-heading unglued" id="tabs">
                     <ul class="tabs">
-                        <li class="tabs1"><a href="#">All<br />({{ work_list.count }})</a></li>
+                    {% if request.GET.pub_lang %}
+                        {% with request.GET.pub_lang as pub_lang %}
+                            <li class="tabs1"><a href="{% url unglued_list '' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Unglued</a></li>
+                            <li class="tabs2"><a href="{% url unglued_list 'cc' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Creative<br />Commons</a></li>
+                            <li class="tabs3"><a href="{% url unglued_list 'pd' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Public<br />Domain</a></li>
+                        {% endwith %}
+                    {% else %}
+                        <li class="tabs1"><a href="{% url unglued_list '' %}" class="hijax_unglued">Unglued</a></li>
+                        <li class="tabs2"><a href="{% url unglued_list 'cc' %}" class="hijax_unglued">Creative<br />Commons</a></li>
+                        <li class="tabs3"><a href="{% url unglued_list 'pd' %}" class="hijax_unglued">Public<br />Domain</a></li>
+                    {% endif %}
                     </ul>
                     <ul class="book-list-view">
                         <li>View As:</li>
@@ -73,26 +84,28 @@
                     </ul>
                 </div>
                 <div id="content-block-content">
-                    {% ifequal work_list.count 0 %}
-                    There aren't any {{ pub_lang|ez_lang_name }} works in this list. Why don't you add some?
-                    {% else %}
-                    {% lazy_paginate 20 work_list using "work_list" %}
-                    {% for work in work_list %}
-                    <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
-					{% with work.googlebooks_id as googlebooks_id %}	
-                    {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                    </div>
-                    {% endfor %}
-                    <div class="pagination content-block-heading tabs-1">
-                        {% get_pages %}
-                        {% for page in pages %}
-                            <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
+                    <div id="books-go-here">
+                        {% ifequal work_list.count 0 %}
+                        There aren't any {{ pub_lang|ez_lang_name }} works in this list. Why don't you add some?
+                        {% else %}
+                        {% lazy_paginate 20 work_list using "work_list" %}
+                        {% for work in work_list %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                        {% with work.last_campaign_status as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                        {% with work.googlebooks_id as googlebooks_id %}	
+                        {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                        </div>
                         {% endfor %}
+                        <div class="pagination content-block-heading tabs-1">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endifequal %}
                     </div>
-                    {% endifequal %}
                 </div>
             </div>    
         </div>

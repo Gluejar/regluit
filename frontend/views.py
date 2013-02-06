@@ -520,31 +520,38 @@ class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
     context_object_name = "work_list"
     
-    def work_set_counts(self,work_set):
-        counts={}
-        counts['unglued'] = work_set.annotate(ebook_count=Count('editions__ebooks')).filter(ebook_count__gt=0).count()
-        return counts
-
     def get_queryset_all(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
-        else:
-            has_ebooks = models.Work.objects.filter(editions__ebooks__isnull=False).distinct()
-            successful_campaign = models.Work.objects.filter(campaigns__status="SUCCESSFUL").distinct()
-            unglued = successful_campaign | has_ebooks
-            return unglued.order_by('-campaigns__status', '-campaigns__deadline', '-created')
+        elif (facet == '' or facet == 'unglued'):
+            return models.Work.objects.filter(campaigns__status="SUCCESSFUL").distinct().order_by('-campaigns__deadline')
+        elif (facet == 'cc' or facet == 'creativecommons'):
+            # assumes all ebooks have a PD or CC license. compare rights_badge property
+            return models.Work.objects.filter(
+                                              editions__ebooks__isnull=False,
+                                              editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                             ).distinct().order_by('-num_wishes')
+        elif (facet == 'pd' or facet == 'publicdomain'):
+            return models.Work.objects.filter(
+                                              editions__ebooks__isnull=False,
+                                              editions__ebooks__rights__in=['PD-US', 'CC0', '']
+                                             ).distinct().order_by('-num_wishes')
 
     def get_context_data(self, **kwargs):
-            context = super(UngluedListView, self).get_context_data(**kwargs)
-            qs=self.get_queryset()
-            context['counts'] = self.work_set_counts(qs)
-            context['ungluers'] = userlists.work_list_users(qs,5)
-            context['facet'] =self.kwargs['facet']
+        context = super(UngluedListView, self).get_context_data(**kwargs)
+        qs=self.get_queryset()
+        context['ungluers'] = userlists.work_list_users(qs,5)
+        facet = self.kwargs['facet']
+        context['facet'] = facet
+        if facet == 'cc' or facet == 'creativecommons':
+            context['activetab'] = "#2"
+        elif facet == 'pd' or facet == 'publicdomain':
+            context['activetab'] = "#3"
+        else:
             context['activetab'] = "#1"
-            return context
+        return context
 
-        
 class CampaignListView(FilterableListView):
     template_name = "campaign_list.html"
     context_object_name = "campaign_list"
