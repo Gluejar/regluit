@@ -152,19 +152,6 @@ $j(document).ready(function(){
                             <h3 class="book-author">{{ work.author }}</h3>
                             <h3 class="book-year">{{ work.publication_date_year }}</h3>
 					      </div>
-                          {% if status == 'ACTIVE' %}
-                          {% if pledged %}
-                          	<div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
-                          {% else %}
-                          	<div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
-                          {% endif %}
-                          {% else %}
-							  {% if work.first_ebook %}
-								<div class="btn_support">
-									<a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
-								</div>
-							  {% endif %}
-                          {% endif %}
 					  	</div>
 					  </div>
                         <div class="find-book">
@@ -411,8 +398,20 @@ $j(document).ready(function(){
         </div>
         </div>
         <div id="js-rightcol">
-        <div class="js-rightcol-pad rounded">
-            
+            {% if status == 'ACTIVE' %}
+                {% if pledged %}
+                    <div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
+                {% else %}
+                    <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
+                {% endif %}
+            {% else %}
+                {% if work.first_ebook %}
+                    <div class="btn_support">
+                        <a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
+                    </div>
+                {% endif %}
+            {% endif %}
+        <div class="js-rightcol-pad rounded">            
             <div class="jsmodule">
                 <h3 class="jsmod-title"><span>Share</span></h3>
                 <div class="jsmod-content">
