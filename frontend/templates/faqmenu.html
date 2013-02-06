@@ -34,7 +34,7 @@
                             </ul>
                         </li>
 
-                        <li class="parent {% if location != 'rightsholders' %}collapse{% endif %}">
+                        <li class="parent {% if location != 'rightsholders' and 'smashwords' not in request.path %}collapse{% endif %}">
                             <a href="{% url faq_location 'rightsholders' %}"><span>For Rights Holders</span></a>
                             <ul class="menu level2">
                                 <li class="first"><a href="{% url faq_sublocation 'rightsholders' 'authorization' %}"><span>Becoming Authorized</span></a></li>
