@@ -33,7 +33,7 @@ urlpatterns = patterns(
     url(r"^campaign_admin/$", "campaign_admin", name="campaign_admin"),    
     url(r"^faq/$", FAQView.as_view(), {'location':'faq', 'sublocation':'all'}, name="faq"), 
     url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}, name="faq_location"), 
-    url(r"^faq/(?P<location>\w*)/(?P<sublocation>\w*)/$", FAQView.as_view()), 
+    url(r"^faq/(?P<location>\w*)/(?P<sublocation>\w*)/$", FAQView.as_view(), name="faq_sublocation"), 
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
@@ -86,7 +86,7 @@ urlpatterns = patterns(
     url(r"^info/languages/(?P<template_name>[\w\.]*)$", InfoLangView.as_view()), 
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),
     url(r'^campaign_archive.js/$', "campaign_archive_js", name="campaign_archive_js"),
-    url(r"^about/(?P<facet>\w*)/$", "about",  name="about"),
+    url(r"^about/(?P<facet>\w*)/$", "about",  name="about_specific"),
     url(r"^libraries/$", TemplateView.as_view(
             template_name="libraries.html",
             get_context_data=lambda: {'site': Site.objects.get_current()}
