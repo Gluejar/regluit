@@ -4,7 +4,7 @@
 var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
-    $j("a.hijax").click(function(event) {
+    $j("#js-page-wrap").on("click", "a.hijax", function(event) {
         event.preventDefault();
 		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
 		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
@@ -47,7 +47,7 @@ $j(document).ready(function() {
 	});
 	
 	// fade-in normal page elements on collapse
-	$j('#about_collapser').click(function(){
+	$j('#about_collapser').on("click", function(){
 		$j('#js-topsection').fadeTo("slow", 1);
 		$j('.launch_top').fadeTo("slow", 1);
 		$j('.preview').fadeTo("slow", 1);
