@@ -181,13 +181,13 @@ def work(request, work_id, action='display'):
         fields are 0, which is unlikely enough I'm not defending against it)
         '''
         if time_remaining.days:
-            countdown = "in %s days" % str(time_remaining.days + 1)
+            countdown = "%s days" % str(time_remaining.days + 1)
         elif time_remaining.seconds > 3600:
-            countdown = "in %s hours" % str(time_remaining.seconds/3600 + 1)
+            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
         elif time_remaining.seconds > 60:
-            countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
+            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
         else:
-            countdown = "right now"
+            countdown = "Seconds"
     
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'

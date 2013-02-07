@@ -309,12 +309,24 @@ div#content-block-content {
 }
 
 .btn_support {
-    font-size: @font-size-larger;
-    clear: both;
-    display: block;
+    margin: 10px;
+    width: 215px;
     
-    a {
-        width: 235px;
+    a, form input, span {
+        font-size: @font-size-header;
+        .one-border-radius(10px);
+        display: block;
+        text-align: center;
+        padding-top: @font-size-header*1.5;
+        padding-bottom: @font-size-header*1.5;
+    }
+    
+    form input {
+        width: 100%;
+    }
+    
+    &.modify a, &.modify form input {
+        background-color: @medium-blue-grey;
     }
 }
 
