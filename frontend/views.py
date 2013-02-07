@@ -114,6 +114,30 @@ def safe_get_work(work_id):
             raise Http404
     return work
 
+def countdown(work):
+    from math import ceil
+    time_remaining = work.last_campaign().deadline - now()
+    countdown = ""
+
+    if time_remaining.days:
+        countdown = "%s days" % str(time_remaining.days + 1)
+    elif time_remaining.seconds > 3600:
+        countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
+    elif time_remaining.seconds > 60:
+        countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
+    else:
+        countdown = "Seconds"
+        
+    return countdown
+    
+def cover_width(work):
+    if work.percent_of_goal() < 100:
+        cover_width = 100 - work.percent_of_goal()
+    else:
+        cover_width = 0
+        
+    return cover_width
+
 def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
         return HttpResponseRedirect(reverse('supporter',
@@ -161,8 +185,8 @@ def work(request, work_id, action='display'):
         pledged = None
         
     logger.info("pledged: {0}".format(pledged))
-    countdown = ""
-    cover_width = 0
+    countdown_text = ""
+    cover_width_number = 0
     
     try:
         assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
@@ -170,30 +194,8 @@ def work(request, work_id, action='display'):
         logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     
     if work.last_campaign_status() == 'ACTIVE':
-        from math import ceil
-        time_remaining = campaign.deadline - now()
-        
-        '''
-        we want to round up on all of these; if it's the 3rd and the
-        campaign ends the 8th, users expect to see 5 days remaining,
-        not 4 (as an artifact of 4 days 11 hours or whatever)
-        time_remaining.whatever is an int, so just adding 1 will do
-        that for us (except in the case where .days exists and both other
-        fields are 0, which is unlikely enough I'm not defending against it)
-        '''
-        if time_remaining.days:
-            countdown = "%s days" % str(time_remaining.days + 1)
-        elif time_remaining.seconds > 3600:
-            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
-        elif time_remaining.seconds > 60:
-            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
-        else:
-            countdown = "Seconds"
-            
-        if work.percent_of_goal() < 100:
-            cover_width = 100 - work.percent_of_goal()
-        else:
-            cover_width = 0
+        countdown_text = countdown(work)
+        cover_width_number = cover_width(work)
     
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
@@ -256,8 +258,8 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'countdown': countdown,
-        'cover_width': cover_width
+        'countdown': countdown_text,
+        'cover_width': cover_width_number
     })    
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -744,6 +746,8 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
+                'countdown': countdown(self.work),
+                'cover_width': cover_width(self.work)
            })
             
         return context

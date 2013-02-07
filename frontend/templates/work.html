@@ -116,12 +116,6 @@ $j(document).ready(function(){
                                     <div class="campaign-status-info">
                                         <span>{{ countdown }}</span> to go
                                     </div>
-
-                                    {% comment %}
-                                    <div class="status">
-                                        {% if status == 'ACTIVE' %}{{ work.percent_of_goal }}%&nbsp;{% endif %}
-                                    </div>
-                                    {% endcomment %}
                                 </div>
                             {% else %}
                                 {% ifequal status 'SUCCESSFUL' %}
