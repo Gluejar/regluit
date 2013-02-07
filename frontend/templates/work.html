@@ -96,22 +96,22 @@ $j(document).ready(function(){
                             
                             {% ifequal status 'ACTIVE' %}
                                 <div class="thermometer">
-                                    <div class="cover" style="width:{% widthratio work.percent_of_goal 100 298 %}px;">
+                                    <div class="cover" style="width: {{ cover_width }}%;">
                                     </div>
                                 </div>
                                 <div class="pledged-info noborder">
+                                    <div class="campaign-status-info">
+                                        <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
+                                    </div>
+                                    <div class="campaign-status-info">
+                                        <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
+                                    </div>
                                     <div class="campaign-status-info">
                                         {% if work.last_campaign.supporters_count == 1 %}
                                             <span>1</span> ungluer
                                         {% else %}
                                             <span>                                            {{ work.last_campaign.supporters_count }}</span> ungluers
                                         {% endif %}                                    
-                                    </div>
-                                    <div class="campaign-status-info">
-                                        <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
-                                    </div>
-                                    <div class="campaign-status-info">
-                                        <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
                                     </div>
                                     <div class="campaign-status-info">
                                         <span>{{ countdown }}</span> to go

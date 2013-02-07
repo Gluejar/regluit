@@ -162,6 +162,7 @@ def work(request, work_id, action='display'):
         
     logger.info("pledged: {0}".format(pledged))
     countdown = ""
+    cover_width = 0
     
     try:
         assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
@@ -188,6 +189,11 @@ def work(request, work_id, action='display'):
             countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
         else:
             countdown = "Seconds"
+            
+        if work.percent_of_goal() < 100:
+            cover_width = 100 - work.percent_of_goal()
+        else:
+            cover_width = 0
     
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
@@ -251,6 +257,7 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'countdown': countdown,
+        'cover_width': cover_width
     })    
 
 def new_edition(request, work_id, edition_id, by=None):

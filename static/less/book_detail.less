@@ -109,8 +109,8 @@
 	    position: relative;
 
         /* looks better if we start the gradient a little closer to the success color */
-        @greener-than-alert: #DC5D4E;
-
+        @greener-than-alert: #CF6944;
+        
         background: -webkit-gradient(linear, left top, right top, from(@call-to-action), to(@greener-than-alert));
         background: -webkit-linear-gradient(left, @greener-than-alert, @call-to-action);
         background: -moz-linear-gradient(left, @greener-than-alert, @call-to-action);
@@ -124,7 +124,17 @@
 	    &.successful {
 	        border-color: @bright-blue;
 	        background: @pale-blue;
-	    }	    
+	    }
+	    
+	    .cover {
+	        position: absolute;
+	        right: 0;
+	        .border-radius(0, 10px, 10px, 0);
+	        width: 50px;
+	        height: 14px;
+	        margin-top: -7px;
+	        background: lighten(@blue-grey, 10%);
+	    }
 	}
 	
 	.status {
