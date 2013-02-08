@@ -9,8 +9,8 @@ WebTest==1.4.0
 amqplib==1.0.2
 anyjson==0.3.3
 billiard==2.7.3.12
-#boto==2.3.0
-git+ssh://git@github.com/Gluejar/boto.git@2.3.0
+boto==2.8.0
+#git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 celery==3.0.9
 distribute==0.6.28
 django-celery==3.0.9
