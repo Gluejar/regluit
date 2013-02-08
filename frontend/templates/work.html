@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 {% load comments %}
 {% load humanize %}
-{% block title %}&#151; {% if work.last_campaign_status == 'ACTIVE' %}Campaign to unglue {% endif %}{{ work.title }}{% endblock %}
+{% block title %}&#151; 
+    {% if work.first_ebook %}
+        {{ work.title }} is a Free eBook
+    {% else %}
+        Help us make  {{ work.title }} a Free eBook!
+    {% endif %}
+{% endblock %}
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
