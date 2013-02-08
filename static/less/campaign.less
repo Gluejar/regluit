@@ -259,6 +259,18 @@ div#content-block-content {
 }
 
 /* Right column */
+
+/* Right - add/remove actions below big green button */
+#js-rightcol {
+    .add-wishlist, .on-wishlist, .create-account {
+        float: none;
+    }
+    
+    .on-wishlist {
+        margin-left: 20px;
+    }
+}
+
 #js-rightcol, #pledge-rightcol {
 	float:right;
 	width:235px;
@@ -312,13 +324,27 @@ div#content-block-content {
     margin: 10px;
     width: 215px;
     
-    a, form input, span {
+    a, form input, > span {
         font-size: @font-size-header;
         .one-border-radius(10px);
         display: block;
         text-align: center;
         padding-top: @font-size-header*1.5;
         padding-bottom: @font-size-header*1.5;
+
+        span {
+            color: white !important;
+            font-weight: bold;
+            padding-left: 0;
+            margin-left: 0 !important;
+            background: none;
+        }
+    }
+    
+    &.create-account span {
+        padding: 0;
+        margin: 0;
+        background: none;
     }
     
     form input {
@@ -327,7 +353,7 @@ div#content-block-content {
     
     &.modify a, &.modify form input {
         background-color: @medium-blue-grey;
-    }
+    }    
 }
 
 /* Right column - support tiers */

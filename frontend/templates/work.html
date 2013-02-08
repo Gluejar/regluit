@@ -397,21 +397,31 @@ $j(document).ready(function(){
                             <div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                         {% else %}
                             <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
+                            {% if work not in request.user.wishlist.works.all %}
+                                <div class="add-wishlist">
+                                    <span class="work_id" id="w{{ work_id }}">Or, add to wishlist</span>
+                                </div>
+                            {% endif %}
                         {% endif %}
                     {% else %}
                         {% if work.first_ebook %}
                             <div class="btn_support">
                             <a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
                             </div>
+                            {% if work not in request.user.wishlist.works.all %}
+                                <div class="add-wishlist">
+                                    <span class="work_id" id="w{{ work_id }}">Add to Wishlist</span>
+                                </div>
+                            {% endif %}
                         {% else %}
                             {% if request.user.is_anonymous %}
-                                <div class="btn_support">
-                                <a class="fakeinput" title="{% url work work_id %}">Login to Add</a>
+                                <div class="btn_support create-account">
+                                    <span title="{% url work work_id %}"><a class="fakeinput">Login to Add</a></span>
                                 </div>
                             {% else %}
                                 {% if work not in request.user.wishlist.works.all %}
                                     <div class="btn_support add-wishlist">
-                                    <a class="fakeinput work_id" id="w{{ work_id }}">Add to Wishlist</a>
+                                        <a class="fakeinput"><span class="work_id" id="w{{ work_id }}">Add to Wishlist</span></a>
                                     </div>
                                 {% endif %}
                             {% endif %}
