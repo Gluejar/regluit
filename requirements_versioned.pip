@@ -14,7 +14,8 @@ git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 celery==3.0.9
 distribute==0.6.28
 django-celery==3.0.9
-django-ckeditor==3.6.2.1
+#django-ckeditor==3.6.2.1
+git+ssh://git@github.com/Gluejar/django-ckeditor.git@centralniak_merge
 django-endless-pagination==1.1
 django-extensions==0.9
 django-kombu==0.9.4
