@@ -129,8 +129,8 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
-CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
-CKEDITOR_UPLOAD_PREFIX = 'https://just.unglue.it/static/media/'
+#CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
+#CKEDITOR_UPLOAD_PREFIX = 'https://just.unglue.it/static/media/'
 
 IS_PREVIEW = False
 
