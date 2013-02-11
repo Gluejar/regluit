@@ -11,6 +11,7 @@
 {% url landing as landingurl %}
 {% url new_edition '' '' as editionurl %}
 {% url libraries as librariesurl %}
+{% url about_specific 'main' as aboutmainurl %}
 {% load truncatechars %}
 
 <html>
@@ -153,7 +154,7 @@
     <div class="column">
         <span>About Unglue.it</span>
         <ul>
-            <li><a href="/about/main/"  class="hijax">Concept</a></li>
+            <li><a href="{{ aboutmainurl }}" class="hijax">Concept</a></li>
             <li><a href="{{ abouturl }}">Team</a></li>
             <li><a href="http://blog.unglue.it">Blog</a></li>
             <li><a href="{{ pressurl }}">Press</a></li>
@@ -179,7 +180,7 @@
         <span>Help</span>
         <ul>
             <li><a href="{{ faqurl }}">General FAQ</a></li>
-            <li><a href="/faq/rightsholders/">Rights Holder FAQ</a></li>
+            <li><a href="{% url faq_location 'rightsholders' %}">Rights Holder FAQ</a></li>
             <li><a href="{% url api_help %}">API</a></li>
             <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
             <li><a href="{{ librariesurl }}">Unglue.it &hearts; Libraries</a>

@@ -206,7 +206,7 @@ class Campaign(models.Model):
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
-    deadline = models.DateTimeField()
+    deadline = models.DateTimeField(db_index=True)
     activated = models.DateTimeField(null=True)
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
@@ -565,7 +565,7 @@ class Work(models.Model):
     title = models.CharField(max_length=1000)
     language = models.CharField(max_length=2, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
-    num_wishes = models.IntegerField(default=0)
+    num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True)
 
     class Meta:
@@ -924,7 +924,7 @@ class Ebook(models.Model):
     provider = models.CharField(max_length=255)
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
-    rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES)
+    rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
     user = models.ForeignKey(User, null=True)
 
