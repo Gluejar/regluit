@@ -9,12 +9,13 @@ WebTest==1.4.0
 amqplib==1.0.2
 anyjson==0.3.3
 billiard==2.7.3.12
-#boto==2.3.0
-git+ssh://git@github.com/Gluejar/boto.git@2.3.0
+boto==2.8.0
+#git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 celery==3.0.9
 distribute==0.6.28
 django-celery==3.0.9
-django-ckeditor==3.6.2.1
+#django-ckeditor==3.6.2.1
+git+ssh://git@github.com/Gluejar/django-ckeditor.git@24350a6fba78e38682008e468741661a75483591
 django-endless-pagination==1.1
 django-extensions==0.9
 django-kombu==0.9.4
@@ -26,6 +27,7 @@ django-registration==0.8
 django-selectable==0.5.2
 django-smtp-ssl==1.0
 django-social-auth==0.7.5
+django-storages==1.1.6
 django-tastypie==0.9.11
 feedparser==5.1.2
 freebase==1.0.8
