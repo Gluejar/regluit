@@ -140,9 +140,10 @@ INSTALLED_APPS = (
     'regluit.payment.templatetags',
     'notification',
     'ckeditor',
+    'storages',    
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
-    'django.contrib.admin', 
+    'django.contrib.admin',
                             
 )
 
@@ -305,3 +306,12 @@ class NONPROFIT:
     
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
+
+# to enable uploading to S3 and integration of django-storages + django-ckeditor
+# some variables to be overriddden in more specific settings files -- e.g., prod.py, 
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = ''
+AWS_SECRET_ACCESS_KEY = ''
+AWS_STORAGE_BUCKET_NAME = ''
+
+
