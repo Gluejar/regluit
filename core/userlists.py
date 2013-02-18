@@ -7,20 +7,20 @@ from regluit.core.models import Work
 def other_users(user, how_many):
     # do something more sophisticated later?
     # limit to candidates with nonempty wishlists
-    candidates = User.objects.filter(wishlist__wishes__gte=1, is_staff=False).distinct()
+    candidates = User.objects.filter(wishlist__wishes__gte=1).distinct()
     count = candidates.count()
     if count <= how_many :
         user_list = candidates[0: count]
     else :
         slice = random.random() * (count - how_many)
-        user_list = candidates[slice: slice+how_many]
+        user_list = candidates.filter(is_staff=False)[slice: slice+how_many]
     return user_list
 
 def supporting_users(work, how_many):
     # do something more sophisticated sometime later
     count = work.num_wishes
     if count <= how_many :
-        user_list = work.wished_by().filter(is_staff=False)[0: count]
+        user_list = work.wished_by()[0: count]
     else :
         slice = random.random() * (count - how_many)
         user_list = work.wished_by().filter(is_staff=False)[slice: slice+how_many]
