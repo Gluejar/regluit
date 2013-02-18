@@ -349,10 +349,19 @@ div#content-block-content {
     
     form input {
         width: 100%;
+        border-width: 4px;
+        
+        &:hover {
+            background-color: darken(@call-to-action, 7%);
+        }
     }
     
     &.modify a, &.modify form input {
         background-color: @medium-blue-grey;
+        
+        &:hover {
+            background-color: darken(@medium-blue-grey, 7%);
+        }
     }    
 }
 
