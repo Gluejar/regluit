@@ -17,13 +17,21 @@
     
     <a href="/api/v1/?format=json">Available Resources (JSON)</a>
     
+    <p>
+    Resources on this list can be accessed via {{ base_url }}/api/v1/{resource_on_list}/?format=json&amp;api_key={your_api_key}&amp;username={your_username} .
+    </p>
+    
+    <p>
+    Works can be ordered by how often they've been wishlisted; append &amp;order_by=num_wishes (ascending) or &amp;order_by=-num_wishes (descending).
+    </p>
+    
     {% if user.is_authenticated %}
     <h3>Campaign info</h3>
     <p>JSON to get data on all campaigns</p>
-    <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={api_key}&amp;username={username}</a>
+    <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a>
     <h3>Identifier Resolution</h3>
     <p>JSON to get work/edition data for an isbn</p>
-    <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={api_key}&amp;username={username}&amp;type=isbn&amp;value=9780441012039</a>
+    <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a>
     <p> In addition to isbn, you can use 'goog' if you have a google books id, and 'oclc' for oclc numbers.</p>
     {% endif %}
     
