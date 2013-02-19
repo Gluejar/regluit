@@ -69,6 +69,7 @@ class WorkResource(ModelResource):
         queryset = models.Work.objects.all()
         resource_name = 'work'
         filtering = {'editions': ALL_WITH_RELATIONS, 'id': ALL, 'identifiers': ALL_WITH_RELATIONS}
+        ordering = ['num_wishes']
     
 class CampaignResource(ModelResource):
     work = fields.ToOneField(WorkResource, 'work')
