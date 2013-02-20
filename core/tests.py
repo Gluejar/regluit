@@ -279,7 +279,9 @@ class BookLoaderTests(TestCase):
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
-        e = bookloader.add_by_isbn('0465019358')
+        # http://books.google.com/books?id=D-WjL_HRbNQC&printsec=frontcover#v=onepage&q&f=false
+        # Social Life of Information
+        e = bookloader.add_by_isbn('1578517087')
         self.assertTrue(e)
 
     @unittest.expectedFailure
