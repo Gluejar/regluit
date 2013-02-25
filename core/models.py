@@ -409,7 +409,7 @@ class Campaign(models.Model):
 
         """nb: returns (distinct) supporter IDs, not supporter objects"""
         self._translist_ = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
-        return translist
+        return self._translist_
         
     @property
     def supporters_count(self):

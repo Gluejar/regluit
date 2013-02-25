@@ -141,7 +141,6 @@ def work(request, work_id, action='display'):
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
-        alert=''
         try:
             activetab = request.GET['tab']
             if activetab not in ['1', '2', '3', '4']:
@@ -149,7 +148,7 @@ def work(request, work_id, action='display'):
         except:
             activetab = '1';
             
-    context = {}
+    alert=''
     campaign = work.last_campaign()
     if campaign and campaign.edition and not request.user.is_staff:
         editions = [campaign.edition]
