@@ -23,10 +23,16 @@
     display:none;
     margin-left: 5px;
 }
+.contact_form_result
+{
+    display:block;
+    margin-left: 5px;
+}
+
 .work_supporter_wide
 {
     display: block;
-    height: 50px;
+    height: 65px;
     margin-top: 5px;
     float: none;
     margin-left: 5px;
@@ -59,12 +65,31 @@ $j(document).ready(function(){
             $j('div.supporter_contact_form').html('').hide();
             $j('input.supporter_contact_form').hide();
             $j(this).parents(".work_supporter_wide").next().html('<br /><textarea id="msg" rows="4" cols="60" \>');
-            $j(this).parent().nextUntil('.work_supporter_wide').toggle();
+            $j(this).parent().nextUntil('.work_supporter_wide').show();
         } else {
             $j('div.supporter_contact_form').html('');
             $j('input.supporter_contact_form').hide();        
         }
     });
+});
+$j(document).ready(function(){
+    $j('#contact_form').submit(function(){
+        var theTextarea = $j(this).find("textarea")
+        var theInput = theTextarea.parent().next();
+        var msgReq = jQuery.post('/msg/', $j(this).serialize())
+        .done(function() { 
+            theTextarea.parent().prev().find(".info_for_managers").append("<div class='contact_form_result'>Message Sent<br /></div>"); 
+            theInput.hide(); 
+            theTextarea.hide();
+        })
+        .fail(function() { 
+            theTextarea.parent().prev().find(".info_for_managers").append("<div class='contact_form_result'>Couldn't Send Message<br /></div>"); 
+            theInput.hide(); 
+            theTextarea.hide();
+        });
+        
+        return false;
+    })
 });
 $j(document).ready(function(){
     $j('.show_more_edition').click(function(){
@@ -314,9 +339,10 @@ $j(document).ready(function(){
                     </div>
                     <div id="tabs-3" class="tabs {% if activetab == '3' %}active{% endif %}">
                     <div class="tabs-content">
-                        {% if request.user in work.last_campaign.managers.all  %}
+                        {% if request.user.is_staff or request.user in work.last_campaign.managers.all  %}
                             <form id="contact_form" method="POST" action="#" >
                             {% csrf_token %}
+                            <input type="hidden" name="work" value="{{ work.id }}" />
                             {% for wish in work.wishes.all reversed %}
                             {% with wish.wishlist.user as supporter %}
                                 <div class="work_supporter_wide">
@@ -339,8 +365,7 @@ $j(document).ready(function(){
                                         {% if supporter in work.last_campaign.ungluers.all %}Supported!</br />{% endif %}
                                     </div>
                                 </div>
-                                <div class="supporter_contact_form" >
-                                </div>
+                                <div class="supporter_contact_form" ></div>
                                 <input class="supporter_contact_form" type="submit" name="msg_{{supporter.id}}" value="Send Message to {{ supporter.username }}" />
                             {% endwith %}
                             {% endfor %}
