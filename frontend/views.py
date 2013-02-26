@@ -160,8 +160,7 @@ def work(request, work_id, action='display'):
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
-        
-    logger.info("pledged: {0}".format(pledged))
+
     countdown = ""
     
     try:
@@ -1576,12 +1575,14 @@ def wishlist(request):
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
             request.user.wishlist.add_work(edition.work,'user', notify=True)
+            return HttpResponse('added googlebooks id')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+            return HttpResponse('error addin googlebooks id')
         except Exception, e:
             logger.warning("Error in wishlist adding %s" % (e))          
+            return HttpResponse('error adding googlebooks id')
         # TODO: redirect to work page, when it exists
-        return HttpResponseRedirect('/')
     elif remove_work_id:
         try:
             work = models.Work.objects.get(id=int(remove_work_id))
@@ -1591,8 +1592,7 @@ def wishlist(request):
             except models.WasWork.DoesNotExist:
                 raise Http404
         request.user.wishlist.remove_work(work)
-        # TODO: where to redirect?
-        return HttpResponseRedirect('/')
+        return HttpResponse('removed work from wishlist')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
         try:
@@ -1604,7 +1604,7 @@ def wishlist(request):
                 raise Http404
 
         request.user.wishlist.add_work(work,'user', notify=True)
-        return HttpResponseRedirect('/')
+        return HttpResponse('added work to wishlist')
   
 class InfoPageView(TemplateView):
     
