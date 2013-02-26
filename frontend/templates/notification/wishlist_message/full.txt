@@ -1,7 +1,8 @@
-Message! About {{ campaign.work.title}} 
-(http://{{site.domain}}{% url work campaign.work.id %}?tab=2) something.
-You will something.
+Message from {{ sender.username }} {% if sender.is_staff %} (Unglue.it staff) {% endif %} about {{ work.title }}, on your Unglue.it wishlist.
 
-You will be also something.
+{{ msg }}
+
+Find out about {{ work.title }} at {% url work work.id %}
+{{ sender.username }}'s Unglue.it user page is at {% url supporter sender %}
 
 Give ebooks to the world; give income to authors and publishers.  Unglue.it.

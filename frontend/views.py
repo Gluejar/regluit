@@ -50,6 +50,8 @@ from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThin
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
+from regluit.frontend.forms import MsgForm
+from regluit.frontend.signals import supporter_message
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -1885,7 +1887,19 @@ def clear_wishlist(request):
     except Exception, e:
         return HttpResponse("Error in clearing wishlist: %s " % (e))
         logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
-    
+
+@require_POST
+@login_required      
+def msg(request):
+    form = MsgForm(data=request.POST)
+    if form.is_valid():
+        if not request.user.is_staff and request.user not in form.cleaned_data['work'].last_campaign().managers.all():
+            raise Http404
+        supporter_message.send(sender=request.user,msg=form.cleaned_data["msg"], work=form.cleaned_data["work"],supporter=form.cleaned_data["supporter"])
+        return HttpResponse("message sent")
+    else:
+        raise Http404
+   
 
 class LibraryThingView(FormView):
     template_name="librarything.html"
