@@ -1,0 +1,20 @@
+{% extends "notification/notice_template.html" %}
+{% load humanize %}
+
+{% block comments_textual %}
+
+<p>Your attention needed!</p>
+        
+<p>The card we have on file for you has expired.  Please update your credit card information at
+        https://{{ site.domain }}{% url manage_account %} Thank you!</p>
+                
+        {% if request.user.profile.account %}
+    <p>The current card we have on file:</p>
+    <b>Card type:</b> {{ request.user.profile.account.card_type }}<br />
+    <b>Number:</b> ************{{ request.user.profile.account.card_last4 }}<br />
+    <b>Expiration date:</b> {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}.<br />
+    <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
+        {% endif %}
+        	
+
+{% endblock %}  

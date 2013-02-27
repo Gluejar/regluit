@@ -1,0 +1,8 @@
+{% load humanize %}
+
+<p>Your credit card has been recorded.</p>
+
+Thank you for your support.
+
+The Unglue.it team
+

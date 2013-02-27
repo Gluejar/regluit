@@ -99,6 +99,32 @@
                     <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
                 </tr>
             </table>
+            <h3>Credit Card Notifications</h3>
+            <table class="notice_settings table table-striped" width="90%">
+                <tr>
+                    <th>{% trans "Notify me when..." %}</th>
+                    {% for header in notice_settings.column_headers %}
+                        <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+                {% for row in notice_settings.rows %}	    
+                  {% if row.notice_type.label|truncatechars:11 == 'account_...' %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td>
+                            <span class="notice_type_description">{% trans row.notice_type.description %}</span>
+                        </td>
+                        {% for cell in row.cells %}
+                            <td>
+                                <input type="checkbox" name="{{ cell.0 }}" {% if cell.1 %}checked="yes"{% endif %}/>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                <tr>
+                    <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
+                </tr>
+            </table>	    
             <h3>Rights Holder Notifications</h3>
             <table class="notice_settings table table-striped" width="90%">
                 <tr>
@@ -147,3 +173,7 @@
 
     </div>
 {% endblock %}
+
+                {% for row in notice_settings.rows %}
+			    {{row.notice_type.label}}
+                {% endfor %}
