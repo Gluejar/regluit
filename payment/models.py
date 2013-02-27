@@ -332,13 +332,15 @@ class Account(models.Model):
     # associated User if any
     user = models.ForeignKey(User, null=True)
     
+    # status variable
+    status = models.CharField(max_length=16, null=False, default='ACTIVE')
+    
     def deactivate(self):
         """Don't allow more than one active Account of given host to be associated with a given user"""
         self.date_deactivated = now()
         self.save()
         
-    @property    
-    def status(self):
+    def calculated_status(self):
         """returns ACTIVE, DEACTIVATED, EXPIRED, EXPIRING, or ERROR"""
         
     # TO DO:  integrate this method in to see whether we are using the right range of values
@@ -347,8 +349,6 @@ class Account(models.Model):
     # is it deactivated?
     
         today = date_today()
-        transactions_w_error_status_older_account = Transaction.objects.filter(host='stripelib', 
-                 status='Error', approved=True, user=self.user)
         
         if self.date_deactivated is not None:
             return 'DEACTIVATED'
