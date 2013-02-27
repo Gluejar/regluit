@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Account.status'
         db.add_column('payment_account', 'status',
-                      self.gf('django.db.models.fields.CharField')(default='ACTIVE', max_length=16),
+                      self.gf('django.db.models.fields.CharField')(default='INITIALIZED', max_length=16),
                       keep_default=False)
 
 

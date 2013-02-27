@@ -2,12 +2,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models import Q
+from django.dispatch import receiver
 
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now, date_today
 
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 
 from decimal import Decimal
 import datetime 
@@ -416,6 +417,19 @@ def recharge_failed_transactions(sender, created, instance, **kwargs):
 
 post_save.connect(recharge_failed_transactions, sender=Account)
 
+# handler for transitions in Account.status
+# https://docs.djangoproject.com/en/dev/ref/signals/#pre-save
+# http://stackoverflow.com/a/7934958
+
+@receiver(pre_save, sender=Account)
+def handle_Account_status_change(sender, instance, raw, **kwargs):
+    try:
+        obj = Account.objects.get(pk=instance.pk)
+    except Account.DoesNotExist:
+        pass # Object is new, so field hasn't technically changed, but you may want to do something else here.
+    else:
+        if not obj.status == instance.status: # Field has changed
+            logger.info( "Account status change: %d %s %s", instance.pk, obj.status, instance.status)
 
 
 
