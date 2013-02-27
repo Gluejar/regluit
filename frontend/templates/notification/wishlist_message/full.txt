@@ -2,7 +2,7 @@ Message from {{ sender.username }} {% if sender.is_staff %} (Unglue.it staff) {%
 
 {{ msg }}
 
-Find out about {{ work.title }} at {% url work work.id %}
-{{ sender.username }}'s Unglue.it user page is at {% url supporter sender %}
+Find out about {{ work.title }} at https://{{ site.domain }}{% url work work.id %}
+{{ sender.username }}'s Unglue.it user page is at https://{{ site.domain }}{% url supporter sender %}
 
 Give ebooks to the world; give income to authors and publishers.  Unglue.it.
