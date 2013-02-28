@@ -365,7 +365,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'site': Site.objects.get_current()}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self}, True)
         return self
 
 
