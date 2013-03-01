@@ -13,6 +13,9 @@ from regluit.core import bookloader, models
 from regluit.core import goodreads, librarything
 from regluit.core.models import Campaign
 from regluit.core.signals import deadline_impending
+
+from regluit.payment.models import Account
+
 from regluit.utils.localdatetime import now, date_today
 
 from django.core.mail import send_mail
@@ -83,6 +86,20 @@ def send_mail_task(subject, message, from_email, recipient_list,
 def update_active_campaign_status():
     """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
     return [c.update_status(send_notice=True, ignore_deadline_for_success=True, process_transactions=True) for c in Campaign.objects.filter(status='Active') ]
+
+#task to update the status of accounts
+@task
+def update_account_status():
+    """update the status of all Accounts"""
+    errors = []
+    
+    for account in Account.objects.all():
+        try:
+            account.status = account.calculated_status()
+        except Exception, e:
+            errors.append(e)
+
+    return errors
  
 @task
 def emit_notifications():

@@ -285,6 +285,12 @@ NOTIFY_ENDING_SOON_JOB = {
     "args": ()
 }
 
+UPDATE_ACCOUNT_STATUSES = {
+    "task": "regluit.core.tasks.update_account_status",
+    "schedule": crontab(day_of_month=1, hour=0, minute=0),
+    "args": ()
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # amazon or paypal for now.
