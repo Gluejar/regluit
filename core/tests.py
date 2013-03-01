@@ -15,7 +15,7 @@ from django.contrib.sites.models import Site
 from django.http import Http404
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium, Subject
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -112,11 +112,17 @@ class BookLoaderTests(TestCase):
 
     def test_merge_works_mechanics(self):
         """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
+        sub1= Subject(name='test1')
+        sub1.save()
+        sub2= Subject(name='test2')
+        sub2.save()
         w1 = Work(title="Work 1")
         w1.save()
+        w1.subjects.add(sub1)
         
         w2 = Work(title="Work 2")
         w2.save()
+        w2.subjects.add(sub1,sub2)
         
         e1 = Edition(work=w1)
         e1.save()
@@ -145,7 +151,8 @@ class BookLoaderTests(TestCase):
         bookloader.merge_works(e1.work, e2.work)
         self.assertEqual(models.Work.objects.count(),1)
         self.assertEqual(models.WasWork.objects.count(),1)
-        
+        self.assertEqual(w1.subjects.count(),2)
+       
         # getting proper view?
         anon_client = Client()
         r = anon_client.get("/work/%s/" % w1_id)
