@@ -43,15 +43,16 @@ from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
+from regluit.core import goodreads
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.bookloader import merge_works
+from regluit.core.signals import supporter_message
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
 from regluit.frontend.forms import MsgForm
-from regluit.frontend.signals import supporter_message
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -59,7 +60,6 @@ from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_ST
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
 from regluit.payment.credit import credit_transaction
-from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction, Sent, CreditLog
 from notification import models as notification

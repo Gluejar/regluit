@@ -18,7 +18,6 @@ from social_auth.backends.facebook import FacebookBackend
 from tastypie.models import create_api_key
 
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
-from regluit.frontend.signals import supporter_message
 
 import registration.signals
 import django.dispatch
@@ -282,7 +281,7 @@ def handle_wishlist_near_deadline(campaign, **kwargs):
     
 deadline_impending.connect(handle_wishlist_near_deadline)
 
-# supporter_message defined in frontend
+supporter_message = Signal(providing_args=["supporter", "work", "msg"])
 
 def notify_supporter_message(sender, work, supporter, msg, **kwargs):
     """send notification in of supporter message"""
