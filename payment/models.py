@@ -428,8 +428,47 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
     except Account.DoesNotExist:
         pass # Object is new, so field hasn't technically changed, but you may want to do something else here.
     else:
+        if obj.status == 'INITIALIZED': # first time through -- do we want to treat this situation differently?
+            pass
+        
         if not obj.status == instance.status: # Field has changed
             logger.info( "Account status change: %d %s %s", instance.pk, obj.status, instance.status)
+            
+            if instance.status == 'EXPIRING':
+                
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
+                            Site.objects.get_current())
+                # fire off an account_expiring notice
+                
+                #from notification import models as notification
+                #
+                #notification.queue([instance.user], "account_expiring", {
+                #    'site':Site.objects.get_current()
+                #}, True)
+                #
+                #from regluit.core.tasks import emit_notifications
+                #emit_notifications.delay()
+
+            elif instance.status == 'EXPIRED':
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
+                            Site.objects.get_current())
+                #from notification import models as notification
+                #
+                #notification.queue([instance.user], "account_expired", {
+                #    'site':Site.objects.get_current()
+                #}, True)
+                #
+                #from regluit.core.tasks import emit_notifications
+                #emit_notifications.delay()
+                
+            elif instance.status == 'ERROR':
+                pass
+            elif instance.status == 'ACTIVE':
+                pass
+            elif instance.status == 'DEACTIVATED':
+                pass
+                
+            
 
 
 
