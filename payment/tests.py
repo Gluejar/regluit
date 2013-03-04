@@ -393,15 +393,15 @@ class AccountTest(TestCase):
         self.user1.save()
         self.user2 = User.objects.create_user('account_test2', 'account_test2@gluejar.com', 'account_test2_pw')
         self.user2.save()
-        self.account1 = Account(host='host1', account_id='1', user=self.user1)
+        self.account1 = Account(host='host1', account_id='1', user=self.user1, status='ACTIVE')
         self.account1.save()
         
-        self.account2 = Account(host='host1', account_id='2', user=self.user1)        
+        self.account2 = Account(host='host1', account_id='2', user=self.user1, status='ACTIVE')        
  
     def test_constraint_at_most_one_active_account_per_user(self):
         # https://www.pivotaltracker.com/story/show/37458303
     
-        # hould not be allowed to save account2, which has same host and user
+        # should not be allowed to save account2, which has same host and user
         self.assertRaises(Exception, self.account2.save)
     
         # only 1 account left in total
