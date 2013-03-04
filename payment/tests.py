@@ -387,41 +387,40 @@ class BasicGuiTest(TestCase):
         
 class AccountTest(TestCase):
     
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
        # create a user
-        self.user1 = User.objects.create_user('account_test1', 'account_test1@gluejar.com', 'account_test1_pw')
-        self.user1.save()
-        self.user2 = User.objects.create_user('account_test2', 'account_test2@gluejar.com', 'account_test2_pw')
-        self.user2.save()
-        self.account1 = Account(host='host1', account_id='1', user=self.user1, status='ACTIVE')
-        self.account1.save()
+        cls.user1 = User.objects.create_user('account_test1', 'account_test1@gluejar.com', 'account_test1_pw')
+        cls.user1.save()
+        cls.account1 = Account(host='host1', account_id='1', user=cls.user1, status='ACTIVE')
+        cls.account1.save()
+           
+    def test_status_changes(self):
         
-        self.account2 = Account(host='host1', account_id='2', user=self.user1, status='ACTIVE')        
- 
-    def test_constraint_at_most_one_active_account_per_user(self):
-        # https://www.pivotaltracker.com/story/show/37458303
-    
-        # should not be allowed to save account2, which has same host and user
-        self.assertRaises(Exception, self.account2.save)
-    
-        # only 1 account left in total
-        self.assertEqual(Account.objects.count(),1)
+        account = AccountTest.user1.profile.account
+        self.assertEqual(account.status, 'ACTIVE')
+        account.status = 'EXPIRING'
+        account.save()
         
-    def test_payment_manager_retrieve_account(self):
-        pm = PaymentManager()
-        # test whether the retrieval process correct -- should add one for deactivated accounts
-        accts = pm.retrieve_accounts(host='host1', user=self.user1)
-        self.assertEqual(len(accts), 1)
+        self.assertEqual(account.status, 'EXPIRING')
+        account.status = 'EXPIRED'
+        account.save()
 
-        accts = pm.retrieve_accounts(host='host1', user=self.user2)
-        self.assertEqual(len(accts), 0)
+    @classmethod
+    def tearDownClass(cls):
         
-    def tearDown(self):
-        # shouldn't have to clean up account2
-        self.user1.delete()
-        self.user2.delete()
-        self.account1.delete()
+        from notification.models import Notice
+        from django.core import mail
+        
+        print len(mail.outbox)
+        for (i, m) in enumerate(mail.outbox):
+            print i, m.subject, m.body
+        
+        print [(n.id, n.notice_type.label, n.recipient, n.added) for n in Notice.objects.all()]
 
+        cls.user1.delete()
+        cls.account1.delete()
+       
 def suite():
 
     #testcases = [PledgeTest, AuthorizeTest, TransactionTest]

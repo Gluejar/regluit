@@ -3,10 +3,13 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models import Q
 from django.dispatch import receiver
+from django.contrib.sites.models import Site
 
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
 from regluit.utils.localdatetime import now, date_today
+
+from notification import models as notification
 
 from django.db.models.signals import post_save, post_delete, pre_save
 
@@ -440,26 +443,21 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                             Site.objects.get_current())
                 # fire off an account_expiring notice
                 
-                #from notification import models as notification
-                #
-                #notification.queue([instance.user], "account_expiring", {
-                #    'site':Site.objects.get_current()
-                #}, True)
-                #
-                #from regluit.core.tasks import emit_notifications
-                #emit_notifications.delay()
+                notification.queue([instance.user], "account_expiring", {
+                    'site':Site.objects.get_current()
+                }, True)
+                from regluit.core.tasks import emit_notifications
+                emit_notifications.delay()
 
             elif instance.status == 'EXPIRED':
                 logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
                             Site.objects.get_current())
-                #from notification import models as notification
-                #
-                #notification.queue([instance.user], "account_expired", {
-                #    'site':Site.objects.get_current()
-                #}, True)
-                #
-                #from regluit.core.tasks import emit_notifications
-                #emit_notifications.delay()
+                
+                notification.queue([instance.user], "account_expired", {
+                    'site':Site.objects.get_current()
+                }, True)
+                from regluit.core.tasks import emit_notifications
+                emit_notifications.delay()
                 
             elif instance.status == 'ERROR':
                 pass
