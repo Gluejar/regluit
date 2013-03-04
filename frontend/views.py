@@ -2164,3 +2164,19 @@ def about(request, facet):
     template = "about_" + facet + ".html"
     return render(request, template)
 
+@login_required  
+@csrf_exempt    
+def ml_status(request):
+    return render(request, "ml_status.html")
+
+@require_POST
+@login_required      
+def ml_subscribe(request):
+    request.user.profile.ml_subscribe(double_optin=False,send_welcome=True, merge_vars = {"OPTIN_IP":request.META['REMOTE_ADDR'],"OPTIN_TIME":now().isoformat()})
+    return HttpResponseRedirect(reverse("notification_notice_settings"))
+
+@require_POST
+@login_required      
+def ml_unsubscribe(request):
+    request.user.profile.ml_unsubscribe()
+    return HttpResponseRedirect(reverse("notification_notice_settings"))
