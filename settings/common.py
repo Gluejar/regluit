@@ -291,6 +291,12 @@ UPDATE_ACCOUNT_STATUSES = {
     "args": ()
 }
 
+NOTIFY_EXPIRING_ACCOUNTS = {
+    "task": "regluit.core.tasks.notify_expiring_accounts",
+    "schedule": crontab(day_of_month=22, hour=0, minute=30),
+    "args": ()    
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # amazon or paypal for now.

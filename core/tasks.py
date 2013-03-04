@@ -101,6 +101,18 @@ def update_account_status():
 
     return errors
  
+# task run roughly 8 days ahead of card expirations
+@task
+def notify_expiring_accounts():
+    from regluit.payment.models import Account
+    from django.contrib.sites.models import Site
+
+    expiring_accounts = Account.objects.filter('EXPIRING')
+    for account in expiring_accounts:
+        notification.send_now([account.user], "account_expiring", {
+                    'site':Site.objects.get_current()
+                }, True)
+
 @task
 def emit_notifications():
     logger.info('notifications emitting' )

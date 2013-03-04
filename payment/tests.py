@@ -424,7 +424,7 @@ class AccountTest(TestCase):
 def suite():
 
     #testcases = [PledgeTest, AuthorizeTest, TransactionTest]
-    testcases = [TransactionTest, CreditTest]
+    testcases = [TransactionTest, CreditTest, AccountTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     return suites    
         

@@ -441,7 +441,8 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                 
                 logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
                             Site.objects.get_current())
-                # fire off an account_expiring notice
+                
+                # fire off an account_expiring notice -- might not want to do this immediately
                 
                 notification.queue([instance.user], "account_expiring", {
                     'site':Site.objects.get_current()
