@@ -1894,10 +1894,12 @@ def msg(request):
     form = MsgForm(data=request.POST)
     if form.is_valid():
         if not request.user.is_staff and request.user not in form.cleaned_data['work'].last_campaign().managers.all():
+            logger.warning("unauthorized attempt to send message by %s for %s"% (request.user,form.cleaned_data['work']))
             raise Http404
         supporter_message.send(sender=request.user,msg=form.cleaned_data["msg"], work=form.cleaned_data["work"],supporter=form.cleaned_data["supporter"])
         return HttpResponse("message sent")
     else:
+        logger.info("Invalid form for user %s", request.user)
         raise Http404
    
 
