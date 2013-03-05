@@ -1895,7 +1895,7 @@ def msg(request):
     if form.is_valid():
         if not request.user.is_staff and request.user not in form.cleaned_data['work'].last_campaign().managers.all():
             raise Http404
-        supporter_message.queue(sender=request.user,msg=form.cleaned_data["msg"], work=form.cleaned_data["work"],supporter=form.cleaned_data["supporter"])
+        supporter_message.send(sender=request.user,msg=form.cleaned_data["msg"], work=form.cleaned_data["work"],supporter=form.cleaned_data["supporter"])
         return HttpResponse("message sent")
     else:
         raise Http404
