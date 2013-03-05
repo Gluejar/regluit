@@ -11,42 +11,7 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
-<style>
-.show_supporter_contact_form 
-{
-    display:block;
-    margin-left: 5px;
-    float: right;
-}
-.supporter_contact_form 
-{
-    display:none;
-    margin-left: 5px;
-}
-.contact_form_result
-{
-    display:block;
-    margin-left: 5px;
-}
 
-.work_supporter_wide
-{
-    display: block;
-    height: 65px;
-    margin-top: 5px;
-    float: none;
-    margin-left: 5px;
-}
-.info_for_managers
-{
-    display: block;
-}
-.contact_supporter
-{
-    background:url("/static/images/icons/email.png") 10px center no-repeat;
-    cursor:pointer
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}
@@ -56,63 +21,6 @@
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
-
-<script>
-var $j = jQuery.noConflict();
-$j(document).ready(function(){
-    $j('.show_supporter_contact_form').click(function(){
-        if ($j(this).parents(".work_supporter_wide").next().html() == ''){
-            $j('div.supporter_contact_form').html('').hide();
-            $j('input.supporter_contact_form').hide();
-            $j(this).parents(".work_supporter_wide").next().html('<br /><textarea name="msg" rows="4" cols="60" \>');
-            $j(this).parent().nextUntil('.work_supporter_wide').show();
-        } else {
-            $j('div.supporter_contact_form').html('');
-            $j('input.supporter_contact_form').hide();        
-        }
-    });
-});
-$j(document).ready(function(){
-    $j('#contact_form').submit(function(){
-        var theTextarea = $j(this).find("textarea")
-        var theInput = theTextarea.parent().next();
-        var supporter_id = theInput.attr("name").substring(4);
-        var msgReq = jQuery.post('/msg/', $j(this).serialize()+'&supporter='+supporter_id)
-        .done(function() { 
-            theTextarea.parent().prev().find(".info_for_managers").append("<div class='contact_form_result'>Message Sent<br /></div>"); 
-            theInput.hide(); 
-            theTextarea.hide();
-        })
-        .fail(function() { 
-            theTextarea.parent().prev().find(".info_for_managers").append("<div class='contact_form_result'>Couldn't Send Message<br /></div>"); 
-            theInput.hide(); 
-            theTextarea.hide();
-        });
-        
-        return false;
-    })
-});
-$j(document).ready(function(){
-    $j('.show_more_edition').click(function(){
-        if ($j(this).html() == 'less...') {
-        	$j(this).html('more...')
-        } else {
-        	$j(this).html('less...')
-        }
-        $j(this).next().toggle();
-    });
-});
-$j(document).ready(function(){
-	var img = $j('#book-detail-img');
-	var googimg = $j('#find-google img');
-    img.mouseover(function(){
-       googimg.css({"background": "#8dc63f"}).animate(
-           {backgroundColor: "white"}, 1500
-       );
-    });
-});
-
-</script>
 {% endblock %}
 
 {% block topsection %}
