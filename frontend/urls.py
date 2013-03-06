@@ -92,6 +92,9 @@ urlpatterns = patterns(
             get_context_data=lambda: {'site': Site.objects.get_current()}
         ),
         name="libraries"),
+    url(r"^ml/status/$","ml_status",  name="ml_status"),
+    url(r"^ml/subscribe/$","ml_subscribe",  name="ml_subscribe"),
+    url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
 )
 
 if settings.DEBUG:

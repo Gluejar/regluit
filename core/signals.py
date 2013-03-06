@@ -44,7 +44,8 @@ def create_user_objects(sender, created, instance, **kwargs):
             UserProfile = get_model('core', 'UserProfile')
             if created:
                 Wishlist.objects.create(user=instance)
-                UserProfile.objects.create(user=instance)
+                profile = UserProfile.objects.create(user=instance)
+                profile.ml_subscribe()
         except DatabaseError:
             # this can happen when creating superuser during syncdb since the
             # core_wishlist table doesn't exist yet

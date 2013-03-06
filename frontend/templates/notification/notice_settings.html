@@ -8,6 +8,18 @@
 <link type="text/css" rel="stylesheet" href="/static/css/notices.css" />
 {% endblock %}
 
+{% block extra_js %}
+
+<script type="text/javascript" src="/static/js/definitions.js"></script>
+<script>
+$j(document).ready(function() {
+    jQuery.post("/ml/status/", function(data){
+	    $j("#mailing_list").html(data);
+	});
+});
+</script>
+{% endblock %}
+
 {% block doccontent %}
     <h2>{% trans "Notification Settings" %}</h2>
         
@@ -126,8 +138,9 @@
                 </tr>
             </table>
         </form>
-        
-        
+
+        <h3>Your mailing list subscription</h3>
+        <div id="mailing_list"></div>
         <h3>Your email</h3>
         {% if user.email %}
             <p>

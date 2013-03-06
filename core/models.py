@@ -1,11 +1,13 @@
 import re
 import random
+import logging
 from regluit.utils.localdatetime import now, date_today
 from regluit.utils import crypto
 from datetime import timedelta
 from decimal import Decimal
 from notification import models as notification
 from ckeditor.fields import RichTextField
+from postmonkey import PostMonkey, MailChimpException
 
 from django.db import models
 from django.db.models import Q, get_model
@@ -23,6 +25,9 @@ from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_ST
 
 from django.db.models import Q
 
+pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+
+logger = logging.getLogger(__name__)
 
 class UnglueitError(RuntimeError):
     pass
@@ -1098,7 +1103,32 @@ class UserProfile(models.Model):
             return last.anonymous
         else:
             return None    
-    
+     
+    @property
+    def on_ml(self):
+        try:
+            return settings.MAILCHIMP_NEWS_ID in pm.listsForEmail(email_address=self.user.email)
+        except MailChimpException, e:
+            if e.code!=215: # don't log case where user is not on a list
+                logger.error("error getting mailchimp status  %s" % (e))
+        except Exception, e:
+            logger.error("error getting mailchimp status  %s" % (e))
+        return False
+
+    def ml_subscribe(self, **kwargs):
+        try:
+            return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email, **kwargs)
+        except Exception, e:
+            logger.error("error subscribing to mailchimp list %s" % (e))
+            return False
+
+    def ml_unsubscribe(self):
+        try:
+            return pm.listUnsubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email)
+        except Exception, e:
+            logger.error("error unsubscribing from mailchimp list  %s" % (e))
+        return False
+       
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)

@@ -39,6 +39,7 @@ mimeparse==0.1.3
 nose==1.1.2
 oauth2==1.5.211
 paramiko==1.7.7.2
+postmonkey==1.0a4
 pyasn1==0.1.4
 pycrypto==2.6
 python-dateutil==2.1
