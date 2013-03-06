@@ -477,6 +477,9 @@ def merge_works(w1, w2, user=None):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
+    for subject in w2.subjects.all():
+        if subject not in w1.subjects.all():
+            w1.subjects.add(subject)
 
     models.WasWork(was=w2.pk, work=w1, user=user).save()
     for ww in models.WasWork.objects.filter(work = w2):
