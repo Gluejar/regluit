@@ -23,9 +23,9 @@
                             {% if pubname %}
                                 <li>{{ pubname }}...
                                 <ul class="menu level3">
-                                    <li class="first"><a href="{% url bypub_list pubname 'popular' %}"><span>Most popular</span></a></li>
+                                    <li class="first"><a href="{% url bypub_list 'popular' pubname %}"><span>Most popular</span></a></li>
                                     <li><a href="{% url bypub_list pubname %}"><span>By Title</span></a></li>
-                                    <li><a href="{% url bypub_list pubname 'pubdate' %}"><span>By Date Published</span></a></li>
+                                    <li><a href="{% url bypub_list 'pubdate' pubname %}"><span>By Date Published</span></a></li>
                                 </ul>
                                 </li>
                              {% endif %}
