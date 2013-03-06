@@ -1116,8 +1116,12 @@ class UserProfile(models.Model):
         return False
 
     def ml_subscribe(self, **kwargs):
+        if "@example.org" in self.user.email:
+            # use @example.org email addresses for testing!
+            return True
         try:
-            return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email, **kwargs)
+            if not self.on_ml:
+                return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email, **kwargs)
         except Exception, e:
             logger.error("error subscribing to mailchimp list %s" % (e))
             return False

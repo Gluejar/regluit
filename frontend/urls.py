@@ -11,7 +11,7 @@ from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -37,6 +37,8 @@ urlpatterns = patterns(
     url(r"^wishlist/$", "wishlist", name="wishlist"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
+    url(r"^bypub/all/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
+    url(r"^bypub/(?P<facet>\w*)/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
     url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),
     url(r"^goodreads/auth/$", "goodreads_auth", name="goodreads_auth"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),

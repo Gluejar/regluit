@@ -179,10 +179,10 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.count(), 2)
 
         # add the stub works to a wishlist
-        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user = User.objects.create_user('test', 'test@example.org', 'testpass')
         user.wishlist.add_work(e1.work, 'test')
         user.wishlist.add_work(e2.work, 'test')
-        manager = User.objects.create_user('manager', 'manager@example.com', 'managerpass')
+        manager = User.objects.create_user('manager', 'manager@example.org', 'managerpass')
         # create campaigns for the stub works 
         c1 = models.Campaign.objects.create(
             name=e1.work.title,
@@ -390,7 +390,7 @@ class CampaignTests(TestCase):
     def test_campaign_status(self):
         
         # need a user to associate with a transaction
-        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user = User.objects.create_user('test', 'test@example.org', 'testpass')
         
         w = Work()
         w.save()
@@ -404,7 +404,7 @@ class CampaignTests(TestCase):
         c2 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c2.save()
         self.assertEqual(c2.status, 'INITIALIZED')
-        u = User.objects.create_user('claimer', 'claimer@example.com', 'claimer')
+        u = User.objects.create_user('claimer', 'claimer@example.org', 'claimer')
         u.save()
         rh = RightsHolder(owner = u, rights_holder_name = 'rights holder name')
         rh.save()
@@ -486,7 +486,7 @@ class WishlistTest(TestCase):
 
     def test_add_remove(self):
         # add a work to a user's wishlist
-        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user = User.objects.create_user('test', 'test@example.org', 'testpass')
         edition = bookloader.add_by_isbn('0441007465')
         work = edition.work
         num_wishes=work.num_wishes
@@ -643,7 +643,7 @@ class DownloadPageTest(TestCase):
         e2.save()
         
         eb1 = models.Ebook()
-        eb1.url = "http://example.com"
+        eb1.url = "http://example.org"
         eb1.edition = e1
         eb1.format = 'epub'
         
@@ -657,7 +657,7 @@ class DownloadPageTest(TestCase):
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id)
-        self.assertContains(response, "http://example.com", count=4)
+        self.assertContains(response, "http://example.org", count=4)
         self.assertContains(response, "http://example2.com", count=3)
 
 

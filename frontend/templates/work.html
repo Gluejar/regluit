@@ -370,7 +370,7 @@ $j(document).ready(function(){
                                             <img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" />
                                         </div>
                                     {% endif %}
-                                    <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: {{edition.publisher}}<br />{% endif %}
+                                    <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: <a href="{% url bypub_list edition.publisher %}">{{edition.publisher}}</a><br />{% endif %}
                                         {% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
                                             {% if edition.isbn_13 %}
                                                 ISBN: {{ edition.isbn_13 }}<br />
