@@ -22,7 +22,7 @@ class ApiTests(TestCase):
             deadline=now(),
             target=Decimal('1000.00'),
         )
-        self.user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        self.user = User.objects.create_user('test', 'test@example.org', 'testpass')
         self.client = Client()
 
     def test_user(self):
