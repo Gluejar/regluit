@@ -529,7 +529,7 @@ class ByPubListView(WorkListView):
         if (facet == 'popular'):
             return objects.order_by('-num_wishes', 'id')
         elif (facet == 'pubdate'):
-            return objects.order_by('-editions__publication_date')
+            return objects.order_by('-editions__publication_date') # turns out this messes up distinct, and MySQL doesn't support DISTINCT ON
         elif (facet == 'new'):
             return objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
