@@ -1,4 +1,4 @@
-Alas.  The campaign to unglue {{ campaign.work.title }} (https://{{site.domain}}{% url work campaign.work.id %}) has not succeeded.
+Alas.  The campaign to unglue {{ campaign.work.title }} (https://{{current_site.domain}}{% url work campaign.work.id %}) has not succeeded.
 
 If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 

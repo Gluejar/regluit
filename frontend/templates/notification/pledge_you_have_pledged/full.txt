@@ -6,16 +6,16 @@ Pledge summary
 
 You can help even more by sharing this campaign with your friends.
 
-Facebook: https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work transaction.campaign.work.id %}
+Facebook: https://www.facebook.com/sharer.php?u=https://{{ current_site.domain }}{% url work transaction.campaign.work.id %}
 
-Twitter: https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work transaction.campaign.work.id %}&text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
+Twitter: https://twitter.com/intent/tweet?url=https://{{ current_site.domain }}{% url work transaction.campaign.work.id %}&text=I%27m%20ungluing%20{{ title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"
 
 You can also embed a widget for {{ transaction.campaign.work.title }} in your web site by copy/pasting the following:
-<iframe src="https://{{ site.domain }}/api/widget/{{ transaction.campaign.work.first_isbn_13 }}/" width="152" height="325" frameborder="0"></iframe>
+<iframe src="https://{{ current_site.domain }}/api/widget/{{ transaction.campaign.work.first_isbn_13 }}/" width="152" height="325" frameborder="0"></iframe>
 
 Or the best idea: talk about it with those you love.  We'll need lots of help from lots of people to make this a success. 
 
-If you want to change your pledge, just use the button at https://{{ site.domain }}{% url work transaction.campaign.work.id %}
+If you want to change your pledge, just use the button at https://{{ current_site.domain }}{% url work transaction.campaign.work.id %}
 
 If you have any problems with your pledge, don't hesitate to contact us at support@gluejar.com
 

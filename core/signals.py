@@ -92,7 +92,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_successful", _("Successful Campaign"), _("An ungluing campaign that you have supported or followed has succeeded."))
     notification.create_notice_type("wishlist_unsuccessful", _("Unsuccessful Campaign"), _("An ungluing campaign that you supported didn't succeed this time."))
     notification.create_notice_type("wishlist_updated", _("Campaign Updated"), _("An ungluing campaign you support has been updated."), default = 1)
-    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("There's a message about an ungluing campaign you're interested in."))
+    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("There's a message from unglue.it staff or the rights holder about a campaign on your wishlist."))
     notification.create_notice_type("wishlist_price_drop", _("Campaign Price Drop"), _("An ungluing campaign you're interested in has a reduced target."), default = 1)
     notification.create_notice_type("wishlist_unglued_book_released", _("Unglued Book!"), _("A book you wanted is now available to be downloaded."))
     notification.create_notice_type("pledge_you_have_pledged", _("Thanks For Your Pledge!"), _("Your ungluing pledge has been entered."))
@@ -121,8 +121,8 @@ def notify_comment(comment, request, **kwargs):
         #official
         notification.queue(all_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain}, True)
     else:
-        notification.queue(other_commenters, "comment_on_commented", {'comment':comment, 'domain':domain}, True)
-        notification.queue(other_wishers, "wishlist_comment", {'comment':comment, 'domain':domain}, True)
+        notification.send(other_commenters, "comment_on_commented", {'comment':comment}, True, sender=comment.user)
+        notification.send(other_wishers, "wishlist_comment", {'comment':comment}, True, sender=comment.user)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
@@ -140,8 +140,7 @@ def notify_successful_campaign(campaign, **kwargs):
     staff = User.objects.filter(is_staff=True)
     supporters = (User.objects.get(id=k) for k in campaign.supporters())
     
-    site = Site.objects.get_current()
-    notification.queue(itertools.chain(staff, supporters), "wishlist_successful", {'campaign':campaign, 'site':site}, True)
+    notification.send(itertools.chain(staff, supporters), "wishlist_successful", {'campaign':campaign}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
     
@@ -157,8 +156,7 @@ def notify_unsuccessful_campaign(campaign, **kwargs):
     staff = User.objects.filter(is_staff=True)
     supporters = (User.objects.get(id=k) for k in campaign.supporters())
     
-    site = Site.objects.get_current()
-    notification.queue(itertools.chain(staff, supporters), "wishlist_unsuccessful", {'campaign':campaign, 'site':site}, True)
+    notification.send(itertools.chain(staff, supporters), "wishlist_unsuccessful", {'campaign':campaign}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
     
@@ -168,10 +166,7 @@ unsuccessful_campaign.connect(notify_unsuccessful_campaign)
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
         return
-    notification.queue([transaction.user], "pledge_charged", {
-            'site':Site.objects.get_current(),
-            'transaction':transaction
-        }, True)
+    notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
@@ -186,8 +181,7 @@ def handle_transaction_failed(sender,transaction=None, **kwargs):
     # window for recharging
     recharge_deadline = transaction.campaign.deadline + datetime.timedelta(settings.RECHARGE_WINDOW)
     
-    notification.queue([transaction.user], "pledge_failed", {
-            'site':Site.objects.get_current(),
+    notification.send([transaction.user], "pledge_failed", {
             'transaction':transaction,
             'recharge_deadline': recharge_deadline
         }, True)
@@ -206,8 +200,7 @@ def handle_pledge_modified(sender, transaction=None, up_or_down=None, **kwargs):
         return
     if up_or_down == 'canceled':
         transaction.user.profile.reset_pledge_badge()
-    notification.queue([transaction.user], "pledge_status_change", {
-            'site':Site.objects.get_current(),
+    notification.send([transaction.user], "pledge_status_change", {
             'transaction': transaction,
             'up_or_down': up_or_down
         }, True)
@@ -224,8 +217,7 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
     if not transaction.anonymous:
         transaction.user.profile.reset_pledge_badge()
     
-    notification.queue([transaction.user], "pledge_you_have_pledged", {
-            'site':Site.objects.get_current(),
+    notification.send([transaction.user], "pledge_you_have_pledged", {
             'transaction': transaction
     }, True)
     from regluit.core.tasks import emit_notifications
@@ -242,8 +234,7 @@ def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
     staff = User.objects.filter(is_staff=True)
     supporters = (User.objects.get(id=k) for k in campaign.supporters())
     
-    site = Site.objects.get_current()
-    notification.queue(itertools.chain(staff, supporters), "wishlist_unsuccessful_amazon", {'campaign':campaign, 'site':site}, True)
+    notification.send(itertools.chain(staff, supporters), "wishlist_unsuccessful_amazon", {'campaign':campaign}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
     
@@ -255,7 +246,7 @@ def handle_wishlist_added(supporter, work, **kwargs):
     """send notification to confirmed rights holder when someone wishes for their work"""
     claim = work.claim.filter(status="active")
     if claim:
-        notification.queue([claim[0].user], "new_wisher", {
+        notification.send([claim[0].user], "new_wisher", {
             'supporter': supporter,
             'work': work,
             'base_url': settings.BASE_URL,
@@ -276,13 +267,13 @@ def handle_wishlist_near_deadline(campaign, **kwargs):
     pledgers = campaign.ungluers()['all']
     nonpledgers = campaign.work.wished_by().exclude(id__in=[p.id for p in pledgers])
     
-    notification.queue(pledgers, "wishlist_near_deadline", {
+    notification.send(pledgers, "wishlist_near_deadline", {
             'campaign': campaign,
             'domain': settings.BASE_URL,
             'pledged': True,
     }, True)
     
-    notification.queue(nonpledgers, "wishlist_near_deadline", {
+    notification.send(nonpledgers, "wishlist_near_deadline", {
             'campaign': campaign,
             'domain': settings.BASE_URL,
             'pledged': False,
@@ -292,3 +283,16 @@ def handle_wishlist_near_deadline(campaign, **kwargs):
     emit_notifications.delay()
     
 deadline_impending.connect(handle_wishlist_near_deadline)
+
+supporter_message = Signal(providing_args=["supporter", "work", "msg"])
+
+def notify_supporter_message(sender, work, supporter, msg, **kwargs):
+    """send notification in of supporter message"""
+    logger.info('received supporter_message signal for {0}'.format(supporter))
+    
+    site = Site.objects.get_current()
+    notification.send( [supporter], "wishlist_message", {'work':work, 'msg':msg}, True, sender)
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
+    
+supporter_message.connect(notify_supporter_message)
