@@ -21,14 +21,13 @@
     <link type="text/css" rel="stylesheet" href="/static/css/sitewide2.css" />
 	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
-	{% block base_js %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
-    {% endblock %}
-	<script type="text/javascript" src="/static/js/hijax.js?v=3a"></script>
-    {% block extra_js %}
-    {% endblock %}
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="/static/js/sitewide.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    {% block extra_js %}
+    {% endblock %}
 	{% if show_langs %}
 	<script>
     var $j = jQuery.noConflict();
@@ -39,20 +38,6 @@
     });
     </script>
     {% endif %}
-    <script>
-    var $j = jQuery.noConflict();
-    $j(document).ready(function(){
-        // make drop-down menu happen when they click on their name
-        $j('#authenticated').click(function(){
-            $j('#user_menu').toggle();
-            $j(this).toggleClass('highlight');
-        });
-        // but suppress it if they're clicking on the badge link to the notifications page
-        $j('#i_haz_notifications_badge').click(function() {
-            event.stopPropagation();
-        });
-    });
-    </script>
     {% block extra_head %}
     {% endblock %}
 </head>
