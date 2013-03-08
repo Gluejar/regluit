@@ -212,7 +212,7 @@ SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 
 TWITTER_EXTRA_DATA = [('profile_image_url', 'profile_image_url')]
 
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 

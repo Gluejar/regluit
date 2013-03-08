@@ -156,7 +156,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	    <li>Use the Claim option on the Rights tab of each book's page.</li>
 	    <li>Agree to our <a href="{{ termsurl }}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
 	    <li>If you have any questions or you claim a work by mistake, email us.</li>
-	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="/accounts/edit">change the email address</a> for your account.</li>
+	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url regluit.frontend.views.edit_user %}">change the email address</a> for your account.</li>
 	</ul>
 	<li>Once your claim is approved, you can set up a campaign for it.  All the campaigns you can manage will be listed on this page.</li>
 	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page.</li> 

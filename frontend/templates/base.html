@@ -124,7 +124,7 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a href="{% url auth_login %}?next={% firstof request.path '/' %}" class="hijax"><span>Sign In</span></a></li>
+                        <li><a href="{% url superlogin %}?next={% firstof request.path '/' %}" class="hijax"><span>Sign In</span></a></li>
                         {% if not suppress_search_box %}
                             {% ifnotequal request.get_full_path "/accounts/register/" %}
                                 {% comment %}

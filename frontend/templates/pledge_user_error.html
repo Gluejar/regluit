@@ -17,7 +17,7 @@
 
 	<div><h2>Error: Wrong user for a pledge transaction</h2>
 		<div>
-		<p>Unglue.it would like to process your pledge, but you are currently logged in as <code>{{request.user.username}}</code>.  To complete your pledge, you need to <a href='{% url auth_logout %}?next={{ request.get_full_path|urlencode }}'>log out</a>, and then <a href='{% url auth_login %}?next={{ request.get_full_path|urlencode }}'>log in</a> as <code>{{ transaction.user.username }}</code>. If you have any problem, don't hesitate to contact <a href="mailto:support@gluejar.com?subject={{ request.get_full_path|urlencode }}">unglue.it support</a>.
+		<p>Unglue.it would like to process your pledge, but you are currently logged in as <code>{{request.user.username}}</code>.  To complete your pledge, you need to <a href='{% url auth_logout %}?next={{ request.get_full_path|urlencode }}'>log out</a>, and then <a href='{% url superlogin %}?next={{ request.get_full_path|urlencode }}'>log in</a> as <code>{{ transaction.user.username }}</code>. If you have any problem, don't hesitate to contact <a href="mailto:support@gluejar.com?subject={{ request.get_full_path|urlencode }}">unglue.it support</a>.
         </p>
         </div>
 	</div>
