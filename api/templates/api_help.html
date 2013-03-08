@@ -10,7 +10,7 @@
     {% if user.is_authenticated %}
        <p> Welcome {{user.username}}. Your API key is <span style="font-weight:bold">{{api_key}}</span>.</p>
     {% else %}
-       <p> Please <a href="{% url superlogin %}?next={% firstof request.path '/' %}"><span>sign in</span></a> first.</p>
+       <p> Please <a href="{% url superlogin %}?next={% firstof request.get_full_path|urlencode '/' %}"><span>sign in</span></a> first.</p>
     {% endif %}
     
     <h3>Basic API info</h3>

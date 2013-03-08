@@ -24,7 +24,7 @@
 	{% block base_js %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     {% endblock %}
-	<script type="text/javascript" src="/static/js/hijax.js?v=2"></script>
+	<script type="text/javascript" src="/static/js/hijax.js?v=3a"></script>
     {% block extra_js %}
     {% endblock %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
@@ -58,7 +58,6 @@
 </head>
 
 <body>
-
 <div id="feedback">
 <p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
@@ -124,13 +123,13 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a href="{% url superlogin %}?next={% firstof request.path '/' %}" class="hijax"><span>Sign In</span></a></li>
-                        {% if not suppress_search_box %}
+                        <li><a href="{% url superlogin %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" class="hijax"><span>Sign In</span></a></li>
+                       {% if not suppress_search_box %}
                             {% ifnotequal request.get_full_path "/accounts/register/" %}
                                 {% comment %}
                                 don't display this on landing page where it's superseded by big signup box in splash area
                                 {% endcomment %}
-                                <li id="expander" class="last"><a href="{% url registration_register %}"><span>Sign Up</span></a></li>
+                                <li id="expander" class="last"><a href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign Up</span></a></li>
                             {% endifnotequal %}
                         {% endif %}
                     </ul>

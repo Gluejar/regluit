@@ -11,7 +11,7 @@
   
   <div class="tabs-content" id="js-maincol">
   {% if request.user.is_anonymous %}
-                       <p>You must be <a href="{% url superlogin %}?next={{ request.path }}">logged in</a> to comment.</p>
+                       <p>You must be <a href="{% url superlogin %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
   {% else %}
   <form action="{% comment_form_target %}" method="post">{% csrf_token %}
     {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}

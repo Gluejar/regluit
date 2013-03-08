@@ -264,7 +264,7 @@ $j(document).ready(function(){
                        {% if user.is_authenticated %}
                            {% render_comment_form for work %}
                        {% else %}
-                       <p>You must be <a href="{% url superlogin %}?next={{ request.path }}">logged in</a> to comment.</p>
+                       <p>You must be <a href="{% url superlogin %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
                        {% endif %}
                     </div>
                     </div>

@@ -15,7 +15,7 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <br />
 
 
-<a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="{% url registration_register %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+<a href="{% url auth_password_reset %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
 <br /><br />
