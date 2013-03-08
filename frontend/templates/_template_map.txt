@@ -9,7 +9,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     about_unglued_empty.html
     about_wishlist.html
     about_wishlist_empty.html
-    bypub_list.html extra_css    extra_head
     campaign_list.html  extra_css    extra_head
     comments.html   extra_css    extra_head
     download.html  extra_js
@@ -88,6 +87,7 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     unglued_list.html   extra_css    extra_head
     work.html   extra_css  extra_js
     work_list.html   extra_css    extra_head
+        bypub_list.html
     
     
 nonprofit_base.html    extra_extra_head

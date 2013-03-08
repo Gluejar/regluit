@@ -25,26 +25,18 @@
                 <div class="js-topnews2">
                     <div class="js-topnews3">
                         <div class="user-block">
-                            <div id="user-block1">
-                            {% if facet == 'recommended' %}
-								<div id="block-intro-text"><span class="special-user-name">Staff Picks</span></div>
-								</div>
-								<div class="user-block2"><span class="user-short-info">Here are the {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books <a href="{% url supporter 'AmandaM' %}">Amanda</a>, <a href="{% url supporter 'andromeda' %}">Andromeda</a>, <a href="{% url supporter 'eric' %}">Eric</a>, and <a href="{% url supporter 'rdhyee' %}">Raymond</a> are loving lately.</span>
-								</div>
-	                            <div class="user-block3 recommended">
-                                <a href="{% url supporter 'AmandaM' %}"><img class="user-avatar" src="https://si0.twimg.com/profile_images/1801686082/image_normal.jpg" height="50" width="50" alt="Picture of Amanda" title="Amanda" /></a>
-                                <a href="{% url supporter 'andromeda' %}"><img class="user-avatar" src="https://si0.twimg.com/profile_images/611713549/andromeda_by_molly_color_normal.jpg" height="50" width="50" alt="Picture of Andromeda" title="Andromeda" /></a>
-                                <a href="{% url supporter 'eric' %}"><img class="user-avatar" src="https://graph.facebook.com/1009077800/picture" height="50" width="50" alt="Picture of Eric" title="Eric" /></a>
-                                <a href="{% url supporter 'RaymondYee' %}"><img class="user-avatar" src="https://graph.facebook.com/1229336/picture" height="50" width="50" alt="Picture of Raymond" title="Raymond" /></a>
-                                </div>
-	                        {% else %}
+                            {% block userblock %}
+                                <div id="user-block1">
 								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
 								</div>
-								<div class="user-block2"><span class="user-short-info">With your help we're raising money to buy the rights to give these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books to the world.</span>
+								<div class="user-block2">
+								{% block userblock2 %}
+								<span class="user-short-info">With your help we're raising money to buy the rights to give these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books to the world.</span>
+								{% endblock %}
 								</div>
     	                        <div class="user-block3">
 	                            </div>
-                            {% endif %}
+                            {% endblock %}
                         </div>
                     </div>
                 </div>
@@ -88,16 +80,11 @@
                 </div>
                 <div id="content-block-content">
                     {% ifequal work_list.count 0 %}
-                    {% if facet == 'recommended' %}
-                    Check back soon to see what we're recommending.
-                    {% else %}
+                    {% block noworks %}
                     There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
-					{% endif %}
+					{% endblock %}
                     {% else %}
-                        {% comment %}
-                        pagination commented out for now because it was causing huge db hits/pageload times. These sets have been limited in views.py to 20 on the theory that people only want to see the MOST popular works, and the other facets are unlikely to produce sets exceeding this anyway.
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}
-                        {% endcomment %}
                         {% for work in works_unglued %}
                         <div class="{% cycle 'row1' 'row2' %}">
                         {% with work.last_campaign_status as status %}
@@ -107,18 +94,13 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
-                        {% comment %}
                         <div class="pagination content-block-heading tabs-1">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
-                        {% endcomment %}
-    
-                        {% comment %}
                         {% lazy_paginate 20 works_active using "works_active" %}
-                        {% endcomment %}
                         {% for work in works_active %}
                         <div class="{% cycle 'row1' 'row2' %}">
                         {% with work.last_campaign_status as status %}
@@ -128,18 +110,14 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
-                        {% comment %}
                         <div class="pagination content-block-heading tabs-2">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#2" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
-                        {% endcomment %}
     
-                        {% comment %}
                         {% lazy_paginate 20 works_wished using "works_wished" %}
-                        {% endcomment %}
                         {% for work in works_wished %}
                         <div class="{% cycle 'row1' 'row2' %}">
                         {% with work.last_campaign_status as status %}
@@ -149,14 +127,12 @@
                         {% endwith %}{% endwith %}{% endwith %}
                         </div>
                         {% endfor %}
-                        {% comment %}
                         <div class="pagination content-block-heading tabs-3">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
-                        {% endcomment %}
                     {% endifequal %}
                 </div>
             </div>    
