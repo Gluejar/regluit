@@ -488,6 +488,17 @@ def merge_works(w1, w2, user=None):
         
     w2.delete()
 
+def despam_description(description):
+    """ a lot of descriptions from openlibrary have free-book promotion text; this removes some of it."""
+    if description.find("GeneralBooksClub.com")>-1 or description.find("AkashaPublishing.Com")>-1:
+        return ""
+    pieces=description.split("1stWorldLibrary.ORG -")
+    if len(pieces)>1:
+        return pieces[1]
+    pieces=description.split("a million books for free.")
+    if len(pieces)>1:
+        return pieces[1]
+    return description
 
 def add_openlibrary(work, hard_refresh = False):
     if (not hard_refresh) and work.openlibrary_lookup is not None:
@@ -541,6 +552,7 @@ def add_openlibrary(work, hard_refresh = False):
                             if isinstance(description,dict):
                                 if description.has_key('value'):
                                     description=description['value']
+                            description=despam_description(description)
                             if not work.description or work.description.startswith('{') or len(description) > len(work.description):
                                 work.description = description
                                 work.save()
@@ -710,3 +722,4 @@ def add_missing_isbn_to_editions(max_num=None, confirm=False):
 
 class LookupFailure(Exception):
     pass
+
