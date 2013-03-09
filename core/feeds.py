@@ -15,7 +15,7 @@ class SupporterWishlistFeed(Feed):
         return "Latest wishbooks for %s on unglue.it" % obj.username
         
     def link(self, obj):
-        return "/%s/feed/" % obj.username
+        return "/supporter/%s/feed/" % obj.username
 
     def item_title(self, item):
         return "%s" % item.title
