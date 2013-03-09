@@ -24,4 +24,4 @@ class SupporterWishlistFeed(Feed):
         return "/work/%s" % item.id
 
     def items(self, obj):
-        return obj.wishlist.works.all().order_by('-id')[:5]    
+        return obj.wishlist.works.all().order_by('-id')[:100]    
