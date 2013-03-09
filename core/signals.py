@@ -257,7 +257,7 @@ def handle_wishlist_added(supporter, work, **kwargs):
         notification.queue([claim[0].user], "new_wisher", {
             'supporter': supporter,
             'work': work,
-            'base_url': settings.BASE_URL,
+            'base_url': settings.BASE_URL_SECURE,
         }, True)
         
         from regluit.core.tasks import emit_notifications
@@ -277,13 +277,13 @@ def handle_wishlist_near_deadline(campaign, **kwargs):
     
     notification.queue(pledgers, "wishlist_near_deadline", {
             'campaign': campaign,
-            'domain': settings.BASE_URL,
+            'domain': settings.BASE_URL_SECURE,
             'pledged': True,
     }, True)
     
     notification.queue(nonpledgers, "wishlist_near_deadline", {
             'campaign': campaign,
-            'domain': settings.BASE_URL,
+            'domain': settings.BASE_URL_SECURE,
             'pledged': False,
     }, True)
 

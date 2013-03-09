@@ -912,7 +912,7 @@ class NonprofitCampaign(FormView):
         forward['amount']= int(amount)
         forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
         token=signing.dumps(forward)
-        return HttpResponseRedirect(settings.BASE_URL + reverse('donation_credit',kwargs={'token':token}))
+        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('donation_credit',kwargs={'token':token}))
 
 class DonationCredit(TemplateView):
     template_name="donation_credit.html"
@@ -2025,7 +2025,7 @@ def emailshare(request, action):
                 next = form.cleaned_data['next']
             except:
                 # if we totally failed to have a next value, we should still redirect somewhere useful
-                next = 'http://unglue.it'
+                next = 'https://unglue.it'
             return HttpResponseRedirect(next)
             
     else: 
@@ -2180,7 +2180,7 @@ def download(request, work_id):
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
         'readmill_epub_url': readmill_epub_url,
-        'base_url': settings.BASE_URL
+        'base_url': settings.BASE_URL_SECURE
     })
     
     return render(request, "download.html", context)
