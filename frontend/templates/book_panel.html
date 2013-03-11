@@ -14,143 +14,94 @@
     <div class="listview panelback side2">
     	{% comment %} hover state of panel {% endcomment %}
 		<div class="greenpanel2">
+        {% if last_campaign %}
+            {% comment %}top section: campaign info + optional action button. Varies by campaign status.{% endcomment %}
+            {% if status == 'SUCCESSFUL' %} 
+                <div class="greenpanel_top">
+                    {% comment %}bibliographic data{% endcomment %}
+                    <div class="white_text"> 
+                        <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                        <p>{{ author }}</p>
+                    </div>
+                    {% comment %}link to work page{% endcomment %}
+                    <div class="moreinfo">
+                            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                    </div>
+                    <div class="unglued_white">
+                        <b>UNGLUED!</b>
+                        <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
+                        <p><b>Raised:</b> {{ work.last_campaign.current_total|floatformat:0|intcomma }}</p>
+                    </div>                    
+                </div>
+                <div class="add_button">
+                    {% include "book_panel_addbutton.html" %}	
+                </div>		
+                <div class="white_text bottom_button" >
+               {% if first_ebook %}
+                    <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                {% else %}
+                    <span class="read_itbutton button_text"><span>Coming Soon</span></span>
+                {% endif %}
+                </div>
+            {% else %}{% if status == 'ACTIVE' %}
+                <div class="greenpanel_top">
+                    {% comment %}bibliographic data{% endcomment %}
+                    <div class="white_text"> 
+                        <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                        <p>{{ author }}</p>
+                    </div>
+                    {% comment %}link to work page{% endcomment %}
+                    <div class="moreinfo">
+                            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                    </div>
 
-        {% comment %}top section: campaign info + optional action button. Varies by campaign status.{% endcomment %}
-        {% if status == 'SUCCESSFUL' %} 
-			<div class="greenpanel_top">
-                {% comment %}bibliographic data{% endcomment %}
-                <div class="white_text"> 
-                    <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
-                    <p>{{ author }}</p>
+                    <div class="unglued_white">
+                        <b>UNGLUE IT!</b>
+                        <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
+                        <p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
+                        <p>by {{ deadline|naturalday:"M d, Y" }}</p>
+                    
+                    </div>                    
                 </div>
-                {% comment %}link to work page{% endcomment %}
-                <div class="moreinfo">
-                        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                <div class="add_button">
+                    {% include "book_panel_addbutton.html" %}	
+                </div>		
+                <div class="white_text bottom_button" >
+                {% if request.user.id in supporters %}
+                    <span class="read_itbutton button_text"><span>Pledged!</span></span>
+                {% else %}
+                    <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
+                {% endif %}
                 </div>
-				<div class="unglued_white">
-					<b>UNGLUED!</b>
-					<p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
-					<p><b>Raised:</b> {{ work.last_campaign.current_total|floatformat:0|intcomma }}</p>
-				</div>                    
- 			</div>
-            <div class="add_button">
-                {% include "book_panel_addbutton.html" %}	
-            </div>		
- 			<div class="white_text bottom_button" >
-           {% if first_ebook %}
-                <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+
             {% else %}
-                <span class="read_itbutton button_text"><span>Coming Soon</span></span>
-            {% endif %}
-            </div>
-		{% else %}{% if status == 'ACTIVE' %}
-			<div class="greenpanel_top">
-                {% comment %}bibliographic data{% endcomment %}
-                <div class="white_text"> 
-                    <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
-                    <p>{{ author }}</p>
+                <div class="greenpanel_top">
+                    {% comment %}bibliographic data{% endcomment %}
+                    <div class="white_text"> 
+                        <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                        <p>{{ author }}</p>
+                    </div>
+                    {% comment %}link to work page{% endcomment %}
+                    <div class="moreinfo">
+                            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                    </div>
+                    <div class="unglued_white">
+                        {% if status == 'INITIALIZED' %}
+                            <p>Campaign coming soon!</p>
+                        {% else %}{% if status == 'SUSPENDED' %}
+                            <p>This campaign has been suspended.</p><br /><p>See the <a href="{{faqurl}}">FAQ</a> for details.</p>
+                        {% else %}{% if status == 'WITHDRAWN' %}
+                            <p>This campaign has been withdrawn.</p><br /><p>See the <a href="{{faqurl}}">FAQ</a> for details.</p>
+                        {% else %}{% if status == 'UNSUCCESSFUL' %}
+                            <p>{{ deadline }}</p>
+                            <p>Watch for a new campaign.</p>
+                        {% endif %}{% endif %}{% endif %}{% endif %}
+                    </div>                    
                 </div>
-                {% comment %}link to work page{% endcomment %}
-                <div class="moreinfo">
-                        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
-                </div>
-
-				<div class="unglued_white">
-					<b>UNGLUE IT!</b>
-					<p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
-					<p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
-					<p>by {{ deadline|naturalday:"M d, Y" }}</p>
-					
-				</div>                    
-			</div>
-            <div class="add_button">
-                {% include "book_panel_addbutton.html" %}	
-            </div>		
-            <div class="white_text bottom_button" >
-            {% if request.user.id in supporters %}
-                <span class="read_itbutton button_text"><span>Pledged!</span></span>
-            {% else %}
-                <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
-            {% endif %}
-            </div>
-
-		{% else %}{% if status == 'INITIALIZED' %}
-			<div class="greenpanel_top">
-				<div class="unglued_white">
-					<p>Campaign coming soon!</p>
-				
-				</div>                    
-			</div>
-			{% comment %}link to work page{% endcomment %}
-			<div class="moreinfo">
-					<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
-			</div>
-
-			{% comment %}bibliographic data{% endcomment %}
-			<div class="white_text"> 
-				<p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
-				<p>{{ author }}</p>
-			</div>
-
-            {% include "book_panel_addbutton.html" %}			
-		{% else %}{% if status == 'SUSPENDED' %}
-			<div class="greenpanel_top">
-				<div class="unglued_white">
-					<p>This campaign has been suspended.</p><br /><p>See the <a href="{{faqurl}}">FAQ</a> for details.</p>
-					
-				</div>                    
-			</div>
-			{% comment %}link to work page{% endcomment %}
-			<div class="moreinfo">
-					<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
-			</div>
-
-			{% comment %}bibliographic data{% endcomment %}
-			<div class="white_text"> 
-				<p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
-				<p>{{ author }}</p>
-			</div>
-
-            {% include "book_panel_addbutton.html" %}			
-		{% else %}{% if status == 'WITHDRAWN' %}
-			<div class="greenpanel_top">
-				<div class="unglued_white">
-					<p>This campaign has been withdrawn.</p><br /><p>See the <a href="{{faqurl}}">FAQ</a> for details.</p>
-					
-				</div>                    
-			</div>
-			{% comment %}link to work page{% endcomment %}
-			<div class="moreinfo">
-					<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
-			</div>
-
-			{% comment %}bibliographic data{% endcomment %}
-			<div class="white_text"> 
-				<p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
-				<p>{{ author }}</p>
-			</div>
-
-            {% include "book_panel_addbutton.html" %}			
-		{% else %}{% if status == 'UNSUCCESSFUL' %}
-			<div class="greenpanel_top">
-				<div class="unglued_white">
-					<p>{{ deadline }}</p>
-					<p>Watch for a new campaign.</p>
-				
-				</div>                    
-			</div>
-			{% comment %}link to work page{% endcomment %}
-			<div class="moreinfo">
-					<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
-			</div>
-
-			{% comment %}bibliographic data{% endcomment %}
-			<div class="white_text"> 
-				<p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
-				<p>{{ author }}</p>
-			</div>
-
-            {% include "book_panel_addbutton.html" %}			
+                <div class="white_text bottom_button">
+                    {% include "book_panel_addbutton.html" %}	
+                </div>		
+            {% endif %}{% endif %}
 		{% else %}
 			<div class="greenpanel_top">
                 {% comment %}bibliographic data{% endcomment %}
@@ -182,7 +133,7 @@
                 {% endif %}                        
             </div>                    
 
-		{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+		{% endif %}
 				
 
 		</div>
