@@ -35,9 +35,7 @@
 <span id="content-block">
 {% if work %}
   {% with work.googlebooks_id as googlebooks_id %}
-  {% with work.last_campaign.status as status %}
   {% include "book_panel.html" %}
-{% endwith %}
 {% endwith %}
 {% else %}
         <p class="classname">No work corresponding to ISBN {{isbn}} available</p>
