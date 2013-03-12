@@ -92,7 +92,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("wishlist_successful", _("Successful Campaign"), _("An ungluing campaign that you have supported or followed has succeeded."))
     notification.create_notice_type("wishlist_unsuccessful", _("Unsuccessful Campaign"), _("An ungluing campaign that you supported didn't succeed this time."))
     notification.create_notice_type("wishlist_updated", _("Campaign Updated"), _("An ungluing campaign you support has been updated."), default = 1)
-    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("There's a message from unglue.it staff or the rights holder about a campaign on your wishlist."))
+    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("You have a private message from unglue.it staff or the rights holder about a campaign on your wishlist."))
     notification.create_notice_type("wishlist_price_drop", _("Campaign Price Drop"), _("An ungluing campaign you're interested in has a reduced target."), default = 1)
     notification.create_notice_type("wishlist_unglued_book_released", _("Unglued Book!"), _("A book you wanted is now available to be downloaded."))
     notification.create_notice_type("pledge_you_have_pledged", _("Thanks For Your Pledge!"), _("Your ungluing pledge has been entered."))

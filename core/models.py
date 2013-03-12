@@ -840,7 +840,7 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher = models.CharField(max_length=255, null=True, blank=True)
+    publisher = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     publication_date = models.CharField(max_length=50, null=True, blank=True)
     public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
