@@ -493,15 +493,17 @@ recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_U
 class WorkListView(FilterableListView):
     template_name = "work_list.html"
     context_object_name = "work_list"
+    max_works=100000
     
     def get_queryset_all(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.order_by('-num_wishes', 'id')
+            return models.Work.objects.exclude(num_wishes=0).order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
+            self.template_name = "recommended.html"
             return models.Work.objects.filter(wishlists__user=recommended_user).order_by('-num_wishes')
         elif (facet == 'new'):
-            return models.Work.objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
+            return models.Work.objects.exclude(num_wishes=0).order_by('-created', '-num_wishes' ,'id')
         else:
             return models.Work.objects.all().order_by('-created', 'id')
             
@@ -509,11 +511,11 @@ class WorkListView(FilterableListView):
             context = super(WorkListView, self).get_context_data(**kwargs)
             qs=self.get_queryset()
             context['ungluers'] = userlists.work_list_users(qs,5)
-            context['facet'] = self.kwargs['facet']
-            works_unglued = qs.filter(editions__ebooks__isnull=False).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
-            context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:20]
-            context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:20]
-            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:20]
+            context['facet'] = self.kwargs.get('facet','')
+            works_unglued = qs.exclude(editions__ebooks__isnull=True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
+            context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:self.max_works]
+            context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
+            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
             
             context['activetab'] = "#3"
             
@@ -525,6 +527,29 @@ class WorkListView(FilterableListView):
             
             return context
 
+class ByPubListView(WorkListView):
+    template_name = "bypub_list.html"
+    context_object_name = "work_list"
+    max_works=100000
+
+    def get_queryset_all(self):
+        facet = self.kwargs.get('facet','')
+        pubname = self.kwargs['pubname']
+        objects = models.Work.objects.filter(editions__publisher__iexact=pubname).distinct()
+        if (facet == 'popular'):
+            return objects.order_by('-num_wishes', 'id')
+        elif (facet == 'pubdate'):
+            return objects.order_by('-editions__publication_date') # turns out this messes up distinct, and MySQL doesn't support DISTINCT ON
+        elif (facet == 'new'):
+            return objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
+        else:
+            return objects.order_by('title', 'id')
+
+    def get_context_data(self, **kwargs):
+            context = super(ByPubListView, self).get_context_data(**kwargs)
+            context['pubname'] = self.kwargs['pubname']
+            return context
+
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
     context_object_name = "work_list"
@@ -533,8 +558,6 @@ class UngluedListView(FilterableListView):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
             return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
-        elif (facet == '' or facet == 'unglued'):
-            return models.Work.objects.filter(campaigns__status="SUCCESSFUL").distinct().order_by('-campaigns__deadline')
         elif (facet == 'cc' or facet == 'creativecommons'):
             # assumes all ebooks have a PD or CC license. compare rights_badge property
             return models.Work.objects.filter(
@@ -546,6 +569,9 @@ class UngluedListView(FilterableListView):
                                               editions__ebooks__isnull=False,
                                               editions__ebooks__rights__in=['PD-US', 'CC0', '']
                                              ).distinct().order_by('-num_wishes')
+        else :
+            #(facet == '' or facet == 'unglued' or facet is other)
+            return models.Work.objects.filter(campaigns__status="SUCCESSFUL").distinct().order_by('-campaigns__deadline')
 
     def get_context_data(self, **kwargs):
         context = super(UngluedListView, self).get_context_data(**kwargs)
@@ -2174,3 +2200,19 @@ def about(request, facet):
     template = "about_" + facet + ".html"
     return render(request, template)
 
+@login_required  
+@csrf_exempt    
+def ml_status(request):
+    return render(request, "ml_status.html")
+
+@require_POST
+@login_required      
+def ml_subscribe(request):
+    request.user.profile.ml_subscribe(double_optin=False,send_welcome=True, merge_vars = {"OPTIN_IP":request.META['REMOTE_ADDR'],"OPTIN_TIME":now().isoformat()})
+    return HttpResponseRedirect(reverse("notification_notice_settings"))
+
+@require_POST
+@login_required      
+def ml_unsubscribe(request):
+    request.user.profile.ml_unsubscribe()
+    return HttpResponseRedirect(reverse("notification_notice_settings"))

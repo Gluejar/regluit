@@ -4,7 +4,7 @@
 var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
-    $j("#js-page-wrap").on("click", "a.hijax", function(event) {
+    $j("#js-page-wrap, #footer").on("click", "a.hijax", function(event) {
         event.preventDefault();
 		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
 		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
@@ -24,9 +24,7 @@ $j(document).ready(function() {
 		}
 		
 		// fade-out rest of page elements on expand
-		$j('#feedback').css({"opacity": "0.07"});
-		$j('#js-page-wrap').css({"opacity": "0.07"});
-		$j('#footer').css({"opacity": "0.07"});
+		$j('#feedback, #js-page-wrap, #footer').css({"opacity": "0.07"});
 		$j('#about_expandable').css({'position': 'absolute'});
 		$j('#about_expandable').fadeTo("slow", 1);
 		
@@ -48,15 +46,8 @@ $j(document).ready(function() {
 	
 	// fade-in normal page elements on collapse
 	$j('#about_collapser').on("click", function(){
-		$j('#js-topsection').fadeTo("slow", 1);
-		$j('.launch_top').fadeTo("slow", 1);
-		$j('.preview').fadeTo("slow", 1);
-		$j('#main-container').fadeTo("slow", 1);
-		$j('#js-rightcol').fadeTo("slow", 1);
-		$j('#js-header').fadeTo("slow", 1);
+		$j('#js-topsection, .launch_top, .preview, #main-container, #js-rightcol, #js-header, #js-page-wrap, #footer, #feedback').fadeTo("slow", 1);
         $j('#js-header a').css({"cursor": "pointer"});
-		$j('#js-page-wrap').fadeTo("slow", 1);
-		$j('#footer').fadeTo("slow", 1);
 		$j('#about_expandable').css({"display": "none"});
 	});
 	
