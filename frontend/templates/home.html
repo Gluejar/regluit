@@ -15,7 +15,11 @@
 <script type="text/javascript">
 	jQuery(document).ready(function($) { 
         $('.listview').addClass("panelview").removeClass("listview");
-    });    
+    });  
+function put_un_in_cookie(){
+    $j.cookie('un', $j('#id_username_pop').val(), {path: '/'});
+    return true;
+}
 </script>    
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
@@ -41,7 +45,7 @@
                 	<h3 class="module-title">Start Ungluing Now!</h3>
                     <div class="jsmod-content">
                     {% if not request.user.is_authenticated %}
-                      <form action='{% url registration_register %}' method='post'>{% csrf_token %}
+                      <form action="{% url registration_register %}" method="post" onsubmit="return put_un_in_cookie();" >{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
                         <input id="id_username_pop" type="text" class="required" name="username" maxlength="30" size="30" />

@@ -1,13 +1,21 @@
 {% extends "registration/registration_base.html" %}
 
 {% block title %}Register for an account{% endblock %}
-
+{% block extra_js %}
+{{ block.super }}
+<script type="text/javascript">
+function put_un_in_cookie(){
+    $j.cookie('un', $j('#id_username').val(), {path: '/'});
+    return true;
+}
+</script>
+{% endblock %}
 {% block doccontent %}
 {% if not user.is_authenticated %}
 
 <h3>Sign up for a Unglue.it account:</h3>
 
-    <form method='post' action=''>{% csrf_token %}
+    <form method='post' action=''  onsubmit="return put_un_in_cookie();">{% csrf_token %}
         {{ form }}
         <input type="submit" value="Send activation email" />
     </form>

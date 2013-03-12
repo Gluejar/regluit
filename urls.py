@@ -1,11 +1,12 @@
 from django.conf.urls.defaults import *
 from frontend.forms import ProfileForm
+from frontend.views import superlogin
 from django.views.generic.simple import direct_to_template
 from regluit.admin import admin_site
 import notification.urls
 
 urlpatterns = patterns('',
-    url(r'^accounts/activate/complete/$','django.contrib.auth.views.login',
+    url(r'^accounts/activate/complete/$',superlogin,
           {'template_name': 'registration/activation_complete.html'}),
     (r'^accounts/edit/$', 'regluit.frontend.views.edit_user'),
     (r'^accounts/', include('registration.backends.default.urls')),
