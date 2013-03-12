@@ -342,7 +342,7 @@ $j(document).ready(function(){
                                                     {% endif %}
                                                 <div class="metadata" id="edition_{{edition.id}}">
                                                     {% if edition.publisher %}
-                                                        Publisher: {{edition.publisher}}<br />
+                                                        Publisher: <a href="{% url bypub_list edition.publisher %}">{{edition.publisher}}</a><br />
                                                     {% endif %}
                                                     {% if edition.publication_date %}
                                                         Published: {{ edition.publication_date }}<br />
