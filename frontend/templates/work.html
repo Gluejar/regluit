@@ -11,6 +11,7 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+
 {% endblock %}
 
 {% block extra_js %}
@@ -20,29 +21,6 @@
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
-
-<script>
-var $j = jQuery.noConflict();
-$j(document).ready(function(){
-    $j('.show_more_edition').click(function(){
-        if ($j(this).html() == 'less...') {
-        	$j(this).html('more...')
-        } else {
-        	$j(this).html('less...')
-        }
-        $j(this).next().toggle();
-    });
-});
-$j(document).ready(function(){
-	var img = $j('#book-detail-img');
-	var googimg = $j('#find-google img');
-    img.mouseover(function(){
-       googimg.css({"background": "#8dc63f"}).animate(
-           {backgroundColor: "white"}, 1500
-       );
-    });
-});
-</script>
 {% endblock %}
 
 {% block topsection %}
@@ -205,44 +183,67 @@ $j(document).ready(function(){
                                 <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
                                 <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
                                 <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
-                            </ul>     
+                            </ul>
                         </div>
+                
                         <div id="content-block-content">
                             <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                                 <div class="tabs-content">
                                     {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
-                                        {{ work.last_campaign.description|safe }}
+                                    {{ work.last_campaign.description|safe }}
                                     {% else %}
-                                        {% if status == 'SUSPENDED' %}
-                                            <div class="launch_top alert">
-                                                This campaign has been suspended.  See the <a href="{% url faq_location 'campaigns' %}">FAQ</a> for details.
-                                            </div>
-                                        {% else %}
-                                            {% if status == 'WITHDRAWN' %}
-                                                <div class="launch_top alert">
-                                                    This campaign has been withdrawn.  See the <a href="{% url faq_location 'campaigns' %}">FAQ</a> for details.
-                                                </div>
-                                            {% endif %}
-                                        {% endif %}
-                                        <h3 class="tabcontent-title">{{work.title}}</h3>
-                                        <p>{{ work.description|safe }}</p>
+                                    <h3 class="tabcontent-title">{{work.title}}</h3>
+                                    <p>{{ work.description|safe }}
                                     {% endif %}
+                                    </p>
                                 </div>
                             </div>
                             <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
                                 <h3>Why unglue this?  Have your say.</h3>
                                 <div class="tabs-content">
-                                    {% render_comment_list for work %}
-                                    {% if user.is_authenticated %}
-                                        {% render_comment_form for work %}
-                                    {% else %}
-                                        <p>You must be <a href="{% url auth_login %}?next={{ request.path }}">logged in</a> to comment.</p>
-                                    {% endif %}
+                                   {% render_comment_list for work %}
+                                   {% if user.is_authenticated %}
+                                       {% render_comment_form for work %}
+                                   {% else %}
+                                   <p>You must be <a href="{% url auth_login %}?next={{ request.path }}">logged in</a> to comment.</p>
+                                   {% endif %}
                                 </div>
                             </div>
                             <div id="tabs-3" class="tabs {% if activetab == '3' %}active{% endif %}">
                                 <div class="tabs-content">
-                                    {% for wish in work.wishes.all reversed %}
+                                    {% if request.user.is_staff or request.user in work.last_campaign.managers.all  %}
+                                        <form id="contact_form" method="POST" action="#" >
+                                        {% csrf_token %}
+                                        <input type="hidden" name="work" value="{{ work.id }}" />
+                                        {% for wish in work.wishes.all reversed %}
+                                        {% with wish.wishlist.user as supporter %}
+                                            <div class="work_supporter_wide">
+                                                <a href="{% url supporter supporter_username=supporter.username %}">
+                                                    <div class="work_supporter_avatar">
+                                                        {% if supporter.profile.pic_url %}
+                                                            <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                                        {% else %}
+                                                            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                                        {% endif %}
+                                                    </div>
+                                                </a>
+                                                <div class="show_supporter_contact_form" >
+                                                    <img src="/static/images/icons/email.png" title="contact supporter" />
+                                                </div>
+                                                <div class="info_for_managers">
+                                                    {{ supporter }}<br />
+                                                    Wished: {{ wish.created }}<br />
+                                                    {% if supporter.id in work.last_campaign.supporters %}Pledged!</br />{% endif %}
+                                                    {% if supporter in work.last_campaign.ungluers.all %}Supported!</br />{% endif %}
+                                                </div>
+                                            </div>
+                                            <div class="supporter_contact_form" ></div>
+                                            <input class="supporter_contact_form" type="submit" name="msg_{{supporter.id}}" value="Send Message to {{ supporter.username }}" />
+                                        {% endwith %}
+                                        {% endfor %}
+                                        </form>
+                                    {% else %}
+                                        {% for wish in work.wishes.all reversed %}
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_nocomment">
                                                 <a href="{% url supporter supporter_username=supporter.username %}">
@@ -257,57 +258,58 @@ $j(document).ready(function(){
                                                 </a>
                                             </div>
                                         {% endwith %}
-                                    {% endfor %}
+                                        {% endfor %}
+                                    {% endif %}
                                 </div>
                             </div>
                             <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
                                 <div class="tabs-content">
                                     {% if status == 'ACTIVE' %}
                                         <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
-                                        <p>The rights holder, 
-                                        {% for claim in work.claim.all %}
-                                        {% if claim.status == 'active' %}
+                                        <p>The rights holder, {% for claim in work.claim.all %}
+                                            {% if claim.status == 'active' %}
                                             {{ claim.rights_holder.rights_holder_name }}
-                                        {% endif %} 
+                                            {% endif %} 
                                         {% endfor %}
                                         , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
                                         You can help!</p>
-                                    
+                
                                         <h4>Campaign details: the fine print</h4>
                                         {{ work.last_campaign.details|safe }}
-                                    {% else %}
-                                        {% if status == 'SUCCESSFUL' %}
-                                            <h3 class="tabcontent-title">A campaign has succeeded to unglue <i>{{work.title}}</i>!</h3>
-                                            <p>The rights holder, {% for claim in work.claim.all %}
-                                                {% if claim.status == 'active' %}
-                                                    {{ claim.rights_holder.rights_holder_name }}
-                                                {% endif %} 
-                                            {% endfor %}
-                                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) thanks to the efforts of ungluers like you.</p>
-                                            <h4>Campaign details: the fine print</h4>
-                                            {{ work.last_campaign.details|safe }}
+                                    {% endif %}
+                                    
+                                    {% if status == 'SUCCESSFUL' %}
+                                        <h3 class="tabcontent-title">A campaign has succeeded to unglue <i>{{work.title}}</i>!</h3>
+                                        <p>The rights holder, {% for claim in work.claim.all %}
+                                            {% if claim.status == 'active' %}
+                                            {{ claim.rights_holder.rights_holder_name }}
+                                            {% endif %} 
+                                        {% endfor %}
+                                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) thanks to the efforts of ungluers like you.</p>
+                                        <h4>Campaign details: the fine print</h4>
+                                        {{ work.last_campaign.details|safe }}
+                                    {% endif %}
+                                    {% if status != 'ACTIVE' and status != 'SUCCESSFUL' %}
+                                        <h4> Rights Information </h4>
+                                        {% if claimstatus == 'one_active' %}
+                                          <p>This work has been claimed by {{ rights_holder_name }}.</p>
                                         {% else %}
-                                            <h4> Rights Information </h4>
-                                            {% if claimstatus == 'one_active' %}
-                                                <p>This work has been claimed by {{ rights_holder_name }}.</p>
+                                            {% if claimstatus == 'disputed' %}
+                                                <p>Rights claims are pending.</p>
                                             {% else %}
-                                                {% if claimstatus == 'disputed' %}
-                                                    <p>Rights claims are pending.</p>
+                                                {% if claimstatus == 'one_pending' %}
+                                                    <p>A claim for this work by {{ rights_holder_name }} is pending.</p>                              
                                                 {% else %}
-                                                    {% if claimstatus == 'one_pending' %}
-                                                        <p>A claim for this work by {{ rights_holder_name }} is pending.</p>                              
-                                                    {% else %}
-                                                        {% if request.user.rights_holder.all.count %}
-                                                            Is this work yours?  Claim it: <br /><br />
-                                                        
-                                                            <form method="GET" action="{% url claim %}">
+                                                    {% if request.user.rights_holder.all.count %}
+                                                        Is this work yours?  Claim it: <br /><br />
+                                        
+                                                        <form method="GET" action="{% url claim %}">
                                                             {% csrf_token %}
                                                             {{ claimform.user }}
                                                             {{ claimform.work }}
                                                             {{ claimform.rights_holder }}
-                                                            <input type="submit" name="submit" value="Claim">
-                                                            </form><br />
-                                                        {% endif %}
+                                                            <input type="submit" name="submit" value="Claim" />
+                                                         </form><br />
                                                     {% endif %}
                                                 {% endif %}
                                             {% endif %}
@@ -401,7 +403,7 @@ $j(document).ready(function(){
                                 </div>
                             </div>
                         </div>
-                        </div>    
+                    </div>    
                 </div>
             </div>
             <div id="js-rightcol">
