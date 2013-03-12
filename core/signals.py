@@ -114,10 +114,12 @@ from django.contrib.comments.signals import comment_was_posted
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
     other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user.id)
-    other_wishers = comment.content_object.wished_by().exclude(id=comment.user.id).exclude(id__in=other_commenters)
+    all_wishers = comment.content_object.wished_by().exclude(id=comment.user.id)
+    other_wishers = all_wishers.exclude(id__in=other_commenters)
+    domain = Site.objects.get_current().domain
     if comment.content_object.last_campaign() and comment.user in comment.content_object.last_campaign().managers.all():
         #official
-        notification.send(other_wishers, "wishlist_official_comment", {'comment':comment}, True, sender=comment.user)
+        notification.queue(all_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain}, True)
     else:
         notification.send(other_commenters, "comment_on_commented", {'comment':comment}, True, sender=comment.user)
         notification.send(other_wishers, "wishlist_comment", {'comment':comment}, True, sender=comment.user)
