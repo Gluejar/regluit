@@ -17,9 +17,16 @@
 					<span>Pledged!</span>
 				</div>
 			{% else %}{% ifequal supporter request.user %}
-				<div class="moreinfo remove-wishlist">
-					<span id="p{{ workid }}">Un-wishlist</span>
-				</div>
+				{% if wishlist %}
+                    <div class="moreinfo remove-wishlist">
+                        <span id="p{{ workid }}">Un-wishlist</span>
+                    </div>
+				{% else %}
+				    {% comment %} on the empty-wishlist slideshow {% endcomment %}
+                    <div class="moreinfo add-wishlist">
+                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Wishlist</span>
+                    </div>
+				{% endif %}
 			{% else %}{% if work in wishlist %}
 				<div class="moreinfo on-wishlist">
 				 <a href="#">On Wishlist!</a>
