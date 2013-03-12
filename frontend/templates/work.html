@@ -117,7 +117,7 @@ $j(document).ready(function(){
                                             {% if work.last_campaign.supporters_count == 1 %}
                                                 <span>1</span> ungluer
                                             {% else %}
-                                                <span>                                            {{ work.last_campaign.supporters_count }}</span> ungluers
+                                                <span>{{ work.last_campaign.supporters_count }}</span> ungluers
                                             {% endif %}                                    
                                         </div>
                                         <div class="campaign-status-info">
@@ -134,7 +134,7 @@ $j(document).ready(function(){
                                                 {% if work.last_campaign.supporters_count == 1 %}
                                                     <span>1</span> ungluer
                                                 {% else %}
-                                                    <span>                                            {{ work.last_campaign.supporters_count }}</span> ungluers
+                                                    <span>{{ work.last_campaign.supporters_count }}</span> ungluers
                                                 {% endif %}                                    
                                             </div>
                                             <div class="campaign-status-info">
@@ -178,17 +178,23 @@ $j(document).ready(function(){
                                     </div>
                                 </div>
                                 <div class="btn_wishlist" id="wishlist_actions">
-                                    {% if request.user.id in work.last_campaign.supporters %}
+                                    {% if request.user.is_anonymous %}
+                                        <div class="create-account">
+                                            <span title="{% url work work_id %}">Login to Add</span>
+                                        </div>
+                                    {% else %}{% if request.user.id in work.last_campaign.supporters %}
                                         <div class="add-wishlist">
                                             <span class="on-wishlist">On your wishlist!</span>
                                         </div>
+                                    {% else %}{% if work in request.user.wishlist.works.all %}
+                                        <div class="remove-wishlist-workpage">
+                                            <span id="w{{ work_id }}">Remove from Wishlist</span>
+                                        </div>
                                     {% else %}
-                                        {% if work in request.user.wishlist.works.all %}
-                                            <div class="remove-wishlist-workpage">
-                                                <span id="w{{ work_id }}">Remove from Wishlist</span>
-                                            </div>
-                                        {% endif %}
-                                    {% endif %}
+                                        <div class="add-wishlist">
+                                            <span class="work_id" id="w{{ work_id }}">Add to Wishlist</span>
+                                        </div>
+                                    {% endif %}{% endif %}{% endif %}
                                 </div>
                             </div>
                         </div>
@@ -405,34 +411,12 @@ $j(document).ready(function(){
                             <div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                         {% else %}
                             <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
-                            {% if work not in request.user.wishlist.works.all %}
-                                <div class="add-wishlist">
-                                    <span class="work_id" id="w{{ work_id }}">Or, add to wishlist</span>
-                                </div>
-                            {% endif %}
                         {% endif %}
                     {% else %}
                         {% if work.first_ebook %}
                             <div class="btn_support">
                             <a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
                             </div>
-                            {% if work not in request.user.wishlist.works.all %}
-                                <div class="add-wishlist">
-                                    <span class="work_id" id="w{{ work_id }}">Add to Wishlist</span>
-                                </div>
-                            {% endif %}
-                        {% else %}
-                            {% if request.user.is_anonymous %}
-                                <div class="btn_support create-account">
-                                    <span title="{% url work work_id %}"><a class="fakeinput">Login to Add</a></span>
-                                </div>
-                            {% else %}
-                                {% if work not in request.user.wishlist.works.all %}
-                                    <div class="btn_support add-wishlist">
-                                        <a class="fakeinput"><span class="work_id" id="w{{ work_id }}">Add to Wishlist</span></a>
-                                    </div>
-                                {% endif %}
-                            {% endif %}
                         {% endif %}
                     {% endif %}
                 </div>
