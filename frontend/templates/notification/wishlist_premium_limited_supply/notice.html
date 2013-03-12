@@ -15,5 +15,5 @@
 	Premium: {{ premium.description }}
 	Minimum pledge: {{ premium.amount|intcomma }}
 	
-	If you'd like to claim the last one, pledge here: https://{{ site.domain }}{% url pledge work_id=campaign.work.id %}
+	If you'd like to claim the last one, pledge here: https://{{ current_site.domain }}{% url pledge work_id=campaign.work.id %}
 {% endblock %}

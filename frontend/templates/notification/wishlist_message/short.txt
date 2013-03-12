@@ -1,1 +1,1 @@
-blurb for {{campaign.work.title}}
+Message from {{ sender }} about {{work.title}}, on your Unglue.it wishlist
