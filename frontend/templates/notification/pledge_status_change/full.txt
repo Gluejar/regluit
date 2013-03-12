@@ -11,7 +11,7 @@ Your new pledge summary
 {% endif %}
 
 If you'd like to visit the campaign page or make changes, click here: 
-https://{{site.domain}}{% url work transaction.campaign.work.id %}
+https://{{current_site.domain}}{% url work transaction.campaign.work.id %}
 
 Thank you again for your support.
 
