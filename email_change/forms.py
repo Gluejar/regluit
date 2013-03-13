@@ -26,6 +26,7 @@
 
 from django import forms
 from django.db.models.loading import cache
+from django.utils.translation import ugettext_lazy as _
 
 
 class EmailChangeForm(forms.Form):
@@ -56,10 +57,15 @@ class EmailChangeForm(forms.Form):
         
         # Check if the new email address differs from the current email address.
         if user.email == email:
-            raise forms.ValidationError('New email address cannot be the same \
-                as your current email address')
-        
+            raise forms.ValidationError(_("Your email is already ")+ email)
+
+        users = User.objects.exclude(id=user.id).filter(email__iexact=email)
+        for user in users:
+            raise forms.ValidationError(_("Another user with that email already exists."))
+       
         return email
 
+    oldemail = None
+    
 
 
