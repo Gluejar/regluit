@@ -73,6 +73,7 @@ def email_change_view(request, extra_context={},
                 verification_key = verification_key,
                 email = email
                 )
+            old_email=user.email
             
             # Prepare context
             c = {
@@ -90,7 +91,7 @@ def email_change_view(request, extra_context={},
             subject = render_to_string(email_subject_template_name, context_instance=context)
             message = render_to_string(email_message_template_name, context_instance=context)
             
-            send_mail(subject, message, None, [email])
+            send_mail(subject, message, None, [email,old_email])
             
             # Redirect
             return redirect(success_url)
