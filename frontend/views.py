@@ -1190,7 +1190,7 @@ class PledgeCancelView(FormView):
                 # send a notice out that the transaction has been canceled -- leverage the pledge_modify notice for now
                 # BUGBUG:  should have a pledge cancel notice actually since I think it's different
                 from regluit.payment.signals import pledge_modified
-                pledge_modified.queue(sender=self, transaction=transaction, up_or_down="canceled")
+                pledge_modified.send(sender=self, transaction=transaction, up_or_down="canceled")
                 logger.info("pledge_modified notice for cancellation: sender {0}, transaction {1}".format(self, transaction))
                 return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
             else:
