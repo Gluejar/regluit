@@ -12,19 +12,14 @@
     <input type="submit" name="change_username" value="Change username" id="submit_username">
 </form>
 </div>
-<div>
-<h2>Changing Your Email</h2>
-<p> <b>Your current email:</b> {{ user.email }}</p>
-<form method="POST" action="#">
-    {% csrf_token %}
-    {{ emailform.as_p }}
-    <input type="submit" name="change_email" value="Change email" id="submit_email">
-</form>
-</div>
+
 <div>
 <h2>Other Account Tools</h2>
 <p>Want to <a href="{% url auth_password_change %}">change your password</a>?</p>
-<p>... or <a href="{% url manage_account %}">manage your pledges and payment info</a>?</div>
+<p>... or <a href="{% url manage_account %}">manage your pledges and payment info</a>?</p>
+<p>... or <a href="{% url email_change %}">change your email address</a>?</p>
+<p>... or <a href="{% url notification_notice_settings %}">manage your contact preferences</a>?</p>
+</div>
 {% endblock %}
 
 

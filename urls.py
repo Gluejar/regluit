@@ -15,6 +15,7 @@ urlpatterns = patterns('',
         {'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
         }), 
+    url('accounts/', include('email_change.urls')),
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
     (r'', include('regluit.payment.urls')),
@@ -22,5 +23,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin_site.urls)), 
     (r'^comments/', include('django.contrib.comments.urls')),
     (r'^notification/', include(notification.urls)),
+
     (r'^ckeditor/', include('ckeditor.urls')),
 )

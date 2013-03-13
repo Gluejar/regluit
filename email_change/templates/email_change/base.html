@@ -1,0 +1,15 @@
+{% extends "registration/registration_base.html" %}
+
+
+
+{% block doccontent %}
+{% block ce_content %}{% endblock %}
+
+<div>
+<h2>Other Account Tools</h2>
+<p>Want to <a href="{% url auth_password_change %}">change your password</a>?</p>
+<p>... or <a href="{% url manage_account %}">manage your pledges and payment info</a>?</p>
+<p>... or <a href="{{editurl}}"">change your username</a>?</p>
+<p>... or <a href="{% url notification_notice_settings %}">manage your contact preferences</a>?</p>
+</div>
+{% endblock %}

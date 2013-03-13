@@ -1,0 +1,17 @@
+{% load i18n %}{% autoescape off %}
+{% trans "Hi" %} {% firstof user.get_full_name user.username %},
+
+{% blocktrans %}A request to change the email address of your account has been made at {{ site_name }}.{% endblocktrans %}
+
+{% blocktrans %}Before changing your current email address, verification of your new email address is required.{% endblocktrans %}
+
+{% blocktrans %}To complete the email change, please visit the following URL, either by clicking on it or by copying and pasting it in your browser:{% endblocktrans %}
+
+{{ protocol }}://{{ site_domain }}{% url email_verify verification_key %}
+
+{% blocktrans %}You will only need to visit this URL once.{% endblocktrans %}
+
+{% trans "Thank you" %}
+--
+{% blocktrans %}The Team at {{ site_name }}{% endblocktrans %}
+{% endautoescape %}
