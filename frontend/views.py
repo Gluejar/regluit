@@ -43,13 +43,16 @@ from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
+from regluit.core import goodreads
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.bookloader import merge_works
+from regluit.core.signals import supporter_message
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
+from regluit.frontend.forms import MsgForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -57,7 +60,6 @@ from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_ST
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
 from regluit.payment.credit import credit_transaction
-from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction, Sent, CreditLog
 from notification import models as notification
@@ -141,7 +143,6 @@ def work(request, work_id, action='display'):
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
-        alert=''
         try:
             activetab = request.GET['tab']
             if activetab not in ['1', '2', '3', '4']:
@@ -149,7 +150,7 @@ def work(request, work_id, action='display'):
         except:
             activetab = '1';
             
-    context = {}
+    alert=''
     campaign = work.last_campaign()
     if campaign and campaign.edition and not request.user.is_staff:
         editions = [campaign.edition]
@@ -159,8 +160,7 @@ def work(request, work_id, action='display'):
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
-        
-    logger.info("pledged: {0}".format(pledged))
+
     countdown = ""
     
     try:
@@ -1600,12 +1600,14 @@ def wishlist(request):
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
             request.user.wishlist.add_work(edition.work,'user', notify=True)
+            return HttpResponse('added googlebooks id')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+            return HttpResponse('error addin googlebooks id')
         except Exception, e:
             logger.warning("Error in wishlist adding %s" % (e))          
+            return HttpResponse('error adding googlebooks id')
         # TODO: redirect to work page, when it exists
-        return HttpResponseRedirect('/')
     elif remove_work_id:
         try:
             work = models.Work.objects.get(id=int(remove_work_id))
@@ -1615,8 +1617,7 @@ def wishlist(request):
             except models.WasWork.DoesNotExist:
                 raise Http404
         request.user.wishlist.remove_work(work)
-        # TODO: where to redirect?
-        return HttpResponseRedirect('/')
+        return HttpResponse('removed work from wishlist')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
         try:
@@ -1628,7 +1629,7 @@ def wishlist(request):
                 raise Http404
 
         request.user.wishlist.add_work(work,'user', notify=True)
-        return HttpResponseRedirect('/')
+        return HttpResponse('added work to wishlist')
   
 class InfoPageView(TemplateView):
     
@@ -1911,7 +1912,21 @@ def clear_wishlist(request):
     except Exception, e:
         return HttpResponse("Error in clearing wishlist: %s " % (e))
         logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
-    
+
+@require_POST
+@login_required      
+def msg(request):
+    form = MsgForm(data=request.POST)
+    if form.is_valid():
+        if not request.user.is_staff and request.user not in form.cleaned_data['work'].last_campaign().managers.all():
+            logger.warning("unauthorized attempt to send message by %s for %s"% (request.user,form.cleaned_data['work']))
+            raise Http404
+        supporter_message.send(sender=request.user,msg=form.cleaned_data["msg"], work=form.cleaned_data["work"],supporter=form.cleaned_data["supporter"])
+        return HttpResponse("message sent")
+    else:
+        logger.info("Invalid form for user %s", request.user)
+        raise Http404
+   
 
 class LibraryThingView(FormView):
     template_name="librarything.html"

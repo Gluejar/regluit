@@ -16,7 +16,7 @@
         However, our attempt to charge your credit card for ${{ transaction.amount|intcomma }} failed.</p>
         
         <p>Don't worry - normally this just means the card we have on file for you is expired.  Once you've updated your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at
-        https://{{ site.domain }}{% url manage_account %} by {{ recharge_deadline }} so that you can fulfill your pledge.  Thank you!</p>
+        https://{{ current_site.domain }}{% url manage_account %} by {{ recharge_deadline }} so that you can fulfill your pledge.  Thank you!</p>
 		
 		<p><b>Pledge Summary</b><br />
 		Amount pledged: {{ transaction.amount|intcomma }}<br />

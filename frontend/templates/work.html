@@ -11,6 +11,7 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign.css"  />
+
 {% endblock %}
 
 {% block extra_js %}
@@ -20,29 +21,6 @@
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
-
-<script>
-var $j = jQuery.noConflict();
-$j(document).ready(function(){
-    $j('.show_more_edition').click(function(){
-        if ($j(this).html() == 'less...') {
-        	$j(this).html('more...')
-        } else {
-        	$j(this).html('less...')
-        }
-        $j(this).next().toggle();
-    });
-});
-$j(document).ready(function(){
-	var img = $j('#book-detail-img');
-	var googimg = $j('#find-google img');
-    img.mouseover(function(){
-       googimg.css({"background": "#8dc63f"}).animate(
-           {backgroundColor: "white"}, 1500
-       );
-    });
-});
-</script>
 {% endblock %}
 
 {% block topsection %}
@@ -270,22 +248,55 @@ $j(document).ready(function(){
                     </div>
                     <div id="tabs-3" class="tabs {% if activetab == '3' %}active{% endif %}">
                     <div class="tabs-content">
-                        {% for wish in work.wishes.all reversed %}
-                        {% with wish.wishlist.user as supporter %}
-                        	<div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
-                        		<a itemprop="url" href="{% url supporter supporter_username=supporter.username %}">
-                              		<div class="work_supporter_avatar">
-                                		{% if supporter.profile.pic_url %}
-                                    		<img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                                    	{% else %}
-                                    		<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                    	{% endif %}
-                            		</div>
-                              		<div class="work_supporter_name">{{ supporter }}</div>
-                        		</a>
-                          	</div>
-                          {% endwith %}
-                        {% endfor %}
+                        {% if request.user.is_staff or request.user in work.last_campaign.managers.all  %}
+                            <form id="contact_form" method="POST" action="#" >
+                            {% csrf_token %}
+                            <input type="hidden" name="work" value="{{ work.id }}" />
+                            {% for wish in work.wishes.all reversed %}
+                            {% with wish.wishlist.user as supporter %}
+                                <div class="work_supporter_wide">
+                                    <a href="{% url supporter supporter_username=supporter.username %}">
+                                        <div class="work_supporter_avatar">
+                                            {% if supporter.profile.pic_url %}
+                                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                            {% else %}
+                                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                            {% endif %}
+                                        </div>
+                                    </a>
+                                    <div class="show_supporter_contact_form" >
+                                        <img src="/static/images/icons/email.png" title="contact supporter" />
+                                    </div>
+                                    <div class="info_for_managers">
+                                        {{ supporter }}<br />
+                                        Wished: {{ wish.created }}<br />
+                                        {% if supporter.id in work.last_campaign.supporters %}Pledged!</br />{% endif %}
+                                        {% if supporter in work.last_campaign.ungluers.all %}Supported!</br />{% endif %}
+                                    </div>
+                                </div>
+                                <div class="supporter_contact_form" ></div>
+                                <input class="supporter_contact_form" type="submit" name="msg_{{supporter.id}}" value="Send Message to {{ supporter.username }}" />
+                            {% endwith %}
+                            {% endfor %}
+                            </form>
+                        {% else %}
+                            {% for wish in work.wishes.all reversed %}
+                            {% with wish.wishlist.user as supporter %}
+                                <div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
+                                    <a itemprop="url" href="{% url supporter supporter_username=supporter.username %}">
+                                        <div class="work_supporter_avatar">
+                                            {% if supporter.profile.pic_url %}
+                                                <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
+                                            {% else %}
+                                                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+                                            {% endif %}
+                                        </div>
+                                        <div class="work_supporter_name">{{ supporter }}</div>
+                                    </a>
+                                </div>
+                            {% endwith %}
+                            {% endfor %}
+                        {% endif %}
                     </div>
                     </div>
                     <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
@@ -334,7 +345,7 @@ $j(document).ready(function(){
                                         {{ claimform.user }}
                                         {{ claimform.work }}
                                         {{ claimform.rights_holder }}
-                                        <input type="submit" name="submit" value="Claim">
+                                        <input type="submit" name="submit" value="Claim" />
                                      </form><br />
                                   {% endif %}
                                 {% endif %}

@@ -372,7 +372,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'site': Site.objects.get_current()}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self}, True)
         return self
 
 
@@ -410,9 +410,13 @@ class Campaign(models.Model):
         return self
        
     def supporters(self):
+        # expensive query used in loop; stash it
+        if hasattr(self, '_translist_'):
+            return self._translist_
+
         """nb: returns (distinct) supporter IDs, not supporter objects"""
-        translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
-        return translist
+        self._translist_ = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
+        return self._translist_
         
     @property
     def supporters_count(self):
@@ -439,8 +443,11 @@ class Campaign(models.Model):
                     return None
         else:
             return None   
-
+    
     def ungluers(self):
+        # expensive query used in loop; stash it
+        if hasattr(self, '_ungluers_'):
+            return self._ungluers_
         p = PaymentManager()
         ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
         if self.status == "ACTIVE":
@@ -459,6 +466,7 @@ class Campaign(models.Model):
                 elif transaction.amount >= Premium.TIERS["supporter"]:
                     ungluers['supporters'].append(transaction.user)
         
+        self._ungluers_= ungluers
         return ungluers
 
     def ungluer_transactions(self):

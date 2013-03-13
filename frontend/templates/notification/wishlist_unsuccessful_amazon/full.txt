@@ -1,4 +1,4 @@
-Amazon Payments has informed us that they will no longer process pledge payments for new crowdfunding companies, including Unglue.it.  Therefore the campaign to unglue {{ campaign.work.title }} (https://{{site.domain}}{% url work campaign.work.id %}) has been closed.
+Amazon Payments has informed us that they will no longer process pledge payments for new crowdfunding companies, including Unglue.it.  Therefore the campaign to unglue {{ campaign.work.title }} (https://{{current_site.domain}}{% url work campaign.work.id %}) has been closed.
 
 If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 

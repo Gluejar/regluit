@@ -31,7 +31,7 @@ class WishlistTests(TestCase):
         # add a book to the wishlist
         r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
         wished= self.user.wishlist.works.all()[0]
         # test the work page
@@ -138,7 +138,7 @@ class PledgingUiTests(TestCase):
         # load a Work by putting it on the User's wishlist
         r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
-        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
         wished= self.user.wishlist.works.all()[0]
         # test the work page
