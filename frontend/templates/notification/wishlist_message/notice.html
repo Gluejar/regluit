@@ -1,5 +1,19 @@
 {% extends "notification/notice_template.html" %}
-
-			{% comment %}
-			Should possibly say something.
-			{% endcomment %}
+{% block comments_book %}
+    <a href="{% url work work.id %}">
+        <img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" />
+    </a>
+{% endblock %}
+{% block comments_graphical %}
+    <a href="{% url supporter sender %}">
+        {% if sender.profile.pic_url %}
+            <img class="user-avatar" src="{{ sender.profile.pic_url }}" height="50" width="50" alt="Picture of {{ sender }}" title="{{ sender }}" />
+        {% else %}
+            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
+        {% endif %}
+    </a>
+    <span>Message from <a href="{% url supporter sender %}">{{ sender.username }}</a> {% if sender.is_staff %} (Unglue.it staff) {% endif %} on <a href="{% url work work.id %}">{{ work.title }}</a></span>
+{% endblock %}
+{% block comments_textual %}
+    {{ msg }}
+{% endblock %}

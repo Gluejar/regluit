@@ -453,3 +453,24 @@ class AuthForm(AuthenticationForm):
             super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
         else:
             super(AuthForm, self).__init__(*args, **kwargs)
+
+class MsgForm(forms.Form):
+    msg = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})
+
+    def full_clean(self):
+        super(MsgForm,self).full_clean()
+        if self.data.has_key("supporter"):
+            try:
+                self.cleaned_data['supporter'] = User.objects.get(id=self.data["supporter"])
+            except User.DoesNotExist:
+                raise ValidationError("Supporter does not exist")
+        else:
+            raise ValidationError("Supporter is not specified")
+        if self.data.has_key("work"):
+            try:
+                self.cleaned_data['work'] = Work.objects.get(id=self.data["work"])
+            except Work.DoesNotExist:
+                raise ValidationError("Work does not exist")
+        else:
+            raise ValidationError("Work is not specified")
+

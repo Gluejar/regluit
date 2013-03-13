@@ -287,6 +287,8 @@ NOTIFY_ENDING_SOON_JOB = {
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
+# set notification queueing on
+NOTIFICATION_QUEUE_ALL = True
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'stripelib'
 
