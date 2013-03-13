@@ -46,7 +46,7 @@ from regluit.core import userlists
 from regluit.core.search import gluejar_search
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.bookloader import merge_works
-from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
@@ -1521,7 +1521,6 @@ def edit_user(request):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('superlogin'))    
     form=UserData()
-    emailform = UserEmail()
     if request.method == 'POST': 
         if 'change_username' in request.POST.keys():
             form = UserData(request.POST)
@@ -1530,20 +1529,7 @@ def edit_user(request):
                 request.user.username=form.cleaned_data['username']
                 request.user.save()
                 return HttpResponseRedirect(reverse('home')) # Redirect after POST
-        elif 'change_email'  in request.POST.keys():
-            emailform = UserEmail(request.POST)
-            emailform.oldemail = request.user.email
-            if emailform.is_valid():
-                request.user.email=emailform.cleaned_data['email']
-                request.user.save()
-                send_mail_task.delay(
-                    'unglue.it email changed', 
-                    render_to_string('registration/email_changed.txt',{'oldemail':emailform.oldemail,'request':request}),
-                    None,
-                    [request.user.email,emailform.oldemail]
-                    )
-                return HttpResponseRedirect(reverse('home')) # Redirect after POST
-    return render(request,'registration/user_change_form.html', {'form': form,'emailform': emailform})  
+    return render(request,'registration/user_change_form.html', {'form': form})  
 
 class ManageAccount(FormView):
     template_name="manage_account.html"
