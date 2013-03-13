@@ -15,10 +15,12 @@
 
 <div>
 <h2>Other Account Tools</h2>
-<p>Want to <a href="{% url auth_password_change %}">change your password</a>?</p>
-<p>... or <a href="{% url manage_account %}">manage your pledges and payment info</a>?</p>
-<p>... or <a href="{% url email_change %}">change your email address</a>?</p>
-<p>... or <a href="{% url notification_notice_settings %}">manage your contact preferences</a>?</p>
+<ul>
+<li>Want to <a href="{% url auth_password_change %}">change your password</a>?</li>
+<li>... or <a href="{% url manage_account %}">manage your pledges and payment info</a>?</li>
+<li>... or <a href="{% url email_change %}">change your email address</a>?</li>
+<li>... or <a href="{% url notification_notice_settings %}">manage your contact preferences</a>?</li>
+</ul>
 </div>
 {% endblock %}
 
