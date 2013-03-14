@@ -1,6 +1,11 @@
 import re
 import random
 import logging
+import urllib
+import hashlib
+ 
+        
+
 from regluit.utils.localdatetime import now, date_today
 from regluit.utils import crypto
 from datetime import timedelta
@@ -1043,12 +1048,17 @@ class UserProfile(models.Model):
     facebook_id =  models.PositiveIntegerField(null=True)
     librarything_id =  models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders')
-    
+
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
+    
+    NOAVATAR = 0, GRAVITAR = 1, TWITTER = 2, FACEBOOK = 3
+    
+    pic_source = models.PositiveSmallIntegerField(null = True, 
+            choices=((NOAVATAR,'No Avatar, Please'),(GRAVITAR,'Gravitar'),(TWITTER,'Twitter'),(FACEBOOK.'Facebook')))
     
     def reset_pledge_badge(self):    
         #count user pledges  
@@ -1140,7 +1150,12 @@ class UserProfile(models.Model):
         except Exception, e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))
         return False
-       
+    
+    def gravatar(self):
+        # construct the url
+        gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
+        gravatar_url += urllib.urlencode({'d':'mm', 's':'50'})
+
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
