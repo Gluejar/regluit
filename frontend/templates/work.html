@@ -255,7 +255,7 @@
                             {% for wish in work.wishes.all reversed %}
                             {% with wish.wishlist.user as supporter %}
                                 <div class="work_supporter_wide">
-                                    <a href="{% url supporter supporter_username=supporter.username %}">
+                                    <a href="{% url supporter supporter %}">
                                         <div class="work_supporter_avatar">
                                             {% if supporter.profile.pic_url %}
                                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
@@ -283,7 +283,7 @@
                             {% for wish in work.wishes.all reversed %}
                             {% with wish.wishlist.user as supporter %}
                                 <div class="work_supporter_nocomment">
-                                    <a href="{% url supporter supporter_username=supporter.username %}">
+                                    <a href="{% url supporter supporter %}">
                                         <div class="work_supporter_avatar">
                                             {% if supporter.profile.pic_url %}
                                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />

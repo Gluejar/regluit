@@ -106,7 +106,7 @@
                         </li>
                     </ul>
                         <ul id="user_menu">
-                            <li><a href="{% url supporter supporter_username=user.username %}">Wishlist</a></li>
+                            <li><a href="{% url supporter user %}">Wishlist</a></li>
                             <li>
                                 <a href="/notification"><span>Messages</span>
                                     {% if unseen_count %}
@@ -116,7 +116,7 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a href="{% url supporter supporter_username=user.username %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
+                            <li><a href="{% url supporter user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
                             <li><a href="{% url manage_account %}"><span>Account &amp; Pledges</span></a></li>
                             <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                         </ul>
