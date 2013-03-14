@@ -1038,6 +1038,10 @@ def pledger2():
     return pledger2.instance
 pledger2.instance=None
 
+ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
+(NO_AVATAR, GRAVITAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
+
+
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
@@ -1055,10 +1059,9 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    NOAVATAR = 0, GRAVITAR = 1, TWITTER = 2, FACEBOOK = 3
     
-    pic_source = models.PositiveSmallIntegerField(null = True, 
-            choices=((NOAVATAR,'No Avatar, Please'),(GRAVITAR,'Gravitar'),(TWITTER,'Twitter'),(FACEBOOK.'Facebook')))
+    avatar_source = models.PositiveSmallIntegerField(null = True, 
+            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVITAR,'Gravitar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
     def reset_pledge_badge(self):    
         #count user pledges  
@@ -1155,6 +1158,19 @@ class UserProfile(models.Model):
         # construct the url
         gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
         gravatar_url += urllib.urlencode({'d':'mm', 's':'50'})
+        
+
+    @property
+    def avatar_url(self):
+        if not self.avatar_source or self.avatar_source in (GRAVATAR,TWITTER):
+            if self.pic_url:
+                return self.pic_url
+            else:
+                return ANONYMOUS_AVATAR
+        elif self.avatar_source == NO_AVATAR:
+            return ANONYMOUS_AVATAR
+        elif self.avatar_source == FACEBOOK and self.facebook_id:
+            return 'https://graph.facebook.com/' + self.facebook_id + '/picture'
 
 #class CampaignSurveyResponse(models.Model):
 #    # generic

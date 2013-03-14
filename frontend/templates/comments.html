@@ -64,12 +64,8 @@
    						   </div>
    						   
 						   <div class="avatar">
-         						{% if supporter.profile.pic_url %}
-            						<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
-         						{% else %}
-            						<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-         						{% endif %}
 						   	  <a href="{% url supporter comment.user %}">
+            					<img class="user-avatar" src="{{ comment.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ comment.user }}" title="{{ comment.user }}" />
          					  </a>
       					   </div>
 					</div>

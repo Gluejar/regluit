@@ -99,11 +99,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                         <div class="user-block">
                             <div id="user-block1">
                                 <div class="block-inner">
-                                    {% if supporter.profile.pic_url %}
-                                        <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                                    {% else %}
-                                        <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                    {% endif %}
+                                    <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="Avatar" />
                                     <span class="user-name">
                                         <a href="#">{{ supporter.username }}</a>
                                     </span>
