@@ -207,7 +207,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
-SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
+#SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 # following is needed because of length limitations in a unique constrain for MySQL
 # see https://github.com/omab/django-social-auth/issues/539
@@ -215,6 +215,16 @@ SOCIAL_AUTH_UID_LENGTH = 222
 SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
 SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 135
 SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 125
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_auth.backends.pipeline.social.social_auth_user',
+    'social_auth.backends.pipeline.associate.associate_by_email',
+    'social_auth.backends.pipeline.user.get_username',
+    'social_auth.backends.pipeline.user.create_user',
+    'social_auth.backends.pipeline.social.associate_user',
+    'social_auth.backends.pipeline.social.load_extra_data',
+    'social_auth.backends.pipeline.user.update_user_details'
+)
 
 TWITTER_EXTRA_DATA = [('profile_image_url', 'profile_image_url')]
 
