@@ -13,8 +13,10 @@ from django.db import models
 from django.db.models import Q, get_model
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
 
 import regluit
 import regluit.core.isbn
@@ -816,6 +818,9 @@ class Work(models.Model):
         except:
             return False
 
+    def get_absolute_url(self):
+        return reverse('work', args=[str(self.id)])
+        
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)

@@ -15,7 +15,7 @@ class SupporterWishlistFeed(Feed):
         return "Latest wishbooks for %s on unglue.it" % obj.username
         
     def link(self, obj):
-        return "/%s/feed/" % obj.username
+        return "/supporter/%s/feed/" % obj.username
 
     def item_title(self, item):
         return "%s" % item.title
@@ -24,4 +24,4 @@ class SupporterWishlistFeed(Feed):
         return "/work/%s" % item.id
 
     def items(self, obj):
-        return obj.wishlist.works.all().order_by('-id')[:5]    
+        return obj.wishlist.works.all().order_by('-id')[:100]    
