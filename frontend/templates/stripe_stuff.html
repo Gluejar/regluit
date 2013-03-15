@@ -52,6 +52,8 @@ function stripeResponseHandler(status, response) {
     if (response.error) {
         // re-enable the submit button
         $j('.submit-button').removeAttr("disabled");
+        // stop the spinny thing
+        $j('.submit-button').removeClass("show-loading");
         // show the errors on the form
         $j(".payment-errors").html(response.error.message).show();
     } else {
