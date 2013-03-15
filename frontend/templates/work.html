@@ -117,7 +117,7 @@
         </div>
         <div id="js-maincol">
         <div class="js-maincol-inner">
-            <div id="content-block">
+            <div id="content-block" itemscope itemtype="http://schema.org/Book">
                 <div class="book-detail">
                     {% if work.googlebooks_id %}
                     <div id="book-detail-img"><a href="{{ work.googlebooks_url }}">
@@ -125,16 +125,16 @@
                     </div>
                     {% else %}
                     <div id="book-detail-img">
-                        <img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                        <img itemprop="image" src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                     </div>
                     {% endif %}
                     <div class="book-detail-info">
                       <div class="layout">
-                        <h2 class="book-name">{{ work.title }}</h2>
+                        <h2 class="book-name" itemprop="name">{{ work.title }}</h2>
                         <div>
                           <div class="pubinfo">
-                            <h3 class="book-author">{{ work.author }}</h3>
-                            <h3 class="book-year">{{ work.publication_date_year }}</h3>
+                            <h3 class="book-author" itemprop="author">{{ work.author }}</h3>
+                            <h3 class="book-year" itemprop="datePublished">{{ work.publication_date_year }}</h3>
 					      </div>
                           {% if status == 'ACTIVE' %}
                           {% if pledged %}
@@ -227,10 +227,10 @@
                        <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                     <div class="tabs-content">
                         {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
-                        {{ work.last_campaign.description|safe }}
+                        <span  itemprop="description">{{ work.last_campaign.description|safe }}</span>
                         {% else %}
                         <h3 class="tabcontent-title">{{work.title}}</h3>
-                        <p>{{ work.description|safe }}
+                        <p itemprop="description">{{ work.description|safe }}
                         {% endif %}
                         </p>
                     </div>
@@ -282,8 +282,8 @@
                         {% else %}
                             {% for wish in work.wishes.all reversed %}
                             {% with wish.wishlist.user as supporter %}
-                                <div class="work_supporter_nocomment">
-                                    <a href="{% url supporter supporter_username=supporter.username %}">
+                                <div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
+                                    <a itemprop="url" href="{% url supporter supporter_username=supporter.username %}">
                                         <div class="work_supporter_avatar">
                                             {% if supporter.profile.pic_url %}
                                                 <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
@@ -362,7 +362,7 @@
                         <h4>Subjects</h4>
                         <ul>
                         {% for subject in work.subjects.all %}
-                            <li>{{ subject.name }}</li>
+                            <li itemprop="keywords">{{ subject.name }}</li>
                         {% endfor %}
                         </ul>
                         {% endif %}
@@ -384,7 +384,7 @@
                                     <div class="metadata" id="edition_{{edition.id}}">{% if edition.publisher %}Publisher: <a href="{% url bypub_list edition.publisher %}">{{edition.publisher}}</a><br />{% endif %}
                                         {% if edition.publication_date %}Published: {{edition.publication_date}}<br />{% endif %}
                                             {% if edition.isbn_13 %}
-                                                ISBN: {{ edition.isbn_13 }}<br />
+                                                ISBN: <spam itemprop="isbn">{{ edition.isbn_13 }}</span><br />
                                             {% endif %}
                                             {% if edition.oclc %}
                                                 OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />

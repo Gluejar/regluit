@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',  
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.sitemaps',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.comments',
@@ -216,7 +217,7 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 
-USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
+USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
 SOUTH_TESTS_MIGRATE = True
 
