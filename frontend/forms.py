@@ -14,6 +14,7 @@ from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelect
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work
+from regluit.core.models import TWITTER, FACEBOOK, GRAVATAR
 from regluit.core.lookups import OwnerLookup, WorkLookup
 
 from regluit.utils.localdatetime import now
@@ -122,18 +123,41 @@ class RightsHolderForm(forms.ModelForm):
         except RightsHolder.DoesNotExist:
             return rights_holder_name
         raise forms.ValidationError(_("Another rights holder with that name already exists."))
+
     
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)
     clear_goodreads=forms.BooleanField(required=False)
+    
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads', 'avatar_source'
         widgets = {
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
 
+    def __init__(self, *args, **kwargs):
+        profile = kwargs.get('instance')
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        choices = []
+        for choice in self.fields['avatar_source'].choices :
+            if choice[0] == FACEBOOK and not profile.facebook_id:
+                pass
+            elif choice[0] == TWITTER and not profile.twitter_id:
+                pass
+            else:
+                choices.append(choice)
+        self.fields['avatar_source'].choices = choices
+
+    def clean(self):
+        # check that if a social net is cleared, we're not using it a avatar source
+        if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None)==FACEBOOK:
+            self.cleaned_data["avatar_source"]==GRAVATAR
+        if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None)==TWITTER:
+            self.cleaned_data["avatar_source"]==GRAVATAR
+        return self.cleaned_data
+ 
 class UserEmail(forms.Form):
     email = forms.EmailField(
         label=_("new email address"), 

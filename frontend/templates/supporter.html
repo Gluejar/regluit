@@ -173,6 +173,10 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
+                                {{ profile_form.avatar_source.errors }}
+                                Avatar Source: {{ profile_form.avatar_source }} 
+                            </div>
+                            <div class="block-inner">
                                 <h3 class="title">Your Tagline</h3>
                                     {{ profile_form.tagline.errors }}
                                     {{ profile_form.tagline }}<br />

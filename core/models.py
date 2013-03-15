@@ -1039,7 +1039,7 @@ def pledger2():
 pledger2.instance=None
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVITAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
 
 
 class UserProfile(models.Model):
@@ -1061,7 +1061,7 @@ class UserProfile(models.Model):
     
     
     avatar_source = models.PositiveSmallIntegerField(null = True, 
-            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVITAR,'Gravitar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
+            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
     def reset_pledge_badge(self):    
         #count user pledges  
@@ -1157,18 +1157,21 @@ class UserProfile(models.Model):
     def gravatar(self):
         # construct the url
         gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
-        gravatar_url += urllib.urlencode({'d':'mm', 's':'50'})
+        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        return gravatar_url
         
 
     @property
     def avatar_url(self):
-        if not self.avatar_source or self.avatar_source in (GRAVATAR,TWITTER):
+        if self.avatar_source is None or self.avatar_source is TWITTER:
             if self.pic_url:
                 return self.pic_url
             else:
                 return ANONYMOUS_AVATAR
         elif self.avatar_source == NO_AVATAR:
             return ANONYMOUS_AVATAR
+        elif self.avatar_source == GRAVATAR:
+            return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id:
             return 'https://graph.facebook.com/' + self.facebook_id + '/picture'
 
@@ -1198,7 +1201,8 @@ from social_auth.backends.twitter import TwitterBackend
 def facebook_extra_values(sender, user, response, details, **kwargs):
     facebook_id = response.get('id')
     user.profile.facebook_id = facebook_id
-    user.profile.pic_url = 'https://graph.facebook.com/' + facebook_id + '/picture'
+    if user.profile.avatar_source is None:
+        user.profile.avatar_source = FACEBOOK
     user.profile.save()
     return True
 
@@ -1208,7 +1212,10 @@ def twitter_extra_values(sender, user, response, details, **kwargs):
     twitter_id = response.get('screen_name')
     profile_image_url = response.get('profile_image_url_https')
     user.profile.twitter_id = twitter_id
-    user.profile.pic_url = profile_image_url
+    if user.profile.avatar_source is None or user.profile.avatar_source is TWITTER:
+        user.profile.pic_url = profile_image_url
+    if user.profile.avatar_source is None:
+        user.profile.avatar_source = TWITTER
     user.profile.save()
     return True
 
