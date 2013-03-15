@@ -4,6 +4,7 @@ from regluit.core.models import Work, Edition
 
 class WorkSitemap(Sitemap):
     protocol = 'https'
+    limit = 10000
 
     def items(self):
         return Work.objects.all()
