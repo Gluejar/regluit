@@ -99,7 +99,7 @@
                                             {% endif %}                                    
                                         </div>
                                         <div class="campaign-status-info">
-                                            <span>{{ countdown }}</span> to go
+                                            <span>{{ work.last_campaign.countdown }}</span> to go
                                         </div>
                                     </div>
                                 {% else %}
@@ -417,7 +417,7 @@
                     {% else %}
                         {% if work.first_ebook %}
                             <div class="btn_support">
-                            <a href="{% url download work_id %}" class="fakeinput hijax">Download</a>
+                                <a href="{% url download work_id %}" class="hijax"><span>Download</span></a>
                             </div>
                         {% endif %}
                     {% endif %}

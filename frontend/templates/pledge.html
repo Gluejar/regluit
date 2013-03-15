@@ -36,6 +36,7 @@
             <div class="thermometer">
                 <div class="cover" style="width: {{ cover_width }}%;">
                 </div>
+                <span>{{ work.percent_of_goal }}% of goal</span>
             </div>
             <div class="pledged-info noborder">
                 <div class="campaign-status-info">
@@ -52,7 +53,7 @@
                     {% endif %}                                    
                 </div>
                 <div class="campaign-status-info">
-                    <span>{{ countdown }}</span> to go
+                    <span>{{ work.last_campaign.countdown }}</span> to go
                 </div>
             </div>
         </div>

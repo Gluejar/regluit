@@ -115,22 +115,6 @@ def safe_get_work(work_id):
         except models.WasWork.DoesNotExist:
             raise Http404
     return work
-
-def countdown(work):
-    from math import ceil
-    time_remaining = work.last_campaign().deadline - now()
-    countdown = ""
-
-    if time_remaining.days:
-        countdown = "%s days" % str(time_remaining.days + 1)
-    elif time_remaining.seconds > 3600:
-        countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
-    elif time_remaining.seconds > 60:
-        countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
-    else:
-        countdown = "Seconds"
-        
-    return countdown
     
 def cover_width(work):
     if work.percent_of_goal() < 100:
@@ -186,7 +170,6 @@ def work(request, work_id, action='display'):
         pledged = None
         
     logger.info("pledged: {0}".format(pledged))
-    countdown_text = ""
     cover_width_number = 0
     
     try:
@@ -195,7 +178,6 @@ def work(request, work_id, action='display'):
         logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     
     if work.last_campaign_status() == 'ACTIVE':
-        countdown_text = countdown(work)
         cover_width_number = cover_width(work)
     
     if action == 'preview':
@@ -259,7 +241,6 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'countdown': countdown_text,
         'cover_width': cover_width_number
     })    
 
@@ -773,7 +754,6 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
-                'countdown': countdown(self.work),
                 'cover_width': cover_width(self.work)
            })
             
