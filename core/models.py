@@ -1172,52 +1172,11 @@ class UserProfile(models.Model):
             return ANONYMOUS_AVATAR
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
-        elif self.avatar_source == FACEBOOK and self.facebook_id:
-            return 'https://graph.facebook.com/' + self.facebook_id + '/picture'
+        elif self.avatar_source == FACEBOOK and self.facebook_id != None:
+            return 'https://graph.facebook.com/' + str(self.facebook_id) + '/picture'
 
-#class CampaignSurveyResponse(models.Model):
-#    # generic
-#    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
-#    user = models.OneToOneField(User, related_name='surveyresponse')
-#    transaction = models.ForeignKey("payment.Transaction", null=True)
-#    # for OLA only
-#    premium = models.ForeignKey("Premium", null=True)
-#    anonymous = models.BooleanField(null=False)
-#    # relevant to all campaigns since these arise from acknowledgement requirements from generic premiums 
-#    name = models.CharField(max_length=140, blank=True)
-#    url = models.URLField(blank=True)
-#    tagline = models.CharField(max_length=140, blank=True)
-#    # do we need to collect address for Rupert or will he do that once he has emails?
-  
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals
 from regluit.payment.manager import PaymentManager
 
-from social_auth.signals import pre_update
-from social_auth.backends.facebook import FacebookBackend
-from social_auth.backends.twitter import TwitterBackend
-
-def facebook_extra_values(sender, user, response, details, **kwargs):
-    facebook_id = response.get('id')
-    user.profile.facebook_id = facebook_id
-    if user.profile.avatar_source is None:
-        user.profile.avatar_source = FACEBOOK
-    user.profile.save()
-    return True
-
-def twitter_extra_values(sender, user, response, details, **kwargs):
-    import requests, urllib
-    
-    twitter_id = response.get('screen_name')
-    profile_image_url = response.get('profile_image_url_https')
-    user.profile.twitter_id = twitter_id
-    if user.profile.avatar_source is None or user.profile.avatar_source is TWITTER:
-        user.profile.pic_url = profile_image_url
-    if user.profile.avatar_source is None:
-        user.profile.avatar_source = TWITTER
-    user.profile.save()
-    return True
-
-pre_update.connect(facebook_extra_values, sender=FacebookBackend)
-pre_update.connect(twitter_extra_values, sender=TwitterBackend)
