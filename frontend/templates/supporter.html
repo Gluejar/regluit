@@ -174,7 +174,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             <div class="block block1">
                             <div class="block-inner">
                                 {{ profile_form.avatar_source.errors }}
-                                Avatar Source: {{ profile_form.avatar_source }} 
+                                Avatar Source: {{ profile_form.avatar_source }} {% ifequal supporter.profile.avatar_source 1 %} <br /><a href="http://en.gravatar.com/">Set your Gravatar</a><br /><br />{% endifequal %}
                             </div>
                             <div class="block-inner">
                                 <p>Your Tagline</p>
