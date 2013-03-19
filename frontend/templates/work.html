@@ -55,7 +55,7 @@
             </div>
             <div id="js-maincol">
                 <div class="js-maincol-inner">
-                    <div id="content-block">
+                    <div id="content-block" itemscope itemtype="http://schema.org/Book">
                         <div class="book-detail">
                             {% if work.googlebooks_id %}
                                 <div id="book-detail-img">
@@ -64,20 +64,19 @@
                                 </div>
                             {% else %}
                                 <div id="book-detail-img">
-                                    <img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                                    <img itemprop="image" src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 </div>
                             {% endif %}
                             <div class="book-detail-info">
                                 <div class="layout">
-                                    <h2 class="book-name">{{ work.title }}</h2>
-                                    <div>
+                                    <h2 class="book-name" itemprop="name">{{ work.title }}</h2>
+                                <div>
                                         <div class="pubinfo">
-                                            <h3 class="book-author">{{ work.author }}</h3>
-                                            <h3 class="book-year">{{ work.publication_date_year }}</h3>
+                                            <h3 class="book-author" itemprop="author">{{ work.author }}</h3>
+                                            <h3 class="book-year" itemprop="datePublished">{{ work.publication_date_year }}</h3>
                                         </div>
                                     </div>
                                 </div>
-                            
                                 {% ifequal status 'ACTIVE' %}
                                     <div class="thermometer" title="{{ work.percent_of_goal }}% of goal">
                                         <div class="cover" style="width: {{ cover_width }}%;">
@@ -154,7 +153,7 @@
                                             {% endif %}
                                         {% endif %}
                                     </div>
-                                </div>
+                                </div>                            
                                 <div class="btn_wishlist" id="wishlist_actions">
                                     {% if request.user.is_anonymous %}
                                         <div class="create-account">
@@ -190,12 +189,12 @@
                             <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                                 <div class="tabs-content">
                                     {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
-                                    {{ work.last_campaign.description|safe }}
+                                    <span  itemprop="description">{{ work.last_campaign.description|safe }}</span>
                                     {% else %}
                                     <h3 class="tabcontent-title">{{work.title}}</h3>
-                                    <p>{{ work.description|safe }}
-                                    {% endif %}
+                                    <p itemprop="description">{{ work.description|safe }}
                                     </p>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
@@ -245,8 +244,8 @@
                                     {% else %}
                                         {% for wish in work.wishes.all reversed %}
                                         {% with wish.wishlist.user as supporter %}
-                                            <div class="work_supporter_nocomment">
-                                                <a href="{% url supporter supporter_username=supporter.username %}">
+                                            <div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
+                                                <a itemprop="url" href="{% url supporter supporter_username=supporter.username %}">
                                                     <div class="work_supporter_avatar">
                                                         {% if supporter.profile.pic_url %}
                                                             <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
@@ -315,19 +314,16 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endif %}
-                            
                                     <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
-                                
                                     {% if user.is_staff %}
                                         <h4>Related Works</h4>
                                         <a href="{% url merge work_id  %}">Merge other works into this one</a><br />
                                     {% endif %}
-                                
                                     {% if work.subjects.all.count > 0 %}
                                         <h4>Subjects</h4>
                                         <ul>
                                         {% for subject in work.subjects.all %}
-                                            <li>{{ subject.name }}</li>
+                                            <li itemprop="keywords">{{ subject.name }}</li>
                                         {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -356,7 +352,7 @@
                                                         Published: {{ edition.publication_date }}<br />
                                                     {% endif %}
                                                     {% if edition.isbn_13 %}
-                                                        ISBN: {{ edition.isbn_13 }}<br />
+                                                        ISBN: <spam itemprop="isbn">{{ edition.isbn_13 }}</span><br />
                                                     {% endif %}
                                                     {% if edition.oclc %}
                                                         OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
