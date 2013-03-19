@@ -20,6 +20,15 @@
                                 <li><a href="{% url work_list 'new' %}"><span>Newly Wished</span></a></li>
                                 <li><a href="{% url work_list 'recommended' %}"><span>Noteworthy</span></a></li>
                                 <li class="last"><a href="{% url unglued_list '' %}"><span>Ready to Read</span></a></li>
+                            {% if pubname %}
+                                <li>{{ pubname }}...
+                                <ul class="menu level3">
+                                    <li class="first"><a href="{% url bypub_list 'popular' pubname %}"><span>Most popular</span></a></li>
+                                    <li><a href="{% url bypub_list pubname %}"><span>By Title</span></a></li>
+                                    <li><a href="{% url bypub_list 'pubdate' pubname %}"><span>By Date Published</span></a></li>
+                                </ul>
+                                </li>
+                             {% endif %}
                             </ul>
                         </li>
                         {% if show_langs %}

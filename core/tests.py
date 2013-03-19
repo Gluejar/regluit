@@ -15,7 +15,7 @@ from django.contrib.sites.models import Site
 from django.http import Http404
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium, Subject
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -112,11 +112,17 @@ class BookLoaderTests(TestCase):
 
     def test_merge_works_mechanics(self):
         """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
+        sub1= Subject(name='test1')
+        sub1.save()
+        sub2= Subject(name='test2')
+        sub2.save()
         w1 = Work(title="Work 1")
         w1.save()
+        w1.subjects.add(sub1)
         
         w2 = Work(title="Work 2")
         w2.save()
+        w2.subjects.add(sub1,sub2)
         
         e1 = Edition(work=w1)
         e1.save()
@@ -145,7 +151,8 @@ class BookLoaderTests(TestCase):
         bookloader.merge_works(e1.work, e2.work)
         self.assertEqual(models.Work.objects.count(),1)
         self.assertEqual(models.WasWork.objects.count(),1)
-        
+        self.assertEqual(w1.subjects.count(),2)
+       
         # getting proper view?
         anon_client = Client()
         r = anon_client.get("/work/%s/" % w1_id)
@@ -172,10 +179,10 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.count(), 2)
 
         # add the stub works to a wishlist
-        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user = User.objects.create_user('test', 'test@example.org', 'testpass')
         user.wishlist.add_work(e1.work, 'test')
         user.wishlist.add_work(e2.work, 'test')
-        manager = User.objects.create_user('manager', 'manager@example.com', 'managerpass')
+        manager = User.objects.create_user('manager', 'manager@example.org', 'managerpass')
         # create campaigns for the stub works 
         c1 = models.Campaign.objects.create(
             name=e1.work.title,
@@ -383,7 +390,7 @@ class CampaignTests(TestCase):
     def test_campaign_status(self):
         
         # need a user to associate with a transaction
-        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user = User.objects.create_user('test', 'test@example.org', 'testpass')
         
         w = Work()
         w.save()
@@ -397,7 +404,7 @@ class CampaignTests(TestCase):
         c2 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
         c2.save()
         self.assertEqual(c2.status, 'INITIALIZED')
-        u = User.objects.create_user('claimer', 'claimer@example.com', 'claimer')
+        u = User.objects.create_user('claimer', 'claimer@example.org', 'claimer')
         u.save()
         rh = RightsHolder(owner = u, rights_holder_name = 'rights holder name')
         rh.save()
@@ -479,7 +486,7 @@ class WishlistTest(TestCase):
 
     def test_add_remove(self):
         # add a work to a user's wishlist
-        user = User.objects.create_user('test', 'test@example.com', 'testpass')
+        user = User.objects.create_user('test', 'test@example.org', 'testpass')
         edition = bookloader.add_by_isbn('0441007465')
         work = edition.work
         num_wishes=work.num_wishes
@@ -636,7 +643,7 @@ class DownloadPageTest(TestCase):
         e2.save()
         
         eb1 = models.Ebook()
-        eb1.url = "http://example.com"
+        eb1.url = "http://example.org"
         eb1.edition = e1
         eb1.format = 'epub'
         
@@ -650,7 +657,7 @@ class DownloadPageTest(TestCase):
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id)
-        self.assertContains(response, "http://example.com", count=4)
+        self.assertContains(response, "http://example.org", count=4)
         self.assertContains(response, "http://example2.com", count=3)
 
 
@@ -693,5 +700,14 @@ class LocaldatetimeTest(TestCase):
         else:
             reload(localdatetime)
         
+class MailingListTests(TestCase):
+    #mostly to check that MailChimp account is setp correctly
 
-    
+    def test_mailchimp(self):
+        from postmonkey import PostMonkey
+        pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+        self.assertEqual(pm.ping(),"Everything's Chimpy!" )
+        self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
+        self.assertTrue(self.user.profile.on_ml)
+
+        

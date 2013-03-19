@@ -1,18 +1,22 @@
 import re
 import random
+import logging
 from regluit.utils.localdatetime import now, date_today
 from regluit.utils import crypto
 from datetime import timedelta
 from decimal import Decimal
 from notification import models as notification
 from ckeditor.fields import RichTextField
+from postmonkey import PostMonkey, MailChimpException
 
 from django.db import models
 from django.db.models import Q, get_model
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
 
 import regluit
 import regluit.core.isbn
@@ -23,6 +27,9 @@ from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_ST
 
 from django.db.models import Q
 
+pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+
+logger = logging.getLogger(__name__)
 
 class UnglueitError(RuntimeError):
     pass
@@ -365,7 +372,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'site': Site.objects.get_current()}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self}, True)
         return self
 
 
@@ -403,9 +410,13 @@ class Campaign(models.Model):
         return self
        
     def supporters(self):
+        # expensive query used in loop; stash it
+        if hasattr(self, '_translist_'):
+            return self._translist_
+
         """nb: returns (distinct) supporter IDs, not supporter objects"""
-        translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
-        return translist
+        self._translist_ = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
+        return self._translist_
         
     @property
     def supporters_count(self):
@@ -432,8 +443,11 @@ class Campaign(models.Model):
                     return None
         else:
             return None   
-
+    
     def ungluers(self):
+        # expensive query used in loop; stash it
+        if hasattr(self, '_ungluers_'):
+            return self._ungluers_
         p = PaymentManager()
         ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
         if self.status == "ACTIVE":
@@ -452,6 +466,7 @@ class Campaign(models.Model):
                 elif transaction.amount >= Premium.TIERS["supporter"]:
                     ungluers['supporters'].append(transaction.user)
         
+        self._ungluers_= ungluers
         return ungluers
 
     def ungluer_transactions(self):
@@ -516,9 +531,28 @@ class Campaign(models.Model):
     @property
     def success_date(self):
         if self.status == 'SUCCESSFUL':
-            return self.actions.filter(type='succeeded')[0].timestamp
+            try:
+                return self.actions.filter(type='succeeded')[0].timestamp
+            except:
+                return ''
         return ''
+        
+    @property
+    def countdown(self):
+        from math import ceil
+        time_remaining = self.deadline - now()
+        countdown = ""
     
+        if time_remaining.days:
+            countdown = "%s days" % str(time_remaining.days + 1)
+        elif time_remaining.seconds > 3600:
+            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
+        elif time_remaining.seconds > 60:
+            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
+        else:
+            countdown = "Seconds"
+            
+        return countdown    
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -803,6 +837,9 @@ class Work(models.Model):
         except:
             return False
 
+    def get_absolute_url(self):
+        return reverse('work', args=[str(self.id)])
+        
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
@@ -827,7 +864,7 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher = models.CharField(max_length=255, null=True, blank=True)
+    publisher = models.CharField(max_length=255, null=True, blank=True, db_index=True)
     publication_date = models.CharField(max_length=50, null=True, blank=True)
     public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
@@ -1098,7 +1135,36 @@ class UserProfile(models.Model):
             return last.anonymous
         else:
             return None    
-    
+     
+    @property
+    def on_ml(self):
+        try:
+            return settings.MAILCHIMP_NEWS_ID in pm.listsForEmail(email_address=self.user.email)
+        except MailChimpException, e:
+            if e.code!=215: # don't log case where user is not on a list
+                logger.error("error getting mailchimp status  %s" % (e))
+        except Exception, e:
+            logger.error("error getting mailchimp status  %s" % (e))
+        return False
+
+    def ml_subscribe(self, **kwargs):
+        if "@example.org" in self.user.email:
+            # use @example.org email addresses for testing!
+            return True
+        try:
+            if not self.on_ml:
+                return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email, **kwargs)
+        except Exception, e:
+            logger.error("error subscribing to mailchimp list %s" % (e))
+            return False
+
+    def ml_unsubscribe(self):
+        try:
+            return pm.listUnsubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email)
+        except Exception, e:
+            logger.error("error unsubscribing from mailchimp list  %s" % (e))
+        return False
+       
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)

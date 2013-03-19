@@ -119,6 +119,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',  
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.sitemaps',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.comments',
@@ -209,6 +210,12 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
 SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
+# following is needed because of length limitations in a unique constrain for MySQL
+# see https://github.com/omab/django-social-auth/issues/539
+SOCIAL_AUTH_UID_LENGTH = 222
+SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
+SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 135
+SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 125
 
 TWITTER_EXTRA_DATA = [('profile_image_url', 'profile_image_url')]
 
@@ -216,7 +223,7 @@ LOGIN_URL = "/accounts/login/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 
-USER_AGENT = "unglue.it.bot v0.0.1 <http://unglue.it>"
+USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
 SOUTH_TESTS_MIGRATE = True
 
@@ -287,6 +294,8 @@ NOTIFY_ENDING_SOON_JOB = {
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
+# set notification queueing on
+NOTIFICATION_QUEUE_ALL = True
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'stripelib'
 
@@ -314,4 +323,5 @@ AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
 
-
+MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
+MAILCHIMP_NEWS_ID = u'c5cce92fe1'

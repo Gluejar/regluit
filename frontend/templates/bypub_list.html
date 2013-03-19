@@ -1,0 +1,8 @@
+{% extends "work_list.html" %}
+{% load endless %}
+{% load lang_utils %}
+
+{% block title %} Works published by {{ pubname }} {% endblock %}
+{% block userblock2 %}
+<span class="special-user-name">Books from {{ pubname }} {% if pub_lang %}( {{pub_lang|ez_lang_name}} ) {% endif %}</span>
+{% endblock %}
