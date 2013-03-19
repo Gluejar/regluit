@@ -1560,7 +1560,7 @@ def search(request):
         work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
         campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
     else:
-        campaign_works - None
+        campaign_works = None
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
