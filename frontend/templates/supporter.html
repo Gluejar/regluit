@@ -96,12 +96,12 @@ there's no tab for seeing ALL my books, only the filters! huh.
             <div class="js-topnews1">
                 <div class="js-topnews2">
                     <div class="js-topnews3">
-                        <div class="user-block">
+                        <div class="user-block" itemscope itemtype="http://schema.org/Person">
                             <div id="user-block1">
                                 <div class="block-inner">
                                     <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="Avatar" />
                                     <span class="user-name">
-                                        <a href="#">{{ supporter.username }}</a>
+                                        <a href="#"><span itemprop="name">{{ supporter.username }}</span></a>
                                     </span>
                                 </div>
                                 <span class="user-badges">

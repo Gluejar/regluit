@@ -565,7 +565,7 @@ class PaymentManager( object ):
         if return_url is None:
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urllib.urlencode({'tid':transaction.id})) 
-            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+            return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
         
         p = transaction.get_payment_class().Preapproval(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
@@ -657,7 +657,7 @@ class PaymentManager( object ):
             credit.pledge_transaction(t,user,amount)
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urllib.urlencode({'tid':t.id})) 
-            return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+            return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
             pledge_created.send(sender=self, transaction=t)
             return t, return_url
         else:
@@ -762,7 +762,7 @@ class PaymentManager( object ):
                 credit.pledge_transaction(transaction,transaction.user,amount)
                 return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                     urllib.urlencode({'tid':transaction.id})) 
-                return_url = urlparse.urljoin(settings.BASE_URL, return_path)
+                return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
                 
                 logger.info("Updated amount of transaction to %f" % amount)
                 pledge_modified.send(sender=self, transaction=transaction,up_or_down=up_or_down)

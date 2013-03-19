@@ -1,12 +1,16 @@
 <div id="comments">
   {% for comment in comment_list reversed %}
   
-  <div class="work_supporter {% if comment.content_object.last_campaign and comment.user in comment.content_object.last_campaign.managers.all %}official{% endif %}">
-      <a href="{% url supporter comment.user %}">
-      <div class="work_supporter_avatar">
-        <img class="user-avatar" src="{{ comment.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ comment.user }}" title="{{ comment.user }}" />
-    </div>
-    <span class="comment_username">{{comment.user.username }}</span></a> <span>({{ comment.submit_date }})</span> <br /><span class="comment">{{ comment.comment|linebreaksbr }}<br /></span> 
+  <div itemprop="comment" itemscope itemtype="http://schema.org/UserComments" class="work_supporter {% if comment.content_object.last_campaign and comment.user in comment.content_object.last_campaign.managers.all %}official{% endif %}">
+        <span itemprop="creator" itemscope itemtype="http://schema.org/Person">
+        <a itemprop="url" href="{% url supporter comment.user %}">
+            <span class="work_supporter_avatar">
+                <img class="user-avatar" src="{{ comment.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ comment.user }}" title="{{ comment.user }}" />
+            </span>
+            <span class="comment_username">{{comment.user.username }}</span>
+        </a>
+        </span>
+      <span itemprop="commentTime">({{ comment.submit_date }})</span> <br /><span class="comment" itemProp="commentText">{{ comment.comment|linebreaksbr }}<br /></span> 
   </div>  
   {% endfor %}
 </div>
