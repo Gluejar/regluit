@@ -189,7 +189,7 @@
                             <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                                 <div class="tabs-content">
                                     {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
-                                    <span  itemprop="description">{{ work.last_campaign.description|safe }}</span>
+                                    <div  itemprop="description">{{ work.last_campaign.description|safe }}</div>
                                     {% else %}
                                     <h3 class="tabcontent-title">{{work.title}}</h3>
                                     <p itemprop="description">{{ work.description|safe }}
@@ -218,13 +218,13 @@
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_wide">
                                                 <a href="{% url supporter supporter_username=supporter.username %}">
-                                                    <div class="work_supporter_avatar">
+                                                    <span class="work_supporter_avatar">
                                                         {% if supporter.profile.pic_url %}
                                                             <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
                                                         {% else %}
                                                             <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                                         {% endif %}
-                                                    </div>
+                                                    </span>
                                                 </a>
                                                 <div class="show_supporter_contact_form" >
                                                     <img src="/static/images/icons/email.png" title="contact supporter" />
@@ -246,14 +246,14 @@
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
                                                 <a itemprop="url" href="{% url supporter supporter_username=supporter.username %}">
-                                                    <div class="work_supporter_avatar">
+                                                    <span class="work_supporter_avatar">
                                                         {% if supporter.profile.pic_url %}
                                                             <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
                                                         {% else %}
                                                             <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                                         {% endif %}
-                                                    </div>
-                                                    <div class="work_supporter_name">{{ supporter }}</div>
+                                                    </span>
+                                                    <span class="work_supporter_name">{{ supporter }}</span>
                                                 </a>
                                             </div>
                                         {% endwith %}
@@ -352,7 +352,7 @@
                                                         Published: {{ edition.publication_date }}<br />
                                                     {% endif %}
                                                     {% if edition.isbn_13 %}
-                                                        ISBN: <spam itemprop="isbn">{{ edition.isbn_13 }}</span><br />
+                                                        ISBN: <span itemprop="isbn">{{ edition.isbn_13 }}</span><br />
                                                     {% endif %}
                                                     {% if edition.oclc %}
                                                         OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
