@@ -21,13 +21,13 @@
     <h1>{% trans "Preview your comment" %}</h1>
     <div class="work_supporter {% if content_object.last_campaign and user in content_object.last_campaign.managers.all %}official{% endif %}">
       <a href="{% url supporter supporter_username=user.username %}">
-      <div class="work_supporter_avatar">
+      <span class="work_supporter_avatar">
         {% if user.profile.pic_url %}
             <img class="user-avatar" src="{{ user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ user }}" title="{{ user }}" />
                {% else %}
             <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
             {% endif %}
-    </div>
+    </span>
     <span class="comment_username">{{user.username }}</span></a> <span>( [today's date] )</span> <br /><span class="comment">{{ comment|linebreaksbr }}<br /></span> 
   </div>  
 <br /><br /><br />

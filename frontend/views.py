@@ -116,6 +116,14 @@ def safe_get_work(work_id):
         except models.WasWork.DoesNotExist:
             raise Http404
     return work
+    
+def cover_width(work):
+    if work.percent_of_goal() < 100:
+        cover_width = 100 - work.percent_of_goal()
+    else:
+        cover_width = 0
+        
+    return cover_width
 
 def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
@@ -172,8 +180,9 @@ def work(request, work_id, action='display'):
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
         pledged = None
-
-    countdown = ""
+        
+    logger.info("pledged: {0}".format(pledged))
+    cover_width_number = 0
     
     try:
         assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
@@ -181,25 +190,7 @@ def work(request, work_id, action='display'):
         logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     
     if work.last_campaign_status() == 'ACTIVE':
-        from math import ceil
-        time_remaining = campaign.deadline - now()
-        
-        '''
-        we want to round up on all of these; if it's the 3rd and the
-        campaign ends the 8th, users expect to see 5 days remaining,
-        not 4 (as an artifact of 4 days 11 hours or whatever)
-        time_remaining.whatever is an int, so just adding 1 will do
-        that for us (except in the case where .days exists and both other
-        fields are 0, which is unlikely enough I'm not defending against it)
-        '''
-        if time_remaining.days:
-            countdown = "in %s days" % str(time_remaining.days + 1)
-        elif time_remaining.seconds > 3600:
-            countdown = "in %s hours" % str(time_remaining.seconds/3600 + 1)
-        elif time_remaining.seconds > 60:
-            countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
-        else:
-            countdown = "right now"
+        cover_width_number = cover_width(work)
     
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
@@ -262,7 +253,7 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'countdown': countdown,
+        'cover_width': cover_width_number
     })    
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -775,6 +766,7 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
+                'cover_width': cover_width(self.work)
            })
             
         return context
@@ -924,7 +916,7 @@ class NonprofitCampaign(FormView):
         forward['amount']= int(amount)
         forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
         token=signing.dumps(forward)
-        return HttpResponseRedirect(settings.BASE_URL + reverse('donation_credit',kwargs={'token':token}))
+        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('donation_credit',kwargs={'token':token}))
 
 class DonationCredit(TemplateView):
     template_name="donation_credit.html"
@@ -2052,7 +2044,7 @@ def emailshare(request, action):
                 next = form.cleaned_data['next']
             except:
                 # if we totally failed to have a next value, we should still redirect somewhere useful
-                next = 'http://unglue.it'
+                next = 'https://unglue.it'
             return HttpResponseRedirect(next)
             
     else: 
@@ -2207,7 +2199,7 @@ def download(request, work_id):
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
         'readmill_epub_url': readmill_epub_url,
-        'base_url': settings.BASE_URL
+        'base_url': settings.BASE_URL_SECURE
     })
     
     return render(request, "download.html", context)

@@ -4,6 +4,12 @@ from frontend.views import superlogin
 from django.views.generic.simple import direct_to_template
 from regluit.admin import admin_site
 import notification.urls
+from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
+
+sitemaps = {
+        'works': WorkSitemap,
+        'publishers': PublisherSitemap,
+    }
 
 urlpatterns = patterns('',
     url(r'^accounts/activate/complete/$',superlogin,
@@ -23,4 +29,9 @@ urlpatterns = patterns('',
     (r'^comments/', include('django.contrib.comments.urls')),
     (r'^notification/', include(notification.urls)),
     (r'^ckeditor/', include('ckeditor.urls')),
+)
+
+urlpatterns += patterns('django.contrib.sitemaps.views',
+    (r'^sitemap\.xml$', 'index', {'sitemaps': sitemaps}),
+    (r'^sitemap-(?P<section>.+)\.xml$', 'sitemap', {'sitemaps': sitemaps}),
 )
