@@ -531,9 +531,28 @@ class Campaign(models.Model):
     @property
     def success_date(self):
         if self.status == 'SUCCESSFUL':
-            return self.actions.filter(type='succeeded')[0].timestamp
+            try:
+                return self.actions.filter(type='succeeded')[0].timestamp
+            except:
+                return ''
         return ''
+        
+    @property
+    def countdown(self):
+        from math import ceil
+        time_remaining = self.deadline - now()
+        countdown = ""
     
+        if time_remaining.days:
+            countdown = "%s days" % str(time_remaining.days + 1)
+        elif time_remaining.seconds > 3600:
+            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
+        elif time_remaining.seconds > 60:
+            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
+        else:
+            countdown = "Seconds"
+            
+        return countdown    
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
