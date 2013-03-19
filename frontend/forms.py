@@ -448,7 +448,7 @@ class FeedbackForm(forms.Form):
 
 class AuthForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
-        if request.method == 'GET':
+        if request and request.method == 'GET':
             saved_un= request.COOKIES.get('un', None)
             super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
         else:

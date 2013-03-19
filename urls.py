@@ -21,6 +21,10 @@ urlpatterns = patterns('',
         {'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
         }), 
+    url(r"^accounts/superlogin/welcome/$", direct_to_template, 
+        {'template': 'registration/welcome.html',
+            'extra_context': {'suppress_search_box': True,} 
+        }), 
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
     (r'', include('regluit.payment.urls')),
