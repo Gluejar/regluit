@@ -1555,6 +1555,12 @@ def search(request):
     q = request.GET.get('q', None)
     page = int(request.GET.get('page', 1))
     results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
+    
+    if page==1:
+        work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
+        campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
+    else:
+        campaign_works = None
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
@@ -1572,7 +1578,8 @@ def search(request):
     context = {
         "q": q,
         "results": works,
-        "ungluers": ungluers
+        "ungluers": ungluers,
+        "campaign_works": campaign_works
     }
     return render(request, 'search.html', context)
 
