@@ -1,4 +1,5 @@
 {% extends "registration/registration_base.html" %}
+{% load urldecode %}
 {% block title %}Activation email sent{% endblock %}
 {% block doccontent %}
 {% if not user.is_authenticated %}
@@ -9,7 +10,7 @@ An account activation email has been sent.  Please check your email and click on
     {% if request.COOKIES.next %}
 
     <p>
-    You can also go back to <a href="{{ request.COOKIES.next }}">the page where you were</a>.
+    You can also go back to <a href="{{ request.COOKIES.next|urldecode }}">the page where you were</a>.
     </p>
     {% endif %}
 {% else %}
