@@ -40,7 +40,7 @@
                {% if first_ebook %}
                     <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}
-                    <span class="read_itbutton button_text"><span>Coming Soon</span></span>
+                    <a href="{% url work workid %}"><span class="read_itbutton button_text"><span>Coming Soon</span></span></a>
                 {% endif %}
                 </div>
             {% else %}{% if status == 'ACTIVE' %}
@@ -63,16 +63,18 @@
                     
                     </div>                    
                 </div>
-                <div class="add_button">
-                    {% include "book_panel_addbutton.html" %}	
-                </div>		
-                <div class="white_text bottom_button" >
                 {% if request.user.id in supporters %}
-                    <span class="read_itbutton button_text"><span>Pledged!</span></span>
+                    <div class="white_text bottom_button">
+                        {% include "book_panel_addbutton.html" %}	
+                    </div>		
                 {% else %}
-                    <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
-                {% endif %}
-                </div>
+                    <div class="add_button">
+                        {% include "book_panel_addbutton.html" %}	
+                    </div>		
+                    <div class="white_text bottom_button" >
+                        <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
+                    </div>
+               {% endif %}
 
             {% else %}
                 <div class="greenpanel_top">
@@ -127,7 +129,7 @@
 			</div>
             <div class="white_text bottom_button">
                 {% if first_ebook %}
-                    <a href="{{ work.ebooks.0.url }}"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                    <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}
                     {% include "book_panel_addbutton.html" %}
                 {% endif %}                        

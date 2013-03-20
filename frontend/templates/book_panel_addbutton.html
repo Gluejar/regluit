@@ -14,7 +14,7 @@
 				</div>
 			{% else %}{% if request.user.id in supporters %}
 				<div class="moreinfo on-wishlist">
-					<span>Pledged!</span>
+					<a href="{% url work workid %}">Pledged!</a>
 				</div>
 			{% else %}{% ifequal supporter request.user %}
 				{% if wishlist %}
