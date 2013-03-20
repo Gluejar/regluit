@@ -306,8 +306,8 @@ class CreditTest(TestCase):
     def setUp(self):
         """
         """
-        self.user1 = User.objects.create_user('credit_test1', 'support@gluejar.com', 'credit_test1')
-        self.user2 = User.objects.create_user('credit_test2', 'support+1@gluejar.com', 'credit_test2')
+        self.user1 = User.objects.create_user('credit_test1', 'support@example.org', 'credit_test1')
+        self.user2 = User.objects.create_user('credit_test2', 'support+1@example.org', 'credit_test2')
 
     def testSimple(self):
         """
@@ -333,7 +333,7 @@ class TransactionTest(TestCase):
         create a single transaction with PAYMENT_TYPE_AUTHORIZATION / ACTIVE with a $12.34 pledge and see whether the payment
         manager can query and get the right amount.
         """
-        user = User.objects.create_user('payment_test', 'support@gluejar.com', 'payment_test')
+        user = User.objects.create_user('payment_test', 'support@example.org', 'payment_test')
 
         w = Work()
         w.save()
