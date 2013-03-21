@@ -1,0 +1,78 @@
+{% extends "registration/registration_base.html" %}
+{% load humanize %}
+
+{% block title %}Pledge Step 1: Login or Create an Account{% endblock %}
+
+{% block news %}
+{% endblock %}
+{% block extra_css %}
+<style>
+.widecolumn {
+    width: 80%;
+    margin: 0 auto;
+}
+.halfcolumn1 {
+    float: left;
+    clear: left;
+}
+.halfcolumn2 {
+    float: right;
+    clear: right;
+}
+</style>
+{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script type="text/javascript">
+function put_un_in_cookie(){
+    $j.cookie('un', $j('#id_username_main').val(), {path: '/', expires: 90 });
+    return true;
+}
+</script>
+{% endblock %}
+
+{% block content %}   
+<div class="jsmodule rounded clearfix widecolumn">
+    <h3>You'll need an account, since we won't charge your card unless the campaign succeeds!</h3>
+        <div class="halfcolumn2 login_box">
+            <h3>Get an Unglue.it account:</h3>
+            <p>... we just have to confirm your email address.</p>
+              <form class="login" action='{% url registration_register %}' method='post' onsubmit="return put_un_in_cookie();">{% csrf_token %}
+                <div class="user-name">
+                <label>Username</label>
+                <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
+                </div>
+                <div class="email">
+                <label>Email</label>
+                <input id="id_email_main" type="text" class="required" name="email" maxlength="75" size="30" />
+                </div>
+                <div class="password">
+                <label>Password</label>
+                <input id="id_password1_main" type="password" class="required" name="password1" size="30" />
+                </div>
+                <div class="password">
+                <label>Password (again):</label>
+                <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
+                </div>
+                <div class="button">
+                    <input type="submit" class="signup" value="Sign Up" />
+                </div>
+              </form>
+
+        </div>
+        <div  class="halfcolumn1 login_box">
+            <h3>Use Google to Sign In:</h3> 
+            <div class="google_signup{% if socials.google %} errorlist{% endif %}">
+                <div><a href="/socialauth/login/google?next={{ next }}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" />  Sign In with Google</a></div>
+            </div>
+        </div>
+        <div class="halfcolumn1  login_box">
+            <h3>Already Have an Unglue.it Account?</h3>
+            <a href="{% url auth_password_reset %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  </li>
+            {% include "login_form.html" %}
+        </div>
+
+</div>
+
+{% endblock %}
+
