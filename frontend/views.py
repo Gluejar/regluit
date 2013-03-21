@@ -153,7 +153,7 @@ def superlogin(request, **kwargs):
             extra_context={"socials":user.profile.social_auths}
         except:
             pass
-    return login(request, extra_context=extra_context, authentication_form=AuthForm)
+    return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
