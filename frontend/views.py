@@ -22,6 +22,7 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.db.models import Q, Count, Sum
@@ -52,7 +53,7 @@ from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThin
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
-from regluit.frontend.forms import MsgForm
+from regluit.frontend.forms import MsgForm, AuthForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -142,6 +143,17 @@ def stub(request):
 
 def acks(request, work):
     return render(request,'front_matter.html', {'campaign': work.last_campaign()})
+    
+def superlogin(request, **kwargs):
+    extra_context = None
+    if request.method == 'POST' and request.user.is_anonymous():
+        username=request.POST.get("username", "")
+        try:
+            user=models.User.objects.get(username=username)
+            extra_context={"socials":user.profile.social_auths}
+        except:
+            pass
+    return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
@@ -1503,7 +1515,7 @@ def supporter(request, supporter_username, template_name):
 
 def edit_user(request):
     if not request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('auth_login'))    
+        return HttpResponseRedirect(reverse('superlogin'))    
     form=UserData()
     emailform = UserEmail()
     if request.method == 'POST': 
@@ -1559,6 +1571,12 @@ def search(request):
     q = request.GET.get('q', None)
     page = int(request.GET.get('page', 1))
     results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
+    
+    if page==1:
+        work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
+        campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
+    else:
+        campaign_works = None
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
@@ -1576,7 +1594,8 @@ def search(request):
     context = {
         "q": q,
         "results": works,
-        "ungluers": ungluers
+        "ungluers": ungluers,
+        "campaign_works": campaign_works
     }
     return render(request, 'search.html', context)
 

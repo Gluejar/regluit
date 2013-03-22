@@ -1198,7 +1198,15 @@ class UserProfile(models.Model):
             return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id != None:
             return 'https://graph.facebook.com/' + str(self.facebook_id) + '/picture'
-
+        
+    @property
+    def social_auths(self):
+        socials= self.user.social_auth.all()
+        auths={}
+        for social in socials:
+            auths[social.provider]=True
+        return auths
+        
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals

@@ -193,6 +193,7 @@ EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 SERVER_EMAIL = 'notices@gluejar.com'
 ACCOUNT_ACTIVATION_DAYS = 30
+SESSION_COOKIE_AGE = 3628800 # 6 weeks
 
 # django-socialauth
 AUTHENTICATION_BACKENDS = (
@@ -231,7 +232,7 @@ SOCIAL_AUTH_PIPELINE = (
 
 TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url_https'),('screen_name','screen_name')]
 
-LOGIN_URL = "/accounts/login/"
+LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 

@@ -1,10 +1,10 @@
-// hijack a link with class "hijax" to show its content in a lightbox instead
-// allows for ajaxy presentation of things like download links in a way that
-// degrades gracefully for non-js users
 var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
-    $j("#js-page-wrap, #footer").on("click", "a.hijax", function(event) {
+    // hijack a link with class "hijax" to show its content in a lightbox instead
+    // allows for ajaxy presentation of things like download links in a way that
+    // degrades gracefully for non-js users
+   $j("#js-page-wrap, #footer").on("click", "a.hijax", function(event) {
         event.preventDefault();
 		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
 		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
@@ -60,5 +60,14 @@ $j(document).ready(function() {
         $j('#js-header a').css({"cursor": "pointer"});
 		$j('#about_expandable').css({"display": "none"});
 	});
-	
+
+    // make drop-down menu happen when they click on their name
+    $j('#authenticated').click(function(){
+        $j('#user_menu').toggle();
+        $j(this).toggleClass('highlight');
+    });
+    // but suppress it if they're clicking on the badge link to the notifications page
+    $j('#i_haz_notifications_badge').click(function() {
+        event.stopPropagation();
+    });
 });
