@@ -89,7 +89,7 @@
 		border:1px solid @blue-grey; 
 		.one-border-radius(12px); 
 		margin-bottom:10px; 
-		padding:0 10px 10px 10px;
+		padding: 0 10px 10px 10px;
 		
 		&.last { 
 			border-bottom:none; 
@@ -160,12 +160,12 @@ ul.ungluingwhat {
 		display:block; 
 		overflow:hidden;
 		
-		> div { 
+		> span { 
 			float: left;
 		}
 	}
 	
-	div.user-avatar { 
+	.user-avatar { 
 		width:43px;
 		
 		img {
@@ -173,30 +173,14 @@ ul.ungluingwhat {
 		}
 	}
 	
-	.user-book-thumb { 
-		width:29px;
-	}
-		
 	.user-book-info { 
-		width:135px; 
-		color:@text-blue;
-		
-		p { 
-			margin:0; 
-			padding:0 5px; 
-			font-size: @font-size-default;
-		}
-		
-		a { 
-			display:block; 
-			padding:0; 
-			color:@text-blue; 
-			font-size: @font-size-default; 
-			text-decoration:underline;
-		}
-		
-		a.user-book-name {
-			padding: 0 5px;
+		margin-left: 5px;
+		width: 160px;
+		word-wrap: break-word;
+		font-size: @font-size-larger;
+		line-height: @font-size-larger*1.3;
+		a {
+		    font-weight: normal;
 		}
 	}
 }
@@ -297,7 +281,7 @@ h2.page-heading {
 }
 
 h3.module-title {
-	padding: 10px 0 0 0;
+	padding: 10px 0;
 	font-size: @font-size-header;
 	font-weight: normal;
 }

@@ -134,7 +134,11 @@ def home(request, landing=False):
     works = worklist[:6]
     works2 = worklist[6:12]
 
-    events = models.Wishes.objects.order_by('-created')[0:2]
+    if request.user.is_authenticated():
+        events = models.Wishes.objects.order_by('-created')[0:12]
+    else:
+        events = models.Wishes.objects.order_by('-created')[0:6]
+    
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 
 def stub(request):
