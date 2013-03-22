@@ -101,7 +101,7 @@ If you believe you are a rights holder and would like to discuss ungluing your w
 <dl>
 <dt>I forgot my password. What do I do?</dt> 
 <dd>
-Click on this <a href="/accounts/password/reset/">forgot your password</a> link (you can also find it at the bottom of the <a href="/accounts/login/">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
+Click on this <a href="{% url django.contrib.auth.views.password_reset %}">forgot your password</a> link (you can also find it at the bottom of the <a href="{% url superlogin %}">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
 </dd>
 <dt>I never received an activation email after I signed up, or my activation email isn't working. What do I do?</dt>
 
@@ -121,7 +121,7 @@ Click on this <a href="/accounts/password/reset/">forgot your password</a> link 
 
 <dt>How can I change my profile name or password, or the email address associated with my account?</dt>
 
-<dd>At the bottom of every page there's a link to an <a href="/accounts/edit/">account editing page</a> where you can change your profile name, password, and email.</dd>
+<dd>At the bottom of every page there's a link to an <a href="{% url regluit.frontend.views.edit_user %}">account editing page</a> where you can change your profile name, password, and email.</dd>
 
 {% comment %}
 We have no functionality for this at this time.  Should we?
