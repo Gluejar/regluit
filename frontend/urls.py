@@ -64,7 +64,7 @@ urlpatterns = patterns(
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     url(r"^donation/$", login_required(DonationView.as_view()), name="donation"),
     url(r"^donation/credit/(?P<token>.+)/$", login_required(DonationCredit.as_view()), name="donation_credit"),
-    url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
+    url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view(),login_url='/accounts/login/pledge/'), name="pledge"),
     url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
     url(r"^pledge/modified/$", login_required(PledgeModifiedView.as_view()), name="pledge_modified"),

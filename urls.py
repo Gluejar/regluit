@@ -14,6 +14,8 @@ sitemaps = {
 urlpatterns = patterns('',
     url(r'^accounts/activate/complete/$',superlogin,
           {'template_name': 'registration/activation_complete.html'}),
+    url(r'^accounts/login/pledge/$',superlogin,
+          {'template_name': 'registration/from_pledge.html'}),
     (r'^accounts/edit/$', 'regluit.frontend.views.edit_user'),
     (r'^accounts/', include('registration.backends.default.urls')),
     (r'^socialauth/', include('social_auth.urls')),
