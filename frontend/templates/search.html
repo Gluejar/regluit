@@ -48,8 +48,9 @@ $j(document).ready(function() {
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div id="content-block">
+              {% if campaign_works %}
                 <div class="content-block-heading">
-                    <h2 class="content-heading">Google Books search results</span></h2>
+                    <h2 class="content-heading">Unglue.it Campaigns</span></h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -64,16 +65,46 @@ $j(document).ready(function() {
                             </li>
                         </ul>
                 </div>
-                <div id="content-block-content"><div id="results">
-                    {% for work in results %}
+                <div id="content-block-content-1"><div id="unglueit-results">
+                    {% for work in campaign_works %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
                     {% with work.last_campaign_status as status %}
 					{% with work.last_campaign.deadline as deadline %}
+                    {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}
+                    </div>
+                    {% endfor %}
+                </div></div>
+              {% endif %}
+                <div class="content-block-heading">
+                    <h2 class="content-heading"><a href="https://www.google.com/search?q={{q }}&amp;tbm=bks">Google Books</a> search results</span></h2>
+                      {% if not campaign_works %}
+                        <ul class="book-list-view">
+                            <li>View As:</li>
+                            <li class="view-list">
+                                <a href="#" id="toggle-list">
+                                <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" alt="use list view" />
+                                </a>
+                            </li>
+                            <li class="view-list">
+                                <a href="#" id="toggle-panel">
+                                <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" alt="use panel view" />
+                                </a>
+                            </li>
+                        </ul>
+                      {% endif %}
+                </div>
+                <div id="content-block-content"><div id="results">
+                    {% for work in results %}
+                    {% if not work.campaigns %}
+                    <div class="{% cycle 'row1' 'row2' %} book">
+                    {% with work.googlebooks_id as googlebooks_id %}
 					{% with 'yes' as on_search_page %}
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}
                     </div>
+                    {% endif %}
                     {% empty %}
                     <h2>Sorry, couldn't find that!</h2>
                     <div class="js-search">
