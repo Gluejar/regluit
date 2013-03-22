@@ -583,19 +583,6 @@ INSERT INTO `core_identifier` VALUES (1,'goog','wtPxGztYx-UC',1,1),(2,'isbn','97
 UNLOCK TABLES;
 
 --
--- Create empty core_key
---
-DROP TABLE IF EXISTS `core_key`;
-CREATE TABLE `core_key` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `encrypted_value` longtext,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `core_key_name_2fdc7c2d_uniq` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
---
 -- Table structure for table `core_premium`
 --
 
@@ -1680,7 +1667,7 @@ CREATE TABLE `south_migrationhistory` (
   `migration` varchar(255) NOT NULL,
   `applied` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1689,7 +1676,7 @@ CREATE TABLE `south_migrationhistory` (
 
 LOCK TABLES `south_migrationhistory` WRITE;
 /*!40000 ALTER TABLE `south_migrationhistory` DISABLE KEYS */;
-INSERT INTO `south_migrationhistory` VALUES (1,'core','0001_initial','2012-03-02 17:50:54'),(2,'core','0002_add_goodreads_id','2012-03-02 17:50:55'),(3,'core','0003_add_librarything_ids','2012-03-02 17:50:55'),(4,'core','0004_auto__add_field_campaign_status','2012-03-02 17:50:56'),(5,'core','0005_set_status','2012-03-02 17:50:56'),(6,'core','0006_wishes','2012-03-02 17:50:56'),(7,'core','0007_auto__add_field_wishes_created__add_field_wishes_source','2012-03-02 17:50:57'),(8,'core','0008_add_work_language_col','2012-03-02 17:50:58'),(9,'core','0009_add_work_language_data','2012-03-02 17:50:58'),(10,'core','0010_remove_edition_language','2012-03-02 17:50:58'),(11,'core','0011_auto__add_campaignaction__del_field_campaign_suspended_reason__del_fie','2012-03-02 17:50:59'),(12,'core','0012_auto__add_field_campaign_left','2012-03-02 17:51:00'),(13,'core','0013_move_subject_to_work','2012-03-02 17:51:01'),(14,'core','0015_auto__chg_field_subject_name__add_unique_subject_name','2012-03-02 17:51:01'),(15,'core','0016_auto__add_field_work_openlibrary_lookup','2012-03-02 17:51:02'),(16,'core','0017_isbn_to_13','2012-03-02 17:51:02'),(17,'core','0018_auto__del_field_edition_isbn_10','2012-03-02 17:51:02'),(18,'core','0019_googlebooks_id_must_be_unique','2012-03-02 17:51:02'),(19,'core','0020_auto__add_identifier__add_unique_identifier_type_value','2012-03-02 17:51:03'),(20,'core','0021_auto__del_field_work_librarything_id__del_field_work_openlibrary_id__d','2012-03-02 17:51:04'),(21,'core','0022_auto__chg_field_edition_publisher__chg_field_edition_publication_date','2012-03-02 17:51:05'),(22,'core','0023_auto__add_waswork','2012-03-02 17:51:05'),(23,'core','0024_auto__add_field_work_num_wishes','2012-03-02 17:51:06'),(24,'core','0025_count_wishes','2012-03-02 17:51:06'),(25,'core','0026_auto__add_field_ebook_user__add_field_waswork_moved__add_field_waswork','2012-03-02 17:51:08'),(26,'payment','0001_initial','2012-03-02 17:51:10'),(27,'payment','0002_auto__add_paymentresponse__del_field_transaction_reference__add_field_','2012-03-02 17:51:13'),(28,'payment','0003_auto__add_field_transaction_max_amount','2012-03-02 17:51:13'),(29,'payment','0004_auto__add_field_transaction_approved','2012-03-02 17:51:14'),(30,'tastypie','0001_initial','2012-03-02 17:51:14'),(31,'djcelery','0001_initial','2012-03-02 17:51:18'),(32,'payment','0005_auto__add_field_transaction_premium','2012-03-21 22:17:45'),(33,'core','0027_auto__add_field_campaign_license__chg_field_ebook_url','2012-03-28 15:24:25'),(34,'core','0028_auto__add_field_premium_limit','2012-03-28 15:24:25'),(35,'core','0029_https_facebook_avatars','2012-05-03 18:11:34'),(36,'core','0030_twitter_rewrite','2012-05-03 18:11:34'),(37,'core','0031_auto__add_field_campaign_edition','2012-05-03 18:11:35'),(38,'payment','0006_auto__add_field_transaction_local_status__add_field_paymentresponse_st','2012-05-03 18:11:36'),(39,'core','0032_auto__add_field_work_description','2012-05-07 23:51:10'),(40,'core','0033_move_descriptions','2012-05-07 23:51:10'),(41,'core','0034_auto__del_field_edition_description','2012-05-07 23:51:10'),(42,'core','0035_auto__add_key','2012-05-09 17:59:56'),(43,'core','0036_auto__add_unique_key_name','2012-05-09 17:59:56');
+INSERT INTO `south_migrationhistory` VALUES (1,'core','0001_initial','2012-03-02 17:50:54'),(2,'core','0002_add_goodreads_id','2012-03-02 17:50:55'),(3,'core','0003_add_librarything_ids','2012-03-02 17:50:55'),(4,'core','0004_auto__add_field_campaign_status','2012-03-02 17:50:56'),(5,'core','0005_set_status','2012-03-02 17:50:56'),(6,'core','0006_wishes','2012-03-02 17:50:56'),(7,'core','0007_auto__add_field_wishes_created__add_field_wishes_source','2012-03-02 17:50:57'),(8,'core','0008_add_work_language_col','2012-03-02 17:50:58'),(9,'core','0009_add_work_language_data','2012-03-02 17:50:58'),(10,'core','0010_remove_edition_language','2012-03-02 17:50:58'),(11,'core','0011_auto__add_campaignaction__del_field_campaign_suspended_reason__del_fie','2012-03-02 17:50:59'),(12,'core','0012_auto__add_field_campaign_left','2012-03-02 17:51:00'),(13,'core','0013_move_subject_to_work','2012-03-02 17:51:01'),(14,'core','0015_auto__chg_field_subject_name__add_unique_subject_name','2012-03-02 17:51:01'),(15,'core','0016_auto__add_field_work_openlibrary_lookup','2012-03-02 17:51:02'),(16,'core','0017_isbn_to_13','2012-03-02 17:51:02'),(17,'core','0018_auto__del_field_edition_isbn_10','2012-03-02 17:51:02'),(18,'core','0019_googlebooks_id_must_be_unique','2012-03-02 17:51:02'),(19,'core','0020_auto__add_identifier__add_unique_identifier_type_value','2012-03-02 17:51:03'),(20,'core','0021_auto__del_field_work_librarything_id__del_field_work_openlibrary_id__d','2012-03-02 17:51:04'),(21,'core','0022_auto__chg_field_edition_publisher__chg_field_edition_publication_date','2012-03-02 17:51:05'),(22,'core','0023_auto__add_waswork','2012-03-02 17:51:05'),(23,'core','0024_auto__add_field_work_num_wishes','2012-03-02 17:51:06'),(24,'core','0025_count_wishes','2012-03-02 17:51:06'),(25,'core','0026_auto__add_field_ebook_user__add_field_waswork_moved__add_field_waswork','2012-03-02 17:51:08'),(26,'payment','0001_initial','2012-03-02 17:51:10'),(27,'payment','0002_auto__add_paymentresponse__del_field_transaction_reference__add_field_','2012-03-02 17:51:13'),(28,'payment','0003_auto__add_field_transaction_max_amount','2012-03-02 17:51:13'),(29,'payment','0004_auto__add_field_transaction_approved','2012-03-02 17:51:14'),(30,'tastypie','0001_initial','2012-03-02 17:51:14'),(31,'djcelery','0001_initial','2012-03-02 17:51:18'),(32,'payment','0005_auto__add_field_transaction_premium','2012-03-21 22:17:45'),(33,'core','0027_auto__add_field_campaign_license__chg_field_ebook_url','2012-03-28 15:24:25'),(34,'core','0028_auto__add_field_premium_limit','2012-03-28 15:24:25'),(35,'core','0029_https_facebook_avatars','2012-05-03 18:11:34'),(36,'core','0030_twitter_rewrite','2012-05-03 18:11:34'),(37,'core','0031_auto__add_field_campaign_edition','2012-05-03 18:11:35'),(38,'payment','0006_auto__add_field_transaction_local_status__add_field_paymentresponse_st','2012-05-03 18:11:36'),(39,'core','0032_auto__add_field_work_description','2012-05-07 23:51:10'),(40,'core','0033_move_descriptions','2012-05-07 23:51:10'),(41,'core','0034_auto__del_field_edition_description','2012-05-07 23:51:10'),(42,'core','0035_auto__add_key','2012-05-09 17:59:56'),(43,'core','0036_auto__add_unique_key_name','2012-05-09 17:59:56'),(44,'social_auth','0001_initial','2013-03-19 22:22:28');
 /*!40000 ALTER TABLE `south_migrationhistory` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1756,4 +1743,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2012-05-09 11:35:52
+-- Dump completed on 2013-03-19 19:28:33

@@ -13,8 +13,10 @@ from django.db import models
 from django.db.models import Q, get_model
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+
 
 import regluit
 import regluit.core.isbn
@@ -370,7 +372,7 @@ class Campaign(models.Model):
         self.save()
 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self, 'site': Site.objects.get_current()}, True)
+        notification.queue(ungluers, "wishlist_active", {'campaign':self}, True)
         return self
 
 
@@ -408,9 +410,13 @@ class Campaign(models.Model):
         return self
        
     def supporters(self):
+        # expensive query used in loop; stash it
+        if hasattr(self, '_translist_'):
+            return self._translist_
+
         """nb: returns (distinct) supporter IDs, not supporter objects"""
-        translist = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
-        return translist
+        self._translist_ = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct()
+        return self._translist_
         
     @property
     def supporters_count(self):
@@ -437,8 +443,11 @@ class Campaign(models.Model):
                     return None
         else:
             return None   
-
+    
     def ungluers(self):
+        # expensive query used in loop; stash it
+        if hasattr(self, '_ungluers_'):
+            return self._ungluers_
         p = PaymentManager()
         ungluers={"all":[],"supporters":[], "patrons":[], "bibliophiles":[]}
         if self.status == "ACTIVE":
@@ -457,6 +466,7 @@ class Campaign(models.Model):
                 elif transaction.amount >= Premium.TIERS["supporter"]:
                     ungluers['supporters'].append(transaction.user)
         
+        self._ungluers_= ungluers
         return ungluers
 
     def ungluer_transactions(self):
@@ -521,9 +531,28 @@ class Campaign(models.Model):
     @property
     def success_date(self):
         if self.status == 'SUCCESSFUL':
-            return self.actions.filter(type='succeeded')[0].timestamp
+            try:
+                return self.actions.filter(type='succeeded')[0].timestamp
+            except:
+                return ''
         return ''
+        
+    @property
+    def countdown(self):
+        from math import ceil
+        time_remaining = self.deadline - now()
+        countdown = ""
     
+        if time_remaining.days:
+            countdown = "%s days" % str(time_remaining.days + 1)
+        elif time_remaining.seconds > 3600:
+            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
+        elif time_remaining.seconds > 60:
+            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
+        else:
+            countdown = "Seconds"
+            
+        return countdown    
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -808,6 +837,9 @@ class Work(models.Model):
         except:
             return False
 
+    def get_absolute_url(self):
+        return reverse('work', args=[str(self.id)])
+        
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)

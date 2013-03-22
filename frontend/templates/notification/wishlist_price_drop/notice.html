@@ -13,7 +13,7 @@
 	{% if pledged %}
 		Your pledge of {{ amount|intcomma }} is now going even farther toward helping {{ campaign.work.title }} to reach its goal.  Still, we can only unglue this book if the campaign succeeds.  You can help again by sharing this campaign:
 		{% else %}
-		The target may be lower, but we still need your help to reach it.  Pledges of any amount help.  You can chip in towards giving this book to the world at https://{{ site.domain }}{% url pledge campaign.work.id %} .  You can also help by sharing this campaign:
+		The target may be lower, but we still need your help to reach it.  Pledges of any amount help.  You can chip in towards giving this book to the world at https://{{ current_site.domain }}{% url pledge campaign.work.id %} .  You can also help by sharing this campaign:
 	{% endif %}
 	
 	{% url work campaign.work.id as work_url %}

@@ -5,7 +5,7 @@
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage2.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/learnmore.css"  />
 {% endblock %}
 {% block extra_js %}
@@ -13,11 +13,17 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
-	jQuery(document).ready(function($) { 
-        $('.listview').addClass("panelview").removeClass("listview");
-    });  
+    
+jQuery(document).ready(function($) { 
+    $('.listview').addClass("panelview").removeClass("listview");
+});  
+var $j = jQuery.noConflict();
 function put_un_in_cookie(){
-    $j.cookie('un', $j('#id_username_pop').val(), {path: '/'});
+    $j.cookie('un', $j('#id_username_pop').val(), {path: '/', expires: 90 });
+    return true;
+}
+function put_un_in_cookie2(){
+    $j.cookie('un', $j('#id_username_main').val(), {path: '/', expires: 90 });
     return true;
 }
 </script>    
@@ -121,7 +127,7 @@ function put_un_in_cookie(){
                 	<h3 class="module-title">Start Ungluing Now!</h3>
                 	{% if not request.user.is_authenticated %}
                     <div class="jsmod-content">
-                      <form action='{% url registration_register %}' method='post'>{% csrf_token %}
+                      <form action='{% url registration_register %}' method='post' onsubmit="return put_un_in_cookie2();">{% csrf_token %}
                     	<div class="user-name">
                     	<label>Username</label>
                         <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />

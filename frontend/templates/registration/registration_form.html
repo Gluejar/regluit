@@ -5,7 +5,7 @@
 {{ block.super }}
 <script type="text/javascript">
 function put_un_in_cookie(){
-    $j.cookie('un', $j('#id_username').val(), {path: '/'});
+    $j.cookie('un', $j('#id_username').val(), {path: '/', expires: 90 });
     return true;
 }
 </script>

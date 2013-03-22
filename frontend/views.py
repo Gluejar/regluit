@@ -44,13 +44,16 @@ from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core.search import gluejar_search
+from regluit.core import goodreads
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.bookloader import merge_works
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
+from regluit.core.signals import supporter_message
+from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm 
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm, AuthForm
+from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
+from regluit.frontend.forms import MsgForm, AuthForm
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment import baseprocessor
@@ -58,7 +61,6 @@ from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_ST
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
 from regluit.payment.credit import credit_transaction
-from regluit.core import goodreads
 from tastypie.models import ApiKey
 from regluit.payment.models import Transaction, Sent, CreditLog
 from notification import models as notification
@@ -114,6 +116,14 @@ def safe_get_work(work_id):
         except models.WasWork.DoesNotExist:
             raise Http404
     return work
+    
+def cover_width(work):
+    if work.percent_of_goal() < 100:
+        cover_width = 100 - work.percent_of_goal()
+    else:
+        cover_width = 0
+        
+    return cover_width
 
 def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
@@ -143,7 +153,7 @@ def superlogin(request, **kwargs):
             extra_context={"socials":user.profile.social_auths}
         except:
             pass
-    return login(request, extra_context=extra_context, authentication_form=AuthForm)
+    return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
@@ -153,7 +163,6 @@ def work(request, work_id, action='display'):
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
-        alert=''
         try:
             activetab = request.GET['tab']
             if activetab not in ['1', '2', '3', '4']:
@@ -161,7 +170,7 @@ def work(request, work_id, action='display'):
         except:
             activetab = '1';
             
-    context = {}
+    alert=''
     campaign = work.last_campaign()
     if campaign and campaign.edition and not request.user.is_staff:
         editions = [campaign.edition]
@@ -173,7 +182,7 @@ def work(request, work_id, action='display'):
         pledged = None
         
     logger.info("pledged: {0}".format(pledged))
-    countdown = ""
+    cover_width_number = 0
     
     try:
         assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
@@ -181,25 +190,7 @@ def work(request, work_id, action='display'):
         logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     
     if work.last_campaign_status() == 'ACTIVE':
-        from math import ceil
-        time_remaining = campaign.deadline - now()
-        
-        '''
-        we want to round up on all of these; if it's the 3rd and the
-        campaign ends the 8th, users expect to see 5 days remaining,
-        not 4 (as an artifact of 4 days 11 hours or whatever)
-        time_remaining.whatever is an int, so just adding 1 will do
-        that for us (except in the case where .days exists and both other
-        fields are 0, which is unlikely enough I'm not defending against it)
-        '''
-        if time_remaining.days:
-            countdown = "in %s days" % str(time_remaining.days + 1)
-        elif time_remaining.seconds > 3600:
-            countdown = "in %s hours" % str(time_remaining.seconds/3600 + 1)
-        elif time_remaining.seconds > 60:
-            countdown = "in %s minutes" % str(time_remaining.seconds/60 + 1)
-        else:
-            countdown = "right now"
+        cover_width_number = cover_width(work)
     
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
@@ -262,7 +253,7 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'countdown': countdown,
+        'cover_width': cover_width_number
     })    
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -775,6 +766,7 @@ class PledgeView(FormView):
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
+                'cover_width': cover_width(self.work)
            })
             
         return context
@@ -924,7 +916,7 @@ class NonprofitCampaign(FormView):
         forward['amount']= int(amount)
         forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
         token=signing.dumps(forward)
-        return HttpResponseRedirect(settings.BASE_URL + reverse('donation_credit',kwargs={'token':token}))
+        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('donation_credit',kwargs={'token':token}))
 
 class DonationCredit(TemplateView):
     template_name="donation_credit.html"
@@ -1561,6 +1553,12 @@ def search(request):
     q = request.GET.get('q', None)
     page = int(request.GET.get('page', 1))
     results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
+    
+    if page==1:
+        work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
+        campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
+    else:
+        campaign_works = None
 
     # flag search result as on wishlist as appropriate
     if not request.user.is_anonymous():
@@ -1578,7 +1576,8 @@ def search(request):
     context = {
         "q": q,
         "results": works,
-        "ungluers": ungluers
+        "ungluers": ungluers,
+        "campaign_works": campaign_works
     }
     return render(request, 'search.html', context)
 
@@ -1598,12 +1597,14 @@ def wishlist(request):
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
             request.user.wishlist.add_work(edition.work,'user', notify=True)
+            return HttpResponse('added googlebooks id')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
+            return HttpResponse('error addin googlebooks id')
         except Exception, e:
             logger.warning("Error in wishlist adding %s" % (e))          
+            return HttpResponse('error adding googlebooks id')
         # TODO: redirect to work page, when it exists
-        return HttpResponseRedirect('/')
     elif remove_work_id:
         try:
             work = models.Work.objects.get(id=int(remove_work_id))
@@ -1613,8 +1614,7 @@ def wishlist(request):
             except models.WasWork.DoesNotExist:
                 raise Http404
         request.user.wishlist.remove_work(work)
-        # TODO: where to redirect?
-        return HttpResponseRedirect('/')
+        return HttpResponse('removed work from wishlist')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
         try:
@@ -1626,7 +1626,7 @@ def wishlist(request):
                 raise Http404
 
         request.user.wishlist.add_work(work,'user', notify=True)
-        return HttpResponseRedirect('/')
+        return HttpResponse('added work to wishlist')
   
 class InfoPageView(TemplateView):
     
@@ -1909,7 +1909,21 @@ def clear_wishlist(request):
     except Exception, e:
         return HttpResponse("Error in clearing wishlist: %s " % (e))
         logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
-    
+
+@require_POST
+@login_required      
+def msg(request):
+    form = MsgForm(data=request.POST)
+    if form.is_valid():
+        if not request.user.is_staff and request.user not in form.cleaned_data['work'].last_campaign().managers.all():
+            logger.warning("unauthorized attempt to send message by %s for %s"% (request.user,form.cleaned_data['work']))
+            raise Http404
+        supporter_message.send(sender=request.user,msg=form.cleaned_data["msg"], work=form.cleaned_data["work"],supporter=form.cleaned_data["supporter"])
+        return HttpResponse("message sent")
+    else:
+        logger.info("Invalid form for user %s", request.user)
+        raise Http404
+   
 
 class LibraryThingView(FormView):
     template_name="librarything.html"
@@ -2023,7 +2037,7 @@ def emailshare(request, action):
                 next = form.cleaned_data['next']
             except:
                 # if we totally failed to have a next value, we should still redirect somewhere useful
-                next = 'http://unglue.it'
+                next = 'https://unglue.it'
             return HttpResponseRedirect(next)
             
     else: 
@@ -2178,7 +2192,7 @@ def download(request, work_id):
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
         'readmill_epub_url': readmill_epub_url,
-        'base_url': settings.BASE_URL
+        'base_url': settings.BASE_URL_SECURE
     })
     
     return render(request, "download.html", context)

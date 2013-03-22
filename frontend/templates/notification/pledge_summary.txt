@@ -9,5 +9,5 @@ You will also be acknowledged as follows:
 - You will be listed in the ebook as a Bibliophile using the name "{{ transaction.ack_name }}" with a link to your Unglue.it supporter page.{% endifequal %}{% endif %}{% ifequal transaction.tier 3 %}{% if transaction.ack_dedication %}
 - The following dedication will be included in the ebook: 
     {{ transaction.ack_dedication }}{% else %}
-- You were eligible to include a dedication in the unglued ebook, but did not choose to do so.  If you like, you can change this at https://{{ site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
+- You were eligible to include a dedication in the unglued ebook, but did not choose to do so.  If you like, you can change this at https://{{ current_site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
 {% endif %}{% endifequal %}

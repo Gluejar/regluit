@@ -6,7 +6,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
 {% endblock %}
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
@@ -95,7 +95,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
             <div class="js-topnews1">
                 <div class="js-topnews2">
                     <div class="js-topnews3">
-                        <div class="user-block">
+                        <div class="user-block" itemscope itemtype="http://schema.org/Person">
                             <div id="user-block1">
                                 <div class="block-inner">
                                     {% if supporter.profile.pic_url %}
@@ -104,7 +104,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                         <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
                                     {% endif %}
                                     <span class="user-name">
-                                        <a href="#">{{ supporter.username }}</a>
+                                        <a href="#"><span itemprop="name">{{ supporter.username }}</span></a>
                                     </span>
                                 </div>
                                 <span class="user-badges">
@@ -354,11 +354,9 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% lazy_paginate 20 works_unglued using "works_unglued" %}
                     {% for work in works_unglued %}
                     <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-1">
@@ -371,11 +369,9 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% lazy_paginate 20 works_active using "works_active" %}
                     {% for work in works_active %}
                     <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-2">
@@ -388,11 +384,9 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% lazy_paginate 20 works_wished using "works_wished" %}
                     {% for work in works_wished %}
                     <div class="{% cycle 'row1' 'row2' %}">
-                    {% with work.last_campaign_status as status %}
-					{% with work.last_campaign.deadline as deadline %}
 					{% with work.googlebooks_id as googlebooks_id %}
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-3">
