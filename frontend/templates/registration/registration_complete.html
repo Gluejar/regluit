@@ -1,9 +1,18 @@
 {% extends "registration/registration_base.html" %}
+{% load urldecode %}
 {% block title %}Activation email sent{% endblock %}
 {% block doccontent %}
 {% if not user.is_authenticated %}
 
+<p>
 An account activation email has been sent.  Please check your email and click on the link to activate your account. We're also sending you an invitation to our email newsletter. It comes out about twice a month. Put "gluenews@gluejar.com" in your contact list to make sure you get it.
+</p>
+    {% if request.COOKIES.next %}
+
+    <p>
+    You can also go back to <a href="{{ request.COOKIES.next|urldecode }}">the page where you were</a>.
+    </p>
+    {% endif %}
 {% else %}
 <div>
 You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.

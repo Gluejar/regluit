@@ -1164,7 +1164,15 @@ class UserProfile(models.Model):
         except Exception, e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))
         return False
-       
+        
+    @property
+    def social_auths(self):
+        socials= self.user.social_auth.all()
+        auths={}
+        for social in socials:
+            auths[social.provider]=True
+        return auths
+        
 #class CampaignSurveyResponse(models.Model):
 #    # generic
 #    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)

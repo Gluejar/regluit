@@ -10,7 +10,7 @@
 
 {% block extra_js %}
 
-<script type="text/javascript" src="/static/js/definitions.js"></script>
+{% block.super %}
 <script>
 $j(document).ready(function() {
     jQuery.post("/ml/status/", function(data){
