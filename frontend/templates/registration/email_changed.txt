@@ -1,6 +1,0 @@
-The email address for your unglue.it accound has been changed from {{oldemail}} to {{request.user.email}}.
-
-If there's any reason that this is in error, please contact us at support@gluejar.com
-
-Sincerely,
-The unglue.it Team
