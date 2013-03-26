@@ -47,25 +47,53 @@ function put_un_in_cookie2(){
     <div class="js-main">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
-            <div class="js-main-container-inner">
-            		<div id="js-maincontainer-content" class="have-content-right-module">
-
-                    </div>
+        	    <h3 class="featured_books">Active Campaigns</h3>
+                {% for campaign in top_campaigns %}
+                    {% with campaign.work as work %}
+                    {% with work.googlebooks_id as googlebooks_id %}
+                    {% with "ACTIVE" as status %}
+                    {% with campaign.deadline as deadline %}
+                        {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                {% endfor %}
+                <div class="spacer"></div>
+        	
+        	    <h3 class="featured_books">Already Unglued</h3>
+                {% for work in unglued_books %}
+                    {% with work.googlebooks_id as googlebooks_id %}
+                    {% with "ACTIVE" as status %}
+                    {% with work.last_campaign.deadline as deadline %}
+                        {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}
+                {% endfor %}
+                <div class="spacer"></div>
+        	
+        	    <h3 class="featured_books">Most Wished</h3>
+                {% for work in most_wished %}
+                    {% with work.googlebooks_id as googlebooks_id %}
+                    {% with "ACTIVE" as status %}
+                    {% with work.last_campaign.deadline as deadline %}
+                        {% include "book_panel.html" %}
+                    {% endwith %}{% endwith %}{% endwith %}
+                {% endfor %}
+                <div class="spacer"></div>
+        	
+                <div class="js-main-container-inner">
                     <div id="js-maincontainer-bot-block">
                         <div id="js-search">
-                        	<label>What book would you give to the world? </label>
-				                <form action="{% url search %}" method="get">
-                				    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-                				    <input type="submit" class="greenbutton" value="Search">
-               					</form>
+                            <label>What book would you give to the world? </label>
+                                <form action="{% url search %}" method="get">
+                                    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
+                                    <input type="submit" class="greenbutton" value="Search">
+                                </form>
                         </div>
                     </div>
                     <div id="js-maincontainer-faq">
-                    	<div class="js-maincontainer-faq-inner">
-                        	Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.
+                        <div class="js-maincontainer-faq-inner">
+                            Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.
                         </div>
                     </div>
-            </div>
+                </div>
             </div>
             <div id="js-rightcol">
             <div class="js-rightcol-padd">

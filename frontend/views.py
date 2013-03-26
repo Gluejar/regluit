@@ -139,6 +139,16 @@ def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
+            
+    """
+    use campaigns instead of works so that we can order by amount left,
+    drive interest toward most-nearly-successful
+    """
+    top_campaigns = models.Campaign.objects.filter(status="ACTIVE").order_by('left')[:4]
+    
+    most_wished = models.Work.objects.order_by('-wishes')[:4]
+
+    unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')
 
     """
     get various recent types of site activity
@@ -156,7 +166,7 @@ def home(request, landing=False):
         )[:10]
 
     """
-    for each event, we'll be passing its id and type to the template
+    for each event, we'll be passing its object and type to the template
     (and preserving its date for sorting purposes)
     """
     latest_comments_tuple = map(
@@ -173,7 +183,10 @@ def home(request, landing=False):
         lambda x: (x.created, x, "wish"),
         latest_wishes
     )
-
+    
+    """
+    merge latest actions into a single list, sorted by date, to loop through in template
+    """
     latest_actions = sorted(
         chain(latest_comments_tuple, latest_pledges_tuple, latest_wishes_tuple), 
         key=lambda instance: instance[0],
@@ -185,7 +198,9 @@ def home(request, landing=False):
     else:
         events = latest_actions[:6]
     
-    return render(request, 'home.html', {'suppress_search_box': True, 'events': events})
+    return render(request, 'home.html', {
+        'suppress_search_box': True, 'events': events, 'top_campaigns': top_campaigns, 'unglued_books': unglued_books, 'most_wished': most_wished
+        })
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
