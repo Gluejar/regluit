@@ -31,8 +31,8 @@ from django.template import RequestContext, Context
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 
-from email_change.forms import EmailChangeForm
-from email_change.utils import generate_key
+from regluit.email_change.forms import EmailChangeForm
+from regluit.email_change.utils import generate_key
 
 
 @login_required
