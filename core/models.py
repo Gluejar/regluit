@@ -974,12 +974,26 @@ class Publisher(models.Model):
     logo_url = models.URLField(max_length=1024, null=True)
     description = models.TextField(default='', null=True)
 
+    def __unicode__(self):
+        return self.name.name
+
 class PublisherName(models.Model):
     name = models.CharField(max_length=255,  blank=False)
+    
+    # all_names was a bad choice. should be "alternate_names"
     publisher =  models.ForeignKey('Publisher', related_name='all_names', null=True)
 
     def __unicode__(self):
         return self.name
+        
+    def save(self, *args, **kwargs):
+        super(PublisherName, self).save(*args, **kwargs) # Call the "real" save() method.
+        if self.publisher and self != self.publisher.name:
+            #this name is an alias, repoint all editions with this name to the other.
+            for edition in Edition.objects.filter(publisher_name=self):
+                edition.publisher_name = self.publisher.name
+                edition.save()
+            
 
 class WasWork(models.Model):
     work = models.ForeignKey('Work')

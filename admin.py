@@ -66,12 +66,16 @@ class PublisherAdminForm(forms.ModelForm):
 
     class Meta(object):
         model = models.Publisher
-
         
 class PublisherAdmin(ModelAdmin):
     list_display = ('name', 'url', 'logo_url', 'description')
     ordering = ('name',)
     form = PublisherAdminForm
+
+class PublisherNameAdmin(ModelAdmin):
+    list_display = ('name', 'publisher')
+    ordering = ('name',)
+    search_fields = ['name']
     
 class EbookAdmin(ModelAdmin):
     date_hierarchy = 'created'
@@ -114,6 +118,7 @@ admin_site.register(models.Premium, PremiumAdmin)
 admin_site.register(models.Campaign, CampaignAdmin)
 admin_site.register(models.Author, AuthorAdmin)
 admin_site.register(models.Publisher, PublisherAdmin)
+admin_site.register(models.PublisherName, PublisherNameAdmin)
 admin_site.register(models.Subject, SubjectAdmin)
 admin_site.register(models.Edition, EditionAdmin)
 admin_site.register(models.Ebook, EbookAdmin)
