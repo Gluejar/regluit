@@ -28,7 +28,7 @@ import datetime
 
 from django.db import models
 
-from email_change import settings
+from regluit.email_change import settings
 
 
 class EmailChangeRequest(models.Model):
