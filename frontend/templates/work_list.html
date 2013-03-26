@@ -27,7 +27,7 @@
                         <div class="user-block">
                             {% block userblock %}
                                 <div id="user-block1">
-								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
+								{% block userblock1 %}<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>{% endblock %}
 								</div>
 								<div class="user-block2">
 								{% block userblock2 %}
@@ -35,6 +35,7 @@
 								{% endblock %}
 								</div>
     	                        <div class="user-block3">
+    	                        {% block userblock3 %}{% endblock %}
 	                            </div>
                             {% endblock %}
                         </div>

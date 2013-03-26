@@ -524,11 +524,20 @@ class WorkListView(FilterableListView):
 class ByPubView(WorkListView):
     template_name = "bypub_list.html"
     context_object_name = "work_list"
-    max_works=100000
-    publisher_name=None
+    max_works = 100000
+    publisher_name = None
+    publisher = None
     
     def get_publisher_name(self):
         self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        self.set_publisher()
+    
+    def set_publisher(self):
+        if self.publisher_name.key_publisher:
+            self.publisher = self.publisher_name.key_publisher.all()[0]
+        elif self.publisher_name.publisher:
+            self.publisher = self.publisher_name.publisher
+            self.publisher_name = self.publisher.name
         
     def get_queryset_all(self):
         facet = self.kwargs.get('facet','')
@@ -546,11 +555,13 @@ class ByPubView(WorkListView):
     def get_context_data(self, **kwargs):
             context = super(ByPubView, self).get_context_data(**kwargs)
             context['pubname'] = self.publisher_name
+            context['publisher'] = self.publisher
             return context
 
 class ByPubListView(ByPubView):
     def get_publisher_name(self):
         self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
+        self.set_publisher()
 
 
 class UngluedListView(FilterableListView):
