@@ -1,71 +1,81 @@
+'''
+imports not from django or regluit
+'''
 import re
 import sys
 import json
 import logging
 import urllib
-
-from datetime import timedelta, date
-from regluit.utils.localdatetime import now, date_today
-
-from random import randint
-from re import sub
-from itertools import islice
-from decimal import Decimal as D
-from xml.etree import ElementTree as ET
 import requests
 import oauth2 as oauth
+
+from datetime import timedelta, date
+from decimal import Decimal as D
+from itertools import islice, chain
+from notification import models as notification
+from random import randint
+from re import sub
+from xml.etree import ElementTree as ET
+from tastypie.models import ApiKey
+
+'''
+django imports
+'''
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core import signing
-from django.core.urlresolvers import reverse
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
+from django.core import signing
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template.loader import render_to_string
+from django.utils.http import urlencode
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from django.shortcuts import render, render_to_response, get_object_or_404
-from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+
+'''
+regluit imports
+'''
 from regluit.core import tasks
-from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
-from regluit.core.search import gluejar_search
 from regluit.core import goodreads
-from regluit.core.goodreads import GoodreadsClient
 from regluit.core.bookloader import merge_works
+from regluit.core.goodreads import GoodreadsClient
+from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
+from regluit.core.tasks import send_mail_task, emit_notifications
+
 from regluit.frontend.forms import UserData, UserEmail, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
 from regluit.frontend.forms import MsgForm, AuthForm
+
+from regluit.payment import baseprocessor, stripelib
+from regluit.payment.credit import credit_transaction
 from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction, Account
-from regluit.payment import baseprocessor
+from regluit.payment.models import Transaction, Account, Sent, CreditLog
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
-from regluit.payment.credit import credit_transaction
-from tastypie.models import ApiKey
-from regluit.payment.models import Transaction, Sent, CreditLog
-from notification import models as notification
 
-from regluit.payment import stripelib
+from regluit.utils.localdatetime import now, date_today
 
 logger = logging.getLogger(__name__)
 
@@ -133,11 +143,51 @@ def home(request, landing=False):
     worklist = slideshow(12)
     works = worklist[:6]
     works2 = worklist[6:12]
+    
+    """
+    get various recent types of site activity
+    """
+    latest_comments = Comment.objects.order_by(
+            '-submit_date'
+        )[:10]
+    latest_pledges = Transaction.objects.filter(
+            anonymous=False
+        ).order_by(
+            '-date_created'
+        )[:10]
+    latest_wishes = models.Wishes.objects.order_by(
+            '-created'
+        )[:10]
 
+    """
+    for each event, we'll be passing its id and type to the template
+    (and preserving its date for sorting purposes)
+    """
+    latest_comments_tuple = map(
+        lambda x: (x.submit_date, x, "comment"),
+        latest_comments
+    )
+    
+    latest_pledges_tuple = map(
+        lambda x: (x.date_created, x, "pledge"),
+        latest_pledges
+    )
+    
+    latest_wishes_tuple = map(
+        lambda x: (x.created, x, "wish"),
+        latest_wishes
+    )
+
+    latest_actions = sorted(
+        chain(latest_comments_tuple, latest_pledges_tuple, latest_wishes_tuple), 
+        key=lambda instance: instance[0],
+        reverse=True
+    )
+    
     if request.user.is_authenticated():
-        events = models.Wishes.objects.order_by('-created')[0:12]
+        events = latest_actions[:12]
     else:
-        events = models.Wishes.objects.order_by('-created')[0:6]
+        events = latest_actions[:6]
     
     return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
 

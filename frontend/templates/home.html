@@ -116,15 +116,40 @@ function put_un_in_cookie2(){
                     <div class="jsmod-content">
 						<ul class="ungluingwhat">
 						{% for event in events %}
+                            {% comment %}
+                                events are tuples of date, object, and object type
+                            {% endcomment %}
                         	<li>
-                            	<span class="user-avatar">
-                            	    <a href="{% url supporter event.wishlist.user.username %}"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/header/avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></a>
-                            	</span>
-                                <span class="user-book-info">
-                                	<a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username}}</a><br />
-                                	wishlisted <br />
-                                	<a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
-                                </span>
+                        	    {% with event.1 as object %}
+                        	        {% ifequal event.2 "pledge" %}
+                                        <span class="user-avatar">
+                                            <a href="{% url supporter object.user.username %}"><img src="{% if object.user.picurl %}{{ object.user.picurl }}{% else %}/static/images/header/avatar.png{% endif %}" width="43" height="43" title="{{ object.campaign.work.title }}" alt="{{ object.campaign.work.title }} avatar" /></a>
+                                        </span>
+                                        <span class="user-book-info">
+                                            <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
+                                            pledged to the campaign to unglue <br />
+                                            <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                        </span>
+                                    {% else %}{% ifequal event.2 "comment" %}
+                                        <span class="user-avatar">
+                                            <a href="{% url supporter object.user.username %}"><img src="{% if object.user.picurl %}{{ object.user.picurl }}{% else %}/static/images/header/avatar.png{% endif %}" width="43" height="43" title="{{ object.content_object.title }}" alt="{{ object.content_object.title }} avatar" /></a>
+                                        </span>
+                                        <span class="user-book-info">
+                                            <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
+                                            commented on<br />
+                                            <a class="user-book-name" href="{% url work object.content_object..id %}">{{ object.content_object.title }}</a>
+                                        </span>                                    
+                                    {% else %}{% ifequal event.2 "wish" %}
+                                        <span class="user-avatar">
+                                            <a href="{% url supporter object.wishlist.user.username %}"><img src="{% if object.wishlist.user.picurl %}{{ object.wishlist.user.picurl }}{% else %}/static/images/header/avatar.png{% endif %}" width="43" height="43" title="{{ object.work.title }}" alt="{{ object.work.title }} avatar" /></a>
+                                        </span>
+                                        <span class="user-book-info">
+                                            <a href="{% url supporter object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
+                                            wishlisted <br />
+                                            <a class="user-book-name" href="{% url work object.work.id %}">{{ object.work.title }}</a>
+                                        </span>                                    
+                                    {% endifequal %}{% endifequal %}{% endifequal %}
+                                {% endwith %}
                             </li>
                         {% endfor %}
                         </ul>
