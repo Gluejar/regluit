@@ -140,7 +140,7 @@ INSTALLED_APPS = (
     'regluit.frontend.templatetags',
     'regluit.payment.templatetags',
     'notification',
-    'email_change',
+    'regluit.email_change',
     'ckeditor',
     'storages',    
     # this must appear *after* django.frontend or else it overrides the 
