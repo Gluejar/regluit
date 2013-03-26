@@ -29,6 +29,7 @@ from django.views.generic.simple import direct_to_template
 
 
 urlpatterns = patterns('',
+    "regluit.email_change.views",
     url(r'^email/change/$', 'email_change.views.email_change_view', name='email_change'),
     url(r'^email/verification/sent/$',
         direct_to_template, {'template': 'email_change/email_verification_sent.html'},
