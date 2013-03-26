@@ -140,10 +140,6 @@ def home(request, landing=False):
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
 
-    worklist = slideshow(12)
-    works = worklist[:6]
-    works2 = worklist[6:12]
-    
     """
     get various recent types of site activity
     """
@@ -189,7 +185,7 @@ def home(request, landing=False):
     else:
         events = latest_actions[:6]
     
-    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
+    return render(request, 'home.html', {'suppress_search_box': True, 'events': events})
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
