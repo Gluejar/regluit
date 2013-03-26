@@ -338,7 +338,7 @@
                                                     {% endif %}
                                                 <div class="metadata" id="edition_{{edition.id}}">
                                                     {% if edition.publisher %}
-                                                        Publisher: <a href="{% url bypub_list edition.publisher %}">{{edition.publisher}}</a><br />
+                                                        Publisher: <a href="{% url bypubname_list edition.publisher_name.id %}">{{edition.publisher}}</a><br />
                                                     {% endif %}
                                                     {% if edition.publication_date %}
                                                         Published: {{ edition.publication_date }}<br />

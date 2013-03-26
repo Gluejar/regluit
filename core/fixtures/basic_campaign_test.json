@@ -287,9 +287,16 @@
   }, 
   {
     "pk": 1, 
+    "model": "core.publishername", 
+    "fields": {
+      "name": "Apress" 
+    }
+  }, 
+  {
+    "pk": 1, 
     "model": "core.edition", 
     "fields": {
-      "publisher": "Apress", 
+      "publisher_name": 1, 
       "title": "Pro Web 2.0 Mashups", 
       "work": 1, 
       "created": "2012-10-12T23:27:53", 
@@ -301,9 +308,16 @@
   }, 
   {
     "pk": 2, 
+    "model": "core.publishername", 
+    "fields": {
+      "name": "Scribner"
+    }
+  }, 
+  {
+    "pk": 2, 
     "model": "core.edition", 
     "fields": {
-      "publisher": "Scribner", 
+      "publisher_name": 2, 
       "title": "Moby Dick", 
       "work": 2, 
       "created": "2012-10-14T09:54:17", 
@@ -315,9 +329,16 @@
   }, 
   {
     "pk": 3, 
+    "model": "core.publishername", 
+    "fields": {
+      "name": "Courier Dover Publications"
+    }
+  }, 
+  {
+    "pk": 3, 
     "model": "core.edition", 
     "fields": {
-      "publisher": "Courier Dover Publications", 
+      "publisher_name": 3, 
       "title": "Mass in B Minor in Full Score", 
       "work": 3, 
       "created": "2012-10-14T10:01:54", 

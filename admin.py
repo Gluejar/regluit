@@ -47,9 +47,14 @@ class SubjectAdmin(ModelAdmin):
     ordering = ('name',)
 
 class EditionAdmin(ModelAdmin):
-    list_display = ('title', 'publisher', 'created')
+    list_display = ('title', 'publisher_name', 'created')
     date_hierarchy = 'created'
     ordering = ('title',)
+
+class PublisherAdmin(ModelAdmin):
+    list_display = ('name', 'url', 'logo_url', 'description')
+    date_hierarchy = 'created'
+    ordering = ('name',)
 
 class EbookAdmin(ModelAdmin):
     date_hierarchy = 'created'
@@ -91,6 +96,7 @@ admin_site.register(models.RightsHolder, RightsHolderAdmin)
 admin_site.register(models.Premium, PremiumAdmin)
 admin_site.register(models.Campaign, CampaignAdmin)
 admin_site.register(models.Author, AuthorAdmin)
+admin_site.register(models.Publisher, PublisherAdmin)
 admin_site.register(models.Subject, SubjectAdmin)
 admin_site.register(models.Edition, EditionAdmin)
 admin_site.register(models.Ebook, EbookAdmin)

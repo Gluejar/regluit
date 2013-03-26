@@ -11,7 +11,7 @@ from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView, ByPubView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -39,6 +39,8 @@ urlpatterns = patterns(
     url(r"^msg/$", "msg", name="msg"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
+    url(r"^pid/all/(?P<pubname>\d+)$", ByPubView.as_view(),  name='bypubname_list'),
+    url(r"^pid/(?P<facet>\w*)/(?P<pubname>\d+)$", ByPubView.as_view(),  name='bypubname_list'),
     url(r"^bypub/all/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
     url(r"^bypub/(?P<facet>\w*)/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
     url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),

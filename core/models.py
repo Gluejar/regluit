@@ -227,6 +227,8 @@ class Campaign(models.Model):
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
+    email =  models.CharField(max_length=100, blank=True)
+    publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
     problems = []
     
     def __unicode__(self):
@@ -869,7 +871,7 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher = models.CharField(max_length=255, null=True, blank=True, db_index=True)
+    publisher_name = models.ForeignKey("PublisherName", related_name="editions", null=True)
     publication_date = models.CharField(max_length=50, null=True, blank=True)
     public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
@@ -901,7 +903,12 @@ class Edition(models.Model):
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
-    
+    @property
+    def publisher(self):
+        if self.publisher_name:
+            return self.publisher_name.name
+        return ''
+        
     @property
     def isbn_10(self):
         return regluit.core.isbn.convert_13_to_10(self.isbn_13)
@@ -949,6 +956,30 @@ class Edition(models.Model):
             return Identifier.objects.get( type='isbn', value=isbn ).edition
         except Identifier.DoesNotExist:
             return None
+    
+    def set_publisher(self,publisher_name):
+        if publisher_name and publisher_name != '':
+            try:
+                pub_name = PublisherName.objects.get(name=publisher_name)
+            except PublisherName.DoesNotExist:
+                pub_name = PublisherName.objects.create(name=publisher_name)
+                pub_name.save()
+            self.publisher_name = pub_name
+            self.save()
+
+class Publisher(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    name = models.ForeignKey('PublisherName', related_name='key_publisher')
+    url = models.URLField(max_length=1024, null=True)
+    logo_url = models.URLField(max_length=1024, null=True)
+    description = models.TextField(default='', null=True)
+
+class PublisherName(models.Model):
+    name = models.CharField(max_length=255,  blank=False)
+    publisher =  models.ForeignKey('Publisher', related_name='all_names', null=True)
+
+    def __unicode__(self):
+        return self.name
 
 class WasWork(models.Model):
     work = models.ForeignKey('Work')

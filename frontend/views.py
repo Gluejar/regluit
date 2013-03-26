@@ -521,15 +521,19 @@ class WorkListView(FilterableListView):
             
             return context
 
-class ByPubListView(WorkListView):
+class ByPubView(WorkListView):
     template_name = "bypub_list.html"
     context_object_name = "work_list"
     max_works=100000
-
+    publisher_name=None
+    
+    def get_publisher_name(self):
+        self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        
     def get_queryset_all(self):
         facet = self.kwargs.get('facet','')
-        pubname = self.kwargs['pubname']
-        objects = models.Work.objects.filter(editions__publisher__iexact=pubname).distinct()
+        self.get_publisher_name()
+        objects = models.Work.objects.filter(editions__publisher_name__id=self.publisher_name.id).distinct()
         if (facet == 'popular'):
             return objects.order_by('-num_wishes', 'id')
         elif (facet == 'pubdate'):
@@ -540,9 +544,14 @@ class ByPubListView(WorkListView):
             return objects.order_by('title', 'id')
 
     def get_context_data(self, **kwargs):
-            context = super(ByPubListView, self).get_context_data(**kwargs)
-            context['pubname'] = self.kwargs['pubname']
+            context = super(ByPubView, self).get_context_data(**kwargs)
+            context['pubname'] = self.publisher_name
             return context
+
+class ByPubListView(ByPubView):
+    def get_publisher_name(self):
+        self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
+
 
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
