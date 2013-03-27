@@ -847,6 +847,10 @@ class Work(models.Model):
     def get_absolute_url(self):
         return reverse('work', args=[str(self.id)])
         
+    def publishers(self):
+        # returns a set of publishers associated with this Work
+        return Publisher.objects.filter(name__editions__work=self).distinct()
+        
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
@@ -970,9 +974,9 @@ class Edition(models.Model):
 class Publisher(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.ForeignKey('PublisherName', related_name='key_publisher')
-    url = models.URLField(max_length=1024, null=True)
-    logo_url = models.URLField(max_length=1024, null=True)
-    description = models.TextField(default='', null=True)
+    url = models.URLField(max_length=1024, null=True, blank=True)
+    logo_url = models.URLField(max_length=1024, null=True, blank=True)
+    description = models.TextField(default='', null=True, blank=True)
 
     def __unicode__(self):
         return self.name.name

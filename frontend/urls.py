@@ -81,6 +81,7 @@ urlpatterns = patterns(
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
     url('^robots.txt$', direct_to_template, {'template': 'robots.txt', 'mimetype': 'text/plain'}),
     url(r"^emailshare/(?P<action>\w*)/?$", "emailshare", name="emailshare"),
+    url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", "ask_rh", name="ask_rh"),
     url(r"^feedback/$", "feedback", name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
     url(r"^press/$", TemplateView.as_view(template_name="press.html"),
