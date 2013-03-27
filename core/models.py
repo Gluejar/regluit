@@ -965,6 +965,8 @@ class Edition(models.Model):
         if publisher_name and publisher_name != '':
             try:
                 pub_name = PublisherName.objects.get(name=publisher_name)
+                if pub_name.publisher:
+                    pub_name = pub_name.publisher.name
             except PublisherName.DoesNotExist:
                 pub_name = PublisherName.objects.create(name=publisher_name)
                 pub_name.save()

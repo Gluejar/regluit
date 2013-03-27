@@ -15,7 +15,7 @@ from django.contrib.sites.models import Site
 from django.http import Http404
 
 from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium, Subject
+from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium, Subject, Publisher
 from regluit.core import bookloader, models, search, goodreads, librarything
 from regluit.core import isbn
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -53,6 +53,17 @@ class BookLoaderTests(TestCase):
         # work
         self.assertTrue(edition.work)
         
+        # publisher names
+        old_pub_name = edition.publisher_name
+        edition.set_publisher('test publisher name')
+        self.assertEqual(edition.publisher, u'test publisher name')
+        pub = Publisher(name=edition.publisher_name)
+        pub.save()
+        self.assertEqual(edition.work.publishers().count(), 1)
+        old_pub_name.publisher = pub
+        old_pub_name.save()
+        edition.set_publisher(u'Ace Trade')
+        self.assertEqual(edition.publisher, u'test publisher name') # Ace Trade has been aliased
         # locale in language
         edition = bookloader.add_by_isbn('9787500676911')
         self.assertEqual(edition.work.language, 'zh')
