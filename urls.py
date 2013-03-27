@@ -18,7 +18,7 @@ urlpatterns = patterns('',
           {'template_name': 'registration/from_pledge.html'}),
     (r'^accounts/edit/$', 'regluit.frontend.views.edit_user'),
     (r'^accounts/', include('registration.backends.default.urls')),
-    url('accounts/', include('regluit.email_change.urls')),
+    url('accounts/', include('email_change.urls')),
     url(r"^accounts/login/welcome/$", direct_to_template, 
         {'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
