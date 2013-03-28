@@ -1192,12 +1192,12 @@ class UserProfile(models.Model):
                 return self.pic_url
             else:
                 return ANONYMOUS_AVATAR
-        elif self.avatar_source == NO_AVATAR:
-            return ANONYMOUS_AVATAR
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id != None:
             return 'https://graph.facebook.com/' + str(self.facebook_id) + '/picture'
+        else:
+            return ANONYMOUS_AVATAR
         
     @property
     def social_auths(self):
