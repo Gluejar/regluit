@@ -158,6 +158,8 @@ def home(request, landing=False):
         )[:10]
     latest_pledges = Transaction.objects.filter(
             anonymous=False
+        ).only(
+            'date_created', 'user', 'campaign'
         ).order_by(
             '-date_created'
         )[:10]
@@ -170,17 +172,17 @@ def home(request, landing=False):
     (and preserving its date for sorting purposes)
     """
     latest_comments_tuple = map(
-        lambda x: (x.submit_date, x, "comment"),
+        lambda x: (x.submit_date, x, 'comment'),
         latest_comments
     )
     
     latest_pledges_tuple = map(
-        lambda x: (x.date_created, x, "pledge"),
+        lambda x: (x.date_created, x, 'pledge'),
         latest_pledges
     )
     
     latest_wishes_tuple = map(
-        lambda x: (x.created, x, "wish"),
+        lambda x: (x.created, x, 'wish'),
         latest_wishes
     )
     
