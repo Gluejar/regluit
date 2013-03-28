@@ -124,9 +124,14 @@
     </div>
 
 {% block news %}
+{% if not suppress_search_box %}
+{% comment %}
+Not needed on newly designed home page?
+{% endcomment %}
 <div class="launch_top">
         We've unglued our <a href="/work/113782/">second</a> and <a href="/work/76348/">third</a> books.  Help us <a href="https://unglue.it/campaigns/ending">unglue even more</a>! <br />
 </div>
+{% endif %}
 {% endblock %}
 
     {% block topsection %}{% endblock %}
