@@ -1084,7 +1084,7 @@ class UserProfile(models.Model):
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
     
-    avatar_source = models.PositiveSmallIntegerField(null = True, 
+    avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
             choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
     def reset_pledge_badge(self):    
