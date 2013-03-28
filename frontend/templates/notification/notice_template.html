@@ -20,14 +20,10 @@ tweet, FB, email sharing show up.  Include a {% url work your.local.work.id as w
 				This is where you put your headline.
 				Brief text, graphics-oriented info like user avatars and campaign status icons.
 				e.g.:
-				<a href="{% url supporter supporter %}">
-					{% if supporter.profile.pic_url %}
-						<img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
-					{% else %}
-						<img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-					{% endif %}
+				<a href="{% url supporter comment.user %}">
+					<img class="user-avatar" src="{{ comment.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ comment.user }}" title="{{ comment.user }}" />
 				</a>
-				<span><a href="{% url supporter supporter %}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>{% endcomment %}{% endblock %}
+				<span><a href="{% url supporter comment.user %}">{{ comment.user.username }}</a> on <a href="{{ work_url }}?tab=2">{{ comment.content_object.title }}</a></span>{% endcomment %}{% endblock %}
 				<br /><i>{% now "M d Y, h:i A"%}</i><br />
 		</span>
 		<hr />

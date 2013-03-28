@@ -3,13 +3,9 @@
   
   <div itemprop="comment" itemscope itemtype="http://schema.org/UserComments" class="work_supporter {% if comment.content_object.last_campaign and comment.user in comment.content_object.last_campaign.managers.all %}official{% endif %}">
         <span itemprop="creator" itemscope itemtype="http://schema.org/Person">
-        <a itemprop="url" href="{% url supporter supporter_username=comment.user.username %}">
+        <a itemprop="url" href="{% url supporter comment.user %}">
             <span class="work_supporter_avatar">
-            {% if comment.user.profile.pic_url %}
-                <img class="user-avatar" src="{{ comment.user.profile.pic_url }}" height="50" width="50" alt="Picture of {{ comment.user }}" title="{{ comment.user }}" />
-            {% else %}
-                <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-            {% endif %}
+                <img class="user-avatar" src="{{ comment.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ comment.user }}" title="{{ comment.user }}" />
             </span>
             <span class="comment_username">{{comment.user.username }}</span>
         </a>

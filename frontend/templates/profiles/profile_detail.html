@@ -8,6 +8,6 @@
  
 <p><b>Tagline:</b> {{ profile.tagline }}</p>
 <p><a href="/profiles/edit/">Edit Again</a></p>
-<p><a href="{% url supporter supporter_username=user %}/">{{user}}'s Unglue.it Page</a></p>
+<p><a href="{% url supporter user %}/">{{user}}'s Unglue.it Page</a></p>
  </div>
 {% endblock content %}
