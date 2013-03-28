@@ -146,8 +146,8 @@ def home(request, landing=False):
     """
     top_campaigns = models.Campaign.objects.filter(status="ACTIVE").order_by('left')[:4]
     
-    most_wished = models.Work.objects.order_by('-wishes')[:4]
-
+    most_wished = models.Work.objects.order_by('-num_wishes')[:4]
+    
     unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')
 
     """
