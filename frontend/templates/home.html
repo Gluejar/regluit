@@ -77,7 +77,7 @@ function put_un_in_cookie2(){
                         </div>
                     {% else %}
                     <div>
-                    You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
+                    You are logged in as <a href="{% url supporter request.user %}">{{ request.user.username }}</a>.
                     </div>
                     {% endif %}
 
@@ -154,7 +154,7 @@ function put_un_in_cookie2(){
                     </div>
                     {% else %}
                     <div>
-                    You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
+                    You are logged in as <a href="{% url supporter request.user %}">{{ request.user.username }}</a>.
                     </div>
                     {% endif %}
 
