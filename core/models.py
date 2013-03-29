@@ -986,8 +986,7 @@ class Publisher(models.Model):
 class PublisherName(models.Model):
     name = models.CharField(max_length=255,  blank=False)
     
-    # all_names was a bad choice. should be "alternate_names"
-    publisher =  models.ForeignKey('Publisher', related_name='all_names', null=True)
+    publisher =  models.ForeignKey('Publisher', related_name='alternate_names', null=True)
 
     def __unicode__(self):
         return self.name

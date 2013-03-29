@@ -7,6 +7,8 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
+        n=0
+        m=0
         for edition in orm.Edition.objects.all():
             if edition.publisher and edition.publisher != '':
                 try:
@@ -16,12 +18,24 @@ class Migration(DataMigration):
                     pub_name.save()
                 edition.publisher_name = pub_name
                 edition.save()
+            n += 1
+            if n==10000:
+                m += 1
+                n=0
+                print str(m*10000)+" "
 
     def backwards(self, orm):
+        n=0
+        m=0
         for edition in orm.Edition.objects.all():
             if edition.publisher_name:
                 edition.publisher = edition.publisher_name.name
                 edition.save()
+            n += 1
+            if n==10000:
+                m += 1
+                n=0
+                print str(m*10000)+" "
 
     models = {
         'auth.group': {
@@ -183,7 +197,7 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'PublisherName'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'publisher': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'all_names'", 'null': 'True', 'to': "orm['core.Publisher']"})
+            'publisher': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'alternate_names'", 'null': 'True', 'to': "orm['core.Publisher']"})
         },
         'core.rightsholder': {
             'Meta': {'object_name': 'RightsHolder'},
