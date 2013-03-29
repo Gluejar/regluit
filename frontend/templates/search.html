@@ -97,7 +97,7 @@ $j(document).ready(function() {
                 </div>
                 <div id="content-block-content"><div id="results">
                     {% for work in results %}
-                    {% if not work.campaigns %}
+                    {% if not work.last_campaign %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
 					{% with 'yes' as on_search_page %}
