@@ -275,10 +275,27 @@ h3.module-title {
 
 h3.featured_books {
     clear: both;
-    color: white;
-    background: @bright-blue;
+    font-weight: normal;
+    background: @pale-blue;
     .border-radius(10px, 10px, 0, 0);
     padding: 10px;
+}
+
+a.more_featured_books {
+    float: right;
+    width: 57px;
+    height: 305px;
+    margin: 5px 0;
+    border: 5px solid white;
+    background-image: url("/static/images/landingpage/signmeup-arrow-textblue.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    &:hover {
+        background-image: url("/static/images/landingpage/signmeup-arrow-right.png");
+        cursor: pointer;
+        border-color: @pale-blue;
+    }
 }
 
 .spacer {

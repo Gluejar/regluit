@@ -46,34 +46,43 @@ function put_un_in_cookie2(){
         <div id="js-maincol-fl">
         	<div id="js-main-container">
         	    <h3 class="featured_books">Active Campaigns</h3>
-                {% for campaign in top_campaigns %}
-                    {% with campaign.work as work %}
-                    {% with work.googlebooks_id as googlebooks_id %}
-                    {% with "ACTIVE" as status %}
-                    {% with campaign.deadline as deadline %}
-                        {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
-                {% endfor %}
+        	    <div>
+                    {% for campaign in top_campaigns %}
+                        {% with campaign.work as work %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url campaign_list 'ending' %}"></a>
+                </div>
                 <div class="spacer"></div>
         	
         	    <h3 class="featured_books">Already Unglued</h3>
-                {% for work in unglued_books %}
-                    {% with work.googlebooks_id as googlebooks_id %}
-                    {% with "ACTIVE" as status %}
-                    {% with work.last_campaign.deadline as deadline %}
-                        {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                {% endfor %}
+        	    <div>
+                    {% for work in unglued_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url unglued_list '' %}"></a>
+                </div>
                 <div class="spacer"></div>
         	
         	    <h3 class="featured_books">Most Wished</h3>
-                {% for work in most_wished %}
-                    {% with work.googlebooks_id as googlebooks_id %}
-                    {% with "ACTIVE" as status %}
-                    {% with work.last_campaign.deadline as deadline %}
-                        {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}
-                {% endfor %}
+        	    <div>
+                    {% for work in most_wished %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url work_list 'popular' %}"></a>
+                </div>
                 <div class="spacer"></div>
         	
                 <div class="js-main-container-inner">
