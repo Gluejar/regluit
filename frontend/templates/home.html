@@ -162,7 +162,7 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
                                             commented on<br />
-                                            <a class="user-book-name" href="{% url work object.content_object..id %}">{{ object.content_object.title }}</a>
+                                            <a class="user-book-name" href="{% url work object.content_object.id %}">{{ object.content_object.title }}</a>
                                         </span>                                    
                                     {% else %}{% ifequal event.2 "wish" %}
                                         <span class="user-avatar">
