@@ -1135,7 +1135,7 @@ class UserProfile(models.Model):
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
     
-    avatar_source = models.PositiveSmallIntegerField(null = True, 
+    avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
             choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
     def reset_pledge_badge(self):    
@@ -1231,7 +1231,7 @@ class UserProfile(models.Model):
     
     def gravatar(self):
         # construct the url
-        gravatar_url = "http://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
         gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
         
@@ -1243,12 +1243,12 @@ class UserProfile(models.Model):
                 return self.pic_url
             else:
                 return ANONYMOUS_AVATAR
-        elif self.avatar_source == NO_AVATAR:
-            return ANONYMOUS_AVATAR
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id != None:
             return 'https://graph.facebook.com/' + str(self.facebook_id) + '/picture'
+        else:
+            return ANONYMOUS_AVATAR
         
     @property
     def social_auths(self):
