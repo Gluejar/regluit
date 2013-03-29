@@ -1,6 +1,11 @@
 import re
 import random
 import logging
+import urllib
+import hashlib
+ 
+        
+
 from regluit.utils.localdatetime import now, date_today
 from regluit.utils import crypto
 from datetime import timedelta
@@ -1057,6 +1062,10 @@ def pledger2():
     return pledger2.instance
 pledger2.instance=None
 
+ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
+
+
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
@@ -1067,12 +1076,16 @@ class UserProfile(models.Model):
     facebook_id =  models.PositiveIntegerField(null=True)
     librarything_id =  models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders')
-    
+
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
     goodreads_auth_token = models.TextField(null=True, blank=True)
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
+    
+    
+    avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
+            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
     def reset_pledge_badge(self):    
         #count user pledges  
@@ -1164,6 +1177,27 @@ class UserProfile(models.Model):
         except Exception, e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))
         return False
+    
+    def gravatar(self):
+        # construct the url
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
+        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        return gravatar_url
+        
+
+    @property
+    def avatar_url(self):
+        if self.avatar_source is None or self.avatar_source is TWITTER:
+            if self.pic_url:
+                return self.pic_url
+            else:
+                return ANONYMOUS_AVATAR
+        elif self.avatar_source == GRAVATAR:
+            return self.gravatar()
+        elif self.avatar_source == FACEBOOK and self.facebook_id != None:
+            return 'https://graph.facebook.com/' + str(self.facebook_id) + '/picture'
+        else:
+            return ANONYMOUS_AVATAR
         
     @property
     def social_auths(self):
@@ -1173,45 +1207,8 @@ class UserProfile(models.Model):
             auths[social.provider]=True
         return auths
         
-#class CampaignSurveyResponse(models.Model):
-#    # generic
-#    campaign = models.ForeignKey("Campaign", related_name="surveyresponse", null=False)
-#    user = models.OneToOneField(User, related_name='surveyresponse')
-#    transaction = models.ForeignKey("payment.Transaction", null=True)
-#    # for OLA only
-#    premium = models.ForeignKey("Premium", null=True)
-#    anonymous = models.BooleanField(null=False)
-#    # relevant to all campaigns since these arise from acknowledgement requirements from generic premiums 
-#    name = models.CharField(max_length=140, blank=True)
-#    url = models.URLField(blank=True)
-#    tagline = models.CharField(max_length=140, blank=True)
-#    # do we need to collect address for Rupert or will he do that once he has emails?
-  
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals
 from regluit.payment.manager import PaymentManager
 
-from social_auth.signals import pre_update
-from social_auth.backends.facebook import FacebookBackend
-from social_auth.backends.twitter import TwitterBackend
-
-def facebook_extra_values(sender, user, response, details, **kwargs):
-    facebook_id = response.get('id')
-    user.profile.facebook_id = facebook_id
-    user.profile.pic_url = 'https://graph.facebook.com/' + facebook_id + '/picture'
-    user.profile.save()
-    return True
-
-def twitter_extra_values(sender, user, response, details, **kwargs):
-    import requests, urllib
-    
-    twitter_id = response.get('screen_name')
-    profile_image_url = response.get('profile_image_url_https')
-    user.profile.twitter_id = twitter_id
-    user.profile.pic_url = profile_image_url
-    user.profile.save()
-    return True
-
-pre_update.connect(facebook_extra_values, sender=FacebookBackend)
-pre_update.connect(twitter_extra_values, sender=TwitterBackend)

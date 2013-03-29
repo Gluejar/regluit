@@ -79,18 +79,14 @@
                             <a href="#"><span id="welcome">Hi, {{ user.username }}</span></a>
                         </li>
                         <li>
-                            {% if user.profile.pic_url %}
-                                <img class="user-avatar" src="{{ user.profile.pic_url }}" height=36 width="36" alt="Picture of {{ user.username }}" title="{{ user.username }}" />
-                            {% else %}
-                                <img class="user-avatar" src="/static/images/header/avatar.png" height="36" width="36" alt="Generic Ungluer Avatar" title="Ungluer" />
-                            {% endif %}
+                            <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
                             {% if unseen_count %}
                                 <a href="/notification"><span id="i_haz_notifications_badge">{{ unseen_count }}</span></a>
                             {% endif %}
                         </li>
                     </ul>
                         <ul id="user_menu">
-                            <li><a href="{% url supporter supporter_username=user.username %}">Wishlist</a></li>
+                            <li><a href="{% url supporter user %}">Wishlist</a></li>
                             <li>
                                 <a href="/notification"><span>Messages</span>
                                     {% if unseen_count %}
@@ -100,7 +96,7 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a href="{% url supporter supporter_username=user.username %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
+                            <li><a href="{% url supporter user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
                             <li><a href="{% url manage_account %}"><span>Account &amp; Pledges</span></a></li>
                             <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                         </ul>

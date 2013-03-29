@@ -9,7 +9,7 @@ Oops &ndash; it seems that your activation key is invalid.  Please check the url
 {% endif %}
 {% else %}
 <div>
-You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
+You are logged in as <a href="{% url supporter request.user %}">{{ request.user.username }}</a>.
 </div>
 {% endif %}
 {% endblock %}
