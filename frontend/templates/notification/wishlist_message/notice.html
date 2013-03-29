@@ -6,11 +6,7 @@
 {% endblock %}
 {% block comments_graphical %}
     <a href="{% url supporter sender %}">
-        {% if sender.profile.pic_url %}
-            <img class="user-avatar" src="{{ sender.profile.pic_url }}" height="50" width="50" alt="Picture of {{ sender }}" title="{{ sender }}" />
-        {% else %}
-            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-        {% endif %}
+        <img class="user-avatar" src="{{ sender.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ sender }}" title="{{ sender }}" />
     </a>
     <span>Message from <a href="{% url supporter sender %}">{{ sender.username }}</a> {% if sender.is_staff %} (Unglue.it staff) {% endif %} on <a href="{% url work work.id %}">{{ work.title }}</a></span>
 {% endblock %}
