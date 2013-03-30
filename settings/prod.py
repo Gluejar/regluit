@@ -146,7 +146,7 @@ CELERYBEAT_SCHEDULE['notify_ending_soon'] = NOTIFY_ENDING_SOON_JOB
 AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # local settings for maintenance mode
-MAINTENANCE_MODE = True
+MAINTENANCE_MODE = False
 
 # Amazon keys to permit S3 access
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
