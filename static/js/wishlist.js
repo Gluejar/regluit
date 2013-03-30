@@ -45,7 +45,7 @@ $j().ready(function() {
     contentblock.on("click", "div.create-account", function () {
         var span = $j(this).find("span");
         var work_url = span.attr('title')
-        top.location = "/accounts/superlogin/?next=" + work_url;
+        top.location = "/accounts/login/add/?next=" + work_url + "&add=" + work_url;
     });
 
 	// in panel view on the supporter page we want to remove the entire book listing from view upon wishlist-remove

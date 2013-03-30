@@ -33,7 +33,7 @@ function put_un_in_cookie(){
 
 {% block content %}   
 <div class="jsmodule rounded clearfix widecolumn">
-    <h3>You'll need an account, since we won't charge your card unless the campaign succeeds!</h3>
+    {% block login_pitch %}<h3>You'll need an account, since we won't charge your card unless the campaign succeeds!</h3>{% endblock %}
         <div class="halfcolumn2 login_box">
             <h3>Get an Unglue.it account:</h3>
             <p>... we just have to confirm your email address.</p>

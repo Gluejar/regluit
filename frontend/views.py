@@ -153,6 +153,8 @@ def superlogin(request, **kwargs):
             extra_context={"socials":user.profile.social_auths}
         except:
             pass
+    if request.GET.has_key("add"):
+        request.session["add_wishlist"]=request.GET["add"]
     return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
     
 def work(request, work_id, action='display'):
@@ -160,6 +162,13 @@ def work(request, work_id, action='display'):
     if action == "acks":
         return acks( request, work)
         
+    # process waiting add request
+    if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
+        add_url = request.session["add_wishlist"]
+        if add_url == request.path:
+            request.user.wishlist.add_work(work, "login", notify=True)
+            request.session.pop("add_wishlist")
+            
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
@@ -448,6 +457,14 @@ def googlebooks(request, googlebooks_id):
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
     work_url = reverse('work', kwargs={'work_id': edition.work.id})
+
+    # process waiting add request
+    if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
+        add_url = request.session["add_wishlist"]
+        if add_url == request.path:
+            request.user.wishlist.add_work(edition.work, "login", notify=True)
+            request.session.pop("add_wishlist")
+
     return HttpResponseRedirect(work_url)
 
 def subjects(request):
