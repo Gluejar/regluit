@@ -146,7 +146,7 @@ CELERYBEAT_SCHEDULE['notify_ending_soon'] = NOTIFY_ENDING_SOON_JOB
 AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # local settings for maintenance mode
-MAINTENANCE_MODE = False
+MAINTENANCE_MODE = True
 
 # Amazon keys to permit S3 access
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
@@ -154,11 +154,12 @@ AWS_ACCESS_KEY_ID = 'AKIAIRLBDIET3DFCNU4A'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'unglueit_files'
 
+# we should suppress Google Analytics outside of production
+SHOW_GOOGLE_ANALYTICS = True
+
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
     from regluit.settings.local import *
 except ImportError:
     pass
     
-# we should suppress Google Analytics outside of production
-SHOW_GOOGLE_ANALYTICS = True
