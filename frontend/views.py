@@ -1588,11 +1588,11 @@ class ManageAccount(FormView):
             return render(self.request, self.template_name, self.get_context_data())
 
 def search(request):
-    q = request.GET.get('q', None)
+    q = request.GET.get('q', '')
     page = int(request.GET.get('page', 1))
     results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
     
-    if page==1:
+    if q != '' and page==1:
         work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
         campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
     else:
