@@ -1,0 +1,4 @@
+{{ sender }} has a question about {{campaign}}
+_____________________________________
+
+{{ message }}

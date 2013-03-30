@@ -31,7 +31,7 @@ class PublisherSitemap(Sitemap):
     protocol = 'https'
             
     def items(self):
-        return Edition.objects.exclude(publisher__isnull=True).exclude(publisher="").order_by('publisher').values('publisher').distinct()
+        return Edition.objects.exclude(publisher_name__isnull=True).order_by('publisher_name__name').values('publisher_name').distinct()
     
     def location(self, pub):
-        return reverse("bypub_list",args=[pub['publisher']])
+        return reverse("bypubname_list",args=[pub['publisher_name']])
