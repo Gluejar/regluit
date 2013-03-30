@@ -1,0 +1,34 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %}Campaign questions{% endblock %}
+
+{% block doccontent %}
+{% if campaign.email %}
+	<p>Questions about {{campaign}}?  Ask away!</p>
+
+	To: {{campaign}}<br /><br />
+    <form method="POST" action="#">
+        {% csrf_token %}
+		{{ form.sender.errors }}
+		{{ form.sender.label_tag }}<br />
+		{{ form.sender }}<br /><br />
+		{{ form.subject.errors }}
+		{{ form.subject.label_tag }}<br />
+		{{ form.subject }}<br /><br />
+		{{ form.message.errors }}
+		{{ form.message.label_tag }}<br />
+		{{ form.message }}<br /><br />
+		{{ form.notarobot.errors }}
+		{{ form.non_field_errors }}
+		Please prove you're not a robot. {{num1}} + {{num2}} =
+		{{ form.notarobot }}</br /><br />
+		{{ form.answer }}
+		{{ form.num1 }}
+		{{ form.num2 }}
+		{{ form.page }}
+       <input type="submit" value="Submit" />    
+    </form>
+{% else %}
+    <p>Sorry, this campaign isn't set up to answer emails at this time.</p>
+{% endif %}
+{% endblock %}

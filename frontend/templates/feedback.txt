@@ -1,0 +1,5 @@
+This feedback is about {{ page }} 
+From {{ sender }}, ungluer name {{ request.user.username }}
+user agent {{ request.META.HTTP_USER_AGENT }}
+_____________________________________
+{{ message }}
