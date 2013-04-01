@@ -10,7 +10,7 @@
 
 {% block extra_js %}
 
-{% block.super %}
+{{ block.super }}
 <script>
 $j(document).ready(function() {
     jQuery.post("/ml/status/", function(data){
