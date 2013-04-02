@@ -1,5 +1,27 @@
 @import "variables.less";
 
+.user-block {
+	width:100%; clear:both;
+}
+
+#user-block1 {
+	width:100%;
+	
+	#block-intro-text {
+		float:left;
+		width:702px; 
+		font-size: @font-size-header;
+	}
+	
+	a#readon {
+		float: left;
+	}
+}
+
+#user-block-hide .quicktour.last {
+	background: none;
+}
+
 .learnmore_block { 
 	float: left;
 	width:100%; 
@@ -8,7 +30,8 @@
 	margin-top: 20px;
 	
 	.quicktour {
-		width: 270px;
+		width: 195px;
+		padding-right: 45px;
 		float: left;
 		font-style: italic;
 		line-height:20px;
@@ -21,7 +44,6 @@
 	
 		&.last {
 			padding-right:0px;
-			width:270px;
 			
 			.signup {
 				color: @call-to-action;
@@ -35,14 +57,10 @@
 				}
 			}
 		}
-	}
-	
-	.movingrightalong {
-		background: url("@{image-base}landingpage/quicktour-arrow.png") no-repeat center;
-		height: 100px;
-		width: 75px;
-		float: left;
-		margin-top: 20px;
+		
+		&.right {
+		    float: right;
+		}
 	}	
 }
 

@@ -91,9 +91,8 @@
   border: none;
 }
 #js-maincontainer-bot-block {
-  width: 100%;
   clear: both;
-  overflow: hidden;
+  overflow: visible;
   margin-top: 55px;
 }
 #js-maincontainer-bot-block #js-search {
@@ -101,7 +100,7 @@
   -webkit-border-radius: 64px;
   border-radius: 64px;
   background-color: #8dc63f;
-  width: 628px;
+  width: 652px;
   height: 80px;
   overflow: hidden;
   clear: both;
