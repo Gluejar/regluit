@@ -246,12 +246,17 @@ Please fix the following before launching your campaign:
 	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% endifnotequal %}
 	
-	<h3>e-mail contact address</h3>
-	<p>Enter the email address where notifications about this campaign should be sent. If your campaign succeeds, this email needs to work if you want to get paid!</p>
-
-	
+	<h3>e-mail contact addresses</h3>
+	<p>Enter the email address where notifications about this campaign should be sent. If your campaign succeeds, this email needs to work if you want to get paid! This address will not be exposed on the website.</p>
 	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
-	
+	<p>(Optional, but highly recommended). Enter an email address where ungluers with questions about the book or the campaign can contact you or someone involved. This address will not be exposed on the website.</p>
+	<p>{{ form.email.errors }}{{ form.email }}</p>
+    
+    {% if work.publishers %}
+	<h3>Publisher</h3>
+	<p>If you are set up as an unglue.it publisher (send us a url, logo, description and list of ways your name might appear) you can link your campaign by selecting the publisher here:
+	<p>{{ form.publisher.errors }}{{ form.publisher }}</p>	
+	{% endif %}
 	{% ifequal campaign_status 'ACTIVE' %}
 		<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
 		<input type="submit" name="save" value="Modify Campaign" />

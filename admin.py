@@ -1,9 +1,14 @@
+from django import forms
 from django.contrib.auth.models import User
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.sites import AdminSite
 
+from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
+
+
 from regluit.core import models
 from regluit import payment
+from regluit.core.lookups import PublisherNameLookup
 
 from djcelery.admin import TaskState, WorkerState, TaskMonitor, WorkerMonitor, \
       IntervalSchedule, CrontabSchedule, PeriodicTask, PeriodicTaskAdmin
@@ -47,10 +52,31 @@ class SubjectAdmin(ModelAdmin):
     ordering = ('name',)
 
 class EditionAdmin(ModelAdmin):
-    list_display = ('title', 'publisher', 'created')
+    list_display = ('title', 'publisher_name', 'created')
     date_hierarchy = 'created'
     ordering = ('title',)
 
+class PublisherAdminForm(forms.ModelForm):
+    name = AutoCompleteSelectField(
+            PublisherNameLookup,
+            label='Name',
+            widget=AutoCompleteSelectWidget(PublisherNameLookup),
+            required=True,
+        )
+
+    class Meta(object):
+        model = models.Publisher
+        
+class PublisherAdmin(ModelAdmin):
+    list_display = ('name', 'url', 'logo_url', 'description')
+    ordering = ('name',)
+    form = PublisherAdminForm
+
+class PublisherNameAdmin(ModelAdmin):
+    list_display = ('name', 'publisher')
+    ordering = ('name',)
+    search_fields = ['name']
+    
 class EbookAdmin(ModelAdmin):
     date_hierarchy = 'created'
     ordering = ('edition__title',)
@@ -84,13 +110,15 @@ class NoticeQueueBatchAdmin(ModelAdmin):
 
 admin_site = RegluitAdmin("Admin")
 
-admin_site.register(models.User, UserAdmin)
+admin_site.register(User, UserAdmin)
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.RightsHolder, RightsHolderAdmin)
 admin_site.register(models.Premium, PremiumAdmin)
 admin_site.register(models.Campaign, CampaignAdmin)
 admin_site.register(models.Author, AuthorAdmin)
+admin_site.register(models.Publisher, PublisherAdmin)
+admin_site.register(models.PublisherName, PublisherNameAdmin)
 admin_site.register(models.Subject, SubjectAdmin)
 admin_site.register(models.Edition, EditionAdmin)
 admin_site.register(models.Ebook, EbookAdmin)
