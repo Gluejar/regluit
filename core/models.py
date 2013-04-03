@@ -622,7 +622,7 @@ class Work(models.Model):
         if preferred_id:
             return preferred_id
         try:
-            return self.identifiers.values('type', 'value').filter(type='goog')[0].value
+            return self.identifiers.values('type', 'value').filter(type='goog')[0]['value']
         except IndexError:
             return ''
 
@@ -639,7 +639,7 @@ class Work(models.Model):
         if preferred_id:
             return preferred_id
         try:
-            return self.identifiers.values('type', 'value').filter(type='gdrd')[0].value
+            return self.identifiers.values('type', 'value').filter(type='gdrd')[0]['value']
         except IndexError:
             return ''
 
@@ -650,7 +650,7 @@ class Work(models.Model):
     @property 
     def librarything_id(self):
         try:
-            return self.identifiers.values('type', 'value').filter(type='ltwk')[0].value
+            return self.identifiers.values('type', 'value').filter(type='ltwk')[0]['value']
         except IndexError:
             return ''
 
@@ -661,7 +661,7 @@ class Work(models.Model):
     @property 
     def openlibrary_id(self):
         try:
-            return self.identifiers.values('type', 'value').filter(type='olwk')[0].value
+            return self.identifiers.values('type', 'value').filter(type='olwk')[0]['value']
         except IndexError:
             return ''
 
