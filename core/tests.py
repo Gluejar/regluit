@@ -52,6 +52,8 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
+        self.assertEqual(edition.work.googlebooks_id, 'IDFfMPW32hQC')
+        self.assertEqual(edition.work.first_isbn_13(), '9780441007462')
         
         # locale in language
         edition = bookloader.add_by_isbn('9787500676911')
