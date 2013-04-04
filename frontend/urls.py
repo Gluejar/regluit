@@ -103,6 +103,7 @@ urlpatterns = patterns(
     url(r"^ml/subscribe/$","ml_subscribe",  name="ml_subscribe"),
     url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
     url(r"^press_new/$","press_new",  name="press_new"),
+    url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
 )
 
 if settings.DEBUG:
