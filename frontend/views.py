@@ -2347,8 +2347,8 @@ def ml_unsubscribe(request):
     
 def press_new(request):
     latest_items = models.Press.objects.order_by('-date')[:3]
-    highlighted_items = models.Press.objects.filter(highlight=True)
-    all_items = models.Press.objects.exclude(highlight=True)
+    highlighted_items = models.Press.objects.filter(highlight=True).order_by('-date')
+    all_items = models.Press.objects.exclude(highlight=True).order_by('-date')
     return render(request, "press_new.html", {
         'latest_items': latest_items,
         'highlighted_items': highlighted_items,
