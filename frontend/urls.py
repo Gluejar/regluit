@@ -102,6 +102,7 @@ urlpatterns = patterns(
     url(r"^ml/status/$","ml_status",  name="ml_status"),
     url(r"^ml/subscribe/$","ml_subscribe",  name="ml_subscribe"),
     url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
+    url(r"^press_new/$","press_new",  name="press_new"),
 )
 
 if settings.DEBUG:

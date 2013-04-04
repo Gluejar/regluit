@@ -2343,3 +2343,13 @@ def ml_subscribe(request):
 def ml_unsubscribe(request):
     request.user.profile.ml_unsubscribe()
     return HttpResponseRedirect(reverse("notification_notice_settings"))
+    
+def press_new(request):
+    latest_items = models.Press.objects.order_by('-date')[:3]
+    highlighted_items = models.Press.objects.filter(highlight=True)
+    all_items = models.Press.objects.all()
+    return render(request, "press_new.html", {
+        'latest_items': latest_items,
+        'highlighted_items': highlighted_items,
+        'all_items': all_items
+    })
