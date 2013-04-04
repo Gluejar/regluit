@@ -504,6 +504,6 @@ class PressForm(forms.ModelForm):
         model = Press
 
         widgets = { 
-                'date': SelectDateWidget,
+                'date': SelectDateWidget(years=range(2010,2025)),
             }
 
