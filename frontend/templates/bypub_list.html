@@ -3,6 +3,20 @@
 {% load lang_utils %}
 
 {% block title %} Works published by {{ pubname }} {% endblock %}
-{% block userblock2 %}
-<span class="special-user-name">Books from {{ pubname }} {% if pub_lang %}( {{pub_lang|ez_lang_name}} ) {% endif %}</span>
+{% block userblock1 %}
+    {% if publisher %}
+    <div class="publogo"><a href="{{ publisher.url }}"><img src="{{ publisher.logo_url }}" alt="{{ pubname }} logo" /></a></div>
+    {% else %}
+    {{ block.super }}
+    {% endif %}
 {% endblock %}
+{% block userblock2 %}
+    {% if publisher %}
+    <span class="special-user-name">Books from <a href="{{ publisher.url }}">{{ pubname }}</a> {% if pub_lang %}( {{pub_lang|ez_lang_name}} ) {% endif %}</span>
+    <div class="description">{{ publisher.description|safe }}</div>
+    {% else %}
+    <span class="special-user-name">Books from {{ pubname }} {% if pub_lang %}( {{pub_lang|ez_lang_name}} ) {% endif %}</span>
+{% endif %}
+{% endblock %}
+
+{% block add_more %}{% endblock %}

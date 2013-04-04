@@ -27,7 +27,7 @@
                         <div class="user-block">
                             {% block userblock %}
                                 <div id="user-block1">
-								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
+								{% block userblock1 %}<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>{% endblock %}
 								</div>
 								<div class="user-block2">
 								{% block userblock2 %}
@@ -35,6 +35,7 @@
 								{% endblock %}
 								</div>
     	                        <div class="user-block3">
+    	                        {% block userblock3 %}{% endblock %}
 	                            </div>
                             {% endblock %}
                         </div>
@@ -81,7 +82,7 @@
                 <div id="content-block-content">
                     {% ifequal work_list.count 0 %}
                     {% block noworks %}
-                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
+                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  {% block add_more %}Why not add your favorite books to your wishlist, so we can feature them here?{% endblock %}
 					{% endblock %}
                     {% else %}
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}
