@@ -1257,7 +1257,7 @@ class UserProfile(models.Model):
             auths[social.provider]=True
         return auths
         
-class PressCoverage(models.Model):
+class Press(models.Model):
     url =  models.URLField()
     title = models.CharField(max_length=140)
     source = models.CharField(max_length=140)
