@@ -1,0 +1,17 @@
+{% extends "registration/registration_base.html" %}
+
+
+
+{% block doccontent %}
+{% block ce_content %}{% endblock %}
+
+<div>
+<h2>Other Account Tools</h2>
+<ul>
+<li>Want to <a href="{% url auth_password_change %}">change your password</a>?</li>
+<li>... or <a href="{% url manage_account %}">manage your pledges and payment info</a>?</li>
+<li>... or <a href="{% url regluit.frontend.views.edit_user %}"">change your username</a>?</li>
+<li>... or <a href="{% url notification_notice_settings %}">manage your contact preferences</a>?</li>
+</ul>
+</div>
+{% endblock %}

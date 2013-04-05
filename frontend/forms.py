@@ -159,23 +159,6 @@ class ProfileForm(forms.ModelForm):
             self.cleaned_data["avatar_source"]==GRAVATAR
         return self.cleaned_data
  
-class UserEmail(forms.Form):
-    email = forms.EmailField(
-        label=_("new email address"), 
-        max_length=100,
-        error_messages={'required': 'Please enter an email address.'},
-        )
-    oldemail = None
-    
-    def clean_email(self):
-        email = self.data["email"]
-        if email != self.oldemail:
-            users = User.objects.filter(email__iexact=email)
-            for user in users:
-                raise forms.ValidationError(_("Another user with that email already exists."))
-            return email
-        raise forms.ValidationError(_("Your email is already "+ email))
-    
 class UserData(forms.Form):
     username = forms.RegexField(
         label=_("New Username"), 
