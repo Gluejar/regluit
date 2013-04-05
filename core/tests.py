@@ -52,6 +52,8 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
+        self.assertEqual(edition.work.googlebooks_id, 'IDFfMPW32hQC')
+        self.assertEqual(edition.work.first_isbn_13(), '9780441007462')
         
         # publisher names
         old_pub_name = edition.publisher_name
