@@ -286,10 +286,11 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
         latest_ending = (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()).date
+        publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
                 
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition'
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher'
             widgets = { 
                     'deadline': SelectDateWidget,
                 }

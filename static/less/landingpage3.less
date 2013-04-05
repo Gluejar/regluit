@@ -55,26 +55,7 @@
 	
 	a#readon { 
 		float: left; 
-	}
-}
-
-.user-block2 { 
-	color:@medium-blue; 
-	font-size: @font-size-default; 
-	line-height:normal; 
-	width:30%;
-	
-	.block-inner { 
-		float:right; 
-		padding-right:0;
-	}
-	
-	label { 
-		float:left;
-		font-size: @font-size-header; 
-		.height(30px); 
-		color:@text-blue; 
-		padding-right:15px;
+		font-size: @font-size-larger;
 	}
 }
 
@@ -89,7 +70,7 @@
 		border:1px solid @blue-grey; 
 		.one-border-radius(12px); 
 		margin-bottom:10px; 
-		padding:0 10px 10px 10px;
+		padding: 0 10px 10px 10px;
 		
 		&.last { 
 			border-bottom:none; 
@@ -160,12 +141,12 @@ ul.ungluingwhat {
 		display:block; 
 		overflow:hidden;
 		
-		> div { 
+		> span { 
 			float: left;
 		}
 	}
 	
-	div.user-avatar { 
+	.user-avatar { 
 		width:43px;
 		
 		img {
@@ -173,30 +154,14 @@ ul.ungluingwhat {
 		}
 	}
 	
-	.user-book-thumb { 
-		width:29px;
-	}
-		
 	.user-book-info { 
-		width:135px; 
-		color:@text-blue;
-		
-		p { 
-			margin:0; 
-			padding:0 5px; 
-			font-size: @font-size-default;
-		}
-		
-		a { 
-			display:block; 
-			padding:0; 
-			color:@text-blue; 
-			font-size: @font-size-default; 
-			text-decoration:underline;
-		}
-		
-		a.user-book-name {
-			padding: 0 5px;
+		margin-left: 5px;
+		width: 160px;
+		word-wrap: break-word;
+		font-size: @font-size-larger;
+		line-height: @font-size-larger*1.3;
+		a {
+		    font-weight: normal;
 		}
 	}
 }
@@ -297,7 +262,7 @@ h2.page-heading {
 }
 
 h3.module-title {
-	padding: 10px 0 0 0;
+	padding: 10px 0;
 	font-size: @font-size-header;
 	font-weight: normal;
 }
@@ -306,6 +271,120 @@ h3.module-title {
 	border-bottom: solid 5px @medium-blue;
 	float: left;
 	height:134px;
+}
+
+h3.featured_books {
+    clear: both;
+    font-weight: normal;
+    background: @pale-blue;
+    .border-radius(10px, 10px, 0, 0);
+    padding: 10px;
+}
+
+a.more_featured_books {
+    float: right;
+    width: 57px;
+    height: 305px;
+    margin: 5px 0;
+    border: 5px solid white;
+    background-image: url("/static/images/landingpage/signmeup-arrow-textblue.png");
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    &:hover {
+        background-image: url("/static/images/landingpage/signmeup-arrow-right.png");
+        cursor: pointer;
+        border-color: @pale-blue;
+    }
+}
+
+.spacer {
+    height: 15px;
+    width: 100%;
+    clear: both;
+}
+
+ul#as_seen_on {
+    margin: 15px 0;
+    position: relative;
+    height: 80px;
+    
+    li {
+        float: left;
+        list-style-type: none;
+        padding: 10px;
+        line-height: 80px;
+        
+        &:hover {
+            background: @bright-blue;
+        }
+        
+        img {
+            vertical-align: middle;
+            max-width: 131px;
+        }
+    }
+}
+
+/* via http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
+.speech_bubble {
+	position:relative;
+	margin:1em 0;
+	border:5px solid @medium-blue;
+	color:@text-blue;
+	.one-border-radius(10px);
+	background: #fff;
+	font-size: @font-size-header;
+	padding: 1.5em;
+	
+	&:before {
+        content: "";
+	    position: absolute;
+        top:-20px; /* value = - border-top-width - border-bottom-width */
+        bottom:auto;
+        left:auto;
+        right:60px; /* controls horizontal position */
+        border-width:0 20px 20px;
+        border-style: solid;
+        border-color: @medium-blue transparent;
+        /* reduce the damage in FF3.0 */
+        display:block; 
+        width:0;
+    }
+	
+	&:after {
+        content: "";
+	    position: absolute;
+        top:-13px; /* value = - border-top-width - border-bottom-width */
+        bottom:auto;
+        left:auto;
+        right:67px; /* value = (:before right) + (:before border-right) - (:after border-right) */
+        border-width:0 13px 13px;
+        border-style: solid;
+        border-color: #fff transparent;
+        /* reduce the damage in FF3.0 */
+        display:block; 
+        width:0;
+    }
+    
+    span {
+        margin-left: 1em;
+        
+        &:before {
+            position: absolute;
+            top: .75em;
+            left: .75em;
+            font-size: @font-size-header*2;
+            content:"\201C";
+        }
+        
+        &:after {
+            position: absolute;
+            top: .75em;
+            font-size: @font-size-header*2;
+            content:"\201D";
+        }
+    }
 }
 
 #footer {
