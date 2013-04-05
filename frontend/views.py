@@ -1,71 +1,80 @@
+'''
+imports not from django or regluit
+'''
 import re
 import sys
 import json
 import logging
 import urllib
-
-from datetime import timedelta, date
-from regluit.utils.localdatetime import now, date_today
-
-from random import randint
-from re import sub
-from itertools import islice
-from decimal import Decimal as D
-from xml.etree import ElementTree as ET
 import requests
 import oauth2 as oauth
+
+from datetime import timedelta, date
+from decimal import Decimal as D
+from itertools import islice, chain
+from notification import models as notification
+from random import randint
+from re import sub
+from xml.etree import ElementTree as ET
+from tastypie.models import ApiKey
+
+'''
+django imports
+'''
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core import signing
-from django.core.urlresolvers import reverse
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
+from django.core import signing
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template.loader import render_to_string
+from django.utils.http import urlencode
+from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.base import TemplateView
-from django.shortcuts import render, render_to_response, get_object_or_404
-from django.utils.http import urlencode
-from django.utils.translation import ugettext_lazy as _
+
+'''
+regluit imports
+'''
 from regluit.core import tasks
-from regluit.core.tasks import send_mail_task, emit_notifications
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
-from regluit.core.search import gluejar_search
 from regluit.core import goodreads
-from regluit.core.goodreads import GoodreadsClient
 from regluit.core.bookloader import merge_works
+from regluit.core.goodreads import GoodreadsClient
+from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
+
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm 
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
 from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
 from regluit.frontend.forms import MsgForm, AuthForm
+
+from regluit.payment import baseprocessor, stripelib
+from regluit.payment.credit import credit_transaction
 from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction, Account
-from regluit.payment import baseprocessor
+from regluit.payment.models import Transaction, Account, Sent, CreditLog
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
 from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
-from regluit.payment.credit import credit_transaction
-from tastypie.models import ApiKey
-from regluit.payment.models import Transaction, Sent, CreditLog
-from notification import models as notification
 
-from regluit.payment import stripelib
+from regluit.utils.localdatetime import now, date_today
 
 logger = logging.getLogger(__name__)
 
@@ -129,13 +138,70 @@ def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
+            
+    """
+    use campaigns instead of works so that we can order by amount left,
+    drive interest toward most-nearly-successful
+    """
+    top_campaigns = models.Campaign.objects.filter(status="ACTIVE").order_by('left')[:4]
+    
+    most_wished = models.Work.objects.order_by('-num_wishes')[:4]
+    
+    unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')
 
-    worklist = slideshow(12)
-    works = worklist[:6]
-    works2 = worklist[6:12]
+    """
+    get various recent types of site activity
+    """
+    latest_comments = Comment.objects.order_by(
+            '-submit_date'
+        )[:10]
+    latest_pledges = Transaction.objects.filter(
+            anonymous=False
+        ).only(
+            'date_created', 'user', 'campaign'
+        ).order_by(
+            '-date_created'
+        )[:10]
+    latest_wishes = models.Wishes.objects.order_by(
+            '-created'
+        )[:10]
 
-    events = models.Wishes.objects.order_by('-created')[0:2]
-    return render(request, 'home.html', {'suppress_search_box': True, 'works': works, 'works2': works2, 'events': events})
+    """
+    for each event, we'll be passing its object and type to the template
+    (and preserving its date for sorting purposes)
+    """
+    latest_comments_tuple = map(
+        lambda x: (x.submit_date, x, 'comment'),
+        latest_comments
+    )
+    
+    latest_pledges_tuple = map(
+        lambda x: (x.date_created, x, 'pledge'),
+        latest_pledges
+    )
+    
+    latest_wishes_tuple = map(
+        lambda x: (x.created, x, 'wish'),
+        latest_wishes
+    )
+    
+    """
+    merge latest actions into a single list, sorted by date, to loop through in template
+    """
+    latest_actions = sorted(
+        chain(latest_comments_tuple, latest_pledges_tuple, latest_wishes_tuple), 
+        key=lambda instance: instance[0],
+        reverse=True
+    )
+    
+    if request.user.is_authenticated():
+        events = latest_actions[:12]
+    else:
+        events = latest_actions[:6]
+    
+    return render(request, 'home.html', {
+        'suppress_search_box': True, 'events': events, 'top_campaigns': top_campaigns, 'unglued_books': unglued_books, 'most_wished': most_wished
+        })
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
@@ -153,6 +219,8 @@ def superlogin(request, **kwargs):
             extra_context={"socials":user.profile.social_auths}
         except:
             pass
+    if request.GET.has_key("add"):
+        request.session["add_wishlist"]=request.GET["add"]
     return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
     
 def work(request, work_id, action='display'):
@@ -160,6 +228,13 @@ def work(request, work_id, action='display'):
     if action == "acks":
         return acks( request, work)
         
+    # process waiting add request
+    if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
+        add_url = request.session["add_wishlist"]
+        if add_url == request.path:
+            request.user.wishlist.add_work(work, "login", notify=True)
+            request.session.pop("add_wishlist")
+            
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
@@ -448,6 +523,14 @@ def googlebooks(request, googlebooks_id):
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
     work_url = reverse('work', kwargs={'work_id': edition.work.id})
+
+    # process waiting add request
+    if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
+        add_url = request.session["add_wishlist"]
+        if add_url == request.path:
+            request.user.wishlist.add_work(edition.work, "login", notify=True)
+            request.session.pop("add_wishlist")
+
     return HttpResponseRedirect(work_url)
 
 def subjects(request):
@@ -521,15 +604,28 @@ class WorkListView(FilterableListView):
             
             return context
 
-class ByPubListView(WorkListView):
+class ByPubView(WorkListView):
     template_name = "bypub_list.html"
     context_object_name = "work_list"
-    max_works=100000
-
+    max_works = 100000
+    publisher_name = None
+    publisher = None
+    
+    def get_publisher_name(self):
+        self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        self.set_publisher()
+    
+    def set_publisher(self):
+        if self.publisher_name.key_publisher.count():
+            self.publisher = self.publisher_name.key_publisher.all()[0]
+        elif self.publisher_name.publisher:
+            self.publisher = self.publisher_name.publisher
+            self.publisher_name = self.publisher.name
+        
     def get_queryset_all(self):
         facet = self.kwargs.get('facet','')
-        pubname = self.kwargs['pubname']
-        objects = models.Work.objects.filter(editions__publisher__iexact=pubname).distinct()
+        self.get_publisher_name()
+        objects = models.Work.objects.filter(editions__publisher_name__id=self.publisher_name.id).distinct()
         if (facet == 'popular'):
             return objects.order_by('-num_wishes', 'id')
         elif (facet == 'pubdate'):
@@ -540,9 +636,16 @@ class ByPubListView(WorkListView):
             return objects.order_by('title', 'id')
 
     def get_context_data(self, **kwargs):
-            context = super(ByPubListView, self).get_context_data(**kwargs)
-            context['pubname'] = self.kwargs['pubname']
+            context = super(ByPubView, self).get_context_data(**kwargs)
+            context['pubname'] = self.publisher_name
+            context['publisher'] = self.publisher
             return context
+
+class ByPubListView(ByPubView):
+    def get_publisher_name(self):
+        self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
+        self.set_publisher()
+
 
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
@@ -1554,11 +1657,11 @@ class ManageAccount(FormView):
             return render(self.request, self.template_name, self.get_context_data())
 
 def search(request):
-    q = request.GET.get('q', None)
+    q = request.GET.get('q', '')
     page = int(request.GET.get('page', 1))
     results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
     
-    if page==1:
+    if q != '' and page==1:
         work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
         campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
     else:
@@ -2097,45 +2200,49 @@ def emailshare(request, action):
 
     return render(request, "emailshare.html", {'form':form})    
     
-def feedback(request):
-    num1 = randint(0,10)
-    num2 = randint(0,10)
-    sum = num1 + num2
+def ask_rh(request, campaign_id):
+    campaign = get_object_or_404(models.Campaign, id=campaign_id)
+    return feedback(request, recipient=campaign.email, template="ask_rh.html", 
+            message_template="ask_rh.txt", 
+            redirect_url = reverse('work', args=[campaign.work.id]),
+            extra_context={'campaign':campaign, 'subject':campaign })    
+    
+def feedback(request, recipient='support@gluejar.com', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
+    context = extra_context or {}
+    context['num1'] = randint(0,10)
+    context['num2'] = randint(0,10)
+    context['answer'] = context['num1'] + context['num2']
     
     if request.method == 'POST':
         form=FeedbackForm(request.POST)
         if form.is_valid():
-            subject = form.cleaned_data['subject']
-            message = form.cleaned_data['message']
-            sender = form.cleaned_data['sender']
-            recipient = 'support@gluejar.com'
-            page = form.cleaned_data['page']
-            useragent = request.META['HTTP_USER_AGENT']
-            if request.user.is_anonymous():
-                ungluer = "(not logged in)"
+            context.update(form.cleaned_data)
+            context['request']=request
+            if extra_context:
+                context.update(extra_context)
+            message = render_to_string(message_template,context)
+            send_mail_task.delay(context['subject'], message, context['sender'], [recipient])
+            if redirect_url:
+                return HttpResponseRedirect(redirect_url)
             else:
-                ungluer = request.user.username
-            message = "<<<This feedback is about "+page+". Original user message follows\nfrom "+sender+", ungluer name "+ungluer+"\nwith user agent "+useragent+"\n>>>\n"+message
-            send_mail_task.delay(subject, message, sender, [recipient])
-            
-            return render(request, "thanks.html", {"page":page}) 
+                return render(request, "thanks.html", context) 
             
         else:
-            num1 = request.POST['num1']
-            num2 = request.POST['num2']
+            context['num1'] = request.POST['num1']
+            context['num2']  = request.POST['num2']
         
     else:
         if request.user.is_authenticated():
-            sender=request.user.email;
-        else:
-            sender=''
+            context['sender']=request.user.email;
         try:
-            page = request.GET['page']
+            context['page'] = request.GET['page']
         except:
-            page='/'
-        form = FeedbackForm(initial={"sender":sender, "subject": "Feedback on page "+page, "page":page, "num1":num1, "num2":num2, "answer":sum})
-        
-    return render(request, "feedback.html", {'form':form, 'num1':num1, 'num2':num2})    
+            context['page'] = '/'
+        if not context.has_key('subject'):
+            context['subject'] = "Feedback on page "+context['page']
+        form = FeedbackForm(initial=context)
+    context['form'] = form
+    return render(request, template, context)    
         
 def comment(request):
     latest_comments = Comment.objects.all().order_by('-submit_date')[:20]
