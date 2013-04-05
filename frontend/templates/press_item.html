@@ -1,0 +1,5 @@
+<div>
+	<a href="{{ item.url }}">{{ item.title }}</a> {% if item.language %}<I>({{ item.language }})</I>{% endif %}<br />
+	{{ item.source }} - {{ item.date|date:"M d, Y" }}<br />
+	{% if item.note %}<I>{{ item.note }}</I><br />{% endif %}
+</div>
