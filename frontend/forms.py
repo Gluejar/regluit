@@ -14,7 +14,7 @@ from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work, Press
 from regluit.core.models import TWITTER, FACEBOOK, GRAVATAR
 from regluit.core.lookups import OwnerLookup, WorkLookup
 
@@ -498,4 +498,12 @@ class MsgForm(forms.Form):
                 raise ValidationError("Work does not exist")
         else:
             raise ValidationError("Work is not specified")
+            
+class PressForm(forms.ModelForm):
+    class Meta:
+        model = Press
+
+        widgets = { 
+                'date': SelectDateWidget(years=range(2010,2025)),
+            }
 

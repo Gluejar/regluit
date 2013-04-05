@@ -1258,6 +1258,15 @@ class UserProfile(models.Model):
             auths[social.provider]=True
         return auths
         
+class Press(models.Model):
+    url =  models.URLField()
+    title = models.CharField(max_length=140)
+    source = models.CharField(max_length=140)
+    date = models.DateField()
+    language = models.CharField(max_length=20, blank=True)
+    highlight = models.BooleanField(default=False)
+    note = models.CharField(max_length=140, blank=True)
+
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals

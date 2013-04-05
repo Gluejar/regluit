@@ -1,0 +1,18 @@
+{% extends "basedocumentation.html" %}
+
+{% block doccontent %}
+{% if thanks %}
+<div class="presstoc">
+    <div class="pressemail">Duly submitted! Wanna submit more?</div>
+</div>
+{% endif %}
+
+<h3>Enter new press items here.</h3>
+<p>Language optional (indicate only if non-English).  Note optional, should be rare.</p>
+
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="submit" value="Add Press Item" />
+</form>
+{% endblock %}

@@ -66,6 +66,7 @@ from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAd
 from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
 from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
 from regluit.frontend.forms import MsgForm, AuthForm
+from regluit.frontend.forms import PressForm
 
 from regluit.payment import baseprocessor, stripelib
 from regluit.payment.credit import credit_transaction
@@ -2343,3 +2344,31 @@ def ml_subscribe(request):
 def ml_unsubscribe(request):
     request.user.profile.ml_unsubscribe()
     return HttpResponseRedirect(reverse("notification_notice_settings"))
+    
+def press_new(request):
+    latest_items = models.Press.objects.order_by('-date')[:3]
+    highlighted_items = models.Press.objects.filter(highlight=True).order_by('-date')
+    all_items = models.Press.objects.exclude(highlight=True).order_by('-date')
+    return render(request, "press_new.html", {
+        'latest_items': latest_items,
+        'highlighted_items': highlighted_items,
+        'all_items': all_items
+    })
+    
+def press_submitterator(request):
+    if not request.user.is_staff:
+        return render(request, "admins_only.html")
+    else:
+        thanks = False
+        if request.method == 'POST':
+            form = PressForm(request.POST)
+            if form.is_valid():
+                form.save()
+                thanks = True
+        else:
+            form = PressForm()
+        
+        return render(request, 'press_submitterator.html', {
+            'form':form,
+            'thanks':thanks
+        })
