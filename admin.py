@@ -107,6 +107,10 @@ class NoticeQueueBatchAdmin(ModelAdmin):
     # show the pickled data in a form humans can parse more easily
     list_display = (notice_queue_batch_data,)
     pass
+    
+class PressAdmin(ModelAdmin):
+    list_display = ('title', 'source', 'date')
+    ordering = ('-date',)
 
 admin_site = RegluitAdmin("Admin")
 
@@ -125,6 +129,7 @@ admin_site.register(models.Ebook, EbookAdmin)
 admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
 admin_site.register(models.CeleryTask, CeleryTaskAdmin)
+admin_site.register(models.Press, PressAdmin)
 
 # payments
 
