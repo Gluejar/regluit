@@ -58,6 +58,7 @@ from regluit.core.bookloader import merge_works
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
+from regluit.core.tasks import send_mail_task, emit_notifications
 
 from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm 
 from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
