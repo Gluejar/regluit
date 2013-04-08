@@ -2330,7 +2330,7 @@ def ml_unsubscribe(request):
     request.user.profile.ml_unsubscribe()
     return HttpResponseRedirect(reverse("notification_notice_settings"))
     
-def press_new(request):
+def press(request):
     latest_items = models.Press.objects.order_by('-date')[:3]
     highlighted_items = models.Press.objects.filter(highlight=True).order_by('-date')
     all_items = models.Press.objects.exclude(highlight=True).order_by('-date')
@@ -2344,16 +2344,16 @@ def press_submitterator(request):
     if not request.user.is_staff:
         return render(request, "admins_only.html")
     else:
-        thanks = False
+        title = ''
         if request.method == 'POST':
             form = PressForm(request.POST)
             if form.is_valid():
                 form.save()
-                thanks = True
+                title = form.cleaned_data['title']
         else:
             form = PressForm()
         
         return render(request, 'press_submitterator.html', {
             'form':form,
-            'thanks':thanks
+            'title':title
         })

@@ -84,8 +84,6 @@ urlpatterns = patterns(
     url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", "ask_rh", name="ask_rh"),
     url(r"^feedback/$", "feedback", name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
-    url(r"^press/$", TemplateView.as_view(template_name="press.html"),
-        name="press"),
     url(r"^about/$", TemplateView.as_view(template_name="about.html"),
         name="about"),
     url(r"^comments/$", "comment", name="comment"),
@@ -102,7 +100,7 @@ urlpatterns = patterns(
     url(r"^ml/status/$","ml_status",  name="ml_status"),
     url(r"^ml/subscribe/$","ml_subscribe",  name="ml_subscribe"),
     url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
-    url(r"^press_new/$","press_new",  name="press_new"),
+    url(r"^press/$","press",  name="press"),
     url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
 )
 

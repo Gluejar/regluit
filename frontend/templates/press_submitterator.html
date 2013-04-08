@@ -1,9 +1,9 @@
 {% extends "basedocumentation.html" %}
 
 {% block doccontent %}
-{% if thanks %}
+{% if title %}
 <div class="presstoc">
-    <div class="pressemail">Duly submitted! Wanna submit more?</div>
+    <div class="pressemail">Your article <I>{{ title }}</I> has been submitted. Wanna submit another?</div>
 </div>
 {% endif %}
 
