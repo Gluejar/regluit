@@ -20,7 +20,7 @@ urlpatterns = patterns('',
           {'template_name': 'registration/from_add.html'}),
     (r'^accounts/edit/$', 'regluit.frontend.views.edit_user'),
     (r'^accounts/', include('registration.backends.default.urls')),
-    (r'^socialauth/', include('social_auth.urls')),
+    url('accounts/', include('email_change.urls')),
     url(r"^accounts/login/welcome/$", direct_to_template, 
         {'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
@@ -29,6 +29,7 @@ urlpatterns = patterns('',
         {'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
         }), 
+    (r'^socialauth/', include('social_auth.urls')),
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
     (r'', include('regluit.payment.urls')),
@@ -36,6 +37,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin_site.urls)), 
     (r'^comments/', include('django.contrib.comments.urls')),
     (r'^notification/', include(notification.urls)),
+
     (r'^ckeditor/', include('ckeditor.urls')),
 )
 

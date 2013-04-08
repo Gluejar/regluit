@@ -1,0 +1,22 @@
+{% extends "email_change/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Change email address" %}{% endblock %}
+
+
+{% block ce_content %}
+    <h2>{% trans "Change email address" %}</h2>
+    <div id="content-main">
+        <p>{% trans "Your current email address is:" %}</p>
+        <blockquote>{{ user.email }}</blockquote>
+        <p>{% trans "To associate a new email address with your account, please enter the new address in the box below." %}</p>
+        <form method="post">{% csrf_token %}
+            {{ form.as_p }}
+            <p><label>&nbsp;</label><input type="submit" value="{% trans "Change email address" %}" /></p>
+        </form>
+        <script type="text/javascript">
+            document.getElementById('id_email').focus()
+        </script>
+    </div>
+{% endblock %}
+
