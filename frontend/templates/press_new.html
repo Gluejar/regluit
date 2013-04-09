@@ -4,11 +4,11 @@
 <h1>Press</h1>
 <div class="presstoc">
 	<div>
-		<a href="#latest">Latest Press</a><br />
+		<a href="#latest">Latest Coverage</a><br />
 		<a href="#overview">Overview</a><br />
 	</div>
 	<div>
-		<a href="#press">Press Highlights</a><br />
+		<a href="#press">Media Highlights</a><br />
 		<a href="#blogs">Other Coverage</a><br />
 	</div>
 	<div>
@@ -31,7 +31,7 @@
     {% endif %}
 </div>
 
-<a id="latest"></a><h2>Latest Press</h2>
+<a id="latest"></a><h2>Latest Coverage</h2>
 <div class="pressarticles">
 {% for item in latest_items %}
     {% include "press_item.html" %}
@@ -69,7 +69,7 @@ Creative Commons offers a variety of other licenses, many of them with even less
 <dt>I have more questions...</dt>
 <dd>Please consult our <a href="/faq/">FAQ</a> (sidebar at left); join the site and explore its features for yourself; or email us, <a href="press@gluejar.com">press@gluejar.com</a>.</dd>
 </dl>
-<a id="press"></a><h2>Press Highlights</h2>
+<a id="press"></a><h2>Media Highlights</h2>
 <div class="pressarticles">
 {% for item in highlighted_items %}
     {% include "press_item.html" %}
