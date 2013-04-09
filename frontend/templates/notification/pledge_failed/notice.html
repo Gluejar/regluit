@@ -22,7 +22,7 @@
 		Amount pledged: {{ transaction.amount|intcomma }}<br />
 		Premium: {{ transaction.premium.description }} <br />
 		</p>
-		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the rights holder, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
+		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the campaign manager, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 		</p>
 		<p>For more information, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">campaign page</a>.
 		
