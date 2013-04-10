@@ -1,13 +1,21 @@
 {% extends "registration/registration_base.html" %}
 
 {% block title %}Register for an account{% endblock %}
-
+{% block extra_js %}
+{{ block.super }}
+<script type="text/javascript">
+function put_un_in_cookie(){
+    $j.cookie('un', $j('#id_username').val(), {path: '/', expires: 90 });
+    return true;
+}
+</script>
+{% endblock %}
 {% block doccontent %}
 {% if not user.is_authenticated %}
 
 <h3>Sign up for a Unglue.it account:</h3>
 
-    <form method='post' action=''>{% csrf_token %}
+    <form method='post' action=''  onsubmit="return put_un_in_cookie();">{% csrf_token %}
         {{ form }}
         <input type="submit" value="Send activation email" />
     </form>
@@ -15,11 +23,11 @@
 <div>
 <div class="google_signup">
 	<h3>Or use an account you already have:</h3> 
-	<a href="/socialauth/login/google?next=/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"><div>Sign in with Google</div></a>
+	<a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"><div>Sign in with Google</div></a>
 </div>
 {% else %}
 <div>
-You are already logged in as <a href="{% url supporter supporter_username=user.username %}">{{ user.username }}</a>.
+You are already logged in as <a href="{% url supporter user %}">{{ user.username }}</a>.
 </div>
 {% endif %}
 

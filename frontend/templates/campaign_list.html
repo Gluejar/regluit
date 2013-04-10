@@ -6,14 +6,13 @@
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/lists.css">
 {% endblock %}
 {% block extra_head %}
 <script>
 location.hash = "#2";
 </script>
-<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
@@ -77,18 +76,16 @@ location.hash = "#2";
                 </div>
                 <div id="content-block-content">
                     {% ifequal campaign_list.count 0 %}
-                    There aren't any {{ pub_lang|ez_lang_name }} ungluing campaigns active yet.  If you're a rights holder, you can <a href="/faq/rightsholders">start one</a>.
+                    There aren't any {{ pub_lang|ez_lang_name }} ungluing campaigns active yet.  If you're an author, publisher, or other rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
                     {% lazy_paginate 20 campaign_list using "campaign_list" %}
 
                     {% for campaign in campaign_list %}
                     <div class="{% cycle 'row1' 'row2' %}">
-                    {% with campaign.status as status %}
-					{% with campaign.deadline as deadline %}
 					{% with campaign.work.googlebooks_id as googlebooks_id %}
 					{% with campaign.work as work %}				
                     {% include "book_panel.html" %}
-                    {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-1">

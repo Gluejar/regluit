@@ -18,17 +18,16 @@
 <head>
     <meta charset="utf-8" />
     <title>unglue.it {% block title %}{% endblock %}</title>
-    <link type="text/css" rel="stylesheet" href="/static/css/sitewide2.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/sitewide3.css" />
 	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
-	{% block base_js %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
-    {% endblock %}
-	<script type="text/javascript" src="/static/js/hijax.js?v=2"></script>
-    {% block extra_js %}
-    {% endblock %}
+    <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
+	<script type="text/javascript" src="/static/js/sitewide.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    {% block extra_js %}
+    {% endblock %}
 	{% if show_langs %}
 	<script>
     var $j = jQuery.noConflict();
@@ -39,26 +38,11 @@
     });
     </script>
     {% endif %}
-    <script>
-    var $j = jQuery.noConflict();
-    $j(document).ready(function(){
-        // make drop-down menu happen when they click on their name
-        $j('#authenticated').click(function(){
-            $j('#user_menu').toggle();
-            $j(this).toggleClass('highlight');
-        });
-        // but suppress it if they're clicking on the badge link to the notifications page
-        $j('#i_haz_notifications_badge').click(function() {
-            event.stopPropagation();
-        });
-    });
-    </script>
     {% block extra_head %}
     {% endblock %}
 </head>
 
 <body>
-
 <div id="feedback">
 <p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
@@ -95,18 +79,14 @@
                             <a href="#"><span id="welcome">Hi, {{ user.username }}</span></a>
                         </li>
                         <li>
-                            {% if user.profile.pic_url %}
-                                <img class="user-avatar" src="{{ user.profile.pic_url }}" height=36 width="36" alt="Picture of {{ user.username }}" title="{{ user.username }}" />
-                            {% else %}
-                                <img class="user-avatar" src="/static/images/header/avatar.png" height="36" width="36" alt="Generic Ungluer Avatar" title="Ungluer" />
-                            {% endif %}
+                            <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
                             {% if unseen_count %}
                                 <a href="/notification"><span id="i_haz_notifications_badge">{{ unseen_count }}</span></a>
                             {% endif %}
                         </li>
                     </ul>
                         <ul id="user_menu">
-                            <li><a href="{% url supporter supporter_username=user.username %}">Wishlist</a></li>
+                            <li><a href="{% url supporter user %}">Wishlist</a></li>
                             <li>
                                 <a href="/notification"><span>Messages</span>
                                     {% if unseen_count %}
@@ -116,7 +96,7 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a href="{% url supporter supporter_username=user.username %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
+                            <li><a href="{% url supporter user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
                             <li><a href="{% url manage_account %}"><span>Account &amp; Pledges</span></a></li>
                             <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                         </ul>
@@ -124,13 +104,13 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a href="{% url auth_login %}?next={% firstof request.path '/' %}" class="hijax"><span>Sign In</span></a></li>
-                        {% if not suppress_search_box %}
+                        <li><a href="{% url superlogin %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" class="hijax"><span>Sign In</span></a></li>
+                       {% if not suppress_search_box %}
                             {% ifnotequal request.get_full_path "/accounts/register/" %}
                                 {% comment %}
                                 don't display this on landing page where it's superseded by big signup box in splash area
                                 {% endcomment %}
-                                <li id="expander" class="last"><a href="{% url registration_register %}"><span>Sign Up</span></a></li>
+                                <li id="expander" class="last"><a href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign Up</span></a></li>
                             {% endifnotequal %}
                         {% endif %}
                     </ul>
@@ -140,9 +120,14 @@
     </div>
 
 {% block news %}
+{% if not suppress_search_box %}
+{% comment %}
+Not needed on newly designed home page?
+{% endcomment %}
 <div class="launch_top">
-        We've unglued our <a href="/work/113782/">second</a> and <a href="/work/76348/">third</a> books.  Help us <a href="https://unglue.it/campaigns/ending">unglue even more</a>! <br />
+        De Gruyter to work with Unglue.it: <a href="https://unglue.it/pid/popular/4311">Wish for your favorites!</a>
 </div>
+{% endif %}
 {% endblock %}
 
     {% block topsection %}{% endblock %}
@@ -180,7 +165,7 @@
         <span>Help</span>
         <ul>
             <li><a href="{{ faqurl }}">General FAQ</a></li>
-            <li><a href="{% url faq_location 'rightsholders' %}">Rights Holder FAQ</a></li>
+            <li><a href="{% url faq_location 'rightsholders' %}">Author/Publisher FAQ</a></li>
             <li><a href="{% url api_help %}">API</a></li>
             <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
             <li><a href="{{ librariesurl }}">Unglue.it &hearts; Libraries</a>

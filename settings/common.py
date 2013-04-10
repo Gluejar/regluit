@@ -102,6 +102,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
+    'social_auth.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
@@ -140,6 +141,7 @@ INSTALLED_APPS = (
     'regluit.frontend.templatetags',
     'regluit.payment.templatetags',
     'notification',
+    'email_change',
     'ckeditor',
     'storages',    
     # this must appear *after* django.frontend or else it overrides the 
@@ -192,7 +194,9 @@ LOGGING = {
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 SERVER_EMAIL = 'notices@gluejar.com'
+SUPPORT_EMAIL = 'support@gluejar.com'
 ACCOUNT_ACTIVATION_DAYS = 30
+SESSION_COOKIE_AGE = 3628800 # 6 weeks
 
 # django-socialauth
 AUTHENTICATION_BACKENDS = (
@@ -208,8 +212,10 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
-SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
+#SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
+FACEBOOK_SOCIAL_AUTH_BACKEND_ERROR_URL = '/'
+SOCIAL_AUTH_SLUGIFY_USERNAMES = True
 # following is needed because of length limitations in a unique constrain for MySQL
 # see https://github.com/omab/django-social-auth/issues/539
 SOCIAL_AUTH_UID_LENGTH = 222
@@ -217,11 +223,22 @@ SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
 SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 135
 SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 125
 
-TWITTER_EXTRA_DATA = [('profile_image_url', 'profile_image_url')]
+SOCIAL_AUTH_PIPELINE = (
+    'regluit.core.auth.selectively_associate',
+    'social_auth.backends.pipeline.associate.associate_by_email',
+    'social_auth.backends.pipeline.user.get_username',
+    'social_auth.backends.pipeline.user.create_user',
+    'social_auth.backends.pipeline.social.associate_user',
+    'regluit.core.auth.deliver_extra_data',
+    'social_auth.backends.pipeline.user.update_user_details'
+)
 
-LOGIN_URL = "/accounts/login/"
+TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url_https'),('screen_name','screen_name')]
+
+LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
+LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 

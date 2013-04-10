@@ -2,6 +2,7 @@ from datetime import timedelta
 from django import forms
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from django.conf import settings
 from django.conf.global_settings import LANGUAGES
 from django.core.validators import validate_email
@@ -13,7 +14,8 @@ from decimal import Decimal as D
 from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work
+from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work, Press
+from regluit.core.models import TWITTER, FACEBOOK, GRAVATAR
 from regluit.core.lookups import OwnerLookup, WorkLookup
 
 from regluit.utils.localdatetime import now
@@ -122,35 +124,41 @@ class RightsHolderForm(forms.ModelForm):
         except RightsHolder.DoesNotExist:
             return rights_holder_name
         raise forms.ValidationError(_("Another rights holder with that name already exists."))
+
     
 class ProfileForm(forms.ModelForm):
     clear_facebook=forms.BooleanField(required=False)
     clear_twitter=forms.BooleanField(required=False)
     clear_goodreads=forms.BooleanField(required=False)
+    
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads', 'avatar_source'
         widgets = {
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
 
-class UserEmail(forms.Form):
-    email = forms.EmailField(
-        label=_("new email address"), 
-        max_length=100,
-        error_messages={'required': 'Please enter an email address.'},
-        )
-    oldemail = None
-    
-    def clean_email(self):
-        email = self.data["email"]
-        if email != self.oldemail:
-            users = User.objects.filter(email__iexact=email)
-            for user in users:
-                raise forms.ValidationError(_("Another user with that email already exists."))
-            return email
-        raise forms.ValidationError(_("Your email is already "+ email))
-    
+    def __init__(self, *args, **kwargs):
+        profile = kwargs.get('instance')
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        choices = []
+        for choice in self.fields['avatar_source'].choices :
+            if choice[0] == FACEBOOK and not profile.facebook_id:
+                pass
+            elif choice[0] == TWITTER and not profile.twitter_id:
+                pass
+            else:
+                choices.append(choice)
+        self.fields['avatar_source'].choices = choices
+
+    def clean(self):
+        # check that if a social net is cleared, we're not using it a avatar source
+        if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None)==FACEBOOK:
+            self.cleaned_data["avatar_source"]==GRAVATAR
+        if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None)==TWITTER:
+            self.cleaned_data["avatar_source"]==GRAVATAR
+        return self.cleaned_data
+ 
 class UserData(forms.Form):
     username = forms.RegexField(
         label=_("New Username"), 
@@ -278,10 +286,11 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
         latest_ending = (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()).date
+        publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
                 
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition'
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher'
             widgets = { 
                     'deadline': SelectDateWidget,
                 }
@@ -445,6 +454,14 @@ class FeedbackForm(forms.Form):
             
         return cleaned_data
 
+class AuthForm(AuthenticationForm):
+    def __init__(self, request=None, *args, **kwargs):
+        if request and request.method == 'GET':
+            saved_un= request.COOKIES.get('un', None)
+            super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
+        else:
+            super(AuthForm, self).__init__(*args, **kwargs)
+
 class MsgForm(forms.Form):
     msg = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})
 
@@ -464,3 +481,12 @@ class MsgForm(forms.Form):
                 raise ValidationError("Work does not exist")
         else:
             raise ValidationError("Work is not specified")
+            
+class PressForm(forms.ModelForm):
+    class Meta:
+        model = Press
+
+        widgets = { 
+                'date': SelectDateWidget(years=range(2010,2025)),
+            }
+

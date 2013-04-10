@@ -73,7 +73,12 @@
                                 <div>
                                         <div class="pubinfo">
                                             <h3 class="book-author" itemprop="author">{{ work.author }}</h3>
-                                            <h3 class="book-year" itemprop="datePublished">{{ work.publication_date_year }}</h3>
+                                            <h3 class="book-year"> 
+                                                {% if work.last_campaign.publisher %}
+                                                <span itemprop="publisher"><a href="{% url bypubname_list work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
+                                                {% endif %}
+                                                <span itemprop="datePublished">{{ work.publication_date_year }}</span>
+                                            </h3>
                                         </div>
                                     </div>
                                 </div>
@@ -204,7 +209,7 @@
                                    {% if user.is_authenticated %}
                                        {% render_comment_form for work %}
                                    {% else %}
-                                   <p>You must be <a href="{% url auth_login %}?next={{ request.path }}">logged in</a> to comment.</p>
+                                   <p>You must be <a href="{% url superlogin %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
                                    {% endif %}
                                 </div>
                             </div>
@@ -217,13 +222,9 @@
                                         {% for wish in work.wishes.all reversed %}
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_wide">
-                                                <a href="{% url supporter supporter_username=supporter.username %}">
+                                                <a href="{% url supporter supporter %}">
                                                     <span class="work_supporter_avatar">
-                                                        {% if supporter.profile.pic_url %}
-                                                            <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                                                        {% else %}
-                                                            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                                        {% endif %}
+                                                        <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="{{ supporter }}" />
                                                     </span>
                                                 </a>
                                                 <div class="show_supporter_contact_form" >
@@ -245,13 +246,9 @@
                                         {% for wish in work.wishes.all reversed %}
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
-                                                <a itemprop="url" href="{% url supporter supporter_username=supporter.username %}">
+                                                <a itemprop="url" href="{% url supporter supporter %}">
                                                     <span class="work_supporter_avatar">
-                                                        {% if supporter.profile.pic_url %}
-                                                            <img class="user-avatar" src="{{ supporter.profile.pic_url }}" height="50" width="50" alt="Picture of {{ supporter }}" title="{{ supporter }}" />
-                                                        {% else %}
-                                                            <img class="user-avatar" src="/static/images/header/avatar.png" height="50" width="50" alt="Generic Ungluer Avatar" title="Ungluer" />
-                                                        {% endif %}
+                                                        <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="{{ supporter }}" />
                                                     </span>
                                                     <span class="work_supporter_name">{{ supporter }}</span>
                                                 </a>
@@ -346,7 +343,7 @@
                                                     {% endif %}
                                                 <div class="metadata" id="edition_{{edition.id}}">
                                                     {% if edition.publisher %}
-                                                        Publisher: <a href="{% url bypub_list edition.publisher %}">{{edition.publisher}}</a><br />
+                                                        Publisher: <a href="{% url bypubname_list edition.publisher_name.id %}">{{edition.publisher}}</a><br />
                                                     {% endif %}
                                                     {% if edition.publication_date %}
                                                         Published: {{ edition.publication_date }}<br />
@@ -420,6 +417,16 @@
                 </div>
                 <br />
                 <div class="js-rightcol-pad rounded">
+                    {% ifequal status 'ACTIVE' %}{% if work.last_campaign.email %}
+                    <div class="jsmodule">
+                        <h3 class="jsmod-title"><span>Ask Questions</span></h3>
+                        <div class="jsmod-content">
+                            <ul class="social menu">
+                                <a href="{% url ask_rh work.last_campaign.id %}"><li class="email"><span>Email the Rights Holder</span></li></a>
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}{% endifequal %}
                     <div class="jsmodule">
                         <h3 class="jsmod-title"><span>Share</span></h3>
                         <div class="jsmod-content">

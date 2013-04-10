@@ -27,8 +27,8 @@
 <p><strong>We need your help, though.</strong>  We can't unglue ebooks all by ourselves; we need lots of people to pitch in.  If you'd like to share free, unlimited, no-DRM, privacy-respecting ebooks with your patrons, here are some ways you can help:</p>
 
 <dl>
-<dt><a href="{% url registration_register %}">Sign up.</a></dt>
-<dd>Starting an account, for yourself or your library, is free, and lets you add books to your wishlist, comment on them, and support campaigns.  <a href="{% url registration_register %}">Sign up here.</a></dd>
+<dt><a href="{% url registration_register %}?next={% request.get_full_path|urlencode }}">Sign up.</a></dt>
+<dd>Starting an account, for yourself or your library, is free, and lets you add books to your wishlist, comment on them, and support campaigns.  <a href="{{ request.get_full_path|urlencode}}">Sign up here.</a></dd>
 <dt>Stay in touch.</dt>
 <dd>You can follow us on Twitter (<a href="http://twitter.com/unglueit">@unglueit</a>), <a href="http://facebook/com/unglueit">Facebook</a>, and our <a href="http://blog.unglue.it">blog</a>, and <a href="http://eepurl.com/fKLfI">subscribe to our newsletter</a> (1-2 emails per month).</dd>
 <dt>Add unglued ebooks to your collection.</dt>

@@ -3,7 +3,9 @@
 {% block doccontent %}
 <div id="lightbox_content">
 {% if form.errors %}
-<p class="errorlist">Your username and password didn't match. Please try again.</p>
+{% for error in form.non_field_errors %}
+<p class="errorlist">{{ error }}</p>
+{% endfor %}
 Make sure the username box has your <b>username, not your email</b> -- some browsers automatically fill in your email.  We're working on fixing this bug.
 {% endif %}
 {% if not user.is_authenticated %}
@@ -13,16 +15,19 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <br />
 
 
-<a href="{% url auth_password_reset %}">Forgot</a> your password?  <a href="{% url registration_register %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+<a href="{% url auth_password_reset %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
 <br /><br />
-<div class="google_signup">
-	<a href="/socialauth/login/google?next=/next/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next=/next/">Sign in with Google</a></div>
+<div  class="google_signup">
+<div {% if socials.google %}class="errorlist"{% endif %}>
+	<div><a href="/socialauth/login/google?next=/next/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a></div>
+	<div>Or: <a href="/socialauth/login/google?next=/next/">Sign in with Google</a></div>
+</div>
 </div>
 {% else %}
 <div>
-You are already logged in as <a href="{% url supporter supporter_username=user.username %}">{{ user.username }}</a>.
+You are already logged in as <a href="{% url supporter user %}">{{ user.username }}</a>.
 </div>
 {% endif %}
 </div>

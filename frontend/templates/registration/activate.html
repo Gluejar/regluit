@@ -3,13 +3,13 @@
 {% block doccontent %}
 {% if not user.is_authenticated %}
 {% if account %}
-Thanks {{ account }}, activation complete!  You may now <a href='{% url auth_login %}'>sign in</a> using the username and password you set at registration.
+Thanks {{ account }}, activation complete!  You may now <a href='{% url superlogin %}'>sign in</a> using the username and password you set at registration.
 {% else %}
 Oops &ndash; it seems that your activation key is invalid.  Please check the url again.
 {% endif %}
 {% else %}
 <div>
-You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
+You are logged in as <a href="{% url supporter request.user %}">{{ request.user.username }}</a>.
 </div>
 {% endif %}
 {% endblock %}

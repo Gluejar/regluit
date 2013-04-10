@@ -1,0 +1,95 @@
+base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
+    404.html
+    500.html
+    503.html
+    about_active.html
+    about_active_empty.html
+    about_main.html
+    about_unglued.html
+    about_unglued_empty.html
+    about_wishlist.html
+    about_wishlist_empty.html
+    campaign_list.html  extra_css    extra_head
+    comments.html   extra_css    extra_head
+    download.html  extra_js
+    goodreads_display.html    extra_head
+    home.html   extra_css  extra_js
+    librarything.html
+    lockss.html 
+    lockss_manifest.html
+    profiles/create_profile.html
+    profiles/edit_profile.html
+    profiles/profile_detail.html
+    profiles/profile_list.html
+    registration/registration_base.html  extra_js    extra_head    extra_extra_head
+        basedocumentation.html  extra_js    extra_extra_head(empty)
+            api_help.html
+            about.html
+            about_smashwords.html
+            admins_only.html
+            campaign_admin.html    extra_extra_head
+            claim.html
+            comments/base.html
+                comments/preview.html  extra_css
+            donation.html    extra_extra_head
+            emailshare.html   extra_css
+            faq.html
+            feedback.html
+            front_matter.html    extra_extra_head
+            languages.html
+            libraries.html   extra_css  extra_js
+            manage_account.html    extra_extra_head
+            manage_campaign.html    extra_extra_head
+            merge.html    extra_extra_head
+            metrics.html
+            new_edition.html    extra_extra_head
+            notification/base.html
+                notification/notice_settings.html   extra_css  extra_js
+                notification/notices.html   extra_css
+            press.html
+            privacy.html
+            rh_tools.html    extra_extra_head
+            rights_holders.html    extra_extra_head
+            terms.html   extra_css
+            thanks.html
+        basepledge.html  extra_css  extra_js    extra_extra_head(empty)
+            donation_credit.html    
+            donation_user_error.html    
+            fund_the_pledge.html    extra_extra_head
+            donation_credit.html    extra_extra_head
+            pledge.html    extra_extra_head
+            pledge_cancel.html    extra_css
+            pledge_card_error.html    
+            pledge_complete.html    extra_extra_head
+            pledge_nevermind.html    extra_css
+            pledge_recharge.html    extra_css
+            pledge_user_error.html    extra_extra_head
+            stripe.html    extra_extra_head
+        registration/activation_complete.html
+        registration/activate.html
+        registration/login.html
+        registration/logout.html
+        registration/password_change_done.html
+        registration/password_change_form.html
+        registration/password_reset_complete.html
+        registration/password_reset_confirm.html
+        registration/password_reset_done.html
+        registration/password_reset_form.html
+        registration/registration_complete.html
+        registration/registration_form.html
+        registration/user_change_form.html
+        registration/welcome.html
+    search.html   extra_css    extra_head
+    stub.html
+    subjects.html
+    supporter.html   extra_css  extra_js    extra_head
+    textpages.html    extra_head
+    unglued_list.html   extra_css    extra_head
+    work.html   extra_css  extra_js
+    work_list.html   extra_css    extra_head
+        bypub_list.html
+    
+    
+nonprofit_base.html    extra_extra_head
+    nonprofit.html    extra_extra_head
+    

@@ -1,34 +1,33 @@
 {% extends "base.html" %}
 {% load truncatechars %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
-{% block extra_js %}
-<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
-{% endblock %}
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/landingpage2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/learnmore.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/landingpage3.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
+<link type="text/css" rel="stylesheet" href="/static/css/learnmore2.css"  />
 {% endblock %}
+{% block extra_js %}
 
-{% block base_js %}
-
-<script src="{{ jquery_home }}"></script>
-
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
-	jQuery(document).ready(function($) { 
-        $('.listview').addClass("panelview").removeClass("listview");
-    });    
+    
+jQuery(document).ready(function($) { 
+    $('.listview').addClass("panelview").removeClass("listview");
+});  
+var $j = jQuery.noConflict();
+function put_un_in_cookie2(){
+    $j.cookie('un', $j('#id_username_main').val(), {path: '/', expires: 90 });
+    return true;
+}
 </script>    
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/highlight_signup.js"></script>
-<script src="/static/js/slides.min.jquery.js"></script>
-<script src="/static/js/slideshow.js"></script>
 <script type="text/javascript" src="/static/js/expand.js"></script>
 <meta name="google-site-verification" content="wFZncBw5tNpwRVyR08NZFNr7WXqv5X1BkEga2fpUNOo" />
 {% endblock %}
@@ -38,134 +37,145 @@
 {% endblock %}
     
 {% block content %}
-		<div id="expandable">
-          <div id="js-rightcol2">
-            <div id="js-rightcol-padd2">
-            	<div class="jsmodule">
- 		       		<div id="collapser" class="collapser_x">X</div>
-                	<h3 class="module-title">Start Ungluing Now!</h3>
-                    <div class="jsmod-content">
-                    {% if not request.user.is_authenticated %}
-                      <form action='/accounts/register/' method='post'>{% csrf_token %}
-                    	<div class="user-name">
-                    	<label>Username</label>
-                        <input id="id_username_pop" type="text" class="required" name="username" maxlength="30" size="30" />
-                        </div>
-                        <div class="email">
-                    	<label>Email</label>
-                        <input id="id_email_pop" type="text" class="required" name="email" maxlength="75" size="30" />
-                        </div>
-                        <div class="password">
-                    	<label>Password</label>
-                        <input id="id_password1_pop" type="password" class="required" name="password1" size="30" />
-                        </div>
-                        <div class="password">
-                    	<label>Password (again):</label>
-                        <input id="id_password2_pop" type="password" class="required" name="password2" size="30" />
-                        </div>
-						<div class="button">
-                        	<input type="submit" class="signup" value="Sign Up" />
-                        </div>
-                        </form>
-                        <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div>Or: <a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
-                        </div>
-                    {% else %}
-                    <div>
-                    You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
-                    </div>
-                    {% endif %}
-
-                    </div>
-                </div>
-            </div>
-            </div>
-            </div>
-
     <div id="main-container" class="main-container-fl">
-    <div class="js-main">
+    <div class="js-main" id="content-block">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
-            <div class="js-main-container-inner">
-            		<div id="js-maincontainer-content" class="have-content-right-module">
-                        <div class="content-right-module">
-                        	<h3>How does it work?</h3>
-                        </div>
-                        <div style="clear:right;">
-                        	<div class="item-content">
-                        		<h2 class="page-heading">Give ebooks to the world.</h2>
-                        	</div>
-                            <div class="jsmod-content">
-                            	<a href="{{ faqurl }}#crowdfunding"><img src="/static/images/landingpage/icon-group.png" alt="How does it work?" title="How does it work?" height="269" width="268" /></a>
-                            </div>
-                        </div>
-                    </div>
+        	    <h3 class="featured_books">Active Campaigns</h3>
+        	    <div>
+                    {% for campaign in top_campaigns %}
+                        {% with campaign.work as work %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url campaign_list 'ending' %}"></a>
+                </div>
+                <div class="spacer"></div>
+        	
+        	    <h3 class="featured_books">Already Unglued</h3>
+        	    <div>
+                    {% for work in unglued_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url unglued_list '' %}"></a>
+                </div>
+                <div class="spacer"></div>
+        	
+        	    <h3 class="featured_books">Most Wished</h3>
+        	    <div>
+                    {% for work in most_wished %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url work_list 'popular' %}"></a>
+                </div>
+                <div class="spacer"></div>
+        	
+                <div class="js-main-container-inner">
                     <div id="js-maincontainer-bot-block">
                         <div id="js-search">
-                        	<label>What book would you give to the world? </label>
-				                <form action="{% url search %}" method="get">
-                				    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-                				    <input type="submit" class="greenbutton" value="Search">
-               					</form>
+                            <label>What book would you give to the world? </label>
+                                <form action="{% url search %}" method="get">
+                                    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
+                                    <input type="submit" class="greenbutton" value="Search">
+                                </form>
                         </div>
                     </div>
                     <div id="js-maincontainer-faq">
-                    	<div class="js-maincontainer-faq-inner">
-                        	Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">FAQ for rights holders</a>.
+                        <div class="js-maincontainer-faq-inner">
+                            Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">Author/Publisher FAQ</a>.
                         </div>
                     </div>
-            </div>
+                </div>
             </div>
             <div id="js-rightcol">
             <div class="js-rightcol-padd">
-            	<div class="jsmodule" id="mainlogin">
-                	<h3 class="module-title">Start Ungluing Now!</h3>
-                	{% if not request.user.is_authenticated %}
+                {% if not request.user.is_authenticated %}
+                    <div class="jsmodule" id="mainlogin">
+                        <h3 class="module-title">Start Ungluing Now!</h3>
+                        <div class="jsmod-content">
+                          <form action='{% url registration_register %}' method='post' onsubmit="return put_un_in_cookie2();">{% csrf_token %}
+                            <div class="user-name">
+                            <label>Username</label>
+                            <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
+                            </div>
+                            <div class="email">
+                            <label>Email</label>
+                            <input id="id_email_main" type="text" class="required" name="email" maxlength="75" size="30" />
+                            </div>
+                            <div class="password">
+                            <label>Password</label>
+                            <input id="id_password1_main" type="password" class="required" name="password1" size="30" />
+                            </div>
+                            <div class="password">
+                            <label>Password (again):</label>
+                            <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
+                            </div>
+                            <div class="button">
+                                <input type="submit" class="signup" value="sign up" />
+                            </div>
+                            <div class="google_signup">
+                                <a href="/socialauth/login/google?next=/next/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div><a href="/socialauth/login/google?next=/next/">Sign Up With Google</a></div>
+                            </div>
+                          </form>
+                        </div>
+                    </div>
+                {% endif %}
+                <div class="jsmodule">
+                	<h3 class="module-title">News</h3>
                     <div class="jsmod-content">
-                      <form action='/accounts/register/' method='post'>{% csrf_token %}
-                    	<div class="user-name">
-                    	<label>Username</label>
-                        <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
-                        </div>
-                        <div class="email">
-                    	<label>Email</label>
-                        <input id="id_email_main" type="text" class="required" name="email" maxlength="75" size="30" />
-                        </div>
-                        <div class="password">
-                    	<label>Password</label>
-                        <input id="id_password1_main" type="password" class="required" name="password1" size="30" />
-                        </div>
-                        <div class="password">
-                    	<label>Password (again):</label>
-                        <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
-                        </div>
-						<div class="button">
-                        	<input type="submit" class="signup" value="sign up" />
-                        </div>
-                        <div class="google_signup">
-                            <a href="/socialauth/login/google?next={{request.build_absolute_uri}}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div><a href="/socialauth/login/google?next={{request.build_absolute_uri}}">Sign Up With Google</a></div>
-                        </div>
-                      </form>
+                    De Gruyter to work with Unglue.it: <a href="https://unglue.it/pid/popular/4311">Wish for your favorites!</a>
                     </div>
-                    {% else %}
-                    <div>
-                    You are logged in as <a href="{% url supporter supporter_username=request.user.username %}">{{ request.user.username }}</a>.
-                    </div>
-                    {% endif %}
-
                 </div>
                 <div class="jsmodule">
-                	<h3 class="module-title">Who's ungluing what</h3>
+                	<h3 class="module-title">Latest Ungluing</h3>
                     <div class="jsmod-content">
 						<ul class="ungluingwhat">
 						{% for event in events %}
+                            {% comment %}
+                                events are tuples of date, object, and string representing object type
+                            {% endcomment %}
                         	<li>
-                            	<div class="user-avatar"><a href="{% url supporter event.wishlist.user.username %}"><img src="{% if event.wishlist.user.picurl %}{{ event.wishlist.user.picurl}}{% else %}/static/images/header/avatar.png{% endif %}" width="43" height="43" title="{{event.wishlist.user.username}}" alt="{{event.wishlist.user.username}} avatar" /></a></div>
-                                <div class="user-book-info">
-                                	<p class="user-book-info"><a href="{% url supporter event.wishlist.user.username %}">{{event.wishlist.user.username|truncatechars:20}}</a> is Wishing For</p>
-                                    <a class="user-book-name" href="{% url work event.work.id %}">{{ event.work.title }}</a>
-                                </div>
-                                <div class="user-book-thumb"><a class="user-book-name" href="{% url work event.work.id %}"><img src="{{ event.work.cover_image_thumbnail }}" width="29" height="43" title="{{ event.work.title }}" alt="{{ event.work.title }}" /></a></div>
+                        	    {% with event.1 as object %}
+                        	        {% ifequal event.2 "pledge" %}
+                                        <span class="user-avatar">
+                                            <a href="{% url supporter object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
+                                        </span>
+                                        <span class="user-book-info">
+                                            <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
+                                            pledged to the campaign to unglue <br />
+                                            <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                        </span>
+                                    {% else %}{% ifequal event.2 "comment" %}
+                                        <span class="user-avatar">
+                                            <a href="{% url supporter object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
+                                        </span>
+                                        <span class="user-book-info">
+                                            <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
+                                            commented on<br />
+                                            <a class="user-book-name" href="{% url work object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
+                                        </span>                                    
+                                    {% else %}{% ifequal event.2 "wish" %}
+                                        <span class="user-avatar">
+                                            <a href="{% url supporter object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
+                                        </span>
+                                        <span class="user-book-info">
+                                            <a href="{% url supporter object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
+                                            wishlisted <br />
+                                            <a class="user-book-name" href="{% url work object.work.id %}">{{ object.work.title }}</a>
+                                        </span>                                    
+                                    {% endifequal %}{% endifequal %}{% endifequal %}
+                                {% endwith %}
                             </li>
                         {% endfor %}
                         </ul>
@@ -173,15 +183,19 @@
                 </div>
             </div>
             </div>
-        </div>
-    </div>
-    </div>
     
-    <div id="js-slide">
-    	<div class="js-main">
-        	<div class="jsmodule" id="content-block">
-        	{% include "slideshow.html" %}
-            </div>
+            <h3 class="featured_books">As seen on</h3>
+            <ul id="as_seen_on">
+                <li><a href="http://boingboing.net/2012/06/28/release-a-deadly-monster-a-dr.html"><img src="{{ STATIC_URL }}images/press_logos/boingboing_logo.png"></a></li>
+                <li><a href="http://www.zeit.de/digital/internet/2012-07/unglue-ebook-creative-commons"><img src="{{ STATIC_URL }}images/press_logos/die_zeit_logo.png"></a></li>
+                <li><a href="http://www.huffingtonpost.com/2012/05/21/unglueit-free-ebooks-crowdfunding_n_1532644.html"><img src="{{ STATIC_URL }}images/press_logos/huffington_post_logo.png"></a></li>
+                <li><a href="http://lj.libraryjournal.com/2012/05/publishing/ebook-crowdfunding-platform-unglue-it-launched/"><img src="{{ STATIC_URL }}images/press_logos/library_journal_logo.png"></a></li>
+                <li><a href="http://mashable.com/2012/06/14/unglueit/"><img src="{{ STATIC_URL }}images/press_logos/mashable_logo.png"></a></li>
+                <li><a href="http://goodereader.com/blog/electronic-readers/unglue-it-unleashes-two-new-crowd-sourced-titles/"><img src="{{ STATIC_URL }}images/press_logos/good_ereader_logo.png"></a></li>
+            </ul>
+            <div class="speech_bubble"><span>One of the more innovative concepts that has grown out of digital publishing...</span></div>
+    
         </div>
+    </div>
     </div>
 {% endblock %}

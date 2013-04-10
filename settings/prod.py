@@ -156,11 +156,12 @@ AWS_ACCESS_KEY_ID = 'AKIAIRLBDIET3DFCNU4A'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'unglueit_files'
 
+# we should suppress Google Analytics outside of production
+SHOW_GOOGLE_ANALYTICS = True
+
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
     from regluit.settings.local import *
 except ImportError:
     pass
     
-# we should suppress Google Analytics outside of production
-SHOW_GOOGLE_ANALYTICS = True

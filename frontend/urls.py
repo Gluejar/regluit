@@ -11,7 +11,7 @@ from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
 from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
 from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView
+from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView, ByPubView
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -20,6 +20,7 @@ urlpatterns = patterns(
     url(r"^next/$", "next", name="next"),
     url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
     url(r"^accounts/manage/$", login_required(ManageAccount.as_view()), name="manage_account"),
+    url(r'^accounts/superlogin/$', 'superlogin', name='superlogin'),
     url(r"^search/$", "search", name="search"),
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"),
         name="privacy"),
@@ -38,6 +39,8 @@ urlpatterns = patterns(
     url(r"^msg/$", "msg", name="msg"),
     url(r"^campaigns/(?P<facet>\w*)$", CampaignListView.as_view(), name='campaign_list'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
+    url(r"^pid/all/(?P<pubname>\d+)$", ByPubView.as_view(),  name='bypubname_list'),
+    url(r"^pid/(?P<facet>\w*)/(?P<pubname>\d+)$", ByPubView.as_view(),  name='bypubname_list'),
     url(r"^bypub/all/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
     url(r"^bypub/(?P<facet>\w*)/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
     url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),
@@ -63,7 +66,7 @@ urlpatterns = patterns(
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     url(r"^donation/$", login_required(DonationView.as_view()), name="donation"),
     url(r"^donation/credit/(?P<token>.+)/$", login_required(DonationCredit.as_view()), name="donation_credit"),
-    url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view()), name="pledge"),
+    url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view(),login_url='/accounts/login/pledge/'), name="pledge"),
     url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
     url(r"^pledge/complete/$", login_required(PledgeCompleteView.as_view()), name="pledge_complete"),
     url(r"^pledge/modified/$", login_required(PledgeModifiedView.as_view()), name="pledge_modified"),
@@ -78,10 +81,9 @@ urlpatterns = patterns(
     url('^500testing/$', direct_to_template, {'template': '500.html'}),
     url('^robots.txt$', direct_to_template, {'template': 'robots.txt', 'mimetype': 'text/plain'}),
     url(r"^emailshare/(?P<action>\w*)/?$", "emailshare", name="emailshare"),
+    url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", "ask_rh", name="ask_rh"),
     url(r"^feedback/$", "feedback", name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
-    url(r"^press/$", TemplateView.as_view(template_name="press.html"),
-        name="press"),
     url(r"^about/$", TemplateView.as_view(template_name="about.html"),
         name="about"),
     url(r"^comments/$", "comment", name="comment"),
@@ -98,6 +100,8 @@ urlpatterns = patterns(
     url(r"^ml/status/$","ml_status",  name="ml_status"),
     url(r"^ml/subscribe/$","ml_subscribe",  name="ml_subscribe"),
     url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
+    url(r"^press/$","press",  name="press"),
+    url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
 )
 
 if settings.DEBUG:

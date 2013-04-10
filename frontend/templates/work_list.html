@@ -6,13 +6,11 @@
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/lists.css" />
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
-<script type="text/javascript" src="{{ jquery_home }}"></script>
-<script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
@@ -29,7 +27,7 @@
                         <div class="user-block">
                             {% block userblock %}
                                 <div id="user-block1">
-								<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>
+								{% block userblock1 %}<div id="block-intro-text"><span class="special-user-name">{{ facet|capfirst }}</span></div>{% endblock %}
 								</div>
 								<div class="user-block2">
 								{% block userblock2 %}
@@ -37,6 +35,7 @@
 								{% endblock %}
 								</div>
     	                        <div class="user-block3">
+    	                        {% block userblock3 %}{% endblock %}
 	                            </div>
                             {% endblock %}
                         </div>
@@ -83,17 +82,15 @@
                 <div id="content-block-content">
                     {% ifequal work_list.count 0 %}
                     {% block noworks %}
-                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  Why not add your favorite books to your wishlist, so we can feature them here?
+                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  {% block add_more %}Why not add your favorite books to your wishlist, so we can feature them here?{% endblock %}
 					{% endblock %}
                     {% else %}
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}
                         {% for work in works_unglued %}
                         <div class="{% cycle 'row1' 'row2' %}">
-                        {% with work.last_campaign_status as status %}
-                        {% with work.last_campaign.deadline as deadline %}
                         {% with work.googlebooks_id as googlebooks_id %}					
                         {% include "book_panel.html" %}
-                        {% endwith %}{% endwith %}{% endwith %}
+                        {% endwith %}
                         </div>
                         {% endfor %}
                         <div class="pagination content-block-heading tabs-1">
@@ -105,11 +102,9 @@
                         {% lazy_paginate 20 works_active using "works_active" %}
                         {% for work in works_active %}
                         <div class="{% cycle 'row1' 'row2' %}">
-                        {% with work.last_campaign_status as status %}
-                        {% with work.last_campaign.deadline as deadline %}
                         {% with work.googlebooks_id as googlebooks_id %}					
                         {% include "book_panel.html" %}
-                        {% endwith %}{% endwith %}{% endwith %}
+                        {% endwith %}
                         </div>
                         {% endfor %}
                         <div class="pagination content-block-heading tabs-2">
@@ -122,11 +117,9 @@
                         {% lazy_paginate 20 works_wished using "works_wished" %}
                         {% for work in works_wished %}
                         <div class="{% cycle 'row1' 'row2' %}">
-                        {% with work.last_campaign_status as status %}
-                        {% with work.last_campaign.deadline as deadline %}
                         {% with work.googlebooks_id as googlebooks_id %}					
                         {% include "book_panel.html" %}
-                        {% endwith %}{% endwith %}{% endwith %}
+                        {% endwith %}
                         </div>
                         {% endfor %}
                         <div class="pagination content-block-heading tabs-3">

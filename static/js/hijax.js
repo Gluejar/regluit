@@ -23,6 +23,16 @@ $j(document).ready(function() {
 		    jQuery.getScript('https://platform.readmill.com/send.js');
 		}
 		
+		//need to push next cookie for sign-in links
+		var vars = $j(this).attr("href").split("next=");
+		if (vars.length>1){
+		    next=vars[1];
+            if(next!='') {
+                next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
+                $j.cookie('next', next, {path: '/'});
+            }
+		}
+		
 		// fade-out rest of page elements on expand
 		$j('#feedback, #js-page-wrap, #footer').css({"opacity": "0.07"});
 		$j('#about_expandable').css({'position': 'absolute'});

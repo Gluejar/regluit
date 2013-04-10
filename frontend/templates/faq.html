@@ -15,7 +15,7 @@
 <dl>
 <dt>What is Unglue.it?</dt>
 
-<dd><a href="/">Unglue.it</a> is a a place for individuals and institutions to join together to give their favorite ebooks to the world.  We work with rights holders to decide on fair compensation for releasing a free, legal edition of their already-published books, under <a href="http://creativecommons.org">Creative Commons</a> licensing.  Then everyone pledges toward that sum.  When the threshold is reached (and not before), we collect the pledged funds and we pay the rights holders.  They issue an unglued digital edition; you're free to read and share it, with everyone, on the device of your choice, worldwide.</dd>
+<dd><a href="/">Unglue.it</a> is a a place for individuals and institutions to join together to give their favorite ebooks to the world.  We work with authors, publishers, or other rights holders to decide on fair compensation for releasing a free, legal edition of their already-published books, under <a href="http://creativecommons.org">Creative Commons</a> licensing.  Then everyone pledges toward that sum.  When the threshold is reached (and not before), we collect the pledged funds and we pay the rights holders.  They issue an unglued digital edition; you're free to read and share it, with everyone, on the device of your choice, worldwide.</dd>
 
 <a id="crowdfunding"></a><dt>What is Crowdfunding?</dt>
 
@@ -27,7 +27,7 @@ In other words, crowdfunding is working together to support something you love. 
 
 <dd>Unglue.it is free to join.  Most of the things you can do here -- discovering books, adding them them to your wishlist, commenting, sharing -- are free too.  If you choose to support a campaign, you may pledge whatever amount you're comfortable with.  Your credit card will only be charged if the campaign reaches its goal price.<br /><br />
 
-If you're a rights holder, starting campaigns is free, too.  You only pay Unglue.it if your campaign succeeds.  For the basics on campaigns, see the FAQ on <a href="/faq/campaigns/">Campaigns</a>; for more details, see the <a href="/faq/rightsholders/">FAQ for Rights Holders</a>.</dd>
+If you hold the electronic rights to a book, starting campaigns is free, too.  You only pay Unglue.it if your campaign succeeds.  For the basics on campaigns, see the FAQ on <a href="/faq/campaigns/">Campaigns</a>; for more details, see the <a href="/faq/rightsholders/">FAQ for Rights Holders</a>.</dd>
 
 <dt>Who can use Unglue.it?</dt>
 
@@ -58,7 +58,7 @@ If you are a copyright holder, you retain your copyright when you unglue a book.
 
 For some examples of how authors and publishers have made free ebooks work for their business plans, see Cory Doctorow's <a href="http://www.publishersweekly.com/pw/by-topic/columns-and-blogs/cory-doctorow/index.html">columns for Publisher's Weekly</a>, <a href="http://wahoocorner.blogspot.com/2012/01/how-kdp-select-saved-my-book.html">David Kazzie's <I>Jackpot</I></a>, and the <a href="http://www.baen.com/library/defaultTitles.htm">Baen Free Library</a>.  If unglued books are working for you, we'd love to hear your story. Tell us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</dd>
 
-<dt>Why do rights holders want to unglue their books?</dt>
+<dt>Why do authors, publishers, and other rights holders want to unglue their books?</dt>
 
 <dd>
 Lots of reasons:<br /><br />
@@ -82,7 +82,7 @@ If you believe you are a rights holder and would like to discuss ungluing your w
 
 <dt>I know a book that should be unglued.</dt>
 
-<dd>Great! Find it in our database (using the search box above) and add it to your wishlist, so we know it should be on our list, too.  And encourage your friends to add it to their wishlists.  The more wishlists a book is on, the more appealing it is for rights holders to launch an ungluing campaign.  You can also contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
+<dd>Great! Find it in our database (using the search box above) and add it to your wishlist, so we know it should be on our list, too.  And encourage your friends to add it to their wishlists.  The more wishlists a book is on, the more appealing it is for authors and publishers to launch an ungluing campaign.  You can also contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
 
 <dt>I know a book that should be unglued, and I own the commercial rights.</dt>
 
@@ -101,7 +101,7 @@ If you believe you are a rights holder and would like to discuss ungluing your w
 <dl>
 <dt>I forgot my password. What do I do?</dt> 
 <dd>
-Click on this <a href="/accounts/password/reset/">forgot your password</a> link (you can also find it at the bottom of the <a href="/accounts/login/">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
+Click on this <a href="{% url django.contrib.auth.views.password_reset %}">forgot your password</a> link (you can also find it at the bottom of the <a href="{% url superlogin %}">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
 </dd>
 <dt>I never received an activation email after I signed up, or my activation email isn't working. What do I do?</dt>
 
@@ -121,7 +121,7 @@ Click on this <a href="/accounts/password/reset/">forgot your password</a> link 
 
 <dt>How can I change my profile name or password, or the email address associated with my account?</dt>
 
-<dd>At the bottom of every page there's a link to an <a href="/accounts/edit/">account editing page</a> where you can change your profile name, password, and email.</dd>
+<dd>At the bottom of every page there's a link to an <a href="{% url regluit.frontend.views.edit_user %}">account editing page</a> where you can change your profile name, password, and email.</dd>
 
 {% comment %}
 We have no functionality for this at this time.  Should we?
@@ -138,7 +138,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 
 <dt>Is my personal information shared?</dt>
 
-<dd>Short version: no, except as absolutely required to deliver services you have opted into. If you have pledged to a campaign and are owed a premium, we will share your email with rights holders so that they can deliver premiums to you; you are not required to share any further information and they are required to comply with our privacy policy in handling your information.  We do use third-party providers to support some of our business functions, but they are only allowed to use your information in order to enable your use of the service.  For the long version, please read our <a href="/privacy/">privacy policy</a>.
+<dd>Short version: no, except as absolutely required to deliver services you have opted into. If you have pledged to a campaign and are owed a premium, we will share your email with campaign managers so that they can deliver premiums to you; you are not required to share any further information and they are required to comply with our privacy policy in handling your information.  We do use third-party providers to support some of our business functions, but they are only allowed to use your information in order to enable your use of the service.  For the long version, please read our <a href="/privacy/">privacy policy</a>.
 </dl>
 {% endif %}
 {% if sublocation == 'company' or sublocation == 'all' %}
@@ -201,15 +201,15 @@ If you want to find an interesting campaign and don't have a specific book in mi
 <dl>
 <dt>Can a campaign be edited after launching?</dt>
 
-<dd>Yes.  In fact, rights holders are encouraged to update their supporters about the progress of the campaign. (For an example of exceptionally successful updating, check out <a href="http://www.kickstarter.com/projects/599092525/the-order-of-the-stick-reprint-drive/posts">Rich Burlew's Kickstarter campaign</a>, which grossed over a million dollars, in part because of his frequent and creative communication and improvements to the rewards being offered.)  Note that the campaign's deadline cannot be changed and its threshold may not be increased, though it may be lowered.</dd>
+<dd>Yes.  In fact, campaign managers are encouraged to update their supporters about the progress of the campaign. (For an example of exceptionally successful updating, check out <a href="http://www.kickstarter.com/projects/599092525/the-order-of-the-stick-reprint-drive/posts">Rich Burlew's Kickstarter campaign</a>, which grossed over a million dollars, in part because of his frequent and creative communication and improvements to the rewards being offered.)  Note that the campaign's deadline cannot be changed and its threshold may not be increased, though it may be lowered.</dd>
 
 <dt>Can campaigns be edited after funding is completed?</dt>
 
-<dd>Yes.  Again, while the deadline cannot be changed and the threshold cannot be increased, rights holders are encouraged to add thank-you messages for supporters and update them on the progress of ebook conversion (if needed).</dd>
+<dd>Yes.  Again, while the deadline cannot be changed and the threshold cannot be increased, campaign managers are encouraged to add thank-you messages for supporters and update them on the progress of ebook conversion (if needed).</dd>
 
 <dt>What is a campaign page?</dt>
 
-<dd>When a book has an active ungluing campaign, its book page turns into its campaign page.  This means that, in addition to the standard book page information, it also features rewards for different pledge tiers; a Support button; and information supplied by the rights holder about the book and the campaign.</dd>
+<dd>When a book has an active ungluing campaign, its book page turns into its campaign page.  This means that, in addition to the standard book page information, it also features rewards for different pledge tiers; a Support button; and information supplied by the campaign manager (typically the author or publisher) about the book and the campaign.</dd>
 </dl>
 {% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
@@ -250,7 +250,7 @@ If you want to find an interesting campaign and don't have a specific book in mi
 
 <dt>Is my contribution tax deductible?</dt>
 
-<dd>If the rights holder for the work you're supporting is a nonprofit, please contact them directly to inquire.  Unglue.it cannot offer tax deductions.</dd>
+<dd>If the campaign manager for the work you're supporting is a nonprofit, please contact them directly to inquire.  Unglue.it cannot offer tax deductions.</dd>
 </dl>
 {% endif %}
 {% if sublocation == 'premiums' or sublocation == 'all' %}
@@ -266,7 +266,7 @@ If you want to find an interesting campaign and don't have a specific book in mi
 
 <dt>Who creates the premiums for each campaign?</dt>
 
-<dd>The rights holder.</dd>
+<dd>The campaign manager (typically the author or publisher of the book).</dd>
 
 <dt>Is there a minimum or maximum for how much a premium can cost?</dt>
 
@@ -282,7 +282,7 @@ If you want to find an interesting campaign and don't have a specific book in mi
 <dl>
 <dt>So what is an unglued ebook?</dt>
 
-<dd>An unglued ebook is an already-published book that's been rereleased under a <a href="http://creativecommons.org">Creative Commons</a> license, after obtaining permission and compensating the rights holder.<br /><br />
+<dd>An unglued ebook is an already-published book that's been rereleased under a <a href="http://creativecommons.org">Creative Commons</a> license, after obtaining permission and compensating the author, publisher, or other rights holder.<br /><br />
 
 What does this mean for you?  If you're a book lover, you can read unglued ebooks for free, on the device of your choice, in the format of your choice, and share them with all your friends.  If you're a library, you can lend them to your patrons with no checkout limits or simultaneous user restrictions, and preserve them however you think best.  If you're a rights holder, you get a guaranteed up-front payment in lieu of royalties on this edition, while retaining copyright and all interests in other editions of your work.<br /><br />
 
@@ -353,7 +353,7 @@ Unglue.it can't provide legal advice about how to interpret Creative Commons lic
 
 <dt>I love my unglued ebook and I want to loan it to my friends.  Can I?</dt>
 
-<dd>Yes!  Because everything with a <a href="http://creativecommons.org">Creative Commons</a> license is free to copy and share, you can copy your unglued ebook file and give it to anyone you want.  You can all read and discuss it on GoodReads or LibraryThing at the same time.  The Rights Holder has given you permission to spread the word to readers everywhere.<br /><br />
+<dd>Yes!  Because everything with a <a href="http://creativecommons.org">Creative Commons</a> license is free to copy and share, you can copy your unglued ebook file and give it to anyone you want.  You can all read and discuss it on GoodReads or LibraryThing at the same time.  The rights holder has given you permission to spread the word to readers everywhere.<br /><br />
 Just don't sell, adapt, or abridge it without checking the license.  All unglued ebooks are licensed for noncommercial uses.  Of course, you're welcome to still buy other editions -- paperbacks, hardcovers, or audio -- too.</dd>
 
 <dt>Will I be able to dowload an unglued ebook directly from Unglue.it?</dt>
