@@ -384,8 +384,81 @@ class BasicGuiTest(TestCase):
         self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
     def tearDown(self):
         self.selenium.quit()
-        
+
+
 class AccountTest(TestCase):
+    
+    @staticmethod       
+    def get_transaction_level():
+        from django.db import connection
+        cursor = connection.cursor()
+
+        cursor.execute("SELECT * FROM information_schema.global_variables WHERE variable_name='tx_isolation';")
+        row = cursor.fetchone()
+        return row
+     
+    
+    def test_status_changes(self):
+        
+        from regluit.core.models import UserProfile
+
+        print AccountTest.get_transaction_level()
+        
+        user1 = User.objects.create_user('account_test1', 'account_test1@gluejar.com', 'account_test1_pw')
+        user1.save()
+        
+        account1 = Account(host='host1', account_id='1', user=user1, status='ACTIVE')
+        account1.save()
+        
+        print "number of UserProfile in setUpClass ", UserProfile.objects.count()
+        for profile in UserProfile.objects.all():
+            print profile.id, profile.user
+        
+        user = User.objects.all()[0]
+        print user
+        try:
+            print "user.profile.id", user.profile.id, user.profile.user
+        except Exception as e:
+            print e
+        
+        
+        print "in test_status_changes...."
+        
+        print "user1.id", user1.id
+        
+        print "number of UserProfile in test_status_changes", UserProfile.objects.count()
+        
+        for profile in UserProfile.objects.all():
+            print profile.id, profile.user
+            
+        
+        try:
+            print "user1.profile", user1.profile.id
+        except Exception as e:
+            print e
+        
+        
+        account = user1.profile.account
+        self.assertEqual(account.status, 'ACTIVE')
+        account.status = 'EXPIRING'
+        account.save()
+        
+        self.assertEqual(account.status, 'EXPIRING')
+        account.save()
+        
+        from notification.models import Notice
+        from django.core import mail
+        
+        print len(mail.outbox)
+        for (i, m) in enumerate(mail.outbox):
+            print i, m.subject, m.body
+        
+        print [(n.id, n.notice_type.label, n.recipient, n.added) for n in Notice.objects.all()]
+        
+        user1.delete()
+        account1.delete()
+    
+class AccountTest0(TestCase):
     
     @classmethod
     def setUpClass(cls):
