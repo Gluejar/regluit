@@ -16,7 +16,7 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
 from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work, Press
 from regluit.core.models import TWITTER, FACEBOOK, GRAVATAR
-from regluit.core.lookups import OwnerLookup, WorkLookup
+from regluit.core.lookups import OwnerLookup, WorkLookup, PublisherNameLookup
 
 from regluit.utils.localdatetime import now
 
@@ -27,10 +27,17 @@ logger = logging.getLogger(__name__)
 class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500,  required=False)
     add_subject = forms.CharField(max_length=200,  required=False)
-    isbn_13 = forms.RegexField(
+    publisher_name = AutoCompleteSelectField(
+            PublisherNameLookup,
+            label='Publisher Name',
+            widget=AutoCompleteSelectWidget(PublisherNameLookup),
+            required=False,
+        )
+
+    isbn = forms.RegexField(
         label=_("ISBN"), 
         max_length=13, 
-        regex=r'^97[89]\d\d\d\d\d\d\d\d\d\d$',
+        regex=r'^(97[89]\d\d\d\d\d\d\d\d\d\d|delete)$',
         required = True,
         help_text = _("13 digits, no dash."),
         error_messages = {
@@ -38,9 +45,39 @@ class EditionForm(forms.ModelForm):
             'required': _("Yes, we need an ISBN."),
         }
     )
-    oclcnum = forms.RegexField(
+    goog = forms.RegexField(
+        label=_("Google Books ID"), 
+        max_length=12, 
+        regex=r'^([a-zA-Z0-9\-_]{12}|delete)$',
+        required = False,
+        help_text = _("12 alphanumeric characters, dash or underscore, case sensitive."),
+        error_messages = {
+            'invalid': _("This value must be 12 alphanumeric characters, dash or underscore."),
+        }
+    )
+    gdrd = forms.RegexField(
+        label=_("GoodReads ID"), 
+        max_length=8, 
+        regex=r'^(\d+|delete)$',
+        required = False,
+        help_text = _("1-8 digits."),
+        error_messages = {
+            'invalid': _("This value must be 1-8 digits."),
+        }
+    )
+    thng = forms.RegexField(
+        label=_("LibraryThing ID"), 
+        max_length=8, 
+        regex=r'(^\d+|delete)$',
+        required = False,
+        help_text = _("1-8 digits."),
+        error_messages = {
+            'invalid': _("This value must be 1-8 digits."),
+        }
+    )
+    oclc = forms.RegexField(
         label=_("OCLCnum"), 
-        regex=r'^\d\d\d\d\d\d\d\d\d*$',
+        regex=r'^(\d\d\d\d\d\d\d\d\d*|delete)$',
         required = False,
         help_text = _("8 or more digits."),
         error_messages = {

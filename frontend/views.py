@@ -407,12 +407,20 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.title=form.cleaned_data['title']
                     work.save()
                 
-                # note: this is very powerful. it can steal an isbn from another edition/work, and it will wipe the changed isbn from the db
-                models.Identifier.set(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
-                
-                if form.cleaned_data['oclcnum']:
-                    # note: this is very powerful.(same comment as for isbn) use with care!
-                    models.Identifier.set(type='oclc', value=form.cleaned_data['oclcnum'], edition=edition, work=work)
+                id_msg=""
+                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd'):
+                    id_val = form.cleaned_data[id_type]
+                    if id_val=='delete':
+                        edition.identifiers.filter(type=id_type).delete()
+                    elif id_val:
+                        existing= models.Identifier.objects.filter(type=id_type, value=form.cleaned_data[id_type])
+                        if existing.count() and existing[0].edition != edition:
+                                return render(request, 'new_edition.html', {
+                                        'form': form,  'edition': edition, 
+                                        'id_msg': "%s = %s already exists"%( id_type, id_val ),
+                                        })
+                        else:
+                            models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
                 for author_name in edition.new_author_names:
                     try:
                         author= models.Author.objects.get(name=author_name)
@@ -430,14 +438,18 @@ def new_edition(request, work_id, edition_id, by=None):
     else:
         form = EditionForm(instance=edition, initial={
             'language':language,
-            'isbn_13':edition.isbn_13, 
-            'oclcnum':edition.oclc,
+            'publisher_name':edition.publisher_name,
+            'isbn':edition.isbn_13, 
+            'oclc':edition.oclc,
             'description':description,
-            'title': title
+            'title': title,
+            'goog': edition.googlebooks_id,
+            'gdrd': edition.goodreads_id,
+            'thng': edition.librarything_id,
             })
 
     return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition
+            'form': form, 'edition': edition, 
         })
     
     
