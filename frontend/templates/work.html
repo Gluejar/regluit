@@ -314,7 +314,8 @@
                                     <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
                                     {% if user.is_staff %}
                                         <h4>Related Works</h4>
-                                        <a href="{% url merge work_id  %}">Merge other works into this one</a><br />
+                                        <div><a href="{% url merge work_id  %}">Merge other works into this one</a></div>
+                                        <div><a href="{% url split work_id  %}">Remove editions from this work</a><br /><br /></div>
                                     {% endif %}
                                     {% if work.subjects.all.count > 0 %}
                                         <h4>Subjects</h4>

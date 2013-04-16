@@ -88,6 +88,11 @@
 	</div>    
 	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>
+{% if edition.work %}
+<h2>More Edition Management</h2>
 
+<div><a href="{% url merge edition.work.id  %}">Merge other works into this one</a></div>
+<div><a href="{% url split edition.work.id  %}">Remove editions from this work</a><br /><br /></div>
+{% endif %}
 
 {% endblock %}
