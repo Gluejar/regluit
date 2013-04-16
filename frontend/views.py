@@ -35,6 +35,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
+from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, render_to_response, get_object_or_404
@@ -54,7 +55,7 @@ from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core import goodreads
-from regluit.core.bookloader import merge_works
+from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
@@ -724,6 +725,22 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+@login_required
+def split_work(request,work_id):
+    if not request.user.is_staff:
+        return render(request, "admins_only.html")
+    work = get_object_or_404(models.Work, id=work_id)
+    EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
+    
+    if request.method == "POST":
+        formset = EditionFormSet(data=request.POST, instance=work)
+        if formset.is_valid():
+            for form in formset.deleted_forms:
+                detach_edition(form.instance)
+                
+    formset = EditionFormSet(instance=work)
+    return render(request, "split.html", { "work":work, "formset": formset,})
 
 class MergeView(FormView):
     template_name="merge.html"

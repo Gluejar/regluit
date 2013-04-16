@@ -487,6 +487,20 @@ def merge_works(w1, w2, user=None):
         ww.save()
         
     w2.delete()
+    
+def detach_edition(e):
+    """will detach edition from its work, creating a new stub work. if remerge=true, will see if there's another work to attach to
+    """
+    logger.info("splitting edition %s from %s", e, e.work)
+    w = models.Work(title=e.title, language = e.work.language)
+    w.save()
+    
+    for identifier in e.identifiers.all():
+        identifier.work = w
+        identifier.save()
+    
+    e.work = w
+    e.save()
 
 def despam_description(description):
     """ a lot of descriptions from openlibrary have free-book promotion text; this removes some of it."""
