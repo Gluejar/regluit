@@ -3,7 +3,20 @@
 
 {% block comments_textual %}
 
-<p>Your credit card has been recorded.</p>
+<p>Payment method updated</p>
         
+<p>As you requested, we’ve updated your account with the payment method you provided.</p>
+
+<p>If you have any questions, we are happy to help. Simply email us at
+<a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
+                
+        {% if request.user.profile.account %}
+    <p>The current card we have on file:</p>
+    <b>Card type:</b> {{ request.user.profile.account.card_type }}<br />
+    <b>Number:</b> ************{{ request.user.profile.account.card_last4 }}<br />
+    <b>Expiration date:</b> {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}.<br />
+    <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
+        {% endif %}
+        	
 
 {% endblock %}  

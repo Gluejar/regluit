@@ -3,10 +3,15 @@
 
 {% block comments_textual %}
 
-<p>Your attention needed!</p>
+<p>Your credit card has expired</p>
         
-<p>The card we have on file for you has expired.  Please update your credit card information at
-        https://{{ site.domain }}{% url manage_account %} Thank you!</p>
+<p>We want to let you know that your {{ request.user.profile.account.card_type }} card ending
+in {{ request.user.profile.account.card_last4 }} has expired.
+When you receive your new card, simply go to https://{{ site.domain }}{% url manage_account %}
+to enter your card information. Thank you!</p>
+
+<p>If you have any questions, we are happy to help. Simply email us at
+<a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
                 
         {% if request.user.profile.account %}
     <p>The current card we have on file:</p>

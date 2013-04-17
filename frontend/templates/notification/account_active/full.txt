@@ -1,6 +1,19 @@
 {% load humanize %}
 
-<p>Your credit card has been recorded.</p>
+Payment method updated
+
+As you requested, we’ve updated your account with the payment method you provided.
+
+If you have any questions, we are happy to help. Simply email us at support@gluejar.com.
+        
+{% if request.user.profile.account %}
+The current card we have on file:
+Card type: {{ request.user.profile.account.card_type }}
+Number: ************{{ request.user.profile.account.card_last4 }}
+Expiration date: {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}.
+We use Stripe< to keep your information secure.
+{% endif %}
+        
 
 Thank you for your support.
 
