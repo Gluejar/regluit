@@ -5,19 +5,19 @@
 
 <p>Your credit card has expired</p>
         
-<p>We want to let you know that your {{ request.user.profile.account.card_type }} card ending
-in {{ request.user.profile.account.card_last4 }} has expired.
+<p>We want to let you know that your {{ user.profile.account.card_type }} card ending
+in {{ user.profile.account.card_last4 }} has expired.
 When you receive your new card, simply go to https://{{ site.domain }}{% url manage_account %}
 to enter your card information. Thank you!</p>
 
 <p>If you have any questions, we are happy to help. Simply email us at
 <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
                 
-        {% if request.user.profile.account %}
+        {% if user.profile.account %}
     <p>The current card we have on file:</p>
-    <b>Card type:</b> {{ request.user.profile.account.card_type }}<br />
-    <b>Number:</b> ************{{ request.user.profile.account.card_last4 }}<br />
-    <b>Expiration date:</b> {{ request.user.profile.account.card_exp_month }}/{{ request.user.profile.account.card_exp_year }}.<br />
+    <b>Card type:</b> {{ user.profile.account.card_type }}<br />
+    <b>Number:</b> ************{{ user.profile.account.card_last4 }}<br />
+    <b>Expiration date:</b> {{ user.profile.account.card_exp_month }}/{{ user.profile.account.card_exp_year }}.<br />
     <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
         {% endif %}
         	

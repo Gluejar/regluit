@@ -107,9 +107,23 @@ def notify_expiring_accounts():
     from regluit.payment.models import Account
     from django.contrib.sites.models import Site
 
-    expiring_accounts = Account.objects.filter('EXPIRING')
+    expiring_accounts = Account.objects.filter(status='EXPIRING')
     for account in expiring_accounts:
         notification.send_now([account.user], "account_expiring", {
+                    'user': account.user,
+                    'site':Site.objects.get_current()
+                }, True)
+
+# used for bootstrapping our expired cc notification for first time
+@task
+def notify_expired_accounts():
+    from regluit.payment.models import Account
+    from django.contrib.sites.models import Site
+
+    expired_accounts = Account.objects.filter(status='EXPIRED')
+    for account in expired_accounts:
+        notification.send_now([account.user], "account_expired", {
+                    'user': account.user,
                     'site':Site.objects.get_current()
                 }, True)
 
