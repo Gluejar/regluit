@@ -13,6 +13,7 @@
 {% if merge_complete %}
     <h2>Merge {{ old_work_id }} into <a href="{% url work work.id %}">{{ work.id }}</a> Complete</h2>
       {% include 'workbox.html' %}
+      <div><a href="?again">Merge more</a><br /><br /></div>
 {% else %}
     <h2>Merge Works</h2>
     <form method="POST" action="#">
