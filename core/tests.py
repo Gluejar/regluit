@@ -299,6 +299,7 @@ class BookLoaderTests(TestCase):
         ebook_pdf.increment()
         updated_ebook = Ebook.objects.get(pk=ebook_pdf.pk)
         self.assertEqual(int(updated_ebook.download_count), 1)
+        self.assertEqual(int(edition.work.download_count), 1)
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it

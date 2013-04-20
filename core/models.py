@@ -754,6 +754,13 @@ class Work(models.Model):
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
     
+    @property
+    def download_count(self):
+        dlc=0
+        for ebook in self.ebooks():
+            dlc += ebook.download_count
+        return dlc
+            
     def first_pdf(self):
         return self.first_ebook('pdf')
 

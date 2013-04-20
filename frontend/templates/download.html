@@ -36,7 +36,6 @@
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
                 <a href="{% url ebook ebook.id %}">{{ ebook.format }}</a> 
-                <span> ( {{ ebook.download_count }} downloads ) </span>
                 {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
                 {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
@@ -56,7 +55,6 @@
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
                 <a href="{% url ebook ebook.id %}">{{ ebook.format }} at {{ebook.provider}}</a>
-                <span> ( {{ ebook.download_count }} downloads ) </span>
                 {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
                 {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}

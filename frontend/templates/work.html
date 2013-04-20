@@ -138,6 +138,11 @@
                                             {{ wishers }} Ungluers have
                                         {% endif %} wished for this Work
                                     </div>
+                                    {% if work.first_ebook %}
+                                        <div class="pledged-info">
+                                            Downloaded {{ work.download_count }} times.
+                                        </div>
+                                    {% endif %}
                                 {% endifequal %}
                                 <div class="find-book">
                                     <label>Learn more at...</label>

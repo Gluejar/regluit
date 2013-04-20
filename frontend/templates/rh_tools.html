@@ -127,6 +127,18 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			{% endfor %}
 			{% endif %}
 			{% endif %}
+			{% if claim.work.first_ebook %}
+				<h4> Ebooks for this work </h3>
+				<div class="work_campaigns">
+				<ul>
+				{% for ebook in claim.work.ebooks %}
+					<li> edition #{{ebook.edition.id}} {{ ebook.format }}
+					{{ ebook.download_count }} downloads
+					</li>
+				{% endfor %}
+				</ul>
+				</div>
+			{% endif %}
 		</dd>
 	{% endfor %}
 	</dl>
