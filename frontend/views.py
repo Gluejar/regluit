@@ -538,7 +538,7 @@ def googlebooks(request, googlebooks_id):
 def ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)
     ebook.increment()
-    logger.info("ebook: {0}, user_ip:{1}".format(ebook_id, request.META['REMOTE_ADDR']))
+    logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
     return HttpResponseRedirect(ebook.url)
 
 def subjects(request):
