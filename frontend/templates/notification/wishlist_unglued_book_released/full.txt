@@ -14,7 +14,7 @@ Here are the files available for download:
 File type: {{ ebook.get_format_display }}
 License: {{ ebook.get_rights_display }}
 Host Site: {{ ebook.provider }}
-URL: {{ ebook.url }}
+URL: {{ ebook.download_url }}
 
 {% endfor %}
 {% if work.ebooks.0.rights == 'PD-US' %}

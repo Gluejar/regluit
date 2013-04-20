@@ -373,7 +373,7 @@
                                                         {% if edition.ebooks.count %}
                                                             <h5>eBooks for this Edition</h5>
                                                             {% for ebook in edition.ebooks.all %}
-                                                                <a href="{{ebook.url}}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                                                <a href="{% url ebook ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
                                                             {% endfor %}
                                                         {% endif %}
                                     

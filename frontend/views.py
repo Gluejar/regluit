@@ -535,6 +535,12 @@ def googlebooks(request, googlebooks_id):
 
     return HttpResponseRedirect(work_url)
 
+def ebook(request, ebook_id):
+    ebook = get_object_or_404(models.Ebook,id=ebook_id)
+    ebook.increment()
+    logger.info("ebook: {0}, user_ip:{1}".format(ebook_id, request.META['REMOTE_ADDR']))
+    return HttpResponseRedirect(ebook.url)
+
 def subjects(request):
     order = request.GET.get('order')
     subjects = models.Subject.objects.all()
@@ -2297,7 +2303,8 @@ def download(request, work_id):
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     try:
-        readmill_epub_url = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0].url
+        readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
+        readmill_epub_url = settings.BASE_URL_SECURE + reverse('ebook',args=[readmill_epub_ebook.id])
     except:
         readmill_epub_url = None
         
