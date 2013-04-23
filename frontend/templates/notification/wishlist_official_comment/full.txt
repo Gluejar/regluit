@@ -1,4 +1,4 @@
-{{ comment.user.username }} has official news about a book on your wishlist, {{ comment.content_object.title }}.
+{{ comment.user.username }}, a campaign manager for {{ comment.content_object.title }} (a book on your Unglue.it wishlist), has made a comment:
           
 {{ comment.comment }}
 
