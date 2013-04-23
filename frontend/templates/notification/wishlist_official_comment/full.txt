@@ -1,4 +1,8 @@
-{{ comment.user.username }}, a campaign manager for {{ comment.content_object.title }} (a book on your Unglue.it wishlist), has made a comment:
+{% if staff %}
+Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.content_object.title }} (a book on your Unglue.it wishlist):
+{% else %}
+{{ comment.user.username }}, the author or publisher of {{ comment.content_object.title }} (a book on your Unglue.it wishlist), has made a comment:
+{% endif %}
           
 {{ comment.comment }}
 
