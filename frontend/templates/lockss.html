@@ -24,7 +24,7 @@
                     <a rel="license" href="{{ work.last_campaign.license_url }}"><img alt="Creative Commons License" style="border-width:0" src="{{ ebook.rights_badge }}" /></a><br />This work is licensed under a <a rel="license" href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }} License</a>.
                     </p>
                     <p>
-                    <a href="{% url ebook ebook.id %}">Download.</a>
+                    <a href="{% url download_ebook ebook.id %}">Download.</a>
                     </p>
                 </div>
             {% endfor %}

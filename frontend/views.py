@@ -535,7 +535,7 @@ def googlebooks(request, googlebooks_id):
 
     return HttpResponseRedirect(work_url)
 
-def ebook(request, ebook_id):
+def download_ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))

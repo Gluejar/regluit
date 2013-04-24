@@ -138,11 +138,6 @@
                                             {{ wishers }} Ungluers have
                                         {% endif %} wished for this Work
                                     </div>
-                                    {% if work.first_ebook %}
-                                        <div class="pledged-info">
-                                            Downloaded {{ work.download_count }} times.
-                                        </div>
-                                    {% endif %}
                                 {% endifequal %}
                                 <div class="find-book">
                                     <label>Learn more at...</label>
@@ -317,6 +312,12 @@
                                         {% endif %}
                                     {% endif %}
                                     <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
+                                    {% if work.first_ebook %}
+                                        <h4>Downloads</h4>
+                                        <div class="pledged-info">
+                                            This work has been downloaded {{ work.download_count }} times via unglue.it.
+                                        </div>
+                                    {% endif %}
                                     {% if user.is_staff %}
                                         <h4>Related Works</h4>
                                         <a href="{% url merge work_id  %}">Merge other works into this one</a><br />
@@ -329,7 +330,7 @@
                                         {% endfor %}
                                         </ul>
                                     {% endif %}
-                                
+
                                     <h4>Editions</h4>
                                     {% if user.is_staff %}
                                         <div><a href="{% url new_edition work_id edition.id %}">Create a new edition for this work</a><br /><br /></div>
@@ -378,7 +379,7 @@
                                                         {% if edition.ebooks.count %}
                                                             <h5>eBooks for this Edition</h5>
                                                             {% for ebook in edition.ebooks.all %}
-                                                                <a href="{% url ebook ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}<br />
+                                                                <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. Downloaded {{ ebook.download_count }} times.<br />
                                                             {% endfor %}
                                                         {% endif %}
                                     
