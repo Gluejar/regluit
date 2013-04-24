@@ -8,9 +8,12 @@
 {% endblock %}
 
 {% block doccontent %}
+<h2>{{ work.title }}</h2>
+
 {% if merge_complete %}
-    <h2>Merge {{ old_work_id }} into {{ work.id }} Complete</h2>
+    <h2>Merge {{ old_work_id }} into <a href="{% url work work.id %}">{{ work.id }}</a> Complete</h2>
       {% include 'workbox.html' %}
+      <div><a href="?again">Merge more</a><br /><br /></div>
 {% else %}
     <h2>Merge Works</h2>
     <form method="POST" action="#">
@@ -31,4 +34,9 @@
         {% endif %}
     </form>
 {% endif %}
+
+<h2>More Edition Management</h2>
+<div><a href="{% url split work.id  %}">Remove editions from this work</a><br /><br /></div>
+<div><a href="{% url new_edition work.id '' %}">Create a new edition for this work</a><br /><br /></div>
+
 {% endblock %}

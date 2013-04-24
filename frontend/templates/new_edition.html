@@ -4,6 +4,7 @@
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
 {{ form.media.css }}
 <script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
+
 {{ form.media.js }}
 {% endblock %}
 
@@ -20,6 +21,7 @@
 	{{ form.work }}
 	<div> 
 		<p><b>Title</b>: {{ form.title.errors }}{{ form.title }}</p>
+		<p><b>Publisher</b>: {{ form.publisher_name.errors }}{{ form.publisher_name }}</p>
 		
 		<p>
 		<b>Authors</b>:
@@ -43,9 +45,14 @@
 		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
 
 		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
-
-		<p><b>ISBN-13</b>: {{ form.isbn_13.errors }}{{ form.isbn_13 }}</p>
-		<p><b>OCLC Number</b>: {{ form.oclcnum.errors }}{{ form.oclcnum }}</p>
+        <h4> Identifiers </h4>
+        {% if id_msg %} <span class="errorlist">{{ id_msg }} </span>{% endif %}
+        <p> Enter 'delete' to remove the identifier. </p>
+		<p><b>ISBN-13</b>: {{ form.isbn.errors }}{{ form.isbn }}</p>
+		<p><b>OCLC Number</b>: {{ form.oclc.errors }}{{ form.oclc }}</p>
+		<p><b>Google Books ID</b>: {{ form.goog.errors }}{{ form.goog }}</p>
+		<p><b>GoodReads ID</b>: {{ form.gdrd.errors }}{{ form.gdrd }}</p>
+		<p><b>LibraryThing ID</b>: {{ form.thng.errors }}{{ form.thng }}</p>
 
 		<p><b>Description</b>: <br />
 		{{ form.description.errors }}{{ form.description }}<br />
@@ -81,6 +88,11 @@
 	</div>    
 	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>
+{% if edition.work %}
+<h2>More Edition Management</h2>
 
+<div><a href="{% url merge edition.work.id  %}">Merge other works into this one</a></div>
+<div><a href="{% url split edition.work.id  %}">Remove editions from this work</a><br /><br /></div>
+{% endif %}
 
 {% endblock %}
