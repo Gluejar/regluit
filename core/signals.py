@@ -119,10 +119,7 @@ def notify_comment(comment, request, **kwargs):
     domain = Site.objects.get_current().domain
     if comment.content_object.last_campaign() and comment.user in comment.content_object.last_campaign().managers.all():
         #official
-        if comment.user.is_staff:
-            notification.queue(all_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain, 'staff':True}, True)
-        else:
-            notification.queue(all_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain, 'staff':False}, True)
+        notification.queue(all_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain}, True)
     else:
         notification.send(other_commenters, "comment_on_commented", {'comment':comment}, True, sender=comment.user)
         notification.send(other_wishers, "wishlist_comment", {'comment':comment}, True, sender=comment.user)

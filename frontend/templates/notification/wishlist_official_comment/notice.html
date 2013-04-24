@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-    {% if staff %}
+    {% if comment.user.is_staff %}
         Unglue.it staffer <a href="{% url supporter comment.user.username %}">{{ comment.user.username }}</a> has commented on <a href="{% url work comment.content_object.id %}?tab=2">{{ comment.content_object.title }}</a>.
 	{% else %}
         <a href="{% url supporter comment.user.username %}">{{ comment.user.username }}</a>, the author or publisher of <a href="{% url work comment.content_object.id %}?tab=2">{{ comment.content_object.title }}</a>, has commented on the campaign.
