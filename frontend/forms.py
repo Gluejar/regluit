@@ -274,7 +274,7 @@ class WorkForm(forms.Form):
 class OtherWorkForm(WorkForm):
     other_work = AutoCompleteSelectField(
             WorkLookup,
-            label='Other Work',
+            label='Other Work (title)',
             widget=AutoCompleteSelectWidget(WorkLookup),
             required=True,
             error_messages={'required': 'Missing work to merge with.'},
