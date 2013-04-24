@@ -15,7 +15,7 @@ from ckeditor.fields import RichTextField
 from postmonkey import PostMonkey, MailChimpException
 
 from django.db import models
-from django.db.models import Q, get_model
+from django.db.models import F, Q, get_model
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
@@ -754,6 +754,13 @@ class Work(models.Model):
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
     
+    @property
+    def download_count(self):
+        dlc=0
+        for ebook in self.ebooks():
+            dlc += ebook.download_count
+        return dlc
+            
     def first_pdf(self):
         return self.first_ebook('pdf')
 
@@ -1015,6 +1022,7 @@ class Ebook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
+    download_count = models.IntegerField(default=0)
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
@@ -1049,6 +1057,13 @@ class Ebook(models.Model):
         else:
             provider=None
         return provider
+    
+    def increment(self):
+        Ebook.objects.filter(id=self.id).update(download_count = F('download_count') +1)
+        
+    @property
+    def download_url(self):
+        return settings.BASE_URL_SECURE + reverse('ebook',args=[self.id])
     
     def __unicode__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)

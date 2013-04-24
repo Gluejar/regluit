@@ -296,6 +296,10 @@ class BookLoaderTests(TestCase):
         r = self.client.get("/notification/" )
         self.assertEqual(r.status_code, 200)
         
+        ebook_pdf.increment()
+        updated_ebook = Ebook.objects.get(pk=ebook_pdf.pk)
+        self.assertEqual(int(updated_ebook.download_count), 1)
+        self.assertEqual(int(edition.work.download_count), 1)
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
@@ -669,9 +673,9 @@ class DownloadPageTest(TestCase):
         eb2.save()
         
         anon_client = Client()
-        response = anon_client.get("/work/%s/download/" % w.id)
-        self.assertContains(response, "http://example.org", count=4)
-        self.assertContains(response, "http://example2.com", count=3)
+        response = anon_client.get("/work/%s/download/" % w.id, follow=True)
+        self.assertContains(response, "/download_ebook/1/", count=3)
+        self.assertContains(response, "/download_ebook/2/", count=3)
 
 
 class LocaldatetimeTest(TestCase):

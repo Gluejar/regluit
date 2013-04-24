@@ -35,6 +35,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory
+from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, render_to_response, get_object_or_404
@@ -54,7 +55,7 @@ from regluit.core import tasks
 from regluit.core import models, bookloader, librarything
 from regluit.core import userlists
 from regluit.core import goodreads
-from regluit.core.bookloader import merge_works
+from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
@@ -407,12 +408,20 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.title=form.cleaned_data['title']
                     work.save()
                 
-                # note: this is very powerful. it can steal an isbn from another edition/work, and it will wipe the changed isbn from the db
-                models.Identifier.set(type='isbn', value=form.cleaned_data['isbn_13'], edition=edition, work=work)
-                
-                if form.cleaned_data['oclcnum']:
-                    # note: this is very powerful.(same comment as for isbn) use with care!
-                    models.Identifier.set(type='oclc', value=form.cleaned_data['oclcnum'], edition=edition, work=work)
+                id_msg=""
+                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd'):
+                    id_val = form.cleaned_data[id_type]
+                    if id_val=='delete':
+                        edition.identifiers.filter(type=id_type).delete()
+                    elif id_val:
+                        existing= models.Identifier.objects.filter(type=id_type, value=form.cleaned_data[id_type])
+                        if existing.count() and existing[0].edition != edition:
+                                return render(request, 'new_edition.html', {
+                                        'form': form,  'edition': edition, 
+                                        'id_msg': "%s = %s already exists"%( id_type, id_val ),
+                                        })
+                        else:
+                            models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
                 for author_name in edition.new_author_names:
                     try:
                         author= models.Author.objects.get(name=author_name)
@@ -430,14 +439,18 @@ def new_edition(request, work_id, edition_id, by=None):
     else:
         form = EditionForm(instance=edition, initial={
             'language':language,
-            'isbn_13':edition.isbn_13, 
-            'oclcnum':edition.oclc,
+            'publisher_name':edition.publisher_name,
+            'isbn':edition.isbn_13, 
+            'oclc':edition.oclc,
             'description':description,
-            'title': title
+            'title': title,
+            'goog': edition.googlebooks_id,
+            'gdrd': edition.goodreads_id,
+            'thng': edition.librarything_id,
             })
 
     return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition
+            'form': form, 'edition': edition, 
         })
     
     
@@ -534,6 +547,12 @@ def googlebooks(request, googlebooks_id):
             request.session.pop("add_wishlist")
 
     return HttpResponseRedirect(work_url)
+
+def download_ebook(request, ebook_id):
+    ebook = get_object_or_404(models.Ebook,id=ebook_id)
+    ebook.increment()
+    logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
+    return HttpResponseRedirect(ebook.url)
 
 def subjects(request):
     order = request.GET.get('order')
@@ -712,6 +731,22 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
+
+@login_required
+def split_work(request,work_id):
+    if not request.user.is_staff:
+        return render(request, "admins_only.html")
+    work = get_object_or_404(models.Work, id=work_id)
+    EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
+    
+    if request.method == "POST":
+        formset = EditionFormSet(data=request.POST, instance=work)
+        if formset.is_valid():
+            for form in formset.deleted_forms:
+                detach_edition(form.instance)
+                
+    formset = EditionFormSet(instance=work)
+    return render(request, "split.html", { "work":work, "formset": formset,})
 
 class MergeView(FormView):
     template_name="merge.html"
@@ -2297,7 +2332,8 @@ def download(request, work_id):
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     try:
-        readmill_epub_url = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0].url
+        readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
+        readmill_epub_url = settings.BASE_URL_SECURE + reverse('ebook',args=[readmill_epub_ebook.id])
     except:
         readmill_epub_url = None
         

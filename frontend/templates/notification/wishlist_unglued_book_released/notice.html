@@ -38,7 +38,7 @@
 		<td>{{ ebook.get_format_display }}</td>
 		<td>{{ ebook.get_rights_display }}</td>
 		<td>{{ ebook.provider }}</td>
-		<td><a href="{{ ebook.url }}">{{ ebook.url|truncatechars:30 }}</a></td>
+		<td><a href="{{ ebook.download_url }}">{{ ebook.download_url|truncatechars:30 }}</a></td>
 		</tr>
 	{% endfor %}
 	
