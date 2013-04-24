@@ -1,0 +1,40 @@
+<div class="btn_support">
+    <a href="#" id="degruyter_countdown"></a>
+</div>
+
+<h4>Help us unglue this book!</h4>
+
+<p>De Gruyter has agreed to run an ungluing campaign for this book, if it can get enough support from ungluers like you.  The target price will be $2100, after which the book will be free for everyone on earth to read, copy, and share, forever (under a Creative Commons <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/">BY-NC-ND</a> license).</p>
+
+<p>They'll launch a campaign when 50 ungluers have wished for this book.  Right now <span id="wisher_data"></span>. </p>
+
+<p id="cta"></p>
+
+<hr>
+
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+    $j(document).ready(function(){
+        var countdown = 50 - numWishers;
+        $j("#degruyter_countdown").html(countdown + " ungluers to go").css({'color':'white', 'width':'auto', 'padding': '14.25px', 'pointer':'default'});
+        $j("#degruyter_countdown").parent().css({'width':'auto', 'margin':'0 15%'})
+        
+        if(numWishers == 1) {
+            var wisherDataText = "1 ungluer has wished for this book"
+        } else {
+            var wisherDataText = numWishers + " ungluers have wished for this book"
+        }
+        $j("#wisher_data").html(wisherDataText);
+        
+        if(isSupporter){
+            if(numWishers == 1) {
+                var callToAction = "Thanks for getting things started!  Will you ask your friends to join you?"
+            } else {
+                var callToAction = "Thanks for being one of them!  Will you ask your friends to join you?"
+            }
+        } else {
+            var callToAction = "Won't you join in?"
+        }
+        $j("#cta").html(callToAction);    
+    });
+</script>
