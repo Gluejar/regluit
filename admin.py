@@ -78,8 +78,11 @@ class PublisherNameAdmin(ModelAdmin):
     search_fields = ['name']
     
 class EbookAdmin(ModelAdmin):
+    search_fields = ('edition__title',)
+    list_display = ('__unicode__','created', 'user','edition')
     date_hierarchy = 'created'
     ordering = ('edition__title',)
+    exclude = ('edition','user')
 
 class WishlistAdmin(ModelAdmin):
     date_hierarchy = 'created'
