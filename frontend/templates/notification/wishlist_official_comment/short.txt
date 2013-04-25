@@ -1,1 +1,1 @@
-{{ comment.user.username }} has made an official comment on {{ comment.content_object.title }} at Unglue.it
+News from {{ comment.user.username }} about {{ comment.content_object.title }}
