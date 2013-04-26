@@ -83,7 +83,7 @@ registration.signals.user_activated.connect(handle_same_email_account)
 def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("A comment has been received on a book that you've commented on."))
     notification.create_notice_type("wishlist_comment", _("Wishlist Comment"), _("A comment has been received on one of your wishlist books."), default = 1)
-    notification.create_notice_type("wishlist_official_comment", _("Wishlist Comment"), _("An official comment has been received on one of your wishlist books."))
+    notification.create_notice_type("wishlist_official_comment", _("Wishlist Comment"), _("The author or publisher, or and Unglue.it staffer, has commented on one of your wishlist books."))
     notification.create_notice_type("wishlist_work_claimed", _("Rights Holder is Active"), _("A rights holder has shown up for a book that you want unglued."), default = 1)
     notification.create_notice_type("wishlist_active", _("New Campaign"), _("A book you've wishlisted has a newly launched campaign."))
     notification.create_notice_type("wishlist_near_target", _("Campaign Near Target"), _("A book you want is near its ungluing target."))
