@@ -2333,7 +2333,7 @@ def download(request, work_id):
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     try:
         readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
-        readmill_epub_url = settings.BASE_URL_SECURE + reverse('ebook',args=[readmill_epub_ebook.id])
+        readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
     except:
         readmill_epub_url = None
         
