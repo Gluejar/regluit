@@ -1,11 +1,7 @@
 {% load humanize %}
+We want to let you know that your {{ user.profile.account.card_type }} card ending in {{ user.profile.account.card_last4 }} has expired.
 
-Your credit card has expired
-
-We want to let you know that your {{ user.profile.account.card_type }} card ending
-in {{ user.profile.account.card_last4 }} has expired.
-When you receive your new card, simply go to https://{{ site.domain }}{% url manage_account %}
-to enter your card information. Thank you!
+When you receive your new card, simply go to https://{{ site.domain }}{% url manage_account %} to enter your card information. Thank you!
 
 If you have any questions, we are happy to help. Simply email us at support@gluejar.com.
         

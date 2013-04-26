@@ -445,6 +445,7 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                 # fire off an account_expiring notice -- might not want to do this immediately
                 
                 notification.queue([instance.user], "account_expiring", {
+                    'user': instance.user,
                     'site':Site.objects.get_current()
                 }, True)
                 from regluit.core.tasks import emit_notifications
@@ -455,6 +456,7 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                             Site.objects.get_current())
                 
                 notification.queue([instance.user], "account_expired", {
+                    'user': instance.user,
                     'site':Site.objects.get_current()
                 }, True)
                 from regluit.core.tasks import emit_notifications
