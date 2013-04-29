@@ -69,11 +69,6 @@ div.book-list.listview{
             &.listview:hover {
                 // allow titles and authors to expand onhover
                 overflow: visible;
-                z-index:100;
-                // z-index only works on positioned elements, so if you
-                // do not include this the absolutely positioned add-wishlist
-                // div stacks above it! crazytown.
-                position: relative;
 
                 width: auto;
                 min-width: 219px;
@@ -84,6 +79,15 @@ div.book-list.listview{
                 .border-radius(0, 10px, 10px, 0);
                 border-left: none;
             }
+            
+            &.listview {
+                z-index:100;
+                // z-index only works on positioned elements, so if you
+                // do not include this the absolutely positioned add-wishlist
+                // div stacks above it! crazytown.
+                position: absolute;
+                left: 42px;
+            }
         }
         &.add-wishlist, &.remove-wishlist, &.on-wishlist, &.create-account, &.pledge {
             margin-right: 10px;
@@ -91,9 +95,9 @@ div.book-list.listview{
             width: 136px;
             background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
 
-            // needed to prevent displacement when people hover over book-name
-            position: absolute;
-            left:282px;
+            //position: absolute;
+            margin-left:255px;
+            float:left;
             
             span {
                 font-weight:normal;
