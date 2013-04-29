@@ -1063,7 +1063,7 @@ class Ebook(models.Model):
         
     @property
     def download_url(self):
-        return settings.BASE_URL_SECURE + reverse('ebook',args=[self.id])
+        return settings.BASE_URL_SECURE + reverse('download_ebook',args=[self.id])
     
     def __unicode__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
