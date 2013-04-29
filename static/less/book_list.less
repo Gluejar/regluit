@@ -11,10 +11,18 @@
 /* rows in listview should alternate colors */
 .row1 .book-list.listview {
 	background: #f6f9f9;
+
+	.book-name:hover {
+    	background: #f6f9f9;
+	}
 }
 
 .row2 .book-list.listview {
 	background: #fff;
+	
+	.book-name:hover {
+    	background: #fff;    	
+	}
 }
 
 div.book-list.listview{ 
@@ -24,7 +32,6 @@ div.book-list.listview{
     .height(43px);
     margin:0 5px 0 0;
     padding:7px 0;
-    // overflow:hidden;
     position: relative;
 
 	/* row is a container for divs with individual content elements */
@@ -49,7 +56,7 @@ div.book-list.listview{
                 overflow: hidden;
                 .height(19px);
                 margin-bottom: 5px;
-                font-weight:bold;
+                font-weight:bold;                
             }
             
             .listview.author {
@@ -58,13 +65,39 @@ div.book-list.listview{
                 line-height:normal;
                 .height(19px);
             }
+            
+            &.listview:hover {
+                // allow titles and authors to expand onhover
+                overflow: visible;
+
+                width: auto;
+                min-width: 219px;
+                
+                margin-top: -1px;
+                padding-right: 15px;
+                border: 1px solid @blue-grey;
+                .border-radius(0, 10px, 10px, 0);
+                border-left: none;
+            }
+            
+            &.listview {
+                z-index:100;
+                // z-index only works on positioned elements, so if you
+                // do not include this the absolutely positioned add-wishlist
+                // div stacks above it! crazytown.
+                position: absolute;
+                left: 42px;
+            }
         }
         &.add-wishlist, &.remove-wishlist, &.on-wishlist, &.create-account, &.pledge {
             margin-right: 10px;
             padding-right: 10px;
             width: 136px;
             background:url("@{image-base}booklist/booklist-vline.png") right center no-repeat;
-            float: left;
+
+            //position: absolute;
+            margin-left:255px;
+            float:left;
             
             span {
                 font-weight:normal;
