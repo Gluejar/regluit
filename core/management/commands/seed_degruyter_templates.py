@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, filename, **options):
         books = Work.objects.filter(editions__publisher_name__id=4311, campaigns__status="INITIALIZED")
         for book in books:
-            if not book.description.startswith('<div class="btn_support">'):
+            if not 'degruyter_countdown' in book.description:
                 """
                 read in file and prepend to description
                 ignores descriptions that already start with the seed file
