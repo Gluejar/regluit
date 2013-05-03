@@ -41,9 +41,19 @@ class ClaimAdminForm(forms.ModelForm):
 class ClaimAdmin(ModelAdmin):
     date_hierarchy = 'created'
     form = ClaimAdminForm
+    
+class RightsHolderAdminForm(forms.ModelForm):
+    owner = AutoCompleteSelectField(
+            OwnerLookup,
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.RightsHolder
 
 class RightsHolderAdmin(ModelAdmin):
     date_hierarchy = 'created'
+    form = RightsHolderAdminForm
 
 class PremiumAdmin(ModelAdmin):
     date_hierarchy = 'created'
@@ -66,8 +76,10 @@ class AuthorAdmin(ModelAdmin):
     exclude = ('editions',)
 
 class SubjectAdmin(ModelAdmin):
+    search_fields = ('name',)
     date_hierarchy = 'created'
     ordering = ('name',)
+    exclude = ('works',)
 
 class EditionAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
@@ -123,7 +135,9 @@ class WishlistAdmin(ModelAdmin):
     date_hierarchy = 'created'
 
 class UserProfileAdmin(ModelAdmin):
+    search_fields = ('user__username',)
     date_hierarchy = 'created'
+    exclude = ('user',)
     
 class CeleryTaskAdmin(ModelAdmin):
     pass

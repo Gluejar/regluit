@@ -137,6 +137,8 @@ class Premium(models.Model):
     def premium_remaining(self):
         t_model=get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
+    def  __unicode__(self):
+        return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
     
 class PledgeExtra:
     premium=None
@@ -1117,6 +1119,8 @@ class Badge(models.Model):
     @property
     def path(self):
         return '/static/images/%s.png' % self.name
+    def __unicode__(self):
+        return self.name
     
 def pledger():
     if not pledger.instance:
@@ -1155,6 +1159,10 @@ class UserProfile(models.Model):
     avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
             choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
+
+    def __unicode__(self):
+        return self.user.username
+
     def reset_pledge_badge(self):    
         #count user pledges  
         n_pledges = self.pledge_count
