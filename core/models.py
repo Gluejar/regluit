@@ -108,7 +108,9 @@ class Claim(models.Model):
             if campaign.status in ['ACTIVE','INITIALIZED', 'SUCCESSFUL']:
                 return False
         return True
-    
+    def  __unicode__(self):
+        return self.work.title
+        
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)

@@ -8,7 +8,7 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
 from regluit.core import models
 from regluit import payment
-from regluit.core.lookups import PublisherNameLookup
+from regluit.core.lookups import PublisherNameLookup, WorkLookup, OwnerLookup
 
 from djcelery.admin import TaskState, WorkerState, TaskMonitor, WorkerMonitor, \
       IntervalSchedule, CrontabSchedule, PeriodicTask, PeriodicTaskAdmin
@@ -24,8 +24,23 @@ class RegluitAdmin(AdminSite):
 class UserAdmin(ModelAdmin):
     pass
 
+class ClaimAdminForm(forms.ModelForm):
+    work = AutoCompleteSelectField(
+            WorkLookup,
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+        )
+    user = AutoCompleteSelectField(
+            OwnerLookup,
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Claim
+
 class ClaimAdmin(ModelAdmin):
     date_hierarchy = 'created'
+    form = ClaimAdminForm
 
 class RightsHolderAdmin(ModelAdmin):
     date_hierarchy = 'created'
