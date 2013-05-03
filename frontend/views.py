@@ -39,6 +39,7 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, render_to_response, get_object_or_404
+from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
@@ -2348,7 +2349,10 @@ def download(request, work_id):
     
 def about(request, facet):
     template = "about_" + facet + ".html"
-    return render(request, template)
+    try:
+        return render(request, template)
+    except TemplateDoesNotExist:
+        return render(request, "about.html")
 
 @login_required  
 @csrf_exempt    
