@@ -59,8 +59,10 @@ class WorkAdmin(ModelAdmin):
     fields = ('title',)
 
 class AuthorAdmin(ModelAdmin):
+    search_fields = ('name',)
     date_hierarchy = 'created'
     ordering = ('name',)
+    exclude = ('editions',)
 
 class SubjectAdmin(ModelAdmin):
     date_hierarchy = 'created'
