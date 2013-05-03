@@ -50,6 +50,7 @@ class PremiumAdmin(ModelAdmin):
 
 class CampaignAdmin(ModelAdmin):
     date_hierarchy = 'created'
+    exclude = ('edition', 'work', 'managers', 'publisher')
 
 class WorkAdmin(ModelAdmin):
     search_fields = ('title',)
@@ -68,10 +69,27 @@ class SubjectAdmin(ModelAdmin):
     date_hierarchy = 'created'
     ordering = ('name',)
 
+class EditionAdminForm(forms.ModelForm):
+    work = AutoCompleteSelectField(
+            WorkLookup,
+            label='Work',
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+        )
+    publisher_name = AutoCompleteSelectField(
+            PublisherNameLookup,
+            label='Name',
+            widget=AutoCompleteSelectWidget(PublisherNameLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Edition
+        
 class EditionAdmin(ModelAdmin):
     list_display = ('title', 'publisher_name', 'created')
     date_hierarchy = 'created'
     ordering = ('title',)
+    form = EditionAdminForm
 
 class PublisherAdminForm(forms.ModelForm):
     name = AutoCompleteSelectField(
