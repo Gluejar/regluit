@@ -22,9 +22,11 @@ class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
 
 class UserAdmin(ModelAdmin):
-    pass
+    search_fields = ['username', 'email']
+    list_display = ('username', 'email')
 
 class ClaimAdmin(ModelAdmin):
+    list_display = ('work', 'rights_holder', 'status')
     date_hierarchy = 'created'
 
 class RightsHolderAdmin(ModelAdmin):
@@ -34,10 +36,12 @@ class PremiumAdmin(ModelAdmin):
     date_hierarchy = 'created'
 
 class CampaignAdmin(ModelAdmin):
+    list_display = ('work', 'created', 'status')
     date_hierarchy = 'created'
+    search_fields = ['work']
 
 class WorkAdmin(ModelAdmin):
-    search_fields = ('title',)
+    search_fields = ['title']
     ordering = ('title',)
     list_display = ('title', 'created')
     date_hierarchy = 'created'
