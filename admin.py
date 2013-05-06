@@ -22,7 +22,8 @@ class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
 
 class UserAdmin(ModelAdmin):
-    pass
+    search_fields = ['username', 'email']
+    list_display = ('username', 'email')
 
 class ClaimAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
@@ -39,6 +40,7 @@ class ClaimAdminForm(forms.ModelForm):
         model = models.Claim
 
 class ClaimAdmin(ModelAdmin):
+    list_display = ('work', 'rights_holder', 'status')
     date_hierarchy = 'created'
     form = ClaimAdminForm
     
@@ -56,14 +58,17 @@ class RightsHolderAdmin(ModelAdmin):
     form = RightsHolderAdminForm
 
 class PremiumAdmin(ModelAdmin):
+    list_display = ('campaign', 'amount', 'description')
     date_hierarchy = 'created'
 
 class CampaignAdmin(ModelAdmin):
+    list_display = ('work', 'created', 'status')
     date_hierarchy = 'created'
     exclude = ('edition', 'work', 'managers', 'publisher')
+    search_fields = ['work']
 
 class WorkAdmin(ModelAdmin):
-    search_fields = ('title',)
+    search_fields = ['title']
     ordering = ('title',)
     list_display = ('title', 'created')
     date_hierarchy = 'created'
@@ -143,6 +148,7 @@ class CeleryTaskAdmin(ModelAdmin):
     pass
 
 class TransactionAdmin(ModelAdmin):
+    list_display = ('campaign', 'user', 'amount', 'status', 'error')
     date_hierarchy = 'date_created'
     
 class PaymentResponseAdmin(ModelAdmin):
