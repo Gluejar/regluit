@@ -13,7 +13,11 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function(){
         var countdown = 50 - numWishers;
-        $j("#degruyter_countdown").html(countdown + " ungluers to go");
+        if(countdown == 1) {
+            $j("#degruyter_countdown").html("Only 1 more ungluer to go!");
+        } else {
+            $j("#degruyter_countdown").html(countdown + " ungluers to go");
+        }
         
         if(numWishers == 1) {
             var wisherDataText = "1 ungluer has wished for this book"
