@@ -21,6 +21,19 @@
 <script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+
+<!-- needed for DeGruyter seed description hack
+     makes template vars accessible in JS
+-->
+<script type="text/javascript">
+    var numWishers = {{ wishers }};
+    
+    {% if request.user.id in work.last_campaign.supporters %}
+    var isSupporter = true;
+    {% else %}
+    var isSupporter = false;
+    {% endif %}
+</script>
 {% endblock %}
 
 {% block topsection %}
