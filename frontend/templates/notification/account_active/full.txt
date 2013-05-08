@@ -1,8 +1,5 @@
 {% load humanize %}
-
-Payment method updated
-
-As you requested, we’ve updated your account with the payment method you provided.
+As you requested, we've updated your account with the payment method you provided.
 
 If you have any questions, we are happy to help. Simply email us at support@gluejar.com.
         
@@ -13,9 +10,3 @@ Number: ************{{ user.profile.account.card_last4 }}
 Expiration date: {{ user.profile.account.card_exp_month }}/{{ user.profile.account.card_exp_year }}.
 We use Stripe< to keep your information secure.
 {% endif %}
-        
-
-Thank you for your support.
-
-The Unglue.it team
-

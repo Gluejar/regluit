@@ -1,11 +1,12 @@
 {% extends "notification/notice_template.html" %}
 {% load humanize %}
 
-{% block comments_textual %}
-
-<p>Payment method updated</p>
+{% block comments_graphical %}
+    Payment method updated
+{% endblock %}
         
-<p>As you requested, we’ve updated your account with the payment method you provided.</p>
+{% block comments_textual %}
+<p>As you requested, we've updated your account with the payment method you provided.</p>
 
 <p>If you have any questions, we are happy to help. Simply email us at
 <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
@@ -16,7 +17,5 @@
     <b>Number:</b> ************{{ user.profile.account.card_last4 }}<br />
     <b>Expiration date:</b> {{ user.profile.account.card_exp_month }}/{{ user.profile.account.card_exp_year }}.<br />
     <p>We use <a href="https://stripe.com/">Stripe</a> to keep your information secure.</p><br />
-        {% endif %}
-        	
-
+        {% endif %}	
 {% endblock %}  
