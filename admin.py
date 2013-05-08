@@ -8,7 +8,7 @@ from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
 from regluit.core import models
 from regluit import payment
-from regluit.core.lookups import PublisherNameLookup
+from regluit.core.lookups import PublisherNameLookup, WorkLookup, OwnerLookup
 
 from djcelery.admin import TaskState, WorkerState, TaskMonitor, WorkerMonitor, \
       IntervalSchedule, CrontabSchedule, PeriodicTask, PeriodicTaskAdmin
@@ -22,39 +22,91 @@ class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
 
 class UserAdmin(ModelAdmin):
-    pass
+    search_fields = ['username', 'email']
+    list_display = ('username', 'email')
+
+class ClaimAdminForm(forms.ModelForm):
+    work = AutoCompleteSelectField(
+            WorkLookup,
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+        )
+    user = AutoCompleteSelectField(
+            OwnerLookup,
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Claim
 
 class ClaimAdmin(ModelAdmin):
+    list_display = ('work', 'rights_holder', 'status')
     date_hierarchy = 'created'
+    form = ClaimAdminForm
+    
+class RightsHolderAdminForm(forms.ModelForm):
+    owner = AutoCompleteSelectField(
+            OwnerLookup,
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.RightsHolder
 
 class RightsHolderAdmin(ModelAdmin):
     date_hierarchy = 'created'
+    form = RightsHolderAdminForm
 
 class PremiumAdmin(ModelAdmin):
+    list_display = ('campaign', 'amount', 'description')
     date_hierarchy = 'created'
 
 class CampaignAdmin(ModelAdmin):
+    list_display = ('work', 'created', 'status')
     date_hierarchy = 'created'
+    exclude = ('edition', 'work', 'managers', 'publisher')
+    search_fields = ['work']
 
 class WorkAdmin(ModelAdmin):
-    search_fields = ('title',)
+    search_fields = ['title']
     ordering = ('title',)
     list_display = ('title', 'created')
     date_hierarchy = 'created'
     fields = ('title',)
 
 class AuthorAdmin(ModelAdmin):
+    search_fields = ('name',)
     date_hierarchy = 'created'
     ordering = ('name',)
+    exclude = ('editions',)
 
 class SubjectAdmin(ModelAdmin):
+    search_fields = ('name',)
     date_hierarchy = 'created'
     ordering = ('name',)
+    exclude = ('works',)
 
+class EditionAdminForm(forms.ModelForm):
+    work = AutoCompleteSelectField(
+            WorkLookup,
+            label='Work',
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+        )
+    publisher_name = AutoCompleteSelectField(
+            PublisherNameLookup,
+            label='Name',
+            widget=AutoCompleteSelectWidget(PublisherNameLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Edition
+        
 class EditionAdmin(ModelAdmin):
     list_display = ('title', 'publisher_name', 'created')
     date_hierarchy = 'created'
     ordering = ('title',)
+    form = EditionAdminForm
 
 class PublisherAdminForm(forms.ModelForm):
     name = AutoCompleteSelectField(
@@ -88,12 +140,15 @@ class WishlistAdmin(ModelAdmin):
     date_hierarchy = 'created'
 
 class UserProfileAdmin(ModelAdmin):
+    search_fields = ('user__username',)
     date_hierarchy = 'created'
+    exclude = ('user',)
     
 class CeleryTaskAdmin(ModelAdmin):
     pass
 
 class TransactionAdmin(ModelAdmin):
+    list_display = ('campaign', 'user', 'amount', 'status', 'error')
     date_hierarchy = 'date_created'
     
 class PaymentResponseAdmin(ModelAdmin):

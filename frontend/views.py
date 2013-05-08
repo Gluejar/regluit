@@ -39,6 +39,7 @@ from django.forms.models import inlineformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, render_to_response, get_object_or_404
+from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
@@ -2333,7 +2334,7 @@ def download(request, work_id):
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     try:
         readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
-        readmill_epub_url = settings.BASE_URL_SECURE + reverse('ebook',args=[readmill_epub_ebook.id])
+        readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
     except:
         readmill_epub_url = None
         
@@ -2348,7 +2349,10 @@ def download(request, work_id):
     
 def about(request, facet):
     template = "about_" + facet + ".html"
-    return render(request, template)
+    try:
+        return render(request, template)
+    except TemplateDoesNotExist:
+        return render(request, "about.html")
 
 @login_required  
 @csrf_exempt    
