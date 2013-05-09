@@ -426,15 +426,19 @@ post_save.connect(recharge_failed_transactions, sender=Account)
 
 @receiver(pre_save, sender=Account)
 def handle_Account_status_change(sender, instance, raw, **kwargs):
+    """send notices based on changes in status of Accounts"""
+    
+    # instance is the Account instance about to be stored to the database
+    # obj (if it exists) is the current version of the Account in the database
+    
     try:
+        # compute obj (if it exists)
         obj = Account.objects.get(pk=instance.pk)
-    except Account.DoesNotExist:
-        pass # Object is new, so field hasn't technically changed, but you may want to do something else here.
-    else:
-        if obj.status == 'INITIALIZED': # first time through -- do we want to treat this situation differently?
-            pass
         
-        # every ACTIVE card is a new card -- so status is not changing from some other state
+    except Account.DoesNotExist:
+        # this means that instance is a new Account
+
+        # trigger this notice only when a new ACTIVE account is created.
         if instance.status == 'ACTIVE':
 
             logger.info( "ACTIVE.  send to instance.user: %s  site: %s", instance.user,
@@ -445,10 +449,11 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                 'site':Site.objects.get_current()
             }, True)
             from regluit.core.tasks import emit_notifications
-            emit_notifications.delay()
-
+            emit_notifications.delay()        
         
-        if not obj.status == instance.status: # Field has changed
+    else:
+                 
+        if not obj.status == instance.status: # status field of existing Account has changed
             logger.info( "Account status change: %d %s %s", instance.pk, obj.status, instance.status)
             
             if instance.status == 'EXPIRING':
@@ -477,12 +482,10 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                 emit_notifications.delay()
                 
             elif instance.status == 'ERROR':
+                # TO DO:  we need to figure out notice needs to be sent out if we get an ERROR status.
                 pass
 
             elif instance.status == 'DEACTIVATED':
+                # nothing needs to happen here
                 pass
-                
             
-
-
-
