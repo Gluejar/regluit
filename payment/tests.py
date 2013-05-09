@@ -409,34 +409,8 @@ class AccountTest(TestCase):
         
         account1 = Account(host='host1', account_id='1', user=user1, status='ACTIVE')
         account1.save()
-        
-        print "number of UserProfile in setUpClass ", UserProfile.objects.count()
-        for profile in UserProfile.objects.all():
-            print profile.id, profile.user
-        
-        user = User.objects.all()[0]
-        print user
-        try:
-            print "user.profile.id", user.profile.id, user.profile.user
-        except Exception as e:
-            print e
-        
-        
-        print "in test_status_changes...."
-        
-        print "user1.id", user1.id
-        
-        print "number of UserProfile in test_status_changes", UserProfile.objects.count()
-        
-        for profile in UserProfile.objects.all():
-            print profile.id, profile.user
-            
-        
-        try:
-            print "user1.profile", user1.profile.id
-        except Exception as e:
-            print e
-        
+                
+        user = User.objects.all()[0]            
         
         account = user1.profile.account
         self.assertEqual(account.status, 'ACTIVE')
@@ -445,15 +419,6 @@ class AccountTest(TestCase):
         
         self.assertEqual(account.status, 'EXPIRING')
         account.save()
-        
-        from notification.models import Notice
-        from django.core import mail
-        
-        print len(mail.outbox)
-        for (i, m) in enumerate(mail.outbox):
-            print i, m.subject, m.body
-        
-        print [(n.id, n.notice_type.label, n.recipient, n.added) for n in Notice.objects.all()]
         
         user1.delete()
         account1.delete()

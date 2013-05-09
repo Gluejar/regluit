@@ -434,6 +434,20 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
         if obj.status == 'INITIALIZED': # first time through -- do we want to treat this situation differently?
             pass
         
+        # every ACTIVE card is a new card -- so status is not changing from some other state
+        if instance.status == 'ACTIVE':
+
+            logger.info( "ACTIVE.  send to instance.user: %s  site: %s", instance.user,
+                        Site.objects.get_current())
+            
+            notification.queue([instance.user], "account_active", {
+                'user': instance.user,
+                'site':Site.objects.get_current()
+            }, True)
+            from regluit.core.tasks import emit_notifications
+            emit_notifications.delay()
+
+        
         if not obj.status == instance.status: # Field has changed
             logger.info( "Account status change: %d %s %s", instance.pk, obj.status, instance.status)
             
@@ -464,8 +478,7 @@ def handle_Account_status_change(sender, instance, raw, **kwargs):
                 
             elif instance.status == 'ERROR':
                 pass
-            elif instance.status == 'ACTIVE':
-                pass
+
             elif instance.status == 'DEACTIVATED':
                 pass
                 
