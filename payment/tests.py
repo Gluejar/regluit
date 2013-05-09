@@ -401,8 +401,6 @@ class AccountTest(TestCase):
     def test_status_changes(self):
         
         from regluit.core.models import UserProfile
-
-        print AccountTest.get_transaction_level()
         
         user1 = User.objects.create_user('account_test1', 'account_test1@gluejar.com', 'account_test1_pw')
         user1.save()
