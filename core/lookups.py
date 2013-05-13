@@ -24,7 +24,11 @@ class WorkLookup(ModelLookup):
 class PublisherNameLookup(ModelLookup):
     model = PublisherName
     search_fields = ('name__icontains',)
-    
+    def create_item(self, value):
+        publisher_name, created = PublisherName.objects.get_or_create(name=value)
+        publisher_name.save()
+        return publisher_name
+           
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
 registry.register(PublisherNameLookup)

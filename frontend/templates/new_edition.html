@@ -19,6 +19,7 @@
 <form method="POST" action="#">
 	{% csrf_token %}
 	{{ form.work }}
+	{{ form.non_field_errors }}
 	<div> 
 		<p><b>Title</b>: {{ form.title.errors }}{{ form.title }}</p>
 		<p><b>Publisher</b>: {{ form.publisher_name.errors }}{{ form.publisher_name }}</p>
