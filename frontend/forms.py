@@ -30,19 +30,19 @@ class EditionForm(forms.ModelForm):
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,
             label='Publisher Name',
-            widget=AutoCompleteSelectWidget(PublisherNameLookup),
+            widget=AutoCompleteSelectWidget(PublisherNameLookup,allow_new=True),
             required=False,
+            allow_new=True,
         )
 
     isbn = forms.RegexField(
         label=_("ISBN"), 
         max_length=13, 
         regex=r'^(97[89]\d\d\d\d\d\d\d\d\d\d|delete)$',
-        required = True,
+        required = False,
         help_text = _("13 digits, no dash."),
         error_messages = {
             'invalid': _("This value must be 13 digits, starting with 978 or 979."),
-            'required': _("Yes, we need an ISBN."),
         }
     )
     goog = forms.RegexField(
@@ -86,6 +86,12 @@ class EditionForm(forms.ModelForm):
     )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
+    
+    def clean(self):
+        if not self.cleaned_data["isbn"] and not self.cleaned_data["oclc"] :
+            raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
+        return self.cleaned_data
+    
     class Meta:
         model = Edition
         exclude = 'created', 'work'
