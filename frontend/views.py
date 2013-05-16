@@ -615,14 +615,19 @@ class WorkListView(FilterableListView):
             context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:self.max_works]
             context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
-            
-            context['activetab'] = "#3"
-            
+                        
             counts={}
             counts['unglued'] = context['works_unglued'].count()
             counts['unglueing'] = context['works_active'].count()
             counts['wished'] = context['works_wished'].count()
             context['counts'] = counts
+            
+            if context['works_active']:
+                context['activetab'] = "#2"
+            elif context['works_unglued']:
+                context['activetab'] = "#1"
+            else:
+                context['activetab'] = "#3"
             
             return context
 
