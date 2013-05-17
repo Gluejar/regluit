@@ -622,9 +622,9 @@ class WorkListView(FilterableListView):
             counts['wished'] = context['works_wished'].count()
             context['counts'] = counts
             
-            if context['works_active']:
+            if counts['unglueing']:
                 context['activetab'] = "#2"
-            elif context['works_unglued']:
+            elif counts['unglued']:
                 context['activetab'] = "#1"
             else:
                 context['activetab'] = "#3"
