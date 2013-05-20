@@ -96,6 +96,7 @@ def update_account_status():
     for account in Account.objects.all():
         try:
             account.status = account.calculated_status()
+            account.save()
         except Exception, e:
             errors.append(e)
 

@@ -346,10 +346,7 @@ class Account(models.Model):
         
     def calculated_status(self):
         """returns ACTIVE, DEACTIVATED, EXPIRED, EXPIRING, or ERROR"""
-        
-    # TO DO:  integrate this method in to see whether we are using the right range of values
-    #         also, cache this status by having a value in the db in the future.
-        
+                
     # is it deactivated?
     
         today = date_today()

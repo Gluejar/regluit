@@ -106,7 +106,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("new_wisher", _("New wisher"), _("Someone new has wished for a book that you're the rightsholder for"))
     notification.create_notice_type("account_expiring", _("Credit Card Expiring Soon"), _("Your credit card is about to expire."))
     notification.create_notice_type("account_expired", _("Credit Card Has Expired"), _("Your credit card has expired."))
-    notification.create_notice_type("account_active", _("Credit Card Number Noted"), _("Payment method updated."), default = 1)
+    notification.create_notice_type("account_active", _("Credit Card Number Updated"), _("Payment method updated."), default = 1)
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
