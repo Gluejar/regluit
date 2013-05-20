@@ -16,6 +16,9 @@ cw = boto.connect_cloudwatch()
 rds = boto.connect_rds()
 
 def all_instances():
+    # "A reservation corresponds to a command to start instances"
+    # http://boto.readthedocs.org/en/latest/ec2_tut.html?highlight=reservation
+    
     reservations = ec2.get_all_instances()
     instances = [i for r in reservations for i in r.instances]
     return instances
@@ -119,7 +122,8 @@ def stats_for_instances(instances=None):
     stats = []
     for instance in instances:
         instance.update()  # to get latest update
-        stats.append((instance.id, instance.key_name, instance.state, instance.ip_address, instance.dns_name))
+        stats.append((instance.id, instance.tags.get('Name'), instance.key_name, instance.state,
+                      instance.ip_address, instance.dns_name))
     
     return stats  
  
