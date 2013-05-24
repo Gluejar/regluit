@@ -65,72 +65,102 @@
 </div>
 {% if unglued_ebooks or other_ebooks %}
     <div class="border">
-        <a href="http://www.defectivebydesign.org/drm-free" style="float:right;"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" width="150" height="150" border="0" align="middle" /></a><h3>How to download</h3>
-        <p>Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>
+        <a href="http://www.defectivebydesign.org/drm-free" style="float:right;"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" width="150" height="150" border="0" align="middle" /></a><h3>Need instructions?</h3>
+        <div class="buttons">
+            <div class="btn_support modify">
+                <a href="#" id="trythis" class="active">Try this first</a>
+            </div>
+            <div class="btn_support modify">
+                <a href="#" id="readmill">Readmill</a>
+            </div>
+            <div class="btn_support modify">
+                <a href="#" id="ios">iPhone/iPad</a>
+            </div>
+            <div class="btn_support modify">
+                <a href="#" id="android">Android</a>
+            </div>
+            <div class="btn_support modify">
+                <a href="#" id="desktop">Desktop (PC, Mac, Linux)</a>
+            </div>
+            <div class="btn_support modify">
+                <a href="#" id="ereader">Ereader</a>
+            </div>
+        </div>
         
-        <h4>Any device</h4>
-        <p>You may already have an app which reads our ebook formats.  If so, when you download the file, you will be given an option to open the file using that app.  You're done!</p>
-        
-        <p>If this doesn't work, use the instructions below for your device.</p>
+        <div class="instructions active" id="trythis_div">
+            <h4>Try this first</h4>
+            <p>You may already have an app which reads ebooks (most likely epub or pdf).  If so, downloading it on your phone or tablet, or downloading and opening it on your desktop, will give you the option of reading it in that app.  You're done!</p>
+        </div>
         
         {% if readmill_epub_url %}
-        <h4>Readmill users</h4>
-        <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
-        <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
+        <div class="instructions" id="readmill_div">
+            <h4>Readmill users</h4>
+            <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
+            <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
+        </div>
         {% endif %}
-        <h4>Android devices</h4>
-        <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+        <div class="instructions" id="ios_div">
+            <h4>iOS devices</h4>
+            <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
+            {% comment %}test{% endcomment %}
+            <ul>
+            <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+            <li>Download your book from this page using your device's web browser.</li>
+            <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
+            </ul>
+        </div>
         
-        <ul>
-        <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
-        <li>Download your book from this page using your device's web browser.</li>
-        <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in Aldiko.</li>
-        </ul>
+        <div class="instructions" id="android_div">
+            <h4>Android devices</h4>
+            <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+            
+            <ul>
+            <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
+            <li>Download your book from this page using your device's web browser.</li>
+            <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in Aldiko.</li>
+            </ul>
+        </div>
+        
+        <div class="instructions" id="desktop_div">
+            <h4>PC, Mac, or Linux</h4>
+            <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+            <ul>
+            <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+            <li>Download your book from this page using your device's web browser.</li>
+            <li>Open the ebook file in Calibre.</li>
+            </ul>
+        </div>
+        
+        <div class="instructions" id="ereader_div">
+            <h4>Ereaders</h4>
+            
+            <ul>
+            <li><b>Kindle</b>: download the mobi format ebook to a laptop or desktop computer. <b>All other ereaders</b>: download the epub format ebook to a laptop or desktop computer.</li>
+            <li>Plug the ereader into your computer with a USB cable.</li>
+            <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)  If you have downloaded Calibre, you can also use its "Send to Device" button.</li>
+            <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
+            <li>You may need to reboot your device to see the new book.</li>
+            </ul>
+        </div>
+
         {% comment %}
-        this doesn't seem to work. i get only browser and IndieBound reader as options on my phone. perhaps I should recommend IBReader instead?
+        If we're going to be providing mobi as the norm, let's not bother with these instructions.
+        <div class="instructions">
+            <h4>Converting epubs for Kindle</h4>
+            <p>Kindles can read plain text, MOBI, PDF, and HTML files.  They cannot read epub books (the format unglued ebooks are released in).  However, you can convert epubs to mobi files using free software.</p>
+            
+            <ul>
+            <li><a href="http://calibre-ebook.com/download">Download the free Calibre app</a> to a desktop or laptop computer.</li>
+            <li>Download your book from this page onto the desktop or laptop.</li>
+            <li>Open the ebook file in Calibre.</li>
+            <li>Convert the epub to a mobi file: select the file; click on "convert books"; and set the output format to mobi.</li>
+            <li>When the conversion is done, put the file on your device using the instructions for ereaders above.  If you've set up your Kindle email address at Amazon.com, you can also email it to yourself using the "Connect/share" button, without needing to plug your Kindle in.  Calibre will walk you through the process of setting up your Kindle email in Calibre.</li>
+            </ul>
+        </div>
         {% endcomment %}
         
-        <h4>iOS devices</h4>
-        <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
-        {% comment %}test{% endcomment %}
-        <ul>
-        <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-        <li>Download your book from this page using your device's web browser.</li>
-        <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
-        </ul>
-        
-        <h4>PC, Mac, or Linux</h4>
-        <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
-        <ul>
-        <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-        <li>Download your book from this page using your device's web browser.</li>
-        <li>Open the ebook file in Calibre.</li>
-        </ul>
-        
-        <h4>Ereaders</h4>
-        <p>If you'd like to read epub files on a Kindle or Kindle Fire, you'll need to follow the "Converting epubs for Kindle" instructions below, and then the instructions here.  To read mobi files on a Kindle, or any ebooks on other ereaders, use these instructions.</p>
-        
-        <ul>
-        <li>Download the ebook to a laptop or desktop computer.</li>
-        <li>Plug the ereader into your computer with a USB cable.</li>
-        <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)  If you have downloaded Calibre, you can also use its "Send to Device" button.</li>
-        <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
-        <li>You may need to reboot your device to see the new book.</li>
-        </ul>
-        
-        <h4>Converting epubs for Kindle</h4>
-        <p>Kindles can read plain text, MOBI, PDF, and HTML files.  They cannot read epub books (the format unglued ebooks are released in).  However, you can convert epubs to mobi files using free software.</p>
-        
-        <ul>
-        <li><a href="http://calibre-ebook.com/download">Download the free Calibre app</a> to a desktop or laptop computer.</li>
-        <li>Download your book from this page onto the desktop or laptop.</li>
-        <li>Open the ebook file in Calibre.</li>
-        <li>Convert the epub to a mobi file: select the file; click on "convert books"; and set the output format to mobi.</li>
-        <li>When the conversion is done, put the file on your device using the instructions for ereaders above.  If you've set up your Kindle email address at Amazon.com, you can also email it to yourself using the "Connect/share" button, without needing to plug your Kindle in.  Calibre will walk you through the process of setting up your Kindle email in Calibre.</li>
-        </ul>
-        
         <h4>Need more help?</h4>
-        <p>Need help with something not listed here?  Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
+        <p>Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
     </div>
 {% else %}
     <div class="border">
