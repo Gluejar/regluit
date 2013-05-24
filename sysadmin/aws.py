@@ -14,6 +14,7 @@ GLUEJAR_ACCOUNT_ID = 439256357102
 ec2 = boto.connect_ec2()
 cw = boto.connect_cloudwatch()
 rds = boto.connect_rds()
+route53 = boto.connect_route53()
 
 def all_instances():
     # "A reservation corresponds to a command to start instances"
@@ -24,14 +25,19 @@ def all_instances():
     return instances
 
 def all_zones():
-    print ec2.get_all_zones()
+    return ec2.get_all_zones()
     
 def all_rds():
     return rds.get_all_dbinstances()
     
 def all_rds_parameter_groups():
     return rds.get_all_dbparameter_groups()
+
+def all_hosted_zones():
     
+    hzones = route53.get_all_hosted_zones() 
+    return hzones['ListHostedZonesResponse']['HostedZones']
+
 def modify_rds_parameter(group_name, parameter, value, apply_immediate=False):
     """change parameter in RDS parameter group_name to value
     http://stackoverflow.com/a/9085381/7782
@@ -79,7 +85,7 @@ def stop_instances(instances):
 
 
 def console_output(instance):
-    """returnn console output of instance"""
+    """return console output of instance"""
     try:
         return instance.get_console_output().output
     except Exception, e:
