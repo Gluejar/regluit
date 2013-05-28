@@ -8,6 +8,25 @@
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/readmill.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+
+$j(document).ready(function(){
+    $j('.buttons').show();
+    $j('.instructions div:not(#trythis_div)').hide();
+    $j('.instructions h4').hide();
+    
+    $j('.buttons div').on('click', function() {
+        $j(this).removeClass('modify');
+        $j(this).siblings().addClass('modify');
+        var buttonID = $j(this).children('a').attr('id');
+        var divSelector = '#' + buttonID + '_div';
+        var activeDiv = $j(divSelector);
+        activeDiv.show();
+        activeDiv.siblings().hide();
+    });
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -70,9 +89,11 @@
             <div class="btn_support">
                 <a id="trythis" class="active">Try this first</a>
             </div>
+            {% if readmill_epub_url %}
             <div class="btn_support modify">
                 <a id="readmill">Readmill</a>
             </div>
+            {% endif %}
             <div class="btn_support modify">
                 <a id="ios">iPhone/iPad</a>
             </div>
@@ -87,60 +108,62 @@
             </div>
         </div>
         
-        <div class="instructions active" id="trythis_div">
-            <h4>Try this first</h4>
-            <p>You may already have an app which reads ebooks (most likely epub or pdf).  If so, downloading it on your phone or tablet, or downloading and opening it on your desktop, will give you the option of reading it in that app.  You're done!</p>
-        </div>
-        
-        {% if readmill_epub_url %}
-        <div class="instructions" id="readmill_div">
-            <h4>Readmill users</h4>
-            <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
-            <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
-        </div>
-        {% endif %}
-        <div class="instructions" id="ios_div">
-            <h4>iOS devices</h4>
-            <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
-            {% comment %}test{% endcomment %}
-            <ul>
-            <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-            <li>Download your book from this page using your device's web browser.</li>
-            <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
-            </ul>
-        </div>
-        
-        <div class="instructions" id="android_div">
-            <h4>Android devices</h4>
-            <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+        <div class="instructions">
+            <div id="trythis_div">
+                <h4>Try this first</h4>
+                <p>You may already have an app which reads ebooks (most likely epub or pdf).  If so, downloading it on your phone or tablet, or downloading and opening it on your desktop, will give you the option of reading it in that app.  You're done!</p>
+            </div>
             
-            <ul>
-            <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
-            <li>Download your book from this page using your device's web browser.</li>
-            <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in Aldiko.</li>
-            </ul>
-        </div>
-        
-        <div class="instructions" id="desktop_div">
-            <h4>PC, Mac, or Linux</h4>
-            <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
-            <ul>
-            <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-            <li>Download your book from this page using your device's web browser.</li>
-            <li>Open the ebook file in Calibre.</li>
-            </ul>
-        </div>
-        
-        <div class="instructions" id="ereader_div">
-            <h4>Ereaders</h4>
+            {% if readmill_epub_url %}
+            <div id="readmill_div">
+                <h4>Readmill users</h4>
+                <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
+                <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
+            </div>
+            {% endif %}
+            <div id="ios_div">
+                <h4>iOS devices</h4>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
+                {% comment %}test{% endcomment %}
+                <ul>
+                <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+                <li>Download your book from this page using your device's web browser.</li>
+                <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
+                </ul>
+            </div>
             
-            <ul>
-            <li><b>Kindle</b>: download the mobi format ebook to a laptop or desktop computer. <b>All other ereaders</b>: download the epub format ebook to a laptop or desktop computer.</li>
-            <li>Plug the ereader into your computer with a USB cable.</li>
-            <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)  If you have downloaded Calibre, you can also use its "Send to Device" button.</li>
-            <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
-            <li>You may need to reboot your device to see the new book.</li>
-            </ul>
+            <div id="android_div">
+                <h4>Android devices</h4>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                
+                <ul>
+                <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
+                <li>Download your book from this page using your device's web browser.</li>
+                <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in Aldiko.</li>
+                </ul>
+            </div>
+            
+            <div id="desktop_div">
+                <h4>PC, Mac, or Linux</h4>
+                <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                <ul>
+                <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+                <li>Download your book from this page using your device's web browser.</li>
+                <li>Open the ebook file in Calibre.</li>
+                </ul>
+            </div>
+            
+            <div id="ereader_div">
+                <h4>Ereaders</h4>
+                
+                <ul>
+                <li><b>Kindle</b>: download the mobi format ebook to a laptop or desktop computer. <b>All other ereaders</b>: download the epub format ebook to a laptop or desktop computer.</li>
+                <li>Plug the ereader into your computer with a USB cable.</li>
+                <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>
+                <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
+                <li>You may need to reboot your device to see the new book.</li>
+                </ul>
+            </div>
         </div>
 
         {% comment %}
@@ -158,7 +181,7 @@
             </ul>
         </div>
         {% endcomment %}
-        
+        <br />
         <h4>Need more help?</h4>
         <p>Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
         
