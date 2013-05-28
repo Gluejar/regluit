@@ -314,6 +314,15 @@ class Account(models.Model):
     # c.active_card.fingerprint, c.active_card.type, c.active_card.last4, c.active_card.exp_month, c.active_card.exp_year,
     # c.active_card.country
     
+    # ACTIVE, DEACTIVATED, EXPIRED, EXPIRING, or ERROR
+    STATUS_CHOICES = ( 
+            ('ACTIVE','ACTIVE'), 
+            ('DEACTIVATED','DEACTIVATED'), 
+            ('EXPIRED','EXPIRED'), 
+            ('EXPIRING','EXPIRING'),
+            ( 'ERROR','ERROR')
+        )
+    
     # host: the payment processor.  Named after the payment module that hosts the payment processing functions
     host = models.CharField(default=PAYMENT_HOST_NONE, max_length=32, null=False)
     account_id = models.CharField(max_length=128, null=True)
@@ -337,7 +346,7 @@ class Account(models.Model):
     user = models.ForeignKey(User, null=True)
     
     # status variable
-    status = models.CharField(max_length=16, null=False, default='ACTIVE')
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES, null=False, default='ACTIVE')
     
     def deactivate(self):
         """Don't allow more than one active Account of given host to be associated with a given user"""
