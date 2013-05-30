@@ -8,23 +8,12 @@
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/readmill.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+<script type="text/javascript" src="/static/js/download_page.js"></script>
 <script type="text/javascript">
 var $j = jQuery.noConflict();
-
-$j(document).ready(function(){
-    $j('.buttons').show();
-    $j('.instructions div:not(#trythis_div)').hide();
-    $j('.instructions h4').hide();
-    
-    $j('.buttons div').on('click', function() {
-        $j(this).removeClass('modify');
-        $j(this).siblings().addClass('modify');
-        var buttonID = $j(this).children('a').attr('id');
-        var divSelector = '#' + buttonID + '_div';
-        var activeDiv = $j(divSelector);
-        activeDiv.show();
-        activeDiv.siblings().hide();
-    });
+$j(document).ready(function() {
+    // actually trigger the download_page function
+    $j(document).trigger('prettifyDownload');
 });
 </script>
 {% endblock %}
