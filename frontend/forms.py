@@ -532,4 +532,7 @@ class PressForm(forms.ModelForm):
         widgets = { 
                 'date': SelectDateWidget(years=range(2010,2025)),
             }
+            
+class KindleEmailForm(forms.Form):
+    kindle_email = forms.EmailField()
 

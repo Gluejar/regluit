@@ -1,0 +1,35 @@
+{% extends "email_change/base.html" %}
+
+{% block title %}Add or change your Kindle email{% endblock %}
+
+
+{% block ce_content %}
+{% with request.user.profile.kindle_email as kindle_email %}
+    <h2>Add or change your Kindle email</h2>
+    <div id="content-main">
+        {% if kindle_email %}
+            <p>You already have a Kindle email on file with Unglue.it: {{ kindle_email }} .</p>
+            <p>You can change it below.</p>
+        {% else %}
+            <p>Enter your Kindle email address below:</p>
+        {% endif %}
+        <form method="post" action="{% url kindle_config %}">{% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
+        </form>
+        <script type="text/javascript">
+            document.getElementById('id_kindle_email').focus()
+        </script>
+    </div>
+    
+    <div>
+        <p>Don't know the email address for your device or reading app?  <a href="http://www.amazon.com/myk#manageDevices">Find it here</a>, under Manage Your Devices.</p>
+        
+        {% if not kindle_email %}
+        <p>Before your device or app can receive emails from Unglue.it, you'll have to add <b>kindle@gluejar.com</b> to your <a href="http://www.amazon.com/myk#pdocSettings">Approved Personal Document Email List</a> under Personal Document Settings.</p>
+        {% endif %}
+        
+        <p>Once we have your Kindle email, you'll be able to send unglued ebooks to your Kindle device or app with one click from any Unglue.it download page.</p>
+    </div>
+{% endwith %}
+{% endblock %}

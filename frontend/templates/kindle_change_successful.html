@@ -1,0 +1,14 @@
+{% extends "email_change/base.html" %}
+{% with request.user.profile.kindle_email as kindle_email %}
+
+{% block title %}Kindle email change successful{% endblock %}
+
+
+{% block ce_content %}
+    <h2>Kindle email change successful</h2>
+    <div id="content-main">
+        <p>Hooray!  We can now send unglued ebooks to you at {{ request.user.profile.kindle_email }}.</p>
+        <p>Why not <a href="{% url unglued_list '' %}">start downloading free books</a>?
+    </div>
+{% endblock %}
+{% endwith %}

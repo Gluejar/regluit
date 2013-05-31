@@ -160,6 +160,7 @@ $j(document).ready(function() {
                 <h4>Send to Kindle</h4>
                 {% if request.user.is_authenticated and request.user.profile.kindle_email %}
                     <p>you can has email!</p>
+                    <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
                 {% else %}
                     <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>
                 {% endif %}

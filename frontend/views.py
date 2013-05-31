@@ -62,21 +62,55 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications
 
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm 
-from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
-from regluit.frontend.forms import MsgForm, AuthForm
-from regluit.frontend.forms import PressForm
+from regluit.frontend.forms import (
+    UserData,
+    ProfileForm,
+    CampaignPledgeForm,
+    GoodreadsShelfLoadingForm,
+    RightsHolderForm,
+    UserClaimForm,
+    LibraryThingForm,
+    OpenCampaignForm,
+    getManageCampaignForm,
+    DonateForm,
+    CampaignAdminForm,
+    EmailShareForm,
+    FeedbackForm,
+    EbookForm,
+    CustomPremiumForm,
+    EditManagersForm,
+    EditionForm,
+    PledgeCancelForm,
+    getTransferCreditForm,
+    CCForm,
+    CloneCampaignForm,
+    PlainCCForm,
+    WorkForm,
+    OtherWorkForm,
+    MsgForm,
+    AuthForm,
+    PressForm,
+    KindleEmailForm
+)
 
 from regluit.payment import baseprocessor, stripelib
 from regluit.payment.credit import credit_transaction
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account, Sent, CreditLog
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
-from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
-from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
+from regluit.payment.parameters import (
+    TRANSACTION_STATUS_ACTIVE,
+    TRANSACTION_STATUS_COMPLETE,
+    TRANSACTION_STATUS_CANCELED,
+    TRANSACTION_STATUS_ERROR,
+    TRANSACTION_STATUS_FAILED,
+    TRANSACTION_STATUS_INCOMPLETE,
+    TRANSACTION_STATUS_NONE,
+    TRANSACTION_STATUS_MODIFIED,
+    PAYMENT_TYPE_AUTHORIZATION,
+    PAYMENT_TYPE_INSTANT,
+    PAYMENT_HOST_STRIPE,
+    PAYMENT_HOST_NONE
+)
 
 from regluit.utils.localdatetime import now, date_today
 
@@ -2399,5 +2433,15 @@ def press_submitterator(request):
             'title':title
         })
 
+@login_required
 def kindle_config(request):
-    return HttpResponseRedirect('/')
+    if request.method == 'POST':
+        form = KindleEmailForm(request.POST)
+        if form.is_valid():
+            request.user.profile.kindle_email = form.cleaned_data['kindle_email']
+            request.user.profile.save()
+            return render(request, "kindle_change_successful.html")
+    else:
+        form = KindleEmailForm()
+        
+    return render(request, "kindle_config.html", {'form': form})
