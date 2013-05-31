@@ -14,7 +14,7 @@ else {
 $j(document).on('click', '.buttons div', function() {
     $j(this).removeClass('modify');
     $j(this).siblings().addClass('modify');
-    var buttonID = $j(this).children('a').attr('id');
+    var buttonID = $j(this).find('a').attr('id');
     var divSelector = '#' + buttonID + '_div';
     var activeDiv = $j(divSelector);
     activeDiv.show();

@@ -83,6 +83,14 @@ $j(document).ready(function() {
                 <a id="readmill">Readmill</a>
             </div>
             {% endif %}
+            {% if kindle_ebook_id %}
+            <div class="btn_support modify">
+                <form method="POST" action="{% url send_to_kindle kindle_ebook_id %}">
+                    {% csrf_token %}
+                    <button id="kindle" type="submit">Send to Kindle<input>
+                </form>
+            </div>
+            {% endif %}
             <div class="btn_support modify">
                 <a id="ios">iPhone/iPad</a>
             </div>
@@ -94,9 +102,6 @@ $j(document).ready(function() {
             </div>
             <div class="btn_support modify">
                 <a id="ereader">Ereader</a>
-            </div>
-            <div class="btn_support modify">
-                <a id="kindle">Send to Kindle</a>
             </div>
         </div>
         
@@ -111,6 +116,17 @@ $j(document).ready(function() {
                 <h4>Readmill users</h4>
                 <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
                 <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
+            </div>
+            {% endif %}
+            {% if kindle_ebook_id %}
+            <div id="kindle_div">
+                <h4>Send to Kindle</h4>
+                {% if request.user.is_authenticated and request.user.profile.kindle_email %}
+                    <p>you can has email!</p>
+                    <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
+                {% else %}
+                    <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>
+                {% endif %}
             </div>
             {% endif %}
             <div id="ios_div">
@@ -155,15 +171,6 @@ $j(document).ready(function() {
                 <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
                 <li>You may need to reboot your device to see the new book.</li>
                 </ul>
-            </div>
-            <div id="kindle_div">
-                <h4>Send to Kindle</h4>
-                {% if request.user.is_authenticated and request.user.profile.kindle_email %}
-                    <p>you can has email!</p>
-                    <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
-                {% else %}
-                    <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>
-                {% endif %}
             </div>
         </div>
 

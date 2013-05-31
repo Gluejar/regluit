@@ -31,7 +31,8 @@ from regluit.frontend.views import (
     MergeView,
     ByPubListView,
     ByPubView,
-    kindle_config
+    kindle_config,
+    send_to_kindle
 )
 
 urlpatterns = patterns(
@@ -126,6 +127,7 @@ urlpatterns = patterns(
     url(r"^press/$","press",  name="press"),
     url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
     url(r"^accounts/edit/kindle_config/$", "kindle_config",  name="kindle_config"),
+    url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/$", "send_to_kindle",  name="send_to_kindle"),
 )
 
 if settings.DEBUG:

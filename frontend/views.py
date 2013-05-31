@@ -31,6 +31,8 @@ from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.temp import NamedTemporaryFile
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count, Sum
 from django.forms import Select
@@ -2366,6 +2368,15 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
+    kindle_ebook_id = None
+    try:
+        kindle_ebook_id = work.ebooks().filter(format='mobi')[0].id
+    except IndexError:
+        try:
+            kindle_ebook_id = work.ebooks().filter(format='pdf')[0].id
+        except IndexError:
+            pass
+        
     try:
         readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
         readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
@@ -2375,6 +2386,7 @@ def download(request, work_id):
     context.update({
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
+        'kindle_ebook_id': kindle_ebook_id,
         'readmill_epub_url': readmill_epub_url,
         'base_url': settings.BASE_URL_SECURE
     })
@@ -2445,3 +2457,26 @@ def kindle_config(request):
         form = KindleEmailForm()
         
     return render(request, "kindle_config.html", {'form': form})
+    
+@require_POST
+@login_required      
+@csrf_exempt
+def send_to_kindle(request, kindle_ebook_id):
+    """
+    fail if not mobi/pdf?
+    """
+    # don't forget to increment the download counter!
+    ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+    ebook.increment()
+    logger.info("ebook: {0}, user_ip: {1}".format(kindle_ebook_id, request.META['REMOTE_ADDR']))
+
+    book_temp = NamedTemporaryFile(delete=True)
+    book_temp.write(urllib.urlopen(ebook.url).read())
+    
+    email = EmailMessage(from_email='kindle@gluejar.com',
+            to=[request.user.profile.kindle_email])
+    email.attach(book_temp.name + '.' + ebook.format, book_temp)
+    email.send()
+    book_temp.flush()
+            
+    return HttpResponse('sent to Kindle')
