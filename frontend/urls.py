@@ -9,9 +9,30 @@ from django.contrib.sites.models import Site
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
-from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView, ByPubView
+from regluit.frontend.views import (
+    GoodreadsDisplayView,
+    LibraryThingView,
+    PledgeView,
+    PledgeCompleteView,
+    PledgeCancelView,
+    PledgeRechargeView,
+    FAQView,
+    CampaignListView,
+    WorkListView,
+    UngluedListView,
+    InfoPageView,
+    InfoLangView,
+    DonationView,
+    FundPledgeView,
+    NonprofitCampaign,
+    DonationCredit,
+    PledgeModifiedView,
+    ManageAccount,
+    MergeView,
+    ByPubListView,
+    ByPubView,
+    kindle_config
+)
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -104,6 +125,7 @@ urlpatterns = patterns(
     url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
     url(r"^press/$","press",  name="press"),
     url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
+    url(r"^accounts/edit/kindle_config/$", "kindle_config",  name="kindle_config"),
 )
 
 if settings.DEBUG:

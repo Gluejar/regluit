@@ -2398,3 +2398,6 @@ def press_submitterator(request):
             'form':form,
             'title':title
         })
+
+def kindle_config(request):
+    return HttpResponseRedirect('/')

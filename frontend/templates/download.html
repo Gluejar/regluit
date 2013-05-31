@@ -28,7 +28,7 @@ $j(document).ready(function() {
         <ul class="social menu">
             {% with site.domain as domain %}
             <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-            <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
+            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
             {% endwith %}
             <a href="{% url emailshare '' %}?next={% url work work.id %}"><li class="email"><span>Email</span></li></a>
             <a href="#" id="embed2"><li class="embed"><span>Embed</span></li></a>
@@ -95,6 +95,9 @@ $j(document).ready(function() {
             <div class="btn_support modify">
                 <a id="ereader">Ereader</a>
             </div>
+            <div class="btn_support modify">
+                <a id="kindle">Send to Kindle</a>
+            </div>
         </div>
         
         <div class="instructions">
@@ -152,6 +155,14 @@ $j(document).ready(function() {
                 <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
                 <li>You may need to reboot your device to see the new book.</li>
                 </ul>
+            </div>
+            <div id="kindle_div">
+                <h4>Send to Kindle</h4>
+                {% if request.user.is_authenticated and request.user.profile.kindle_email %}
+                    <p>you can has email!</p>
+                {% else %}
+                    <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>
+                {% endif %}
             </div>
         </div>
 
