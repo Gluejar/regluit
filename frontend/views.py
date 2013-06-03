@@ -2462,21 +2462,20 @@ def kindle_config(request):
 @login_required      
 @csrf_exempt
 def send_to_kindle(request, kindle_ebook_id):
-    """
-    fail if not mobi/pdf?
-    """
     # don't forget to increment the download counter!
     ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+    assert ebook.format == 'mobi' or ebook.format == 'pdf'
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(kindle_ebook_id, request.META['REMOTE_ADDR']))
 
-    book_temp = NamedTemporaryFile(delete=True)
-    book_temp.write(urllib.urlopen(ebook.url).read())
+    title = ebook.edition.title
+    title = title.replace(' ', '_')
+    
+    filehandle = urllib.urlopen(ebook.url)
     
     email = EmailMessage(from_email='kindle@gluejar.com',
             to=[request.user.profile.kindle_email])
-    email.attach(book_temp.name + '.' + ebook.format, book_temp)
+    email.attach(title + '.' + ebook.format, filehandle.read())
     email.send()
-    book_temp.flush()
             
     return HttpResponse('sent to Kindle')
