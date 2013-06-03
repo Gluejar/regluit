@@ -15,6 +15,7 @@ ec2 = boto.connect_ec2()
 cw = boto.connect_cloudwatch()
 rds = boto.connect_rds()
 route53 = boto.connect_route53()
+iam = boto.connect_iam()
 
 def all_instances():
     # "A reservation corresponds to a command to start instances"
