@@ -1,7 +1,8 @@
-from regluit.core import models
+from itertools import izip
+
 from django.db.models import Count
 
-from itertools import izip
+from regluit.core import models
 
 def list_popular():
     """Compare calculating popular works using QuerySets + distinct() and order_by() with an alternate approach """

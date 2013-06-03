@@ -1,41 +1,51 @@
-from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Wishlist
+"""
+external library imports
+"""
+import logging
+import traceback
+import uuid
 
-from regluit.payment.stripelib import STRIPE_PK
-from regluit.payment.forms import StripePledgeForm
+from decimal import Decimal as D
+from unittest import TestResult
 
+"""
+django imports
+"""
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.sites.models import RequestSite
-from regluit.payment.parameters import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
-from django.test.utils import setup_test_environment
+from django.core.urlresolvers import reverse
+from django.http import (
+    HttpResponse,
+    HttpRequest,
+    HttpResponseRedirect,
+    HttpResponseBadRequest
+)
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-
+from django.test.utils import setup_test_environment
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
-from unittest import TestResult
+"""
+regluit imports
+"""
+from regluit.core.models import Campaign, Wishlist
+from regluit.payment.forms import StripePledgeForm
+from regluit.payment.manager import PaymentManager
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import *
+from regluit.payment.stripelib import STRIPE_PK
 from regluit.payment.tests import PledgeTest, AuthorizeTest
-import uuid
-from decimal import Decimal as D
-
 from regluit.utils.localdatetime import now
-import traceback
 
-
-import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
 TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'buyer5_1325740224_per@gmail.com']
 #TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
 #TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
-
 
 '''
 http://BASE/querycampaign?id=2

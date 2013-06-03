@@ -1,4 +1,5 @@
 from notification import models as notification
+
 from django.dispatch import Signal
 
 transaction_charged = Signal(providing_args=["transaction"])

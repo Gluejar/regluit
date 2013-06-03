@@ -1,5 +1,5 @@
 '''
-imports not from django or regluit
+external library imports
 '''
 import re
 import sys
@@ -23,9 +23,9 @@ django imports
 '''
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.auth.views import login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
@@ -36,10 +36,13 @@ from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count, Sum
 from django.forms import Select
-from django.forms.models import modelformset_factory
-from django.forms.models import inlineformset_factory
-from django.http import HttpResponseRedirect, Http404
-from django.http import HttpResponse, HttpResponseNotFound
+from django.forms.models import modelformset_factory, inlineformset_factory
+from django.http import (
+    HttpResponseRedirect,
+    Http404,
+    HttpResponse,
+    HttpResponseNotFound
+)
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
@@ -54,10 +57,14 @@ from django.views.generic.base import TemplateView
 '''
 regluit imports
 '''
-from regluit.core import tasks
-from regluit.core import models, bookloader, librarything
-from regluit.core import userlists
-from regluit.core import goodreads
+from regluit.core import (
+    tasks,
+    models,
+    bookloader,
+    librarything,
+    userlists,
+    goodreads
+)
 from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search

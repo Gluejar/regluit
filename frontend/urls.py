@@ -1,11 +1,11 @@
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
-from django.views.generic.base import TemplateView
-from django.views.generic import ListView, DetailView
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.conf.urls.defaults import *
+from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.views.generic import ListView, DetailView
+from django.views.generic.base import TemplateView
+from django.views.generic.simple import direct_to_template
+from django.views.decorators.csrf import csrf_exempt
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign

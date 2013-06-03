@@ -5,6 +5,7 @@ To use this filter, put "{% load truncatechars %}" at the beginning of your temp
 then {{ myvariable|truncatechars:num }}
 """
 import unicodedata
+
 from django.template.base import Library
 from django.template.defaultfilters import stringfilter
 from django.utils.translation import get_language_info

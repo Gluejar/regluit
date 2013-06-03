@@ -1,30 +1,35 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
+external library imports
 """
-
-from django.test import TestCase
-from django.utils import unittest
-from django.conf import settings
-from django.contrib.auth.models import User
-from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction, Account
-from regluit.core.models import Campaign, Wishlist, Work
-from regluit.core.signals import handle_transaction_charged
-from regluit.payment.parameters import *
-import traceback
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-import time
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 import logging
 import os
-from decimal import Decimal as D
-from regluit.utils.localdatetime import now
+import time
+import traceback
+
 from datetime import timedelta
+from decimal import Decimal as D
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+
+"""
+django imports
+"""
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.test import TestCase
+from django.utils import unittest
+
+"""
+regluit imports
+"""
+from regluit.core.models import Campaign, Wishlist, Work
+from regluit.core.signals import handle_transaction_charged
+from regluit.payment.manager import PaymentManager
+from regluit.payment.models import Transaction, Account
+from regluit.payment.parameters import *
+from regluit.utils.localdatetime import now
 
 def setup_selenium():
     # Set the display window for our xvfb

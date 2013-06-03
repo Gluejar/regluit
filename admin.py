@@ -1,22 +1,40 @@
+"""
+external library imports
+"""
+import pickle
+
+"""
+django imports"""
 from django import forms
-from django.contrib.auth.models import User
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.sites import AdminSite
-
+from django.contrib.auth.models import User
+from djcelery.admin import (
+    TaskState,
+    WorkerState,
+    TaskMonitor,
+    WorkerMonitor,
+    IntervalSchedule,
+    CrontabSchedule,
+    PeriodicTask,
+    PeriodicTaskAdmin
+)
+from notification.admin import NoticeTypeAdmin, NoticeSettingAdmin, NoticeAdmin
+from notification.models import (
+    NoticeType,
+    NoticeSetting,
+    Notice,
+    ObservedItem,
+    NoticeQueueBatch
+)
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
-
-from regluit.core import models
+"""
+regluit imports
+"""
 from regluit import payment
+from regluit.core import models
 from regluit.core.lookups import PublisherNameLookup, WorkLookup, OwnerLookup
-
-from djcelery.admin import TaskState, WorkerState, TaskMonitor, WorkerMonitor, \
-      IntervalSchedule, CrontabSchedule, PeriodicTask, PeriodicTaskAdmin
-
-from notification.admin import NoticeTypeAdmin, NoticeSettingAdmin, NoticeAdmin
-from notification.models import NoticeType, NoticeSetting, Notice, ObservedItem, NoticeQueueBatch
-
-import pickle
 
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'

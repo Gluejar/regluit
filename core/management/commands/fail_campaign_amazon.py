@@ -3,6 +3,7 @@ print user emails
 """
 
 from django.core.management.base import BaseCommand
+
 from regluit.core import models, signals
 
 class Command(BaseCommand):

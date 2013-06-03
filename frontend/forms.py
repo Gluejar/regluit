@@ -1,26 +1,52 @@
+"""
+external library imports
+"""
+import logging
+
 from datetime import timedelta
+from decimal import Decimal as D
+
+"""
+django imports
+"""
 from django import forms
-from django.db import models
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
 from django.conf import settings
 from django.conf.global_settings import LANGUAGES
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.validators import validate_email
-from django.utils.translation import ugettext_lazy as _
+from django.db import models
 from django.forms.widgets import RadioSelect
 from django.forms.extras.widgets import SelectDateWidget
+from django.utils.translation import ugettext_lazy as _
 
-from decimal import Decimal as D
-from selectable.forms import AutoCompleteSelectMultipleWidget,AutoCompleteSelectMultipleField
-from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
+from selectable.forms import (
+    AutoCompleteSelectMultipleWidget,
+    AutoCompleteSelectMultipleField,
+    AutoCompleteSelectWidget,
+    AutoCompleteSelectField
+)
 
-from regluit.core.models import UserProfile, RightsHolder, Claim, Campaign, Premium, Ebook, Edition, PledgeExtra, Work, Press
-from regluit.core.models import TWITTER, FACEBOOK, GRAVATAR
+"""
+regluit imports
+"""
+from regluit.core.models import (
+    UserProfile,
+    RightsHolder,
+    Claim,
+    Campaign,
+    Premium,
+    Ebook,
+    Edition,
+    PledgeExtra,
+    Work,
+    Press,
+    TWITTER,
+    FACEBOOK,
+    GRAVATAR
+)
 from regluit.core.lookups import OwnerLookup, WorkLookup, PublisherNameLookup
-
 from regluit.utils.localdatetime import now
-
-import logging
 
 logger = logging.getLogger(__name__)
 

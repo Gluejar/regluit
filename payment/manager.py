@@ -1,23 +1,32 @@
-from regluit.payment.models import Transaction, Receiver, PaymentResponse, Account
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from regluit.payment.parameters import *
-from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
-from regluit.payment import credit
-
-import uuid
-import traceback
-from regluit.utils.localdatetime import now
-from dateutil.relativedelta import relativedelta
+"""
+external library imports
+"""
 import logging
+import traceback
+import urllib
+import urlparse
+import uuid
+
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 from decimal import Decimal as D
 from xml.dom import minidom
-import urllib, urlparse
-from datetime import timedelta
 
-
+"""
+django imports
+"""
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
+"""
+regluit imports
+"""
+from regluit.payment import credit
+from regluit.payment.models import Transaction, Receiver, PaymentResponse, Account
+from regluit.payment.parameters import *
+from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
+from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
 

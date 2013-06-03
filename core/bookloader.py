@@ -1,28 +1,32 @@
+"""
+external library imports
+"""
 import json
 import logging
-
 import requests
-from xml.etree import ElementTree
-from itertools import izip, islice
 
 from datetime import timedelta
+from itertools import izip, islice
+from xml.etree import ElementTree
 
-from django.db.models import Q
+"""
+django imports
+"""
 from django.conf import settings
-from django.db import IntegrityError
 from django.contrib.comments.models import Comment
+from django.db import IntegrityError
+from django.db.models import Q
 
-
+"""
+regluit imports
+"""
 import regluit
-from regluit.core import models
-from regluit.utils.localdatetime import now
 import regluit.core.isbn
 
-
-
+from regluit.core import models
+from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
-
 
 def add_by_oclc(isbn, work=None):
     # this is indirection in case we have a data source other than google

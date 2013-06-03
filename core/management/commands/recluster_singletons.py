@@ -4,10 +4,12 @@ The signature of both problems is a work with only one related edition, a single
 This script goes through all singleton works and attempts to add_related. 'xx' works are excluded from being source works
 """
 
+from itertools import islice
+
 from django.core.management.base import BaseCommand
 from django.db.models import Count
+
 from regluit.core import models, bookloader
-from itertools import islice
 
 class Command(BaseCommand):
     help = "add and merge editions for singleton works"
