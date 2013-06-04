@@ -85,10 +85,7 @@ $j(document).ready(function() {
             {% endif %}
             {% if kindle_ebook_id %}
             <div class="btn_support modify">
-                <form method="POST" action="{% url send_to_kindle kindle_ebook_id %}">
-                    {% csrf_token %}
-                    <button id="kindle" type="submit">Send to Kindle<input>
-                </form>
+                <a id="kindle" class="{{ kindle_ebook_id }}">Send to Kindle</a>
             </div>
             {% endif %}
             <div class="btn_support modify">
@@ -122,7 +119,8 @@ $j(document).ready(function() {
             <div id="kindle_div">
                 <h4>Send to Kindle</h4>
                 {% if request.user.is_authenticated and request.user.profile.kindle_email %}
-                    <p>you can has email!</p>
+                    <p>Sending...<img src="/static/images/loading.gif"></p>
+                    <p>(For large files, this may take some time.)</p>
                     <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
                 {% else %}
                     <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>

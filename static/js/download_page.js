@@ -20,3 +20,10 @@ $j(document).on('click', '.buttons div', function() {
     activeDiv.show();
     activeDiv.siblings().hide();
 });
+
+$j(document).on('click', '#kindle', function() {
+    kindle_ebook_id = $j(this).attr('class');
+    $j.post('/send_to_kindle/' + kindle_ebook_id + '/', function(data) {
+        $j('#kindle_div').html(data);
+    });
+});

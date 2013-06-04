@@ -2479,13 +2479,17 @@ def send_to_kindle(request, kindle_ebook_id):
     title = title.replace(' ', '_')
     
     filehandle = urllib.urlopen(ebook.url)
+    filesize = int(filehandle.info().getheaders("Content-Length")[0])
+    if filesize > 26214400:
+        return HttpResponse('<p>This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.</p>')
     
     try:
         email = EmailMessage(from_email='kindle@gluejar.com',
                 to=[request.user.profile.kindle_email])
         email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
-    except SMTPSenderRefused:
-        return HttpResponse('We can\'t send files bigger than 25MB. please download the file and sideload it to your device.')
+    except:
+        logger.warning('Unexpected error:', sys.exc_info()[0])
+        return HttpResponse("<p>Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.</p>")
             
-    return HttpResponse('sent to Kindle')
+    return HttpResponse('<p>This book has been sent to your Kindle. Happy reading!</p>')
