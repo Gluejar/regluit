@@ -90,7 +90,7 @@ class WorkAdmin(ModelAdmin):
     ordering = ('title',)
     list_display = ('title', 'created')
     date_hierarchy = 'created'
-    fields = ('title',)
+    fields = ('title', 'description', 'language')
 
 class AuthorAdmin(ModelAdmin):
     search_fields = ('name',)

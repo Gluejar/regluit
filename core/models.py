@@ -627,7 +627,7 @@ class Work(models.Model):
     language = models.CharField(max_length=2, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
-    description = models.TextField(default='', null=True)
+    description = models.TextField(default='', null=True, blank=True)
 
     class Meta:
         ordering = ['title']
@@ -1068,7 +1068,7 @@ class Ebook(models.Model):
             provider='Google Books'
         elif url.startswith('http://www.gutenberg.org/'):
             provider='Project Gutenberg'
-        elif url.startswith('http://www.archive.org/') or url.startswith('http://archive.org/'):
+        elif re.match('https?://(www\.|)archive.org/', url): 
             provider='Internet Archive'
         elif url.startswith('http://hdl.handle.net/2027/') or url.startswith('http://babel.hathitrust.org/'):
             provider='Hathitrust'
