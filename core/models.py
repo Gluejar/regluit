@@ -1052,7 +1052,7 @@ class Ebook(models.Model):
             provider='Google Books'
         elif url.startswith('http://www.gutenberg.org/'):
             provider='Project Gutenberg'
-        elif url.startswith('http://www.archive.org/') or url.startswith('http://archive.org/'):
+        elif re.match('https?://(www\.|)archive.org/', url): 
             provider='Internet Archive'
         elif url.startswith('http://hdl.handle.net/2027/') or url.startswith('http://babel.hathitrust.org/'):
             provider='Hathitrust'
