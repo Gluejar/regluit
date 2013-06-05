@@ -85,7 +85,7 @@ $j(document).ready(function() {
             {% endif %}
             {% if kindle_ebook_id %}
             <div class="btn_support modify">
-                <a id="kindle" class="{{ kindle_ebook_id }}{% if request.user.is_authenticated %} authenticated{% endif %}">Send to Kindle</a>f
+                <a id="kindle" class="{{ kindle_ebook_id }}{% if request.user.is_authenticated %} authenticated{% endif %}">Send to Kindle</a>
             </div>
             {% endif %}
             <div class="btn_support modify">
@@ -111,8 +111,13 @@ $j(document).ready(function() {
             {% if readmill_epub_url %}
             <div id="readmill_div">
                 <h4>Readmill users</h4>
-                <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
+                <p>
+                    If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:
+                </p>
                 <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
+                <p>
+                    If you're not, Readmill is a reading app designed for beauty, sharing, and conversation.  You can <a href="https://readmill.com/">learn more and get Readmill here</a>.
+                </p>
             </div>
             {% endif %}
             {% if kindle_ebook_id %}
