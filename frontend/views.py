@@ -154,7 +154,7 @@ def home(request, landing=False):
     
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
-    unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')
+    unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:4]
 
     """
     get various recent types of site activity
