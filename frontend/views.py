@@ -740,6 +740,8 @@ class CampaignListView(FilterableListView):
             return models.Campaign.objects.filter(status='ACTIVE').all() # STUB: will need to make db changes to make this work 
         elif (facet == 'ending'):
             return models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+        elif (facet == 'soon'):
+            return models.Campaign.objects.filter(status='INITIALIZED').order_by('-work__num_wishes')
         else:
             return models.Campaign.objects.all()
 
