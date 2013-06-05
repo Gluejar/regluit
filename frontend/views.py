@@ -148,6 +148,9 @@ def home(request, landing=False):
     drive interest toward most-nearly-successful
     """
     top_campaigns = models.Campaign.objects.filter(status="ACTIVE").order_by('left')[:4]
+    coming_soon = []
+    if not top_campaigns:
+        coming_soon = models.Campaign.objects.filter(status="INITIALIZED").order_by('-work__num_wishes')[:4]
     
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
@@ -203,9 +206,18 @@ def home(request, landing=False):
     else:
         events = latest_actions[:6]
     
-    return render(request, 'home.html', {
-        'suppress_search_box': True, 'events': events, 'top_campaigns': top_campaigns, 'unglued_books': unglued_books, 'most_wished': most_wished
-        })
+    return render(
+        request,
+        'home.html', 
+        {
+            'suppress_search_box': True, 
+            'events': events, 
+            'top_campaigns': top_campaigns, 
+            'coming_soon': coming_soon,
+            'unglued_books': unglued_books, 
+            'most_wished': most_wished
+        }
+    )
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/

@@ -41,18 +41,32 @@ function put_un_in_cookie2(){
     <div class="js-main" id="content-block">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
-        	    <h3 class="featured_books">Active Campaigns</h3>
-        	    <div>
-                    {% for campaign in top_campaigns %}
-                        {% with campaign.work as work %}
-                        {% with work.googlebooks_id as googlebooks_id %}
-                        {% with "ACTIVE" as status %}
-                        {% with campaign.deadline as deadline %}
-                            {% include "book_panel.html" %}
-                        {% endwith %}{% endwith %}{% endwith %}{% endwith %}
-                    {% endfor %}
-                    <a class="more_featured_books" href="{% url campaign_list 'ending' %}"></a>
-                </div>
+        	    {% if top_campaigns %}
+                    <h3 class="featured_books">Active Campaigns</h3>
+                    <div>
+                        {% for campaign in top_campaigns %}
+                            {% with campaign.work as work %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                            {% with "ACTIVE" as status %}
+                            {% with campaign.deadline as deadline %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url campaign_list 'ending' %}"></a>
+                    </div>
+                {% else %}{% if coming_soon %}
+                    <h3 class="featured_books">Coming Soon</h3>
+                    <div>
+                        {% for campaign in coming_soon %}
+                            {% with campaign.work as work %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                            {% with "INITIALIZED" as status %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}{% endwith %}{% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url campaign_list 'ending' %}"></a>
+                    </div>
+                {% endif %}{% endif %}
                 <div class="spacer"></div>
         	
         	    <h3 class="featured_books">Already Unglued</h3>
