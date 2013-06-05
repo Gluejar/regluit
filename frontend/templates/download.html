@@ -85,7 +85,7 @@ $j(document).ready(function() {
             {% endif %}
             {% if kindle_ebook_id %}
             <div class="btn_support modify">
-                <a id="kindle" class="{{ kindle_ebook_id }}">Send to Kindle</a>
+                <a id="kindle" class="{{ kindle_ebook_id }}{% if request.user.is_authenticated %} authenticated{% endif %}">Send to Kindle</a>f
             </div>
             {% endif %}
             <div class="btn_support modify">
@@ -119,9 +119,20 @@ $j(document).ready(function() {
             <div id="kindle_div">
                 <h4>Send to Kindle</h4>
                 {% if request.user.is_authenticated and request.user.profile.kindle_email %}
-                    <p>Sending...<img src="/static/images/loading.gif"></p>
-                    <p>(For large files, this may take some time.)</p>
-                    <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
+                    <div class="yes_js">
+                        <p>Sending...<img src="/static/images/loading.gif"></p>
+                        <p>(For large files, this may take some time.)</p>
+                        <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
+                    </div>
+                    <div class="no_js">
+                        <p>
+                            <form method="POST" action="{% url send_to_kindle kindle_ebook_id 0 %}">
+                                <input type="submit" value="Send it!">
+                            </form>
+                        </p>
+                        <p>(For large files, this may take some time.)</p>
+                        <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
+                    </div>
                 {% else %}
                     <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>
                 {% endif %}
@@ -134,7 +145,7 @@ $j(document).ready(function() {
                 <ul>
                 <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
                 <li>Download your book from this page using your device's web browser.</li>
-                <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
+                <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
             </div>
             

@@ -21,9 +21,10 @@ $j(document).on('click', '.buttons div', function() {
     activeDiv.siblings().hide();
 });
 
-$j(document).on('click', '#kindle', function() {
-    kindle_ebook_id = $j(this).attr('class');
-    $j.post('/send_to_kindle/' + kindle_ebook_id + '/', function(data) {
+$j(document).on('click', '#kindle.authenticated', function() {
+    classes = $j(this).attr('class').split(' ');
+    kindle_ebook_id = classes[0];
+    $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
         $j('#kindle_div').html(data);
     });
 });

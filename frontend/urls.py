@@ -127,7 +127,8 @@ urlpatterns = patterns(
     url(r"^press/$","press",  name="press"),
     url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
     url(r"^accounts/edit/kindle_config/$", "kindle_config",  name="kindle_config"),
-    url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/$", "send_to_kindle",  name="send_to_kindle"),
+    url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
+    url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
 )
 
 if settings.DEBUG:

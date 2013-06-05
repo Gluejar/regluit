@@ -1793,7 +1793,7 @@ def wishlist(request):
             return HttpResponse('added googlebooks id')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
-            return HttpResponse('error addin googlebooks id')
+            return HttpResponse('error adding googlebooks id')
         except Exception, e:
             logger.warning("Error in wishlist adding %s" % (e))          
             return HttpResponse('error adding googlebooks id')
@@ -2469,16 +2469,31 @@ def kindle_config(request):
         form = KindleEmailForm()
         
     return render(request, "kindle_config.html", {'form': form})
-    
+
+kindle_response_params = [
+    'This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.',
+    "Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.",
+    'This book has been sent to your Kindle. Happy reading!'
+]
+
 @require_POST
 @login_required      
 @csrf_exempt
-def send_to_kindle(request, kindle_ebook_id):
+def send_to_kindle(request, kindle_ebook_id, javascript='0'):
+    # make sure to gracefully communicate with both js and non-js users
+    def local_response(request, javascript, message):
+        if javascript == '1':
+            return HttpResponse(kindle_response_params[message])
+        else:
+            # can't pass context with HttpResponseRedirect
+            # must use an HttpResponse, not a render(), after POST
+            return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
+            
     # don't forget to increment the download counter!
     ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
     assert ebook.format == 'mobi' or ebook.format == 'pdf'
     ebook.increment()
-    logger.info("ebook: {0}, user_ip: {1}".format(kindle_ebook_id, request.META['REMOTE_ADDR']))
+    logger.info('ebook: {0}, user_ip: {1}'.format(kindle_ebook_id, request.META['REMOTE_ADDR']))
 
     title = ebook.edition.title
     title = title.replace(' ', '_')
@@ -2486,7 +2501,8 @@ def send_to_kindle(request, kindle_ebook_id):
     filehandle = urllib.urlopen(ebook.url)
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
     if filesize > 26214400:
-        return HttpResponse('<p>This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.</p>')
+        logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
+        return local_response(request, javascript, 0)
     
     try:
         email = EmailMessage(from_email='kindle@gluejar.com',
@@ -2495,6 +2511,14 @@ def send_to_kindle(request, kindle_ebook_id):
         email.send()
     except:
         logger.warning('Unexpected error:', sys.exc_info()[0])
-        return HttpResponse("<p>Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.</p>")
-            
-    return HttpResponse('<p>This book has been sent to your Kindle. Happy reading!</p>')
+        return local_response(request, javascript, 1)
+
+    return local_response(request, javascript, 2)
+    
+def send_to_kindle_graceful(request, message):
+    message = kindle_response_params[int(message)]
+    return render(
+        request,
+        'kindle_response_graceful_degradation.html',
+        {'message': message}
+    )
