@@ -2402,7 +2402,15 @@ def download(request, work_id):
         'readmill_epub_url': readmill_epub_url,
         'base_url': settings.BASE_URL_SECURE
     })
-    
+
+    """
+    check for kindle_email in session in case this is a redirect after
+    download + login/account creation; add kindle email to profile
+    """
+    if request.user.is_authenticated() and request.session.has_key('kindle_email'):
+        user.profile.kindle_email = request.session['kindle_email']
+        user.profile.save()
+                
     return render(request, "download.html", context)
     
 def about(request, facet):
@@ -2520,7 +2528,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         return local_response(request, javascript, 1)
 
     if request.POST.has_key('kindle_email'):
-        return HttpResponseRedirect('superlogin')
+        return HttpResponseRedirect(reverse('kindle_login'))
     return local_response(request, javascript, 2)
     
 def send_to_kindle_graceful(request, message):
