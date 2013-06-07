@@ -139,7 +139,22 @@ $j(document).ready(function() {
                         <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
                     </div>
                 {% else %}
-                    <p>If you have a Kindle device or app, <a href="{% url kindle_config %}">add your Kindle email address to Unglue.it</a> and you'll be able to send unglued ebooks to your reader with one click.</p>
+                    <p>
+                        Make sure you've added kindle@gluejar.com to your approved personal document list under Personal Document Settings at your <a href="http://amazon.com/myk" target="_blank">Amazon Manage Your Kindle page</a>.  Then, enter your Kindle address below.
+                    </p>
+                    <div class="yes_js">
+                        <form method="POST" action="{% url send_to_kindle kindle_ebook_id 1 %}">
+                            <label for="kindle_email">Your Kindle email address</label>
+                            <input type="text" name="kindle_email">
+                            <input type="submit" value="Send it!">
+                        </form>
+                    </div>
+                    <div class="no_js">
+                        <form method="POST" action="{% url send_to_kindle kindle_ebook_id 0 %}">
+                            <input type="text" name="kindle_email">
+                            <input type="submit" value="Send it!">
+                        </form>
+                    </div>
                 {% endif %}
             </div>
             {% endif %}

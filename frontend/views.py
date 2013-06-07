@@ -2477,7 +2477,6 @@ kindle_response_params = [
 ]
 
 @require_POST
-@login_required      
 @csrf_exempt
 def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     # make sure to gracefully communicate with both js and non-js users
@@ -2503,16 +2502,25 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     if filesize > 26214400:
         logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
         return local_response(request, javascript, 0)
+        
+    if request.POST.has_key('kindle_email'):
+        kindle_email = request.POST['kindle_email']
+        request.session['kindle_email'] = kindle_email
+    else:
+        kindle_email = request.user.profile.kindle_email
+        
     
     try:
         email = EmailMessage(from_email='kindle@gluejar.com',
-                to=[request.user.profile.kindle_email])
+                to=[kindle_email])
         email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
     except:
         logger.warning('Unexpected error:', sys.exc_info()[0])
         return local_response(request, javascript, 1)
 
+    if request.POST.has_key('kindle_email'):
+        return HttpResponseRedirect('superlogin')
     return local_response(request, javascript, 2)
     
 def send_to_kindle_graceful(request, message):

@@ -32,7 +32,8 @@ from regluit.frontend.views import (
     ByPubListView,
     ByPubView,
     kindle_config,
-    send_to_kindle
+    send_to_kindle,
+    send_to_kindle_graceful
 )
 
 urlpatterns = patterns(
