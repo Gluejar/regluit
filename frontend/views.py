@@ -152,6 +152,16 @@ def slideshow(max):
                 
     return worklist
 
+def process_kindle_email(request):
+    """
+    check for kindle_email in session in case this is a redirect after
+    download + login/account creation; add kindle email to profile
+    """
+    user = request.user
+    if user.is_authenticated() and request.session.has_key('kindle_email'):
+        user.profile.kindle_email = request.session['kindle_email']
+        user.profile.save()
+
 def next(request):
     if request.COOKIES.has_key('next'):
         response = HttpResponseRedirect(urllib.unquote(urllib.unquote(request.COOKIES['next'])))
@@ -282,6 +292,8 @@ def work(request, work_id, action='display'):
             request.user.wishlist.add_work(work, "login", notify=True)
             request.session.pop("add_wishlist")
             
+    process_kindle_email(request)
+                
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
@@ -1681,6 +1693,8 @@ def supporter(request, supporter_username, template_name):
         goodreads_id = None
         librarything_id = None
 
+    process_kindle_email(request)
+                
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
@@ -2403,14 +2417,6 @@ def download(request, work_id):
         'base_url': settings.BASE_URL_SECURE
     })
 
-    """
-    check for kindle_email in session in case this is a redirect after
-    download + login/account creation; add kindle email to profile
-    """
-    if request.user.is_authenticated() and request.session.has_key('kindle_email'):
-        user.profile.kindle_email = request.session['kindle_email']
-        user.profile.save()
-                
     return render(request, "download.html", context)
     
 def about(request, facet):
@@ -2528,9 +2534,10 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         return local_response(request, javascript, 1)
 
     if request.POST.has_key('kindle_email'):
-        return HttpResponseRedirect(reverse('kindle_login'))
+        request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
+        return HttpResponseRedirect(reverse('superlogin'))
     return local_response(request, javascript, 2)
-    
+
 def send_to_kindle_graceful(request, message):
     message = kindle_response_params[int(message)]
     return render(

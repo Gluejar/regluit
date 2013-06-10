@@ -148,12 +148,19 @@ $j(document).ready(function() {
                             <input type="text" name="kindle_email">
                             <input type="submit" value="Send it!">
                         </form>
+                        <p>
+                            (This may take a moment.)
+                        </p>
                     </div>
                     <div class="no_js">
                         <form method="POST" action="{% url send_to_kindle kindle_ebook_id 0 %}">
+                            <label for="kindle_email">Your Kindle email address</label>
                             <input type="text" name="kindle_email">
                             <input type="submit" value="Send it!">
                         </form>
+                        <p>
+                            (This may take a moment.)
+                        </p>
                     </div>
                 {% endif %}
             </div>
