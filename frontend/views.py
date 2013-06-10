@@ -30,10 +30,11 @@ from django.contrib.auth.views import login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
+from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory, inlineformset_factory
@@ -2487,7 +2488,8 @@ def kindle_config(request):
 kindle_response_params = [
     'This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.',
     "Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.",
-    'This book has been sent to your Kindle. Happy reading!'
+    'This book has been sent to your Kindle. Happy reading!',
+    'Please enter a valid Kindle email.'
 ]
 
 @require_POST
@@ -2501,9 +2503,21 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
             # can't pass context with HttpResponseRedirect
             # must use an HttpResponse, not a render(), after POST
             return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
+
+    ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+    request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
+
+    if request.POST.has_key('kindle_email'):
+        kindle_email = request.POST['kindle_email']
+        try:
+            validate_email(kindle_email)
+        except ValidationError:
+            return local_response(request, javascript, 3)
+        request.session['kindle_email'] = kindle_email
+    else:
+        kindle_email = request.user.profile.kindle_email     
             
     # don't forget to increment the download counter!
-    ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
     assert ebook.format == 'mobi' or ebook.format == 'pdf'
     ebook.increment()
     logger.info('ebook: {0}, user_ip: {1}'.format(kindle_ebook_id, request.META['REMOTE_ADDR']))
@@ -2517,13 +2531,6 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
         return local_response(request, javascript, 0)
         
-    if request.POST.has_key('kindle_email'):
-        kindle_email = request.POST['kindle_email']
-        request.session['kindle_email'] = kindle_email
-    else:
-        kindle_email = request.user.profile.kindle_email
-        
-    
     try:
         email = EmailMessage(from_email='kindle@gluejar.com',
                 to=[kindle_email])
@@ -2533,8 +2540,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         logger.warning('Unexpected error: %s' % sys.exc_info()[1])
         return local_response(request, javascript, 1)
 
-    request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
-    if request.POST.has_key('kindle_email'):
+    if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('superlogin'))
     return local_response(request, javascript, 2)
 
