@@ -2530,11 +2530,11 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
     except:
-        logger.warning('Unexpected error:', sys.exc_info()[0])
+        logger.warning('Unexpected error:', sys.exc_info()[1])
         return local_response(request, javascript, 1)
 
+    request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
     if request.POST.has_key('kindle_email'):
-        request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
         return HttpResponseRedirect(reverse('superlogin'))
     return local_response(request, javascript, 2)
 
