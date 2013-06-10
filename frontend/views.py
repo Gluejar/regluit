@@ -2537,7 +2537,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
     except:
-        logger.warning('Unexpected error: %s' % sys.exc_info()[1])
+        logger.warning('Unexpected error: %s', sys.exc_info())
         return local_response(request, javascript, 1)
 
     if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
