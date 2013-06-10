@@ -85,7 +85,7 @@ $j(document).ready(function() {
             {% endif %}
             {% if kindle_ebook_id %}
             <div class="btn_support modify">
-                <a id="kindle" class="{{ kindle_ebook_id }}{% if request.user.is_authenticated %} authenticated{% endif %}">Send to Kindle</a>
+                <a id="kindle" class="{{ kindle_ebook_id }}{% if request.user.is_authenticated and request.user.profile.kindle_email %} authenticated{% endif %}">Send to Kindle</a>
             </div>
             {% endif %}
             <div class="btn_support modify">
