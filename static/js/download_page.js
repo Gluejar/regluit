@@ -26,5 +26,6 @@ $j(document).on('click', '#kindle.authenticated', function() {
     kindle_ebook_id = classes[0];
     $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
         $j('#kindle_div').html(data);
+        return false;
     });
 });

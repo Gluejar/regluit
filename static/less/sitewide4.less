@@ -902,23 +902,6 @@ li.checked {
 }
 
 /* download page */
-.buttons {   
-    display: none;
-    border-bottom: solid 2px @blue-grey;
-    margin-bottom: 10px; 
-    
-    .btn_support {
-        float: left;
-        width: auto;
-        
-        a {
-            width: auto;
-            padding: 14.25px;
-            font-size: @font-size-larger;
-        }        
-    }
-}
-
 .instructions {
     h4 {
         border-top: solid @blue-grey 1px;
@@ -927,10 +910,15 @@ li.checked {
     }
     
     > div {
-        padding-left: 2em;
-        padding-right: 2em;
+        padding-left: 1%;
+        padding-right: 1%;
         font-size: @font-size-larger;
         line-height: @font-size-larger*1.5;
+        width: 98%;
+        
+        &.active {
+            float: left;
+        }
     }    
 }
 
