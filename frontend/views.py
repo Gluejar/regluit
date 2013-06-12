@@ -2423,13 +2423,16 @@ def download(request, work_id):
         readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
     except:
         readmill_epub_url = None
-        
+    agent = request.META['HTTP_USER_AGENT']   
+    iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
     context.update({
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
         'kindle_ebook_id': kindle_ebook_id,
         'readmill_epub_url': readmill_epub_url,
-        'base_url': settings.BASE_URL_SECURE
+        'base_url': settings.BASE_URL_SECURE,
+        'iOS': iOS,
+        'iOS_app': iOS and not 'Safari' in agent
     })
 
     return render(request, "download.html", context)
