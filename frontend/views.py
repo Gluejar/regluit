@@ -2409,34 +2409,36 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
-    kindle_ebook_id = None
     formats = {}
-    formats['mobi'] = False
+            
     try:
-        kindle_ebook_id = work.ebooks().filter(format='mobi')[0].id
-        formats['mobi'] = True
+        formats['epub'] = work.ebooks().filter(format='epub')[0]
     except IndexError:
-        try:
-            kindle_ebook_id = work.ebooks().filter(format='pdf')[0].id
-        except IndexError:
-            pass
-    if work.ebooks().filter(format='epub'):
-        formats['epub'] = True
-    else:
-        formats['epub'] = False
-    if work.ebooks().filter(format='pdf'):
-        formats['pdf'] = True
-    else:
-        formats['pdf'] = False
-    if work.ebooks().filter(format='html'):
-        formats['html'] = True
-    else:
-        formats['html'] = False
-    if work.ebooks().filter(format='text'):
-        formats['text'] = True
-    else:
-        formats['text'] = False
+        formats['epub'] = None
+    try:
+        formats['pdf'] = work.ebooks().filter(format='pdf')[0]
+    except IndexError:
+        formats['pdf'] = None
+    try:
+        formats['mobi'] = work.ebooks().filter(format='mobi')[0]
+    except IndexError:
+        formats['mobi'] = None
+    try:
+        formats['html'] = work.ebooks().filter(format='html')[0]
+    except IndexError:
+        formats['html'] = None
+    try:
+        formats['text'] = work.ebooks().filter(format='text')[0]
+    except IndexError:
+        formats['text'] = None
         
+    if formats['mobi']:
+        kindle_ebook_id = formats['mobi'].id
+    elif formats['pdf']:
+        kindle_ebook_id = formats['pdf'].id
+    else:
+        kindle_ebook_id = None
+    
     try:
         readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
         readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
