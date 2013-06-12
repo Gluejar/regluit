@@ -62,7 +62,7 @@ $j(document).ready(function() {
                 <a href="{% url download_ebook ebook.id %}">
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
-                <a href="{% url download_ebook ebook.id %}">{{ ebook.format }} at {{ebook.provider}}</a>
+                <a href="{% url download_ebook ebook.id %}">{{ ebook.format }} at {{ ebook.provider }}</a>
                 {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
                 {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
@@ -81,13 +81,13 @@ $j(document).ready(function() {
             </p>
             <p>
                 {% if formats.epub %}
-                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the epub file using Safari.
+                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the <a href="{% url download_ebook formats.epub.id %}">epub file</a> using Safari.
                 {% else %}{% if formats.pdf %}
-                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the pdf file using Safari.
+                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the <a href="{% url download_ebook formats.pdf.id %}">pdf</a> file using Safari.
                 {% else %}{% if formats.html %}
-                    You can read the HTML version of this book right here in this browser.
+                    You can read the <a href="{% url download_ebook formats.html.id %}">HTML version</a> of this book right here in this browser.
                 {% else %}{% if formats.text %}
-                    You can read the text version of this book right here in this browser.
+                    You can read the <a href="{% url download_ebook formats.text.id %}">text version</a> of this book right here in this browser.
                 {% else %}
                     This ebook is only available in .mobi.  Your best bet is to download the Amazon Kindle app to this device and then use the Send-to-Kindle option above.
                 {% endif %}{% endif %}{% endif %}{% endif %}
@@ -101,31 +101,31 @@ $j(document).ready(function() {
             <h4>iOS devices</h4>
             {% if formats.epub %}
                 <p>
-                    You may already have an app which reads ebooks.  Download the epub and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
                 <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
                 <ul>
                 <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-                <li>Download the epub file.</li>
+                <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
             {% else %}{% if formats.pdf %}
                 <p>
-                    You may already have an app which reads ebooks.  Download the pdf and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
                 <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
                 <ul>
                 <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-                <li>Download the pdf file.</li>
+                <li>Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
             {% else %}{% if formats.html %}
                 <p>
-                    Download the HTML version.
+                    Download the <a href="{% url download_ebook formats.html.id %}">HTML version</a>.
                 </p>
             {% else %}{% if formats.text %}
                 <p>
-                    Download the text version.
+                    Download the <a href="{% url download_ebook formats.text.id %}">text version</a>.
                 </p>
             {% else %}
                 <p>
@@ -141,33 +141,33 @@ $j(document).ready(function() {
             <h4>Android devices</h4>
             {% if formats.epub %}
                 <p>
-                    You may already have an app which reads ebooks.  Download the epub and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
                 <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
                 
                 <ul>
                 <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
-                <li>Download the epub file.</li>
+                <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
                 <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
                 </ul>
             {% else %}{% if formats.pdf %}
                 <p>
-                    You may already have an app which reads ebooks.  Download the epub and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
                 <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
                 
                 <ul>
                 <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
-                <li>Download the epub file.</li>
+                <li>Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a>.</li>
                 <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
                 </ul>
             {% else %}{% if formats.html %}
                 <p>
-                    Download the HTML version.
+                    Download the <a href="{% url download_ebook formats.html.id %}">HTML version</a>.
                 </p>
             {% else %}{% if formats.text %}
                 <p>
-                    Download the text version.
+                    Download the <a href="{% url download_ebook formats.text.id %}">text version</a>.
                 </p>
             {% else %}
                 <p>
@@ -183,29 +183,29 @@ $j(document).ready(function() {
             <h4>PC, Mac, or Linux</h4>
             {% if formats.pdf %}
                 <p>
-                    You probably already have an app which reads PDFs.  Download the PDF file and open it.
+                    You probably already have an app which reads PDFs.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and open it.
                 </p>
             {% else %}{% if formats.epub %}
                 <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                 <ul>
                 <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-                <li>Download the epub file.</li>
+                <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
                 <li>Open the file in Calibre.</li>
                 </ul>
             {% else %}{% if formats.mobi %}
                 <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                 <ul>
                 <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-                <li>Download the mobi file.</li>
+                <li>Download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a>.</li>
                 <li>Open the file in Calibre.</li>
                 </ul>
             {% else %}{% if formats.html %}
                 <p>
-                    You can read the HTML version right here in your browser.
+                    You can read the <a href="{% url download_ebook formats.html.id %}">HTML version</a> right here in your browser.
                 </p>
             {% else %}
                 <p>
-                    You can read the text version right here in your browser.
+                    You can read the <a href="{% url download_ebook formats.text.id %}">text version</a> right here in your browser.
                 </p>
             {% endif %}{% endif %}{% endif %}{% endif %}
             <p class="other_instructions_paragraph">
@@ -220,16 +220,16 @@ $j(document).ready(function() {
                 <ul>
                 <li>
                     {% if formats.mobi %}
-                        <b>Kindle</b>: download the mobi file to a laptop or desktop computer.
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a> to your computer.
                     {% else %}{% if formats.pdf %}
-                        <b>Kindle</b>: download the mobi file to a laptop or desktop computer.
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer.
                     {% else %}
                         <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
                     {% endif %}{% endif %}
                     {% if formats.epub %}
-                        <b>All other ereaders</b>: download the epub file to a laptop or desktop computer.
+                        <b>All other ereaders</b>: download the <a href="{% url download_ebook formats.epub.id %}">epub file</a> to your computer.
                     {% else %}{% if formats.pdf %}
-                        <b>All other ereaders</b>: download the pdf file to a laptop or desktop computer.
+                        <b>All other ereaders</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer.
                     {% else %}
                         <b>All other ereaders</b>: We're sorry; we don't have a version suitable for your device.
                     {% endif %}{% endif %}
