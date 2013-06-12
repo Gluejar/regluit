@@ -1,1 +1,1 @@
-.buttons{display:inherit}.instructions>div:not(#trythis_div),.instructions h4{display:none}#kindle_div .no_js{display:none!important}#kindle_div .yes_js{display:inherit}
+.buttons,#kindle_div .yes_js,.other_instructions_paragraph{display:inherit}.instructions>div:not(.active){display:none}#kindle_div .no_js{display:none!important}

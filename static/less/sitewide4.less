@@ -922,6 +922,18 @@ li.checked {
     }    
 }
 
+.other_instructions_paragraph {
+    display: none;
+}
+
+#iOS_app_div, #ios_div {
+    /* JS overrides display: none on instructions if it's enabled
+       if JS isn't enabled, they are not on an iOS device, so no need to
+       clutter up the download instructions with this
+    */
+    display: none;
+}
+
 #kindle_div .yes_js {
     display: none;
 }

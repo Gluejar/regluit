@@ -11,11 +11,10 @@ else {
 }
 
 // browser has a better sense of DOM changes than jQuery, so user can trigger click element
-$j(document).on('click', '.buttons div', function() {
-    $j(this).removeClass('modify');
-    $j(this).siblings().addClass('modify');
-    var buttonID = $j(this).find('a').attr('id');
-    var divSelector = '#' + buttonID + '_div';
+$j(document).on('click', '.other_instructions', function(e) {
+    e.preventDefault();
+    var myID = $j(this).attr('id');
+    var divSelector = '#' + myID + '_div';
     var activeDiv = $j(divSelector);
     activeDiv.show();
     activeDiv.siblings().hide();
