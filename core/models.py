@@ -229,6 +229,14 @@ class CCLicense():
             return ''
 
     
+(INDIVIDUAL, LIBRARY) = (1, 2)
+class Offer(models.Model):
+    work = models.ForeignKey("Work", related_name="offers", null=False)
+    price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=False)
+    license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
+            choices=((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License')))
+    active = models.BooleanField(default=False)
+
 class Campaign(models.Model):
     LICENSE_CHOICES = CCLicense.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
