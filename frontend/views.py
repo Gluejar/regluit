@@ -2410,13 +2410,32 @@ def download(request, work_id):
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     kindle_ebook_id = None
+    formats = {}
+    formats['mobi'] = False
     try:
         kindle_ebook_id = work.ebooks().filter(format='mobi')[0].id
+        formats['mobi'] = True
     except IndexError:
         try:
             kindle_ebook_id = work.ebooks().filter(format='pdf')[0].id
         except IndexError:
             pass
+    if work.ebooks().filter(format='epub'):
+        formats['epub'] = True
+    else:
+        formats['epub'] = False
+    if work.ebooks().filter(format='pdf'):
+        formats['pdf'] = True
+    else:
+        formats['pdf'] = False
+    if work.ebooks().filter(format='html'):
+        formats['html'] = True
+    else:
+        formats['html'] = False
+    if work.ebooks().filter(format='text'):
+        formats['text'] = True
+    else:
+        formats['text'] = False
         
     try:
         readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
@@ -2425,14 +2444,20 @@ def download(request, work_id):
         readmill_epub_url = None
     agent = request.META['HTTP_USER_AGENT']   
     iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
+    iOS_app = iOS and not 'Safari' in agent
+    android = 'Android' in agent
+    desktop = not iOS and not android
     context.update({
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
+        'formats': formats,
         'kindle_ebook_id': kindle_ebook_id,
         'readmill_epub_url': readmill_epub_url,
         'base_url': settings.BASE_URL_SECURE,
         'iOS': iOS,
-        'iOS_app': iOS and not 'Safari' in agent
+        'iOS_app': iOS_app,
+        'android': android,
+        'desktop': desktop
     })
 
     return render(request, "download.html", context)
