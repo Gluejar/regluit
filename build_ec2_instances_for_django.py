@@ -538,12 +538,13 @@ iam.put_user_policy( user_name='ry-dev-3', policy_name='power_user_2013-06-12', 
 
 print """#!/bin/bash
 
-export AWS_ACCESS_KEY={AWS_ACCESS_KEY}
-export AWS_SECRET_KEY={AWS_SECRET_KEY}
+
+export AWS_ACCESS_KEY_ID={AWS_ACCESS_KEY_ID}
+export AWS_SECRET_ACCESS_KEY={AWS_SECRET_ACCESS_KEY}
 
 # EC2 API tools
-export EC2_ACCESS_KEY=$AWS_ACCESS_KEY
-export EC2_SECRET_KEY=$AWS_SECRET_KEY""".format(**{'AWS_SECRET_KEY':secret, 'AWS_ACCESS_KEY':key})
+export EC2_ACCESS_KEY=$AWS_ACCESS_KEY_ID
+export EC2_SECRET_KEY=$AWS_SECRET_ACCESS_KEY""".format(**{'AWS_SECRET_ACCESS_KEY':secret, 'AWS_ACCESS_KEY_ID':key})
 
 # In[ ]:
 [policy_document(p, user_name='ry-dev-3') for p in iam_policy_names_for_user('ry-dev-3')]
