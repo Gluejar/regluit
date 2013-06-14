@@ -1,17 +1,41 @@
 
+# # Goals of this notebook
+# 
+# * instantiate a new EC2 instance with which to build a new image
+# * configure the instance -- what's involved?  Essentially turn https://github.com/Gluejar/regluit/blob/master/README.md into a fabric script
+# * security group
+# * database
+# * database security group
+# * IAM
+# * elastic IP
+# 
+# 
+# I'm starting to figure out the pieces using this IPython notebook, but ultimately what am I producing?  Something that Eric and Andromeda can run:
+# 
+# * a set of fabric commands (https://github.com/Gluejar/regluit/blob/master/fabfile.py)?
+# * some other form?
+# 
+
 # In[ ]:
 from regluit.sysadmin import aws
 reload(aws)
 
 # In[ ]:
-AMI_UBUNTU_12_04_ID = 'ami-79c0ae10'
+# look up Ubuntu EC2 image ids from alestic.com
+# us-east-1 Ubuntu 12.04 LTS Precise
+# EBS boot	ami-e7582d8e
+
+#AMI_UBUNTU_12_04_ID = 'ami-79c0ae10' # older one
+AMI_UBUNTU_12_04_ID = 'ami-e7582d8e'
 image = aws.ec2.get_all_images(image_ids=[AMI_UBUNTU_12_04_ID])[0]
 
 # In[ ]:
+# name of image follows Eric Hammond's convention of dating the images
+
 image.id, image.name
 
 # In[ ]:
-# sometimes we have an instance running or created already --
+# sometimes we have an instance running or created already
 # so we just need to get a reference to it (instead of creating a new one)
 
 instance = aws.instance('new_test')
@@ -29,12 +53,9 @@ SECURITY_GROUP_NAME = 'testsg1'
                                       key_name='rdhyee_public_key',
                                       group_name=SECURITY_GROUP_NAME,
                                       tag='new_instance',
-                                      cmd_shell=False) 
-                                      
-                                      
+                                      cmd_shell=False)
 
 # In[ ]:
-
 instance.update()
 
 # In[ ]:
@@ -83,7 +104,7 @@ cmdstring = "ssh -oStrictHostKeyChecking=no ubuntu@{0}".format(instance.dns_name
 ! echo "$cmdstring" | pbcopy
 cmdstring
 
-## dynamic execution of fabric tasks
+## dynamic execution of fabric tasks to setup the instance
 
 # In[ ]:
 # http://docs.fabfile.org/en/1.6/usage/execution.html#using-execute-with-dynamically-set-host-lists
@@ -169,15 +190,40 @@ fabric.tasks.execute(deploy, hosts=hosts)
 
 # ## Commands to add?
 # 
-# Apply security upgrade: `sudo unattended-upgrade`
+# By the time we run through a lot of the fabric script, a reboot of the system is required.  After installing mysql locally, it seems that the instance needs to be rebooted.  Here's some code to do so.  Problem remaining is how to reboot, wait for reboot to be completed, and then pick up the next steps.
+# 
+# I could issue a fabric command to apply security upgrade: `sudo unattended-upgrade`
+# 
+# or 
+# 
+# I think there is a boto command to restart instance
+# 
+
+# In[ ]:
+rebooted_instance = instance.reboot()
+rebooted_instance
+
+# In[ ]:
+# looks like reboot works, but that the instance status remains running throughout time reboot happens...
+# maybe we wait a specific amount of time and the try to connect 
+
+## EC2 security groups
+
+# * listing key existing security groups
+# * how to copy parameters
+# 
 # 
 
 # In[ ]:
 # security groups
 
+
 security_groups = aws.ec2.get_all_security_groups()
+security_groups
 
 # In[ ]:
+# pull out the security group used for unglue.it
+
 web_prod_sgroup = [(group.id, group.name, group.description, group.rules) for group in security_groups if group.name=='web-production'][0]
 
 # In[ ]:
@@ -236,17 +282,58 @@ rules = test9_sg[3]
 # In[ ]:
 aws.ec2.authorize_security_group(group_name='test8', ip_protocol='tcp', from_port=80, to_port=80, cidr_ip='0.0.0.0/0')
 
+# In[ ]:
+# let's compute the instances that are tied to the various security groups
+# http://boto.readthedocs.org/en/latest/ref/ec2.html#module-boto.ec2.securitygroup
+# This calculation is useful for reconstructing the relationships among instances and security groups
+
+
+from boto.ec2 import securitygroup
+
+for security_group in aws.ec2.get_all_security_groups():
+    sg = securitygroup.SecurityGroup(name=security_group.name, connection=aws.ec2)
+    print security_group, [inst.id for inst in sg.instances()]
+
+
+# In[ ]:
+# with the exception of frontend-lb, let's delete the security groups that have no attached instances 
+
+for sg in [sg for sg in aws.ec2.get_all_security_groups() if len(sg.instances()) == 0 and sg.name != 'frontend-lb']:
+    print sg.name, sg.id, aws.ec2.delete_security_group(group_id=sg.id)
+
 ## Setting up MySQL
 
 # * plain old mysql on the server ( https://help.ubuntu.com/12.04/serverguide/mysql.html )
 # * RDS parameters to figure out
 # 
-# to run mysql on server:
+# to run mysql on server -- if you didn't have to worry about interactivity:
 # 
 # > `sudo apt-get install mysql-server`
 
 # In[ ]:
-"ubuntu@{0}".format(inst.dns_name)
+thatcvamp"ubuntu@{0}".format(inst.dns_name)
+
+# In[ ]:
+# once mysql installed, how to test the basic connectivity?
+
+
+
+# <pre>
+# sudo debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password unglueit_pw_123'
+# sudo debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password unglueit_pw_123'
+# sudo apt-get -y install mysql-server
+# </pre>
+# 
+# <pre>
+# mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123 
+# </pre>
+
+#     mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
+# 
+#     SHOW DATABASES;
+#     EOF
+# 
+# 
 
 ## Creating an Image out of Instance
 
@@ -279,16 +366,6 @@ new_image.state
                                       tag='new_instance',
                                       cmd_shell=False) 
 
-
-# <pre>
-# sudo debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password unglueit_pw_123'
-# sudo debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password unglueit_pw_123'
-# sudo apt-get -y install mysql-server
-# </pre>
-# 
-# <pre>
-# mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123 
-# </pre>
 
 ## RDS
 
@@ -371,24 +448,6 @@ param = pg_dict.get('tx_isolation')
 # In[ ]:
 # how to create RDS
 # db = conn.create_dbinstance("db-master-1", 10, 'db.m1.small', 'root', 'hunter2')
-
-## Rebooting instance
-
-# After installing mysql locally, it seems that the instance needs to be rebooted.  Here's some code to do so.  Problem remaining is how to reboot, wait for reboot to be completed, and then pick up the next steps.
-
-# In[ ]:
-instance
-
-# In[ ]:
-rebooted_instance = instance.reboot()
-rebooted_instance
-
-# In[ ]:
-instance.update()
-
-# In[ ]:
-# looks like reboot works, but that the instance status remains running throughout time reboot happens...
-# maybe we wait a specific amount of time and the try to connect 
 
 ## IAM
 
@@ -534,7 +593,7 @@ iam_user, key, secret = create_iam_user('ry-dev-3', True)
 iam.put_user_policy( user_name='ry-dev-3', policy_name='power_user_2013-06-12', policy_json=IAM_POWER_USER_PERMISSION)
 
 # In[ ]:
-# write out a 
+# write out a shell script for configuring the environment with the keys for AWS
 
 print """#!/bin/bash
 
@@ -595,4 +654,4 @@ hosts = ["ubuntu@ry-dev.unglue.it"]
 fabric.tasks.execute(run_on_ry_dev, hosts=hosts)
 
 # In[ ]:
-
+instance.state
