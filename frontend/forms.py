@@ -3,7 +3,7 @@ external library imports
 """
 import logging
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from decimal import Decimal as D
 
 """
@@ -354,7 +354,6 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a target price.'} )
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
-        latest_ending = (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()).date
         publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
                 
         class Meta:

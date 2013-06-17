@@ -589,6 +589,10 @@ class Campaign(models.Model):
             
         return countdown    
 
+    @classmethod
+    def latest_ending(cls):
+        return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
+
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)

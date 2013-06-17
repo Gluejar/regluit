@@ -438,7 +438,7 @@ class CampaignTests(TestCase):
         w2 = Work()
         w2.save()
         # INITIALIZED
-        c1 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
+        c1 = Campaign(target=D('1000.00'),deadline=Campaign.latest_ending(),work=w)
         c1.save()
         self.assertEqual(c1.status, 'INITIALIZED')
         # ACTIVATED
