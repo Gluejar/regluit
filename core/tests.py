@@ -47,7 +47,7 @@ from regluit.core.models import (
     Ebook,
     Premium,
     Subject,
-    Publisher
+    Publisher,
 )
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
@@ -522,6 +522,23 @@ class CampaignTests(TestCase):
         t.user = user
         t.save()
         self.assertEqual(w2.percent_of_goal(), 23)
+        
+        self.assertEqual(c1.launchable, True)
+        c1.work.create_offers()
+        self.assertEqual(c1.work.offers.count(), 2)
+        self.assertEqual(c1.work.offers.filter(license=2).count(), 1)
+        c1.type = 2
+        c1.save()
+        self.assertEqual(c1.launchable, False)
+        of1=c1.work.offers.get(active=True,license=2)
+        of1.price=2
+        of1.save()
+        self.assertEqual(c1.launchable, False)
+        e1= models.Edition(title="title",work=c1.work)
+        e1.save()
+        ebf1= models.EbookFile(edition=e1, format=1)
+        ebf1.save()
+        self.assertEqual(c1.launchable, True)
 
 class WishlistTest(TestCase):
 

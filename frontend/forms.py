@@ -35,8 +35,10 @@ from regluit.core.models import (
     RightsHolder,
     Claim,
     Campaign,
+    Offer,
     Premium,
     Ebook,
+    EbookFile,
     Edition,
     PledgeExtra,
     Work,
@@ -114,7 +116,7 @@ class EditionForm(forms.ModelForm):
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
     
     def clean(self):
-        if not self.cleaned_data["isbn"] and not self.cleaned_data["oclc"] :
+        if not self.cleaned_data["isbn"] and not self.cleaned_data["oclc"]  and not self.cleaned_data["goog"]:
             raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
         return self.cleaned_data
     
@@ -127,6 +129,11 @@ class EditionForm(forms.ModelForm):
                 'add_subject': forms.TextInput(attrs={'size': 30}),
                 'unglued': forms.CheckboxInput(),
             }
+class EbookFileForm(forms.ModelForm):
+    class Meta:
+        model = EbookFile
+        widgets = { 'edition': forms.HiddenInput,  }
+        exclude = { 'created', }
 
 class EbookForm(forms.ModelForm):
     class Meta:
@@ -340,6 +347,13 @@ class CustomPremiumForm(forms.ModelForm):
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
                 'limit': forms.TextInput(attrs={'value':'0'}),
             }
+class OfferForm(forms.ModelForm):
+
+    class Meta:
+        model = Offer
+        widgets = { 
+                'work': forms.HiddenInput,
+            }
 def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
     def get_queryset():
         work=instance.work
@@ -358,7 +372,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                 
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher'
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher', 'type'
             widgets = { 
                     'deadline': SelectDateWidget,
                 }
@@ -373,16 +387,19 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return new_target
         
         def clean_deadline(self):
-            new_deadline_date = self.cleaned_data['deadline']
-            new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
-            if self.instance:
-                if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
-                    raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-            if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-                raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-            elif new_deadline - now() < timedelta(days=0):         
-                raise forms.ValidationError(_('The chosen closing date is in the past'))
-            return new_deadline
+            if self.data['type']=='1':
+                new_deadline_date = self.cleaned_data['deadline']
+                new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
+                if self.instance:
+                    if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
+                        raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+                if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                    raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+                elif new_deadline - now() < timedelta(days=0):         
+                    raise forms.ValidationError(_('The chosen closing date is in the past'))
+                return new_deadline
+            else:
+                return settings.B2U_ENDING
             
         def clean_license(self):
             new_license = self.cleaned_data['license']

@@ -87,7 +87,9 @@ from regluit.frontend.forms import (
     EmailShareForm,
     FeedbackForm,
     EbookForm,
+    EbookFileForm,
     CustomPremiumForm,
+    OfferForm,
     EditManagersForm,
     EditionForm,
     PledgeCancelForm,
@@ -403,6 +405,29 @@ def work(request, work_id, action='display'):
         'cover_width': cover_width_number
     })    
 
+def edition_uploads(request, edition_id):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")
+    try:
+        edition = models.Edition.objects.get(id = edition_id)
+    except models.Edition.DoesNotExist:
+        raise Http404
+    if not request.user.is_staff :
+        if not request.user in edition.work.last_campaign().managers.all():
+            return render(request, "admins_only.html")
+    if request.method == 'POST' :
+        form = EbookFileForm(request.POST,request.FILES)
+        if form.is_valid() :
+            form.save()
+            
+    else:
+        form = EbookFileForm(initial={'edition':edition})
+    return render(request, 'edition_uploads.html', {
+            'form': form, 'edition': edition, 
+            'ebook_files': models.EbookFile.objects.filter(edition = edition)
+        })
+
+
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
@@ -433,7 +458,7 @@ def new_edition(request, work_id, edition_id, by=None):
     if edition_id:
         try:
             edition = models.Edition.objects.get(id = edition_id)
-        except models.Work.DoesNotExist:
+        except models.Edition.DoesNotExist:
             raise Http404
         if work:
             edition.work = work 
@@ -532,6 +557,9 @@ def manage_campaign(request, id):
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     alerts = []
     activetab = '#1'
+    offers = campaign.work.offers.all()
+    for offer in offers:
+        offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
 
     if request.method == 'POST' :
         if request.POST.has_key('add_premium') :
@@ -550,6 +578,10 @@ def manage_campaign(request, id):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                if campaign.type==models.BUY2UNGLUE:
+                    offers= campaign.work.create_offers()
+                    for offer in offers:
+                        offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
                 campaign.update_left()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
@@ -575,12 +607,22 @@ def manage_campaign(request, id):
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
             form = getManageCampaignForm(instance=campaign)
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        elif request.POST.has_key('change_offer'):
+            for offer in offers :
+                if request.POST.has_key('offer_%d-work' % offer.id) :
+                    offer.offer_form=OfferForm(instance=offer, data = request.POST, prefix='offer_%d'%offer.id)
+                    if offer.offer_form.is_valid():
+                        offer.offer_form.save()
+                        alerts.append(_('Offer has been changed'))
+                    else:
+                        alerts.append(_('Offer has not been changed'))              
+            form = getManageCampaignForm(instance=campaign)
+            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+            activetab = '#2'
     else:
         form = getManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
-    work = campaign.work
-               
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
         'form':form, 
@@ -588,8 +630,9 @@ def manage_campaign(request, id):
         'alerts': alerts, 
         'premiums' : campaign.custom_premiums(),
         'premium_form' : new_premium_form,
-        'work': work,
+        'work': campaign.work,
         'activetab': activetab,
+        'offers':offers
     })
         
 def googlebooks(request, googlebooks_id):

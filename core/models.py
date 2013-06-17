@@ -132,6 +132,7 @@ class RightsHolder(models.Model):
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=False)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    can_sell = models.BooleanField(default=False)
     def __unicode__(self):
         return self.rights_holder_name
     
@@ -231,12 +232,15 @@ class CCLicense():
     
 (INDIVIDUAL, LIBRARY) = (1, 2)
 class Offer(models.Model):
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
     work = models.ForeignKey("Work", related_name="offers", null=False)
     price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=False)
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
-            choices=((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License')))
+            choices=CHOICES)
     active = models.BooleanField(default=False)
+    
 
+(REWARDS, BUY2UNGLUE) = (1, 2)
 class Campaign(models.Model):
     LICENSE_CHOICES = CCLicense.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
@@ -254,6 +258,8 @@ class Campaign(models.Model):
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
+    type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
+            choices=((REWARDS,'Rewards-based fixed duration campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign')))
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
@@ -318,11 +324,17 @@ class Campaign(models.Model):
         if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
             self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
             may_launch = False
-        if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+        if self.type==REWARDS and self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
             self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             may_launch = False  
         elif self.deadline.date()- date_today() < timedelta(days=0):         
             self.problems.append(_('The chosen closing date is in the past'))
+            may_launch = False  
+        if self.type==BUY2UNGLUE and self.work.offers.filter(price__gt=0,active=True).count()==0: 
+            self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks' ))
+            may_launch = False  
+        if self.type==BUY2UNGLUE and EbookFile.objects.filter(edition__work=self.work).count()==0: 
+            self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
             may_launch = False  
         return may_launch
 
@@ -546,12 +558,19 @@ class Campaign(models.Model):
         return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
         
     @property
+    def rh(self):
+        """returns the rights holder for an active or initialized campaign"""
+        try:
+            q = Q(status='ACTIVE') | Q(status='INITIALIZED')
+            rh = self.work.claim.filter(q)[0].rights_holder
+            return rh
+        except:
+            return None
+    @property
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-            q = Q(status='ACTIVE') | Q(status='INITIALIZED')
-            rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
-            return rh
+            return self.rh.rights_holder_name
         except:
             return ''
     
@@ -890,7 +909,13 @@ class Work(models.Model):
     def publishers(self):
         # returns a set of publishers associated with this Work
         return Publisher.objects.filter(name__editions__work=self).distinct()
-        
+
+    def create_offers(self):
+        for choice in Offer.CHOICES:
+            if not self.offers.filter(license=choice[0]):
+                self.offers.create(license=choice[0])
+        return self.offers.all()
+            
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
@@ -1045,10 +1070,22 @@ class WasWork(models.Model):
     was = models.IntegerField(unique = True)
     moved = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, null=True)
+
+FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
+
+def path_for_file(instance, filename):
+    version = EbookFile.objects.filter(edition = instance.edition, format = instance.format).count()
+    fn = "ebf/%s.%d.%s"%(instance.edition.pk,version,instance.format)
+    return fn
+    
+class EbookFile(models.Model):
+    file = models.FileField(upload_to=path_for_file)
+    format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
+    edition = models.ForeignKey('Edition', related_name='ebook_files')
+    created =  models.DateTimeField(auto_now_add=True)
     
     
 class Ebook(models.Model):
-    FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
     RIGHTS_CHOICES = CCLicense.CHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
