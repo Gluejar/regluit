@@ -76,7 +76,7 @@ location.hash = "#2";
                 </div>
                 <div id="content-block-content">
                     {% ifequal campaign_list.count 0 %}
-                    There aren't any {{ pub_lang|ez_lang_name }} ungluing campaigns active yet.  If you're an author, publisher, or other rights holder, you can <a href="/faq/rightsholders">start one</a>.
+                    There aren't any {{ pub_lang|ez_lang_name }} ungluing campaigns active right now.  If you're an author, publisher, or other rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
                     {% lazy_paginate 20 campaign_list using "campaign_list" %}
 
