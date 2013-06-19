@@ -42,6 +42,10 @@ instance = aws.instance('new_test')
 instance, instance.state
 
 # In[ ]:
+if instance.state == 'stopped':
+    instance.start()
+
+# In[ ]:
 # launch a new instance
 # use default security group for now -- probably want to make a new one
 
@@ -180,13 +184,18 @@ def deploy():
     
     
 def deploy_next():
+    # test connectivity to mysql-server
+    command = """mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
 
-    pass   
+SHOW VARIABLES;
+EOF
+"""
+    run(command)   
     
 #hosts = ['ubuntu@ec2-75-101-232-46.compute-1.amazonaws.com']
 hosts = ["ubuntu@{0}".format(instance.dns_name)]
 
-fabric.tasks.execute(deploy, hosts=hosts)
+fabric.tasks.execute(deploy_next, hosts=hosts)
 
 # ## Commands to add?
 # 
@@ -311,7 +320,7 @@ for sg in [sg for sg in aws.ec2.get_all_security_groups() if len(sg.instances())
 # > `sudo apt-get install mysql-server`
 
 # In[ ]:
-thatcvamp"ubuntu@{0}".format(inst.dns_name)
+"ubuntu@{0}".format(inst.dns_name)
 
 # In[ ]:
 # once mysql installed, how to test the basic connectivity?
@@ -429,6 +438,7 @@ pg_dict = {}
 for (key, param) in parameter_group_iteritems('production1'):
     try:
         key, {'name':param.name, 'type':param.type, 'description':param.description, 'value':param.value}
+        pg_dict[key] = {'name':param.name, 'type':param.type, 'description':param.description, 'value':param.value}
     except Exception as e:
         print key, e
 
@@ -439,8 +449,8 @@ sorted(pg_dict.keys())
 # In[ ]:
 # https://github.com/boto/boto/blob/2.8.0/boto/rds/parametergroup.py#L71
 
-param = pg_dict.get('tx_isolation')
-{'name':param.name, 'type':param.type, 'description':param.description, 'value':param.value}
+param = pg_dict.get('character_set_database')
+{'name':param["name"], 'type':param["type"], 'description':param["description"], 'value':param["value"]}
 
 # In[ ]:
 # security group
