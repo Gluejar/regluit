@@ -614,7 +614,30 @@ class Processor(baseprocessor.Processor):
             """return None because no redirection to stripe is required"""
             return None
       
-      
+    class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
+    
+      '''
+        The pay function generates a redirect URL to approve the transaction
+      '''
+        
+      def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
+          self.transaction=transaction
+          
+      #def api(self):
+      #    return "null api"
+      #  
+      ##def exec_status( self ):
+      #    return None 
+          
+      def amount( self ):
+          return self.transaction.amount
+          
+      def key( self ):
+          return None
+    
+      def next_url( self ):
+          return self.url
+        
     class Execute(StripePaymentRequest):
         
         '''
