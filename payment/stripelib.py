@@ -576,8 +576,6 @@ class Processor(baseprocessor.Processor):
             transaction.date_authorized = now_val
             transaction.date_expired = expiry
               
-            sc = StripeClient()
-            
             # let's figure out what part of transaction can be used to store info
             # try placing charge id in transaction.pay_key
             # need to set amount
