@@ -674,7 +674,7 @@ class DownloadPageTest(TestCase):
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
-        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=4) #the extra is readmill
+        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=3) # no extra now, readmill not for google books?
         self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=3)
 
 
