@@ -35,9 +35,15 @@
             {% else %}
                 <p>You already have a Kindle email on file with Unglue.it: {{ kindle_email }} .</p>
                 <p>You can change it below.</p>
+                <p>
+                    If you emailed yourself an Unglue.it ebook and got a message from Amazon that the sender is not in your approved email list, add <b>kindle@gluejar.com</b> to your <a href="http://www.amazon.com/myk#pdocSettings">Approved Personal Document Email List</a> under Personal Document Settings.
+                </p>
             {% endif %}
         {% else %}
-            <p>Enter your Kindle email address below:</p>
+            <p>
+                Before your device or app can receive emails from Unglue.it, you'll have to add <b>kindle@gluejar.com</b> to your <a href="http://www.amazon.com/myk#pdocSettings">Approved Personal Document Email List</a> under Personal Document Settings.
+            </p>
+            <p>Then, enter your Kindle email address below:</p>
         {% endif %}
         {% if kindle_ebook_id %}
             <form method="post" action="{% url kindle_config_download kindle_ebook_id %}">{% csrf_token %}
@@ -57,11 +63,7 @@
     
     <div>
         <p>Don't know the email address for your device or reading app?  <a href="http://www.amazon.com/myk#manageDevices">Find it here</a>, under Manage Your Devices.</p>
-        
-        {% if not kindle_email %}
-        <p>Before your device or app can receive emails from Unglue.it, you'll have to add <b>kindle@gluejar.com</b> to your <a href="http://www.amazon.com/myk#pdocSettings">Approved Personal Document Email List</a> under Personal Document Settings.</p>
-        {% endif %}
-        
+                
         <p>Once we have your Kindle email, you'll be able to send unglued ebooks to your Kindle device or app with one click from any Unglue.it download page.</p>
     </div>
 {% endwith %}
