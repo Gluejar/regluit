@@ -40,8 +40,8 @@ class BookLoaderTests(TestCase):
         # edition
         edition = bookloader.add_by_isbn('0441007465')
         self.assertEqual(edition.title, 'Neuromancer')
-        self.assertEqual(edition.publication_date, u'2000-07-01')
-        self.assertEqual(edition.publisher, u'Ace Trade')
+        self.assertEqual(edition.publication_date, u'2000')
+        self.assertEqual(edition.publisher, u'Penguin')
         self.assertEqual(edition.isbn_10, '0441007465')
         self.assertEqual(edition.isbn_13, '9780441007462')
         self.assertEqual(edition.googlebooks_id, 'IDFfMPW32hQC')
@@ -64,8 +64,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.publishers().count(), 1)
         old_pub_name.publisher = pub
         old_pub_name.save()
-        edition.set_publisher(u'Ace Trade')
-        self.assertEqual(edition.publisher, u'test publisher name') # Ace Trade has been aliased
+        edition.set_publisher(u'Penguin')
+        self.assertEqual(edition.publisher, u'test publisher name') # Penguin has been aliased
         # locale in language
         edition = bookloader.add_by_isbn('9787500676911')
         self.assertEqual(edition.work.language, 'zh')
