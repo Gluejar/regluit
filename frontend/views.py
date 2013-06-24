@@ -2518,17 +2518,40 @@ def press_submitterator(request):
         })
 
 @login_required
-def kindle_config(request):
+def kindle_config(request, kindle_ebook_id=None):
+    def get_title_from_kindle_id(kindle_ebook_id):
+        # protect against user URL manipulation
+        title = None
+        if kindle_ebook_id:
+            try:
+                ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+                title = ebook.edition.work.title
+            except:
+                kindle_ebook_id = None
+        return title, kindle_ebook_id
+
     if request.method == 'POST':
         form = KindleEmailForm(request.POST)
         if form.is_valid():
             request.user.profile.kindle_email = form.cleaned_data['kindle_email']
             request.user.profile.save()
-            return render(request, "kindle_change_successful.html")
+            (title, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
+
+            return render(
+                request, 
+                "kindle_change_successful.html",
+                {'kindle_ebook_id': kindle_ebook_id, 'title':title}
+            )
     else:
-        form = KindleEmailForm()
+        form = KindleEmailForm()    
         
-    return render(request, "kindle_config.html", {'form': form})
+    (title, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
+        
+    return render(
+        request,
+        "kindle_config.html", 
+        {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'title': title}
+    )
 
 kindle_response_params = [
     'This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.',
@@ -2559,7 +2582,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         except ValidationError:
             return local_response(request, javascript, 3)
         request.session['kindle_email'] = kindle_email
-    else:
+    elif request.user.is_authenticated():
         kindle_email = request.user.profile.kindle_email     
             
     # don't forget to increment the download counter!

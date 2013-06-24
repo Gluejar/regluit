@@ -747,7 +747,7 @@ a.nounderline {
 }
 
 #lightbox_content {
-	p {
+	p, li {
 		padding: 9px 0;
 		font-size: @font-size-larger;
 		line-height: 20px;
@@ -920,6 +920,26 @@ li.checked {
             float: left;
         }
     }    
+}
+
+.one_click {
+    float: left;
+    & > div {
+        float: left;
+        
+        #kindle a, .kindle a {
+            font-size: @font-size-larger;
+            padding: 9px 0;
+        }
+        
+        div {
+            margin: 0 10px 0 0;
+        }
+    }
+}
+
+.ebook_download_container {
+    clear: left;
 }
 
 .other_instructions_paragraph {

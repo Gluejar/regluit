@@ -13,18 +13,22 @@ else {
 // browser has a better sense of DOM changes than jQuery, so user can trigger click element
 $j(document).on('click', '.other_instructions', function(e) {
     e.preventDefault();
-    var myID = $j(this).attr('id');
-    var divSelector = '#' + myID + '_div';
+    var myLink = $j(this);
+    classes = myLink.attr('class').split(' ');
+    mySelector = classes[0];
+    var divSelector = '#' + mySelector + '_div';
     var activeDiv = $j(divSelector);
     activeDiv.show();
-    activeDiv.siblings().hide();
+    activeDiv.siblings().removeClass('active').hide();
 });
 
 $j(document).on('click', '#kindle.authenticated', function() {
-    classes = $j(this).attr('class').split(' ');
+    var myDiv = $j(this);
+    classes = myDiv.attr('class').split(' ');
     kindle_ebook_id = classes[0];
+    myDiv.html('<img src="/static/images/loading.gif">')
     $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
-        $j('#kindle_div').html(data);
+        myDiv.html(data);
         return false;
     });
 });

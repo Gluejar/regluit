@@ -3,12 +3,37 @@
 
 {% block title %}Kindle email change successful{% endblock %}
 
+{% block extra_js %}
+{{ block.super }}
+<script>
+    var $j = jQuery.noConflict();
+    
+    $j(document).ready(function() {
+        var kindle_ebook_id = {{ kindle_ebook_id }};
+        if(kindle_ebook_id) {
+            $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
+                $j('#replace_me').html(data);
+                return false;
+            });
+        }
+    });
+</script>
+{% endblock %}
 
 {% block ce_content %}
     <h2>Kindle email change successful</h2>
     <div id="content-main">
         <p>Hooray!  We can now send unglued ebooks to you at {{ request.user.profile.kindle_email }}.</p>
-        <p>Why not <a href="{% url unglued_list '' %}">start downloading free books</a>?
+        {% if kindle_ebook_id %}
+            <p>
+                We're emailing you the ebook you wanted, <i>{{ title }}</i>...
+            </p>
+            <span id="replace_me"><img src="{{ STATIC_URL }}images/loading.gif"></span>
+        {% else %}
+            <p>
+                Why not <a href="{% url unglued_list '' %}">start downloading free books</a>?
+            </p>
+        {% endif %}
     </div>
 {% endblock %}
 {% endwith %}

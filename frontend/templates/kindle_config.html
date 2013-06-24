@@ -2,21 +2,54 @@
 
 {% block title %}Add or change your Kindle email{% endblock %}
 
+{% block extra_js %}
+{{ block.super }}
+<script>
+    var $j = jQuery.noConflict();
+    
+    $j(document).ready(function() {
+        var kindle_ebook_id = {{ kindle_ebook_id }};
+        if(kindle_ebook_id) {
+            $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
+                $j('#replace_me').html(data);
+                return false;
+            });
+        }
+    });
+</script>
+{% endblock %}
 
 {% block ce_content %}
 {% with request.user.profile.kindle_email as kindle_email %}
     <h2>Add or change your Kindle email</h2>
     <div id="content-main">
         {% if kindle_email %}
-            <p>You already have a Kindle email on file with Unglue.it: {{ kindle_email }} .</p>
-            <p>You can change it below.</p>
+            {% if kindle_ebook_id %}
+                <p>
+                    Welcome back, {{ user.username }}! We're sending <I>{{ title }}</I> to {{ kindle_email }}.
+                </p>
+                <span id="replace_me"><img src="{{ STATIC_URL }}images/loading.gif"></span>
+                <p>
+                    (If you'd like to change your Kindle email, you can do so below. You'll need to download the book again.)
+                </p>
+            {% else %}
+                <p>You already have a Kindle email on file with Unglue.it: {{ kindle_email }} .</p>
+                <p>You can change it below.</p>
+            {% endif %}
         {% else %}
             <p>Enter your Kindle email address below:</p>
         {% endif %}
-        <form method="post" action="{% url kindle_config %}">{% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
-        </form>
+        {% if kindle_ebook_id %}
+            <form method="post" action="{% url kindle_config_download kindle_ebook_id %}">{% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
+            </form>
+        {% else %}
+            <form method="post" action="{% url kindle_config %}">{% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
+            </form>
+        {% endif %}
         <script type="text/javascript">
             document.getElementById('id_kindle_email').focus()
         </script>
