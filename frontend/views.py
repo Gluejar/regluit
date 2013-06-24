@@ -2600,7 +2600,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         return local_response(request, javascript, 0)
         
     try:
-        email = EmailMessage(from_email='kindle@gluejar.com',
+        email = EmailMessage(from_email='notices@gluejar.com',
                 to=[kindle_email])
         email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
