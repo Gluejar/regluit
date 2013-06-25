@@ -2553,20 +2553,13 @@ def kindle_config(request, kindle_ebook_id=None):
         {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'title': title}
     )
 
-kindle_response_params = [
-    'This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.',
-    "Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.",
-    'This book has been sent to your Kindle. Happy reading!',
-    'Please enter a valid Kindle email.'
-]
-
 @require_POST
 @csrf_exempt
 def send_to_kindle(request, kindle_ebook_id, javascript='0'):
-    # make sure to gracefully communicate with both js and non-js users
+    # make sure to gracefully communicate with both js and non-js (kindle!) users
     def local_response(request, javascript, message):
         if javascript == '1':
-            return HttpResponse(kindle_response_params[message])
+            return render(request,'kindle_response_message.html',{'message': message} )
         else:
             # can't pass context with HttpResponseRedirect
             # must use an HttpResponse, not a render(), after POST
@@ -2613,9 +2606,8 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     return local_response(request, javascript, 2)
 
 def send_to_kindle_graceful(request, message):
-    message = kindle_response_params[int(message)]
     return render(
         request,
         'kindle_response_graceful_degradation.html',
-        {'message': message}
+        {'message': int(message)}
     )

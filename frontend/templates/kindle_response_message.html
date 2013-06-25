@@ -1,0 +1,8 @@
+{% ifequal message 0 %}This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.
+{% endifequal %}
+{% ifequal message 1 %}Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.
+{% endifequal %}
+{% ifequal message 2 %}This book has been sent to your Kindle. Happy reading!<br />Difficulties? recheck your <a href="{% url kindle_config %}">setup</a>.
+{% endifequal %}
+{% ifequal message 3 %}Please <a href="{% url kindle_config %}">enter</a> a valid Kindle email.
+{% endifequal %}

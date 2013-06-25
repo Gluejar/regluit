@@ -27,6 +27,7 @@ $j(document).on('click', '#kindle.authenticated', function() {
     kindle_ebook_id = myDiv.attr('title');
     myDiv.html('<img src="/static/images/loading.gif">')
     $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
+        myDiv.removeClass('btn_support');
         myDiv.html(data);
         return false;
     });
