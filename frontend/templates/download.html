@@ -55,7 +55,7 @@ $j(document).ready(function() {
                         </div>
                     {% else %}
                         <div class="btn_support kindle">
-                            <a href="{% url kindle_config_download kindle_ebook_id %}">Set up Kindle email</a>
+                            <a href="{% url kindle_config_download kindle_ebook_id %}">Set up Kindle </a>
                         </div>
                     {% endif %}
                 </div>
@@ -64,6 +64,9 @@ $j(document).ready(function() {
                 <div id="readmill_div">
                     <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}"></div>
                 </div>
+            {% endif %}
+            {% if not request.user.is_authenticated  %}
+                 <div style="clear:left"> You'll need an unglue.it account to <i>Send to Kindle</i>.</div>
             {% endif %}
         </div>
     {% endif %}
