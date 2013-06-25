@@ -42,7 +42,7 @@ $j(document).ready(function() {
                 <div id="kindle_div">
                     {% if request.user.is_authenticated and request.user.profile.kindle_email %}
                         <div class="yes_js">
-                            <div id="kindle" class="{{ kindle_ebook_id }} btn_support authenticated">
+                            <div id="kindle" class="btn_support authenticated" title="{{ kindle_ebook_id }}" >
                                 <a>Send to Kindle</a>
                             </div>
                         </div>

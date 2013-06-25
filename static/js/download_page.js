@@ -24,8 +24,7 @@ $j(document).on('click', '.other_instructions', function(e) {
 
 $j(document).on('click', '#kindle.authenticated', function() {
     var myDiv = $j(this);
-    classes = myDiv.attr('class').split(' ');
-    kindle_ebook_id = classes[0];
+    kindle_ebook_id = myDiv.attr('title');
     myDiv.html('<img src="/static/images/loading.gif">')
     $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
         myDiv.html(data);
