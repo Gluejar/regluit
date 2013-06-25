@@ -143,6 +143,12 @@ $j(document).ready(function() {
                 <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
+                <p> Readmill is another great option. </p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/readmill-book-reader-for-epub/id438032664?mt=8">Download the free Readmill app</a> from the App Store.</li>
+                <li>Click the "Send to Readmill" button above.</li>
+                <li>If you don't have a free Readmill account, you'll be given the option of creating one.</li>
+                </ul>
             {% else %}{% if formats.pdf %}
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
@@ -214,7 +220,7 @@ $j(document).ready(function() {
         </div>
         
         <div id="desktop_div"{% if desktop %} class="active"{% endif %}>
-            <h4>PC, Mac, or Linux</h4>
+            <h4>Reading on a PC, Mac, or Linux</h4>
             {% if formats.pdf %}
                 <p>
                     You probably already have an app which reads PDFs.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and open it.
@@ -243,7 +249,7 @@ $j(document).ready(function() {
                 </p>
             {% endif %}{% endif %}{% endif %}{% endif %}
             <p class="other_instructions_paragraph">
-                Not on a desktop computer?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+                Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
         </div>
         
@@ -254,9 +260,9 @@ $j(document).ready(function() {
                 <ul>
                 <li>
                     {% if formats.mobi %}
-                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a> to your computer.
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}{% if formats.pdf %}
-                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer.
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}
                         <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
                     {% endif %}{% endif %}
