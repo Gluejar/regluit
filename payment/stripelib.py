@@ -632,13 +632,7 @@ class Processor(baseprocessor.Processor):
         
       def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
           self.transaction=transaction
-          
-      #def api(self):
-      #    return "null api"
-      #  
-      ##def exec_status( self ):
-      #    return None 
-          
+                    
       def amount( self ):
           return self.transaction.amount
           
