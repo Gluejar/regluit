@@ -545,8 +545,8 @@ class PaymentManager( object ):
         
         authorizes a set amount of money to be collected at a later date
         
-        return_url: url to redirect supporter to after a successful PayPal transaction
-        paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
+        return_url: url to redirect supporter to after a successful transaction
+        paymentReason:  a memo line that will show up in the unglue.it accounting
         modification: whether this authorize call is part of a modification of an existing pledge
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
@@ -624,7 +624,7 @@ class PaymentManager( object ):
         
         immediately attempt to collect on transaction 
         
-        return_url: url to redirect supporter to after a successful PayPal transaction
+        return_url: url to redirect supporter to after a successful transaction
         paymentReason:  a memo line that will show up in our stripe accounting
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
