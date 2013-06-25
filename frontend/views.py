@@ -2503,36 +2503,29 @@ def press_submitterator(request):
 def kindle_config(request, kindle_ebook_id=None):
     def get_title_from_kindle_id(kindle_ebook_id):
         # protect against user URL manipulation
-        title = None
+        work = None
         if kindle_ebook_id:
             try:
                 ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
-                title = ebook.edition.work.title
+                work = ebook.edition.work
             except:
                 kindle_ebook_id = None
-        return title, kindle_ebook_id
+        return work, kindle_ebook_id
 
+    (work, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
+    template = "kindle_config.html"
     if request.method == 'POST':
         form = KindleEmailForm(request.POST)
         if form.is_valid():
             request.user.profile.kindle_email = form.cleaned_data['kindle_email']
             request.user.profile.save()
-            (title, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
-
-            return render(
-                request, 
-                "kindle_change_successful.html",
-                {'kindle_ebook_id': kindle_ebook_id, 'title':title}
-            )
+            template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
-        
-    (title, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
-        
     return render(
         request,
-        "kindle_config.html", 
-        {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'title': title}
+        template, 
+        {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'work': work}
     )
 
 @require_POST
@@ -2548,7 +2541,6 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
             return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
 
     ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
-    request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']

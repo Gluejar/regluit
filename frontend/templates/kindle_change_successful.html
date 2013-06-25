@@ -26,7 +26,7 @@
         <p>Hooray!  We can now send unglued ebooks to you at {{ request.user.profile.kindle_email }}.</p>
         {% if kindle_ebook_id %}
             <p>
-                We're emailing you the ebook you wanted, <i>{{ title }}</i>...
+                We're emailing you the ebook you wanted, <i><a href="{% url work work.id %}">{{ work.title }}</a></i>...
             </p>
             <span id="replace_me"><img src="{{ STATIC_URL }}images/loading.gif"></span>
         {% else %}
