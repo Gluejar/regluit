@@ -112,20 +112,19 @@ $j(document).ready(function() {
     <div class="instructions">
         <div id="iOS_app_div"{% if iOS_app %} class="active"{% endif %}>
             <p>
-                Looks like you're using an embedded browser in an iOS app. (Maybe you followed a link in Twitter or Facebook?)
+                Looks like you're using an embedded browser inside an iOS app. (Maybe you followed a link in Twitter or Facebook?)
             </p>
             <p>
-                {% if formats.epub %}
-                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the <a href="{% url download_ebook formats.epub.id %}">epub file</a> using Safari.
-                {% else %}{% if formats.pdf %}
-                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the <a href="{% url download_ebook formats.pdf.id %}">pdf</a> file using Safari.
+                {% if formats.epub or formats.mobi %}
+                    To read this ebook you should open this page in safari. <img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" /><br clear="left" />
+                {% endif %}
+                {% if formats.pdf %}
+                    You should also be able to use the  <a href="{% url download_ebook formats.pdf.id %}">pdf</a> file.
                 {% else %}{% if formats.html %}
                     You can read the <a href="{% url download_ebook formats.html.id %}">HTML version</a> of this book right here in this browser.
                 {% else %}{% if formats.text %}
                     You can read the <a href="{% url download_ebook formats.text.id %}">text version</a> of this book right here in this browser.
-                {% else %}
-                    This ebook is only available in .mobi.  Your best bet is to download the Amazon Kindle app to this device and then use the Send-to-Kindle option above.
-                {% endif %}{% endif %}{% endif %}{% endif %}
+                {% endif %}{% endif %}{% endif %}
             </p>
             <p class="other_instructions_paragraph">
                 Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
