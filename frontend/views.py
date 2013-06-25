@@ -2411,30 +2411,12 @@ def download(request, work_id):
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     formats = {}
             
-    try:
-        formats['epub'] = work.ebooks().filter(format='epub')[0]
-    except IndexError:
-        formats['epub'] = None
-    try:
-        formats['pdf'] = work.ebooks().filter(format='pdf')[0]
-    except IndexError:
-        formats['pdf'] = None
-    try:
-        formats['mobi'] = work.ebooks().filter(format='mobi')[0]
-    except IndexError:
-        formats['mobi'] = None
-    try:
-        formats['html'] = work.ebooks().filter(format='html')[0]
-    except IndexError:
-        formats['html'] = None
-    try:
-        formats['text'] = work.ebooks().filter(format='text')[0]
-    except IndexError:
-        formats['text'] = None
+    for ebook in work.ebooks().all():
+        formats[ebook.format] = ebook
         
-    if formats['mobi']:
+    if formats.has_key('mobi'):
         kindle_ebook_id = formats['mobi'].id
-    elif formats['pdf']:
+    elif formats.has_key('pdf'):
         kindle_ebook_id = formats['pdf'].id
     else:
         kindle_ebook_id = None
