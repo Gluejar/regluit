@@ -1,17 +1,26 @@
-from django.core.management.base import BaseCommand
-
-import django
+"""
+external library imports
+"""
 import sys
-from regluit.core.models import Campaign
-from regluit.payment.models import Transaction
-from django.db.models import Q, F, Count, Sum, Max
-from django.contrib.auth.models import User
-from regluit.payment.manager import PaymentManager
-from decimal import Decimal as D
 
 from collections import defaultdict
+from decimal import Decimal as D
 
+"""
+django imports
+"""
+import django
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+from django.db.models import Q, F, Count, Sum, Max
+
+"""
+regluit imports
+"""
+from regluit.core.models import Campaign
 from regluit.experimental.gutenberg import unicode_csv
+from regluit.payment.models import Transaction
+from regluit.payment.manager import PaymentManager
 
 # http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
 def grouper(iterable, page_size):

@@ -4,6 +4,7 @@ print user emails
 
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
+
 from regluit.core import models
 
 class Command(BaseCommand):

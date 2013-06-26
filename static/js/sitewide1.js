@@ -4,35 +4,40 @@ $j(document).ready(function() {
     // hijack a link with class "hijax" to show its content in a lightbox instead
     // allows for ajaxy presentation of things like download links in a way that
     // degrades gracefully for non-js users
+
    $j("#js-page-wrap, #footer").on("click", "a.hijax", function(event) {
         event.preventDefault();
+        
 		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
 		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
             var hijaxWidth = $j('#about_expandable').width() + 28;
             var windowWidth = $j(document).width();
             var marginWidth = (windowWidth - hijaxWidth)/2;
-            $j('#about_expandable').css({'margin-left': marginWidth});
+            $j('#about_expandable').css({'margin-left': marginWidth, 'margin-right': marginWidth});
             
             // position div vertically relative to top of viewport, to ensure visibility
             // regardless of where on the page the user clicked to activate it
             var marginTop = window.pageYOffset;
             $j('#about_expandable').css({'margin-top': marginTop});
 		});
-		
-		if ($j(this).attr("href").substr(-9,8) == "download") {
-		    jQuery.getScript('https://platform.readmill.com/send.js');
+
+		if ($j(this).attr("href").indexOf("download") !== -1) {
+		    jQuery.getScript('/static/js/download_page.js');
+            jQuery.getScript('https://platform.readmill.com/send.js');
+            var work_page = $j(this).attr("href").split("download")[0];
+            $j.cookie('next', work_page, {path: '/'});
 		}
-		
-		//need to push next cookie for sign-in links
-		var vars = $j(this).attr("href").split("next=");
-		if (vars.length>1){
-		    next=vars[1];
-            if(next!='') {
-                next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
-                $j.cookie('next', next, {path: '/'});
+		else {		
+            //need to push next cookie for sign-in links
+            var vars = $j(this).attr("href").split("next=");
+            if (vars.length>1){
+                next=vars[1];
+                if(next!='') {
+                    next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
+                    $j.cookie('next', next, {path: '/'});
+                }
             }
 		}
-		
 		// fade-out rest of page elements on expand
 		$j('#feedback, #js-page-wrap, #footer').css({"opacity": "0.07"});
 		$j('#about_expandable').css({'position': 'absolute'});

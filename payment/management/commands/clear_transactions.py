@@ -1,7 +1,8 @@
+from pprint import pprint
+
 from django.core.management.base import BaseCommand
 
 import regluit
-from pprint import pprint
 
 class Command(BaseCommand):
     help = "clear all transactions"

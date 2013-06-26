@@ -1,5 +1,6 @@
-from django.conf.urls.defaults import *
 from django.conf import settings
+from django.conf.urls.defaults import *
+
 from regluit.payment.views import StripeView
 
 urlpatterns = patterns(

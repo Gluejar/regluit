@@ -1,15 +1,13 @@
 """
-
 a command that creates a given number of random tasks to test out celery
-
-
 """
 
+import random
+
 from django.core.management.base import BaseCommand
+
 from regluit.core import tasks
 from regluit.core.models import CeleryTask
-
-import random
 
 random.seed()
 

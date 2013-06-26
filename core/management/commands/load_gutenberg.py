@@ -4,6 +4,7 @@ Load the Gutenberg editions
 """
 
 from django.core.management.base import BaseCommand
+
 from regluit.core import models
 from regluit.test import booktests
 

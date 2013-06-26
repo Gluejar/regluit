@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
-
 from django.db.models import Q, F, Count, Sum
+
 from regluit.core.models import Campaign
 
 STATS_TEMPLATE = """Total Pledged: {0} by {1} Pledgers

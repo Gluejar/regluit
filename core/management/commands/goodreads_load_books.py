@@ -1,11 +1,11 @@
-from django.core.management.base import BaseCommand
-from regluit.core.goodreads import GoodreadsClient
-from regluit.core import tasks, bookloader
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+
+from regluit.core import tasks, bookloader
+from regluit.core.goodreads import GoodreadsClient
 
 #from regluit.core.goodreads import load_shelf_into_wishlist
-from regluit.core import tasks
 
 class Command(BaseCommand):
     help = "list books on given user bookshelf"

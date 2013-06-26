@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from regluit.core import models
-from regluit.core import bookloader
+from regluit.core import models, bookloader
 
 class Command(BaseCommand):
 

@@ -1,14 +1,14 @@
-from django.core.management.base import BaseCommand
-
-import django
-from regluit.core.models import Campaign
-from regluit.payment.models import Transaction
-from django.db.models import Q, F, Count, Sum, Max
-from django.contrib.auth.models import User
-from regluit.payment.manager import PaymentManager
 from decimal import Decimal as D
 
+import django
+from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
+from django.db.models import Q, F, Count, Sum, Max
+
+from regluit.core.models import Campaign
 from regluit.experimental.gutenberg import unicode_csv
+from regluit.payment.models import Transaction
+from regluit.payment.manager import PaymentManager
 
 def amazon_payments(fname=r"/Users/raymondyee/Downloads/All-Activity-Jan-01-2012-Jul-17-2012.csv"):
     r0 = unicode_csv.UnicodeReader(f=open(fname), encoding="iso-8859-1")

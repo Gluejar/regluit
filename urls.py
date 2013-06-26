@@ -1,9 +1,11 @@
+import notification.urls
+
 from django.conf.urls.defaults import *
+from django.views.generic.simple import direct_to_template
+
 from frontend.forms import ProfileForm
 from frontend.views import superlogin
-from django.views.generic.simple import direct_to_template
 from regluit.admin import admin_site
-import notification.urls
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
 
 sitemaps = {
