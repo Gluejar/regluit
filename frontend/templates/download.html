@@ -47,11 +47,9 @@ $j(document).ready(function() {
                             </div>
                         </div>
                         <div class="no_js">
-                            <p>
-                                <form method="POST" action="{% url send_to_kindle kindle_ebook_id 0 %}">
-                                    <input type="submit" value="Send it!">
-                                </form>
-                            </p>
+                            <form method="POST" class="btn_support" action="{% url send_to_kindle kindle_ebook_id 0 %}">
+                                <input type="submit" value="Send to Kindle">
+                            </form>
                         </div>
                     {% else %}
                         <div class="btn_support kindle">
@@ -61,7 +59,7 @@ $j(document).ready(function() {
                 </div>
             {% endif %}
             {% if readmill_epub_url %}
-                <div id="readmill_div">
+                <div id="readmill_div" class="yes_js">
                     <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}"></div>
                 </div>
             {% endif %}

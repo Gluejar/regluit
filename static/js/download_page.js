@@ -29,6 +29,7 @@ $j(document).on('click', '#kindle.authenticated', function() {
     $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
         myDiv.removeClass('btn_support');
         myDiv.html(data);
+        myDiv.removeAttr('id');
         return false;
     });
 });
