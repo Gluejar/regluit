@@ -697,14 +697,9 @@ class DownloadPageTest(TestCase):
         eb2.save()
         
         anon_client = Client()
-        try:
-            response = anon_client.get("/work/%s/download/" % w.id, follow=True)
-        except KeyError:
-            # user agent testing in views.download fails with anon client, 
-            # but isn't relevant to this bit of functionality
-            pass
-        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=3) # no extra now, readmill not for google books?
-        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=3)
+        response = anon_client.get("/work/%s/download/" % w.id, follow=True)
+        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=9) 
+        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=4)
 
 
 class LocaldatetimeTest(TestCase):

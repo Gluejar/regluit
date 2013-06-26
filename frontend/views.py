@@ -2428,7 +2428,7 @@ def download(request, work_id):
         readmill_epub_url = readmill_epub_ebook.url
     except:
         readmill_epub_url = None
-    agent = request.META['HTTP_USER_AGENT']   
+    agent = request.META.get('HTTP_USER_AGENT','')   
     iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
     iOS_app = iOS and not 'Safari' in agent
     android = 'Android' in agent
