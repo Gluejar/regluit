@@ -8,6 +8,14 @@
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/readmill.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+<script type="text/javascript" src="/static/js/download_page.js"></script>
+<script type="text/javascript">
+var $j = jQuery.noConflict();
+$j(document).ready(function() {
+    // actually trigger the download_page function
+    $j(document).trigger('prettifyDownload');
+});
+</script>
 {% endblock %}
 
 {% block content %}
@@ -15,122 +23,293 @@
 <div id="lightbox_content">
 <div class="border">
     <h2>Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
-    <div class="sharing not_unglued">
+    <div class="sharing ebook_download_container">
         <h3 class="jsmod-title"><span>Share</span></h3>
         <ul class="social menu">
             {% with site.domain as domain %}
             <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-            <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
+            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
             {% endwith %}
             <a href="{% url emailshare '' %}?next={% url work work.id %}"><li class="email"><span>Email</span></li></a>
-            <a href="#" id="embed2"><li class="embed"><span>Embed</span></li></a>
+            <a id="embed2"><li class="embed"><span>Embed</span></li></a>
             <div id="widgetcode2">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{ request.META.HTTP_HOST }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
         </ul>
     </div>
+    {% if readmill_epub_url or kindle_ebook_id %}
+        <div class="one_click clearfix">
+            <h3>One-click options</h3>
+            {% if kindle_ebook_id %}
+                <div id="kindle_div">
+                    {% if request.user.is_authenticated and request.user.profile.kindle_email %}
+                        <div class="yes_js">
+                            <div id="kindle" class="btn_support authenticated" title="{{ kindle_ebook_id }}" >
+                                <a>Send to Kindle</a>
+                            </div>
+                        </div>
+                        <div class="no_js">
+                            <form method="POST" class="btn_support" action="{% url send_to_kindle kindle_ebook_id 0 %}">
+                                <input type="submit" value="Send to Kindle">
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="btn_support kindle">
+                            <a href="{% url kindle_config_download kindle_ebook_id %}">Set up Kindle </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if readmill_epub_url %}
+                <div id="readmill_div" class="yes_js">
+                    <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}"></div>
+                </div>
+            {% endif %}
+            {% if not request.user.is_authenticated  %}
+                 <div style="clear:left"> You'll need an unglue.it account to <i>Send to Kindle</i>.</div>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if unglued_ebooks or other_ebooks %}
+        <div class="ebook_download_container">
+    {% endif %}
     {% if unglued_ebooks %}
-    <div class="unglued">
-        <h3>Read the unglued edition!</h3>
+        <h3>Download the unglued edition</h3>
         <div class="ebook_download">
             {% for ebook in unglued_ebooks %}
                 <a href="{% url download_ebook ebook.id %}">
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
                 <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> 
-                {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
-                {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
             {% endfor %}		
         </div>
-    </div>
     {% endif %}
     {% if other_ebooks %}
-    <div class="not_unglued">
         {% if unglued_ebook %}
-            <h4>Other freely available editions</h4>
+            <h4>Download other freely available editions</h4>
         {% else %}
-            <h4>Freely available editions</h4>
+            <h4>Download freely available editions</h4>
         {% endif %}
+        <div class="ebook_download">
             {% for ebook in other_ebooks %}
                 <a href="{% url download_ebook ebook.id %}">
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
-                <a href="{% url download_ebook ebook.id %}">{{ ebook.format }} at {{ebook.provider}}</a>
-                {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
-                {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
+                <a href="{% url download_ebook ebook.id %}">{{ ebook.format }} at {{ ebook.provider }}</a>
                 {% if not forloop.last %}<br /><br />{% endif %}
             {% endfor %}		
-    </div>
+        </div>
+    {% endif %}
+    {% if unglued_ebooks or other_ebooks %}
+        </div>
     {% endif %}
     <div class="clearfix"></div>
 </div>
 {% if unglued_ebooks or other_ebooks %}
     <div class="border">
-        <a href="http://www.defectivebydesign.org/drm-free" style="float:right;"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" width="150" height="150" border="0" align="middle" /></a><h3>How to download</h3>
-        <p>Ebooks you find at Unglue.it may be read on any device, and you're welcome to convert them to whatever electronic format is most useful to you.  While we can't cover every possible combination of readers, software, and formats you might use, here's some help for the most common cases.</p>
+<h3>Need instructions?</h3>
+    <div class="instructions">
+        <div id="iOS_app_div"{% if iOS_app %} class="active"{% endif %}>
+            <p>
+                Looks like you're using an embedded browser inside an iOS app. (Maybe you followed a link in Twitter or Facebook?)
+            </p>
+            <p>
+                {% if formats.epub or formats.mobi %}
+                    To read this ebook you should open this page in safari. <img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" /><br clear="left" />
+                {% endif %}
+                {% if formats.pdf %}
+                    You should also be able to use the  <a href="{% url download_ebook formats.pdf.id %}">pdf</a> file.
+                {% else %}{% if formats.html %}
+                    You can read the <a href="{% url download_ebook formats.html.id %}">HTML version</a> of this book right here in this browser.
+                {% else %}{% if formats.text %}
+                    You can read the <a href="{% url download_ebook formats.text.id %}">text version</a> of this book right here in this browser.
+                {% endif %}{% endif %}{% endif %}
+            </p>
+            <p class="other_instructions_paragraph">
+                Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
         
-        <h4>Any device</h4>
-        <p>You may already have an app which reads our ebook formats.  If so, when you download the file, you will be given an option to open the file using that app.  You're done!</p>
+        <div id="ios_div"{% if iOS %}{% if not iOS_app %} class="active"{% endif %}{% endif %}>
+            <h4>iOS devices</h4>
+            {% if formats.epub %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
+                <ul>
+                <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+                <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
+                <li>You will be given the option of opening the file in iBooks.</li>
+                </ul>
+                <p class="ebook_download logo"><img src="/static/images/readmill_logo.jpg" alt="iBooks Logo" />Readmill is another great option. </p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/readmill-book-reader-for-epub/id438032664?mt=8">Download the free Readmill app</a> from the App Store.</li>
+                <li>Click the "Send to Readmill" button above.</li>
+                <li>If you don't have a free Readmill account, you'll be given the option of creating one.</li>
+                </ul>
+            {% else %}{% if formats.pdf %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
+                <ul>
+                <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+                <li>Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a>.</li>
+                <li>You will be given the option of opening the file in iBooks.</li>
+                </ul>
+            {% else %}{% if formats.html %}
+                <p>
+                    Download the <a href="{% url download_ebook formats.html.id %}">HTML version</a>.
+                </p>
+            {% else %}{% if formats.text %}
+                <p>
+                    Download the <a href="{% url download_ebook formats.text.id %}">text version</a>.
+                </p>
+            {% else %}
+                <p>
+                    This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from the Apple Store and then use the Send-to-Kindle option above.
+                </p>
+            {% endif %}{% endif %}{% endif %}{% endif %}
+            <p class="other_instructions_paragraph">
+                Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
         
-        <p>If this doesn't work, use the instructions below for your device.</p>
+        <div id="android_div"{% if android %} class="active"{% endif %}>
+            <h4>Android devices</h4>
+            {% if formats.epub %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                
+                <ul>
+                <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
+                <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
+                <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
+                </ul>
+            {% else %}{% if formats.pdf %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                
+                <ul>
+                <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
+                <li>Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a>.</li>
+                <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
+                </ul>
+            {% else %}{% if formats.html %}
+                <p>
+                    Download the <a href="{% url download_ebook formats.html.id %}">HTML version</a>.
+                </p>
+            {% else %}{% if formats.text %}
+                <p>
+                    Download the <a href="{% url download_ebook formats.text.id %}">text version</a>.
+                </p>
+            {% else %}
+                <p>
+                    This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from Google Play and then use the Send-to-Kindle option above.
+                </p>
+            {% endif %}{% endif %}{% endif %}{% endif %}
+            <p class="other_instructions_paragraph">
+                Not on Android?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
         
-        {% if readmill_epub_url %}
-        <h4>Readmill users</h4>
-        <p>If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:</p>
-        <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
-        {% endif %}
-        <h4>Android devices</h4>
-        <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+        <div id="desktop_div"{% if desktop %} class="active"{% endif %}>
+            <h4>Reading on a PC, Mac, or Linux</h4>
+            {% if formats.pdf %}
+                <p>
+                    You probably already have an app which reads PDFs.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and open it.
+                </p>
+            {% else %}{% if formats.epub %}
+                <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                <ul>
+                <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+                <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
+                <li>Open the file in Calibre.</li>
+                </ul>
+            {% else %}{% if formats.mobi %}
+                <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                <ul>
+                <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+                <li>Download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a>.</li>
+                <li>Open the file in Calibre.</li>
+                </ul>
+            {% else %}{% if formats.html %}
+                <p>
+                    You can read the <a href="{% url download_ebook formats.html.id %}">HTML version</a> right here in your browser.
+                </p>
+            {% else %}
+                <p>
+                    You can read the <a href="{% url download_ebook formats.text.id %}">text version</a> right here in your browser.
+                </p>
+            {% endif %}{% endif %}{% endif %}{% endif %}
+            <p class="other_instructions_paragraph">
+                Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
         
-        <ul>
-        <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
-        <li>Download your book from this page using your device's web browser.</li>
-        <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in Aldiko.</li>
-        </ul>
+        <div id="ereader_div"{% if desktop %} class="active"{% endif %}>
+            <h4>Ereaders (Kindle, Nook, Kobo, etc.)</h4>
+            
+            {% if formats.mobi or formats.pdf or formats.epub %}
+                <ul>
+                <li>
+                    {% if formats.mobi %}
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
+                    {% else %}{% if formats.pdf %}
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
+                    {% else %}
+                        <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
+                    {% endif %}{% endif %}
+                    {% if formats.epub %}
+                        <b>All other ereaders</b>: download the <a href="{% url download_ebook formats.epub.id %}">epub file</a> to your computer.
+                    {% else %}{% if formats.pdf %}
+                        <b>All other ereaders</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer.
+                    {% else %}
+                        <b>All other ereaders</b>: We're sorry; we don't have a version suitable for your device.
+                    {% endif %}{% endif %}
+                </li>
+                <li>Plug the ereader into your computer with a USB cable.</li>
+                <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>
+                <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
+                <li>You may need to reboot your device to see the new book.</li>
+                </ul>
+            {% else %}
+                <p>
+                    We're sorry; we don't have a file format suitable for ereaders.
+                </p>
+            {% endif %}
+            <p class="other_instructions_paragraph">
+                Not using an ereader?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="desktop other_instructions">desktop computers</a>.
+            </p>
+        </div>
+    </div>
+        
         {% comment %}
-        this doesn't seem to work. i get only browser and IndieBound reader as options on my phone. perhaps I should recommend IBReader instead?
+        If we're going to be providing mobi as the norm, let's not bother with these instructions.
+        <div class="instructions">
+            <h4>Converting epubs for Kindle</h4>
+            <p>Kindles can read plain text, MOBI, PDF, and HTML files.  They cannot read epub books (the format unglued ebooks are released in).  However, you can convert epubs to mobi files using free software.</p>
+            
+            <ul>
+            <li><a href="http://calibre-ebook.com/download">Download the free Calibre app</a> to a desktop or laptop computer.</li>
+            <li>Download your book from this page onto the desktop or laptop.</li>
+            <li>Open the ebook file in Calibre.</li>
+            <li>Convert the epub to a mobi file: select the file; click on "convert books"; and set the output format to mobi.</li>
+            <li>When the conversion is done, put the file on your device using the instructions for ereaders above.  If you've set up your Kindle email address at Amazon.com, you can also email it to yourself using the "Connect/share" button, without needing to plug your Kindle in.  Calibre will walk you through the process of setting up your Kindle email in Calibre.</li>
+            </ul>
+        </div>
         {% endcomment %}
-        
-        <h4>iOS devices</h4>
-        <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
-        {% comment %}test{% endcomment %}
-        <ul>
-        <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-        <li>Download your book from this page using your device's web browser.</li>
-        <li>You can read HTML files right in the browser.  For other formats, you will be given the option of opening the file in iBooks.</li>
-        </ul>
-        
-        <h4>PC, Mac, or Linux</h4>
-        <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
-        <ul>
-        <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-        <li>Download your book from this page using your device's web browser.</li>
-        <li>Open the ebook file in Calibre.</li>
-        </ul>
-        
-        <h4>Ereaders</h4>
-        <p>If you'd like to read epub files on a Kindle or Kindle Fire, you'll need to follow the "Converting epubs for Kindle" instructions below, and then the instructions here.  To read mobi files on a Kindle, or any ebooks on other ereaders, use these instructions.</p>
-        
-        <ul>
-        <li>Download the ebook to a laptop or desktop computer.</li>
-        <li>Plug the ereader into your computer with a USB cable.</li>
-        <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)  If you have downloaded Calibre, you can also use its "Send to Device" button.</li>
-        <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
-        <li>You may need to reboot your device to see the new book.</li>
-        </ul>
-        
-        <h4>Converting epubs for Kindle</h4>
-        <p>Kindles can read plain text, MOBI, PDF, and HTML files.  They cannot read epub books (the format unglued ebooks are released in).  However, you can convert epubs to mobi files using free software.</p>
-        
-        <ul>
-        <li><a href="http://calibre-ebook.com/download">Download the free Calibre app</a> to a desktop or laptop computer.</li>
-        <li>Download your book from this page onto the desktop or laptop.</li>
-        <li>Open the ebook file in Calibre.</li>
-        <li>Convert the epub to a mobi file: select the file; click on "convert books"; and set the output format to mobi.</li>
-        <li>When the conversion is done, put the file on your device using the instructions for ereaders above.  If you've set up your Kindle email address at Amazon.com, you can also email it to yourself using the "Connect/share" button, without needing to plug your Kindle in.  Calibre will walk you through the process of setting up your Kindle email in Calibre.</li>
-        </ul>
-        
+        <br />
         <h4>Need more help?</h4>
-        <p>Need help with something not listed here?  Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
+        <p>Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
+        
+        <div>
+            <a href="http://www.defectivebydesign.org/drm-free"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
+        </div>
     </div>
 {% else %}
     <div class="border">

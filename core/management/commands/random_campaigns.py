@@ -1,13 +1,12 @@
-from decimal import Decimal
-from random import randint, randrange
 from datetime import timedelta
-from regluit.utils.localdatetime import now
 from decimal import Decimal as D
+from random import randint, randrange
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from regluit.core.models import Work, Campaign
-from django.conf import settings
+from regluit.utils.localdatetime import now
 
 class Command(BaseCommand):
     help = "creates random campaigns for any works that lack one for testing"

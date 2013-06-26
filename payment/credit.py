@@ -1,12 +1,11 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib.auth.models import User
 
-from regluit.payment.parameters import *
 from regluit.payment import baseprocessor
 from regluit.payment.baseprocessor import BasePaymentRequest
-
+from regluit.payment.parameters import *
 
 def pledge_transaction(t,user,amount):
     """commit <amount> from a <user>'s credit to a specified transaction <t>"""

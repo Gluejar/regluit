@@ -1,6 +1,11 @@
 import logging
-from social_auth.backends.pipeline.social import social_auth_user, load_extra_data
+
+from social_auth.backends.pipeline.social import (
+    social_auth_user,
+    load_extra_data
+)
 from social_auth.models import UserSocialAuth
+
 from regluit.core.models import TWITTER, FACEBOOK
 
 logger = logging.getLogger(__name__)

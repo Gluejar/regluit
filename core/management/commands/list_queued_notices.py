@@ -1,6 +1,7 @@
-from django.core.management.base import BaseCommand
 import pickle
+
 import notification
+from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = "Displays currently queues notices from django-notification"

@@ -19,7 +19,8 @@ $j(document).ready(function() {
             $j('#about_expandable').css({'margin-top': marginTop});
 		});
 		
-		if ($j(this).attr("href").substr(-9,8) == "download") {
+		if ($j(this).attr("href").indexOf('download') !== -1) {
+		    jQuery.getScript('/static/js/download_page.js');
 		    jQuery.getScript('https://platform.readmill.com/send.js');
 		}
 		

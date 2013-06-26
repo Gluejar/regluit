@@ -1,19 +1,28 @@
-import re
+"""
+external library imports
+"""
+import httplib
 import json
 import logging
+import oauth2 as oauth
+import re
+
 from itertools import islice
+from requests import request
 from urllib import urlencode
 from urlparse import urlparse, urlunparse, urljoin
-
-import httplib
-import oauth2 as oauth
-from requests import request
 from xml.etree import ElementTree as ET
+
+"""
+django imports
+"""
 import django.utils.encoding
 
+"""
+regluit imports
+"""
 import regluit.core
-from regluit.core import bookloader
-from regluit.core import models
+from regluit.core import bookloader, models
 
 # import parse_qsl from cgi if it doesn't exist in urlparse
 try:

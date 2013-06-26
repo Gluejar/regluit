@@ -1,7 +1,8 @@
 from django.core.management.base import BaseCommand
+from django.db.models import Q, F
+
 from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE
 from regluit.core import models
-from django.db.models import Q, F
 
 class Command(BaseCommand):
     help = "Do some integrity checks on our Payments"

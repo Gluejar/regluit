@@ -1,24 +1,33 @@
+"""
+external library imports
+"""
+import json
 import re
+import time
 
+from datetime import timedelta
+from decimal import Decimal as D
+
+"""
+django imports
+"""
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core import mail
+from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django.conf import settings
-from django.core import mail
 
+from notification.models import Notice
+
+"""
+regluit imports
+"""
 from regluit.core.models import Work, Campaign, RightsHolder, Claim
 from regluit.payment.models import Transaction
 from regluit.payment.manager import PaymentManager
 from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, card
-
-from notification.models import Notice
-
-from decimal import Decimal as D
 from regluit.utils.localdatetime import now
-from datetime import timedelta
-import time
-import json
 
 class WishlistTests(TestCase):
 

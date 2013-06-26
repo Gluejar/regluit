@@ -1,36 +1,52 @@
+'''
+external library imports
+'''
+import binascii
+import logging
+import hashlib
 import re
 import random
-import logging
 import urllib
-import hashlib
- 
-        
 
-from regluit.utils.localdatetime import now, date_today
-from regluit.utils import crypto
+from ckeditor.fields import RichTextField
 from datetime import timedelta
 from decimal import Decimal
 from notification import models as notification
-from ckeditor.fields import RichTextField
 from postmonkey import PostMonkey, MailChimpException
 
-from django.db import models
-from django.db.models import F, Q, get_model
+'''
+django imports
+'''
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.conf import settings
+from django.db import models
+from django.db.models import F, Q, get_model
 from django.utils.translation import ugettext_lazy as _
 
-
+'''
+regluit imports
+'''
 import regluit
 import regluit.core.isbn
-from regluit.core.signals import successful_campaign, unsuccessful_campaign, wishlist_added
-import binascii
 
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE
+from regluit.core.signals import (
+    successful_campaign,
+    unsuccessful_campaign,
+    wishlist_added
+)
+from regluit.utils import crypto
+from regluit.utils.localdatetime import now, date_today
 
-from django.db.models import Q
+from regluit.payment.parameters import (
+    TRANSACTION_STATUS_ACTIVE,
+    TRANSACTION_STATUS_COMPLETE,
+    TRANSACTION_STATUS_CANCELED,
+    TRANSACTION_STATUS_ERROR,
+    TRANSACTION_STATUS_FAILED,
+    TRANSACTION_STATUS_INCOMPLETE
+)
 
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
@@ -1142,12 +1158,13 @@ class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     user = models.OneToOneField(User, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
-    pic_url =  models.URLField(blank=True) 
-    home_url =  models.URLField(blank=True)
-    twitter_id =  models.CharField(max_length=15, blank=True)
-    facebook_id =  models.PositiveIntegerField(null=True)
-    librarything_id =  models.CharField(max_length=31, blank=True)
+    pic_url = models.URLField(blank=True) 
+    home_url = models.URLField(blank=True)
+    twitter_id = models.CharField(max_length=15, blank=True)
+    facebook_id = models.PositiveIntegerField(null=True)
+    librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders')
+    kindle_email = models.EmailField(max_length=254, blank=True)
 
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
