@@ -162,6 +162,7 @@ def process_kindle_email(request):
     if user.is_authenticated() and request.session.has_key('kindle_email'):
         user.profile.kindle_email = request.session['kindle_email']
         user.profile.save()
+        request.session.pop('kindle_email')
 
 def next(request):
     if request.COOKIES.has_key('next'):
@@ -2519,6 +2520,7 @@ def kindle_config(request, kindle_ebook_id=None):
         if form.is_valid():
             request.user.profile.kindle_email = form.cleaned_data['kindle_email']
             request.user.profile.save()
+            request.session.pop('kindle_email')
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
