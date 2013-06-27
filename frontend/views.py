@@ -938,7 +938,7 @@ class DonationView(TemplateView):
         context = {'user' : self.request.user,'nonprofit': settings.NONPROFIT}
         context['donate_form'] = DonateForm(initial={'username':self.request.user.username})
         return context
-            
+        
 class PledgeView(FormView):
     template_name="pledge.html"
     form_class = CampaignPledgeForm
@@ -1065,6 +1065,9 @@ class PledgeView(FormView):
                 logger.error("Attempt to produce transaction id {0} failed".format(t.id))
                 return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
 
+class PurchaseView(PledgeView): 
+    pass
+               
 class FundPledgeView(FormView):
     template_name="fund_the_pledge.html"
     form_class = CCForm
@@ -2443,7 +2446,7 @@ def lockss_manifest(request, year):
         ebooks = None
     
     return render(request, "lockss_manifest.html", {'ebooks':ebooks, 'year': year})
-    
+
 def download(request, work_id):
     context = {}
     work = safe_get_work(work_id)
@@ -2506,6 +2509,11 @@ def download(request, work_id):
     })
 
     return render(request, "download.html", context)
+    
+def download_purchased(request, work_id):
+    if request.user.is_anonymous:
+        HttpResponseRedirect('/accounts/login/download/')
+    return download(request, work_id)
     
 def about(request, facet):
     template = "about_" + facet + ".html"

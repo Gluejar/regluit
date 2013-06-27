@@ -550,11 +550,15 @@ class Campaign(models.Model):
 
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
+        if self.type is BUY2UNGLUE:
+            return Premium.objects.none()
         q = Q(campaign=self) | Q(campaign__isnull=True)
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
 
     def custom_premiums(self):
         """returns only the active custom premiums for the Campaign"""
+        if self.type is BUY2UNGLUE:
+            return Premium.objects.none()
         return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
         
     @property

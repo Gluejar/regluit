@@ -422,11 +422,21 @@
             <div id="js-rightcol">
                 <div class="clearfix">
                     {% if status == 'ACTIVE' %}
+                      {% if work.last_campaign.type == 1 %}
                         {% if pledged %}
                             <div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                         {% else %}
                             <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                         {% endif %}
+                      {% else %}
+                        {% if purchased %}
+                            <div class="btn_support">
+                                <a href="{% url download_purchased work_id %}" class="hijax"><span>Download</span></a>
+                            </div>
+                        {% else %}
+                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="Purchase" /></form></div>
+                        {% endif %}
+                      {% endif %}
                     {% else %}
                         {% if work.first_ebook %}
                             <div class="btn_support">
@@ -469,8 +479,8 @@
                             </div>
                     </div>
                     {% if status == 'ACTIVE' %}
+                        <div class="jsmodule">
                         {% if premiums %}
-                            <div class="jsmodule">
                                 <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
                                 <div class="jsmod-content">
                                     <ul class="support menu">
@@ -499,9 +509,8 @@
                                         {% endif %}                        
                                     </ul>
                                 </div>
-                            </div>
                         {% endif %}
-                        <div class="jsmodule">
+                        {% ifequal work.last_campaign.type 1 %}
                             <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
                             <div class="jsmod-content">
                                 In addition to any premiums you're eligible for, you'll automatically be acknowledged in the unglued ebook as follows:
@@ -561,6 +570,20 @@
                                     {% endif %}
                                 </ul>
                             </div>
+                        {% else %}
+                            <a href="{% url purchase work_id %}"><h3 class="jsmod-title"><span>Purchase Options</span></h3></a>
+                            <div class="jsmod-content">
+                                <ul class="support menu">
+                                    {% for offer in work.offers.all %}
+                                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                        <a href="{% url purchase work_id %}?offer_id={{offer.id}}">
+                                        <span class="menu-item-price">${{ offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ offer.get_license_display }}</span>
+                                        </a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endifequal %}
                         </div>
                     {% endif %}
                 </div>
