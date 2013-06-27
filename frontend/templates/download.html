@@ -23,7 +23,7 @@ $j(document).ready(function() {
 <div id="lightbox_content">
 <div class="border">
     <h2>Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
-    <div class="sharing not_unglued">
+    <div class="sharing ebook_download_container">
         <h3 class="jsmod-title"><span>Share</span></h3>
         <ul class="social menu">
             {% with site.domain as domain %}
@@ -31,43 +31,76 @@ $j(document).ready(function() {
             <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
             {% endwith %}
             <a href="{% url emailshare '' %}?next={% url work work.id %}"><li class="email"><span>Email</span></li></a>
-            <a href="#" id="embed2"><li class="embed"><span>Embed</span></li></a>
+            <a id="embed2"><li class="embed"><span>Embed</span></li></a>
             <div id="widgetcode2">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{ request.META.HTTP_HOST }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
         </ul>
     </div>
+    {% if readmill_epub_url or kindle_ebook_id %}
+        <div class="one_click clearfix">
+            <h3>One-click options</h3>
+            {% if kindle_ebook_id %}
+                <div id="kindle_div">
+                    {% if request.user.is_authenticated and request.user.profile.kindle_email %}
+                        <div class="yes_js">
+                            <div id="kindle" class="btn_support authenticated" title="{{ kindle_ebook_id }}" >
+                                <a>Send to Kindle</a>
+                            </div>
+                        </div>
+                        <div class="no_js">
+                            <form method="POST" class="btn_support" action="{% url send_to_kindle kindle_ebook_id 0 %}">
+                                <input type="submit" value="Send to Kindle">
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="btn_support kindle">
+                            <a href="{% url kindle_config_download kindle_ebook_id %}">Set up Kindle </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+            {% if readmill_epub_url %}
+                <div id="readmill_div" class="yes_js">
+                    <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}"></div>
+                </div>
+            {% endif %}
+            {% if not request.user.is_authenticated  %}
+                 <div style="clear:left"> You'll need an unglue.it account to <i>Send to Kindle</i>.</div>
+            {% endif %}
+        </div>
+    {% endif %}
+    {% if unglued_ebooks or other_ebooks %}
+        <div class="ebook_download_container">
+    {% endif %}
     {% if unglued_ebooks %}
-    <div class="unglued">
-        <h3>Read the unglued edition!</h3>
+        <h3>Download the unglued edition</h3>
         <div class="ebook_download">
             {% for ebook in unglued_ebooks %}
                 <a href="{% url download_ebook ebook.id %}">
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
                 <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> 
-                {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
-                {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
             {% endfor %}		
         </div>
-    </div>
     {% endif %}
     {% if other_ebooks %}
-    <div class="not_unglued">
         {% if unglued_ebook %}
-            <h4>Other freely available editions</h4>
+            <h4>Download other freely available editions</h4>
         {% else %}
-            <h4>Freely available editions</h4>
+            <h4>Download freely available editions</h4>
         {% endif %}
+        <div class="ebook_download">
             {% for ebook in other_ebooks %}
                 <a href="{% url download_ebook ebook.id %}">
                 <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                 <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
                 <a href="{% url download_ebook ebook.id %}">{{ ebook.format }} at {{ ebook.provider }}</a>
-                {% ifequal ebook.format 'mobi' %} (use for Kindle){% endifequal %}
-                {% ifequal ebook.format 'epub' %} (use for Nook, Apple, Sony){% endifequal %}
                 {% if not forloop.last %}<br /><br />{% endif %}
             {% endfor %}		
-    </div>
+        </div>
+    {% endif %}
+    {% if unglued_ebooks or other_ebooks %}
+        </div>
     {% endif %}
     <div class="clearfix"></div>
 </div>
@@ -77,23 +110,22 @@ $j(document).ready(function() {
     <div class="instructions">
         <div id="iOS_app_div"{% if iOS_app %} class="active"{% endif %}>
             <p>
-                Looks like you're using an embedded browser in an iOS app (maybe you followed a link in Twitter or Facebook?).
+                Looks like you're using an embedded browser inside an iOS app. (Maybe you followed a link in Twitter or Facebook?)
             </p>
             <p>
-                {% if formats.epub %}
-                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the <a href="{% url download_ebook formats.epub.id %}">epub file</a> using Safari.
-                {% else %}{% if formats.pdf %}
-                    Embedded browsers don't always know how to handle ebooks.  We recommend downloading the <a href="{% url download_ebook formats.pdf.id %}">pdf</a> file using Safari.
+                {% if formats.epub or formats.mobi %}
+                    To read this ebook you should open this page in safari. <img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" /><br clear="left" />
+                {% endif %}
+                {% if formats.pdf %}
+                    You should also be able to use the  <a href="{% url download_ebook formats.pdf.id %}">pdf</a> file.
                 {% else %}{% if formats.html %}
                     You can read the <a href="{% url download_ebook formats.html.id %}">HTML version</a> of this book right here in this browser.
                 {% else %}{% if formats.text %}
                     You can read the <a href="{% url download_ebook formats.text.id %}">text version</a> of this book right here in this browser.
-                {% else %}
-                    This ebook is only available in .mobi.  Your best bet is to download the Amazon Kindle app to this device and then use the Send-to-Kindle option above.
-                {% endif %}{% endif %}{% endif %}{% endif %}
+                {% endif %}{% endif %}{% endif %}
             </p>
             <p class="other_instructions_paragraph">
-                Not on iOS?  Try the instructions for <a href="#" id="android" class="other_instructions">Android</a>, <a href="#" id="desktop" class="other_instructions">desktop computers</a>, or <a href="#" id="ereader" class="other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+                Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
         </div>
         
@@ -108,6 +140,12 @@ $j(document).ready(function() {
                 <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
                 <li>Download the <a href="{% url download_ebook formats.epub.id %}">epub file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
+                </ul>
+                <p class="ebook_download logo"><img src="/static/images/readmill_logo.jpg" alt="iBooks Logo" />Readmill is another great option. </p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/readmill-book-reader-for-epub/id438032664?mt=8">Download the free Readmill app</a> from the App Store.</li>
+                <li>Click the "Send to Readmill" button above.</li>
+                <li>If you don't have a free Readmill account, you'll be given the option of creating one.</li>
                 </ul>
             {% else %}{% if formats.pdf %}
                 <p>
@@ -133,11 +171,11 @@ $j(document).ready(function() {
                 </p>
             {% endif %}{% endif %}{% endif %}{% endif %}
             <p class="other_instructions_paragraph">
-                Not on iOS?  Try the instructions for <a href="#" id="android" class="other_instructions">Android</a>, <a href="#" id="desktop" class="other_instructions">desktop computers</a>, or <a href="#" id="ereader" class="other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+                Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
         </div>
         
-        <div id="android_div"{% if android %}class="active"{% endif %}>
+        <div id="android_div"{% if android %} class="active"{% endif %}>
             <h4>Android devices</h4>
             {% if formats.epub %}
                 <p>
@@ -175,12 +213,12 @@ $j(document).ready(function() {
                 </p>
             {% endif %}{% endif %}{% endif %}{% endif %}
             <p class="other_instructions_paragraph">
-                Not on Android?  Try the instructions for <a href="#" id="ios" class="other_instructions">iPhone/iPad</a>, <a href="#" id="desktop" class="other_instructions">desktop computers</a>, or <a href="#" id="ereader" class="other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+                Not on Android?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
         </div>
         
         <div id="desktop_div"{% if desktop %} class="active"{% endif %}>
-            <h4>PC, Mac, or Linux</h4>
+            <h4>Reading on a PC, Mac, or Linux</h4>
             {% if formats.pdf %}
                 <p>
                     You probably already have an app which reads PDFs.  Download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> and open it.
@@ -209,20 +247,20 @@ $j(document).ready(function() {
                 </p>
             {% endif %}{% endif %}{% endif %}{% endif %}
             <p class="other_instructions_paragraph">
-                Not on a desktop computer?  Try the instructions for <a href="#" id="ios" class="other_instructions">iPhone/iPad</a>, <a href="#" id="android" class="other_instructions">Android</a>, or <a href="#" id="ereader" class="other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+                Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
         </div>
         
-        <div id="ereader_div"{% if desktop %}class="active"{% endif %}>
+        <div id="ereader_div"{% if desktop %} class="active"{% endif %}>
             <h4>Ereaders (Kindle, Nook, Kobo, etc.)</h4>
             
             {% if formats.mobi or formats.pdf or formats.epub %}
                 <ul>
                 <li>
                     {% if formats.mobi %}
-                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a> to your computer.
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.mobi.id %}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}{% if formats.pdf %}
-                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer.
+                        <b>Kindle</b>: download the <a href="{% url download_ebook formats.pdf.id %}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}
                         <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
                     {% endif %}{% endif %}
@@ -245,79 +283,11 @@ $j(document).ready(function() {
                 </p>
             {% endif %}
             <p class="other_instructions_paragraph">
-                Not using an ereader?  Try the instructions for <a href="#" id="ios" class="other_instructions">iPhone/iPad</a>, <a href="#" id="android" class="other_instructions">Android</a>, or <a href="#" id="desktop" class="other_instructions">desktop computers</a>.
+                Not using an ereader?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="desktop other_instructions">desktop computers</a>.
             </p>
         </div>
     </div>
         
-            {% if kindle_ebook_id %}
-            <div id="kindle_div">
-                <h4>Send to Kindle</h4>
-                {% if request.user.is_authenticated and request.user.profile.kindle_email %}
-                    <div class="yes_js">
-                        <p>Sending...<img src="/static/images/loading.gif"></p>
-                        <p>(For large files, this may take some time.)</p>
-                        <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
-                    </div>
-                    <div class="no_js">
-                        <p>
-                            <form method="POST" action="{% url send_to_kindle kindle_ebook_id 0 %}">
-                                <input type="submit" value="Send it!">
-                            </form>
-                        </p>
-                        <p>(For large files, this may take some time.)</p>
-                        <p>If your Kindle email has changed, you can <a href="{% url kindle_config %}">add the new one to Unglue.it here</a>.</p>
-                    </div>
-                {% else %}
-                    <ul>
-                        <li>
-                            Add kindle@gluejar.com to your approved personal document list under Personal Document Settings at your <a href="http://amazon.com/myk" target="_blank">Amazon Manage Your Kindle page</a>.
-                        </li>
-                        <li>
-                            Then, enter your Kindle address below.
-                        </li>
-                    </ul>
-                    <div class="yes_js">
-                        <form method="POST" action="{% url send_to_kindle kindle_ebook_id 1 %}">
-                            <label for="kindle_email">Your Kindle email address</label>
-                            <input type="text" name="kindle_email">
-                            <input type="submit" value="Send it!">
-                        </form>
-                        <p>
-                            (This may take a moment.)
-                        </p>
-                    </div>
-                    <div class="no_js">
-                        <form method="POST" action="{% url send_to_kindle kindle_ebook_id 0 %}">
-                            <label for="kindle_email">Your Kindle email address</label>
-                            <input type="text" name="kindle_email">
-                            <input type="submit" value="Send it!">
-                        </form>
-                        <p>
-                            (This may take a moment.)
-                        </p>
-                    </div>
-                {% endif %}
-            </div>
-            {% endif %}
-
-        {% comment %}
-            will need to deal with readmill handling later
-            
-            {% if readmill_epub_url %}
-            <div id="readmill_div">
-                <h4>Readmill users</h4>
-                <p>
-                    If you're a <a href="http://readmill.com/">Readmill</a> member, you can send unglued ebooks to your iPad with one click.  Here you go:
-                </p>
-                <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}" data-display="small"></div>
-                <p>
-                    If you're not, Readmill is a reading app designed for beauty, sharing, and conversation.  You can <a href="https://readmill.com/">learn more and get Readmill here</a>.
-                </p>
-            </div>
-            {% endif %}
-        {% endcomment %}
-
         {% comment %}
         If we're going to be providing mobi as the norm, let's not bother with these instructions.
         <div class="instructions">

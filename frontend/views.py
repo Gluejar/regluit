@@ -164,6 +164,7 @@ def process_kindle_email(request):
     if user.is_authenticated() and request.session.has_key('kindle_email'):
         user.profile.kindle_email = request.session['kindle_email']
         user.profile.save()
+        request.session.pop('kindle_email')
 
 def next(request):
     if request.COOKIES.has_key('next'):
@@ -2457,40 +2458,23 @@ def download(request, work_id):
     other_ebooks = work.ebooks().filter(edition__unglued=False)
     formats = {}
             
-    try:
-        formats['epub'] = work.ebooks().filter(format='epub')[0]
-    except IndexError:
-        formats['epub'] = None
-    try:
-        formats['pdf'] = work.ebooks().filter(format='pdf')[0]
-    except IndexError:
-        formats['pdf'] = None
-    try:
-        formats['mobi'] = work.ebooks().filter(format='mobi')[0]
-    except IndexError:
-        formats['mobi'] = None
-    try:
-        formats['html'] = work.ebooks().filter(format='html')[0]
-    except IndexError:
-        formats['html'] = None
-    try:
-        formats['text'] = work.ebooks().filter(format='text')[0]
-    except IndexError:
-        formats['text'] = None
+    for ebook in work.ebooks().all():
+        formats[ebook.format] = ebook
         
-    if formats['mobi']:
+    if formats.has_key('mobi'):
         kindle_ebook_id = formats['mobi'].id
-    elif formats['pdf']:
+    elif formats.has_key('pdf'):
         kindle_ebook_id = formats['pdf'].id
     else:
         kindle_ebook_id = None
     
     try:
         readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
-        readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+        #readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+        readmill_epub_url = readmill_epub_ebook.url
     except:
         readmill_epub_url = None
-    agent = request.META['HTTP_USER_AGENT']   
+    agent = request.META.get('HTTP_USER_AGENT','')   
     iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
     iOS_app = iOS and not 'Safari' in agent
     android = 'Android' in agent
@@ -2568,39 +2552,47 @@ def press_submitterator(request):
         })
 
 @login_required
-def kindle_config(request):
+def kindle_config(request, kindle_ebook_id=None):
+    def get_title_from_kindle_id(kindle_ebook_id):
+        # protect against user URL manipulation
+        work = None
+        if kindle_ebook_id:
+            try:
+                ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+                work = ebook.edition.work
+            except:
+                kindle_ebook_id = None
+        return work, kindle_ebook_id
+
+    (work, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
+    template = "kindle_config.html"
     if request.method == 'POST':
         form = KindleEmailForm(request.POST)
         if form.is_valid():
             request.user.profile.kindle_email = form.cleaned_data['kindle_email']
             request.user.profile.save()
-            return render(request, "kindle_change_successful.html")
+            template = "kindle_change_successful.html"
     else:
-        form = KindleEmailForm()
-        
-    return render(request, "kindle_config.html", {'form': form})
-
-kindle_response_params = [
-    'This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or Desktop.',
-    "Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.",
-    'This book has been sent to your Kindle. Happy reading!',
-    'Please enter a valid Kindle email.'
-]
+        form = KindleEmailForm()    
+    return render(
+        request,
+        template, 
+        {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'work': work}
+    )
 
 @require_POST
 @csrf_exempt
 def send_to_kindle(request, kindle_ebook_id, javascript='0'):
-    # make sure to gracefully communicate with both js and non-js users
+    # make sure to gracefully communicate with both js and non-js (kindle!) users
     def local_response(request, javascript, message):
         if javascript == '1':
-            return HttpResponse(kindle_response_params[message])
+            return render(request,'kindle_response_message.html',{'message': message} )
         else:
             # can't pass context with HttpResponseRedirect
             # must use an HttpResponse, not a render(), after POST
             return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
 
     ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
-    request.session['next_page'] = reverse('work', args=(ebook.edition.work.id,))
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']
@@ -2609,7 +2601,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         except ValidationError:
             return local_response(request, javascript, 3)
         request.session['kindle_email'] = kindle_email
-    else:
+    elif request.user.is_authenticated():
         kindle_email = request.user.profile.kindle_email     
             
     # don't forget to increment the download counter!
@@ -2627,7 +2619,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
         return local_response(request, javascript, 0)
         
     try:
-        email = EmailMessage(from_email='kindle@gluejar.com',
+        email = EmailMessage(from_email='notices@gluejar.com',
                 to=[kindle_email])
         email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
@@ -2640,9 +2632,8 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     return local_response(request, javascript, 2)
 
 def send_to_kindle_graceful(request, message):
-    message = kindle_response_params[int(message)]
     return render(
         request,
         'kindle_response_graceful_degradation.html',
-        {'message': message}
+        {'message': int(message)}
     )

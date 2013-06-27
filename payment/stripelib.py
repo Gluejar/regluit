@@ -97,7 +97,16 @@ except Exception, e:
     
 # set default stripe api_key to that of unglue.it
 
-stripe.api_key =  STRIPE_SK   
+stripe.api_key =  STRIPE_SK
+
+# maybe we should be able to set this in django.settings...
+
+# to start with, let's try hard-coding the api_version
+# https://stripe.com/docs/upgrades?since=2012-07-09#api-changelog
+
+#API_VERSION = '2012-07-09'
+API_VERSION = '2013-02-13'
+stripe.api_version = API_VERSION
 
 # https://stripe.com/docs/testing
 
@@ -187,6 +196,7 @@ def _isListableAPIResource(x):
         return issubclass(x, stripe.ListableAPIResource)
     except:
         return False
+
 
 class StripeClient(object):
     def __init__(self, api_key=STRIPE_SK):
@@ -391,8 +401,8 @@ class StripeErrorTest(TestCase):
         charge1 = sc.create_charge(10, 'usd', card=token2.id)
         self.assertEqual(charge1.amount, 1000)
         self.assertEqual(charge1.id[:3], "ch_")
-        # disputed, failure_message, fee, fee_details
-        self.assertEqual(charge1.disputed,False)
+        # dispute, failure_message, fee, fee_details
+        self.assertEqual(charge1.dispute,None)
         self.assertEqual(charge1.failure_message,None)
         self.assertEqual(charge1.fee,59)
         self.assertEqual(charge1.refunded,False)
@@ -590,8 +600,6 @@ class Processor(baseprocessor.Processor):
             transaction.date_authorized = now_val
             transaction.date_expired = expiry
               
-            sc = StripeClient()
-            
             # let's figure out what part of transaction can be used to store info
             # try placing charge id in transaction.pay_key
             # need to set amount
@@ -628,7 +636,30 @@ class Processor(baseprocessor.Processor):
             """return None because no redirection to stripe is required"""
             return None
       
-      
+    class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
+    
+      '''
+        The pay function generates a redirect URL to approve the transaction
+      '''
+        
+      def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
+          self.transaction=transaction
+          
+      #def api(self):
+      #    return "null api"
+      #  
+      ##def exec_status( self ):
+      #    return None 
+          
+      def amount( self ):
+          return self.transaction.amount
+          
+      def key( self ):
+          return None
+    
+      def next_url( self ):
+          return self.url
+        
     class Execute(StripePaymentRequest):
         
         '''

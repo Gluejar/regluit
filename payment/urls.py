@@ -14,7 +14,6 @@ urlpatterns = patterns(
 if settings.DEBUG:
     urlpatterns += patterns(
         "regluit.payment.views",
-        url(r"^testpledge", "testPledge"),
         url(r"^testauthorize", "testAuthorize"),
         url(r"^testexecute", "testExecute"),
         url(r"^testcancel", "testCancel"),

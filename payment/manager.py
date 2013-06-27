@@ -894,67 +894,6 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def pledge(self, currency, campaign=None,  user=None, 
-    		   return_url=None, nevermind_url=None, pledge_extra=None):
-        '''
-        pledge
-        
-        Performs an instant payment
-        
-        currency: a 3-letter paypal currency code, i.e. USD
-        campaign: required campaign object
-        user: optional user object
-        return_url: url to redirect supporter to after a successful PayPal transaction
-        nevermind_url: url to send supporter to if support hits cancel while in middle of PayPal transaction
-                
-        return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
-                      the redirect url will be None
-                      
-        '''            
-        
-        amount = D('0.00')
-        
-        t = Transaction.create(amount=amount,
-                               max_amount=amount, 
-                               currency=currency,
-                               status=TRANSACTION_STATUS_NONE,
-                               campaign=campaign,
-                               user=user,
-                               pledge_extra=pledge_extra
-                               )
-    
-        t.date_payment=now()
-        t.execution=EXECUTE_TYPE_CHAINED_INSTANT
-        t.type=PAYMENT_TYPE_INSTANT
-        p = t.get_payment_class().Pay(t,return_url=return_url, nevermind_url=nevermind_url) 
-        
-         # Create a response for this
-        envelope = p.envelope()
-        logger.info(envelope)
-        
-        if envelope:        
-            r = PaymentResponse.objects.create(api=p.api(),
-                                              correlation_id = p.correlation_id(),
-                                              timestamp = p.timestamp(),
-                                              info = p.raw_response,
-                                              transaction=t)
-        
-        if p.success() and not p.error():
-            t.pay_key = p.key()
-            t.status = TRANSACTION_STATUS_CREATED
-            t.save()
-            
-            url = p.next_url()
-                
-            logger.info("Pledge Success: " + url)
-            return t, url
-        
-        else:
-            t.error = p.error_string()
-            t.save()
-            logger.info("Pledge Error: %s" % p.error_string())
-            return t, None
-        
     def make_account(self, user, host, token=None):
         """delegate to a specific payment module the task of creating a payment account"""
         
@@ -968,10 +907,5 @@ class PaymentManager( object ):
             return Account.objects.filter(user=user, host=host)
         else:
             return Account.objects.filter(user=user, host=host, date_deactivated__isnull=True)
-            
 
-        
-        
-        
-    
     

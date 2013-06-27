@@ -185,72 +185,6 @@ class PledgeTest(TestCase):
             valid(url)
         except ValidationError, e:
             print e
-        
-    @unittest.expectedFailure
-    def test_pledge_single_receiver(self):
-        
-        try:
-            p = PaymentManager()
-    
-            # Note, set this to 1-5 different receivers with absolute amounts for each
-            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}]
-            t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
-        
-            self.validateRedirect(t, url, 1)
-        
-            loginSandbox(self.selenium)
-            paySandbox(self, self.selenium, url)
-            
-            # sleep to make sure the transaction has time to complete
-            time.sleep(10)
-                    
-            # by now we should have received the IPN
-            # right now, for running on machine with no acess to IPN, we manually update statuses
-            p.checkStatus()
-            t = Transaction.objects.get(id=t.id)
-            
-            self.assertEqual(t.status, IPN_PAY_STATUS_COMPLETED)
-            self.assertEqual(t.receiver_set.all()[0].status, IPN_TXN_STATUS_COMPLETED)
-            
-        except:
-            traceback.print_exc()
-    
-    @unittest.expectedFailure    
-    def test_pledge_mutiple_receiver(self):
-        
-        p = PaymentManager()
-    
-        # Note, set this to 1-5 different receivers with absolute amounts for each
-        receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}, 
-                         {'email':settings.PAYPAL_TEST_RH_EMAIL, 'amount':10.00}]
-        
-        t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
-        
-        self.validateRedirect(t, url, 2)
-        
-        loginSandbox(self.selenium)
-        paySandbox(self, self.selenium, url)
-        
-        # by now we should have received the IPN
-        # right now, for running on machine with no acess to IPN, we manually update statuses
-        p.checkStatus()
-        
-        t = Transaction.objects.get(id=t.id)
-
-        self.assertEqual(t.status, IPN_PAY_STATUS_COMPLETED)
-        self.assertEqual(t.receiver_set.all()[0].status, IPN_TXN_STATUS_COMPLETED)
-        self.assertEqual(t.receiver_set.all()[1].status, IPN_TXN_STATUS_COMPLETED)
-    
-    @unittest.expectedFailure
-    def test_pledge_too_much(self):
-        
-        p = PaymentManager()
-    
-        # Note, set this to 1-5 different receivers with absolute amounts for each
-        receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':50000.00}]
-        t, url = p.pledge('USD',  receiver_list, campaign=None, list=None, user=None)
-        
-        self.validateRedirect(t, url, 1)
 
     def tearDown(self):
         self.selenium.quit()
@@ -429,7 +363,7 @@ class AccountTest(TestCase):
 
 def suite():
 
-    #testcases = [PledgeTest, AuthorizeTest, TransactionTest]
+    #testcases = [AuthorizeTest, TransactionTest, CreditTest]
     testcases = [TransactionTest, CreditTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     return suites    
