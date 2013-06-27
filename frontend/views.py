@@ -681,7 +681,7 @@ class WorkListView(FilterableListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] = self.kwargs.get('facet','')
             works_unglued = qs.exclude(editions__ebooks__isnull=True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
-            context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:self.max_works]
+            context['works_unglued'] = works_unglued[:self.max_works]
             context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
                         
