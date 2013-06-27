@@ -645,13 +645,54 @@ class Processor(baseprocessor.Processor):
       '''
         
       def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
-          self.transaction=transaction
+        self.transaction=transaction
+        self.url = return_url
+          
+        now_val = now()                   
+        transaction.date_authorized = now_val
+          
+        # ASSUMPTION:  a user has any given moment one and only one active payment Account
+
+        account = transaction.user.profile.account        
+        
+        if not account:
+            logger.warning("user {0} has no active payment account".format(transaction.user))
+            raise StripelibError("user {0} has no active payment account".format(transaction.user))
+                
+        logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
+        
+        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+        # should approved be set to False and wait for a webhook?
+        transaction.approved = True
+        transaction.type = PAYMENT_TYPE_INSTANT
+        transaction.host = PAYMENT_HOST_STRIPE
+    
+        transaction.preapproval_key = account.account_id
+        
+        transaction.currency = 'USD'
+        transaction.amount = amount
+        
+        transaction.save()
+        
+        # execute the transaction
+        p = transaction.get_payment_class().Execute(transaction)
+        
+        if p.success() and not p.error():
+            transaction.pay_key = p.key()
+            transaction.save()
+            return True
+        
+        else:
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("execute_transaction Error: " + p.error_string())
+            return False
                     
       def amount( self ):
           return self.transaction.amount
           
       def key( self ):
-          return None
+          return self.transaction.pay_key
     
       def next_url( self ):
           return self.url
@@ -731,7 +772,6 @@ class Processor(baseprocessor.Processor):
         def key(self):
             # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
             return self.transaction.pay_key
-        
         
     class PreapprovalDetails(StripePaymentRequest):
         '''

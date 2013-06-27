@@ -656,7 +656,8 @@ class PaymentManager( object ):
         #                        urllib.urlencode({'tid':transaction.id})) 
         #    return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
         
-        p = transaction.get_payment_class().Pay(transaction, amount=transaction.max_amount, return_url=return_url, paymentReason=paymentReason) 
+        # Question:  do I need to set transaction.amount = transaction.max_amount ?
+        p = transaction.get_payment_class().Pay(transaction, amount=transaction.max_amount, return_url=return_url, paymentReason=paymentReason)
        
          # Create a response for this
         #envelope = p.envelope()
