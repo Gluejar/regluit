@@ -2520,7 +2520,6 @@ def kindle_config(request, kindle_ebook_id=None):
         if form.is_valid():
             request.user.profile.kindle_email = form.cleaned_data['kindle_email']
             request.user.profile.save()
-            request.session.pop('kindle_email')
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
