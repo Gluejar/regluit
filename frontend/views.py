@@ -2561,9 +2561,19 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     title = ebook.edition.title
     title = title.replace(' ', '_')
     
+    # TO FIX rigorously:
+    # Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
+    # to determine whether the file will meet this limit, we probably need to compare the
+    # size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
+    # MB either: http://en.wikipedia.org/wiki/Megabyte)
+    # http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
+
+    # for the moment, we will hardwire a 8x10^6 limit in filesize, which will properly block Oral Literature in Africa
+    # while leaving our other campaign-unglued books.
+    
     filehandle = urllib.urlopen(ebook.url)
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
-    if filesize > 26214400:
+    if filesize > 8000000:
         logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
         return local_response(request, javascript, 0)
         
