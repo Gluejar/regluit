@@ -1,8 +1,10 @@
-from regluit.core.models import Campaign
-from django.http import HttpResponse
-import traceback
-from django.db import transaction
 import time
+import traceback
+
+from django.db import transaction
+from django.http import HttpResponse
+
+from regluit.core.models import Campaign
 
 def test_read(request):
     

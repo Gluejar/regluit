@@ -1,20 +1,30 @@
-from regluit.core import librarything, bookloader, models, tasks
+"""
+external library imports
+"""
+import datetime
+import json
+import logging
+import warnings
+
 from collections import OrderedDict, defaultdict, namedtuple
+from datetime import datetime
 from itertools import izip, islice, repeat
+
+"""
+django imports
+"""
 import django
 
-from django.db.models import Q, F
-from regluit.core import bookloader
 from django.contrib.comments.models import Comment
+from django.db.models import Q, F
 
-import warnings
-import datetime
+"""
+regluit imports
+"""
 from regluit import experimental
+from regluit.core import librarything, bookloader, models, tasks
 from regluit.experimental import bookdata
-from datetime import datetime
-import json
 
-import logging
 logger = logging.getLogger(__name__)
 
 def dictset(itertuple):

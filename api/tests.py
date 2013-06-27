@@ -1,13 +1,23 @@
+"""
+external library imports
+"""
 import json
-from regluit.utils.localdatetime import now
 from decimal import Decimal
 
+"""
+django imports
+"""
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.auth.models import User
+
+"""
+regluit imports
+"""
+import regluit.core.isbn
 
 from regluit.core import bookloader, models
-import regluit.core.isbn
+from regluit.utils.localdatetime import now
 
 class ApiTests(TestCase):
     work_id=None

@@ -1,17 +1,40 @@
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
-from django.views.generic.base import TemplateView
-from django.views.generic import ListView, DetailView
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.conf.urls.defaults import *
+from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
+from django.views.generic import ListView, DetailView
+from django.views.generic.base import TemplateView
+from django.views.generic.simple import direct_to_template
+from django.views.decorators.csrf import csrf_exempt
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.core.models import Campaign
-from regluit.frontend.views import GoodreadsDisplayView, LibraryThingView, PledgeView, PledgeCompleteView, PledgeCancelView, PledgeRechargeView, FAQView
-from regluit.frontend.views import CampaignListView,  WorkListView, UngluedListView, InfoPageView, InfoLangView, DonationView, FundPledgeView
-from regluit.frontend.views import NonprofitCampaign, DonationCredit, PledgeModifiedView, ManageAccount, MergeView, ByPubListView, ByPubView
+from regluit.frontend.views import (
+    GoodreadsDisplayView,
+    LibraryThingView,
+    PledgeView,
+    PledgeCompleteView,
+    PledgeCancelView,
+    PledgeRechargeView,
+    FAQView,
+    CampaignListView,
+    WorkListView,
+    UngluedListView,
+    InfoPageView,
+    InfoLangView,
+    DonationView,
+    FundPledgeView,
+    NonprofitCampaign,
+    DonationCredit,
+    PledgeModifiedView,
+    ManageAccount,
+    MergeView,
+    ByPubListView,
+    ByPubView,
+    kindle_config,
+    send_to_kindle,
+    send_to_kindle_graceful
+)
 
 urlpatterns = patterns(
     "regluit.frontend.views",
@@ -104,6 +127,10 @@ urlpatterns = patterns(
     url(r"^ml/unsubscribe/$","ml_unsubscribe",  name="ml_unsubscribe"),
     url(r"^press/$","press",  name="press"),
     url(r"^press_submitterator/$","press_submitterator",  name="press_submitterator"),
+    url(r"^accounts/edit/kindle_config/$", "kindle_config",  name="kindle_config"),
+    url(r"^accounts/edit/kindle_config/(?P<kindle_ebook_id>\d+)/$", "kindle_config",  name="kindle_config_download"),
+    url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
+    url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
 )
 
 if settings.DEBUG:

@@ -1,8 +1,8 @@
-from django.core.management.base import BaseCommand
-from regluit.core import librarything
-from regluit.core import tasks
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
+
+from regluit.core import librarything, tasks
 
 class Command(BaseCommand):
     help = "load Librarything books into wishlist"

@@ -1,13 +1,13 @@
-import mechanize
-import requests
 import csv
-import httplib
 import HTMLParser
+import httplib
 import logging
+import mechanize
 import re
+import requests
+
 from datetime import datetime
 from regluit.core import models
-
 
 logger = logging.getLogger(__name__)
 

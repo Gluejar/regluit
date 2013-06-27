@@ -1,26 +1,40 @@
 # https://github.com/stripe/stripe-python
 # https://stripe.com/docs/api?lang=python#top
 
+"""
+external library imports
+"""
 import logging
 import json
-from datetime import datetime, timedelta
-from pytz import utc
-from itertools import islice
 import re
-
-from django.conf import settings
-from django.http import  HttpResponse
-from django.core.mail import send_mail
-
-from regluit.payment.models import Account, Transaction, PaymentResponse
-from regluit.payment.parameters import PAYMENT_HOST_STRIPE
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_ERROR, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
-from regluit.payment import baseprocessor
-from regluit.payment.signals import transaction_charged, transaction_failed
-
-from regluit.utils.localdatetime import now, zuluformat
-
 import stripe
+
+from datetime import datetime, timedelta
+from itertools import islice
+from pytz import utc
+
+"""
+django imports
+"""
+from django.conf import settings
+from django.core.mail import send_mail
+from django.http import HttpResponse
+
+"""
+regluit imports
+"""
+from regluit.payment import baseprocessor
+from regluit.payment.models import Account, Transaction, PaymentResponse
+from regluit.payment.parameters import (
+    PAYMENT_HOST_STRIPE,
+    TRANSACTION_STATUS_ACTIVE,
+    TRANSACTION_STATUS_COMPLETE,
+    TRANSACTION_STATUS_ERROR,
+    PAYMENT_TYPE_AUTHORIZATION,
+    TRANSACTION_STATUS_CANCELED
+)
+from regluit.payment.signals import transaction_charged, transaction_failed
+from regluit.utils.localdatetime import now, zuluformat
 
 # as of 2012.11.05
 STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized',

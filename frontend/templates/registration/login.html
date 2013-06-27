@@ -1,5 +1,5 @@
 {% extends "registration/registration_base.html" %}
-{% block title %}login{% endblock %}
+{% block title %}Log in to Unglue.it{% endblock %}
 {% block doccontent %}
 <div id="lightbox_content">
 {% if form.errors %}
@@ -9,6 +9,17 @@
 Make sure the username box has your <b>username, not your email</b> -- some browsers automatically fill in your email.  We're working on fixing this bug.
 {% endif %}
 {% if not user.is_authenticated %}
+{% if request.session.kindle_email %}
+    <div class="launch_top pale">
+        <p>
+            We've sent your book to your Kindle.  Happy reading!
+        </p>
+        
+        <p>
+            In the future you can send yourself unglued ebooks with one click.  Log in, or sign up, and we'll add your Kindle email to your profile so you never have to enter it again.
+        </p>
+    </div>
+{% endif %}
 <h3>Sign in to your account</h3>
 
 {% include "login_form.html" %}
@@ -21,8 +32,8 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <br /><br />
 <div  class="google_signup">
 <div {% if socials.google %}class="errorlist"{% endif %}>
-	<div><a href="/socialauth/login/google?next=/next/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a></div>
-	<div>Or: <a href="/socialauth/login/google?next=/next/">Sign in with Google</a></div>
+	<div><a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a></div>
+	<div>Or: <a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign in with Google</a></div>
 </div>
 </div>
 {% else %}

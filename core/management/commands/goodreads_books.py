@@ -1,7 +1,9 @@
-from django.core.management.base import BaseCommand
-from regluit.core.goodreads import GoodreadsClient
-from django.conf import settings
 from itertools import islice
+
+from django.conf import settings
+from django.core.management.base import BaseCommand
+
+from regluit.core.goodreads import GoodreadsClient
 
 class Command(BaseCommand):
     help = "list books on given user bookshelf"

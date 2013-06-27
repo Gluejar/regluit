@@ -1,9 +1,10 @@
-from django.conf.urls.defaults import *
 from tastypie.api import Api
-from regluit.api.views import ApiHelpView
+
+from django.conf.urls.defaults import *
 from django.views.generic.base import TemplateView
 
 from regluit.api import resources
+from regluit.api.views import ApiHelpView
 
 v1_api = Api(api_name='v1')
 v1_api.register(resources.UserResource())

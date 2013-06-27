@@ -6,7 +6,6 @@ affected.
 from django.core.management.base import BaseCommand
 from regluit.test import booktests
 
-
 class Command(BaseCommand):
     help = "Dispose of the Frankenworks and recluster the works.  Print out email addresses of those whose wishlists have been affected."
     args = "<do>"

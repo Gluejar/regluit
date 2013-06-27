@@ -10,7 +10,7 @@
     clear:both;
     padding: 5px 10px;
     font-size: @font-size-default;
-    width: 934px;
+    width: 90%;
 
     a {
     	color: @call-to-action;
@@ -747,7 +747,7 @@ a.nounderline {
 }
 
 #lightbox_content {
-	p {
+	p, li {
 		padding: 9px 0;
 		font-size: @font-size-larger;
 		line-height: 20px;
@@ -847,4 +847,113 @@ li.checked {
     background:transparent url(/static/images/checkmark_small.png) no-repeat 0 0;
     margin-left: -20px;
     padding-left: 20px;
+}
+
+.btn_support {
+    margin: 10px;
+    width: 215px;
+    
+    a, form input, > span {
+        font-size: @font-size-shout;
+        border: 4px solid @blue-grey;
+        .one-border-radius(10px);
+        display: block;
+        text-align: center;
+        padding-top: @font-size-header*.75;
+        padding-bottom: @font-size-header*.75;
+        background-color: @call-to-action;
+        color: white !important;
+
+        span {
+            color: white !important;
+            font-weight: bold;
+            padding-left: 0;
+            margin-left: 0 !important;
+            background: none;
+        }
+    }
+    
+    &.create-account span {
+        padding: 0;
+        margin: 0;
+        background: none;
+    }
+    
+    a:hover, form input:hover {
+        background-color: darken(@call-to-action, 7%);
+        text-decoration: none;
+    }
+    
+    a {
+        width: 207px;
+    }
+    
+    form input {
+        width: 215px;
+    }
+    
+    &.modify a, &.modify form input {
+        background-color: @medium-blue-grey;
+        
+        &:hover {
+            background-color: darken(@medium-blue-grey, 7%);
+        }
+    }    
+}
+
+/* download page */
+.instructions {
+    h4 {
+        border-top: solid @blue-grey 1px;
+        border-bottom: solid @blue-grey 1px;
+        padding: 0.5em 0;
+    }
+    
+    > div {
+        padding-left: 1%;
+        padding-right: 1%;
+        font-size: @font-size-larger;
+        line-height: @font-size-larger*1.5;
+        width: 98%;
+        
+        &.active {
+            float: left;
+        }
+    }    
+}
+
+.one_click {
+    float: left;
+    & > div {
+        float: left;
+        
+        #kindle a, .kindle a {
+            font-size: @font-size-larger;
+            padding: 9px 0;
+        }
+        
+        div {
+            margin: 0 10px 0 0;
+        }
+    }
+}
+
+.ebook_download_container {
+    clear: left;
+}
+
+.other_instructions_paragraph {
+    display: none;
+}
+
+#iOS_app_div, #ios_div {
+    /* JS overrides display: none on instructions if it's enabled
+       if JS isn't enabled, they are not on an iOS device, so no need to
+       clutter up the download instructions with this
+    */
+    display: none;
+}
+
+.yes_js {
+    display: none;
 }
