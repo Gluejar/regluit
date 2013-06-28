@@ -681,7 +681,7 @@ class WorkListView(FilterableListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] = self.kwargs.get('facet','')
             works_unglued = qs.exclude(editions__ebooks__isnull=True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
-            context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:self.max_works]
+            context['works_unglued'] = works_unglued[:self.max_works]
             context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
                         
@@ -2520,7 +2520,6 @@ def kindle_config(request, kindle_ebook_id=None):
         if form.is_valid():
             request.user.profile.kindle_email = form.cleaned_data['kindle_email']
             request.user.profile.save()
-            request.session.pop('kindle_email')
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
@@ -2562,9 +2561,19 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     title = ebook.edition.title
     title = title.replace(' ', '_')
     
+    # TO FIX rigorously:
+    # Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
+    # to determine whether the file will meet this limit, we probably need to compare the
+    # size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
+    # MB either: http://en.wikipedia.org/wiki/Megabyte)
+    # http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
+
+    # for the moment, we will hardwire a 8x10^6 limit in filesize, which will properly block Oral Literature in Africa
+    # while leaving our other campaign-unglued books.
+    
     filehandle = urllib.urlopen(ebook.url)
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
-    if filesize > 26214400:
+    if filesize > 8000000:
         logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
         return local_response(request, javascript, 0)
         
