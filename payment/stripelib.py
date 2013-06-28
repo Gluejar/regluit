@@ -31,6 +31,7 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_COMPLETE,
     TRANSACTION_STATUS_ERROR,
     PAYMENT_TYPE_AUTHORIZATION,
+    PAYMENT_TYPE_INSTANT,
     TRANSACTION_STATUS_CANCELED
 )
 from regluit.payment.signals import transaction_charged, transaction_failed
@@ -680,13 +681,10 @@ class Processor(baseprocessor.Processor):
         if p.success() and not p.error():
             transaction.pay_key = p.key()
             transaction.save()
-            return True
-        
         else:
             transaction.error = p.error_string()
             transaction.save()
             logger.info("execute_transaction Error: " + p.error_string())
-            return False
                     
       def amount( self ):
           return self.transaction.amount
