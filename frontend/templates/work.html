@@ -103,7 +103,7 @@
                                     </div>
                                     <div class="pledged-info noborder">
                                         <div class="campaign-status-info">
-                                            <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
+                                            <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> {% ifequal work.last_campaign.type 1 %}pledged{% else %}raised{% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
@@ -116,7 +116,11 @@
                                             {% endif %}                                    
                                         </div>
                                         <div class="campaign-status-info">
+                                            {% ifequal work.last_campaign.type 1 %}
                                             <span>{{ work.last_campaign.countdown }}</span> to go
+                                            {% else %}
+                                            <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
+                                            {% endifequal %}
                                         </div>
                                     </div>
                                 {% else %}
