@@ -57,6 +57,7 @@ Please fix the following before launching your campaign:
 <li>{{ problem }}</li>
 </ul>
 {% empty %}
+<!--{{form.errors}}-->
 {% endfor %}
 
 (Or, <a href="{% url rightsholders %}">go back</a> to rights holder tools page.)<br />
@@ -269,6 +270,7 @@ Please fix the following before launching your campaign:
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	{% ifequal campaign.type 2 %}
 	<input type='hidden' id='type' name='type' value='2' />
+	<div style="display:none">{{ form.deadline }}</div>
 	{% else %}
 	<h3>Ending date</h3>
 	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>

@@ -82,7 +82,7 @@ class PremiumAdmin(ModelAdmin):
 class CampaignAdmin(ModelAdmin):
     list_display = ('work', 'created', 'status')
     date_hierarchy = 'created'
-    exclude = ('edition', 'work', 'managers', 'publisher')
+    exclude = ('edition', 'work', 'managers', 'publisher', 'activated')
     search_fields = ['work']
 
 class WorkAdmin(ModelAdmin):
