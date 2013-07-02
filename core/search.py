@@ -3,6 +3,8 @@ import json
 import requests
 import regluit.core.isbn
 
+from django.conf import settings
+
 def gluejar_search(q, user_ip='69.243.24.29', page=1):
     """normalizes results from the google books search suitable for gluejar
     """
@@ -56,6 +58,9 @@ def googlebooks_search(q, user_ip, page):
     headers = {'X-Forwarded-For': user_ip}
     start = (page - 1) * 10 
     params = {'q': q, 'startIndex': start, 'maxResults': 10}
+    if hasattr(settings, 'GOOGLE_BOOKS_API_KEY'):
+        params['key'] = settings.GOOGLE_BOOKS_API_KEY
+        
     r = requests.get('https://www.googleapis.com/books/v1/volumes', 
             params=params, headers=headers)
     return json.loads(r.content)
