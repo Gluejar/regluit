@@ -2414,16 +2414,20 @@ def download(request, work_id):
             
     for ebook in work.ebooks().all():
         formats[ebook.format] = ebook
-        
-    if formats.has_key('mobi'):
-        kindle_ebook_id = formats['mobi'].id
-    elif formats.has_key('pdf'):
-        kindle_ebook_id = formats['pdf'].id
-    else:
-        kindle_ebook_id = None
+    
+    # google ebooks have a captcha which breaks some of our services
+    non_google_ebooks = work.ebooks().exclude(provider='Google Books')
+     
+    try:
+        kindle_ebook_id = non_google_ebooks.filter(format='mobi')[0].id
+    except IndexError:
+        try:
+            kindle_ebook_id = non_google_ebooks.filter(format='pdf')[0].id
+        except IndexError:
+            kindle_ebook_id = None
     
     try:
-        readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
+        readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
         #readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
         readmill_epub_url = readmill_epub_ebook.url
     except:
