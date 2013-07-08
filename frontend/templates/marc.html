@@ -1,0 +1,16 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %} MARC records{% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+<h2>MARC records at Unglue.it</h2>
+
+<p>Go ahead: add unglued ebooks to your library catalog!</p>
+
+{% for record in records %}
+{{ record.edition.work.title }}<br /><br />
+{% endfor %}
+{% endblock %}

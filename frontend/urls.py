@@ -131,6 +131,7 @@ urlpatterns = patterns(
     url(r"^accounts/edit/kindle_config/(?P<kindle_ebook_id>\d+)/$", "kindle_config",  name="kindle_config_download"),
     url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
+    url(r"^marc/$", "marc", name="marc"),
 )
 
 if settings.DEBUG:

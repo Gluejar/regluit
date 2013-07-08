@@ -2603,3 +2603,11 @@ def send_to_kindle_graceful(request, message):
         'kindle_response_graceful_degradation.html',
         {'message': int(message)}
     )
+    
+def marc(request):
+    records = models.MARCRecord.objects.all()
+    return render(
+        request,
+        'marc.html',
+        {'records': records}
+    )
