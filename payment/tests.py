@@ -1,30 +1,35 @@
 """
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
+external library imports
 """
-
-from django.test import TestCase
-from django.utils import unittest
-from django.conf import settings
-from django.contrib.auth.models import User
-from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction, Account
-from regluit.core.models import Campaign, Wishlist, Work
-from regluit.core.signals import handle_transaction_charged
-from regluit.payment.parameters import *
-import traceback
-from django.core.validators import URLValidator
-from django.core.exceptions import ValidationError
-import time
-from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 import logging
 import os
-from decimal import Decimal as D
-from regluit.utils.localdatetime import now
+import time
+import traceback
+
 from datetime import timedelta
+from decimal import Decimal as D
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+
+"""
+django imports
+"""
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+from django.test import TestCase
+from django.utils import unittest
+
+"""
+regluit imports
+"""
+from regluit.core.models import Campaign, Wishlist, Work
+from regluit.core.signals import handle_transaction_charged
+from regluit.payment.manager import PaymentManager
+from regluit.payment.models import Transaction, Account
+from regluit.payment.parameters import *
+from regluit.utils.localdatetime import now
 
 def setup_selenium():
     # Set the display window for our xvfb
@@ -180,72 +185,6 @@ class PledgeTest(TestCase):
             valid(url)
         except ValidationError, e:
             print e
-        
-    @unittest.expectedFailure
-    def test_pledge_single_receiver(self):
-        
-        try:
-            p = PaymentManager()
-    
-            # Note, set this to 1-5 different receivers with absolute amounts for each
-            receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}]
-            t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
-        
-            self.validateRedirect(t, url, 1)
-        
-            loginSandbox(self.selenium)
-            paySandbox(self, self.selenium, url)
-            
-            # sleep to make sure the transaction has time to complete
-            time.sleep(10)
-                    
-            # by now we should have received the IPN
-            # right now, for running on machine with no acess to IPN, we manually update statuses
-            p.checkStatus()
-            t = Transaction.objects.get(id=t.id)
-            
-            self.assertEqual(t.status, IPN_PAY_STATUS_COMPLETED)
-            self.assertEqual(t.receiver_set.all()[0].status, IPN_TXN_STATUS_COMPLETED)
-            
-        except:
-            traceback.print_exc()
-    
-    @unittest.expectedFailure    
-    def test_pledge_mutiple_receiver(self):
-        
-        p = PaymentManager()
-    
-        # Note, set this to 1-5 different receivers with absolute amounts for each
-        receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':20.00}, 
-                         {'email':settings.PAYPAL_TEST_RH_EMAIL, 'amount':10.00}]
-        
-        t, url = p.pledge('USD', receiver_list, campaign=None, list=None, user=None)
-        
-        self.validateRedirect(t, url, 2)
-        
-        loginSandbox(self.selenium)
-        paySandbox(self, self.selenium, url)
-        
-        # by now we should have received the IPN
-        # right now, for running on machine with no acess to IPN, we manually update statuses
-        p.checkStatus()
-        
-        t = Transaction.objects.get(id=t.id)
-
-        self.assertEqual(t.status, IPN_PAY_STATUS_COMPLETED)
-        self.assertEqual(t.receiver_set.all()[0].status, IPN_TXN_STATUS_COMPLETED)
-        self.assertEqual(t.receiver_set.all()[1].status, IPN_TXN_STATUS_COMPLETED)
-    
-    @unittest.expectedFailure
-    def test_pledge_too_much(self):
-        
-        p = PaymentManager()
-    
-        # Note, set this to 1-5 different receivers with absolute amounts for each
-        receiver_list = [{'email':settings.PAYPAL_GLUEJAR_EMAIL, 'amount':50000.00}]
-        t, url = p.pledge('USD',  receiver_list, campaign=None, list=None, user=None)
-        
-        self.validateRedirect(t, url, 1)
 
     def tearDown(self):
         self.selenium.quit()

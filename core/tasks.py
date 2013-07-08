@@ -1,16 +1,30 @@
-from time import sleep
-from datetime import timedelta
-
+"""
+external library imports
+"""
 import logging
-logger = logging.getLogger(__name__)
 
 from celery.task import task
+from datetime import timedelta
+from time import sleep
 
-from django.contrib.auth.models import User
+"""
+django imports
+"""
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from notification.engine import send_all
+from notification import models as notification
 
-from regluit.core import bookloader, models
-from regluit.core import goodreads, librarything
+"""
+regluit imports
+"""
+from regluit.core import (
+    bookloader,
+    models,
+    goodreads, 
+    librarything
+)
 from regluit.core.models import Campaign
 from regluit.core.signals import deadline_impending
 
@@ -18,10 +32,7 @@ from regluit.payment.models import Account
 
 from regluit.utils.localdatetime import now, date_today
 
-from django.core.mail import send_mail
-
-from notification.engine import send_all
-from notification import models as notification
+logger = logging.getLogger(__name__)
 
 @task 
 def populate_edition(isbn):

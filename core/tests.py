@@ -1,34 +1,58 @@
-from decimal import Decimal as D
+"""
+external library imports
+"""
 from datetime import datetime, timedelta
-from regluit.utils.localdatetime import now, date_today
+from decimal import Decimal as D
+from math import factorial
+from time import sleep, mktime
+from urlparse import parse_qs, urlparse
+from celery.task import chord
+from celery.task.sets import TaskSet
 
-from django.test import TestCase
-from django.test.client import Client
-from django.utils import unittest
-from django.test.utils import override_settings
-from django.db import IntegrityError
-from django.contrib.auth.models import User
+"""
+django imports
+"""
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.db import IntegrityError
 from django.http import Http404
+from django.test import TestCase
+from django.test.client import Client
+from django.test.utils import override_settings
+from django.utils import unittest
 
-from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Work, UnglueitError, Edition, RightsHolder, Claim, Key, Ebook, Premium, Subject, Publisher
-from regluit.core import bookloader, models, search, goodreads, librarything
-from regluit.core import isbn
-from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+"""
+regluit imports
+"""
+from regluit.core import (
+    isbn,
+    bookloader,
+    models,
+    search,
+    goodreads,
+    librarything,
+    tasks
+)
+from regluit.core.models import (
+    Campaign,
+    Work,
+    UnglueitError,
+    Edition,
+    RightsHolder,
+    Claim,
+    Key,
+    Ebook,
+    Premium,
+    Subject,
+    Publisher
+)
 from regluit.frontend.views import safe_get_work
-
-from regluit.core import tasks
-from celery.task.sets import TaskSet
-from celery.task import chord
-
-from time import sleep, mktime
-from math import factorial
-from urlparse import parse_qs, urlparse
-
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+from regluit.utils.localdatetime import now, date_today
 
 class BookLoaderTests(TestCase):
     def setUp(self):
@@ -40,8 +64,8 @@ class BookLoaderTests(TestCase):
         # edition
         edition = bookloader.add_by_isbn('0441007465')
         self.assertEqual(edition.title, 'Neuromancer')
-        self.assertEqual(edition.publication_date, u'2000-07-01')
-        self.assertEqual(edition.publisher, u'Ace Trade')
+        self.assertEqual(edition.publication_date, u'2000')
+        self.assertEqual(edition.publisher, u'Penguin')
         self.assertEqual(edition.isbn_10, '0441007465')
         self.assertEqual(edition.isbn_13, '9780441007462')
         self.assertEqual(edition.googlebooks_id, 'IDFfMPW32hQC')
@@ -64,8 +88,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.publishers().count(), 1)
         old_pub_name.publisher = pub
         old_pub_name.save()
-        edition.set_publisher(u'Ace Trade')
-        self.assertEqual(edition.publisher, u'test publisher name') # Ace Trade has been aliased
+        edition.set_publisher(u'Penguin')
+        self.assertEqual(edition.publisher, u'test publisher name') # Penguin has been aliased
         # locale in language
         edition = bookloader.add_by_isbn('9787500676911')
         self.assertEqual(edition.work.language, 'zh')
@@ -674,8 +698,8 @@ class DownloadPageTest(TestCase):
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
-        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=4) #the extra is readmill
-        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=3)
+        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=9) 
+        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=4)
 
 
 class LocaldatetimeTest(TestCase):

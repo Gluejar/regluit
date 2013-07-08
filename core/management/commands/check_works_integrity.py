@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
-from regluit.core import models
 from django.db.models import Q, F
+
+from regluit.core import models
 
 class Command(BaseCommand):
     help = "Do a few integrity checks on Works, Editions, and Identifiers"

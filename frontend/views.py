@@ -1,5 +1,5 @@
 '''
-imports not from django or regluit
+external library imports
 '''
 import re
 import sys
@@ -23,21 +23,27 @@ django imports
 '''
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.contrib.auth.views import login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.temp import NamedTemporaryFile
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
+from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
-from django.forms.models import modelformset_factory
-from django.forms.models import inlineformset_factory
-from django.http import HttpResponseRedirect, Http404
-from django.http import HttpResponse, HttpResponseNotFound
+from django.forms.models import modelformset_factory, inlineformset_factory
+from django.http import (
+    HttpResponseRedirect,
+    Http404,
+    HttpResponse,
+    HttpResponseNotFound
+)
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
@@ -52,31 +58,69 @@ from django.views.generic.base import TemplateView
 '''
 regluit imports
 '''
-from regluit.core import tasks
-from regluit.core import models, bookloader, librarything
-from regluit.core import userlists
-from regluit.core import goodreads
+from regluit.core import (
+    tasks,
+    models,
+    bookloader,
+    librarything,
+    userlists,
+    goodreads
+)
 from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications
 
-from regluit.frontend.forms import UserData, ProfileForm, CampaignPledgeForm, GoodreadsShelfLoadingForm 
-from regluit.frontend.forms import  RightsHolderForm, UserClaimForm, LibraryThingForm, OpenCampaignForm
-from regluit.frontend.forms import getManageCampaignForm, DonateForm, CampaignAdminForm, EmailShareForm, FeedbackForm
-from regluit.frontend.forms import EbookForm, CustomPremiumForm, EditManagersForm, EditionForm, PledgeCancelForm
-from regluit.frontend.forms import getTransferCreditForm, CCForm, CloneCampaignForm, PlainCCForm, WorkForm, OtherWorkForm
-from regluit.frontend.forms import MsgForm, AuthForm
-from regluit.frontend.forms import PressForm
+from regluit.frontend.forms import (
+    UserData,
+    ProfileForm,
+    CampaignPledgeForm,
+    GoodreadsShelfLoadingForm,
+    RightsHolderForm,
+    UserClaimForm,
+    LibraryThingForm,
+    OpenCampaignForm,
+    getManageCampaignForm,
+    DonateForm,
+    CampaignAdminForm,
+    EmailShareForm,
+    FeedbackForm,
+    EbookForm,
+    CustomPremiumForm,
+    EditManagersForm,
+    EditionForm,
+    PledgeCancelForm,
+    getTransferCreditForm,
+    CCForm,
+    CloneCampaignForm,
+    PlainCCForm,
+    WorkForm,
+    OtherWorkForm,
+    MsgForm,
+    AuthForm,
+    PressForm,
+    KindleEmailForm
+)
 
 from regluit.payment import baseprocessor, stripelib
 from regluit.payment.credit import credit_transaction
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account, Sent, CreditLog
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_CANCELED, TRANSACTION_STATUS_ERROR, TRANSACTION_STATUS_FAILED, TRANSACTION_STATUS_INCOMPLETE, TRANSACTION_STATUS_NONE, TRANSACTION_STATUS_MODIFIED
-from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION, PAYMENT_TYPE_INSTANT
-from regluit.payment.parameters import PAYMENT_HOST_STRIPE, PAYMENT_HOST_NONE
+from regluit.payment.parameters import (
+    TRANSACTION_STATUS_ACTIVE,
+    TRANSACTION_STATUS_COMPLETE,
+    TRANSACTION_STATUS_CANCELED,
+    TRANSACTION_STATUS_ERROR,
+    TRANSACTION_STATUS_FAILED,
+    TRANSACTION_STATUS_INCOMPLETE,
+    TRANSACTION_STATUS_NONE,
+    TRANSACTION_STATUS_MODIFIED,
+    PAYMENT_TYPE_AUTHORIZATION,
+    PAYMENT_TYPE_INSTANT,
+    PAYMENT_HOST_STRIPE,
+    PAYMENT_HOST_NONE
+)
 
 from regluit.utils.localdatetime import now, date_today
 
@@ -108,6 +152,17 @@ def slideshow(max):
             j +=1
                 
     return worklist
+
+def process_kindle_email(request):
+    """
+    check for kindle_email in session in case this is a redirect after
+    download + login/account creation; add kindle email to profile
+    """
+    user = request.user
+    if user.is_authenticated() and request.session.has_key('kindle_email'):
+        user.profile.kindle_email = request.session['kindle_email']
+        user.profile.save()
+        request.session.pop('kindle_email')
 
 def next(request):
     if request.COOKIES.has_key('next'):
@@ -148,10 +203,13 @@ def home(request, landing=False):
     drive interest toward most-nearly-successful
     """
     top_campaigns = models.Campaign.objects.filter(status="ACTIVE").order_by('left')[:4]
+    coming_soon = []
+    if not top_campaigns:
+        coming_soon = models.Campaign.objects.filter(status="INITIALIZED").order_by('-work__num_wishes')[:4]
     
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
-    unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')
+    unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:4]
 
     """
     get various recent types of site activity
@@ -203,9 +261,18 @@ def home(request, landing=False):
     else:
         events = latest_actions[:6]
     
-    return render(request, 'home.html', {
-        'suppress_search_box': True, 'events': events, 'top_campaigns': top_campaigns, 'unglued_books': unglued_books, 'most_wished': most_wished
-        })
+    return render(
+        request,
+        'home.html', 
+        {
+            'suppress_search_box': True, 
+            'events': events, 
+            'top_campaigns': top_campaigns, 
+            'coming_soon': coming_soon,
+            'unglued_books': unglued_books, 
+            'most_wished': most_wished
+        }
+    )
 
 def stub(request):
     path = request.path[6:] # get rid of /stub/
@@ -239,6 +306,8 @@ def work(request, work_id, action='display'):
             request.user.wishlist.add_work(work, "login", notify=True)
             request.session.pop("add_wishlist")
             
+    process_kindle_email(request)
+                
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
     else:
@@ -612,7 +681,7 @@ class WorkListView(FilterableListView):
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] = self.kwargs.get('facet','')
             works_unglued = qs.exclude(editions__ebooks__isnull=True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
-            context['works_unglued'] = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')[:self.max_works]
+            context['works_unglued'] = works_unglued[:self.max_works]
             context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
             context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
                         
@@ -728,6 +797,8 @@ class CampaignListView(FilterableListView):
             return models.Campaign.objects.filter(status='ACTIVE').all() # STUB: will need to make db changes to make this work 
         elif (facet == 'ending'):
             return models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+        elif (facet == 'soon'):
+            return models.Campaign.objects.filter(status='INITIALIZED').order_by('-work__num_wishes')
         else:
             return models.Campaign.objects.all()
 
@@ -1638,6 +1709,8 @@ def supporter(request, supporter_username, template_name):
         goodreads_id = None
         librarything_id = None
 
+    process_kindle_email(request)
+                
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
@@ -1750,7 +1823,7 @@ def wishlist(request):
             return HttpResponse('added googlebooks id')
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
-            return HttpResponse('error addin googlebooks id')
+            return HttpResponse('error adding googlebooks id')
         except Exception, e:
             logger.warning("Error in wishlist adding %s" % (e))          
             return HttpResponse('error adding googlebooks id')
@@ -2337,19 +2410,46 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
+    formats = {}
+            
+    for ebook in work.ebooks().all():
+        formats[ebook.format] = ebook
+    
+    # google ebooks have a captcha which breaks some of our services
+    non_google_ebooks = work.ebooks().exclude(provider='Google Books')
+     
     try:
-        readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
-        readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+        kindle_ebook_id = non_google_ebooks.filter(format='mobi')[0].id
+    except IndexError:
+        try:
+            kindle_ebook_id = non_google_ebooks.filter(format='pdf')[0].id
+        except IndexError:
+            kindle_ebook_id = None
+    
+    try:
+        readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
+        #readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+        readmill_epub_url = readmill_epub_ebook.url
     except:
         readmill_epub_url = None
-        
+    agent = request.META.get('HTTP_USER_AGENT','')   
+    iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
+    iOS_app = iOS and not 'Safari' in agent
+    android = 'Android' in agent
+    desktop = not iOS and not android
     context.update({
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
+        'formats': formats,
+        'kindle_ebook_id': kindle_ebook_id,
         'readmill_epub_url': readmill_epub_url,
-        'base_url': settings.BASE_URL_SECURE
+        'base_url': settings.BASE_URL_SECURE,
+        'iOS': iOS,
+        'iOS_app': iOS_app,
+        'android': android,
+        'desktop': desktop
     })
-    
+
     return render(request, "download.html", context)
     
 def about(request, facet):
@@ -2403,3 +2503,103 @@ def press_submitterator(request):
             'form':form,
             'title':title
         })
+
+@login_required
+def kindle_config(request, kindle_ebook_id=None):
+    def get_title_from_kindle_id(kindle_ebook_id):
+        # protect against user URL manipulation
+        work = None
+        if kindle_ebook_id:
+            try:
+                ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+                work = ebook.edition.work
+            except:
+                kindle_ebook_id = None
+        return work, kindle_ebook_id
+
+    (work, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
+    template = "kindle_config.html"
+    if request.method == 'POST':
+        form = KindleEmailForm(request.POST)
+        if form.is_valid():
+            request.user.profile.kindle_email = form.cleaned_data['kindle_email']
+            request.user.profile.save()
+            template = "kindle_change_successful.html"
+    else:
+        form = KindleEmailForm()    
+    return render(
+        request,
+        template, 
+        {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'work': work}
+    )
+
+@require_POST
+@csrf_exempt
+def send_to_kindle(request, kindle_ebook_id, javascript='0'):
+    # make sure to gracefully communicate with both js and non-js (kindle!) users
+    def local_response(request, javascript, message):
+        if javascript == '1':
+            return render(request,'kindle_response_message.html',{'message': message} )
+        else:
+            # can't pass context with HttpResponseRedirect
+            # must use an HttpResponse, not a render(), after POST
+            return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
+
+    ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+
+    if request.POST.has_key('kindle_email'):
+        kindle_email = request.POST['kindle_email']
+        try:
+            validate_email(kindle_email)
+        except ValidationError:
+            return local_response(request, javascript, 3)
+        request.session['kindle_email'] = kindle_email
+    elif request.user.is_authenticated():
+        kindle_email = request.user.profile.kindle_email     
+            
+    # don't forget to increment the download counter!
+    assert ebook.format == 'mobi' or ebook.format == 'pdf'
+    ebook.increment()
+    logger.info('ebook: {0}, user_ip: {1}'.format(kindle_ebook_id, request.META['REMOTE_ADDR']))
+
+    title = ebook.edition.title
+    title = title.replace(' ', '_')
+    
+    """
+    TO FIX rigorously:
+    Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
+    to determine whether the file will meet this limit, we probably need to compare the
+    size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
+    MB either: http://en.wikipedia.org/wiki/Megabyte) http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
+
+    for the moment, we will hardwire a 749229 limit in filesize:
+    * assume conservative size of megabyte, 1000000B
+    * leave 1KB for headers
+    * mime encoding will add 33% to filesize
+    This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
+    """
+    filehandle = urllib.urlopen(ebook.url)
+    filesize = int(filehandle.info().getheaders("Content-Length")[0])
+    if filesize > 7492232:
+        logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
+        return local_response(request, javascript, 0)
+        
+    try:
+        email = EmailMessage(from_email='notices@gluejar.com',
+                to=[kindle_email])
+        email.attach(title + '.' + ebook.format, filehandle.read())
+        email.send()
+    except:
+        logger.warning('Unexpected error: %s', sys.exc_info())
+        return local_response(request, javascript, 1)
+
+    if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
+        return HttpResponseRedirect(reverse('superlogin'))
+    return local_response(request, javascript, 2)
+
+def send_to_kindle_graceful(request, message):
+    return render(
+        request,
+        'kindle_response_graceful_degradation.html',
+        {'message': int(message)}
+    )

@@ -1,41 +1,51 @@
-from regluit.payment.manager import PaymentManager
-from regluit.payment.models import Transaction
-from regluit.core.models import Campaign, Wishlist
+"""
+external library imports
+"""
+import logging
+import traceback
+import uuid
 
-from regluit.payment.stripelib import STRIPE_PK
-from regluit.payment.forms import StripePledgeForm
+from decimal import Decimal as D
+from unittest import TestResult
 
+"""
+django imports
+"""
 from django.conf import settings
-from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response
 from django.contrib.auth.models import User
 from django.contrib.sites.models import RequestSite
-from regluit.payment.parameters import *
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect, HttpResponseBadRequest
-from django.views.decorators.csrf import csrf_exempt
-from django.test.utils import setup_test_environment
+from django.core.urlresolvers import reverse
+from django.http import (
+    HttpResponse,
+    HttpRequest,
+    HttpResponseRedirect,
+    HttpResponseBadRequest
+)
+from django.shortcuts import render_to_response
 from django.template import RequestContext
-
+from django.test.utils import setup_test_environment
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
-from unittest import TestResult
+"""
+regluit imports
+"""
+from regluit.core.models import Campaign, Wishlist
+from regluit.payment.forms import StripePledgeForm
+from regluit.payment.manager import PaymentManager
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import *
+from regluit.payment.stripelib import STRIPE_PK
 from regluit.payment.tests import PledgeTest, AuthorizeTest
-import uuid
-from decimal import Decimal as D
-
 from regluit.utils.localdatetime import now
-import traceback
 
-
-import logging
 logger = logging.getLogger(__name__)
 
 # parameterize some test recipients
 TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'buyer5_1325740224_per@gmail.com']
 #TEST_RECEIVERS = ['seller_1317463643_biz@gmail.com', 'Buyer6_1325742408_per@gmail.com']
 #TEST_RECEIVERS = ['glueja_1317336101_biz@gluejar.com', 'rh1_1317336251_biz@gluejar.com', 'RH2_1317336302_biz@gluejar.com']
-
 
 '''
 http://BASE/querycampaign?id=2
@@ -205,7 +215,6 @@ def testModify(request):
         return HttpResponse("Error")
     
     
-    
 '''
 http://BASE/testfinish?transaction=2
 
@@ -225,52 +234,6 @@ def testFinish(request):
         return HttpResponse(message)
 
 
-    
-'''
-http://BASE/testpledge?campaign=2
-
-Example that initiates an instant payment for a campaign
-'''    
-def testPledge(request):
-    
-    p = PaymentManager()
-    
-    if 'campaign' in request.REQUEST.keys():
-        campaign_id = request.REQUEST['campaign']
-    else:
-        campaign_id = None
-        
-    # see whether there is a user logged in.
-    if request.user.is_authenticated():
-        user = request.user
-    else:
-        user = None
-    
-    # Note, set this to 1-5 different receivers with absolute amounts for each
-    #receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':20.00},{'email':TEST_RECEIVERS[1], 'amount':10.00}]
-    
-    if 'pledge_amount' in request.REQUEST.keys():
-        pledge_amount = request.REQUEST['pledge_amount']
-        receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':pledge_amount}]
-    else:
-        receiver_list = [{'email':TEST_RECEIVERS[0], 'amount':78.90}, {'email':TEST_RECEIVERS[1], 'amount':34.56}]
-        
-    if campaign_id:
-        campaign = Campaign.objects.get(id=int(campaign_id))
-        t, url = p.pledge('USD', TARGET_TYPE_CAMPAIGN, receiver_list, campaign=campaign, list=None, user=user, return_url=None)
-    
-    else:
-        t, url = p.pledge('USD', TARGET_TYPE_NONE, receiver_list, campaign=None, list=None, user=user, return_url=None)
-    
-    if url:
-        logger.info("testPledge: " + url)
-        return HttpResponseRedirect(url)
-    
-    else:
-        response = t.error
-        logger.info("testPledge: Error " + str(t.error))
-        return HttpResponse(response)
-
 def runTests(request):
 
     try:
@@ -282,14 +245,6 @@ def runTests(request):
         # Run the authorize test
         test = AuthorizeTest('test_authorize')
         test.run(result)   
-    
-        # Run the pledge test
-        test = PledgeTest('test_pledge_single_receiver')
-        test.run(result)
-        
-        # Run the pledge failure test
-        test = PledgeTest('test_pledge_too_much')
-        test.run(result)
 
         output = "Tests Run: " + str(result.testsRun) + str(result.errors) + str(result.failures)
         logger.info(output)

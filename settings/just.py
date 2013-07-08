@@ -49,8 +49,9 @@ EMAIL_HOST_PASSWORD = 'AgR9hVmSSOhetuLOnbFEFo9PTnL9iAM/52NOPGkS3Rwh'
 EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
-# googlebooks 
-GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
+# googlebooks
+# key created by rdhyee@gluejar.com 2013/07/02
+GOOGLE_BOOKS_API_KEY = 'AIzaSyBPZS7D3QvypGN_Tqc3blAXV1iJJJuu4mk'
 
 # twitter auth
 TWITTER_CONSUMER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'

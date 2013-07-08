@@ -1,26 +1,40 @@
 # https://github.com/stripe/stripe-python
 # https://stripe.com/docs/api?lang=python#top
 
+"""
+external library imports
+"""
 import logging
 import json
-from datetime import datetime, timedelta
-from pytz import utc
-from itertools import islice
 import re
-
-from django.conf import settings
-from django.http import  HttpResponse
-from django.core.mail import send_mail
-
-from regluit.payment.models import Account, Transaction, PaymentResponse
-from regluit.payment.parameters import PAYMENT_HOST_STRIPE
-from regluit.payment.parameters import TRANSACTION_STATUS_ACTIVE, TRANSACTION_STATUS_COMPLETE, TRANSACTION_STATUS_ERROR, PAYMENT_TYPE_AUTHORIZATION, TRANSACTION_STATUS_CANCELED
-from regluit.payment import baseprocessor
-from regluit.payment.signals import transaction_charged, transaction_failed
-
-from regluit.utils.localdatetime import now, zuluformat
-
 import stripe
+
+from datetime import datetime, timedelta
+from itertools import islice
+from pytz import utc
+
+"""
+django imports
+"""
+from django.conf import settings
+from django.core.mail import send_mail
+from django.http import HttpResponse
+
+"""
+regluit imports
+"""
+from regluit.payment import baseprocessor
+from regluit.payment.models import Account, Transaction, PaymentResponse
+from regluit.payment.parameters import (
+    PAYMENT_HOST_STRIPE,
+    TRANSACTION_STATUS_ACTIVE,
+    TRANSACTION_STATUS_COMPLETE,
+    TRANSACTION_STATUS_ERROR,
+    PAYMENT_TYPE_AUTHORIZATION,
+    TRANSACTION_STATUS_CANCELED
+)
+from regluit.payment.signals import transaction_charged, transaction_failed
+from regluit.utils.localdatetime import now, zuluformat
 
 # as of 2012.11.05
 STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized',
@@ -83,7 +97,16 @@ except Exception, e:
     
 # set default stripe api_key to that of unglue.it
 
-stripe.api_key =  STRIPE_SK   
+stripe.api_key =  STRIPE_SK
+
+# maybe we should be able to set this in django.settings...
+
+# to start with, let's try hard-coding the api_version
+# https://stripe.com/docs/upgrades?since=2012-07-09#api-changelog
+
+#API_VERSION = '2012-07-09'
+API_VERSION = '2013-02-13'
+stripe.api_version = API_VERSION
 
 # https://stripe.com/docs/testing
 
@@ -173,6 +196,7 @@ def _isListableAPIResource(x):
         return issubclass(x, stripe.ListableAPIResource)
     except:
         return False
+
 
 class StripeClient(object):
     def __init__(self, api_key=STRIPE_SK):
@@ -377,8 +401,8 @@ class StripeErrorTest(TestCase):
         charge1 = sc.create_charge(10, 'usd', card=token2.id)
         self.assertEqual(charge1.amount, 1000)
         self.assertEqual(charge1.id[:3], "ch_")
-        # disputed, failure_message, fee, fee_details
-        self.assertEqual(charge1.disputed,False)
+        # dispute, failure_message, fee, fee_details
+        self.assertEqual(charge1.dispute,None)
         self.assertEqual(charge1.failure_message,None)
         self.assertEqual(charge1.fee,59)
         self.assertEqual(charge1.refunded,False)
@@ -576,8 +600,6 @@ class Processor(baseprocessor.Processor):
             transaction.date_authorized = now_val
             transaction.date_expired = expiry
               
-            sc = StripeClient()
-            
             # let's figure out what part of transaction can be used to store info
             # try placing charge id in transaction.pay_key
             # need to set amount
@@ -614,7 +636,30 @@ class Processor(baseprocessor.Processor):
             """return None because no redirection to stripe is required"""
             return None
       
-      
+    class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
+    
+      '''
+        The pay function generates a redirect URL to approve the transaction
+      '''
+        
+      def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
+          self.transaction=transaction
+          
+      #def api(self):
+      #    return "null api"
+      #  
+      ##def exec_status( self ):
+      #    return None 
+          
+      def amount( self ):
+          return self.transaction.amount
+          
+      def key( self ):
+          return None
+    
+      def next_url( self ):
+          return self.url
+        
     class Execute(StripePaymentRequest):
         
         '''

@@ -1,6 +1,8 @@
-from django.core.management.base import BaseCommand
-from regluit.payment import stripelib
 from decimal import Decimal as D
+
+from django.core.management.base import BaseCommand
+
+from regluit.payment import stripelib
 
 class Command(BaseCommand):
     help = "create a credit card record and charge it -- for testing"

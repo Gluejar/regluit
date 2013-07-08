@@ -1,10 +1,14 @@
 # code modified from http://stackoverflow.com/questions/4734645/is-there-a-tool-to-check-database-integrity-in-django/4736176#4736176
 
-from django.core.management.base import BaseCommand, CommandError
-from django.core.management.base import NoArgsCommand
-from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
 from optparse import make_option
+
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import (
+    BaseCommand,
+    CommandError,
+    NoArgsCommand
+)
+from django.db import models
 
 def model_name(model):
     return '%s.%s' % (model._meta.app_label, model._meta.object_name)

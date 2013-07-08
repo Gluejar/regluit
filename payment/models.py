@@ -1,23 +1,37 @@
-from django.db import models
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.db.models import Q
-from django.dispatch import receiver
-from django.contrib.sites.models import Site
-
-from regluit.payment.parameters import *
-from regluit.payment.signals import credit_balance_added, pledge_created
-from regluit.utils.localdatetime import now, date_today
-
-from notification import models as notification
-
-from django.db.models.signals import post_save, post_delete, pre_save
-
-from decimal import Decimal
+"""
+external library imports
+"""
 import datetime 
 import uuid
 import urllib
 import logging
+
+from decimal import Decimal
+
+"""
+django imports
+"""
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db import models
+from django.db.models import Q
+from django.dispatch import receiver
+from django.contrib.sites.models import Site
+from django.db.models.signals import post_save, post_delete, pre_save
+
+"""
+django module imports
+"""
+from notification import models as notification
+
+
+"""
+regluit imports
+"""
+from regluit.payment.parameters import *
+from regluit.payment.signals import credit_balance_added, pledge_created
+from regluit.utils.localdatetime import now, date_today
+
 logger = logging.getLogger(__name__)
 
 # in fitting stripe -- here are possible fields to fit in with Transaction

@@ -1,19 +1,29 @@
-from regluit.core import models
-from regluit.payment.models import Transaction, PaymentResponse, Receiver
-from regluit.payment.manager import PaymentManager
+"""
+external library imports
+"""
+import logging
+import os
+import re
+import time
+import unittest
 
-from regluit.payment import stripelib
+from selenium import selenium, webdriver
+from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
 
+"""
+django imports
+"""
 import django
 from django.conf import settings
 
-from selenium import selenium, webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
-import unittest, time, re
-
-import logging
-import os
+"""
+regluit imports
+"""
+from regluit.core import models
+from regluit.payment import stripelib
+from regluit.payment.manager import PaymentManager
+from regluit.payment.models import Transaction, PaymentResponse, Receiver
 
 def setup_selenium():
     # Set the display window for our xvfb

@@ -1,6 +1,7 @@
-from os.path import dirname, realpath, join
-import regluit
 import datetime
+from os.path import dirname, realpath, join
+
+import regluit
 from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
