@@ -1313,7 +1313,6 @@ class MARCRecord(models.Model):
     record = models.FileField(upload_to='marc')
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
     
-
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals

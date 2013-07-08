@@ -205,6 +205,7 @@ class MARCRecordAdminForm(forms.ModelForm):
         model = models.MARCRecord
 
 class MARCRecordAdmin(ModelAdmin):
+    list_display = ('edition',)
     form = MARCRecordAdminForm
 
 admin_site = RegluitAdmin("Admin")

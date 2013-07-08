@@ -11,6 +11,9 @@
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
 {% for record in records %}
-{{ record.edition.work.title }}<br /><br />
+<div>
+    <a href="{% url work record.edition.work.id %}">{{ record.edition.work.title }}</a>
+    <a class="fakeinput" href="{{ record.record.url }}">Download</a>
+</div>
 {% endfor %}
 {% endblock %}
