@@ -1308,6 +1308,11 @@ class Press(models.Model):
     language = models.CharField(max_length=20, blank=True)
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
+    
+class MARCRecord(models.Model):
+    record = models.FileField(upload_to='marc')
+    edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
+    
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
