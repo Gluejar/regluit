@@ -297,6 +297,49 @@ class TransactionTest(TestCase):
         self.assertEqual(results[0].amount, D('12.34'))
         self.assertEqual(c.left,c.target-D('12.34'))
         self.assertEqual(c.supporters_count, 1)
+        
+    def test_paymentmanager_charge(self):
+        """
+        test regluit.payment.manager.PaymentManager.charge
+        
+        trying to simulate the conditions of having a bare transaction setup before we try to do
+        an instant charge.
+        
+        """
+        user = User.objects.create_user('pm_charge', 'support2@example.org', 'payment_test')
+        # need to create an Account to associate with user
+        from regluit.payment.stripelib import StripeClient, card, Processor
+        
+        sc = StripeClient()
+        
+        # valid card and Account
+        card0 = card()
+        stripe_processor = Processor()
+        account = stripe_processor.make_account(user,token=card0)
+
+        w = Work()
+        w.save()
+        
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
+        c.save()
+        
+        t = Transaction(host='stripelib')
+        
+        t.max_amount = D('12.34')
+        t.type = PAYMENT_TYPE_NONE
+        t.status = TRANSACTION_STATUS_NONE
+        t.campaign = c
+        t.approved = False
+        t.user = user
+        
+        t.save()
+        
+        pm = PaymentManager()
+        response = pm.charge(t)
+        
+        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+        self.assertEqual(t.type, EXECUTE_TYPE_CHAINED_INSTANT)
+        self.assertEqual(t.amount, D('12.34'))
 
 class BasicGuiTest(TestCase):
     def setUp(self):
