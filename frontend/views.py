@@ -2414,16 +2414,20 @@ def download(request, work_id):
             
     for ebook in work.ebooks().all():
         formats[ebook.format] = ebook
-        
-    if formats.has_key('mobi'):
-        kindle_ebook_id = formats['mobi'].id
-    elif formats.has_key('pdf'):
-        kindle_ebook_id = formats['pdf'].id
-    else:
-        kindle_ebook_id = None
+    
+    # google ebooks have a captcha which breaks some of our services
+    non_google_ebooks = work.ebooks().exclude(provider='Google Books')
+     
+    try:
+        kindle_ebook_id = non_google_ebooks.filter(format='mobi')[0].id
+    except IndexError:
+        try:
+            kindle_ebook_id = non_google_ebooks.filter(format='pdf')[0].id
+        except IndexError:
+            kindle_ebook_id = None
     
     try:
-        readmill_epub_ebook = work.ebooks().filter(format='epub').exclude(provider='Google Books')[0]
+        readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
         #readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
         readmill_epub_url = readmill_epub_ebook.url
     except:
@@ -2561,19 +2565,22 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     title = ebook.edition.title
     title = title.replace(' ', '_')
     
-    # TO FIX rigorously:
-    # Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
-    # to determine whether the file will meet this limit, we probably need to compare the
-    # size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
-    # MB either: http://en.wikipedia.org/wiki/Megabyte)
-    # http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
+    """
+    TO FIX rigorously:
+    Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
+    to determine whether the file will meet this limit, we probably need to compare the
+    size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
+    MB either: http://en.wikipedia.org/wiki/Megabyte) http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
 
-    # for the moment, we will hardwire a 8x10^6 limit in filesize, which will properly block Oral Literature in Africa
-    # while leaving our other campaign-unglued books.
-    
+    for the moment, we will hardwire a 749229 limit in filesize:
+    * assume conservative size of megabyte, 1000000B
+    * leave 1KB for headers
+    * mime encoding will add 33% to filesize
+    This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
+    """
     filehandle = urllib.urlopen(ebook.url)
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
-    if filesize > 8000000:
+    if filesize > 7492232:
         logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
         return local_response(request, javascript, 0)
         
