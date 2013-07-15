@@ -30,7 +30,7 @@
 <div class="marc">
     {% for record in records %}
         <div>
-            <a class="fakeinput" href="{{ record.record.url }}">Download MARC</a>
+            <a class="fakeinput" href="{{ record.record.url }}">Download MARCXML</a>
             <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}</a>
         </div>
     {% endfor %}

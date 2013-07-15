@@ -24,6 +24,7 @@ django imports
 from django import forms
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import login
@@ -33,7 +34,7 @@ from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
@@ -100,7 +101,8 @@ from regluit.frontend.forms import (
     MsgForm,
     AuthForm,
     PressForm,
-    KindleEmailForm
+    KindleEmailForm,
+    MARCUngluifyForm
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -2611,3 +2613,15 @@ def marc(request):
         'marc.html',
         {'records': records}
     )
+
+class MARCUngluifyView(FormView):
+    template_name = 'marcungluify.html'
+    form_class = MARCUngluifyForm
+    success_url = reverse_lazy('MARCUngluify')
+
+    def form_valid(self, form):
+        messages.success(
+            self.request,
+            "You have successfully added a MARC record. Hooray! Add another?"
+        )
+        return super(MARCUngluifyView,self).form_valid(form)

@@ -1310,7 +1310,8 @@ class Press(models.Model):
     note = models.CharField(max_length=140, blank=True)
     
 class MARCRecord(models.Model):
-    record = models.FileField(upload_to='marc')
+    xml_record = models.FileField(upload_to='marc')
+    mrc_record = models.FileField(upload_to='marc')
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
     
 # this was causing a circular import problem and we do not seem to be using

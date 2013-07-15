@@ -51,8 +51,8 @@ from regluit.utils.localdatetime import now
 logger = logging.getLogger(__name__)
 
 class EditionForm(forms.ModelForm):
-    add_author = forms.CharField(max_length=500,  required=False)
-    add_subject = forms.CharField(max_length=200,  required=False)
+    add_author = forms.CharField(max_length=500, required=False)
+    add_subject = forms.CharField(max_length=200, required=False)
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,
             label='Publisher Name',
@@ -561,4 +561,33 @@ class PressForm(forms.ModelForm):
             
 class KindleEmailForm(forms.Form):
     kindle_email = forms.EmailField()
-
+    
+class MARCUngluifyForm(forms.Form):
+    LICENSE_CHOICES = (
+        ('BY', 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)'),
+        ('BY-SA', 'Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY 3.0)'),
+        ('BY-NC', 'Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY 3.0)'),
+        ('BY-NC-SA', 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY 3.0)'),
+        ('BY-NC-ND', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY 3.0)'),
+        ('BY-ND', 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY 3.0)'),
+    )
+    
+    file = forms.CharField()
+    license = forms.ChoiceField(choices=LICENSE_CHOICES)
+    pdf = forms.URLField(required=False)
+    epub = forms.URLField(required=False)
+    html = forms.URLField(required=False)
+    text = forms.URLField(required=False)
+    mobi = forms.URLField(required=False)
+    # but custom validation should insist at least 1 nonempty
+    
+    def clean(self):
+        super(MARCUngluifyForm,self).clean()
+        if not (
+            self.cleaned_data['pdf'] or 
+            self.cleaned_data['epub'] or
+            self.cleaned_data['html'] or
+            self.cleaned_data['text'] or
+            self.cleaned_data['mobi']
+        ):
+            raise forms.ValidationError('You must enter a URL for at least one filetype.')

@@ -33,7 +33,8 @@ from regluit.frontend.views import (
     ByPubView,
     kindle_config,
     send_to_kindle,
-    send_to_kindle_graceful
+    send_to_kindle_graceful,
+    MARCUngluifyView
 )
 
 urlpatterns = patterns(
@@ -132,6 +133,7 @@ urlpatterns = patterns(
     url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
     url(r"^marc/$", "marc", name="marc"),
+    url(r"^marc/ungluify/$", login_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
 )
 
 if settings.DEBUG:
