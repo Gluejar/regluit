@@ -2,6 +2,23 @@
 
 {% block title %} MARC records{% endblock %}
 
+{% block extra_extra_head %}
+<style type="text/css">
+.marc {
+    margin-top: 20px;
+}
+
+.marc div a.fakeinput {
+    clear: both;
+}
+
+.marc div a.title {
+    vertical-align: middle;
+    padding-left: 5px;
+}
+</style>
+{% endblock %}
+
 {% block topsection %}
 {% endblock %}
 
@@ -10,10 +27,12 @@
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
-{% for record in records %}
-<div>
-    <a href="{% url work record.edition.work.id %}">{{ record.edition.work.title }}</a>
-    <a class="fakeinput" href="{{ record.record.url }}">Download</a>
+<div class="marc">
+    {% for record in records %}
+        <div>
+            <a class="fakeinput" href="{{ record.record.url }}">Download MARC</a>
+            <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}</a>
+        </div>
+    {% endfor %}
 </div>
-{% endfor %}
 {% endblock %}
