@@ -593,7 +593,7 @@ class LibraryThing(object):
                 return []
         else:
             # if isbn is not already cached, do look up and cache the results and return the results
-            print "calling thingisbn for %s" % (isbn)
+            # print "calling thingisbn for %s" % (isbn)
             results = [isbn_mod.ISBN(k).to_string('13') for k in thingisbn (isbn)]
             if len(results):
                 # look up the librarything work id
