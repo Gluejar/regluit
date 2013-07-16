@@ -572,7 +572,7 @@ class MARCUngluifyForm(forms.Form):
         ('BY-ND', 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY 3.0)'),
     )
     
-    file = forms.CharField()
+    file = forms.FileField()
     license = forms.ChoiceField(choices=LICENSE_CHOICES)
     pdf = forms.URLField(required=False)
     epub = forms.URLField(required=False)
