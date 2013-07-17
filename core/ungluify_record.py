@@ -1,6 +1,7 @@
 """
 This takes a MARCXML filename as an argument and converts it into
 MARC records for the unglued edition (in .xml and .mrc formats).
+Consider it a catalogolem: http://commons.wikimedia.org/wiki/File:Arcimboldo_Librarian_Stokholm.jpg
 Use the MARCXML file for the non-unglued edition from Library of Congress.
 """
 
@@ -10,13 +11,14 @@ import pymarc
 from datetime import datetime
 from StringIO import StringIO
 
+from django.conf import settings
 from django.core.files.storage import default_storage
 
 from regluit.core import models
 
 def makemarc(marcfile, isbn, license, ebooks):
     """
-    if we're going to suck down LOC records:
+    if we're going to suck down LOC records directly:
         parse_xml_to_array takes a file, so we need to faff about with file writes
         would be nice to have a suitable z39.50
         can use LCCN to grab record with urllib, but file writes are inconsistent
@@ -30,6 +32,7 @@ def makemarc(marcfile, isbn, license, ebooks):
     fields_to_delete += record.get_fields('005')
     fields_to_delete += record.get_fields('006')
     fields_to_delete += record.get_fields('007')
+    fields_to_delete += record.get_fields('010')
     fields_to_delete += record.get_fields('040')
     for field in fields_to_delete:
         record.remove_field(field)
@@ -74,6 +77,28 @@ def makemarc(marcfile, isbn, license, ebooks):
     field008 = pymarc.Field(tag='008', data=new_field_value)
     record.add_ordered_field(field008)
     
+    # add IBSN for ebook where applicable; relegate print ISBN to $z
+    field020 = record.get_fields('020')[0]
+    print_isbn = field020.get_subfields('a')[0]
+    field020.delete_subfield('a')
+    if isbn:
+        field020.add_subfield('a', isbn)
+    field020.add_subfield('z', print_isbn)
+
+    # change 050 and 082 indicators because LOC is no longer responsible for these
+    # no easy indicator change function, so we'll just reconstruct the fields
+    field050 = record.get_fields('050')[0]
+    field050_new = field050
+    field050_new.indicators = [' ', '4']
+    record.remove_field(field050)
+    record.add_ordered_field(field050_new)
+
+    field082 = record.get_fields('050')[0]
+    field082_new = field050
+    field082_new.indicators = [' ', '4']
+    record.remove_field(field082)
+    record.add_ordered_field(field082_new)
+    
     # add subfield to 245 indicating format
     field245 = record.get_fields('245')[0]
     field245.add_subfield('h', '[electronic resource]')
@@ -87,7 +112,7 @@ def makemarc(marcfile, isbn, license, ebooks):
         subfield_a[-2:] == ' +'
     ):
         subfield_a = subfield_a[:-2]
-    new300a = 'online resource (' + subfield_a + ')'
+    new300a = '1 online resource (' + subfield_a + ')'
     if field300.get_subfields('b'):
         new300a += ' :'
     field300.delete_subfield('a')
@@ -105,28 +130,15 @@ def makemarc(marcfile, isbn, license, ebooks):
     record.add_ordered_field(field536)
     
     # add 540 field (terms governing use)
-    license_terms = {
-        'BY': 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)',
-        'BY-SA': 'Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY 3.0)',
-        'BY-NC': 'Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY 3.0)',
-        'BY-NC-SA': 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY 3.0)',
-        'BY-NC-ND': 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY 3.0)',
-        'BY-ND': 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY 3.0)',
-    }
-    license_grants = {
-        'BY': 'http://creativecommons.org/licenses/by/3.0/',
-        'BY-SA': 'http://creativecommons.org/licenses/by-sa/3.0/',
-        'BY-NC': 'http://creativecommons.org/licenses/by-nc/3.0/',
-        'BY-NC-SA': 'http://creativecommons.org/licenses/by-nc-sa/3.0/',
-        'BY-NC-ND': 'http://creativecommons.org/licenses/by-nc-nd/3.0/',
-        'BY-ND': 'http://creativecommons.org/licenses/by-nd/3.0/'        
-    }
+    license_terms = settings.CCCHOICES
+    license_grants = settings.CCGRANTS
+    
     field540 = pymarc.Field(
         tag='540',
         indicators = [' ', ' '],
         subfields = [
-            'a', license_terms[license],
-            'u', license_grants[license],
+            'a', dict(license_terms)[license],
+            'u', dict(license_grants)[license],
         ]
     )
     record.add_ordered_field(field540)
@@ -142,21 +154,16 @@ def makemarc(marcfile, isbn, license, ebooks):
     record.add_ordered_field(field588)
 
     # add 856 fields with links for each available file
-    content_types = {
-        'PDF': 'application/pdf',
-        'EPUB': 'application/epub+zip',
-        'HTML': 'text/html',
-        'TEXT': 'text/plain',
-        'MOBI': 'application/x-mobipocket-ebook'
-    }
-    for format in ebooks:
+    content_types = settings.CONTENT_TYPES
+    for format_tuple in settings.FORMATS:
+        format = format_tuple[0]
         if ebooks[format]:            
             field856 = pymarc.Field(
                 tag='856',
                 indicators = ['4', '0'],
                 subfields = [
                     '3', format + ' version',
-                    'q', content_types[format.upper()],
+                    'q', content_types[format],
                     'u', ebooks[format],
                 ]
             )

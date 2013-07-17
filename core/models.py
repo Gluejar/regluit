@@ -110,7 +110,7 @@ class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
-    status = models.CharField(max_length=7, choices= STATUSES, default='pending')
+    status = models.CharField(max_length=7, choices=STATUSES, default='pending')
     
     @property
     def can_open_new(self):
@@ -175,16 +175,8 @@ class CampaignAction(models.Model):
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
 
 class CCLicense():
-    CCCHOICES = ( 
-            ('CC BY-NC-ND','CC BY-NC-ND'), 
-            ('CC BY-ND','CC BY-ND'), 
-            ('CC BY','CC BY'), 
-            ('CC BY-NC','CC BY-NC'),
-            ( 'CC BY-NC-SA','CC BY-NC-SA'),
-            ( 'CC BY-SA','CC BY-SA'),
-            ( 'CC0','CC0'),
-        )
-    CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
+    CCCHOICES = settings.CCCHOICES
+    CHOICES = CCCHOICES + (('PD-US', 'Public Domain, US'),)
     
     @staticmethod
     def url(license):
@@ -230,7 +222,7 @@ class CCLicense():
 
     
 class Campaign(models.Model):
-    LICENSE_CHOICES = CCLicense.CCCHOICES
+    LICENSE_CHOICES = settings.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = RichTextField(null=True, blank=False)
@@ -1036,8 +1028,8 @@ class WasWork(models.Model):
     
     
 class Ebook(models.Model):
-    FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
-    RIGHTS_CHOICES = CCLicense.CHOICES
+    FORMAT_CHOICES = settings.FORMATS
+    RIGHTS_CHOICES = settings.CCCHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)

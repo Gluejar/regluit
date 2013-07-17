@@ -568,15 +568,6 @@ class KindleEmailForm(forms.Form):
     kindle_email = forms.EmailField()
     
 class MARCUngluifyForm(forms.Form):
-    LICENSE_CHOICES = (
-        ('BY', 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)'),
-        ('BY-SA', 'Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY 3.0)'),
-        ('BY-NC', 'Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY 3.0)'),
-        ('BY-NC-SA', 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY 3.0)'),
-        ('BY-NC-ND', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY 3.0)'),
-        ('BY-ND', 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY 3.0)'),
-    )
-
     edition = AutoCompleteSelectField(
             EditionLookup,
             label='Edition',
@@ -584,16 +575,17 @@ class MARCUngluifyForm(forms.Form):
             required=True,
             error_messages={'required': 'Please specify an edition.'},
         )    
-    isbn = forms.CharField()
-    file = forms.FileField()
-    license = forms.ChoiceField(choices=LICENSE_CHOICES)
-    pdf = forms.URLField(required=False)
-    epub = forms.URLField(required=False)
-    html = forms.URLField(required=False)
-    text = forms.URLField(required=False)
-    mobi = forms.URLField(required=False)
-    # but custom validation should insist at least 1 nonempty
-    
+    isbn = forms.CharField(label='ISBN of unglued edition (leave blank if no ISBN)', required=False)
+    file = forms.FileField(label='Download a MARCXML file from Library of Congress; then upload it here.')
+    license = forms.ChoiceField(choices=settings.CCCHOICES)
+
+    def __init__(self, *args, **kwargs):
+        super(MARCUngluifyForm, self).__init__(*args, **kwargs)
+        for format_tuple in settings.FORMATS:
+            key = format_tuple[0]
+            self.fields[key] = forms.URLField(required=False, label='Link to ' + key + ' file')
+
+    # insist that at least 1 ebook link is nonempty    
     def clean(self):
         if not (
             self.cleaned_data['pdf'] or 

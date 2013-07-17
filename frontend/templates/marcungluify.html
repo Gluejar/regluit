@@ -11,6 +11,10 @@
 {% endblock %}
 
 {% block doccontent %}
+<h2>Make your unglued MARC records here</h2>
+<p>
+    For unglued ebooks which have existing print editions cataloged in the Library of Congress, we can automatically convert those to unglued ebook MARC records, which will then be automatically affixed to the ebook edition in our database and <a href="{% url marc %}">provided to ungluers</a>.
+</p>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}

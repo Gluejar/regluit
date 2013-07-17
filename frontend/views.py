@@ -2623,12 +2623,11 @@ class MARCUngluifyView(FormView):
     def form_valid(self, form):
         isbn = form.cleaned_data['isbn']
         license = form.cleaned_data['license']
-        ebooks = { 'PDF': form.cleaned_data['pdf'],
-                   'EPUB': form.cleaned_data['epub'],
-                   'HTML': form.cleaned_data['html'],
-                   'MOBI': form.cleaned_data['mobi'],
-                   'TEXT': form.cleaned_data['text']
-        }
+        ebooks = {}
+        for format in settings.FORMATS:
+            key = format[0]
+            ebooks[key] = form.cleaned_data[key]
+
         ungluify_record.makemarc(
             marcfile=self.request.FILES['file'],
             isbn=isbn,
