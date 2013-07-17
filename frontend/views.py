@@ -65,7 +65,8 @@ from regluit.core import (
     bookloader,
     librarything,
     userlists,
-    goodreads
+    goodreads,
+    ungluify_record
 )
 from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
@@ -2620,6 +2621,20 @@ class MARCUngluifyView(FormView):
     success_url = reverse_lazy('MARCUngluify')
 
     def form_valid(self, form):
+        isbn = form.cleaned_data['isbn']
+        license = form.cleaned_data['license']
+        ebooks = { 'PDF': form.cleaned_data['pdf'],
+                   'EPUB': form.cleaned_data['epub'],
+                   'HTML': form.cleaned_data['html'],
+                   'MOBI': form.cleaned_data['mobi'],
+                   'TEXT': form.cleaned_data['text']
+        }
+        ungluify_record.makemarc(
+            marcfile=self.request.FILES['file'],
+            isbn=isbn,
+            license=license,
+            ebooks=ebooks
+        )
         messages.success(
             self.request,
             "You have successfully added a MARC record. Hooray! Add another?"

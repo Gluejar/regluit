@@ -45,7 +45,12 @@ from regluit.core.models import (
     FACEBOOK,
     GRAVATAR
 )
-from regluit.core.lookups import OwnerLookup, WorkLookup, PublisherNameLookup
+from regluit.core.lookups import (
+    OwnerLookup,
+    WorkLookup,
+    PublisherNameLookup,
+    EditionLookup
+)
 from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
@@ -571,7 +576,15 @@ class MARCUngluifyForm(forms.Form):
         ('BY-NC-ND', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY 3.0)'),
         ('BY-ND', 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY 3.0)'),
     )
-    
+
+    edition = AutoCompleteSelectField(
+            EditionLookup,
+            label='Edition',
+            widget=AutoCompleteSelectWidget(EditionLookup),
+            required=True,
+            error_messages={'required': 'Please specify an edition.'},
+        )    
+    isbn = forms.CharField()
     file = forms.FileField()
     license = forms.ChoiceField(choices=LICENSE_CHOICES)
     pdf = forms.URLField(required=False)
@@ -582,7 +595,6 @@ class MARCUngluifyForm(forms.Form):
     # but custom validation should insist at least 1 nonempty
     
     def clean(self):
-        super(MARCUngluifyForm,self).clean()
         if not (
             self.cleaned_data['pdf'] or 
             self.cleaned_data['epub'] or
@@ -591,3 +603,4 @@ class MARCUngluifyForm(forms.Form):
             self.cleaned_data['mobi']
         ):
             raise forms.ValidationError('You must enter a URL for at least one filetype.')
+        return self.cleaned_data

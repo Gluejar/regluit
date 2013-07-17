@@ -1172,10 +1172,8 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    
     avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
             choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
-    
 
     def __unicode__(self):
         return self.user.username
