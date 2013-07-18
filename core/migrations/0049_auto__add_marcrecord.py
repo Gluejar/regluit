@@ -11,8 +11,8 @@ class Migration(SchemaMigration):
         # Adding model 'MARCRecord'
         db.create_table('core_marcrecord', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('xml_record', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
-            ('mrc_record', self.gf('django.db.models.fields.files.FileField')(max_length=100)),
+            ('xml_record', self.gf('django.db.models.fields.URLField')(max_length=200)),
+            ('mrc_record', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('edition', self.gf('django.db.models.fields.related.ForeignKey')(related_name='MARCrecords', null=True, to=orm['core.Edition'])),
         ))
         db.send_create_signal('core', ['MARCRecord'])
@@ -105,7 +105,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 7, 16, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 7, 17, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
@@ -164,8 +164,8 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'MARCRecord'},
             'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'MARCrecords'", 'null': 'True', 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'mrc_record': ('django.db.models.fields.files.FileField', [], {'max_length': '100'}),
-            'xml_record': ('django.db.models.fields.files.FileField', [], {'max_length': '100'})
+            'mrc_record': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
+            'xml_record': ('django.db.models.fields.URLField', [], {'max_length': '200'})
         },
         'core.premium': {
             'Meta': {'object_name': 'Premium'},

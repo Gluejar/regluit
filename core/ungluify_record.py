@@ -16,7 +16,7 @@ from django.core.files.storage import default_storage
 
 from regluit.core import models
 
-def makemarc(marcfile, isbn, license, ebooks):
+def makemarc(marcfile, isbn, license, ebooks, edition):
     """
     if we're going to suck down LOC records directly:
         parse_xml_to_array takes a file, so we need to faff about with file writes
@@ -40,6 +40,7 @@ def makemarc(marcfile, isbn, license, ebooks):
     # create accession number and write 001 field 
     # (control field syntax is special)
     marc_record = models.MARCRecord()
+    marc_record.edition = edition
     marc_record.save()
     marc_id = marc_record.id
     zeroes = 9 - len(str(marc_record.id))
@@ -176,22 +177,36 @@ def makemarc(marcfile, isbn, license, ebooks):
             record.remove_field(field)
     
     # write the unglued MARCxml records
-    xml_filename = 'marc/' + isbn + '_unglued.xml'
+    xml_filename = 'marc/' + accession + '_unglued.xml'
     xmlrecord = pymarc.record_to_xml(record)
-    xml_file = default_storage.open(xml_filename, 'rw')
+    xml_file = default_storage.open(xml_filename, 'w')
     xml_file.write(xmlrecord)
+    xml_file.close()
     
     # write the unglued .mrc record, then save to s3
     string = StringIO()
-    mrc_filename = 'marc/' + isbn + '_unglued.mrc'
+    mrc_filename = 'marc/' + accession + '_unglued.mrc'
     writer = pymarc.MARCWriter(string)
     writer.write(record)
-    mrc_file = default_storage.open(mrc_filename, 'rw')
+    mrc_file = default_storage.open(mrc_filename, 'w')
     mrc_file.write(string.getvalue())
+    mrc_file.close()
     
+    """
     # add the records we just created to our active MARCRecord instance
+    # yes, we have to close and reopen the file
+    # opening it in r or rw before we save to s3 throws a file-doesn't-exist error
+    # but it must be readable for this step
+    xml_file = default_storage.open(xml_filename, 'r')
+    mrc_file = default_storage.open(mrc_filename, 'r')
     marc_record.xml_record = xml_file
     marc_record.mrc_record = mrc_file
     xml_file.close()
     mrc_file.close()
     marc_record.save()
+    """
+    marc_record.xml_record = default_storage.url(xml_filename)
+    marc_record.mrc_record = default_storage.url(mrc_filename)
+    logger.info('xml_filename: ' + default_storage.url(xml_filename))
+    logger.info('mrc_filename: ' + default_storage.url(mrc_filename))
+    marc_record.save()    

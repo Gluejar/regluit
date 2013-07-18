@@ -2623,6 +2623,7 @@ class MARCUngluifyView(FormView):
     def form_valid(self, form):
         isbn = form.cleaned_data['isbn']
         license = form.cleaned_data['license']
+        edition = form.cleaned_data['edition']
         ebooks = {}
         for format in settings.FORMATS:
             key = format[0]
@@ -2632,7 +2633,8 @@ class MARCUngluifyView(FormView):
             marcfile=self.request.FILES['file'],
             isbn=isbn,
             license=license,
-            ebooks=ebooks
+            ebooks=ebooks,
+            edition=edition
         )
         messages.success(
             self.request,
