@@ -24,6 +24,7 @@ def makemarc(marcfile, isbn, license, ebooks, edition):
         can use LCCN to grab record with urllib, but file writes are inconsistent
     """
     logger = logging.getLogger(__name__)
+    logger.info("Making MARC records for edition %s with ISBN %s and license %s" % (edition, isbn, license))
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
     fields_to_delete = []
@@ -182,6 +183,7 @@ def makemarc(marcfile, isbn, license, ebooks, edition):
     xml_file = default_storage.open(xml_filename, 'w')
     xml_file.write(xmlrecord)
     xml_file.close()
+    logger.info("MARCXML record for edition %s written to S3" % edition)
     
     # write the unglued .mrc record, then save to s3
     string = StringIO()
@@ -191,22 +193,9 @@ def makemarc(marcfile, isbn, license, ebooks, edition):
     mrc_file = default_storage.open(mrc_filename, 'w')
     mrc_file.write(string.getvalue())
     mrc_file.close()
-    
-    """
-    # add the records we just created to our active MARCRecord instance
-    # yes, we have to close and reopen the file
-    # opening it in r or rw before we save to s3 throws a file-doesn't-exist error
-    # but it must be readable for this step
-    xml_file = default_storage.open(xml_filename, 'r')
-    mrc_file = default_storage.open(mrc_filename, 'r')
-    marc_record.xml_record = xml_file
-    marc_record.mrc_record = mrc_file
-    xml_file.close()
-    mrc_file.close()
-    marc_record.save()
-    """
+    logger.info(".mrc record for edition %s written to S3" % edition)
+
     marc_record.xml_record = default_storage.url(xml_filename)
     marc_record.mrc_record = default_storage.url(mrc_filename)
-    logger.info('xml_filename: ' + default_storage.url(xml_filename))
-    logger.info('mrc_filename: ' + default_storage.url(mrc_filename))
     marc_record.save()    
+    logger.info("MARCRecord instance complete for edition %s with accession number %s" % (edition, accession))
