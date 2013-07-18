@@ -13,6 +13,7 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.db.models import Q
 from notification.engine import send_all
 from notification import models as notification
 
@@ -100,11 +101,20 @@ def update_active_campaign_status():
 
 #task to update the status of accounts
 @task
-def update_account_status():
+def update_account_status(all_accounts=True):
     """update the status of all Accounts"""
     errors = []
     
-    for account in Account.objects.all():
+    if all_accounts:
+        accounts_to_calc = Account.objects.all()
+    else:
+        # active accounts with expiration dates from this month earlier
+        today = date_today()
+        year = today.year
+        month = today.month
+        accounts_to_calc = Account.objects.filter(Q(date_deactivated__isnull=True)).filter((Q(card_exp_year__lt=year) | Q(card_exp_year=year, card_exp_month__lte = month)))
+    
+    for account in accounts_to_calc:
         try:
             account.status = account.calculated_status()
             account.save()
