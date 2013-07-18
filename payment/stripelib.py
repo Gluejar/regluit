@@ -37,19 +37,23 @@ from regluit.payment.parameters import (
 from regluit.payment.signals import transaction_charged, transaction_failed
 from regluit.utils.localdatetime import now, zuluformat
 
-# as of 2012.11.05
-STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized',
-                      'charge.succeeded', 'charge.failed', 'charge.refunded', 'charge.disputed',
-                      'customer.created', 'customer.updated', 'customer.deleted',
-                      'customer.subscription.created', 'customer.subscription.updated',
-                      'customer.subscription.deleted', 'customer.subscription.trial_will_end',
-                      'customer.discount.created', 'customer.discount.updated', 'customer.discount.deleted',
-                      'invoice.created', 'invoice.updated', 'invoice.payment_succeeded', 'invoice.payment_failed',
-                      'invoiceitem.created', 'invoiceitem.updated', 'invoiceitem.deleted',
-                      'plan.created', 'plan.updated', 'plan.deleted',
-                      'coupon.created', 'coupon.updated', 'coupon.deleted',
-                      'transfer.created', 'transfer.updated', 'transfer.failed',
-                      'ping']
+# as of 2013.07.15
+# ['charge.disputed', 'coupon.updated'] are legacy events -- don't know whether to
+# include them in list
+
+STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized', 'balance.available',
+    'charge.succeeded', 'charge.failed', 'charge.refunded', 'charge.captured',
+    'charge.dispute.created', 'charge.dispute.updated', 'charge.dispute.closed',
+    'customer.created', 'customer.updated', 'customer.deleted',
+    'customer.card.created', 'customer.card.updated', 'customer.card.deleted',
+    'customer.subscription.created', 'customer.subscription.updated',
+    'customer.subscription.deleted', 'customer.subscription.trial_will_end',
+    'customer.discount.created', 'customer.discount.updated',
+    'customer.discount.deleted', 'invoice.created', 'invoice.updated',
+    'invoice.payment_succeeded', 'invoice.payment_failed', 'invoiceitem.created',
+    'invoiceitem.updated', 'invoiceitem.deleted', 'plan.created', 'plan.updated',
+    'plan.deleted', 'coupon.created', 'coupon.deleted', 'transfer.created',
+    'transfer.updated', 'transfer.paid', 'transfer.failed', 'ping']
 
 logger = logging.getLogger(__name__)
 
