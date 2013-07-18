@@ -27,6 +27,10 @@
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
+{% if request.user.is_staff %}
+    <p>Hi, {{ request.user.username }}.  Unglue.it staffers can also <a href="{% url MARCUngluify %}">add new records</a>.</p>
+{% endif %}
+
 <div class="marc">
     {% for record in records %}
         <div>
@@ -34,6 +38,7 @@
             <a class="fakeinput" href="{{ record.mrc_record }}">Download .mrc</a>
             <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}</a>
         </div>
+        <br />
     {% endfor %}
 </div>
 {% endblock %}

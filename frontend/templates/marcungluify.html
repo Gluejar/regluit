@@ -12,9 +12,6 @@
 
 {% block doccontent %}
 <h2>Make your unglued MARC records here</h2>
-<p>
-    For unglued ebooks which have existing print editions cataloged in the Library of Congress, we can automatically convert those to unglued ebook MARC records, which will then be automatically affixed to the ebook edition in our database and <a href="{% url marc %}">provided to ungluers</a>.
-</p>
 {% if messages %}
 <ul class="messages">
     {% for message in messages %}
@@ -22,6 +19,18 @@
     {% endfor %}
 </ul>
 {% endif %}
+<p>
+    For unglued ebooks which have existing print editions cataloged in the Library of Congress, we can automatically convert those to unglued ebook MARC records, which will then be automatically affixed to the ebook edition in our database and <a href="{% url marc %}">provided to ungluers</a>.
+</p>
+
+<p>
+    <b>This does not perform validation</b> of either XML or ISBNs.  Ensure that you have a MARCXML file from Library of Congress and that you have the proper ISBN (or leave that field blank).  This is a staff-only function.
+</p>
+
+<p>
+    The robot cataloger will automatically add links to all the unglued ebook files known to the Unglue.it database.  <I>Make sure you have added those links to the database before creating the record.</i>
+</p>
+
 <form action="" enctype="multipart/form-data" method="post">{% csrf_token %}
     {{ form.as_p }}
     <input type="submit" value="Add record" />

@@ -579,20 +579,14 @@ class MARCUngluifyForm(forms.Form):
     file = forms.FileField(label='Download a MARCXML file from Library of Congress; then upload it here.')
     license = forms.ChoiceField(choices=settings.CCCHOICES)
 
-    def __init__(self, *args, **kwargs):
-        super(MARCUngluifyForm, self).__init__(*args, **kwargs)
-        for format_tuple in settings.FORMATS:
-            key = format_tuple[0]
-            self.fields[key] = forms.URLField(required=False, label='Link to ' + key + ' file')
-
-    # insist that at least 1 ebook link is nonempty    
+    # insist that there is at least one ebook to link to   
     def clean(self):
-        if not (
-            self.cleaned_data['pdf'] or 
-            self.cleaned_data['epub'] or
-            self.cleaned_data['html'] or
-            self.cleaned_data['text'] or
-            self.cleaned_data['mobi']
-        ):
-            raise forms.ValidationError('You must enter a URL for at least one filetype.')
+        ebooks = False
+        for format_tuple in settings.FORMATS:
+            format = format_tuple[0]
+            if self.cleaned_data['edition'].ebooks.filter(format=format):
+                ebooks = True
+                break            
+        if not ebooks:
+            raise forms.ValidationError('Please add at least one unglued ebook link to THIS EDITION through the work or admin page before creating a MARC record.')
         return self.cleaned_data

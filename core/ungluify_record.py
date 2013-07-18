@@ -16,7 +16,7 @@ from django.core.files.storage import default_storage
 
 from regluit.core import models
 
-def makemarc(marcfile, isbn, license, ebooks, edition):
+def makemarc(marcfile, isbn, license, edition):
     """
     if we're going to suck down LOC records directly:
         parse_xml_to_array takes a file, so we need to faff about with file writes
@@ -159,17 +159,19 @@ def makemarc(marcfile, isbn, license, ebooks, edition):
     content_types = settings.CONTENT_TYPES
     for format_tuple in settings.FORMATS:
         format = format_tuple[0]
-        if ebooks[format]:            
-            field856 = pymarc.Field(
-                tag='856',
-                indicators = ['4', '0'],
-                subfields = [
-                    '3', format + ' version',
-                    'q', content_types[format],
-                    'u', ebooks[format],
-                ]
-            )
-            record.add_ordered_field(field856)
+        ebooks = edition.ebooks.filter(format=format)
+        if ebooks:
+            for book in ebooks:
+                field856 = pymarc.Field(
+                    tag='856',
+                    indicators = ['4', '0'],
+                    subfields = [
+                        '3', format + ' version',
+                        'q', content_types[format],
+                        'u', format,
+                    ]
+                )
+                record.add_ordered_field(field856)
 
     # strip any 9XX fields (they're for local use)    
     for i in range(900, 1000):
