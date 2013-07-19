@@ -357,6 +357,7 @@ CCCHOICES = (
     ('CC BY-ND','Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)'), 
     ('CC0','No Rights Reserved (CC0)'),
 )
+CHOICES = CCCHOICES + (('PD-US', 'Public Domain, US'),)
 
 CCGRANTS = (
     ('CC BY', 'http://creativecommons.org/licenses/by/3.0/'),
@@ -367,6 +368,8 @@ CCGRANTS = (
     ('CC BY-ND', 'http://creativecommons.org/licenses/by-nd/3.0/'),        
     ('CC0', 'http://creativecommons.org/about/cc0'),
 )
+GRANTS = CCGRANTS + (('PD-US', ''),)
+
 
 FORMATS = (
     ('pdf','PDF'),

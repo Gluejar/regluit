@@ -16,6 +16,7 @@ from notification import models as notification
 from random import randint
 from re import sub
 from xml.etree import ElementTree as ET
+from xml.sax import SAXParseException
 from tastypie.models import ApiKey
 
 '''
@@ -2625,14 +2626,20 @@ class MARCUngluifyView(FormView):
         license = form.cleaned_data['license']
         edition = form.cleaned_data['edition']
 
-        ungluify_record.makemarc(
-            marcfile=self.request.FILES['file'],
-            isbn=isbn,
-            license=license,
-            edition=edition
-        )
-        messages.success(
-            self.request,
-            "You have successfully added a MARC record. Hooray! Add another?"
-        )
+        try:
+            ungluify_record.makemarc(
+                marcfile=self.request.FILES['file'],
+                isbn=isbn,
+                license=license,
+                edition=edition
+            )
+            messages.success(
+                self.request,
+                "You have successfully added a MARC record. Hooray! Add another?"
+            )
+        except SAXParseException:
+            messages.error(
+                self.request,
+                "Sorry, couldn't parse that file."
+            )
         return super(MARCUngluifyView,self).form_valid(form)

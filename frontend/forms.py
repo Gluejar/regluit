@@ -577,7 +577,7 @@ class MARCUngluifyForm(forms.Form):
         )    
     isbn = forms.CharField(label='ISBN of unglued edition (leave blank if no ISBN)', required=False)
     file = forms.FileField(label='Download a MARCXML file from Library of Congress; then upload it here.')
-    license = forms.ChoiceField(choices=settings.CCCHOICES)
+    license = forms.ChoiceField(choices=settings.CHOICES)
 
     # insist that there is at least one ebook to link to   
     def clean(self):
