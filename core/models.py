@@ -175,8 +175,7 @@ class CampaignAction(models.Model):
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
 
 class CCLicense():
-    CCCHOICES = settings.CCCHOICES
-    CHOICES = CCCHOICES + (('PD-US', 'Public Domain, US'),)
+    CHOICES = settings.CHOICES
     
     @staticmethod
     def url(license):

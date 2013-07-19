@@ -132,15 +132,12 @@ def makemarc(marcfile, isbn, license, edition):
     record.add_ordered_field(field536)
     
     # add 540 field (terms governing use)
-    license_terms = settings.CCCHOICES
-    license_grants = settings.CCGRANTS
-    
     field540 = pymarc.Field(
         tag='540',
         indicators = [' ', ' '],
         subfields = [
-            'a', dict(license_terms)[license],
-            'u', dict(license_grants)[license],
+            'a', dict(settings.CHOICES)[license],
+            'u', dict(settings.GRANTS)[license], 
         ]
     )
     record.add_ordered_field(field540)
