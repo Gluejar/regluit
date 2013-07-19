@@ -165,7 +165,7 @@ def makemarc(marcfile, isbn, license, edition):
                     subfields = [
                         '3', format + ' version',
                         'q', content_types[format],
-                        'u', format,
+                        'u', book.url,
                     ]
                 )
                 record.add_ordered_field(field856)
