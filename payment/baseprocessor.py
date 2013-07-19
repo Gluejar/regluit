@@ -96,6 +96,8 @@ class Processor:
         
       def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
           self.transaction=transaction
+          self.return_url = return_url
+          self.amount = amount
           
       def api(self):
           return "null api"
@@ -104,13 +106,13 @@ class Processor:
           return None 
           
       def amount( self ):
-          return None
+          return self.amount
           
       def key( self ):
           return None
     
       def next_url( self ):
-          return self.url
+          return self.return_url 
       
     class Preapproval(Pay):
         
