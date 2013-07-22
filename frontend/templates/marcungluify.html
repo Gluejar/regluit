@@ -24,15 +24,15 @@
 </p>
 
 <p>
-    To get the XML record, search <a href="http://catalog.loc.gov/">http://catalog.loc.gov/</a>, select the print edition, and click on the permalink (will look something like <a href="http://lccn.loc.gov/63008219">http://lccn.loc.gov/63008219</a>.  This page has a MARCXML link.
+    To get the XML record, search <a href="http://catalog.loc.gov/">http://catalog.loc.gov/</a>, select the print edition, and click on the permalink (will look something like <a href="http://lccn.loc.gov/63008219">http://lccn.loc.gov/63008219</a>).  This page has a MARCXML link.
 </p>
 
 <p>
-    <b>This does not perform validation</b> of either XML or ISBNs.  Ensure that you have a MARCXML file from Library of Congress and that you have the proper ISBN (or leave that field blank).  This is a staff-only function.
+    The robot cataloger will automatically add links to all the unglued ebook files known to the Unglue.it database.  <I>Make sure you have added those links to the database before creating the record.</i>  Likewise, it will autofill the ISBN, and you should have already provided that.
 </p>
 
 <p>
-    The robot cataloger will automatically add links to all the unglued ebook files known to the Unglue.it database.  <I>Make sure you have added those links to the database before creating the record.</i>
+    If you want to add a MARC record for a non-unglued but publicly available book, create a MARCRecord instance in the admin interface and populate its fields there.  (This assumes that the MARC record is for the freely available ebook version and exists in a linkable form.  If it does not, upload it to S3 first, by analogy with the <a href="http://django-storages.readthedocs.org/en/latest/backends/amazon-S3.html#tests">django-storages documentation</a>, and use that link.)
 </p>
 
 <form action="" enctype="multipart/form-data" method="post">{% csrf_token %}

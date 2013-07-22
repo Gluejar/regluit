@@ -16,7 +16,7 @@ from django.core.files.storage import default_storage
 
 from regluit.core import models
 
-def makemarc(marcfile, isbn, license, edition):
+def makemarc(marcfile, license, edition):
     """
     if we're going to suck down LOC records directly:
         parse_xml_to_array takes a file, so we need to faff about with file writes
@@ -24,7 +24,7 @@ def makemarc(marcfile, isbn, license, edition):
         can use LCCN to grab record with urllib, but file writes are inconsistent
     """
     logger = logging.getLogger(__name__)
-    logger.info("Making MARC records for edition %s with ISBN %s and license %s" % (edition, isbn, license))
+    logger.info("Making MARC records for edition %s and license %s" % (edition, license))
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
     fields_to_delete = []
@@ -80,6 +80,11 @@ def makemarc(marcfile, isbn, license, edition):
     record.add_ordered_field(field008)
     
     # add IBSN for ebook where applicable; relegate print ISBN to $z
+    isbn = ''
+    try:
+        isbn = edition.identifiers.filter(type='isbn')[0].value
+    except IndexError:
+        pass
     field020 = record.get_fields('020')[0]
     print_isbn = field020.get_subfields('a')[0]
     field020.delete_subfield('a')

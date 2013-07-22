@@ -2622,14 +2622,12 @@ class MARCUngluifyView(FormView):
     success_url = reverse_lazy('MARCUngluify')
 
     def form_valid(self, form):
-        isbn = form.cleaned_data['isbn']
         license = form.cleaned_data['license']
         edition = form.cleaned_data['edition']
 
         try:
             ungluify_record.makemarc(
                 marcfile=self.request.FILES['file'],
-                isbn=isbn,
                 license=license,
                 edition=edition
             )

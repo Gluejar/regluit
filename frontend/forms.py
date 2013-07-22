@@ -575,7 +575,6 @@ class MARCUngluifyForm(forms.Form):
             required=True,
             error_messages={'required': 'Please specify an edition.'},
         )    
-    isbn = forms.CharField(label='ISBN of unglued edition (leave blank if no ISBN)', required=False)
     file = forms.FileField(label='Download a MARCXML file from Library of Congress; then upload it here.')
     license = forms.ChoiceField(choices=settings.CHOICES)
 
