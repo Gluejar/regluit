@@ -18,13 +18,18 @@ from regluit.core import models
 
 def makemarc(marcfile, license, edition):
     """
-    if we're going to suck down LOC records directly:
+    fyi if we're going to suck down LOC records directly:
         parse_xml_to_array takes a file, so we need to faff about with file writes
         would be nice to have a suitable z39.50
         can use LCCN to grab record with urllib, but file writes are inconsistent
     """
     logger = logging.getLogger(__name__)
     logger.info("Making MARC records for edition %s and license %s" % (edition, license))
+    if '/unglue.it' in settings.BASE_URL:
+        directory = 'marc'
+    else:
+        directory = 'marc_test'
+        
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
     fields_to_delete = []
@@ -182,7 +187,7 @@ def makemarc(marcfile, license, edition):
             record.remove_field(field)
     
     # write the unglued MARCxml records
-    xml_filename = 'marc/' + accession + '_unglued.xml'
+    xml_filename = directory + '/' + accession + '_unglued.xml'
     xmlrecord = pymarc.record_to_xml(record)
     xml_file = default_storage.open(xml_filename, 'w')
     xml_file.write(xmlrecord)
@@ -191,7 +196,7 @@ def makemarc(marcfile, license, edition):
     
     # write the unglued .mrc record, then save to s3
     string = StringIO()
-    mrc_filename = 'marc/' + accession + '_unglued.mrc'
+    mrc_filename = directory + '/' + accession + '_unglued.mrc'
     writer = pymarc.MARCWriter(string)
     writer.write(record)
     mrc_file = default_storage.open(mrc_filename, 'w')
