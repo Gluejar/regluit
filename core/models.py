@@ -1159,7 +1159,8 @@ class UserProfile(models.Model):
     marc_format = models.CharField(
         max_length=6,
         default = 'DIRECT', 
-        choices = settings.MARC_CHOICES
+        choices = settings.MARC_CHOICES,
+        verbose_name="MARC record link targets"
     )
 
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
@@ -1170,7 +1171,7 @@ class UserProfile(models.Model):
     
     avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
             choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
-
+    
     def __unicode__(self):
         return self.user.username
 

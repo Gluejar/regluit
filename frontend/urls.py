@@ -34,7 +34,8 @@ from regluit.frontend.views import (
     kindle_config,
     send_to_kindle,
     send_to_kindle_graceful,
-    MARCUngluifyView
+    MARCUngluifyView,
+    MARCConfigView
 )
 
 urlpatterns = patterns(
@@ -134,6 +135,7 @@ urlpatterns = patterns(
     url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
     url(r"^marc/$", "marc", name="marc"),
     url(r"^marc/ungluify/$", login_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
+    url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
 )
 
 if settings.DEBUG:

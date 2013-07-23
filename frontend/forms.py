@@ -589,3 +589,8 @@ class MARCUngluifyForm(forms.Form):
         if not ebooks:
             raise forms.ValidationError('Please add at least one unglued ebook link to THIS EDITION through the work or admin page before creating a MARC record.')
         return self.cleaned_data
+        
+class MARCFormatForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('marc_format',)

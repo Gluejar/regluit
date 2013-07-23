@@ -104,7 +104,8 @@ from regluit.frontend.forms import (
     AuthForm,
     PressForm,
     KindleEmailForm,
-    MARCUngluifyForm
+    MARCUngluifyForm,
+    MARCFormatForm
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -2641,3 +2642,23 @@ class MARCUngluifyView(FormView):
                 "Sorry, couldn't parse that file."
             )
         return super(MARCUngluifyView,self).form_valid(form)
+        
+class MARCConfigView(FormView):
+    template_name = 'marc_config.html'
+    form_class = MARCFormatForm
+    success_url = reverse_lazy('marc')
+    
+    def form_valid(self, form):
+        marc_format = form.cleaned_data['marc_format']
+        profile = self.request.user.profile
+        profile.marc_format = marc_format
+        profile.save()
+        messages.success(
+            self.request,
+            "Your preferences have been changed."
+        )
+        if reverse('marc_config', args=[]) in self.request.META['HTTP_REFERER']:
+            return HttpResponseRedirect(reverse('marc_config', args=[]))
+        else:
+            return super(MARCConfigView, self).form_valid(form)
+        

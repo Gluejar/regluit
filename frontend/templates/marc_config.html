@@ -1,0 +1,32 @@
+{% extends "email_change/base.html" %}
+
+{% block extra_extra_head %}
+{{ block.super }}
+<style type="text/css">
+#login {
+    width: auto;
+    display: block;
+}
+</style>
+{% endblock %}
+
+{% block title %}Change your MARC record preferences{% endblock %}
+
+{% block ce_content %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+Your current MARC record link target preference is:<br />
+{{ request.user.profile.get_marc_format_display }}
+<form method="post" action="{% url marc_config %}">
+    {% csrf_token %}
+    {{ form }}
+    <br />
+    <input type="submit" value="Change" />
+</form>
+{% endblock %}
