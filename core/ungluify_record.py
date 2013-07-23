@@ -8,11 +8,13 @@ Use the MARCXML file for the non-unglued edition from Library of Congress.
 import logging
 import sys
 import pymarc
+from copy import deepcopy
 from datetime import datetime
 from StringIO import StringIO
 
 from django.conf import settings
 from django.core.files.storage import default_storage
+from django.core.urlresolvers import reverse
 
 from regluit.core import models
 
@@ -162,7 +164,18 @@ def makemarc(marcfile, license, edition):
     )
     record.add_ordered_field(field588)
 
+    # strip any 9XX fields (they're for local use)    
+    for i in range(900, 1000):
+        fields = record.get_fields(str(i))
+        for field in fields:
+            record.remove_field(field)
+    
     # add 856 fields with links for each available file
+    # doing this out of order as it's the only thing that differs
+    # between direct-link and via-unglue.it versions
+    # need deepcopy() because omg referential transparency!
+    record_via_unglueit = deepcopy(record)
+    
     content_types = settings.CONTENT_TYPES
     for format_tuple in settings.FORMATS:
         format = format_tuple[0]
@@ -179,13 +192,17 @@ def makemarc(marcfile, license, edition):
                     ]
                 )
                 record.add_ordered_field(field856)
+                
+    unglued_url = settings.BASE_URL_SECURE + reverse('download', args=[edition.work.id])
+    field856_via = pymarc.Field(
+        tag='856',
+        indicators = ['4', '0'],
+        subfields = [
+            'u', unglued_url,
+        ]
+    )
+    record_via_unglueit.add_ordered_field(field856_via)
 
-    # strip any 9XX fields (they're for local use)    
-    for i in range(900, 1000):
-        fields = record.get_fields(str(i))
-        for field in fields:
-            record.remove_field(field)
-    
     # write the unglued MARCxml records
     xml_filename = directory + '/' + accession + '_unglued.xml'
     xmlrecord = pymarc.record_to_xml(record)
@@ -194,7 +211,14 @@ def makemarc(marcfile, license, edition):
     xml_file.close()
     logger.info("MARCXML record for edition %s written to S3" % edition)
     
-    # write the unglued .mrc record, then save to s3
+    xml_filename_via = directory + '/' + accession + '_via_unglueit.xml'
+    xmlrecord = pymarc.record_to_xml(record_via_unglueit)
+    xml_file = default_storage.open(xml_filename_via, 'w')
+    xml_file.write(xmlrecord)
+    xml_file.close()
+    logger.info("MARCXML record for edition %s via unglue.it written to S3" % edition)
+
+    # write the unglued .mrc records, then save to s3
     string = StringIO()
     mrc_filename = directory + '/' + accession + '_unglued.mrc'
     writer = pymarc.MARCWriter(string)
@@ -204,7 +228,18 @@ def makemarc(marcfile, license, edition):
     mrc_file.close()
     logger.info(".mrc record for edition %s written to S3" % edition)
 
+    string = StringIO()
+    mrc_filename_via = directory + '/' + accession + '_via_unglueit.mrc'
+    writer = pymarc.MARCWriter(string)
+    writer.write(record_via_unglueit)
+    mrc_file = default_storage.open(mrc_filename_via, 'w')
+    mrc_file.write(string.getvalue())
+    mrc_file.close()
+    logger.info(".mrc record for edition %s via unglue.it written to S3" % edition)
+
     marc_record.xml_record = default_storage.url(xml_filename)
     marc_record.mrc_record = default_storage.url(mrc_filename)
+    marc_record.xml_record_via_unglueit = default_storage.url(xml_filename_via)
+    marc_record.mrc_record_via_unglueit = default_storage.url(mrc_filename_via)
     marc_record.save()    
     logger.info("MARCRecord instance complete for edition %s with accession number %s" % (edition, accession))
