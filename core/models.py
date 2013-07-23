@@ -1301,6 +1301,8 @@ class Press(models.Model):
 class MARCRecord(models.Model):
     xml_record = models.URLField()
     mrc_record = models.URLField()
+    xml_record_via_unglueit = models.URLField()
+    mrc_record_via_unglueit = models.URLField()
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
     
 # this was causing a circular import problem and we do not seem to be using
