@@ -136,6 +136,11 @@ edit the line ~/.virtualenvs/regluit/build/MySQL-python/setup_posix.py
 to be (using a path that exists on your system)
 1. mysql_config.path = "/usr/local/mysql-5.5.20-osx10.6-x86_64/bin/mysql_config"
 
+You may need to set utf8 in /etc/my.cnf 
+collation-server = utf8_unicode_ci
+
+    init-connect='SET NAMES utf8'
+    character-set-server = utf8
 
 Selenium Install
 ---------------
