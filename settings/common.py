@@ -386,6 +386,7 @@ CONTENT_TYPES = {
     'mobi': 'application/x-mobipocket-ebook'
 }
 
+# if you add more of these, make sure core/ungluify_record.py can deal
 MARC_CHOICES = (
     ('DIRECT', 'MARC records link direct to provider (one click, limited help)'),
     ('UNGLUE', "MARC records link to Unglue.it download page (more clicks, help for getting files onto user's device)"),

@@ -1307,9 +1307,8 @@ class Press(models.Model):
 class MARCRecord(models.Model):
     xml_record = models.URLField()
     mrc_record = models.URLField()
-    xml_record_via_unglueit = models.URLField()
-    mrc_record_via_unglueit = models.URLField()
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
+    marc_format = models.CharField(max_length=6,choices = settings.MARC_CHOICES)
     
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line

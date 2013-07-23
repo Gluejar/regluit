@@ -16,6 +16,11 @@
     vertical-align: middle;
     padding-left: 5px;
 }
+
+ul.local li {
+    list-style-type: disc;
+    list-style-position: inside;
+}
 </style>
 {% endblock %}
 
@@ -26,6 +31,20 @@
 <h2>MARC records at Unglue.it</h2>
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
+
+<p>Your preference for the links in the 856 field is:</p>
+<ul class="local">
+    <li>{{ request.user.profile.get_marc_format_display }}</li>
+</ul>
+
+<p>The options are:</p>
+<ul class="local">
+    {% for choice in MARC_CHOICES %}
+        <li>{{ choice.1 }}</li>
+    {% endfor %}
+</ul>
+
+<p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
 
 {% if request.user.is_staff %}
     <p>Hi, {{ request.user.username }}.  Unglue.it staffers can also <a href="{% url MARCUngluify %}">add new records</a>.</p>

@@ -51,7 +51,7 @@ def makemarc(marcfile, license, edition):
     marc_record.edition = edition
     marc_record.save()
     marc_id = marc_record.id
-    zeroes = 9 - len(str(marc_record.id))
+    zeroes = 9 - len(str(marc_id))
     accession = 'ung' + zeroes*'0' + str(marc_id)
     field001 = pymarc.Field(tag='001', data=accession)
     record.add_ordered_field(field001)
@@ -203,6 +203,18 @@ def makemarc(marcfile, license, edition):
     )
     record_via_unglueit.add_ordered_field(field856_via)
 
+    # this via_unglueit record needs its own accession number
+    field001 = record_via_unglueit.get_fields('001')[0]
+    record_via_unglueit.remove_field(field001)
+    marc_record_via = models.MARCRecord()
+    marc_record_via.edition = edition
+    marc_record_via.save()
+    marc_id_via = marc_record_via.id
+    zeroes = 9 - len(str(marc_id_via))
+    accession_via = 'ung' + zeroes*'0' + str(marc_id_via)
+    field001 = pymarc.Field(tag='001', data=accession_via)
+    record.add_ordered_field(field001)
+
     # write the unglued MARCxml records
     xml_filename = directory + '/' + accession + '_unglued.xml'
     xmlrecord = pymarc.record_to_xml(record)
@@ -211,7 +223,7 @@ def makemarc(marcfile, license, edition):
     xml_file.close()
     logger.info("MARCXML record for edition %s written to S3" % edition)
     
-    xml_filename_via = directory + '/' + accession + '_via_unglueit.xml'
+    xml_filename_via = directory + '/' + accession_via + '_via_unglueit.xml'
     xmlrecord = pymarc.record_to_xml(record_via_unglueit)
     xml_file = default_storage.open(xml_filename_via, 'w')
     xml_file.write(xmlrecord)
@@ -229,7 +241,7 @@ def makemarc(marcfile, license, edition):
     logger.info(".mrc record for edition %s written to S3" % edition)
 
     string = StringIO()
-    mrc_filename_via = directory + '/' + accession + '_via_unglueit.mrc'
+    mrc_filename_via = directory + '/' + accession_via + '_via_unglueit.mrc'
     writer = pymarc.MARCWriter(string)
     writer.write(record_via_unglueit)
     mrc_file = default_storage.open(mrc_filename_via, 'w')
@@ -239,7 +251,10 @@ def makemarc(marcfile, license, edition):
 
     marc_record.xml_record = default_storage.url(xml_filename)
     marc_record.mrc_record = default_storage.url(mrc_filename)
-    marc_record.xml_record_via_unglueit = default_storage.url(xml_filename_via)
-    marc_record.mrc_record_via_unglueit = default_storage.url(mrc_filename_via)
-    marc_record.save()    
-    logger.info("MARCRecord instance complete for edition %s with accession number %s" % (edition, accession))
+    marc_record.marc_format = 'DIRECT'
+    marc_record.save()     
+    marc_record_via.xml_record_via_unglueit = default_storage.url(xml_filename_via)
+    marc_record_via.mrc_record_via_unglueit = default_storage.url(mrc_filename_via)
+    marc_record_via.marc_format = 'UNGLUE'
+    marc_record_via.save()    
+    logger.info("MARCRecord instances complete for edition %s with accession numbers %s and %s" % (edition, accession, accession_via))

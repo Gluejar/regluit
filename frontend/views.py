@@ -2610,11 +2610,14 @@ def send_to_kindle_graceful(request, message):
     )
     
 def marc(request):
-    records = models.MARCRecord.objects.all()
+    marc_format = request.user.profile.marc_format
+    logger.info(marc_format)
+    records = models.MARCRecord.objects.filter(marc_format=marc_format)
+    logger.info(records)
     return render(
         request,
         'marc.html',
-        {'records': records}
+        {'records': records, 'MARC_CHOICES': settings.MARC_CHOICES}
     )
 
 class MARCUngluifyView(FormView):
