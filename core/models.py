@@ -1156,6 +1156,11 @@ class UserProfile(models.Model):
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders')
     kindle_email = models.EmailField(max_length=254, blank=True)
+    marc_format = models.CharField(
+        max_length=6,
+        default = 'DIRECT', 
+        choices = settings.MARC_CHOICES
+    )
 
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)

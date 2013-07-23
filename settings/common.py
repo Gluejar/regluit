@@ -376,7 +376,7 @@ FORMATS = (
     ('epub','EPUB'),
     ('html','HTML'),
     ('text','TEXT'),
-    ('mobi','MOBI')
+    ('mobi','MOBI'),
 )
 CONTENT_TYPES = {
     'pdf': 'application/pdf',
@@ -385,4 +385,9 @@ CONTENT_TYPES = {
     'text': 'text/plain',
     'mobi': 'application/x-mobipocket-ebook'
 }
+
+MARC_CHOICES = (
+    ('DIRECT', 'MARC records link direct to provider (one click, limited help)'),
+    ('UNGLUE', "MARC records link to Unglue.it download page (more clicks, help for getting files onto user's device)"),
+)
 
