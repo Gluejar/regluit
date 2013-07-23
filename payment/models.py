@@ -15,7 +15,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
-from django.dispatch import receiver
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_save, post_delete, pre_save
 
@@ -396,6 +395,54 @@ class Account(models.Model):
         else:
             return 'ACTIVE'
                 
+ 
+    def update_status(value=None):
+        """set Account.status = value unless value is None, in which case, we set Account.status=self.calculated_status()
+        fire off associated notifications
+        """
+        old_status = self.status
+        
+        if value is None:
+            new_status = self.calculated_status()
+        else:
+            new_status = value
+
+        self.status = new_status
+        self.save()
+        
+        if old_status != new_status:
+
+            logger.info( "Account status change: %d %s %s", instance.pk, old_status, new_status)
+            
+            if new_status == 'EXPIRING':
+                
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
+                            Site.objects.get_current())
+                
+                # fire off an account_expiring notice -- might not want to do this immediately
+                
+                notification.queue([instance.user], "account_expiring", {
+                    'user': instance.user,
+                    'site':Site.objects.get_current()
+                }, True)
+
+            elif new_status == 'EXPIRED':
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
+                            Site.objects.get_current())
+                
+                notification.queue([instance.user], "account_expired", {
+                    'user': instance.user,
+                    'site':Site.objects.get_current()
+                }, True)
+                
+            elif new_status == 'ERROR':
+                # TO DO:  we need to figure out notice needs to be sent out if we get an ERROR status.
+                pass
+
+            elif new_status == 'DEACTIVATED':
+                # nothing needs to happen here
+                pass
+
     
 # handle any save, updates to a payment.Transaction
 
@@ -440,72 +487,3 @@ def recharge_failed_transactions(sender, created, instance, **kwargs):
 
 post_save.connect(recharge_failed_transactions, sender=Account)
 
-# handler for transitions in Account.status
-# https://docs.djangoproject.com/en/dev/ref/signals/#pre-save
-# http://stackoverflow.com/a/7934958
-
-@receiver(pre_save, sender=Account)
-def handle_Account_status_change(sender, instance, raw, **kwargs):
-    """send notices based on changes in status of Accounts"""
-    
-    # instance is the Account instance about to be stored to the database
-    # obj (if it exists) is the current version of the Account in the database
-    
-    try:
-        # compute obj (if it exists)
-        obj = Account.objects.get(pk=instance.pk)
-        
-    except Account.DoesNotExist:
-        # this means that instance is a new Account
-
-        # trigger this notice only when a new ACTIVE account is created.
-        if instance.status == 'ACTIVE':
-
-            logger.info( "ACTIVE.  send to instance.user: %s  site: %s", instance.user,
-                        Site.objects.get_current())
-            
-            notification.queue([instance.user], "account_active", {
-                'user': instance.user,
-                'site':Site.objects.get_current()
-            }, True)
-            from regluit.core.tasks import emit_notifications
-            emit_notifications.delay()        
-        
-    else:
-                 
-        if not obj.status == instance.status: # status field of existing Account has changed
-            logger.info( "Account status change: %d %s %s", instance.pk, obj.status, instance.status)
-            
-            if instance.status == 'EXPIRING':
-                
-                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
-                            Site.objects.get_current())
-                
-                # fire off an account_expiring notice -- might not want to do this immediately
-                
-                notification.queue([instance.user], "account_expiring", {
-                    'user': instance.user,
-                    'site':Site.objects.get_current()
-                }, True)
-                from regluit.core.tasks import emit_notifications
-                emit_notifications.delay()
-
-            elif instance.status == 'EXPIRED':
-                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
-                            Site.objects.get_current())
-                
-                notification.queue([instance.user], "account_expired", {
-                    'user': instance.user,
-                    'site':Site.objects.get_current()
-                }, True)
-                from regluit.core.tasks import emit_notifications
-                emit_notifications.delay()
-                
-            elif instance.status == 'ERROR':
-                # TO DO:  we need to figure out notice needs to be sent out if we get an ERROR status.
-                pass
-
-            elif instance.status == 'DEACTIVATED':
-                # nothing needs to happen here
-                pass
-            

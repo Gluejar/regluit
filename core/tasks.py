@@ -116,10 +116,14 @@ def update_account_status(all_accounts=True):
     
     for account in accounts_to_calc:
         try:
-            account.status = account.calculated_status()
-            account.save()
+            account.update_status()
         except Exception, e:
             errors.append(e)
+
+    # fire off notices
+    
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()   
 
     return errors
  
