@@ -14,7 +14,7 @@
 
 {% block ce_content %}
 {% if messages %}
-<ul class="messages">
+<ul class="errors">
     {% for message in messages %}
     <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
     {% endfor %}

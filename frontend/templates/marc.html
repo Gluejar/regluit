@@ -2,6 +2,19 @@
 
 {% block title %} MARC records{% endblock %}
 
+{% block extra_js %}
+{{ block.super }}
+<script type="text/javascript">
+    var $j = jQuery.noConflict();
+    $j(document).ready(function() {
+        $j('#record_form').submit(function() {
+            $j('#submit').hide();
+            $j('#unsubmit').show();
+        });
+    });
+</script>
+{% endblock %}
+
 {% block extra_extra_head %}
 <style type="text/css">
 .marc {
@@ -21,6 +34,14 @@ ul.local li {
     list-style-type: disc;
     list-style-position: inside;
 }
+
+/* need to do a hide/show instead of a .replaceWith() on the submit button
+   because the image takes long enough to load that it's preempted by the 
+   redirect for quick downloads, and users never see it
+*/
+#unsubmit {
+    display: none;
+}
 </style>
 {% endblock %}
 
@@ -32,32 +53,53 @@ ul.local li {
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
-<p>Your preference for the links in the 856 field is:</p>
-<ul class="local">
-    <li>{{ request.user.profile.get_marc_format_display }}</li>
-</ul>
-
-<p>The options are:</p>
-<ul class="local">
-    {% for choice in MARC_CHOICES %}
-        <li>{{ choice.1 }}</li>
-    {% endfor %}
-</ul>
-
-<p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
-
 {% if request.user.is_staff %}
     <p>Hi, {{ request.user.username }}.  Unglue.it staffers can also <a href="{% url MARCUngluify %}">add new records</a>.</p>
 {% endif %}
 
+{% if messages %}
+    <ul class="errors">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
 <div class="marc">
-    {% for record in records %}
-        <div>
-            <a class="fakeinput" href="{{ record.xml_record }}">Download MARCXML</a>
-            <a class="fakeinput" href="{{ record.mrc_record }}">Download .mrc</a>
-            <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}</a>
-        </div>
-        <br />
-    {% endfor %}
+    <form method="POST" id="record_form" action="{% url marc_concatenate %}">
+        {% csrf_token %}
+        Record format:
+        <select name="format">
+            <option value="xml">xml</option>
+            <option value="mrc">mrc</option>
+        </select>
+        <br /><br />
+        {% for record in records %}
+            <input type="checkbox" name="record_{{ record.id }}" id="record_{{ record.id }}"/>
+            <label for="record_{{ record.id }}">
+                Record for <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}{% if record.edition.isbn_13 %} (ISBN {{ record.edition.isbn_13 }}){% endif %}</a>
+            </label>
+            <br/>
+        {% endfor %}
+        <input type="submit" name="submit" value="Download" id="submit">
+        <img id="unsubmit" src="/static/images/loading.gif">
+    </form>
+</div>
+
+<hr>
+<div>
+    <p>Your preference for the links in the 856 field is:</p>
+    <ul class="local">
+        <li>{{ request.user.profile.get_marc_format_display }}</li>
+    </ul>
+    
+    <p>The options are:</p>
+    <ul class="local">
+        {% for choice in MARC_CHOICES %}
+            <li>{{ choice.1 }}</li>
+        {% endfor %}
+    </ul>
+    
+    <p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
 </div>
 {% endblock %}

@@ -33,6 +33,7 @@ from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -2610,10 +2611,12 @@ def send_to_kindle_graceful(request, message):
     )
     
 def marc(request):
-    marc_format = request.user.profile.marc_format
-    logger.info(marc_format)
+    try:
+        marc_format = request.user.profile.marc_format
+    except AttributeError:
+        # set default for anonymous users
+        marc_format = 'DIRECT'
     records = models.MARCRecord.objects.filter(marc_format=marc_format)
-    logger.info(records)
     return render(
         request,
         'marc.html',
@@ -2664,4 +2667,68 @@ class MARCConfigView(FormView):
             return HttpResponseRedirect(reverse('marc_config', args=[]))
         else:
             return super(MARCConfigView, self).form_valid(form)
+            
+@require_POST
+def marc_concatenate(request):
+    """
+    options for future work...
+    cache files: keep records of each combo created, check before building anew?
+    dispatch as background process, email when done?
+    if not caching, delete files on s3 after a while?
+    make the control flow suck less during file write
+    """
+    format = request.POST['format']
+    
+    # extract the user-selected records from the POST QueryDict
+    selected_records = list(
+        k for k in request.POST if request.POST[k] == u'on'
+    )
+    if not selected_records:
+        messages.error(
+            request,
+            "Please select at least one record to download."
+        )
+        return HttpResponseRedirect(reverse('marc', args=[]))
+    
+    # keep test files from stepping on production files
+    if '/unglue.it' in settings.BASE_URL:
+        directory = 'marc/'
+    else:
+        directory = 'marc_test/'
+    
+    # write the concatenated file
+    datestamp = now().strftime('%Y%m%d%H%M%S')
+    filename = directory + datestamp + '.' +  format
+    with default_storage.open(filename, 'w') as outfile:
+        if format == 'xml':
+            string = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                     '<collection '
+                     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                     'xmlns="http://www.loc.gov/MARC21/slim" '
+                     'xsi:schemaLocation="http://www.loc.gov/MARC21/slim '
+                     'http://www.loc.gov/standards/marcxml/schema/'
+                     'MARC21slim.xsd">')
+            outfile.write(string)
+        for record in selected_records:
+            record_id = long(record[7:])
+            if format == 'xml':
+                record_url = models.MARCRecord.objects.get(
+                                pk=record_id
+                             ).xml_record
+                logger.info(record_url)
+            elif format == 'mrc':
+                record_url = models.MARCRecord.objects.get(
+                                pk=record_id
+                             ).mrc_record
+                logger.info(record_url)
+            try:
+                record_file = urllib.urlopen(record_url).read()
+                outfile.write(record_file)
+            except IOError:
+                logger.warning('MARC record with id number %s has a problem with its URL' % record_id)
+        if format == 'xml':
+            string = ('</collection>')
+            outfile.write(string)
+    download_url = default_storage.url(filename)
+    return HttpResponseRedirect(download_url)
         

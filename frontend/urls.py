@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.generic import ListView, DetailView
@@ -134,7 +135,8 @@ urlpatterns = patterns(
     url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
     url(r"^marc/$", "marc", name="marc"),
-    url(r"^marc/ungluify/$", login_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
+    url(r"^marc/ungluify/$", staff_member_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
+    url(r"^marc/concatenate/$", "marc_concatenate", name="marc_concatenate"),
     url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
 )
 
