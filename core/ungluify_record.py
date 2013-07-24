@@ -6,7 +6,6 @@ Use the MARCXML file for the non-unglued edition from Library of Congress.
 """
 
 import logging
-import sys
 import pymarc
 from copy import deepcopy
 from datetime import datetime
@@ -72,7 +71,7 @@ def makemarc(marcfile, license, edition):
         data='m     o  d        '
     )
     record.add_ordered_field(field006)
-
+    
     field007 = pymarc.Field(
         tag='007',
         data='cr'
@@ -106,7 +105,7 @@ def makemarc(marcfile, license, edition):
     field050_new.indicators = [' ', '4']
     record.remove_field(field050)
     record.add_ordered_field(field050_new)
-
+    
     field082 = record.get_fields('050')[0]
     field082_new = field050
     field082_new.indicators = [' ', '4']
@@ -213,7 +212,7 @@ def makemarc(marcfile, license, edition):
     zeroes = 9 - len(str(marc_id_via))
     accession_via = 'ung' + zeroes*'0' + str(marc_id_via)
     field001 = pymarc.Field(tag='001', data=accession_via)
-    record.add_ordered_field(field001)
+    record_via_unglueit.add_ordered_field(field001)
 
     # write the unglued MARCxml records
     xml_filename = directory + '/' + accession + '_unglued.xml'
@@ -253,8 +252,8 @@ def makemarc(marcfile, license, edition):
     marc_record.mrc_record = default_storage.url(mrc_filename)
     marc_record.marc_format = 'DIRECT'
     marc_record.save()     
-    marc_record_via.xml_record_via_unglueit = default_storage.url(xml_filename_via)
-    marc_record_via.mrc_record_via_unglueit = default_storage.url(mrc_filename_via)
+    marc_record_via.xml_record = default_storage.url(xml_filename_via)
+    marc_record_via.mrc_record = default_storage.url(mrc_filename_via)
     marc_record_via.marc_format = 'UNGLUE'
     marc_record_via.save()    
     logger.info("MARCRecord instances complete for edition %s with accession numbers %s and %s" % (edition, accession, accession_via))
