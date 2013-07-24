@@ -554,8 +554,8 @@ class PaymentManager( object ):
         
         authorizes a set amount of money to be collected at a later date
         
-        return_url: url to redirect supporter to after a successful PayPal transaction
-        paymentReason:  a memo line that will show up in the Payer's Amazon (and Paypal?) account
+        return_url: url to redirect supporter to after a successful transaction
+        paymentReason:  a memo line that will show up in the unglue.it accounting
         modification: whether this authorize call is part of a modification of an existing pledge
         
         return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
@@ -626,6 +626,73 @@ class PaymentManager( object ):
             transaction.save()
             logger.info("Authorize Error: " + p.error_string())
             return transaction, None
+
+    def charge(self, transaction,  return_url=None,  paymentReason="unglue.it Purchase"):
+        '''
+        charge
+        
+        immediately attempt to collect on transaction 
+        
+        return_url: url to redirect supporter to after a successful transaction
+        paymentReason:  a memo line that will show up in our stripe accounting
+        
+        return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
+                      the redirect url will be None
+                      
+        '''
+
+        if transaction.host == PAYMENT_HOST_NONE:
+            #TODO send user to select a payment processor -- for now, set to a system setting
+            transaction.host = settings.PAYMENT_PROCESSOR 
+                
+        # we might want to not allow for a return_url to be passed in but calculated
+        # here because we have immediate access to the Transaction object.
+        
+        #if return_url is None:
+        #    
+        #    #return_path = "{0}?{1}".format(reverse('charge_complete'), 
+        #    #                    urllib.urlencode({'tid':transaction.id}))
+        #    return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+        #                        urllib.urlencode({'tid':transaction.id})) 
+        #    return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
+        
+        # Question:  do I need to set transaction.amount = transaction.max_amount ?
+        p = transaction.get_payment_class().Pay(transaction, amount=transaction.max_amount, return_url=return_url, paymentReason=paymentReason)
+       
+         # Create a response for this
+        #envelope = p.envelope()
+        #
+        #if envelope:        
+        #    r = PaymentResponse.objects.create(api=p.url,
+        #                                      correlation_id = p.correlation_id(),
+        #                                      timestamp = p.timestamp(),
+        #                                      info = p.raw_response,
+        #                                      transaction=transaction)
+        
+        if p.success() and not p.error():
+            transaction.preapproval_key = p.key()
+            transaction.save()
+            
+            # it make sense for the payment processor library to calculate next_url when
+            # user is redirected there.  But if no redirection is required, send user
+            # straight on to the return_url
+            url = p.next_url()
+            
+            if url is None:
+                url = return_url
+                
+            logger.info("Pay Success: " + url if url is not None else '')
+                            
+            return transaction, url
+    
+        
+        else:
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("Pay Error: " + p.error_string())
+            return transaction, None
+
+
             
     def process_transaction(self, currency,  amount, host=PAYMENT_HOST_NONE, campaign=None,  user=None,
                   return_url=None, paymentReason="unglue.it Pledge",  pledge_extra=None,

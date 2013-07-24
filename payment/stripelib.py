@@ -31,6 +31,7 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_COMPLETE,
     TRANSACTION_STATUS_ERROR,
     PAYMENT_TYPE_AUTHORIZATION,
+    PAYMENT_TYPE_INSTANT,
     TRANSACTION_STATUS_CANCELED
 )
 from regluit.payment.signals import transaction_charged, transaction_failed
@@ -522,7 +523,7 @@ class PledgeScenarioTest(TestCase):
     
     def test_charge_good_cust(self):
         charge = self._sc.create_charge(10, customer=self._good_cust.id, description="$10 for good cust")
-        self.assertEqual(type(charge.id), str)
+        self.assertEqual(type(charge.id), unicode)
 
         # print out all the pieces of Customer and Charge objects
         print dir(charge)
@@ -542,17 +543,19 @@ class PledgeScenarioTest(TestCase):
     def tearDownClass(cls):
         # clean up stuff we create in test -- right now list current objects
 
+        pass
+    
         #cls._good_cust.delete()
         
-        print "list of customers"
-        print [(i, c.id, c.description, c.email, datetime.fromtimestamp(c.created, tz=utc), c.account_balance, c.delinquent, c.active_card.fingerprint, c.active_card.type, c.active_card.last4, c.active_card.exp_month, c.active_card.exp_year, c.active_card.country) for(i,  c) in enumerate(cls._sc.customer.all()["data"])]
-        
-        print "list of charges"
-        print [(i, c.id, c.amount, c.amount_refunded, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid, c.fee, c.disputed, c.amount_refunded, c.failure_message, c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year) for (i, c) in enumerate(cls._sc.charge.all()['data'])]
-        
-        # can retrieve events since a certain time?
-        print "list of events", cls._sc.event.all()
-        print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
+        #print "list of customers"
+        #print [(i, c.id, c.description, c.email, datetime.fromtimestamp(c.created, tz=utc), c.account_balance, c.delinquent, c.active_card.fingerprint, c.active_card.type, c.active_card.last4, c.active_card.exp_month, c.active_card.exp_year, c.active_card.country) for(i,  c) in enumerate(cls._sc.customer.all()["data"])]
+        #
+        #print "list of charges"
+        #print [(i, c.id, c.amount, c.amount_refunded, c.currency, c.description, datetime.fromtimestamp(c.created, tz=utc), c.paid, c.fee, c.disputed, c.amount_refunded, c.failure_message, c.card.fingerprint, c.card.type, c.card.last4, c.card.exp_month, c.card.exp_year) for (i, c) in enumerate(cls._sc.charge.all()['data'])]
+        #
+        ## can retrieve events since a certain time?
+        #print "list of events", cls._sc.event.all()
+        #print [(i, e.id, e.type, e.created, e.pending_webhooks, e.data) for (i,e) in enumerate(cls._sc.event.all()['data'])]
 
 class StripePaymentRequest(baseprocessor.BasePaymentRequest):
     """so far there is no need to have a separate class here"""
@@ -647,19 +650,51 @@ class Processor(baseprocessor.Processor):
       '''
         
       def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
-          self.transaction=transaction
+        self.transaction=transaction
+        self.url = return_url
           
-      #def api(self):
-      #    return "null api"
-      #  
-      ##def exec_status( self ):
-      #    return None 
+        now_val = now()                   
+        transaction.date_authorized = now_val
           
+        # ASSUMPTION:  a user has any given moment one and only one active payment Account
+
+        account = transaction.user.profile.account        
+        
+        if not account:
+            logger.warning("user {0} has no active payment account".format(transaction.user))
+            raise StripelibError("user {0} has no active payment account".format(transaction.user))
+                
+        logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
+        
+        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+        # should approved be set to False and wait for a webhook?
+        transaction.approved = True
+        transaction.type = PAYMENT_TYPE_INSTANT
+        transaction.host = PAYMENT_HOST_STRIPE
+    
+        transaction.preapproval_key = account.account_id
+        
+        transaction.currency = 'USD'
+        transaction.amount = amount
+        
+        transaction.save()
+        
+        # execute the transaction
+        p = transaction.get_payment_class().Execute(transaction)
+        
+        if p.success() and not p.error():
+            transaction.pay_key = p.key()
+            transaction.save()
+        else:
+            transaction.error = p.error_string()
+            transaction.save()
+            logger.info("execute_transaction Error: " + p.error_string())
+                    
       def amount( self ):
           return self.transaction.amount
           
       def key( self ):
-          return None
+          return self.transaction.pay_key
     
       def next_url( self ):
           return self.url
@@ -739,7 +774,6 @@ class Processor(baseprocessor.Processor):
         def key(self):
             # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
             return self.transaction.pay_key
-        
         
     class PreapprovalDetails(StripePaymentRequest):
         '''
@@ -874,8 +908,8 @@ class Processor(baseprocessor.Processor):
 
 def suite():
     
-    #testcases = [PledgeScenarioTest, StripeErrorTest]
-    testcases = [StripeErrorTest]
+    testcases = [PledgeScenarioTest, StripeErrorTest]
+    #testcases = [StripeErrorTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     #suites.addTest(LibraryThingTest('test_cache'))
     #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
