@@ -47,8 +47,8 @@ Instructions for setting please are slightly different.
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
-1. `git config --global user.name "Ed Summers"`
-1. `git config --global user.email "ehs@pobox.com"`
+1. `git config --global user.name "Raymond Yee"`
+1. `git config --global user.email "rdhyee@gluejar.com"`
 1. `ssh-keygen`
 1. add `~/.ssh/id\_rsa.pub` as a deploy key on github https://github.com/Gluejar/regluit/admin/keys
 1. `git clone git@github.com:Gluejar/regluit.git`
@@ -136,6 +136,11 @@ edit the line ~/.virtualenvs/regluit/build/MySQL-python/setup_posix.py
 to be (using a path that exists on your system)
 1. mysql_config.path = "/usr/local/mysql-5.5.20-osx10.6-x86_64/bin/mysql_config"
 
+You may need to set utf8 in /etc/my.cnf 
+collation-server = utf8_unicode_ci
+
+    init-connect='SET NAMES utf8'
+    character-set-server = utf8
 
 Selenium Install
 ---------------
