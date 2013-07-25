@@ -47,8 +47,8 @@ Instructions for setting please are slightly different.
 1. `sudo mkdir /opt/regluit`
 1. `sudo chown ubuntu:ubuntu /opt/regluit`
 1. `cd /opt`
-1. `git config --global user.name "Ed Summers"`
-1. `git config --global user.email "ehs@pobox.com"`
+1. `git config --global user.name "Raymond Yee"`
+1. `git config --global user.email "rdhyee@gluejar.com"`
 1. `ssh-keygen`
 1. add `~/.ssh/id\_rsa.pub` as a deploy key on github https://github.com/Gluejar/regluit/admin/keys
 1. `git clone git@github.com:Gluejar/regluit.git`
