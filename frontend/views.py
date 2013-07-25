@@ -2612,11 +2612,11 @@ def send_to_kindle_graceful(request, message):
     
 def marc(request):
     try:
-        marc_format = request.user.profile.marc_format
+        link_target = request.user.profile.marc_link_target
     except AttributeError:
         # set default for anonymous users
-        marc_format = 'DIRECT'
-    records = models.MARCRecord.objects.filter(marc_format=marc_format)
+        link_target = 'DIRECT'
+    records = models.MARCRecord.objects.filter(link_target=link_target)
     return render(
         request,
         'marc.html',
@@ -2655,9 +2655,9 @@ class MARCConfigView(FormView):
     success_url = reverse_lazy('marc')
     
     def form_valid(self, form):
-        marc_format = form.cleaned_data['marc_format']
+        marc_link_target = form.cleaned_data['marc_link_target']
         profile = self.request.user.profile
-        profile.marc_format = marc_format
+        profile.marc_link_target = marc_link_target
         profile.save()
         messages.success(
             self.request,

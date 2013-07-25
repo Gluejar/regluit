@@ -593,4 +593,4 @@ class MARCUngluifyForm(forms.Form):
 class MARCFormatForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ('marc_format',)
+        fields = ('marc_link_target',)

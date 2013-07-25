@@ -1156,7 +1156,7 @@ class UserProfile(models.Model):
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders')
     kindle_email = models.EmailField(max_length=254, blank=True)
-    marc_format = models.CharField(
+    marc_link_target = models.CharField(
         max_length=6,
         default = 'DIRECT', 
         choices = settings.MARC_CHOICES,
@@ -1308,7 +1308,8 @@ class MARCRecord(models.Model):
     xml_record = models.URLField()
     mrc_record = models.URLField()
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
-    marc_format = models.CharField(max_length=6,choices = settings.MARC_CHOICES)
+    # this is where the download link points to, direct link or via Unglue.it.
+    link_target = models.CharField(max_length=6,choices = settings.MARC_CHOICES, default='DIRECT')
     
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
