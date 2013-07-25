@@ -250,10 +250,10 @@ def makemarc(marcfile, license, edition):
 
     marc_record.xml_record = default_storage.url(xml_filename)
     marc_record.mrc_record = default_storage.url(mrc_filename)
-    marc_record.marc_format = 'DIRECT'
+    marc_record.link_target = 'DIRECT'
     marc_record.save()     
     marc_record_via.xml_record = default_storage.url(xml_filename_via)
     marc_record_via.mrc_record = default_storage.url(mrc_filename_via)
-    marc_record_via.marc_format = 'UNGLUE'
+    marc_record_via.link_target = 'UNGLUE'
     marc_record_via.save()    
     logger.info("MARCRecord instances complete for edition %s with accession numbers %s and %s" % (edition, accession, accession_via))
