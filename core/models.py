@@ -1305,12 +1305,17 @@ class Press(models.Model):
     note = models.CharField(max_length=140, blank=True)
     
 class MARCRecord(models.Model):
-    xml_record = models.URLField()
-    mrc_record = models.URLField()
+    xml_record = models.URLField(blank=True)
+    mrc_record = models.URLField(blank=True)
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
     # this is where the download link points to, direct link or via Unglue.it.
     link_target = models.CharField(max_length=6,choices = settings.MARC_CHOICES, default='DIRECT')
-    
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        super(MARCRecord, self).clean()
+        if not self.xml_record and not self.mrc_record:
+            raise ValidationError('You must have at least one of xml_record and mrc_record')
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals
