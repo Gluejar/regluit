@@ -22,7 +22,7 @@
 {% endif %}
 
 Your current MARC record link target preference is:<br />
-{{ request.user.profile.get_marc_format_display }}
+{{ request.user.profile.get_marc_link_target_display }}
 <form method="post" action="{% url marc_config %}">
     {% csrf_token %}
     {{ form }}

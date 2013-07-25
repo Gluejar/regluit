@@ -65,6 +65,7 @@ ul.local li {
     </ul>
 {% endif %}
 
+{% if records %}
 <div class="marc">
     <form method="POST" id="record_form" action="{% url marc_concatenate %}">
         {% csrf_token %}
@@ -85,12 +86,15 @@ ul.local li {
         <img id="unsubmit" src="/static/images/loading.gif">
     </form>
 </div>
+{% else %}
+<p>Sorry; we don't have any records meeting your needs at this time.  There may be records available if you change your download preferences (below).</p>
+{% endif %}
 
 <hr>
 <div>
     <p>Your preference for the links in the 856 field is:</p>
     <ul class="local">
-        <li>{{ request.user.profile.get_marc_format_display }}</li>
+        <li>{{ request.user.profile.get_marc_link_target_display }}</li>
     </ul>
     
     <p>The options are:</p>
