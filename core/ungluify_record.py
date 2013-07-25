@@ -33,6 +33,9 @@ def makemarc(marcfile, license, edition):
         
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
+    # save this for later before deleting it
+    print_lccn = record.get_fields('010')[0].get_subfields('a')[0]
+
     fields_to_delete = []
     fields_to_delete += record.get_fields('001')
     fields_to_delete += record.get_fields('003')
@@ -162,6 +165,53 @@ def makemarc(marcfile, license, edition):
         ]
     )
     record.add_ordered_field(field588)
+    
+    # add 776 field (related editions) - preserve pISBN, LCCN, OCLCnum
+    title = record.get_fields('245')[0].get_subfields('a')[0]
+    title = title.split('/')[0]
+    try:
+        oclcnum = edition.identifiers.filter(type='oclc')
+    except IndexError:
+        oclcnum = None
+    
+    if oclcnum:
+        field776 = pymarc.Field(
+            tag='776',
+            indicators = ['0', '8'],
+            subfields = [
+                'i', 'Print version: ',
+                't', title,
+                'z', print_isbn,
+                'w', '(DLC) ' + print_lccn,
+                'w', '(OCoLC) ' + oclcnum,            
+            ]
+        )
+    else:
+        field776 = pymarc.Field(
+            tag='776',
+            indicators = ['0', '8'],
+            subfields = [
+                'i', 'Print version: ',
+                't', title,
+                'z', print_isbn,
+                'w', '(DLC) ' + print_lccn,
+            ]
+        )
+    
+    record.add_ordered_field(field776)
+    """
+    add 776 fields
+    indicators: 0 8
+    '$i Print version: '
+    $t Title. <--note space
+    $d is optional
+    $z pISBN goes here
+        harvest from 020 (was moved from $a to $z)
+    $w (DLC) LCCN_goes_here
+        harvest from 010 field before deletion
+    $w (OCoLC) OCLCnum_goes_here
+        harvest from identifiers db
+    """
 
     # strip any 9XX fields (they're for local use)    
     for i in range(900, 1000):
