@@ -200,7 +200,6 @@ def makemarc(marcfile, license, edition):
                     'w', '(OCoLC) ' + oclcnum,            
                 ]
             )
-        else:
     else:
         if print_isbn:
             field776 = pymarc.Field(
