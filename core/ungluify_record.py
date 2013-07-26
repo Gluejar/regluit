@@ -94,12 +94,15 @@ def makemarc(marcfile, license, edition):
         isbn = edition.identifiers.filter(type='isbn')[0].value
     except IndexError:
         pass
-    field020 = record.get_fields('020')[0]
-    print_isbn = field020.get_subfields('a')[0]
-    field020.delete_subfield('a')
-    if isbn:
-        field020.add_subfield('a', isbn)
-    field020.add_subfield('z', print_isbn)
+    try:
+        field020 = record.get_fields('020')[0]
+        print_isbn = field020.get_subfields('a')[0]
+        field020.delete_subfield('a')
+        if isbn:
+            field020.add_subfield('a', isbn)
+        field020.add_subfield('z', print_isbn)
+    except IndexError:
+        print_isbn = None
 
     # change 050 and 082 indicators because LOC is no longer responsible for these
     # no easy indicator change function, so we'll just reconstruct the fields
@@ -175,28 +178,51 @@ def makemarc(marcfile, license, edition):
         oclcnum = None
     
     if oclcnum:
-        field776 = pymarc.Field(
-            tag='776',
-            indicators = ['0', '8'],
-            subfields = [
-                'i', 'Print version: ',
-                't', title,
-                'z', print_isbn,
-                'w', '(DLC) ' + print_lccn,
-                'w', '(OCoLC) ' + oclcnum,            
-            ]
-        )
+        if print_isbn:
+            field776 = pymarc.Field(
+                tag='776',
+                indicators = ['0', '8'],
+                subfields = [
+                    'i', 'Print version: ',
+                    't', title,
+                    'z', print_isbn,
+                    'w', '(DLC) ' + print_lccn,
+                    'w', '(OCoLC) ' + oclcnum,            
+                ]
+            )
+            field776 = pymarc.Field(
+                tag='776',
+                indicators = ['0', '8'],
+                subfields = [
+                    'i', 'Print version: ',
+                    't', title,
+                    'w', '(DLC) ' + print_lccn,
+                    'w', '(OCoLC) ' + oclcnum,            
+                ]
+            )
+        else:
     else:
-        field776 = pymarc.Field(
-            tag='776',
-            indicators = ['0', '8'],
-            subfields = [
-                'i', 'Print version: ',
-                't', title,
-                'z', print_isbn,
-                'w', '(DLC) ' + print_lccn,
-            ]
-        )
+        if print_isbn:
+            field776 = pymarc.Field(
+                tag='776',
+                indicators = ['0', '8'],
+                subfields = [
+                    'i', 'Print version: ',
+                    't', title,
+                    'z', print_isbn,
+                    'w', '(DLC) ' + print_lccn,
+                ]
+            )
+        else:
+            field776 = pymarc.Field(
+                tag='776',
+                indicators = ['0', '8'],
+                subfields = [
+                    'i', 'Print version: ',
+                    't', title,
+                    'w', '(DLC) ' + print_lccn,
+                ]
+            )
     
     record.add_ordered_field(field776)
     """
