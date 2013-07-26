@@ -32,6 +32,7 @@ class PublisherNameLookup(ModelLookup):
 class EditionLookup(ModelLookup):
     model = Edition
     search_fields = ('title__icontains',)
+    filters = {'ebooks__isnull': False, }
 
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
