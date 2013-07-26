@@ -34,6 +34,18 @@ class EditionLookup(ModelLookup):
     search_fields = ('title__icontains',)
     filters = {'ebooks__isnull': False, }
 
+    def get_query(self, request, term):
+        return super(EditionLookup, self).get_query(request, term).distinct()
+
+    def get_item(self, value):
+        item = None
+        if value:
+            try:
+                item = Edition.objects.get(pk=value)
+            except (ValueError, Edition.DoesNotExist):
+                item = None
+        return item
+
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
 registry.register(PublisherNameLookup)
