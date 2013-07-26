@@ -17,13 +17,14 @@ from django.core.urlresolvers import reverse
 
 from regluit.core import models
 
-def makemarc(marcfile, license, edition):
+def makemarc(marcfile,  edition):
     """
     fyi if we're going to suck down LOC records directly:
         parse_xml_to_array takes a file, so we need to faff about with file writes
         would be nice to have a suitable z39.50
         can use LCCN to grab record with urllib, but file writes are inconsistent
     """
+    license = edition.ebooks.all()[0].rights
     logger = logging.getLogger(__name__)
     logger.info("Making MARC records for edition %s and license %s" % (edition, license))
     if '/unglue.it' in settings.BASE_URL:

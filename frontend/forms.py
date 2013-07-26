@@ -577,19 +577,6 @@ class MARCUngluifyForm(forms.Form):
             error_messages={'required': 'Please specify an edition.'},
         )    
     file = forms.FileField(label='Download a MARCXML file from Library of Congress; then upload it here.')
-    license = forms.ChoiceField(choices=settings.CHOICES)
-
-    # insist that there is at least one ebook to link to   
-    def clean(self):
-        ebooks = False
-        for format_tuple in settings.FORMATS:
-            format = format_tuple[0]
-            if self.cleaned_data['edition'].ebooks.filter(format=format):
-                ebooks = True
-                break            
-        if not ebooks:
-            raise forms.ValidationError('Please add at least one unglued ebook link to THIS EDITION through the work or admin page before creating a MARC record.')
-        return self.cleaned_data
         
 class MARCFormatForm(forms.ModelForm):
     class Meta:
