@@ -41,6 +41,7 @@ from regluit.core.models import (
     PledgeExtra,
     Work,
     Press,
+    Libpref,
     TWITTER,
     FACEBOOK,
     GRAVATAR
@@ -592,5 +593,5 @@ class MARCUngluifyForm(forms.Form):
         
 class MARCFormatForm(forms.ModelForm):
     class Meta:
-        model = UserProfile
+        model = Libpref
         fields = ('marc_link_target',)

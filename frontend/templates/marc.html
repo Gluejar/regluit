@@ -93,7 +93,7 @@ ul.local li {
     </form>
 </div>
 {% else %}
-<p>Sorry; we don't have any records meeting your needs at this time.  There may be records available if you change your download preferences (below).</p>
+<p>Sorry; we don't have any records meeting your needs at this time.  </p>
 {% endif %}
 
 <hr>
@@ -101,7 +101,7 @@ ul.local li {
 <div>
     <p>Your preference for the links in the 856 field is:</p>
     <ul class="local">
-        <li>{{ request.user.profile.get_marc_link_target_display }}</li>
+        <li>{{ libpref.get_marc_link_target_display }}</li>
     </ul>
     
     <p>The options are:</p>

@@ -1144,6 +1144,15 @@ pledger2.instance=None
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
 
+class Libpref(models.Model):
+    user = models.OneToOneField(User, related_name='libpref')
+    marc_link_target = models.CharField(
+        max_length=6,
+        default = 'UNGLUE', 
+        choices = settings.MARC_CHOICES,
+        verbose_name="MARC record link targets"
+    )
+
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -1156,12 +1165,6 @@ class UserProfile(models.Model):
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders')
     kindle_email = models.EmailField(max_length=254, blank=True)
-    marc_link_target = models.CharField(
-        max_length=6,
-        default = 'DIRECT', 
-        choices = settings.MARC_CHOICES,
-        verbose_name="MARC record link targets"
-    )
 
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)

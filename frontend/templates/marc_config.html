@@ -20,9 +20,10 @@
     {% endfor %}
 </ul>
 {% endif %}
+Back to <a href="{% url marc %}">record download page</a><br /><br />
 
 Your current MARC record link target preference is:<br />
-{{ request.user.profile.get_marc_link_target_display }}
+{{ libpref.get_marc_link_target_display }}
 <form method="post" action="{% url marc_config %}">
     {% csrf_token %}
     {{ form }}

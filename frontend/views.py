@@ -2611,16 +2611,19 @@ def send_to_kindle_graceful(request, message):
     )
     
 def marc(request):
+    link_target = 'UNGLUE'
+    libpref = {'marc_link_target': settings.MARC_CHOICES[1]}
     try:
-        link_target = request.user.profile.marc_link_target
-    except AttributeError:
-        # set default for anonymous users
-        link_target = 'UNGLUE'
+        libpref = request.user.libpref
+        link_target = libpref.marc_link_target
+    except:
+        if not request.user.is_anonymous():
+            libpref = models.Libpref(user=request.user)
     records = models.MARCRecord.objects.filter(link_target=link_target)
     return render(
         request,
         'marc.html',
-        {'records': records, 'MARC_CHOICES': settings.MARC_CHOICES}
+        {'records': records, 'MARC_CHOICES': settings.MARC_CHOICES, 'libpref' : libpref }
     )
 
 class MARCUngluifyView(FormView):
@@ -2656,9 +2659,12 @@ class MARCConfigView(FormView):
     
     def form_valid(self, form):
         marc_link_target = form.cleaned_data['marc_link_target']
-        profile = self.request.user.profile
-        profile.marc_link_target = marc_link_target
-        profile.save()
+        try:
+            libpref = self.request.user.libpref
+        except:
+            libpref = models.Libpref(user=self.request.user)
+        libpref.marc_link_target = marc_link_target
+        libpref.save()
         messages.success(
             self.request,
             "Your preferences have been changed."

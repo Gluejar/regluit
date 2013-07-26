@@ -8,6 +8,14 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'Libpref'
+        db.create_table('core_libpref', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='libpref', unique=True, to=orm['auth.User'])),
+            ('marc_link_target', self.gf('django.db.models.fields.CharField')(default='UNGLUE', max_length=6)),
+        ))
+        db.send_create_signal('core', ['Libpref'])
+
         # Adding model 'MARCRecord'
         db.create_table('core_marcrecord', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -18,18 +26,13 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('core', ['MARCRecord'])
 
-        # Adding field 'UserProfile.marc_link_target'
-        db.add_column('core_userprofile', 'marc_link_target',
-                      self.gf('django.db.models.fields.CharField')(default='DIRECT', max_length=6),
-                      keep_default=False)
-
 
     def backwards(self, orm):
+        # Deleting model 'Libpref'
+        db.delete_table('core_libpref')
+
         # Deleting model 'MARCRecord'
         db.delete_table('core_marcrecord')
-
-        # Deleting field 'UserProfile.marc_link_target'
-        db.delete_column('core_userprofile', 'marc_link_target')
 
 
     models = {
@@ -169,6 +172,12 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '255'})
         },
+        'core.libpref': {
+            'Meta': {'object_name': 'Libpref'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'marc_link_target': ('django.db.models.fields.CharField', [], {'default': "'UNGLUE'", 'max_length': '6'}),
+            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'libpref'", 'unique': 'True', 'to': "orm['auth.User']"})
+        },
         'core.marcrecord': {
             'Meta': {'object_name': 'MARCRecord'},
             'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'MARCrecords'", 'null': 'True', 'to': "orm['core.Edition']"}),
@@ -243,7 +252,6 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'kindle_email': ('django.db.models.fields.EmailField', [], {'max_length': '254', 'blank': 'True'}),
             'librarything_id': ('django.db.models.fields.CharField', [], {'max_length': '31', 'blank': 'True'}),
-            'marc_link_target': ('django.db.models.fields.CharField', [], {'default': "'DIRECT'", 'max_length': '6'}),
             'pic_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
             'tagline': ('django.db.models.fields.CharField', [], {'max_length': '140', 'blank': 'True'}),
             'twitter_id': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
