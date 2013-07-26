@@ -8,16 +8,10 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Deleting field 'MARCRecord.marc_format'
-        db.delete_column('core_marcrecord', 'marc_format')
-
         # Adding field 'MARCRecord.link_target'
         db.add_column('core_marcrecord', 'link_target',
                       self.gf('django.db.models.fields.CharField')(default='DIRECT', max_length=6),
                       keep_default=False)
-
-        # Deleting field 'UserProfile.marc_format'
-        db.delete_column('core_userprofile', 'marc_format')
 
         # Adding field 'UserProfile.marc_link_target'
         db.add_column('core_userprofile', 'marc_link_target',
@@ -26,18 +20,8 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Adding field 'MARCRecord.marc_format'
-        db.add_column('core_marcrecord', 'marc_format',
-                      self.gf('django.db.models.fields.CharField')(default='DIRECT', max_length=6),
-                      keep_default=False)
-
         # Deleting field 'MARCRecord.link_target'
         db.delete_column('core_marcrecord', 'link_target')
-
-        # Adding field 'UserProfile.marc_format'
-        db.add_column('core_userprofile', 'marc_format',
-                      self.gf('django.db.models.fields.CharField')(default='DIRECT', max_length=6),
-                      keep_default=False)
 
         # Deleting field 'UserProfile.marc_link_target'
         db.delete_column('core_userprofile', 'marc_link_target')
@@ -125,7 +109,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 7, 25, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 7, 26, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
@@ -185,8 +169,8 @@ class Migration(SchemaMigration):
             'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'MARCrecords'", 'null': 'True', 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'link_target': ('django.db.models.fields.CharField', [], {'default': "'DIRECT'", 'max_length': '6'}),
-            'mrc_record': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
-            'xml_record': ('django.db.models.fields.URLField', [], {'max_length': '200'})
+            'mrc_record': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
+            'xml_record': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'})
         },
         'core.premium': {
             'Meta': {'object_name': 'Premium'},
