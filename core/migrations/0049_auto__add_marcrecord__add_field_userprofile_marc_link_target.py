@@ -8,10 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'MARCRecord.link_target'
-        db.add_column('core_marcrecord', 'link_target',
-                      self.gf('django.db.models.fields.CharField')(default='DIRECT', max_length=6),
-                      keep_default=False)
+        # Adding model 'MARCRecord'
+        db.create_table('core_marcrecord', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('xml_record', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
+            ('mrc_record', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
+            ('edition', self.gf('django.db.models.fields.related.ForeignKey')(related_name='MARCrecords', null=True, to=orm['core.Edition'])),
+            ('link_target', self.gf('django.db.models.fields.CharField')(default='DIRECT', max_length=6)),
+        ))
+        db.send_create_signal('core', ['MARCRecord'])
 
         # Adding field 'UserProfile.marc_link_target'
         db.add_column('core_userprofile', 'marc_link_target',
@@ -20,8 +25,8 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        # Deleting field 'MARCRecord.link_target'
-        db.delete_column('core_marcrecord', 'link_target')
+        # Deleting model 'MARCRecord'
+        db.delete_table('core_marcrecord')
 
         # Deleting field 'UserProfile.marc_link_target'
         db.delete_column('core_userprofile', 'marc_link_target')
