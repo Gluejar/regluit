@@ -2615,7 +2615,7 @@ def marc(request):
         link_target = request.user.profile.marc_link_target
     except AttributeError:
         # set default for anonymous users
-        link_target = 'DIRECT'
+        link_target = 'UNGLUE'
     records = models.MARCRecord.objects.filter(link_target=link_target)
     return render(
         request,
