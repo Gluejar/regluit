@@ -8,8 +8,10 @@
     var $j = jQuery.noConflict();
     $j(document).ready(function() {
         $j('#record_form').submit(function() {
-            $j('#submit').hide();
             $j('#unsubmit').show();
+        });
+        $j('#record_form').click(function() {
+            $j('#unsubmit').hide();
         });
     });
 </script>
@@ -41,6 +43,10 @@ ul.local li {
 */
 #unsubmit {
     display: none;
+}
+
+#unsubmit img {
+    vertical-align: middle;
 }
 </style>
 {% endblock %}
@@ -83,7 +89,7 @@ ul.local li {
             <br/>
         {% endfor %}
         <input type="submit" name="submit" value="Download" id="submit">
-        <img id="unsubmit" src="/static/images/loading.gif">
+        <span id="unsubmit"><img src="/static/images/loading.gif"> Fetching record(s)...</span>
     </form>
 </div>
 {% else %}
