@@ -97,6 +97,7 @@ ul.local li {
 {% endif %}
 
 <hr>
+{% if request.user.is_authenticated %}
 <div>
     <p>Your preference for the links in the 856 field is:</p>
     <ul class="local">
@@ -112,4 +113,5 @@ ul.local li {
     
     <p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
 </div>
+{% endif %}
 {% endblock %}
