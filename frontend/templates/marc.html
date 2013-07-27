@@ -89,7 +89,7 @@ ul.local li {
             <br />
         {% endfor %}
         <input type="submit" name="submit" value="Download" id="submit">
-        <span id="unsubmit"><img src="/static/images/loading.gif"> Fetching record(s)...</span>
+        <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
     </form>
 </div>
 {% else %}
@@ -106,9 +106,8 @@ ul.local li {
     
     <p>The options are:</p>
     <ul class="local">
-        {% for choice in MARC_CHOICES %}
-            <li>{{ choice.1 }}</li>
-        {% endfor %}
+            <li> Raw link. MARC records link direct to provider (one click, no help) </li>
+            <li> Unglue.it link. MARC records link through Unglue.it download page (extra click, context sensitive help for getting files onto user's device)</li>
     </ul>
     
     <p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>

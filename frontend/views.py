@@ -2623,7 +2623,7 @@ def marc(request):
     return render(
         request,
         'marc.html',
-        {'records': records, 'MARC_CHOICES': settings.MARC_CHOICES, 'libpref' : libpref }
+        {'records': records,  'libpref' : libpref }
     )
 
 class MARCUngluifyView(FormView):
