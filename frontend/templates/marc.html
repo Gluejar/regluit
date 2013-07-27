@@ -82,11 +82,11 @@ ul.local li {
         </select>
         <br /><br />
         {% for record in records %}
-            <input type="checkbox" name="record_{{ record.id }}" id="record_{{ record.id }}"/>
+            <input type="checkbox" name="record_{{ record.id }}" id="record_{{ record.id }}" />
             <label for="record_{{ record.id }}">
                 Record for <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}{% if record.edition.isbn_13 %} (ISBN {{ record.edition.isbn_13 }}){% endif %}</a>
             </label>
-            <br/>
+            <br />
         {% endfor %}
         <input type="submit" name="submit" value="Download" id="submit">
         <span id="unsubmit"><img src="/static/images/loading.gif"> Fetching record(s)...</span>
