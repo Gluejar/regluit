@@ -138,11 +138,18 @@ def makemarc(marcfile,  edition):
     field300.delete_subfield('c')
 
     # add 536 field (funding information)
+    if edition.unglued:
+        funding_info = 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
+    else:
+        if edition.ebooks.all()[0].rights in ['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']:
+            funding_info = 'The book is available as a free download thanks to a Creative Commons license.'
+        else:
+            funding_info = 'The book is available as a free download because it is in the Public Domain.'
     field536 = pymarc.Field(
         tag='536',
         indicators = [' ', ' '],
         subfields = [
-            'a', 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.',
+            'a', funding_info,
         ]
     )
     record.add_ordered_field(field536)
