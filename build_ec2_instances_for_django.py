@@ -16,11 +16,14 @@
 # * some other form?
 # 
 
-# In[ ]:
+# In[1]:
 from regluit.sysadmin import aws
 reload(aws)
 
-# In[ ]:
+# Out[1]:
+#     <module 'regluit.sysadmin.aws' from '/Users/raymondyee/C/src/Gluejar/regluit/sysadmin/aws.pyc'>
+
+# In[2]:
 # look up Ubuntu EC2 image ids from alestic.com
 # us-east-1 Ubuntu 12.04 LTS Precise
 # EBS boot	ami-e7582d8e
@@ -29,17 +32,24 @@ reload(aws)
 AMI_UBUNTU_12_04_ID = 'ami-e7582d8e'
 image = aws.ec2.get_all_images(image_ids=[AMI_UBUNTU_12_04_ID])[0]
 
-# In[ ]:
+# In[3]:
 # name of image follows Eric Hammond's convention of dating the images
 
 image.id, image.name
 
-# In[ ]:
+# Out[3]:
+#     (u'ami-e7582d8e',
+#      u'ubuntu/images/ebs/ubuntu-precise-12.04-amd64-server-20130603')
+
+# In[4]:
 # sometimes we have an instance running or created already
 # so we just need to get a reference to it (instead of creating a new one)
 
 instance = aws.instance('new_test')
 instance, instance.state
+
+# Out[4]:
+#     (Instance:i-4f64082f, u'running')
 
 # In[ ]:
 if instance.state == 'stopped':
@@ -110,7 +120,7 @@ cmdstring
 
 ## dynamic execution of fabric tasks to setup the instance
 
-# In[ ]:
+# In[6]:
 # http://docs.fabfile.org/en/1.6/usage/execution.html#using-execute-with-dynamically-set-host-lists
 
 import fabric
@@ -152,6 +162,7 @@ def deploy():
     sudo("yes | aptitude upgrade")
     sudo("yes | aptitude install git-core apache libapache2-mod-wsgi mysql-client python-virtualenv python-mysqldb redis-server python-lxml")
     sudo("yes | aptitude install python-dev")
+    sudo("yes | aptitude install libmysqlclient-dev")
     # http://www.whatastruggle.com/postfix-non-interactive-install
     sudo("DEBIAN_FRONTEND='noninteractive' apt-get install -y -q --force-yes postfix")
 
@@ -183,7 +194,7 @@ def deploy():
     sudo("apt-get -y install mysql-server")
     
     
-def deploy_next():
+def test_mysql_connection():
     # test connectivity to mysql-server
     command = """mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
 
@@ -192,10 +203,105 @@ EOF
 """
     run(command)   
     
+def override_for_gluejar_repo():
+    # https://github.com/Gluejar/gluejar_dot_com/settings/keys
+    from StringIO import StringIO
+    from django.conf import settings 
+    
+    
+    GITHUB_REPO_NAME_2 = "Gluejar/gluejar_dot_com"
+    
+    from github import Github
+    # can use 3 different types of authn: https://github.com/jacquev6/PyGithub/issues/15
+    # can be empty, username/pw, or personal API token (https://github.com/blog/1509-personal-api-tokens)
+    g = Github(settings.GITHUB_AUTH_TOKEN)
+    
+    s = StringIO()
+    get('/home/ubuntu/.ssh/id_rsa.pub', s)
+    repo = g.get_repo(GITHUB_REPO_NAME_2)
+    key = repo.create_key('test deploy key', s.getvalue()) 
+    
+    # clone repo
+    
+    sudo ("mkdir /opt/gluejar_dot_com")
+    sudo ("chown ubuntu:ubuntu /opt/gluejar_dot_com")
+    # clone the regluit git repo into /opt/regluit
+    with cd("/opt"):
+        run("yes | git clone git@github.com:Gluejar/gluejar_dot_com.git")
+        
+    
+    # create gdc db an user
+    
+    command = """mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
+
+CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
+CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
+
+FLUSH PRIVILEGES;
+
+GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
+EOF
+"""
+    run(command)       
+    
+    
+def deploy_next():
+     pass
+        
+    
 #hosts = ['ubuntu@ec2-75-101-232-46.compute-1.amazonaws.com']
 hosts = ["ubuntu@{0}".format(instance.dns_name)]
 
 fabric.tasks.execute(deploy_next, hosts=hosts)
+
+# Out[6]:
+#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] Executing task 'deploy_next'
+#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] run: mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
+#     
+#     CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
+#     CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
+#     
+#     FLUSH PRIVILEGES;
+#     
+#     GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
+#     EOF
+#     
+#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] out: ERROR 1007 (HY000) at line 2: Can't create database 'gdc'; database exists
+#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] out: 
+#     
+# 
+
+    An exception has occurred, use %tb to see the full traceback.
+
+    SystemExit: 1
+
+
+#     
+#     Fatal error: run() received nonzero return code 1 while executing!
+#     
+#     Requested: mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
+#     
+#     CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
+#     CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
+#     
+#     FLUSH PRIVILEGES;
+#     
+#     GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
+#     EOF
+#     
+#     Executed: /bin/bash -l -c "mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
+#     
+#     CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
+#     CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
+#     
+#     FLUSH PRIVILEGES;
+#     
+#     GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
+#     EOF
+#     "
+#     
+#     Aborting.
+#     To exit: use 'exit', 'quit', or Ctrl-D.
 
 # ## Commands to add?
 # 
@@ -207,6 +313,8 @@ fabric.tasks.execute(deploy_next, hosts=hosts)
 # 
 # I think there is a boto command to restart instance
 # 
+#     *  `sudo unattended-upgrade`
+# 
 
 # In[ ]:
 rebooted_instance = instance.reboot()
@@ -215,6 +323,10 @@ rebooted_instance
 # In[ ]:
 # looks like reboot works, but that the instance status remains running throughout time reboot happens...
 # maybe we wait a specific amount of time and the try to connect 
+
+## hand-installing things for expedient job on gluejar.com
+
+# * git repo
 
 ## EC2 security groups
 
