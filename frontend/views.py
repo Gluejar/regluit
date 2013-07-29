@@ -2630,6 +2630,16 @@ class MARCUngluifyView(FormView):
     template_name = 'marcungluify.html'
     form_class = MARCUngluifyForm
     success_url = reverse_lazy('MARCUngluify')
+    
+    # allow a get param to specify the edition
+    def get_initial(self):
+        if self.request.method == 'GET':
+            edition = self.request.GET.get('edition',None)
+            if models.Edition.objects.filter(id=edition).count():
+                edition = models.Edition.objects.filter(id=edition)[0]
+                if edition.ebooks.count():
+                    return {'edition':edition.id}
+        return {}
 
     def form_valid(self, form):
         edition = form.cleaned_data['edition']
