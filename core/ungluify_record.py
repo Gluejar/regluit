@@ -183,51 +183,19 @@ def makemarc(marcfile,  edition):
     except IndexError:
         oclcnum = None
     
+    subfields = ['i', 'Print version: ','t', title,]
+    
+    if print_isbn:
+        subfields.extend(['z', print_isbn])
+    subfields.extend(['w', '(DLC) ' + print_lccn, ])
     if oclcnum:
-        if print_isbn:
-            field776 = pymarc.Field(
-                tag='776',
-                indicators = ['0', '8'],
-                subfields = [
-                    'i', 'Print version: ',
-                    't', title,
-                    'z', print_isbn,
-                    'w', '(DLC) ' + print_lccn,
-                    'w', '(OCoLC) ' + oclcnum,            
-                ]
-            )
-            field776 = pymarc.Field(
-                tag='776',
-                indicators = ['0', '8'],
-                subfields = [
-                    'i', 'Print version: ',
-                    't', title,
-                    'w', '(DLC) ' + print_lccn,
-                    'w', '(OCoLC) ' + oclcnum,            
-                ]
-            )
-    else:
-        if print_isbn:
-            field776 = pymarc.Field(
-                tag='776',
-                indicators = ['0', '8'],
-                subfields = [
-                    'i', 'Print version: ',
-                    't', title,
-                    'z', print_isbn,
-                    'w', '(DLC) ' + print_lccn,
-                ]
-            )
-        else:
-            field776 = pymarc.Field(
-                tag='776',
-                indicators = ['0', '8'],
-                subfields = [
-                    'i', 'Print version: ',
-                    't', title,
-                    'w', '(DLC) ' + print_lccn,
-                ]
-            )
+        subfields.extend(['w', '(OCoLC) ' + oclcnum,])
+
+    field776 = pymarc.Field(
+        tag='776',
+        indicators = ['0', '8'],
+        subfields = subfields
+    )
     
     record.add_ordered_field(field776)
     """
