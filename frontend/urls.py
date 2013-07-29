@@ -45,6 +45,7 @@ urlpatterns = patterns(
     url(r"^landing/$", "home", {'landing': True}, name="landing"),
     url(r"^next/$", "next", name="next"),
     url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
+    url(r"^supporter/(?P<userlist>[^/]+)/marc/$", "marc", name="user_marc"),
     url(r"^accounts/manage/$", login_required(ManageAccount.as_view()), name="manage_account"),
     url(r'^accounts/superlogin/$', 'superlogin', name='superlogin'),
     url(r"^search/$", "search", name="search"),

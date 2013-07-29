@@ -2610,7 +2610,7 @@ def send_to_kindle_graceful(request, message):
         {'message': int(message)}
     )
     
-def marc(request):
+def marc(request, userlist=None):
     link_target = 'UNGLUE'
     libpref = {'marc_link_target': settings.MARC_CHOICES[1]}
     try:
@@ -2619,11 +2619,17 @@ def marc(request):
     except:
         if not request.user.is_anonymous():
             libpref = models.Libpref(user=request.user)
-    records = models.MARCRecord.objects.filter(link_target=link_target)
+    if userlist:
+        records = []
+        user = get_object_or_404(User,username=userlist)
+        for work in user.wishlist.works.all():
+            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target=link_target))
+    else:
+        records = models.MARCRecord.objects.filter(link_target=link_target)
     return render(
         request,
         'marc.html',
-        {'records': records,  'libpref' : libpref }
+        {'records': records,  'libpref' : libpref , 'userlist' : userlist}
     )
 
 class MARCUngluifyView(FormView):

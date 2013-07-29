@@ -70,7 +70,11 @@ ul.local li {
         {% endfor %}
     </ul>
 {% endif %}
-
+{% if userlist %}
+<h2>Records for  <a href="{% url supporter userlist %}">{{ userlist }}</a></h2>
+{% else %}
+<p> To restrict this list to works on your wishlist <a href="{% url user_marc request.user.username %}">click here</a> </p>
+{% endif %}
 {% if records %}
 <div class="marc">
     <form method="POST" id="record_form" action="{% url marc_concatenate %}">
