@@ -2,21 +2,6 @@
 
 {% block title %} MARC records{% endblock %}
 
-{% block extra_js %}
-{{ block.super }}
-<script type="text/javascript">
-    var $j = jQuery.noConflict();
-    $j(document).ready(function() {
-        $j('#record_form').submit(function() {
-            $j('#unsubmit').show();
-        });
-        $j('#record_form').click(function() {
-            $j('#unsubmit').hide();
-        });
-    });
-</script>
-{% endblock %}
-
 {% block extra_extra_head %}
 <style type="text/css">
 .marc {
