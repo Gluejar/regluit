@@ -2672,7 +2672,6 @@ class MARCConfigView(FormView):
         else:
             return super(MARCConfigView, self).form_valid(form)
             
-@require_POST
 def marc_concatenate(request):
     """
     options for future work...
@@ -2680,12 +2679,20 @@ def marc_concatenate(request):
     dispatch as background process, email when done?
     if not caching, delete files on s3 after a while?
     make the control flow suck less during file write
-    """
-    format = request.POST['format']
     
-    # extract the user-selected records from the POST QueryDict
+    Can be used as a GET URL
+    """
+    if request.method == 'POST':
+        params=request.POST
+    elif request.method == 'GET':
+        params=request.GET
+    else:
+        return HttpResponseNotFound
+    format = params['format']
+    
+    # extract the user-selected records from the params QueryDict
     selected_records = list(
-        k for k in request.POST if request.POST[k] == u'on'
+        k for k in params if params[k] == u'on'
     )
     if not selected_records:
         messages.error(
