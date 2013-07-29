@@ -50,9 +50,7 @@ def makemarc(marcfile,  edition):
         
     # create accession number and write 001 field 
     # (control field syntax is special)
-    marc_record = models.MARCRecord()
-    marc_record.edition = edition
-    marc_record.save()
+    (marc_record, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='DIRECT')
     marc_id = marc_record.id
     zeroes = 9 - len(str(marc_id))
     accession = 'ung' + zeroes*'0' + str(marc_id)
@@ -281,9 +279,7 @@ def makemarc(marcfile,  edition):
     # this via_unglueit record needs its own accession number
     field001 = record_via_unglueit.get_fields('001')[0]
     record_via_unglueit.remove_field(field001)
-    marc_record_via = models.MARCRecord()
-    marc_record_via.edition = edition
-    marc_record_via.save()
+    (marc_record_via, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='UNGLUE')
     marc_id_via = marc_record_via.id
     zeroes = 9 - len(str(marc_id_via))
     accession_via = 'ung' + zeroes*'0' + str(marc_id_via)
