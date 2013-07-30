@@ -16,14 +16,11 @@
 # * some other form?
 # 
 
-# In[1]:
+# In[ ]:
 from regluit.sysadmin import aws
 reload(aws)
 
-# Out[1]:
-#     <module 'regluit.sysadmin.aws' from '/Users/raymondyee/C/src/Gluejar/regluit/sysadmin/aws.pyc'>
-
-# In[2]:
+# In[ ]:
 # look up Ubuntu EC2 image ids from alestic.com
 # us-east-1 Ubuntu 12.04 LTS Precise
 # EBS boot	ami-e7582d8e
@@ -32,24 +29,17 @@ reload(aws)
 AMI_UBUNTU_12_04_ID = 'ami-e7582d8e'
 image = aws.ec2.get_all_images(image_ids=[AMI_UBUNTU_12_04_ID])[0]
 
-# In[3]:
+# In[ ]:
 # name of image follows Eric Hammond's convention of dating the images
 
 image.id, image.name
 
-# Out[3]:
-#     (u'ami-e7582d8e',
-#      u'ubuntu/images/ebs/ubuntu-precise-12.04-amd64-server-20130603')
-
-# In[4]:
+# In[ ]:
 # sometimes we have an instance running or created already
 # so we just need to get a reference to it (instead of creating a new one)
 
 instance = aws.instance('new_test')
 instance, instance.state
-
-# Out[4]:
-#     (Instance:i-4f64082f, u'running')
 
 # In[ ]:
 if instance.state == 'stopped':
@@ -120,7 +110,7 @@ cmdstring
 
 ## dynamic execution of fabric tasks to setup the instance
 
-# In[6]:
+# In[ ]:
 # http://docs.fabfile.org/en/1.6/usage/execution.html#using-execute-with-dynamically-set-host-lists
 
 import fabric
@@ -253,55 +243,6 @@ def deploy_next():
 hosts = ["ubuntu@{0}".format(instance.dns_name)]
 
 fabric.tasks.execute(deploy_next, hosts=hosts)
-
-# Out[6]:
-#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] Executing task 'deploy_next'
-#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] run: mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
-#     
-#     CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
-#     CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
-#     
-#     FLUSH PRIVILEGES;
-#     
-#     GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
-#     EOF
-#     
-#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] out: ERROR 1007 (HY000) at line 2: Can't create database 'gdc'; database exists
-#     [ubuntu@ec2-50-17-12-93.compute-1.amazonaws.com] out: 
-#     
-# 
-
-    An exception has occurred, use %tb to see the full traceback.
-
-    SystemExit: 1
-
-
-#     
-#     Fatal error: run() received nonzero return code 1 while executing!
-#     
-#     Requested: mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
-#     
-#     CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
-#     CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
-#     
-#     FLUSH PRIVILEGES;
-#     
-#     GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
-#     EOF
-#     
-#     Executed: /bin/bash -l -c "mysql -h 127.0.0.1 --user=root --password=unglueit_pw_123   <<'EOF'
-#     
-#     CREATE DATABASE gdc CHARACTER SET utf8 COLLATE utf8_bin;
-#     CREATE USER 'gdc'@'localhost' IDENTIFIED BY 'gdc';
-#     
-#     FLUSH PRIVILEGES;
-#     
-#     GRANT ALL PRIVILEGES ON gdc.* TO 'gdc'@'localhost' WITH GRANT OPTION; 
-#     EOF
-#     "
-#     
-#     Aborting.
-#     To exit: use 'exit', 'quit', or Ctrl-D.
 
 # ## Commands to add?
 # 
