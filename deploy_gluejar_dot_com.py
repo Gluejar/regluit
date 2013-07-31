@@ -50,7 +50,7 @@ if instance.state == 'stopped':
 # use default security group for now -- probably want to make a new one
 
 INSTANCE_NAME = 'gluejar_dot_com'
-SECURITY_GROUP_NAME = 'gluejar_dot_com'
+SECURITY_GROUP_NAME = 'gluejar_dot_com_sg'
 
 (instance, cmd) = aws.launch_instance(ami=AMI_UBUNTU_12_04_ID, 
                                       instance_type='t1.micro',
@@ -114,11 +114,25 @@ cmdstring
 # http://docs.fabfile.org/en/1.6/usage/execution.html#using-execute-with-dynamically-set-host-lists
 
 import fabric
-from fabric.api import run, local, env, cd, sudo
+from fabric.api import run, local, env, cd, sudo, prefix
 from fabric.operations import get
+from contextlib import contextmanager as _contextmanager
+
 
 from regluit.sysadmin import aws
 from StringIO import StringIO
+
+
+# http://stackoverflow.com/a/5359988/7782
+
+env.directory = '/opt/gluejar_dot_com/'
+env.activate = 'source /opt/gluejar_dot_com/ENV/bin/activate'
+
+@_contextmanager
+def virtualenv():
+    with cd(env.directory):
+        with prefix(env.activate):
+            yield
 
 import github
 
@@ -132,7 +146,7 @@ from django.conf import settings
 # allow us to use our ssh config files (e.g., ~/.ssh/config)
 env.use_ssh_config = True
 
-GITHUB_REPO_NAME = "Gluejar/regluit"
+GITHUB_REPO_NAME = "Gluejar/gluejar_dot_com"
 #GITHUB_REPO_NAME = "rdhyee/working-open-data"
 
 # maybe generate some random pw -- not sure how important it is to generate some complicated PW if we configure 
@@ -168,7 +182,7 @@ def deploy():
     s = StringIO()
     get('/home/ubuntu/.ssh/id_rsa.pub', s)
     repo = g.get_repo(GITHUB_REPO_NAME)
-    key = repo.create_key('test deploy key', s.getvalue())    
+    key = repo.create_key('gluejar_dot_com key', s.getvalue())    
     
     # http://debuggable.com/posts/disable-strict-host-checking-for-git-clone:49896ff3-0ac0-4263-9703-1eae4834cda3
     run('echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config')
@@ -197,6 +211,24 @@ EOF
 """
     run(command)       
     
+    # install dependencies and run django setup
+    
+    with cd("/opt/gluejar_dot_com"):
+        run('virtualenv ENV')
+    
+    with virtualenv():
+        run('pip install -r requirements_versioned.pip')
+        run('echo "/opt/gluejar_dot_com/" > ENV/lib/python2.7/site-packages/gdc.pth')
+
+        run('mkdir /opt/gluejar_dot_com/logs/')
+        run('django-admin.py syncdb --migrate --noinput --settings gluejar_dot_com.settings')
+
+        sudo('mkdir /var/www/static')
+        sudo('chown ubuntu:ubuntu /var/www/static')
+        run('django-admin.py collectstatic  --noinput --settings gluejar_dot_com.settings')
+
+        
+    
     
 def test_mysql_connection():
     # test connectivity to mysql-server
@@ -209,13 +241,24 @@ EOF
     
     
 def deploy_next():
-     pass
+    
+    with virtualenv():
+        run('pip install -r requirements_versioned.pip')
+        run('echo "/opt/gluejar_dot_com/" > ENV/lib/python2.7/site-packages/gdc.pth')
+
+        #run('mkdir /opt/gluejar_dot_com/logs/')
+        run('django-admin.py syncdb --migrate --noinput --settings gluejar_dot_com.settings')
+
+        #sudo('mkdir /var/www/static')
+        sudo('chown ubuntu:ubuntu /var/www/static')
+        run('django-admin.py collectstatic  --noinput --settings gluejar_dot_com.settings')
+
         
     
 #hosts = ['ubuntu@ec2-75-101-232-46.compute-1.amazonaws.com']
 hosts = ["ubuntu@{0}".format(instance.dns_name)]
 
-fabric.tasks.execute(deploy_next, hosts=hosts)
+fabric.tasks.execute(deploy, hosts=hosts)
 
 # ## Commands to add?
 # 
