@@ -12,7 +12,6 @@ SITE_ID = 3
 ADMINS = (
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
     ('Eric Hellman', 'eric@gluejar.com'),
-    ('Andromeda Yelton', 'andromeda@gluejar.com'),
 )
 
 MANAGERS = ADMINS
