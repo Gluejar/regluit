@@ -2,7 +2,7 @@
 {% load endless %}
 {% load lang_utils %}
 
-{% block title %} Works published by {{ pubname }} {% endblock %}
+{% block title %} Books we're recommending. {% endblock %}
 {% block noworks %}
 Check back soon to see what we're recommending.
 {% endblock %}
@@ -11,7 +11,7 @@ Check back soon to see what we're recommending.
     <div id="user-block1">
     <div id="block-intro-text"><span class="special-user-name">Staff Picks</span></div>
     </div>
-    <div class="user-block2"><span class="user-short-info">Here are the {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books <a href="{% url supporter 'AmandaM' %}">Amanda</a>, <a href="{% url supporter 'andromeda' %}">Andromeda</a>, <a href="{% url supporter 'eric' %}">Eric</a>, and <a href="{% url supporter 'rdhyee' %}">Raymond</a> are loving lately.</span>
+    <div class="user-block2"><span class="user-short-info">Here are some books we think you might enjoy.</span>
     </div>
     <div class="user-block3 recommended">
     <a href="{% url supporter 'AmandaM' %}"><img class="user-avatar" src="https://si0.twimg.com/profile_images/1801686082/image_normal.jpg" height="50" width="50" alt="Picture of Amanda" title="Amanda" /></a>
