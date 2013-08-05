@@ -15,6 +15,7 @@ from notification import models as notification
 regluit imports
 """
 from regluit.payment.models import Account
+from regluit.utils.localdatetime import date_today
 
 #task to update the status of accounts
 @task
