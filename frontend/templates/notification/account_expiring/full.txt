@@ -10,5 +10,5 @@ The current card we have on file:
 Card type: {{ user.profile.account.card_type }}
 Number: ************{{ user.profile.account.card_last4 }}
 Expiration date: {{ user.profile.account.card_exp_month }}/{{ user.profile.account.card_exp_year }}.
-We use Stripe< to keep your information secure.
+We use Stripe to keep your information secure.
 {% endif %}
