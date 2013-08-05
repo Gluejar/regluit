@@ -590,7 +590,10 @@ class Processor(baseprocessor.Processor):
                           )
         if user.profile.account:
             user.profile.account.deactivate()
-        account.save()       
+            account.save()  
+            account.recharge_failed_transactions() 
+        else:
+            account.save()
         return account
         
     class Preapproval(StripePaymentRequest, baseprocessor.Processor.Preapproval):
