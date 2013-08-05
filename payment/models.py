@@ -396,7 +396,7 @@ class Account(models.Model):
             return 'ACTIVE'
                 
  
-    def update_status(value=None):
+    def update_status( self, value=None):
         """set Account.status = value unless value is None, in which case, we set Account.status=self.calculated_status()
         fire off associated notifications
         """
