@@ -291,12 +291,13 @@ class UnifiedCampaignTests(TestCase):
         
         self.assertEqual(charge_exception, None)
 
-        # expect to have 2 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
+        # expect to have 3 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
         # events returned sorted in reverse chronological order.        
-        
-        self.assertEqual(len(events), 2)
+                    
+        self.assertEqual(len(events), 3)
         self.assertEqual(events[0].type, 'charge.succeeded')
-        self.assertEqual(events[1].type, 'customer.created')
+        self.assertEqual(events[1].type, 'customer.card.created')
+        self.assertEqual(events[2].type, 'customer.created')
         
         # now feed each of the events to the IPN processor.
         ipn_url = reverse("HandleIPN", args=('stripelib',))
@@ -322,12 +323,13 @@ class UnifiedCampaignTests(TestCase):
         # we should have an exception when the charge was attempted
         self.assertTrue(charge_exception is not None)
 
-        # expect to have 2 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
+        # expect to have 3 events (there is a possibility that someone else could be running tests on this stripe account at the same time)
         # events returned sorted in reverse chronological order.        
         
-        self.assertEqual(len(events), 2)
+        self.assertEqual(len(events), 3)
         self.assertEqual(events[0].type, 'charge.failed')
-        self.assertEqual(events[1].type, 'customer.created')
+        self.assertEqual(events[1].type, 'customer.card.created')
+        self.assertEqual(events[2].type, 'customer.created')
         
         # now feed each of the events to the IPN processor.
         ipn_url = reverse("HandleIPN", args=('stripelib',))
