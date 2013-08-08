@@ -271,7 +271,7 @@ class OpenCampaignForm(forms.ModelForm):
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
         model = Campaign
-        fields = 'name', 'work',  'managers'
+        fields = 'name', 'work',  'managers', 'type'
         widgets = { 'work': forms.HiddenInput }
 
 def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
@@ -372,9 +372,9 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                 
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher', 'type'
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial',
             widgets = { 
-                    'deadline': SelectDateWidget,
+                    'deadline': SelectDateWidget, 'cc_date_initial': SelectDateWidget, 
                 }
     
         def clean_target(self):
@@ -577,4 +577,4 @@ class PressForm(forms.ModelForm):
             
 class KindleEmailForm(forms.Form):
     kindle_email = forms.EmailField()
-
+    

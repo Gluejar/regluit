@@ -424,6 +424,19 @@ class SearchTests(TestCase):
 
 class CampaignTests(TestCase):
 
+    def test_b2u(self):
+        w = Work()
+        w.save()
+        c = Campaign(
+            target=D('12000.00'), 
+            deadline=datetime(2013, 1, 1), 
+            work=w, type=2, 
+            cc_date_initial=datetime(2113, 1, 1),
+            status='INITIALIZED',
+            )
+        self.assertTrue(c.set_dollar_per_day()<0.34)
+        self.assertTrue(c.dollar_per_day>0.31)
+
     def test_required_fields(self):
         # a campaign must have a target, deadline and a work
 

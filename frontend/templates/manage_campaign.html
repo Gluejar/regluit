@@ -139,13 +139,49 @@ Please fix the following before launching your campaign:
 	<p>If the edition details are inaccurate (e.g. wrong cover image), go ahead and set up the campaign with that edition anyway.  You'll be able to edit the edition details from this page later on.</p>
 	{% endif %}
 	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
+	{% ifnotequal campaign_status 'ACTIVE' %}
+	<h3>Target Price</h3>
+	<p>This is the target price for your campaign. The <i>minimum</i> target is ${{form.minimum_target|intcomma}}.</p>
+	
+	<p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
+	
+	<p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
+	
+	<p>Please email us if you want to talk about pricing strategy.</p>
+	
+	{{ form.target.errors }}${{ form.target }}
+	<h3>License being offered</h3>
+	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+	{{ form.license.errors }}{{ form.license }}
+	<h3>Ending date</h3>
+	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
+	
+	<p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ campaign.latest_ending }}</p>
     {% if campaign.rh.can_sell %}
-    <h3>Decide on a Campaign Type</h3>
-    <p>If you have ebook files to sell as part of your unglueing campaign, you can use <i>Buy-To-Unglue</i> These campaigns do not have a fixed end date. When your gross sales reach the target you set below, the book is released in an open-access <i>unglued</i> edition.</p>
-    {{ form.type.errors }}{{ form.type }}
-    {% else %}
-    <input type="hidden" id="type" name="type" value="1" />
-    {% endif %}
+	<p> The ending date is ignored if you have chosen a <i>Buy to Unglue</i> campaign.</p>
+	{% endif %}
+	{{ form.deadline.errors }}{{ form.deadline }}
+	
+	{% else %}
+	<h3>Target Price</h3>
+	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	${{ form.target.errors }}{{ form.target }}
+
+	<h3>License being offered</h3>
+	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
+	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
+	{{ form.license.errors }}<span>{{ form.license }}</span>
+	{% ifequal campaign.type 2 %}
+	<input type='hidden' id='type' name='type' value='2' />
+	<div style="display:none">{{ form.deadline }}</div>
+	{% else %}
+	<h3>Ending date</h3>
+	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
+	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
+	{% endifequal %}
+	{% endifnotequal %}
+
+
 	<h3>Make Your Pitch</h3>
 	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.</p>
 	
@@ -236,47 +272,6 @@ Please fix the following before launching your campaign:
 	<p>In short, is there a fact about this campaign that you think would matter to your agent or another publishing wonk, but that no one else is likely to care about?  Put it here.  If your campaign doesn't have any fine print, you can leave this blank.</p>
 	{{ form.details.errors }}{{ form.details }}
 
-	{% ifnotequal campaign_status 'ACTIVE' %}
-	<h3>Target Price</h3>
-	<p>This is the target price for your campaign. The <i>minimum</i> target is ${{form.minimum_target|intcomma}}.</p>
-	
-	<p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
-	
-	<p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
-	
-	<p>Please email us if you want to talk about pricing strategy.</p>
-	
-	{{ form.target.errors }}${{ form.target }}
-	<h3>License being offered</h3>
-	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
-	{{ form.license.errors }}{{ form.license }}
-	<h3>Ending date</h3>
-	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
-	
-	<p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ campaign.latest_ending }}</p>
-    {% if campaign.rh.can_sell %}
-	<p> The ending date is ignored if you have chosen a <i>Buy to Unglue</i> campaign.</p>
-	{% endif %}
-	{{ form.deadline.errors }}{{ form.deadline }}
-	
-	{% else %}
-	<h3>Target Price</h3>
-	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
-	${{ form.target.errors }}{{ form.target }}
-
-	<h3>License being offered</h3>
-	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
-	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
-	{{ form.license.errors }}<span>{{ form.license }}</span>
-	{% ifequal campaign.type 2 %}
-	<input type='hidden' id='type' name='type' value='2' />
-	<div style="display:none">{{ form.deadline }}</div>
-	{% else %}
-	<h3>Ending date</h3>
-	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
-	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
-	{% endifequal %}
-	{% endifnotequal %}
 	
 	<h3>e-mail contact addresses</h3>
 	<p>Enter the email address where notifications about this campaign should be sent. If your campaign succeeds, this email needs to work if you want to get paid! This address will not be exposed on the website.</p>

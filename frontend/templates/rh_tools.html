@@ -51,7 +51,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			Campaign: {{ campaign.name }}<br />
 			Campaign status: {{ campaign.status }}	<br />
 			Created: {{ campaign.created }}<br />
+			{% ifequal campaign.type 1 %}
 			${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+			{% else %}
+			${{ campaign.current_total }} sold of ${{ campaign.target }}, CC Date: {{ campaign.cc_date }}
+			{% endifequal %}
 			</div>
 			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
 				<div>
@@ -87,7 +91,13 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<form method="POST" action="#">
 				{% csrf_token %}
 				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
-				<p>Choose your Campaign Manager(s): {{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</p>
+				{% if claim.rights_holder.can_sell %}
+					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
+					<p>You can use <i>Buy-To-Unglue</i> These campaigns do not have a fixed end date. When your gross sales reach the target you set, the book is released in an open-access <i>unglued</i> edition.</p>
+				{% else %}
+					<input type="hidden" id="type" name="type" value="1" />
+				{% endif %}
+				<div style="width:200px" >Choose your Campaign Manager(s): {{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</div>
 				<p>
 				{{ claim.campaign_form.work }}{{ claim.campaign_form.work.errors }}
 				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
@@ -97,6 +107,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			</form>
 			{% else %}{%if claim.campaigns %}			
 			<h3>Campaigns for this work</h3>
+
 			{% for campaign in claim.campaigns %}
 			<div class="work_campaigns clearfix">
 				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
@@ -120,7 +131,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 						Created: {{ campaign.created }}<br />
 						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
 						<br />
+						{% ifequal campaign.type 1 %}
 						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+						{% else %}
+						${{ campaign.current_total }} sold of ${{ campaign.target }}, CC Date: {{ campaign.cc_date }}
+						{% endifequal %}
 					</div>
 				{% endif %}
 			</div>
@@ -128,7 +143,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			{% endif %}
 			{% endif %}
 			{% if claim.work.first_ebook %}
-				<h4> Ebooks for this work </h3>
+				<h4> Ebooks for this work </h4>
 				<div class="work_campaigns">
 				<ul>
 				{% for ebook in claim.work.ebooks %}
@@ -161,14 +176,14 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
     {% if not request.user.is_authenticated %}<li>{% else %}<li class="checked">{% endif %}Set up an Unglue.it account (start at the Sign Up button at the top of the page).</li>
 	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Email rights@gluejar.com about becoming an authorized rights holder.</li>
 	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}After we review your credentials, sign a Platform Services Agreement (available from us).</li>
-	<li>Claim your work(s):</li>
+	<li>Claim your work(s):
 	<ul>
 	    <li>Find them through the search box at the top of every page.</li>
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
 	    <li>Agree to our <a href="{{ termsurl }}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
 	    <li>If you have any questions or you claim a work by mistake, email us.</li>
 	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url regluit.frontend.views.edit_user %}">change the email address</a> for your account.</li>
-	</ul>
+	</ul></li>
 	<li>Once your claim is approved, you can set up a campaign for it.  All the campaigns you can manage will be listed on this page.</li>
 	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page.</li> 
 </ol>

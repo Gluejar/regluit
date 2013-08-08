@@ -9,7 +9,7 @@ import random
 import urllib
 
 from ckeditor.fields import RichTextField
-from datetime import timedelta
+from datetime import timedelta, datetime
 from decimal import Decimal
 from notification import models as notification
 from postmonkey import PostMonkey, MailChimpException
@@ -242,6 +242,8 @@ class Campaign(models.Model):
     license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField(db_index=True)
+    dollar_per_day = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    cc_date_initial = models.DateTimeField(null=True)
     activated = models.DateTimeField(null=True)
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
@@ -372,18 +374,36 @@ class Campaign(models.Model):
             return True
         else:
             return False
-
+    
+    _current_total = None
     @property
     def current_total(self):
-        if self.left is not None:
-            return self.target-self.left
-        else:
-            return 0
+        if self._current_total is None:
+            p = PaymentManager()
+            self._current_total =  p.query_campaign(self,summary=True, campaign_total=True)
+        return self._current_total
+    
+    def set_dollar_per_day(self):
+        if self.status!='INITIALIZED' and self.dollar_per_day:
+            return self.dollar_per_day
+        time_to_cc = self.cc_date_initial - datetime.today()
+        self.dollar_per_day = float(self.target)/float(time_to_cc.days)
+        self.save()
+        return self.dollar_per_day
+
+    @property
+    def cc_date(self):
+        if self.dollar_per_day is None:
+            return self.cc_date_initial
+        cc_advance_days = float(self.current_total / self.dollar_per_day)
+        return (self.cc_date_initial-timedelta(days=cc_advance_days)).date()
             
+        
     def update_left(self):
-        p = PaymentManager()
-        amount = p.query_campaign(self,summary=True, campaign_total=True)
-        self.left = self.target - amount
+        if self.type == BUY2UNGLUE:
+            self.left = self.target - self.current_total
+        else:
+            self.left = float(self.dollar_per_day)*float((self.cc_date_initial - datetime.today()).days)-self.current_total
         self.save()
         
     def transactions(self,  **kwargs):
