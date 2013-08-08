@@ -1,0 +1,107 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %} MARC records{% endblock %}
+
+{% block extra_extra_head %}
+<style type="text/css">
+.marc {
+    margin-top: 20px;
+}
+
+.marc div a.fakeinput {
+    clear: both;
+}
+
+.marc div a.title {
+    vertical-align: middle;
+    padding-left: 5px;
+}
+
+ul.local li {
+    list-style-type: disc;
+    list-style-position: inside;
+}
+
+/* need to do a hide/show instead of a .replaceWith() on the submit button
+   because the image takes long enough to load that it's preempted by the 
+   redirect for quick downloads, and users never see it
+*/
+#unsubmit {
+    display: none;
+}
+
+#unsubmit img {
+    vertical-align: middle;
+}
+</style>
+{% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+<h2>MARC records at Unglue.it</h2>
+
+<p>Go ahead: add unglued ebooks to your library catalog!</p>
+
+{% if request.user.is_staff %}
+    <p>Hi, {{ request.user.username }}.  Unglue.it staffers can also <a href="{% url MARCUngluify %}">add new records</a>.</p>
+{% endif %}
+
+{% if messages %}
+    <ul class="errors">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% if userlist %}
+<h2>Records for  <a href="{% url supporter userlist %}">{{ userlist }}</a></h2>
+{% else %}
+{% if request.user.is_authenticated %}
+<p> To restrict this list to works on your wishlist <a href="{% url user_marc request.user.username %}">click here</a> </p>
+{% endif %}
+{% endif %}
+{% if records %}
+<div class="marc">
+    <form method="POST" id="record_form" action="{% url marc_concatenate %}">
+        {% csrf_token %}
+        Record format:
+        <select name="format">
+            <option value="xml">xml</option>
+            <option value="mrc">mrc</option>
+        </select>
+        <br /><br />
+        {% for record in records %}
+            <input type="checkbox" name="record_{{ record.id }}" id="record_{{ record.id }}" />
+            <label for="record_{{ record.id }}">
+                Record for <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}{% if record.edition.isbn_13 %} (ISBN {{ record.edition.isbn_13 }}){% endif %}</a>
+            </label>
+            <br />
+        {% endfor %}
+        <input type="submit" name="submit" value="Download" id="submit">
+        <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
+    </form>
+</div>
+{% else %}
+<p>Sorry; we don't have any records meeting your needs at this time.  </p>
+{% endif %}
+
+<hr>
+{% if request.user.is_authenticated %}
+<div>
+    <p>Your preference for the links in the 856 field is:</p>
+    <ul class="local">
+        <li>{{ libpref.get_marc_link_target_display }}</li>
+    </ul>
+    
+    <p>The options are:</p>
+    <ul class="local">
+            <li> Raw link. MARC records link direct to provider (one click, no help) </li>
+            <li> Unglue.it link. MARC records link through Unglue.it download page (extra click, context sensitive help for getting files onto user's device)</li>
+    </ul>
+    
+    <p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
+</div>
+{% endif %}
+{% endblock %}

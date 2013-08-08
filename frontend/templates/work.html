@@ -44,7 +44,7 @@
 {% else %}
     {% if not work.user_with_rights %}
         {% if request.user.rights_holder.all %}
-            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the Rights tab. Need help?  There's a screencast of the process at the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
+            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  There's a screencast of the process at the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
         {% endif %}
     {% else %}
         {% if request.user == work.user_with_rights %}
@@ -199,7 +199,7 @@
                                 <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
                                 <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
                                 <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
-                                <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">Rights</a></li>
+                                <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">More...</a></li>
                             </ul>
                         </div>
                 
@@ -378,9 +378,16 @@
                                                         <a href="{% url new_edition work_id edition.id %}">Edit this edition</a><br />
                                                     {% endif %}
                                                     {% if edition.googlebooks_id %}
-                                                        See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a>
+                                                        See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a><br />
                                                     {% endif %}                            	    
+                                                    {% for record in edition.MARCrecords.all %}
+                                                        Download {{record.link_target}} MARC record for this edition: (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=xml">XML</a>) (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=mrc">mrc</a>)<br />
+                                                    {% endfor %}
+                                                    {% if user.is_staff and edition.ebooks %}
+                                                        <a href="{% url MARCUngluify %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
+                                                    {% endif %} 
                                                 </div>
+
                                             </div>
                                             {% if edition.ebook_form %}
                                                 {% ifnotequal status 'ACTIVE' %}
