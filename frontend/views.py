@@ -16,6 +16,7 @@ from notification import models as notification
 from random import randint
 from re import sub
 from xml.etree import ElementTree as ET
+from xml.sax import SAXParseException
 from tastypie.models import ApiKey
 
 '''
@@ -24,6 +25,7 @@ django imports
 from django import forms
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import login
@@ -31,9 +33,10 @@ from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.files.storage import default_storage
 from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
@@ -64,7 +67,8 @@ from regluit.core import (
     bookloader,
     librarything,
     userlists,
-    goodreads
+    goodreads,
+    ungluify_record
 )
 from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
@@ -102,7 +106,9 @@ from regluit.frontend.forms import (
     MsgForm,
     AuthForm,
     PressForm,
-    KindleEmailForm
+    KindleEmailForm,
+    MARCUngluifyForm,
+    MARCFormatForm
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -2654,3 +2660,153 @@ def send_to_kindle_graceful(request, message):
         'kindle_response_graceful_degradation.html',
         {'message': int(message)}
     )
+    
+def marc(request, userlist=None):
+    link_target = 'UNGLUE'
+    libpref = {'marc_link_target': settings.MARC_CHOICES[1]}
+    try:
+        libpref = request.user.libpref
+        link_target = libpref.marc_link_target
+    except:
+        if not request.user.is_anonymous():
+            libpref = models.Libpref(user=request.user)
+    if userlist:
+        records = []
+        user = get_object_or_404(User,username=userlist)
+        for work in user.wishlist.works.all():
+            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target=link_target))
+    else:
+        records = models.MARCRecord.objects.filter(link_target=link_target)
+    return render(
+        request,
+        'marc.html',
+        {'records': records,  'libpref' : libpref , 'userlist' : userlist}
+    )
+
+class MARCUngluifyView(FormView):
+    template_name = 'marcungluify.html'
+    form_class = MARCUngluifyForm
+    success_url = reverse_lazy('MARCUngluify')
+    
+    # allow a get param to specify the edition
+    def get_initial(self):
+        if self.request.method == 'GET':
+            edition = self.request.GET.get('edition',None)
+            if models.Edition.objects.filter(id=edition).count():
+                edition = models.Edition.objects.filter(id=edition)[0]
+                if edition.ebooks.count():
+                    return {'edition':edition.id}
+        return {}
+
+    def form_valid(self, form):
+        edition = form.cleaned_data['edition']
+
+        try:
+            ungluify_record.makemarc(
+                marcfile=self.request.FILES['file'],
+                edition=edition
+            )
+            messages.success(
+                self.request,
+                "You have successfully added a MARC record. Hooray! Add another?"
+            )
+        except SAXParseException:
+            messages.error(
+                self.request,
+                "Sorry, couldn't parse that file."
+            )
+        return super(MARCUngluifyView,self).form_valid(form)
+        
+class MARCConfigView(FormView):
+    template_name = 'marc_config.html'
+    form_class = MARCFormatForm
+    success_url = reverse_lazy('marc')
+    
+    def form_valid(self, form):
+        marc_link_target = form.cleaned_data['marc_link_target']
+        try:
+            libpref = self.request.user.libpref
+        except:
+            libpref = models.Libpref(user=self.request.user)
+        libpref.marc_link_target = marc_link_target
+        libpref.save()
+        messages.success(
+            self.request,
+            "Your preferences have been changed."
+        )
+        if reverse('marc_config', args=[]) in self.request.META['HTTP_REFERER']:
+            return HttpResponseRedirect(reverse('marc_config', args=[]))
+        else:
+            return super(MARCConfigView, self).form_valid(form)
+            
+def marc_concatenate(request):
+    """
+    options for future work...
+    cache files: keep records of each combo created, check before building anew?
+    dispatch as background process, email when done?
+    if not caching, delete files on s3 after a while?
+    make the control flow suck less during file write
+    
+    Can be used as a GET URL
+    """
+    if request.method == 'POST':
+        params=request.POST
+    elif request.method == 'GET':
+        params=request.GET
+    else:
+        return HttpResponseNotFound
+    format = params['format']
+    
+    # extract the user-selected records from the params QueryDict
+    selected_records = list(
+        k for k in params if params[k] == u'on'
+    )
+    if not selected_records:
+        messages.error(
+            request,
+            "Please select at least one record to download."
+        )
+        return HttpResponseRedirect(reverse('marc', args=[]))
+    
+    # keep test files from stepping on production files
+    if '/unglue.it' in settings.BASE_URL:
+        directory = 'marc/'
+    else:
+        directory = 'marc_test/'
+    
+    # write the concatenated file
+    datestamp = now().strftime('%Y%m%d%H%M%S')
+    filename = directory + datestamp + '.' +  format
+    with default_storage.open(filename, 'w') as outfile:
+        if format == 'xml':
+            string = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+                     '<collection '
+                     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                     'xmlns="http://www.loc.gov/MARC21/slim" '
+                     'xsi:schemaLocation="http://www.loc.gov/MARC21/slim '
+                     'http://www.loc.gov/standards/marcxml/schema/'
+                     'MARC21slim.xsd">')
+            outfile.write(string)
+        for record in selected_records:
+            record_id = long(record[7:])
+            if format == 'xml':
+                record_url = models.MARCRecord.objects.get(
+                                pk=record_id
+                             ).xml_record
+                logger.info(record_url)
+            elif format == 'mrc':
+                record_url = models.MARCRecord.objects.get(
+                                pk=record_id
+                             ).mrc_record
+                logger.info(record_url)
+            try:
+                record_file = urllib.urlopen(record_url).read()
+                outfile.write(record_file)
+            except IOError:
+                logger.warning('MARC record with id number %s has a problem with its URL' % record_id)
+        if format == 'xml':
+            string = ('</collection>')
+            outfile.write(string)
+    download_url = default_storage.url(filename)
+    return HttpResponseRedirect(download_url)
+        

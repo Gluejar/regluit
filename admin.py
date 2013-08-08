@@ -4,7 +4,8 @@ external library imports
 import pickle
 
 """
-django imports"""
+django imports
+"""
 from django import forms
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin.sites import AdminSite
@@ -34,7 +35,12 @@ regluit imports
 """
 from regluit import payment
 from regluit.core import models
-from regluit.core.lookups import PublisherNameLookup, WorkLookup, OwnerLookup
+from regluit.core.lookups import (
+    PublisherNameLookup,
+    WorkLookup,
+    OwnerLookup,
+    EditionLookup
+)
 
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
@@ -187,6 +193,20 @@ class NoticeQueueBatchAdmin(ModelAdmin):
 class PressAdmin(ModelAdmin):
     list_display = ('title', 'source', 'date')
     ordering = ('-date',)
+    
+class MARCRecordAdminForm(forms.ModelForm):
+    edition = AutoCompleteSelectField(
+            EditionLookup,
+            widget=AutoCompleteSelectWidget(EditionLookup),
+            required=True,
+    )
+
+    class Meta(object):
+        model = models.MARCRecord
+
+class MARCRecordAdmin(ModelAdmin):
+    list_display = ('edition',)
+    form = MARCRecordAdminForm
 
 admin_site = RegluitAdmin("Admin")
 
@@ -206,6 +226,7 @@ admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
 admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Press, PressAdmin)
+admin_site.register(models.MARCRecord, MARCRecordAdmin)
 
 # payments
 

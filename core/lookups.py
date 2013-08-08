@@ -2,7 +2,7 @@ from selectable.base import ModelLookup
 from selectable.registry import registry
 
 from django.contrib.auth.models import User
-from regluit.core.models import Work, PublisherName
+from regluit.core.models import Work, PublisherName, Edition
 
 class OwnerLookup(ModelLookup):
     model = User
@@ -29,6 +29,24 @@ class PublisherNameLookup(ModelLookup):
         publisher_name.save()
         return publisher_name
            
+class EditionLookup(ModelLookup):
+    model = Edition
+    search_fields = ('title__icontains',)
+    filters = {'ebooks__isnull': False, }
+
+    def get_query(self, request, term):
+        return super(EditionLookup, self).get_query(request, term).distinct()
+
+    def get_item(self, value):
+        item = None
+        if value:
+            try:
+                item = Edition.objects.get(pk=value)
+            except (ValueError, Edition.DoesNotExist):
+                item = None
+        return item
+
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
 registry.register(PublisherNameLookup)
+registry.register(EditionLookup)

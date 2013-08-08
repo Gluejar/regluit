@@ -43,11 +43,17 @@ from regluit.core.models import (
     PledgeExtra,
     Work,
     Press,
+    Libpref,
     TWITTER,
     FACEBOOK,
     GRAVATAR
 )
-from regluit.core.lookups import OwnerLookup, WorkLookup, PublisherNameLookup
+from regluit.core.lookups import (
+    OwnerLookup,
+    WorkLookup,
+    PublisherNameLookup,
+    EditionLookup
+)
 from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
@@ -578,3 +584,17 @@ class PressForm(forms.ModelForm):
 class KindleEmailForm(forms.Form):
     kindle_email = forms.EmailField()
     
+class MARCUngluifyForm(forms.Form):
+    edition = AutoCompleteSelectField(
+            EditionLookup,
+            label='Edition',
+            widget=AutoCompleteSelectWidget(EditionLookup),
+            required=True,
+            error_messages={'required': 'Please specify an edition.'},
+        )    
+    file = forms.FileField(label='Download a MARCXML file from Library of Congress; then upload it here.')
+        
+class MARCFormatForm(forms.ModelForm):
+    class Meta:
+        model = Libpref
+        fields = ('marc_link_target',)

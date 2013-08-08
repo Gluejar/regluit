@@ -86,6 +86,8 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/info/metrics.html")
         self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/marc/")
+        self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
 
