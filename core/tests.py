@@ -91,7 +91,9 @@ class BookLoaderTests(TestCase):
         edition.set_publisher(u'Penguin')
         self.assertEqual(edition.publisher, u'test publisher name') # Penguin has been aliased
         # locale in language
-        edition = bookloader.add_by_isbn('9787500676911')
+        # Obama Dreams from My Father, Chinese edition
+        # http://www.worldcat.org/title/oubama-de-meng-xiang-zhi-lu-yi-fu-zhi-ming/oclc/272997721&referer=brief_results
+        edition = bookloader.add_by_isbn('9789571349268')
         self.assertEqual(edition.work.language, 'zh')
 
     # @unittest.expectedFailure

@@ -7,7 +7,6 @@ IS_PREVIEW = False
 ADMINS = (
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
     ('Eric Hellman', 'eric@gluejar.com'),
-    ('Andromeda Yelton', 'andromeda@gluejar.com'),
 )
 
 MANAGERS = ADMINS
