@@ -44,6 +44,7 @@ paramiko==1.7.7.2
 postmonkey==1.0a4
 pyasn1==0.1.4
 pycrypto==2.6
+pymarc==2.8.8
 python-dateutil==2.1
 python-openid==2.2.5
 pytz==2012d
