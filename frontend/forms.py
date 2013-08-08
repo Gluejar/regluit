@@ -53,8 +53,8 @@ from regluit.utils.localdatetime import now
 logger = logging.getLogger(__name__)
 
 class EditionForm(forms.ModelForm):
-    add_author = forms.CharField(max_length=500,  required=False)
-    add_subject = forms.CharField(max_length=200,  required=False)
+    add_author = forms.CharField(max_length=500, required=False)
+    add_subject = forms.CharField(max_length=200, required=False)
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,
             label='Publisher Name',
