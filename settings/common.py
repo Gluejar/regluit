@@ -311,13 +311,13 @@ NOTIFY_ENDING_SOON_JOB = {
 }
 
 UPDATE_ACCOUNT_STATUSES = {
-    "task": "regluit.core.tasks.update_account_status",
+    "task": "regluit.payment.tasks.update_account_status",
     "schedule": crontab(day_of_month=1, hour=0, minute=0),
     "args": ()
 }
 
 NOTIFY_EXPIRING_ACCOUNTS = {
-    "task": "regluit.core.tasks.notify_expiring_accounts",
+    "task": "regluit.payment.tasks.notify_expiring_accounts",
     "schedule": crontab(day_of_month=22, hour=0, minute=30),
     "args": ()    
 }
