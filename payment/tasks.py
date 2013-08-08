@@ -19,8 +19,12 @@ from regluit.utils.localdatetime import date_today
 
 #task to update the status of accounts
 @task
-def update_account_status(all_accounts=True):
-    """update the status of all Accounts"""
+def update_account_status(all_accounts=True, send_notice_on_change_only=True):
+    """update the status of all Accounts
+    
+        By default, send notices only if the status is *changing*.  Set send_notice_on_change_only = False to
+        send notice based on new_status regardless of old status.  (Useful for initialization)
+    """
     errors = []
     
     if all_accounts:
@@ -34,7 +38,7 @@ def update_account_status(all_accounts=True):
     
     for account in accounts_to_calc:
         try:
-            account.update_status()
+            account.update_status(send_notice_on_change_only=send_notice_on_change_only)
         except Exception, e:
             errors.append(e)
 

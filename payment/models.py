@@ -397,9 +397,12 @@ class Account(models.Model):
             return 'ACTIVE'
                 
  
-    def update_status( self, value=None):
+    def update_status( self, value=None, send_notice_on_change_only=True):
         """set Account.status = value unless value is None, in which case, we set Account.status=self.calculated_status()
         fire off associated notifications
+        
+        By default, send notices only if the status is *changing*.  Set send_notice_on_change_only = False to
+        send notice based on new_status regardless of old status.  (Useful for initialization)
         """
         old_status = self.status
         
@@ -411,7 +414,7 @@ class Account(models.Model):
         self.status = new_status
         self.save()
         
-        if old_status != new_status:
+        if not send_notice_on_change_only or (old_status != new_status):
 
             logger.info( "Account status change: %d %s %s", instance.pk, old_status, new_status)
             
