@@ -366,48 +366,47 @@ class BasicGuiTest(TestCase):
         self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
     def tearDown(self):
         self.selenium.quit()
-        
+
+
 class AccountTest(TestCase):
     
-    def setUp(self):
-       # create a user
-        self.user1 = User.objects.create_user('account_test1', 'account_test1@example.org', 'account_test1_pw')
-        self.user1.save()
-        self.user2 = User.objects.create_user('account_test2', 'account_test2@example.org', 'account_test2_pw')
-        self.user2.save()
-        self.account1 = Account(host='host1', account_id='1', user=self.user1)
-        self.account1.save()
-        
-        self.account2 = Account(host='host1', account_id='2', user=self.user1)        
- 
-    def test_constraint_at_most_one_active_account_per_user(self):
-        # https://www.pivotaltracker.com/story/show/37458303
-    
-        # hould not be allowed to save account2, which has same host and user
-        self.assertRaises(Exception, self.account2.save)
-    
-        # only 1 account left in total
-        self.assertEqual(Account.objects.count(),1)
-        
-    def test_payment_manager_retrieve_account(self):
-        pm = PaymentManager()
-        # test whether the retrieval process correct -- should add one for deactivated accounts
-        accts = pm.retrieve_accounts(host='host1', user=self.user1)
-        self.assertEqual(len(accts), 1)
+    @staticmethod       
+    def get_transaction_level():
+        from django.db import connection
+        cursor = connection.cursor()
 
-        accts = pm.retrieve_accounts(host='host1', user=self.user2)
-        self.assertEqual(len(accts), 0)
+        cursor.execute("SELECT * FROM information_schema.global_variables WHERE variable_name='tx_isolation';")
+        row = cursor.fetchone()
+        return row
+     
+    
+    def test_status_changes(self):
         
-    def tearDown(self):
-        # shouldn't have to clean up account2
-        self.user1.delete()
-        self.user2.delete()
-        self.account1.delete()
-
+        from regluit.core.models import UserProfile
+        
+        user1 = User.objects.create_user('account_test1', 'account_test1@gluejar.com', 'account_test1_pw')
+        user1.save()
+        
+        account1 = Account(host='host1', account_id='1', user=user1, status='ACTIVE')
+        account1.save()
+                
+        user = User.objects.all()[0]            
+        
+        account = user1.profile.account
+        self.assertEqual(account.status, 'ACTIVE')
+        account.status = 'EXPIRING'
+        account.save()
+        
+        self.assertEqual(account.status, 'EXPIRING')
+        account.save()
+        
+        user1.delete()
+        account1.delete()
+    
 def suite():
 
-    #testcases = [AuthorizeTest, TransactionTest, CreditTest]
-    testcases = [TransactionTest, CreditTest]
+    #testcases = [PledgeTest, AuthorizeTest, TransactionTest]
+    testcases = [TransactionTest, CreditTest, AccountTest]
     suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
     return suites    
         
