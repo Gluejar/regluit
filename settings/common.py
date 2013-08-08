@@ -27,7 +27,7 @@ MEDIA_ROOT = ''
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash.
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+MEDIA_URL = '/media/'
 
 CKEDITOR_UPLOAD_PATH = ''
 CKEDITOR_RESTRICT_BY_USER = True
@@ -340,6 +340,55 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
+AWS_QUERYSTRING_AUTH = False
 
 MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
 MAILCHIMP_NEWS_ID = u'c5cce92fe1'
+
+# let's be DRY with these parameters
+# CCHOICES, CCGRANTS, and FORMATS are all used in places that expect tuples
+# CONTENT_TYPES will be easiest to manipulate in ungluify_record as a dict
+CCCHOICES = ( 
+    ('CC BY','Creative Commons Attribution 3.0 Unported (CC BY 3.0)'), 
+    ('CC BY-SA','Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)'),
+    ('CC BY-NC','Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)'),
+    ('CC BY-NC-SA','Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)'),
+    ('CC BY-NC-ND','Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)'), 
+    ('CC BY-ND','Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)'), 
+    ('CC0','No Rights Reserved (CC0)'),
+)
+CHOICES = CCCHOICES + (('PD-US', 'Public Domain, US'),)
+
+CCGRANTS = (
+    ('CC BY', 'http://creativecommons.org/licenses/by/3.0/'),
+    ('CC BY-SA', 'http://creativecommons.org/licenses/by-sa/3.0/'),
+    ('CC BY-NC', 'http://creativecommons.org/licenses/by-nc/3.0/'),
+    ('CC BY-NC-SA', 'http://creativecommons.org/licenses/by-nc-sa/3.0/'),
+    ('CC BY-NC-ND', 'http://creativecommons.org/licenses/by-nc-nd/3.0/'),
+    ('CC BY-ND', 'http://creativecommons.org/licenses/by-nd/3.0/'),        
+    ('CC0', 'http://creativecommons.org/about/cc0'),
+)
+GRANTS = CCGRANTS + (('PD-US', ''),)
+
+
+FORMATS = (
+    ('pdf','PDF'),
+    ('epub','EPUB'),
+    ('html','HTML'),
+    ('text','TEXT'),
+    ('mobi','MOBI'),
+)
+CONTENT_TYPES = {
+    'pdf': 'application/pdf',
+    'epub': 'application/epub+zip',
+    'html': 'text/html',
+    'text': 'text/plain',
+    'mobi': 'application/x-mobipocket-ebook'
+}
+
+# if you add more of these, make sure core/ungluify_record.py can deal
+MARC_CHOICES = (
+    ('DIRECT', 'Raw link'),
+    ('UNGLUE', 'Unglue.it link'),
+)
+

@@ -110,7 +110,7 @@ class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
-    status = models.CharField(max_length=7, choices= STATUSES, default='pending')
+    status = models.CharField(max_length=7, choices=STATUSES, default='pending')
     
     @property
     def can_open_new(self):
@@ -175,16 +175,7 @@ class CampaignAction(models.Model):
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
 
 class CCLicense():
-    CCCHOICES = ( 
-            ('CC BY-NC-ND','CC BY-NC-ND'), 
-            ('CC BY-ND','CC BY-ND'), 
-            ('CC BY','CC BY'), 
-            ('CC BY-NC','CC BY-NC'),
-            ( 'CC BY-NC-SA','CC BY-NC-SA'),
-            ( 'CC BY-SA','CC BY-SA'),
-            ( 'CC0','CC0'),
-        )
-    CHOICES = CCCHOICES+(('PD-US', 'Public Domain, US'),)
+    CHOICES = settings.CHOICES
     
     @staticmethod
     def url(license):
@@ -230,7 +221,7 @@ class CCLicense():
 
     
 class Campaign(models.Model):
-    LICENSE_CHOICES = CCLicense.CCCHOICES
+    LICENSE_CHOICES = settings.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = RichTextField(null=True, blank=False)
@@ -1036,8 +1027,8 @@ class WasWork(models.Model):
     
     
 class Ebook(models.Model):
-    FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
-    RIGHTS_CHOICES = CCLicense.CHOICES
+    FORMAT_CHOICES = settings.FORMATS
+    RIGHTS_CHOICES = settings.CCCHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
@@ -1153,6 +1144,15 @@ pledger2.instance=None
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
 
+class Libpref(models.Model):
+    user = models.OneToOneField(User, related_name='libpref')
+    marc_link_target = models.CharField(
+        max_length=6,
+        default = 'UNGLUE', 
+        choices = settings.MARC_CHOICES,
+        verbose_name="MARC record link targets"
+    )
+
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -1172,11 +1172,9 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    
     avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
             choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
     
-
     def __unicode__(self):
         return self.user.username
 
@@ -1308,7 +1306,19 @@ class Press(models.Model):
     language = models.CharField(max_length=20, blank=True)
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
+    
+class MARCRecord(models.Model):
+    xml_record = models.URLField(blank=True)
+    mrc_record = models.URLField(blank=True)
+    edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
+    # this is where the download link points to, direct link or via Unglue.it.
+    link_target = models.CharField(max_length=6,choices = settings.MARC_CHOICES, default='DIRECT')
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        super(MARCRecord, self).clean()
+        if not self.xml_record and not self.mrc_record:
+            raise ValidationError('You must have at least one of xml_record and mrc_record')
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals

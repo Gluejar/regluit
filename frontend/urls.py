@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.generic import ListView, DetailView
@@ -33,7 +34,9 @@ from regluit.frontend.views import (
     ByPubView,
     kindle_config,
     send_to_kindle,
-    send_to_kindle_graceful
+    send_to_kindle_graceful,
+    MARCUngluifyView,
+    MARCConfigView
 )
 
 urlpatterns = patterns(
@@ -42,6 +45,7 @@ urlpatterns = patterns(
     url(r"^landing/$", "home", {'landing': True}, name="landing"),
     url(r"^next/$", "next", name="next"),
     url(r"^supporter/(?P<supporter_username>[^/]+)/$", "supporter", {'template_name': 'supporter.html'}, name="supporter"),
+    url(r"^supporter/(?P<userlist>[^/]+)/marc/$", "marc", name="user_marc"),
     url(r"^accounts/manage/$", login_required(ManageAccount.as_view()), name="manage_account"),
     url(r'^accounts/superlogin/$', 'superlogin', name='superlogin'),
     url(r"^search/$", "search", name="search"),
@@ -131,6 +135,10 @@ urlpatterns = patterns(
     url(r"^accounts/edit/kindle_config/(?P<kindle_ebook_id>\d+)/$", "kindle_config",  name="kindle_config_download"),
     url(r"^send_to_kindle/(?P<kindle_ebook_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^send_to_kindle/result/(?P<message>\d)/$", "send_to_kindle_graceful",  name="send_to_kindle_graceful"),
+    url(r"^marc/$", "marc", name="marc"),
+    url(r"^marc/ungluify/$", staff_member_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
+    url(r"^marc/concatenate/$", "marc_concatenate", name="marc_concatenate"),
+    url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
 )
 
 if settings.DEBUG:

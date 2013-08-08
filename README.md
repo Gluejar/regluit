@@ -151,3 +151,42 @@ http://selenium.googlecode.com/files/selenium-server-standalone-2.5.0.jar
 Start the selenium server:
 'java -jar selenium-server-standalone-2.5.0.jar'
 
+MARC Records
+------------
+
+### For unglued books with existing print edition MARC records
+1. Get the MARCXML record for the print edition from the Library of Congress.
+    1. Find the book in [catalog.loc.gov](http://catalog.loc.gov/)
+    1. Click on the permalink in its record (will look something like [lccn.loc.gov/2009009516](http://lccn.loc.gov/2009009516))
+    1. Download MARCXML
+1. At /marc/ungluify/ , enter the _unglued edition_ in the Edition field, upload file, choose license
+1. The XML record will be automatically...
+    * converted to suitable MARCXML and .mrc records, with both direct and via-unglue.it download links
+    * written to S3
+    * added to a new instance of MARCRecord
+    * provided to ungluers at /marc/
+
+### For CC/PD books with existing records that link to the ebook edition
+1. Use /admin to create a new MARC record instance
+1. Upload the MARC records to s3 (or wherever)
+1. Add the URLs of the .xml and/or .mrc record(s) to the appropriate field(s)
+1. Select the relevant edition
+1. Select an appropriate marc_format:
+    * use DIRECT if it links directly to the ebook file
+    * use UNGLUE if it links to the unglue.it download page
+    * if you have records with both DIRECT and UNGLUE links, you'll need two MARCRecord instances
+    * if you have both kinds of link, put them in _separate_ records, as marc_format can only take one value    
+`ungluify_record.py` should only be used to modify records of print editions of unglued ebooks.  It will not produce appropriate results for CC/PD ebooks.
+
+### For unglued ebooks without print edition MARC records, or CC/PD books without ebook MARC records
+1. Get a contract cataloger to produce quality records (.xml and .mrc formats)
+    * we are using ung[x] as the format for our accession numbers, where [x] is the id of the MARCRecord instance, plus leading zeroes
+1. Upload those records to s3 (or wherever)
+1. Create a MARCRecord instance in /admin
+1. Add the URLs of the .xml and .mrc records to the appropriate fields
+1. Select the relevant edition
+1. Select an appropriate marc_format:
+    * use DIRECT if it links directly to the ebook file
+    * use UNGLUE if it links to the unglue.it download page
+    * if you have records with both DIRECT and UNGLUE links, you'll need two MARCRecord instances
+    * if you have both kinds of link, put them in _separate_ records, as marc_format can only take one value
