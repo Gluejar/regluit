@@ -416,26 +416,26 @@ class Account(models.Model):
         
         if not send_notice_on_change_only or (old_status != new_status):
 
-            logger.info( "Account status change: %d %s %s", instance.pk, old_status, new_status)
+            logger.info( "Account status change: %d %s %s", self.pk, old_status, new_status)
             
             if new_status == 'EXPIRING':
                 
-                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", self.user,
                             Site.objects.get_current())
                 
                 # fire off an account_expiring notice -- might not want to do this immediately
                 
-                notification.queue([instance.user], "account_expiring", {
-                    'user': instance.user,
+                notification.queue([self.user], "account_expiring", {
+                    'user': self.user,
                     'site':Site.objects.get_current()
                 }, True)
 
             elif new_status == 'EXPIRED':
-                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", instance.user,
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", self.user,
                             Site.objects.get_current())
                 
-                notification.queue([instance.user], "account_expired", {
-                    'user': instance.user,
+                notification.queue([self.user], "account_expired", {
+                    'user': self.user,
                     'site':Site.objects.get_current()
                 }, True)
                 
