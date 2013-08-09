@@ -54,7 +54,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			{% ifequal campaign.type 1 %}
 			${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 			{% else %}
-			${{ campaign.current_total }} sold of ${{ campaign.target }}, CC Date: {{ campaign.cc_date }}
+			${{ campaign.current_total }} sold. ${{ campaign.target }} to go. CC Date: {{ campaign.cc_date }}
 			{% endifequal %}
 			</div>
 			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
@@ -134,7 +134,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 						{% ifequal campaign.type 1 %}
 						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 						{% else %}
-						${{ campaign.current_total }} sold of ${{ campaign.target }}, CC Date: {{ campaign.cc_date }}
+						${{ campaign.current_total }} sold. ${{ campaign.target }} to go, CC Date: {{ campaign.cc_date }}
 						{% endifequal %}
 					</div>
 				{% endif %}

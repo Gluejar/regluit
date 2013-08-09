@@ -80,7 +80,11 @@ Please fix the following before launching your campaign:
                 
         <div class="pledged-info">
         	<div class="pledged-group">
+        	{% ifequal work.last_campaign.type 1 %}
         		{{ work.last_campaign.supporters_count }} Ungluers have pledged ${{ work.last_campaign.current_total|intcomma }}
+        	{% else %}
+        		Total revenue: ${{ work.last_campaign.current_total|intcomma }} from {{ work.last_campaign.supporters_count }} Ungluers 
+        	{% endifequal %}
         	</div>
         	<div class="status">
         		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />

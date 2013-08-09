@@ -432,10 +432,18 @@ class CampaignTests(TestCase):
             deadline=datetime(2013, 1, 1), 
             work=w, type=2, 
             cc_date_initial=datetime(2113, 1, 1),
-            status='INITIALIZED',
             )
         self.assertTrue(c.set_dollar_per_day()<0.34)
         self.assertTrue(c.dollar_per_day>0.31)
+        #c.save()
+        #self.assertEqual(w.percent_unglued(),0)
+        c._current_total = D(6000.1)
+        c.status = 'ACTIVE'
+        c.save()
+        c.update_left()
+        print(w.percent_of_goal())
+        self.assertEqual(w.percent_unglued(),3)
+        self.assertTrue(w.percent_of_goal()>49)
 
     def test_required_fields(self):
         # a campaign must have a target, deadline and a work

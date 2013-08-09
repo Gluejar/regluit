@@ -791,20 +791,23 @@ class Work(models.Model):
 
     def percent_unglued(self):
         status = 0
-        if self.last_campaign() is not None:
-            if(self.last_campaign_status() == 'SUCCESSFUL'):
+        campaign = self.last_campaign()
+        if campaign is not None:
+            print campaign.status
+            if(campaign.status == 'SUCCESSFUL'):
                 status = 6
-            elif(self.last_campaign_status() == 'ACTIVE'):
-                target = float(self.last_campaign().target)
+            elif(campaign.status == 'ACTIVE'):
+                target = float(campaign.target)
                 if target <= 0:
                     status = 6
                 else:
-                    total = float(self.last_campaign().current_total)
-                    percent = int(total*6/target)
-                    if percent >= 6:
-                        status = 6
+                    print campaign.type
+                    if campaign.type == BUY2UNGLUE:
+                        status = int( 6 - 6*campaign.left/campaign.target)
                     else:
-                        status = percent
+                        status = int(float(campaign.current_total)*6/target)
+                    if status >= 6:
+                        status = 6
         return status
 
     def percent_of_goal(self):
@@ -812,9 +815,10 @@ class Work(models.Model):
         campaign = self.last_campaign()
         if campaign is not None:
             if(campaign.status == 'SUCCESSFUL' or campaign.status == 'ACTIVE'):
-                target = campaign.target
-                total = campaign.current_total
-                percent = int(total/target*100)
+                if campaign.type == BUY2UNGLUE:
+                    percent = int(100 - 100*campaign.left/campaign.target)
+                else:
+                    percent = int(campaign.current_total/campaign.target*100)
         return percent
 
     def ebooks(self):
