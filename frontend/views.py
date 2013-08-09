@@ -1512,12 +1512,20 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
-                    new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
-                    new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
+                    if new_campaign.type==models.BUY2UNGLUE:
+                        new_campaign.deadline = date_today() + settings.B2U_TERM
+                        new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
+                        new_campaign.cc_date_initial = settings.MAX_CC_DATE
+                    else:
+                        new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
             else:
-                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
+                c_type = 2 if claim.rights_holder.can_sell else 1
+                claim.campaign_form = OpenCampaignForm(
+                    data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type}
+                    )
     campaigns = request.user.campaigns.all()
     new_campaign = None
     for campaign in campaigns:
