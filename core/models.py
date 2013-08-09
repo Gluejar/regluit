@@ -793,7 +793,6 @@ class Work(models.Model):
         status = 0
         campaign = self.last_campaign()
         if campaign is not None:
-            print campaign.status
             if(campaign.status == 'SUCCESSFUL'):
                 status = 6
             elif(campaign.status == 'ACTIVE'):
@@ -801,7 +800,6 @@ class Work(models.Model):
                 if target <= 0:
                     status = 6
                 else:
-                    print campaign.type
                     if campaign.type == BUY2UNGLUE:
                         status = int( 6 - 6*campaign.left/campaign.target)
                     else:

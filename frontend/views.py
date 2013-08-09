@@ -585,6 +585,7 @@ def manage_campaign(request, id):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                campaign.set_dollar_per_day()
                 if campaign.type==models.BUY2UNGLUE:
                     offers= campaign.work.create_offers()
                     for offer in offers:

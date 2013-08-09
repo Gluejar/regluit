@@ -87,7 +87,7 @@ Please fix the following before launching your campaign:
         	{% endifequal %}
         	</div>
         	<div class="status">
-        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="book list status" alt="book list status" />
+        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="{{ work.percent_of_goal }}% of goal" alt="book list status" />
         	</div>
         </div>
     </div>
@@ -143,47 +143,70 @@ Please fix the following before launching your campaign:
 	<p>If the edition details are inaccurate (e.g. wrong cover image), go ahead and set up the campaign with that edition anyway.  You'll be able to edit the edition details from this page later on.</p>
 	{% endif %}
 	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
-	{% ifnotequal campaign_status 'ACTIVE' %}
-	<h3>Target Price</h3>
-	<p>This is the target price for your campaign. The <i>minimum</i> target is ${{form.minimum_target|intcomma}}.</p>
-	
-	<p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
-	
-	<p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
-	
-	<p>Please email us if you want to talk about pricing strategy.</p>
-	
-	{{ form.target.errors }}${{ form.target }}
+{% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>License being offered</h3>
 	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
 	{{ form.license.errors }}{{ form.license }}
-	<h3>Ending date</h3>
-	<p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
 	
-	<p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ campaign.latest_ending }}</p>
-    {% if campaign.rh.can_sell %}
-	<p> The ending date is ignored if you have chosen a <i>Buy to Unglue</i> campaign.</p>
-	{% endif %}
-	{{ form.deadline.errors }}{{ form.deadline }}
-	
-	{% else %}
-	<h3>Target Price</h3>
-	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
-	${{ form.target.errors }}{{ form.target }}
+	{% ifequal campaign.type 1 %}
+        <h3>Target Price</h3>
+        <p>This is the target price for your campaign. The <i>minimum</i> target is ${{form.minimum_target|intcomma}}.</p>
+    
+        <p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
+    
+        <p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
+    
+        <p>Please email us if you want to talk about pricing strategy.</p>
+    
+        {{ form.target.errors }}${{ form.target }}
+    
+        <h3>Ending date</h3>
+        <p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
+    
+        <p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ campaign.latest_ending }}</p>
+        {{ form.deadline.errors }}{{ form.deadline }}
+        <!--{{ form.cc_date_inital.errors }}-->{{ form.cc_date_inital }}
+    {% else %}
+        <h3>Revenue Target</h3>
+        <p>This is the revenue target for your campaign. If you hit this target, your book gets released immediately, for free, under the Creative Commons License that you've specified. With time the actual revenue needed to trigger Creative Commons will gradually decrease.</p>
+        
+        <p>The <i>minimum</i> revenue target is ${{form.minimum_target|intcomma}}.The <i>maximum</i> revenue target is ${{form.maximum_target|intcomma}}. Yep. </p>
+    
+        <p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
+    
+        <p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
+    
+        <p>Please email us if you want to talk about pricing strategy.</p>
+    
+        {{ form.target.errors }}${{ form.target }}
+    
+        <h3>Initial CC Date</h3>
+        <p>When you launch a Buy-To-Unglue campaign, you will specify a date in the future at which your book will become Creative Commons Licensed. eBooks sold via unglue.it will include a notice of this license. With every sale, the effective date of this license will advance a bit toward the present.  </p>
 
+	    <p>Before launching a campaign, you'll need to select Your initial CC Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Your starting CC Date must be before {{ form.max_cc_date }}</p>
+        {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
+	    <!--{{ form.deadline.errors }}-->{{ form.deadline }}
+	{% endifequal %}
+	
+{% else %}
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
 	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
 	{{ form.license.errors }}<span>{{ form.license }}</span>
-	{% ifequal campaign.type 2 %}
-	<input type='hidden' id='type' name='type' value='2' />
-	<div style="display:none">{{ form.deadline }}</div>
+	<h3>Target Price</h3>
+	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	${{ form.target.errors }}{{ form.target }}
+
+	{% ifequal campaign.type 1 %}
+        <h3>Ending date</h3>
+        <p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
+        {{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% else %}
-	<h3>Ending date</h3>
-	<p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
-	{{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
+        <!--{{ form.deadline.errors }}-->{{ form.deadline }}
+        <h3>Ending date</h3>
+        <p>Your sales campaign will run until <b>{{ campaign.deadline }}</b>. Contact unglue.it staff to extend it.</p>
 	{% endifequal %}
-	{% endifnotequal %}
+{% endifnotequal %}
 
 
 	<h3>Make Your Pitch</h3>
@@ -193,39 +216,13 @@ Please fix the following before launching your campaign:
 	
 	<ul class="terms">
 	<li>Introduces the work.  What's this book like?</li>
-	<li>Shows why it matters.  How will someone or something -- the world, readers, some cause that matters -- be better off if this book is freely available?  What kind of impact has the book had already?  What will ungluers get out of supporting this campaign?</li>
+	<li>Shows why it matters.  How will someone or something -- the world, readers, some cause that matters -- be better off if this book becomes freely available?  What kind of impact has the book had already?  What will ungluers get out of supporting this campaign?</li>
 	<li>Has visual appeal (photos and/or videos).</li>
-	<li>Defines important but potentially unfamiliar things.  What's an ungluing campaign, and why are you running one?  Is there anything unusual about the book, its genre, et cetera?  For those who aren't already familiar with you (or the author), who are you?  Are you offering any particularly great premiums you want to call people's attention to?</li>
+	<li>Defines important but potentially unfamiliar things.  What's an ungluing campaign, and why are you running one?  Is there anything unusual about the book, its genre, et cetera?  For those who aren't already familiar with you (or the author), who are you?  {% ifequal campaign.type 1 %}Are you offering any particularly great premiums you want to call people's attention to?{% endifequal %}</li>
 	<li>Gives examples of the author's work.  This could be links to your site or places people can find more information about you or the book.  You can also add quotes, embed a free sample chapter or story, display images, et cetera.  These work samples might be from the campaign book itself, or from your (or the author's) other creative works.</li>
 	<li>Has personality.  The writing should be thoroughly proofread but it should have a point of view.  This is the place to be conversational, opinionated, funny, quirky -- whatever reflects your style.  Be you.</li>
 	<li>Optionally, provides extra incentives (like new or improved premiums) that will kick in if the campaign is unusually successful.  Will you do something special when you reach 10% or 50% or 75% of your goal?  Or if you reach that milestone before a particular deadline (e.g. in the first week of your campaign)?</li>
-	{% comment %}
-	<li>Hyperlinks for the author(s), publisher making the offer, or for the work itself. <span class="rh_help" id="helpHyperlink">(How do I hyperlink?)</span>
-	<div class="rh_answer" id="helpHyperlink2">
-	<p>Format a hyperlink like this:</p>
-	<p>&lt;a href="http://your_link_here"&gt;your link title here&lt;/a&gt;</p>
-	<p>For example:</p>
-	<p>&lt;a href="http://www.archive.org"&gt;the Internet Archive&lt;/a&gt;</p>
-	<p>will display as <a href="http://www.archive.org">the Internet Archive</a>.</p>
-	<p>Copy-paste the code above and substitute your own values.  You will find the link address in the location bar of your browser.</p>
-	</div></li>
-	<li>Anything especially appealing about the work or author: awards, embedded video (445px max), etc. <span class="rh_help" id="helpEmbed">(How do I embed video?)</span>
-	<div id="helpEmbed2" class="rh_answer">
-	<p>To embed a video from YouTube:</p>
-	<p>Go to the page where you watch the video.  Under the video, click "Share".</p>
-	<p>A new set of options will open up.  Click the "Embed" button.</p>
-	<p>This will generate some code for you to copy/paste into the box below.  It will look something like this:</p>
-	<p>&lt;iframe width="444" height="301" src="<span style="color:red">http:</span>//www.youtube-nocookie.com/embed/adeDb0BRMZY?rel=0" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</p>
-	<p>Copy/paste that text into the box below.  Delete the part that says "http:" (shown in red in the example).  You're done!  We'll figure out the details.</p>
-	<p>Of course, if you want to include other text in addition to video, you can do that.</p>
-	<p>If you'd like to change the size of the video, feel free; just don't make it more than 445px wide.  Leaving it the default size is fine, too.</p>
-	<p>If you'd like to embed a video from another source, please talk to us. You certainly can; we just want to make sure we've given you the right instructions.</p>
-	</div></li>
-	{% endcomment %}
 	</ul>
-	<p>Above all, be engaging.  The point here is not to tell ungluers everything about your book; it's to remind them why they love it.</p>
-	
-	<p>Looking for inspiration?  Check out the all-time most-funded projects on crowdfunding sites <a href="http://www.kickstarter.com/discover/most-funded">Kickstarter</a> or <a href="http://www.indiegogo.com/projects?filter_quick=most_funded">IndieGogo</a>, or have a look at <a href="http://www.kickstarter.com/discover/categories/publishing">Kickstarter's Publishing category</a> or <a href="http://www.indiegogo.com/projects?filter_category=Writing">IndieGogo's Writing category</a>.</p>
 	
 	<h4>How to add video</h4>
 	<p>We strongly encourage you to include video that communicates directly with your supporters.  To add a video:</p>
