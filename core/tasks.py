@@ -27,6 +27,7 @@ from regluit.core import (
 )
 from regluit.core.models import Campaign
 from regluit.core.signals import deadline_impending
+
 from regluit.utils.localdatetime import now, date_today
 
 logger = logging.getLogger(__name__)
@@ -94,7 +95,7 @@ def send_mail_task(subject, message, from_email, recipient_list,
 def update_active_campaign_status():
     """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
     return [c.update_status(send_notice=True, ignore_deadline_for_success=True, process_transactions=True) for c in Campaign.objects.filter(status='Active') ]
- 
+
 @task
 def emit_notifications():
     logger.info('notifications emitting' )

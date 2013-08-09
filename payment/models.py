@@ -15,14 +15,21 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_save, post_delete
+from django.contrib.sites.models import Site
+from django.db.models.signals import post_save, post_delete, pre_save
+
+"""
+django module imports
+"""
+from notification import models as notification
+
 
 """
 regluit imports
 """
 from regluit.payment.parameters import *
 from regluit.payment.signals import credit_balance_added, pledge_created
-from regluit.utils.localdatetime import now
+from regluit.utils.localdatetime import now, date_today
 
 logger = logging.getLogger(__name__)
 
@@ -320,6 +327,15 @@ class Account(models.Model):
     # c.active_card.fingerprint, c.active_card.type, c.active_card.last4, c.active_card.exp_month, c.active_card.exp_year,
     # c.active_card.country
     
+    # ACTIVE, DEACTIVATED, EXPIRED, EXPIRING, or ERROR
+    STATUS_CHOICES = ( 
+            ('ACTIVE','ACTIVE'), 
+            ('DEACTIVATED','DEACTIVATED'), 
+            ('EXPIRED','EXPIRED'), 
+            ('EXPIRING','EXPIRING'),
+            ( 'ERROR','ERROR')
+        )
+    
     # host: the payment processor.  Named after the payment module that hosts the payment processing functions
     host = models.CharField(default=PAYMENT_HOST_NONE, max_length=32, null=False)
     account_id = models.CharField(max_length=128, null=True)
@@ -342,10 +358,110 @@ class Account(models.Model):
     # associated User if any
     user = models.ForeignKey(User, null=True)
     
+    # status variable
+    status = models.CharField(max_length=11, choices=STATUS_CHOICES, null=False, default='ACTIVE')
+    
     def deactivate(self):
         """Don't allow more than one active Account of given host to be associated with a given user"""
         self.date_deactivated = now()
-        self.save()            
+        self.status = 'DEACTIVATED'
+        self.save()
+        
+    def calculated_status(self):
+        """returns ACTIVE, DEACTIVATED, EXPIRED, EXPIRING, or ERROR"""
+                
+    # is it deactivated?
+    
+        today = date_today()
+        
+        if self.date_deactivated is not None:
+            return 'DEACTIVATED'
+    
+    # is it expired?
+    
+        elif self.card_exp_year < today.year or (self.card_exp_year == today.year and self.card_exp_month < today.month):
+            return 'EXPIRED'
+        
+    # about to expire?  do I want to distinguish from 'ACTIVE'?
+    
+        elif (self.card_exp_year == today.year and self.card_exp_month == today.month):
+            return 'EXPIRING'        
+    
+    # any transactions w/ errors after the account date?
+    # Transaction.objects.filter(host='stripelib', status='Error', approved=True).count()
+    
+        elif Transaction.objects.filter(host='stripelib', 
+                 status='Error', approved=True, user=self.user).filter(date_payment__gt=self.date_created):
+            return 'ERROR'
+        else:
+            return 'ACTIVE'
+                
+ 
+    def update_status( self, value=None, send_notice_on_change_only=True):
+        """set Account.status = value unless value is None, in which case, we set Account.status=self.calculated_status()
+        fire off associated notifications
+        
+        By default, send notices only if the status is *changing*.  Set send_notice_on_change_only = False to
+        send notice based on new_status regardless of old status.  (Useful for initialization)
+        """
+        old_status = self.status
+        
+        if value is None:
+            new_status = self.calculated_status()
+        else:
+            new_status = value
+
+        self.status = new_status
+        self.save()
+        
+        if not send_notice_on_change_only or (old_status != new_status):
+
+            logger.info( "Account status change: %d %s %s", self.pk, old_status, new_status)
+            
+            if new_status == 'EXPIRING':
+                
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", self.user,
+                            Site.objects.get_current())
+                
+                # fire off an account_expiring notice -- might not want to do this immediately
+                
+                notification.queue([self.user], "account_expiring", {
+                    'user': self.user,
+                    'site':Site.objects.get_current()
+                }, True)
+
+            elif new_status == 'EXPIRED':
+                logger.info( "EXPIRING.  send to instance.user: %s  site: %s", self.user,
+                            Site.objects.get_current())
+                
+                notification.queue([self.user], "account_expired", {
+                    'user': self.user,
+                    'site':Site.objects.get_current()
+                }, True)
+                
+            elif new_status == 'ERROR':
+                # TO DO:  we need to figure out notice needs to be sent out if we get an ERROR status.
+                pass
+
+            elif new_status == 'DEACTIVATED':
+                # nothing needs to happen here
+                pass
+
+    def recharge_failed_transactions(self):
+        """When a new Account is saved, check whether this is the new active account for a user.  If so, recharge any
+        outstanding failed transactions
+        """
+        transactions_to_recharge = self.user.transaction_set.filter((Q(status=TRANSACTION_STATUS_FAILED) | Q(status=TRANSACTION_STATUS_ERROR)) & Q(campaign__status='SUCCESSFUL')).all()
+
+        if transactions_to_recharge:
+            from regluit.payment.manager import PaymentManager
+            pm = PaymentManager()
+            for transaction in transactions_to_recharge:
+                # check whether we are still within the window to recharge
+                if (now() - transaction.campaign.deadline) < datetime.timedelta(settings.RECHARGE_WINDOW):
+                    logger.info("Recharging transaction {0} w/ status {1}".format(transaction.id, transaction.status))
+                    pm.execute_transaction(transaction, [])
+
     
 # handle any save, updates to a payment.Transaction
 
@@ -367,29 +483,5 @@ post_save.connect(handle_transaction_change,sender=Transaction)
 post_delete.connect(handle_transaction_delete,sender=Transaction)
 
 # handle recharging failed transactions
-
-def recharge_failed_transactions(sender, created, instance, **kwargs):
-    """When a new Account is saved, check whether this is the new active account for a user.  If so, recharge any
-    outstanding failed transactions
-    """
-    
-    # make sure the new account is active
-    if instance.date_deactivated is not None:
-        return False
-        
-    transactions_to_recharge = instance.user.transaction_set.filter((Q(status=TRANSACTION_STATUS_FAILED) | Q(status=TRANSACTION_STATUS_ERROR)) & Q(campaign__status='SUCCESSFUL')).all()
-
-    if transactions_to_recharge:
-        from regluit.payment.manager import PaymentManager
-        pm = PaymentManager()
-        for transaction in transactions_to_recharge:
-            # check whether we are still within the window to recharge
-            if (now() - transaction.campaign.deadline) < datetime.timedelta(settings.RECHARGE_WINDOW):
-                logger.info("Recharging transaction {0} w/ status {1}".format(transaction.id, transaction.status))
-                pm.execute_transaction(transaction, [])
-
-post_save.connect(recharge_failed_transactions, sender=Account)
-
-
 
 

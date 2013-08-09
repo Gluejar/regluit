@@ -313,6 +313,18 @@ NOTIFY_ENDING_SOON_JOB = {
     "args": ()
 }
 
+UPDATE_ACCOUNT_STATUSES = {
+    "task": "regluit.payment.tasks.update_account_status",
+    "schedule": crontab(day_of_month=1, hour=0, minute=0),
+    "args": ()
+}
+
+NOTIFY_EXPIRING_ACCOUNTS = {
+    "task": "regluit.payment.tasks.notify_expiring_accounts",
+    "schedule": crontab(day_of_month=22, hour=0, minute=30),
+    "args": ()    
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # set notification queueing on

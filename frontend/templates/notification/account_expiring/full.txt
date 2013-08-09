@@ -1,0 +1,14 @@
+{% load humanize %}
+We want to give you advance notice that your {{ user.profile.account.card_type }} card ending in {{ user.profile.account.card_last4 }} will expire this month.
+
+When you receive your new card, simply go to https://{{ site.domain }}{% url manage_account %} to enter your card information. Thank you!
+
+If you have any questions, we are happy to help. Simply email us at support@gluejar.com.
+        
+{% if user.profile.account %}
+The current card we have on file:
+Card type: {{ user.profile.account.card_type }}
+Number: ************{{ user.profile.account.card_last4 }}
+Expiration date: {{ user.profile.account.card_exp_month }}/{{ user.profile.account.card_exp_year }}.
+We use Stripe to keep your information secure.
+{% endif %}
