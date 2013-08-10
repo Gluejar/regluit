@@ -165,7 +165,6 @@ Please fix the following before launching your campaign:
     
         <p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ campaign.latest_ending }}</p>
         {{ form.deadline.errors }}{{ form.deadline }}
-        <!--{{ form.cc_date_inital.errors }}-->{{ form.cc_date_inital }}
     {% else %}
         <h3>Revenue Target</h3>
         <p>This is the revenue target for your campaign. If you hit this target, your book gets released immediately, for free, under the Creative Commons License that you've specified. With time the actual revenue needed to trigger Creative Commons will gradually decrease.</p>
@@ -202,9 +201,13 @@ Please fix the following before launching your campaign:
         <p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
         {{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% else %}
-        <!--{{ form.deadline.errors }}-->{{ form.deadline }}
+	    <h3>CC Date</h3>
+	    <p> This campaign was launched with a CC Date of {{ campaign.cc_date_initial }}.</p>
+	    <p> Based on a total revenue of {{ campaign.current_total }} the CC Date has been advanced to {{ campaign.cc_date }}.</p>
+        {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
         <h3>Ending date</h3>
         <p>Your sales campaign will run until <b>{{ campaign.deadline }}</b>. Contact unglue.it staff to extend it.</p>
+        <!--{{ form.deadline.errors }}-->{{ form.deadline }}
 	{% endifequal %}
 {% endifnotequal %}
 
@@ -395,7 +398,9 @@ Please fix the following before launching your campaign:
             <p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
             {% ifequal campaign.type 2 %}
             <p> Buy To Unglue campaigns can't be launched until ebook files <a class="tabs1">have been loaded</a> and <a  class="tabs2">pricing has been set and made active</a></p>
+            <!-- {{campaign.problems }} -->
             {% endifequal %}
+            
 		{% endif %}
 	{% else %}
 		While you're free to edit your campaign, it won't be launchable until we've fully tested our new payment processor.

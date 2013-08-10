@@ -30,7 +30,7 @@ class Migration(SchemaMigration):
 
         # Adding field 'Campaign.dollar_per_day'
         db.add_column('core_campaign', 'dollar_per_day',
-                      self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=14, decimal_places=2),
+                      self.gf('django.db.models.fields.FloatField')(null=True),
                       keep_default=False)
 
         # Adding field 'Campaign.cc_date_initial'
@@ -128,7 +128,7 @@ class Migration(SchemaMigration):
             'deadline': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True'}),
             'description': ('ckeditor.fields.RichTextField', [], {'null': 'True'}),
             'details': ('ckeditor.fields.RichTextField', [], {'null': 'True', 'blank': 'True'}),
-            'dollar_per_day': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '14', 'decimal_places': '2'}),
+            'dollar_per_day': ('django.db.models.fields.FloatField', [], {'null': 'True'}),
             'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'null': 'True', 'to': "orm['core.Edition']"}),
             'email': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -154,7 +154,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 8, 8, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 8, 10, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),

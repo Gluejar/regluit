@@ -242,7 +242,7 @@ class Campaign(models.Model):
     license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField(db_index=True)
-    dollar_per_day = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    dollar_per_day = models.FloatField(null=True)
     cc_date_initial = models.DateTimeField(null=True)
     activated = models.DateTimeField(null=True)
     paypal_receiver = models.CharField(max_length=100, blank=True)
@@ -329,6 +329,9 @@ class Campaign(models.Model):
         if self.type==BUY2UNGLUE and EbookFile.objects.filter(edition__work=self.work).count()==0: 
             self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
             may_launch = False  
+        if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial.date() > settings.MAX_CC_DATE) or (self.cc_date_initial < now())):
+            self.problems.append(_('You must set an initial CC Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
+            may_launch = False  
         return may_launch
 
     
@@ -386,6 +389,8 @@ class Campaign(models.Model):
     def set_dollar_per_day(self):
         if self.status!='INITIALIZED' and self.dollar_per_day:
             return self.dollar_per_day
+        if self.cc_date_initial is None:
+            return None
         time_to_cc = self.cc_date_initial - datetime.today()
         self.dollar_per_day = float(self.target)/float(time_to_cc.days)
         self.save()
@@ -395,15 +400,15 @@ class Campaign(models.Model):
     def cc_date(self):
         if self.dollar_per_day is None:
             return self.cc_date_initial
-        cc_advance_days = float(self.current_total / self.dollar_per_day)
+        cc_advance_days = float(self.current_total) / self.dollar_per_day
         return (self.cc_date_initial-timedelta(days=cc_advance_days)).date()
             
         
     def update_left(self):
         if self.type == BUY2UNGLUE:
-            self.left = self.target - self.current_total
+            self.left = Decimal(self.dollar_per_day*float((self.cc_date_initial - datetime.today()).days))-self.current_total
         else:
-            self.left = float(self.dollar_per_day)*float((self.cc_date_initial - datetime.today()).days)-self.current_total
+            self.left = self.target - self.current_total
         self.save()
         
     def transactions(self,  **kwargs):

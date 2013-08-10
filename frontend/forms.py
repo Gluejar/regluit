@@ -383,13 +383,16 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         maximum_target = settings.UNGLUEIT_MAXIMUM_TARGET
         max_cc_date = settings.MAX_CC_DATE
         publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
+        cc_date_initial = forms.DateTimeField(
+                required = (instance.type==2) and instance.status=='INITIALIZED',
+                widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
+            )
                 
         class Meta:
             model = Campaign
             fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial',
             widgets = { 
                     'deadline': get_widget_class((SelectDateWidget,forms.HiddenInput)), 
-                    'cc_date_initial': get_widget_class((forms.HiddenInput,SelectDateWidget(years=date_selector))), 
                 }
     
         def clean_target(self):
@@ -399,10 +402,27 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                     raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
             if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
                 raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+            if new_target > D(settings.UNGLUEIT_MAXIMUM_TARGET):
+                raise forms.ValidationError(_('A campaign may not be launched with a target more than $%s' % settings.UNGLUEIT_MAXIMUM_TARGET))
             return new_target
+
+        def clean_cc_date_initial(self):
+            if self.instance.type==1:
+                return None
+            new_cc_date_initial = self.cleaned_data['cc_date_initial']
+            if self.instance:
+                if self.instance.status != 'INITIALIZED':
+                    # can't change this once launched
+                    return self.instance.cc_date_initial
+            if new_cc_date_initial.date() > settings.MAX_CC_DATE:
+                raise forms.ValidationError('The initial CC date cannot be after %s'%settings.MAX_CC_DATE)
+            elif new_cc_date_initial - now() < timedelta(days=0):         
+                raise forms.ValidationError('The initial CC date must be in the future!')
+            return new_cc_date_initial
+            
         
         def clean_deadline(self):
-            if self.instance.type=='1':
+            if self.instance.type==1:
                 new_deadline_date = self.cleaned_data['deadline']
                 new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
                 if self.instance:

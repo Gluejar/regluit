@@ -439,7 +439,7 @@ class CampaignTests(TestCase):
         c.status = 'ACTIVE'
         c.save()
         c.update_left()
-        print(w.percent_of_goal())
+        #print(w.percent_of_goal())
         self.assertEqual(w.percent_unglued(),3)
         self.assertTrue(w.percent_of_goal()>49)
 
