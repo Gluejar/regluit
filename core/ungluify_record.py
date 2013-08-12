@@ -105,18 +105,24 @@ def makemarc(marcfile,  edition):
 
     # change 050 and 082 indicators because LOC is no longer responsible for these
     # no easy indicator change function, so we'll just reconstruct the fields
-    field050 = record.get_fields('050')[0]
-    field050_new = field050
-    field050_new.indicators = [' ', '4']
-    record.remove_field(field050)
-    record.add_ordered_field(field050_new)
+    try:
+        field050 = record.get_fields('050')[0]
+        field050_new = field050
+        field050_new.indicators = [' ', '4']
+        record.remove_field(field050)
+        record.add_ordered_field(field050_new)
+    except:
+        pass # if no 050 field, don't need to change indicator
     
-    field082 = record.get_fields('050')[0]
-    field082_new = field050
-    field082_new.indicators = [' ', '4']
-    record.remove_field(field082)
-    record.add_ordered_field(field082_new)
-    
+    try:
+        field082 = record.get_fields('082')[0]
+        field082_new = field082
+        field082_new.indicators = [' ', '4']
+        record.remove_field(field082)
+        record.add_ordered_field(field082_new)
+    except:
+        pass # if no 082 field, don't need to change indicator
+
     # add subfield to 245 indicating format
     field245 = record.get_fields('245')[0]
     field245.add_subfield('h', '[electronic resource]')
