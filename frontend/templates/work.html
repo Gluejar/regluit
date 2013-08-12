@@ -383,7 +383,7 @@
                                                     {% for record in edition.MARCrecords.all %}
                                                         Download {{record.link_target}} MARC record for this edition: (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=xml">XML</a>) (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=mrc">mrc</a>)<br />
                                                     {% endfor %}
-                                                    {% if user.is_staff and edition.ebooks %}
+                                                    {% if user.is_staff and edition.ebooks.count %}
                                                         <a href="{% url MARCUngluify %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
                                                     {% endif %} 
                                                 </div>
