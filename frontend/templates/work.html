@@ -103,10 +103,18 @@
                                     </div>
                                     <div class="pledged-info noborder">
                                         <div class="campaign-status-info">
-                                            <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> {% ifequal work.last_campaign.type 1 %}pledged{% else %}raised{% endifequal %}
+                                            {% ifequal work.last_campaign.type 1 %}
+                                            <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
+                                            {% else %}
+                                            current ungluing date: 
+                                            {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">
+                                            {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
+                                            {% else %}
+                                            <span>{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
+                                            {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">
                                             {% if work.last_campaign.supporters_count == 1 %}
@@ -278,15 +286,25 @@
                             <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
                                 <div class="tabs-content">
                                     {% if status == 'ACTIVE' %}
-                                        <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
-                                        <p>The rights holder, {% for claim in work.claim.all %}
-                                            {% if claim.status == 'active' %}
-                                            {{ claim.rights_holder.rights_holder_name }}
-                                            {% endif %} 
-                                        {% endfor %}
-                                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
-                                        You can help!</p>
-                
+                                        {% ifequal work.last_campaign 1 %}
+                                            <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                                            <p>The rights holder, {% for claim in work.claim.all %}
+                                                {% if claim.status == 'active' %}
+                                                {{ claim.rights_holder.rights_holder_name }}
+                                                {% endif %} 
+                                            {% endfor %}
+                                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
+                                            You can help!</p>
+                                        {% else %}
+                                            <h3 class="tabcontent-title">A sales campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                                            <p>The rights holder, {% for claim in work.claim.all %}
+                                                {% if claim.status == 'active' %}
+                                                {{ claim.rights_holder.rights_holder_name }}
+                                                {% endif %} 
+                                            {% endfor %}
+                                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) on {{ work.last_campaign.cc_date }}. For every copy that ungluers purchase, that date gets sooner. ${{ work.last_campaign.left|floatformat:0|intcomma }} of sales will unglue the book <i>TODAY</i>.
+                                            You can help!</p>
+                                        {% endifequal %}
                                         <h4>Campaign details: the fine print</h4>
                                         {{ work.last_campaign.details|safe }}
                                     {% endif %}

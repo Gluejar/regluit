@@ -57,10 +57,15 @@
 
                     <div class="unglued_white">
                         <b>UNGLUE IT!</b>
-                        <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
-                        <p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
-                        <p>by {{ deadline|naturalday:"M d, Y" }}</p>
-                    
+                        {% ifequal work.last_campaign.type 1 %}
+                            <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
+                            <p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
+                            <p>by {{ deadline|naturalday:"M d, Y" }}</p>
+                        {% else %}
+                            <p><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> needed</p>
+                            <p>now ungluing on </p>
+                            <p>{{ work.last_campaign.cc_date|naturalday:"M d, Y" }}</p>
+                        {% endifequal %}
                     </div>                    
                 </div>
                 {% if request.user.id in supporters %}
@@ -72,7 +77,11 @@
                         {% include "book_panel_addbutton.html" %}	
                     </div>		
                     <div class="white_text bottom_button" >
+                        {% ifequal work.last_campaign.type 1 %}
                         <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
+                        {% else %}
+                        <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
+                        {% endifequal %}
                     </div>
                {% endif %}
 
@@ -163,7 +172,11 @@
         {% comment %} used only on your own supporter page. {% endcomment %}
         {% ifequal status "ACTIVE" %}
             <div class="listview panelfront side1 pledge">
+                {% ifequal work.last_campaign.type 1 %}
                 <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+                {% else %}
+                <span class="booklist_pledge"><a href="{% url purchase work_id=workid %}" class="fakeinput">Purchase</a></span>
+                {% endifequal %}
             </div>
         {% else %}
             <div class="listview panelfront side1 remove-wishlist">
@@ -172,7 +185,11 @@
         {% endifequal %}
     {% else %}{% ifequal status "ACTIVE" %}
         <div class="listview panelfront side1 add-wishlist">
+            {% ifequal work.last_campaign.type 1 %}
             <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+            {% else %}
+            <span class="booklist_pledge"><a href="{% url purchase work_id=workid %}" class="fakeinput">Purchase</a></span>
+            {% endifequal %}
         </div>
     {% else %}{% if work in wishlist %}
         <div class="listview panelfront side1 on-wishlist">
@@ -190,7 +207,11 @@
     
     <div class="listview panelfront side1 booklist-status">
 		{% ifequal status "ACTIVE" %}
-		<span class="booklist-status-text"><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b>/<b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b></span>
+		    {% ifequal work.last_campaign.type 1 %}
+		    <span class="booklist-status-text"><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b>/<b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b></span>
+		    {% else %}
+		    <span class="booklist-status-text"><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> to go</span>
+		    {% endifequal %}
 		{% else %}{% ifequal status "INITIALIZED" %}
 		<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 		{% else %}{% ifequal status "SUCCESSFUL" %}
