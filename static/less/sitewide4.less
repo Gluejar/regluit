@@ -227,6 +227,10 @@ input[type="submit"], a.fakeinput {
     padding:0;
 }
 
+.bigger {
+    font-size: @font-size-larger;
+}
+
 ul.menu{
     list-style:none;
     padding:0;
@@ -251,6 +255,25 @@ ul.menu{
 	&:focus {
 		border: 2px solid @call-to-action !important;
 	}
+}
+
+/* less in-your-face errors */
+.p_form .errorlist {
+	.one-border-radius(16px);
+	border: none;
+	color:@call-to-action;
+	clear: none;
+	width: 100%;
+	height: auto;
+	line-height: 16px;
+	padding: 0;
+	font-weight: normal;
+	font-size: 13px;
+	text-align: left;	
+	display: inline;
+    li {
+        display: inline;
+    }
 }
 
 /* add class clearfix to floats to make them self-clear */
@@ -427,7 +450,8 @@ ul.menu{
 form.login, #login form {
     label {
         display: block;
-        line-height: 18px;
+        line-height: 20px;
+        font-size: @font-size-larger;
     }
     
     input {

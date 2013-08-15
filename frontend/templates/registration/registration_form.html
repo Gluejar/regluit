@@ -15,8 +15,11 @@ function put_un_in_cookie(){
 
 <h3>Sign up for a Unglue.it account:</h3>
 
-    <form method='post' action=''  onsubmit="return put_un_in_cookie();">{% csrf_token %}
-        {{ form }}
+    <form method='post' action='#' class="p_form" onsubmit="return put_un_in_cookie();">{% csrf_token %}
+        <div>{{ form.username.label }}: {{ form.username.errors }}<br />{{ form.username }}</div>
+        <div>{{ form.email.label }}: {{ form.email.errors }}<br />{{ form.email }}</div>
+        <div>{{ form.password1.label }}: {{ form.password1.errors }}<br />{{ form.password1 }}</div>
+        <div>{{ form.password2.label }}: {{ form.password2.errors }}<br />{{ form.password2 }}</div>
         <input type="submit" value="Send activation email" />
     </form>
 
