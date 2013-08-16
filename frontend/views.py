@@ -80,6 +80,7 @@ from regluit.frontend.forms import (
     UserData,
     ProfileForm,
     CampaignPledgeForm,
+    CampaignPurchaseForm,
     GoodreadsShelfLoadingForm,
     RightsHolderForm,
     UserClaimForm,
@@ -948,6 +949,7 @@ class DonationView(TemplateView):
         return context
         
 class PledgeView(FormView):
+    action = "pledge"
     template_name="pledge.html"
     form_class = CampaignPledgeForm
     transaction = None
@@ -1046,8 +1048,8 @@ class PledgeView(FormView):
             # modifying the transaction...
             assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and self.transaction.status == TRANSACTION_STATUS_ACTIVE        
             status,  url = p.modify_transaction(self.transaction, form.cleaned_data["preapproval_amount"],  
-                    paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
-                    pledge_extra=form.pledge_extra
+                    paymentReason="Unglue.it %s for %s"% (self.action,self.campaign.name) , 
+                    pledge_extra=form.trans_extra
                     )
             logger.info("status: {0}, url:{1}".format(status, url))
             
@@ -1059,12 +1061,12 @@ class PledgeView(FormView):
             else:
                 return HttpResponse("No modification made")
         else:
-            t, url = p.process_transaction('USD',  form.cleaned_data["preapproval_amount"],  
+            t, url = p.process_transaction('USD',  form.amount(),  
                     host = PAYMENT_HOST_NONE, 
                     campaign=self.campaign, 
                     user=self.request.user,
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
-                    pledge_extra=form.pledge_extra
+                    pledge_extra=form.trans_extra
                     )    
             if url:
                 logger.info("PledgeView url: " + url)
@@ -1074,7 +1076,22 @@ class PledgeView(FormView):
                 return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
 
 class PurchaseView(PledgeView): 
-    pass
+    template_name="purchase.html"
+    form_class = CampaignPurchaseForm
+    action = "purchase"
+
+    def get_context_data(self, **kwargs):
+        context = super(PledgeView, self).get_context_data(**kwargs)
+        context.update({
+                'work':self.work,
+                'campaign':self.campaign, 
+                'faqmenu': 'purchase' , 
+                'transaction': self.transaction,
+                'tid': self.transaction.id if self.transaction else None,
+                'cover_width': cover_width(self.work)
+           })
+            
+        return context
                
 class FundPledgeView(FormView):
     template_name="fund_the_pledge.html"

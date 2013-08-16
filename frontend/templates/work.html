@@ -113,7 +113,7 @@
                                             {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
                                             {% else %}
-                                            <span>{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
+                                            <span class="current_cc_date">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
                                             {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">

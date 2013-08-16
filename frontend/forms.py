@@ -461,6 +461,24 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return new_license
     return ManageCampaignForm(instance = instance, data=data)
 
+class CampaignPurchaseForm(forms.Form):
+    anonymous = forms.BooleanField(required=False, label=_("Make this purchase anonymous, please"))
+    offer_id = forms.IntegerField(required=False)
+    offer=None
+    def clean_offer_id(self):
+        offer_id = self.cleaned_data['offer_id']
+        try:
+            self.offer= Offer.objects.get(id=offer_id)
+        except  Offer.DoesNotExist:
+            raise forms.ValidationError(_("Sorry, that offer is not valid."))
+
+    def amount(self):
+        return self.offer.price if self.offer else None
+        
+    @property
+    def trans_extra(self):
+        return PledgeExtra(offer = self.offer)
+
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
@@ -469,6 +487,9 @@ class CampaignPledgeForm(forms.Form):
         decimal_places=2, 
         label="Pledge Amount",
     )
+    def amount(self):
+        return self.cleaned_data["preapproval_amount"] if self.cleaned_data else None
+        
     anonymous = forms.BooleanField(required=False, label=_("Make this pledge anonymous, please"))
     ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
@@ -477,7 +498,7 @@ class CampaignPledgeForm(forms.Form):
     premium=None
     
     @property
-    def pledge_extra(self):
+    def trans_extra(self):
         return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
                             ack_name=self.cleaned_data['ack_name'],
                             ack_dedication=self.cleaned_data['ack_dedication'],

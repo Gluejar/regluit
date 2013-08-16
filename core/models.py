@@ -162,11 +162,13 @@ class PledgeExtra:
     anonymous=False
     ack_name=''
     ack_dedication=''
-    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication=''):
+    offer=None
+    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication='',offer=None):
         self.premium=premium
         self.anonymous=anonymous
         self.ack_name=ack_name
         self.ack_dedication=ack_dedication
+        self.offer=offer
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
