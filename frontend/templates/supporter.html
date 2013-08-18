@@ -67,7 +67,7 @@ function highlightTarget(targetdiv) {
 </script>
 {% endblock %}
 {% block extra_head %}
-<link rel="alternate" type="application/atom+xml" title="feed for books from {{ supporter }}'s ungluing wishlist" href="feed" />
+<link rel="alternate" type="application/atom+xml" title="feed for books from {{ supporter }}'s ungluing list" href="feed" />
 {% endblock %}
 
 {% comment %}
@@ -299,7 +299,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
                         
-                        	<div><h2 style="padding-left:35px;">Add a book to your wishlist to get started.</h2><br /><br /></div>
+                        	<div><h2 style="padding-left:35px;">Add a book to your list to get started.</h2><br /><br /></div>
                         	
                 		    <div id="js-slide">
  	   							<div class="js-main">
@@ -344,7 +344,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     </div>
                     <div class="tabs-3 anon_about">
                     {% if works_wished %}
-                    {{ supporter }} wants to give these books to you.  <a href="/about/wishlist/" class="hijax">Find out how.</a>
+                    {{ supporter }} wants these books to be free.  <a href="/about/wishlist/" class="hijax">Find out how to help.</a>
                     {% else %}
                     {{ supporter }} hasn't decided which books to give the world yet.  <a href="/about/wishlist_empty/" class="hijax">Learn more.</a>
                     {% endif %}

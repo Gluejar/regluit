@@ -180,7 +180,7 @@
             </div>
         {% else %}
             <div class="listview panelfront side1 remove-wishlist">
-                <span id="l{{ workid }}">Un-wishlist</span>
+                <span id="l{{ workid }}">Un-list</span>
             </div>
         {% endifequal %}
     {% else %}{% ifequal status "ACTIVE" %}
@@ -193,14 +193,14 @@
         </div>
     {% else %}{% if work in wishlist %}
         <div class="listview panelfront side1 on-wishlist">
-            <span>On Wishlist!</span>
+            <span>On My List!</span>
         </div>
     {% else %}
         <div class="listview panelfront side1 add-wishlist">
             {% if on_search_page %}
-            <span class="gb_id" id="l{{ googlebooks_id }}">Add to Wishlist</span>
+            <span class="gb_id" id="l{{ googlebooks_id }}">Add to My List</span>
             {% else %}
-            <span class="work_id" id="l{{ workid }}">Add to Wishlist</span>
+            <span class="work_id" id="l{{ workid }}">Add to My List</span>
             {% endif %}
         </div>
     {% endif %}{% endifequal %}{% endifequal %}{% endif %}{% endif %}
@@ -239,9 +239,9 @@
         	<div class="booklist-status-label panel">{{ work.percent_of_goal }}%</div>
         {% else %}
             {% if work.num_wishes %}
-	        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
+	        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Listed by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
 	        {% else %}
-	        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Wished by&nbsp;</span>0</span></span></a>
+	        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Listed by&nbsp;</span>0</span></span></a>
 	        {% endif %}
         {% endif %}{% endif %}
         

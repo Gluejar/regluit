@@ -1173,7 +1173,7 @@ class Wishlist(models.Model):
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
     def __unicode__(self):
-        return "%s's Wishlist" % self.user.username
+        return "%s's Books" % self.user.username
         
     def add_work(self, work, source, notify=False):
         try:

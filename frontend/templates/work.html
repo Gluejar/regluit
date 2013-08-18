@@ -161,7 +161,7 @@
                                             1 Ungluer has
                                         {% else %}
                                             {{ wishers }} Ungluers have
-                                        {% endif %} wished for this Work
+                                        {% endif %} Listed this Work
                                     </div>
                                 {% endifequal %}
                                 <div class="find-book">
@@ -191,15 +191,15 @@
                                         </div>
                                     {% else %}{% if request.user.id in work.last_campaign.supporters %}
                                         <div class="add-wishlist">
-                                            <span class="on-wishlist">On your wishlist!</span>
+                                            <span class="on-wishlist">On My List!</span>
                                         </div>
                                     {% else %}{% if work in request.user.wishlist.works.all %}
                                         <div class="remove-wishlist-workpage">
-                                            <span id="w{{ work_id }}">Remove from Wishlist</span>
+                                            <span id="w{{ work_id }}">Remove from My List</span>
                                         </div>
                                     {% else %}
                                         <div class="add-wishlist">
-                                            <span class="work_id" id="w{{ work_id }}">Add to Wishlist</span>
+                                            <span class="work_id" id="w{{ work_id }}">Add to My List</span>
                                         </div>
                                     {% endif %}{% endif %}{% endif %}
                                 </div>

@@ -1,4 +1,4 @@
-Message from {{ sender.username }} {% if sender.is_staff %} (Unglue.it staff) {% endif %} about {{ work.title }}, on your Unglue.it wishlist.
+Message from {{ sender.username }} {% if sender.is_staff %} (Unglue.it staff) {% endif %} about {{ work.title }}, on your Unglue.it book list.
 
 {{ msg }}
 

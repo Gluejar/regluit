@@ -1,7 +1,7 @@
 {% if comment.user.is_staff %}
-Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.content_object.title }} (a book on your Unglue.it wishlist):
+Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.content_object.title }} (a book on your Unglue.it book list):
 {% else %}
-{{ comment.user.username }}, the author or publisher of {{ comment.content_object.title }} (a book on your Unglue.it wishlist), has made a comment:
+{{ comment.user.username }}, the author or publisher of {{ comment.content_object.title }} (a book on your Unglue.it book list), has made a comment:
 {% endif %}
           
 {{ comment.comment }}
