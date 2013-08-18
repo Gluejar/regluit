@@ -36,7 +36,7 @@ function put_un_in_cookie(){
     {% block login_pitch %}<h3>You'll need an account, since we won't charge your card unless the campaign succeeds!</h3>{% endblock %}
         <div class="halfcolumn2 login_box">
             <h3>Get an Unglue.it account:</h3>
-            <p>... we just have to confirm your email address.</p>
+            <p class="bigger">... we just have to confirm your email address.</p>
               <form class="login" action='{% url registration_register %}' method='post' onsubmit="return put_un_in_cookie();">{% csrf_token %}
                 <div class="user-name">
                 <label>Username</label>

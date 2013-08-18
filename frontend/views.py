@@ -7,6 +7,7 @@ import json
 import logging
 import urllib
 import requests
+import random
 import oauth2 as oauth
 
 from datetime import timedelta, date
@@ -28,7 +29,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth.views import login
+from django.contrib.auth.views import login,password_reset
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
@@ -299,6 +300,13 @@ def superlogin(request, **kwargs):
     if request.GET.has_key("add"):
         request.session["add_wishlist"]=request.GET["add"]
     return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
+
+@login_required
+def social_auth_reset_password(request):
+    if not request.user.has_usable_password():
+        request.user.set_password('%010x' % random.randrange(16**10))
+        request.user.save()
+    return password_reset(request)
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
