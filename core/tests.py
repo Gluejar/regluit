@@ -565,14 +565,18 @@ class CampaignTests(TestCase):
         c1.type = 2
         c1.save()
         self.assertEqual(c1.launchable, False)
-        of1=c1.work.offers.get(active=True,license=2)
+        of1=c1.work.offers.get(license=2)
         of1.price=2
+        of1.active=True
         of1.save()
         self.assertEqual(c1.launchable, False)
         e1= models.Edition(title="title",work=c1.work)
         e1.save()
         ebf1= models.EbookFile(edition=e1, format=1)
         ebf1.save()
+        c1.cc_date_initial = settings.MAX_CC_DATE
+        c1.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
+        c1.save()
         self.assertEqual(c1.launchable, True)
 
 class WishlistTest(TestCase):

@@ -158,17 +158,7 @@ class Premium(models.Model):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
     
 class PledgeExtra:
-    premium=None
-    anonymous=False
-    ack_name=''
-    ack_dedication=''
-    offer=None
     def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication='',offer=None):
-        self.premium=premium
-        self.anonymous=anonymous
-        self.ack_name=ack_name
-        self.ack_dedication=ack_dedication
-        self.offer=offer
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -331,7 +321,7 @@ class Campaign(models.Model):
         if self.type==BUY2UNGLUE and EbookFile.objects.filter(edition__work=self.work).count()==0: 
             self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
             may_launch = False  
-        if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial.date() > settings.MAX_CC_DATE) or (self.cc_date_initial < now())):
+        if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial > settings.MAX_CC_DATE) or (self.cc_date_initial < date_today())):
             self.problems.append(_('You must set an initial CC Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
             may_launch = False  
         return may_launch
