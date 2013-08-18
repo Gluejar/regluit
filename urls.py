@@ -4,7 +4,7 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 
 from frontend.forms import ProfileForm
-from frontend.views import superlogin
+from frontend.views import superlogin, social_auth_reset_password
 from regluit.admin import admin_site
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
 
@@ -35,6 +35,7 @@ urlpatterns = patterns('',
         {'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
         }), 
+    url(r'^socialauth/reset_password/$', social_auth_reset_password, name="social_auth_reset_password"),
     (r'^socialauth/', include('social_auth.urls')),
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
