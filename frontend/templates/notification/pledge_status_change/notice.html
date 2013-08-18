@@ -23,17 +23,17 @@
 		<li>The unglued ebook will be delivered to your inbox.</li>
 	{% if not transaction.anonymous %}
 		{% ifequal transaction.tier 1  %}
-		<li>You will be listed as a Supporter using the name "<i>{{ transaction.ack_name }}</i>".</li>
+		<li>You will be listed as a Supporter using the name "<i>{{ transaction.extra.ack_name }}</i>".</li>
 		{% endifequal %}
 		{% ifequal transaction.tier 2  %}
-		<li>You will be listed as a Benefactor using the name "<i>{{ transaction.ack_name }}</i>" with a link to your Unglue.it supporter page.</li>
+		<li>You will be listed as a Benefactor using the name "<i>{{ transaction.extra.ack_name }}</i>" with a link to your Unglue.it supporter page.</li>
 		{% endifequal %}
 		{% ifequal transaction.tier 3  %}
-		<li>You will be listed as a Bibliophile using the name "<i>{{ transaction.ack_name }}</i>" with a link to your Unglue.it supporter page.</li>
+		<li>You will be listed as a Bibliophile using the name "<i>{{ transaction.extra.ack_name }}</i>" with a link to your Unglue.it supporter page.</li>
 		{% endifequal %}
 	{% endif %}
-	{% if transaction.ack_dedication %}
-	    <li>The following dedication will be included: <i>{{ transaction.ack_dedication }}</i>.</li>
+	{% if transaction.extra.ack_dedication %}
+	    <li>The following dedication will be included: <i>{{ transaction.extra.ack_dedication }}</i>.</li>
 	{% endif %}</ul>
 
 			Thank you for your continued support of {{ transaction.campaign.work.title }}.

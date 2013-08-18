@@ -17,9 +17,10 @@ class Command(BaseCommand):
         ola_transactions = Transaction.objects.filter(campaign=ola_campaign)
         for t in ola_transactions:
             if t.anonymous:
-                t.ack_name = ''
+                t.extra.update({"ack_name": ''})
             else:
-                if not t.ack_name:
-                    t.ack_name = t.user.username
-            t.dedication = ''
+                ack_name=t.extra.get("ack_name",'')
+                if not ack_name:
+                    t.extra.update({"ack_name": t.user.username})
+            t.extra.update({"ack_dedication":  ''})
             t.save()

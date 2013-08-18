@@ -158,7 +158,19 @@ class Premium(models.Model):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
     
 class PledgeExtra:
+    extra = {}
+    anonymous = False
+    premium = None
+    offer = None
+                    
     def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication='',offer=None):
+        self.anonymous = anonymous
+        self.premium = premium
+        self.offer = offer
+        if ack_name:
+            self.extra['ack_name']=ack_name
+        if ack_dedication:
+            self.extra['ack_dedication']=ack_dedication
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -257,7 +269,10 @@ class Campaign(models.Model):
             return u"Campaign %s (no associated work)" % self.name
     
     def clone(self):
-        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign"""
+        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign
+         assume that B2U campaigns don't need cloning
+        """
+        
         if self.clonable():
             old_managers= self.managers.all()
             
@@ -1299,8 +1314,8 @@ class UserProfile(models.Model):
     def ack_name(self):
         # use preferences from last transaction, if any
         last = self.last_transaction
-        if last and last.ack_name:
-            return last.ack_name
+        if last and last.extra:
+            return last.extra.get('ack_name', self.user.username)
         else:
             return self.user.username
 

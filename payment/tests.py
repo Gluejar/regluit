@@ -261,6 +261,18 @@ class CreditTest(TestCase):
         self.assertTrue(self.user1.credit.transfer_to(self.user2,50))
         self.assertEqual(self.user1.credit.balance, 0)
         self.assertEqual(self.user2.credit.balance, 50)
+
+class ExtraTest(TestCase):
+    
+    def testPledgeExtra(self):
+        u= User.objects.create_user('payment_test', 'support@example.org', 'payment_test')
+        t= Transaction(user=u)
+        self.assertEqual(t.extra, {})
+        ack_name=t.extra.get('ack_name','')
+        if not ack_name:
+            t.extra.update({'ack_name': t.user.username})
+        self.assertEqual(t.extra, {'ack_name': 'payment_test'})
+    
        
 class TransactionTest(TestCase):
     def setUp(self):

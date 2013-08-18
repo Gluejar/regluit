@@ -1000,11 +1000,12 @@ class PledgeView(FormView):
             self.transaction = transactions[0]   
             if premium_id == 150 and self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
-            if self.transaction.ack_name:
-                ack_name = self.transaction.ack_name
+            if self.transaction.extra :
+                ack_name = self.transaction.extra.get('ack_name', self.request.user.profile.ack_name)
+                ack_dedication = self.transaction.extra.get('ack_dedication','')
             else:
                 ack_name = self.request.user.profile.ack_name
-            ack_dedication = self.transaction.ack_dedication
+                ack_dedication = ''
             anonymous=self.transaction.anonymous
 
         self.data = {'preapproval_amount':self.get_preapproval_amount(), 'premium_id':premium_id, 
