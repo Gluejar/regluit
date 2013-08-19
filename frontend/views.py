@@ -1542,7 +1542,7 @@ def rh_tools(request):
                     if new_campaign.type==models.BUY2UNGLUE:
                         new_campaign.deadline = date_today() + settings.B2U_TERM
                         new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
-                        new_campaign.cc_date_initial = settings.MAX_CC_DATE
+                        new_campaign.set_cc_date_initial()
                     else:
                         new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
                         new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)

@@ -574,7 +574,8 @@ class CampaignTests(TestCase):
         e1.save()
         ebf1= models.EbookFile(edition=e1, format=1)
         ebf1.save()
-        c1.cc_date_initial = settings.MAX_CC_DATE
+        c1.set_cc_date_initial()
+        self.assertEqual(c1.cc_date, settings.MAX_CC_DATE)
         c1.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
         c1.save()
         self.assertEqual(c1.launchable, True)
