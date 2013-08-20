@@ -600,10 +600,15 @@
                                 </ul>
                             </div>
                         {% else %}
+                            {% if purchased %}
+                                <h3 class="jsmod-title">
+                                    <span class="on-wishlist">Purchased!</span>
+                                </h3>
+                            {% else %}
                             <a href="{% url purchase work_id %}"><h3 class="jsmod-title"><span>Purchase Options</span></h3></a>
                             <div class="jsmod-content">
                                 <ul class="support menu">
-                                    {% for offer in work.offers.all %}
+                                    {% for offer in work.last_campaign.active_offers %}
                                         <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                                         <a href="{% url purchase work_id %}?offer_id={{offer.id}}">
                                         <span class="menu-item-price">${{ offer.price|floatformat:0|intcomma }}</span>
@@ -612,6 +617,7 @@
                                     {% endfor %}
                                 </ul>
                             </div>
+                            {% endif %}
                         {% endifequal %}
                         </div>
                     {% endif %}

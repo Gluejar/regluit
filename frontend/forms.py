@@ -477,7 +477,8 @@ class CampaignPurchaseForm(forms.Form):
         
     @property
     def trans_extra(self):
-        return PledgeExtra(offer = self.offer)
+        return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
+                            offer = self.offer )
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(

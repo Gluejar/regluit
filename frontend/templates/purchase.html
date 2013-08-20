@@ -53,10 +53,16 @@
                     <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
                 </div>
             </div>
+            <div class="find-book">
+                <label>Available formats...</label>
+                {% for ebookfile in work.ebookfiles %}
+                <span class="format_display"><img src="/static/images/{{ ebookfile.format }}32.png" height="32" alt="{{ ebookfile.get_format_display }}" title="{{ ebookfile.get_format_display }}" /></span>
+                {% endfor %}
+            </div>
         </div>
     </div>
 </div>
-    
+{% ifequal work.last_campaign.status "ACTIVE" %}
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
 	
@@ -70,7 +76,7 @@
                 <div style="height:10px;"></div>
     
                 <ul class="support menu" id="premiums_list">
-                    {% for offer in work.offers.all %}
+                    {% for offer in work.last_campaign.active_offers %}
                     <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
                     <label for="offer_{{offer.id}}">
                         <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
@@ -95,7 +101,9 @@
     	</form>    	
     </div>
 </div>
-
+{% else %}
+<div>Campaign is not ACTIVE. </div>
+{% endifequal %}
 {% endblock %}
 
 

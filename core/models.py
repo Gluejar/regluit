@@ -225,7 +225,7 @@ class CCLicense():
             return ''
 
     
-(INDIVIDUAL, LIBRARY) = (1, 2)
+(INDIVIDUAL, LIBRARY, BORROWED) = (1, 2, 3)
 class Offer(models.Model):
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
     work = models.ForeignKey("Work", related_name="offers", null=False)
@@ -234,6 +234,18 @@ class Offer(models.Model):
             choices=CHOICES)
     active = models.BooleanField(default=False)
     
+    
+class Acq(models.Model):
+    """ 
+    Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
+    """
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'))
+    created = models.DateTimeField(auto_now_add=True)
+    expires = models.DateTimeField(null=True)
+    work = models.ForeignKey("Work", related_name='acqs', null=False)
+    user = models.ForeignKey(User, related_name='acqs')
+    license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
+            choices=CHOICES)
 
 (REWARDS, BUY2UNGLUE) = (1, 2)
 class Campaign(models.Model):
@@ -590,7 +602,12 @@ class Campaign(models.Model):
         if self.type is BUY2UNGLUE:
             return Premium.objects.none()
         return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
-        
+    
+    def active_offers(self):
+        if self.type is REWARDS:
+            return Offer.objects.none()
+        return Offer.objects.filter(work=self.work,active=True).order_by('price')
+       
     @property
     def rh(self):
         """returns the rights holder for an active or initialized campaign"""
@@ -840,6 +857,9 @@ class Work(models.Model):
 
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
+
+    def ebookfiles(self):
+        return EbookFile.objects.filter(edition__work=self).order_by('format')
     
     @property
     def download_count(self):
@@ -951,6 +971,19 @@ class Work(models.Model):
             if not self.offers.filter(license=choice[0]):
                 self.offers.create(license=choice[0])
         return self.offers.all()
+        
+    def purchased_by(self,user):
+        if user==None or not user.is_authenticated:
+            return False
+        acqs= Acq.objects.filter(user=user,work=self)
+        if acqs.count()==0:
+            return False
+        for acq in acqs:
+            if acq.expires is None:
+                return True
+            if acq.expires > now():
+                return True
+        return False
             
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)

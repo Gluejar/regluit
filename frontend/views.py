@@ -418,7 +418,8 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'cover_width': cover_width_number
+        'cover_width': cover_width_number,
+        'purchased': work.purchased_by(request.user),
     })    
 
 def edition_uploads(request, edition_id):
@@ -996,7 +997,8 @@ class PledgeView(FormView):
             # Campaign must be ACTIVE
             assert self.campaign.status == 'ACTIVE'           
         except Exception, e:
-            raise e
+            # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
+            return {}
 
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
         premium_id = self.request.REQUEST.get('premium_id', 150)
@@ -1101,11 +1103,62 @@ class PurchaseView(PledgeView):
            })
             
         return context
+
+    def get_form_kwargs(self):
+        assert self.request.user.is_authenticated()
+        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        
+        # if there is no campaign or if campaign is not active, we should raise an error
+        try:
+            self.campaign = self.work.last_campaign()
+            # Campaign must be ACTIVE
+            assert self.campaign.status == 'ACTIVE'           
+        except Exception, e:
+            # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
+            return {}
+        
+        self.data = {
+            'preapproval_amount':self.get_preapproval_amount(),
+            'anonymous':self.request.user.profile.anon_pref
+            }
+        if self.request.method  == 'POST':
+            self.data.update(self.request.POST.dict())
+            if not self.request.POST.has_key('anonymous'):
+                del self.data['anonymous']
+            return {'data':self.data}
+        else:
+            return {'initial':self.data}
+
+    def get_preapproval_amount(self):
+        offer_id = self.request.REQUEST.get('offer_id', None)
+        if offer_id != None:
+            try:
+                preapproval_amount = D(models.Offer.objects.get(id=offer_id).price)
+            except:
+                preapproval_amount = None
+        return preapproval_amount
+
+    def form_valid(self, form):
+        p = PaymentManager()
+        t, url = p.process_transaction('USD',  form.amount(),  
+                host = PAYMENT_HOST_NONE, 
+                campaign=self.campaign, 
+                user=self.request.user,
+                paymentReason="Unglue.it Purchase for {0}".format(self.campaign.name), 
+                pledge_extra=form.trans_extra
+                )    
+        if url:
+            return HttpResponseRedirect(url)
+        else:
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
+    
                
 class FundView(FormView):
     template_name="fund_the_pledge.html"
     form_class = CCForm
     transaction = None
+    action = None
 
     def get_form_kwargs(self):
         kwargs = super(FundView, self).get_form_kwargs()
@@ -1113,6 +1166,8 @@ class FundView(FormView):
         assert self.request.user.is_authenticated()
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
+
+        self.action = 'pledge' if self.transaction.campaign.type == models.REWARDS else 'purchase'
 
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
@@ -1138,6 +1193,7 @@ class FundView(FormView):
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
         context['STRIPE_PK'] = stripelib.STRIPE_PK
+        context['action'] = self.action
         # note that get_form_kwargs() will already have been called once
         donate_args=self.get_form_kwargs()
         donate_args['data']['preapproval_amount']=context['needed']
@@ -1150,10 +1206,9 @@ class FundView(FormView):
     
     def form_valid(self, form):
         """ note desire to pledge; make sure there is a credit card to charge"""
-
         if self.transaction.user.id != self.request.user.id:
             # trouble!
-            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction }) 
+            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction, 'action': self.action }) 
 
         p = PaymentManager()
 
@@ -1176,7 +1231,13 @@ class FundView(FormView):
         
         # with the Account in hand, now do the transaction
         self.transaction.max_amount = preapproval_amount
-        t, url = p.authorize(self.transaction)
+        if self.action == 'pledge':
+            t, url = p.authorize(self.transaction)
+        else:
+            t, url = p.charge(self.transaction, return_url=reverse('download', kwargs={'work_id': self.transaction.campaign.work.id}))
+            if t.status == TRANSACTION_STATUS_COMPLETE:
+                # provision the book
+                models.Acq.objects.create(user=t.user,work=t.campaign.work,license= t.offer.license)
         logger.info("t, url: {0} {1}".format(t, url))
         
         # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
