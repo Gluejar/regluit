@@ -330,16 +330,16 @@ there's no tab for seeing ALL my books, only the filters! huh.
                     {% if request.user.is_anonymous %}
                     <div class="tabs-1 anon_about">
                     {% if works_unglued %}
-                    {{ supporter }} is sharing these books with you.  <a href="/about/unglued/" class="hijax">Find out how.</a>
+                    {{ supporter }} wants you to know about these free books.  <a href="/about/unglued/" class="hijax">Find out why.</a>
                     {% else %}
-                    {{ supporter }} isn't sharing any books with the world yet.  <a href="/about/unglued_empty/" class="hijax">Find out how you can.</a>
+                    {{ supporter }} isn't promoting any free books yet.  <a href="/about/unglued_empty/" class="hijax">Find out how you can.</a>
                     {% endif %}
                     </div>
                     <div class="tabs-2 anon_about">
                     {% if works_active %}
-                    {{ supporter }} is giving these books to you.  <a href="/about/active/" class="hijax">Find out how.</a>
+                    {{ supporter }} is helping to make these books free.  <a href="/about/active/" class="hijax">Find out how.</a>
                     {% else %}
-                    {{ supporter }} isn't giving any new books to the world right now.  <a href="/about/active_empty" class="hijax">Find out how you can.</a>
+                    {{ supporter }} isn't ungluing books at the moment.  <a href="/about/active_empty" class="hijax">Find out how you can.</a>
                     {% endif %}
                     </div>
                     <div class="tabs-3 anon_about">
