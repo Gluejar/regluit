@@ -1,0 +1,109 @@
+{% extends "basepledge.html" %}
+{% load humanize %}
+
+{% block title %}Pledge{% endblock %}
+
+{% block extra_extra_head %}
+<script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
+<script type="text/javascript" src="/static/js/loader-gif.js"></script>
+{% endblock %}
+
+{% block news %}
+{% endblock %}
+
+{% block doccontent %}
+<div style="height:15px"></div>
+<div class="book-detail">
+	<div id="book-detail-img">
+		<a href="{% url work work.id %}"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+    </div>
+    
+    <div class="book-detail-info">
+		<div class="layout">
+			<h2 class="book-name"><a href="{% url work work.id %}">{{ work.title }}</a></h2>
+			<div>
+				<div class="pubinfo">
+					<h3 class="book-author">{{ work.author }}</h3>
+					<h3 class="book-year">{{ work.publication_date_year }}</h3>
+				</div>
+			</div>
+		</div>
+                
+        <div>
+            <div class="thermometer" title="{{ work.percent_of_goal }}% of goal">
+                <div class="cover" style="width: {{ cover_width }}%;">
+                </div>
+                <span>{{ work.percent_of_goal }}% of goal</span>
+            </div>
+            <div class="pledged-info noborder">
+                <div class="campaign-status-info">
+                    current ungluing date: 
+                </div>
+                <div class="campaign-status-info">
+                    <span class="current_cc_date">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
+                </div>
+                <div class="campaign-status-info">
+                    {% if work.last_campaign.supporters_count == 1 %}
+                        <span>1</span> ungluer
+                    {% else %}
+                        <span>{{ work.last_campaign.supporters_count }}</span> ungluers
+                    {% endif %}                                    
+                </div>
+                <div class="campaign-status-info">
+                    <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
+                </div>
+            </div>
+            <div class="find-book">
+                <label>Available formats...</label>
+                {% for ebookfile in work.ebookfiles %}
+                <span class="format_display"><img src="/static/images/{{ ebookfile.format }}32.png" height="32" alt="{{ ebookfile.get_format_display }}" title="{{ ebookfile.get_format_display }}" /></span>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% ifequal work.last_campaign.status "ACTIVE" %}
+<div class="jsmodule rounded clearfix">
+    <div class="jsmod-content">
+	
+    	<form class="pledgeform" method="POST" action="#">
+        	{% csrf_token %}
+			{{ form.non_field_errors }}
+        	
+        	{% if work.offers.all|length > 1 %}
+                <div class="pledge_amount premium_level">Choose your license type:</div>
+                
+                <div style="height:10px;"></div>
+    
+                <ul class="support menu" id="premiums_list">
+                    {% for offer in work.last_campaign.active_offers %}
+                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                    <label for="offer_{{offer.id}}">
+                        <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                        <span class="menu-item-price">
+                            ${{ offer.price|intcomma }}
+                        </span>
+                        <span class="menu-item-desc">
+                            {{ offer.get_license_display }} 
+                        </span>
+                    </label></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div style="height:10px;"></div>
+                <input type="hidden" name="offer_id" id="offer_{{ offers.0.id }}" value="{{ offers.0.id }}" checked="checked" />
+         	{% endif %}
+
+			
+			<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
+			<input name="pledge" type="submit" value="Buy Now" id="pledgesubmit" class="loader-gif" />
+			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
+    	</form>    	
+    </div>
+</div>
+{% else %}
+<div>Campaign is not ACTIVE. </div>
+{% endifequal %}
+{% endblock %}
+
+

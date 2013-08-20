@@ -1,1 +1,1 @@
-Message from {{ sender }} about {{work.title}}, on your Unglue.it wishlist
+Message from {{ sender }} about {{work.title}}, on your Unglue.it book list

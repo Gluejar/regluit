@@ -59,7 +59,7 @@ ul.local li {
 <h2>Records for  <a href="{% url supporter userlist %}">{{ userlist }}</a></h2>
 {% else %}
 {% if request.user.is_authenticated %}
-<p> To restrict this list to works on your wishlist <a href="{% url user_marc request.user.username %}">click here</a> </p>
+<p> To restrict this list to works on your list <a href="{% url user_marc request.user.username %}">click here</a> </p>
 {% endif %}
 {% endif %}
 {% if records %}

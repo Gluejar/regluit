@@ -19,24 +19,24 @@
 			{% else %}{% ifequal supporter request.user %}
 				{% if wishlist %}
                     <div class="moreinfo remove-wishlist">
-                        <span id="p{{ workid }}">Un-wishlist</span>
+                        <span id="p{{ workid }}">Un-list</span>
                     </div>
 				{% else %}
 				    {% comment %} on the empty-wishlist slideshow {% endcomment %}
                     <div class="moreinfo add-wishlist">
-                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Wishlist</span>
+                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;List</span>
                     </div>
 				{% endif %}
 			{% else %}{% if work in wishlist %}
 				<div class="moreinfo on-wishlist">
-				 <a href="/#">On Wishlist!</a>
+				 <a href="/#">On My List!</a>
 				</div>
 			{% else %}
 				<div class="moreinfo add-wishlist">
 				{% if on_search_page %}
-				<span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Wishlist</span>
+				<span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;My&nbsp;List</span>
 				{% else %}
-				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Wishlist</span>
+				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;List</span>
 				{% endif %}
 				</div>
 			{% endif %}{% endifequal %}{% endif %}{% endif %}

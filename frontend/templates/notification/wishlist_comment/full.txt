@@ -1,4 +1,4 @@
-{{ comment.user.username }} has commented on a book on your wishlist, {{ comment.content_object.title }}, as follows.
+{{ comment.user.username }} has commented on a book on your list, {{ comment.content_object.title }}, as follows.
           
 {{ comment.comment }}
 

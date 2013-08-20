@@ -8,6 +8,8 @@ import logging
 
 from decimal import Decimal
 
+from jsonfield import JSONField
+
 """
 django imports
 """
@@ -101,10 +103,8 @@ class Transaction(models.Model):
     user = models.ForeignKey(User, null=True)
     campaign = models.ForeignKey('core.Campaign', null=True)
     premium = models.ForeignKey('core.Premium', null=True)
-    
-    # how to acknowledge the user on the supporter page of the campaign ebook
-    ack_name = models.CharField(max_length=64, null=True)
-    ack_dedication = models.CharField(max_length=140, null=True)
+    offer = models.ForeignKey('core.Offer', null=True)
+    extra = JSONField(null=True, default={})
     
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(null=False)
@@ -165,33 +165,31 @@ class Transaction(models.Model):
         if pledge_extra:
             self.anonymous = pledge_extra.anonymous
             self.premium = pledge_extra.premium
-            self.ack_name = pledge_extra.ack_name
-            self.ack_dedication = pledge_extra.ack_dedication
+            self.offer = pledge_extra.offer
+            self.extra.update( pledge_extra.extra)
 
     def get_pledge_extra(self):
         class pe:
-            premium=self.premium
             anonymous=self.anonymous
-            ack_name=self.ack_name
-            ack_dedication=self.ack_dedication
+            premium=self.premium
+            offer=self.offer
+            extra=self.extra
         return pe
 
     @classmethod
     def create(cls,amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
                 status=TRANSACTION_STATUS_NONE,campaign=None, user=None, pledge_extra=None):
         if pledge_extra:
-            return cls.objects.create(amount=amount,
+            t = cls.objects.create(amount=amount,
                                 host=host,
                                 max_amount=max_amount, 
                                 currency=currency,
                                 status=status,
                                 campaign=campaign,
                                 user=user,
-                                premium=pledge_extra.premium, 
-                                anonymous=pledge_extra.anonymous,
-                                ack_name=pledge_extra.ack_name, 
-                                ack_dedication=pledge_extra.ack_dedication
                                 )
+            t.set_pledge_extra(pledge_extra)
+            return t
         else:
             return cls.objects.create(amount=amount, host=host, max_amount=max_amount, currency=currency,status=status,
                                 campaign=campaign, user=user)

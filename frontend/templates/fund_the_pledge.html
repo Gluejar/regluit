@@ -1,7 +1,7 @@
 {% extends "basepledge.html" %}
 {% load humanize %}
 
-{% block title %}Fund Your Pledge{% endblock %}
+{% block title %}Fund Your {{ action }}{% endblock %}
 
 {% block extra_extra_head %}
 {% include "stripe_stuff.html" %}
@@ -103,7 +103,7 @@ $j(document).ready(function() {
     {% endif %}
 	{% if request.user.profile.account %}
         <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
-            <h3>Pledge by Credit Card</h3>
+            <h3>{{ action|capfirst  }} by Credit Card</h3>
             <p>Unglue.it has a {{ request.user.profile.account.card_type }} credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
             The last four digits of the card are {{ request.user.profile.account.card_last4 }}. 
             </p>
@@ -121,7 +121,7 @@ $j(document).ready(function() {
         </p>
 	{% else %}
         <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
-            <h3>Pledge by Credit Card</h3>
+            <h3>{{ action|capfirst }} by Credit Card</h3>
             <p>Unglue.it uses <a href="https://stripe.com/">Stripe</a> to securely manage your credit card information.
             </p>
             <div id="cc_pledge">
@@ -186,41 +186,6 @@ $j(document).ready(function() {
 
 	</div>
 </div>
-
-{% comment %}
-kept around for reference as the page is overhauled
-
-	<div><h2>Funding Your Pledge</h2>
-		<div>We're so happy that you've decided to {% if modified %}increase your pledge{% else %}join{% endif %} this campaign. 
-		{% if nonprofit.is_on %} 
-		We have two ways we can fund your pledge of ${{preapproval_amount}}.
-		<ol>
-		    <li>You can <a href="#donate">make a donation now</a> to {{nonprofit.name}}, a non-profit charity that's working with Unglue.it to give books to the world.</li>
-		    <li>You can <a href="#authorize">give us your credit card</a> information now; we'll charge your card only if the campaign succeeds.</li>
-		</ol>
-		{% else %}
-		To fund your pledge of ${{preapproval_amount}}, you can <a href="#authorize">give us your credit card</a> information now; we'll charge your card only if the campaign succeeds.
-		{% endif %}
-        </div>
-	</div>
-	{% if nonprofit.is_on %} 
-	<div id="donate" class="clearfix">
-	    <h3>Donate to Charity</h3>
-	    {% if request.user.credit.balance %}You have a donation credit of ${{ request.user.credit.balance }}. The amount that's uncommitted is ${{ request.user.credit.available }}, so you need to add at least ${{ needed }}.{% endif %}
-	    <p> Click the button to be sent to the {{nonprofit.name}} donation site. When you complete your donation of at least ${{ needed }}, you'll be sent back to Unglue.it and your pledge will automatically be entered. You can move your donation credit to another campaign or campaigns at any time. {{nonprofit.name}} will hold all funds and earn any interest until a campaign you support succeeds.
-	    </p>
-	    <div id="donate_charity">
-
-    	<form method="GET" action="{{nonprofit.link}}">
-			{{ donate_form.non_field_errors }}
-			{{donate_form}}
-			<input name="donate_submit" type="submit" value="Go Donate!" id="donate_submit" class="loader-gif" />
-    	</form>
-	
-	    </div>
-	</div>
-	{% endif %}
-{% endcomment %}
 
 {% endblock %}
 

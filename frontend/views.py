@@ -81,6 +81,7 @@ from regluit.frontend.forms import (
     UserData,
     ProfileForm,
     CampaignPledgeForm,
+    CampaignPurchaseForm,
     GoodreadsShelfLoadingForm,
     RightsHolderForm,
     UserClaimForm,
@@ -92,7 +93,9 @@ from regluit.frontend.forms import (
     EmailShareForm,
     FeedbackForm,
     EbookForm,
+    EbookFileForm,
     CustomPremiumForm,
+    OfferForm,
     EditManagersForm,
     EditionForm,
     PledgeCancelForm,
@@ -415,8 +418,32 @@ def work(request, work_id, action='display'):
         'alert': alert,
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
-        'cover_width': cover_width_number
+        'cover_width': cover_width_number,
+        'purchased': work.purchased_by(request.user),
     })    
+
+def edition_uploads(request, edition_id):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")
+    try:
+        edition = models.Edition.objects.get(id = edition_id)
+    except models.Edition.DoesNotExist:
+        raise Http404
+    if not request.user.is_staff :
+        if not request.user in edition.work.last_campaign().managers.all():
+            return render(request, "admins_only.html")
+    if request.method == 'POST' :
+        form = EbookFileForm(request.POST,request.FILES)
+        if form.is_valid() :
+            form.save()
+            
+    else:
+        form = EbookFileForm(initial={'edition':edition})
+    return render(request, 'edition_uploads.html', {
+            'form': form, 'edition': edition, 
+            'ebook_files': models.EbookFile.objects.filter(edition = edition)
+        })
+
 
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
@@ -448,7 +475,7 @@ def new_edition(request, work_id, edition_id, by=None):
     if edition_id:
         try:
             edition = models.Edition.objects.get(id = edition_id)
-        except models.Work.DoesNotExist:
+        except models.Edition.DoesNotExist:
             raise Http404
         if work:
             edition.work = work 
@@ -547,6 +574,9 @@ def manage_campaign(request, id):
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     alerts = []
     activetab = '#1'
+    offers = campaign.work.offers.all()
+    for offer in offers:
+        offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
 
     if request.method == 'POST' :
         if request.POST.has_key('add_premium') :
@@ -565,6 +595,11 @@ def manage_campaign(request, id):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                campaign.set_dollar_per_day()
+                if campaign.type==models.BUY2UNGLUE:
+                    offers= campaign.work.create_offers()
+                    for offer in offers:
+                        offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
                 campaign.update_left()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
@@ -590,12 +625,22 @@ def manage_campaign(request, id):
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
             form = getManageCampaignForm(instance=campaign)
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        elif request.POST.has_key('change_offer'):
+            for offer in offers :
+                if request.POST.has_key('offer_%d-work' % offer.id) :
+                    offer.offer_form=OfferForm(instance=offer, data = request.POST, prefix='offer_%d'%offer.id)
+                    if offer.offer_form.is_valid():
+                        offer.offer_form.save()
+                        alerts.append(_('Offer has been changed'))
+                    else:
+                        alerts.append(_('Offer has not been changed'))              
+            form = getManageCampaignForm(instance=campaign)
+            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+            activetab = '#2'
     else:
         form = getManageCampaignForm(instance=campaign)
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
-    work = campaign.work
-               
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
         'form':form, 
@@ -603,8 +648,9 @@ def manage_campaign(request, id):
         'alerts': alerts, 
         'premiums' : campaign.custom_premiums(),
         'premium_form' : new_premium_form,
-        'work': work,
+        'work': campaign.work,
         'activetab': activetab,
+        'offers':offers
     })
         
 def googlebooks(request, googlebooks_id):
@@ -910,8 +956,9 @@ class DonationView(TemplateView):
         context = {'user' : self.request.user,'nonprofit': settings.NONPROFIT}
         context['donate_form'] = DonateForm(initial={'username':self.request.user.username})
         return context
-            
+        
 class PledgeView(FormView):
+    action = "pledge"
     template_name="pledge.html"
     form_class = CampaignPledgeForm
     transaction = None
@@ -950,7 +997,8 @@ class PledgeView(FormView):
             # Campaign must be ACTIVE
             assert self.campaign.status == 'ACTIVE'           
         except Exception, e:
-            raise e
+            # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
+            return {}
 
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
         premium_id = self.request.REQUEST.get('premium_id', 150)
@@ -962,11 +1010,12 @@ class PledgeView(FormView):
             self.transaction = transactions[0]   
             if premium_id == 150 and self.transaction.premium is not None:
                 premium_id = self.transaction.premium.id
-            if self.transaction.ack_name:
-                ack_name = self.transaction.ack_name
+            if self.transaction.extra :
+                ack_name = self.transaction.extra.get('ack_name', self.request.user.profile.ack_name)
+                ack_dedication = self.transaction.extra.get('ack_dedication','')
             else:
                 ack_name = self.request.user.profile.ack_name
-            ack_dedication = self.transaction.ack_dedication
+                ack_dedication = ''
             anonymous=self.transaction.anonymous
 
         self.data = {'preapproval_amount':self.get_preapproval_amount(), 'premium_id':premium_id, 
@@ -1010,8 +1059,8 @@ class PledgeView(FormView):
             # modifying the transaction...
             assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and self.transaction.status == TRANSACTION_STATUS_ACTIVE        
             status,  url = p.modify_transaction(self.transaction, form.cleaned_data["preapproval_amount"],  
-                    paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
-                    pledge_extra=form.pledge_extra
+                    paymentReason="Unglue.it %s for %s"% (self.action,self.campaign.name) , 
+                    pledge_extra=form.trans_extra
                     )
             logger.info("status: {0}, url:{1}".format(status, url))
             
@@ -1023,12 +1072,12 @@ class PledgeView(FormView):
             else:
                 return HttpResponse("No modification made")
         else:
-            t, url = p.process_transaction('USD',  form.cleaned_data["preapproval_amount"],  
+            t, url = p.process_transaction('USD',  form.amount(),  
                     host = PAYMENT_HOST_NONE, 
                     campaign=self.campaign, 
                     user=self.request.user,
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name), 
-                    pledge_extra=form.pledge_extra
+                    pledge_extra=form.trans_extra
                     )    
             if url:
                 logger.info("PledgeView url: " + url)
@@ -1037,17 +1086,88 @@ class PledgeView(FormView):
                 logger.error("Attempt to produce transaction id {0} failed".format(t.id))
                 return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
 
-class FundPledgeView(FormView):
+class PurchaseView(PledgeView): 
+    template_name="purchase.html"
+    form_class = CampaignPurchaseForm
+    action = "purchase"
+
+    def get_context_data(self, **kwargs):
+        context = super(PledgeView, self).get_context_data(**kwargs)
+        context.update({
+                'work':self.work,
+                'campaign':self.campaign, 
+                'faqmenu': 'purchase' , 
+                'transaction': self.transaction,
+                'tid': self.transaction.id if self.transaction else None,
+                'cover_width': cover_width(self.work)
+           })
+            
+        return context
+
+    def get_form_kwargs(self):
+        assert self.request.user.is_authenticated()
+        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        
+        # if there is no campaign or if campaign is not active, we should raise an error
+        try:
+            self.campaign = self.work.last_campaign()
+            # Campaign must be ACTIVE
+            assert self.campaign.status == 'ACTIVE'           
+        except Exception, e:
+            # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
+            return {}
+        
+        self.data = {
+            'preapproval_amount':self.get_preapproval_amount(),
+            'anonymous':self.request.user.profile.anon_pref
+            }
+        if self.request.method  == 'POST':
+            self.data.update(self.request.POST.dict())
+            if not self.request.POST.has_key('anonymous'):
+                del self.data['anonymous']
+            return {'data':self.data}
+        else:
+            return {'initial':self.data}
+
+    def get_preapproval_amount(self):
+        offer_id = self.request.REQUEST.get('offer_id', None)
+        if offer_id != None:
+            try:
+                preapproval_amount = D(models.Offer.objects.get(id=offer_id).price)
+            except:
+                preapproval_amount = None
+        return preapproval_amount
+
+    def form_valid(self, form):
+        p = PaymentManager()
+        t, url = p.process_transaction('USD',  form.amount(),  
+                host = PAYMENT_HOST_NONE, 
+                campaign=self.campaign, 
+                user=self.request.user,
+                paymentReason="Unglue.it Purchase for {0}".format(self.campaign.name), 
+                pledge_extra=form.trans_extra
+                )    
+        if url:
+            return HttpResponseRedirect(url)
+        else:
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
+    
+               
+class FundView(FormView):
     template_name="fund_the_pledge.html"
     form_class = CCForm
     transaction = None
+    action = None
 
     def get_form_kwargs(self):
-        kwargs = super(FundPledgeView, self).get_form_kwargs()
+        kwargs = super(FundView, self).get_form_kwargs()
         
         assert self.request.user.is_authenticated()
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
+
+        self.action = 'pledge' if self.transaction.campaign.type == models.REWARDS else 'purchase'
 
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
@@ -1066,13 +1186,14 @@ class FundPledgeView(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(FundPledgeView, self).get_context_data(**kwargs)
+        context = super(FundView, self).get_context_data(**kwargs)
         context['modified'] = self.transaction.status==TRANSACTION_STATUS_MODIFIED
         context['preapproval_amount']=self.transaction.max_amount
         context['needed'] = self.transaction.max_amount - self.request.user.credit.available
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
         context['STRIPE_PK'] = stripelib.STRIPE_PK
+        context['action'] = self.action
         # note that get_form_kwargs() will already have been called once
         donate_args=self.get_form_kwargs()
         donate_args['data']['preapproval_amount']=context['needed']
@@ -1081,14 +1202,13 @@ class FundPledgeView(FormView):
     
     def post(self, request, *args, **kwargs):
         logger.info('request.POST: {0}'.format(request.POST))
-        return super(FundPledgeView, self).post(request, *args, **kwargs)
+        return super(FundView, self).post(request, *args, **kwargs)
     
     def form_valid(self, form):
         """ note desire to pledge; make sure there is a credit card to charge"""
-
         if self.transaction.user.id != self.request.user.id:
             # trouble!
-            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction }) 
+            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction, 'action': self.action }) 
 
         p = PaymentManager()
 
@@ -1109,9 +1229,16 @@ class FundPledgeView(FormView):
             
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         
-        # with the Account in hand, now authorize transaction
+        # with the Account in hand, now do the transaction
         self.transaction.max_amount = preapproval_amount
-        t, url = p.authorize(self.transaction)
+        if self.action == 'pledge':
+            t, url = p.authorize(self.transaction)
+        else:
+            t, url = p.charge(self.transaction, return_url=reverse('download', kwargs={'work_id': self.transaction.campaign.work.id}))
+            if t.status == TRANSACTION_STATUS_COMPLETE:
+                # provision the book
+                models.Acq.objects.create(user=t.user,work=t.campaign.work,license= t.offer.license)
+                t.campaign.update_left()
         logger.info("t, url: {0} {1}".format(t, url))
         
         # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
@@ -1249,8 +1376,8 @@ class PledgeRechargeView(TemplateView):
         return context
     
 
-class PledgeCompleteView(TemplateView):
-    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
+class FundCompleteView(TemplateView):
+    """A callback for Payment to tell unglue.it that a payment transaction has completed successfully.
     
     Possible things to implement:
     
@@ -1265,7 +1392,7 @@ class PledgeCompleteView(TemplateView):
     
     def get_context_data(self):
         # pick up all get and post parameters and display
-        context = super(PledgeCompleteView, self).get_context_data()
+        context = super(FundCompleteView, self).get_context_data()
         
         if self.request.user.is_authenticated():
             user = self.request.user
@@ -1323,7 +1450,7 @@ class PledgeCompleteView(TemplateView):
         
         return context        
 
-class PledgeModifiedView(PledgeCompleteView):
+class PledgeModifiedView(FundCompleteView):
     def get_context_data(self):
         context = super(PledgeModifiedView, self).get_context_data()
         context['modified']=True
@@ -1474,12 +1601,20 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
-                    new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
-                    new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
+                    if new_campaign.type==models.BUY2UNGLUE:
+                        new_campaign.deadline = date_today() + settings.B2U_TERM
+                        new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
+                        new_campaign.set_cc_date_initial()
+                    else:
+                        new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
             else:
-                claim.campaign_form = OpenCampaignForm(data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id})
+                c_type = 2 if claim.rights_holder.can_sell else 1
+                claim.campaign_form = OpenCampaignForm(
+                    data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type}
+                    )
     campaigns = request.user.campaigns.all()
     new_campaign = None
     for campaign in campaigns:
@@ -2415,7 +2550,7 @@ def lockss_manifest(request, year):
         ebooks = None
     
     return render(request, "lockss_manifest.html", {'ebooks':ebooks, 'year': year})
-    
+
 def download(request, work_id):
     context = {}
     work = safe_get_work(work_id)
@@ -2465,6 +2600,11 @@ def download(request, work_id):
     })
 
     return render(request, "download.html", context)
+    
+def download_purchased(request, work_id):
+    if request.user.is_anonymous:
+        HttpResponseRedirect('/accounts/login/download/')
+    return download(request, work_id)
     
 def about(request, facet):
     template = "about_" + facet + ".html"

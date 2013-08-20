@@ -477,6 +477,9 @@ def merge_works(w1, w2, user=None):
     for claim in w2.claim.all():
         claim.work = w1
         claim.save()
+    for offer in w2.offers.all():
+        offer.work = w1
+        offer.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)

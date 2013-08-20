@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load purchased %}
 
 {% with work.title as title %}
 {% block title %}
@@ -23,6 +24,7 @@ $j(document).ready(function() {
 <div id="lightbox_content">
 <div class="border">
     <h2>Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
+    {% purchased %}
     <div class="sharing ebook_download_container">
         <h3 class="jsmod-title"><span>Share</span></h3>
         <ul class="social menu">
