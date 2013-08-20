@@ -1102,13 +1102,13 @@ class PurchaseView(PledgeView):
             
         return context
                
-class FundPledgeView(FormView):
+class FundView(FormView):
     template_name="fund_the_pledge.html"
     form_class = CCForm
     transaction = None
 
     def get_form_kwargs(self):
-        kwargs = super(FundPledgeView, self).get_form_kwargs()
+        kwargs = super(FundView, self).get_form_kwargs()
         
         assert self.request.user.is_authenticated()
         if self.transaction is None:
@@ -1131,7 +1131,7 @@ class FundPledgeView(FormView):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(FundPledgeView, self).get_context_data(**kwargs)
+        context = super(FundView, self).get_context_data(**kwargs)
         context['modified'] = self.transaction.status==TRANSACTION_STATUS_MODIFIED
         context['preapproval_amount']=self.transaction.max_amount
         context['needed'] = self.transaction.max_amount - self.request.user.credit.available
@@ -1146,7 +1146,7 @@ class FundPledgeView(FormView):
     
     def post(self, request, *args, **kwargs):
         logger.info('request.POST: {0}'.format(request.POST))
-        return super(FundPledgeView, self).post(request, *args, **kwargs)
+        return super(FundView, self).post(request, *args, **kwargs)
     
     def form_valid(self, form):
         """ note desire to pledge; make sure there is a credit card to charge"""
@@ -1174,7 +1174,7 @@ class FundPledgeView(FormView):
             
         preapproval_amount = form.cleaned_data["preapproval_amount"]
         
-        # with the Account in hand, now authorize transaction
+        # with the Account in hand, now do the transaction
         self.transaction.max_amount = preapproval_amount
         t, url = p.authorize(self.transaction)
         logger.info("t, url: {0} {1}".format(t, url))
@@ -1314,8 +1314,8 @@ class PledgeRechargeView(TemplateView):
         return context
     
 
-class PledgeCompleteView(TemplateView):
-    """A callback for PayPal to tell unglue.it that a payment transaction has completed successfully.
+class FundCompleteView(TemplateView):
+    """A callback for Payment to tell unglue.it that a payment transaction has completed successfully.
     
     Possible things to implement:
     
@@ -1330,7 +1330,7 @@ class PledgeCompleteView(TemplateView):
     
     def get_context_data(self):
         # pick up all get and post parameters and display
-        context = super(PledgeCompleteView, self).get_context_data()
+        context = super(FundCompleteView, self).get_context_data()
         
         if self.request.user.is_authenticated():
             user = self.request.user
@@ -1388,7 +1388,7 @@ class PledgeCompleteView(TemplateView):
         
         return context        
 
-class PledgeModifiedView(PledgeCompleteView):
+class PledgeModifiedView(FundCompleteView):
     def get_context_data(self):
         context = super(PledgeModifiedView, self).get_context_data()
         context['modified']=True

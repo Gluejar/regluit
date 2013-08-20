@@ -671,6 +671,8 @@ class PaymentManager( object ):
         
         if p.success() and not p.error():
             transaction.preapproval_key = p.key()
+            transaction.execution = EXECUTE_TYPE_INSTANT
+            transaction.date_executed = now()
             transaction.save()
             
             # it make sense for the payment processor library to calculate next_url when
@@ -727,18 +729,18 @@ class PaymentManager( object ):
                                    pledge_extra=pledge_extra
                                    )
         t.save()
-        # does user have enough credit to pledge now?
+        # does user have enough credit to transact now?
         if user.credit.available >= amount :
             # YES!
             credit.pledge_transaction(t,user,amount)
-            return_path = "{0}?{1}".format(reverse('pledge_complete'), 
+            return_path = "{0}?{1}".format(reverse('fund_complete'), 
                                 urllib.urlencode({'tid':t.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
             pledge_created.send(sender=self, transaction=t)
             return t, return_url
         else:
             # send user to choose payment path
-            return t, reverse('fund_pledge', args=[t.id])
+            return t, reverse('fund', args=[t.id])
 
         
     def cancel_related_transaction(self, transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=None):
@@ -857,7 +859,7 @@ class PaymentManager( object ):
                            )
                 t.save()
                 credit.Processor.CancelPreapproval(transaction)
-                return t, reverse('fund_pledge', args=[t.id])
+                return t, reverse('fund_%s'%campaign.type, args=[t.id])
 
         elif requires_explicit_preapprovals and (amount > transaction.max_amount or expiry != transaction.date_expired):
 
