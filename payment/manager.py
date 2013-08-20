@@ -272,18 +272,7 @@ class PaymentManager( object ):
         if summary:
             amount = D('0.00')
             for t in list:
-                if t.type==PAYMENT_TYPE_INSTANT:
-                    for r in t.receiver_set.all():
-                        #
-                        # Currently receivers are only used for paypal, so keep the paypal status code here
-                        #
-                        if r.status == IPN_SENDER_STATUS_COMPLETED:
-                            # or IPN_SENDER_STATUS_COMPLETED
-                            # individual senders may not have been paid due to errors, and disputes/chargebacks only appear here
-                            amount += r.amount
-                else:
-                    amount += t.amount
-                    
+                amount += t.amount
             return amount
         
         else:
