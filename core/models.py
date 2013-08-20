@@ -973,7 +973,7 @@ class Work(models.Model):
         return self.offers.all()
         
     def purchased_by(self,user):
-        if user==None or not user.is_authenticated:
+        if user==None or not user.is_authenticated():
             return False
         acqs= Acq.objects.filter(user=user,work=self)
         if acqs.count()==0:

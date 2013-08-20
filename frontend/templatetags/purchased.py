@@ -7,5 +7,8 @@ register = template.Library()
 def purchased(context):
     work = context['work']
     user = context['request'].user
-    context['purchased'] = work.purchased_by(user)
+    try: 
+        context['purchased'] = work.purchased_by(user)
+    except:
+        context['purchased'] = False
     return ''
