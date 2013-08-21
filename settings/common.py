@@ -259,9 +259,12 @@ GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
 
 # unglue.it parameters
-UNGLUEIT_MINIMUM_TARGET = '500' # in US Dollars
+UNGLUEIT_MINIMUM_TARGET = 500 # in US Dollars
+UNGLUEIT_MAXIMUM_TARGET = 10000000 # in US Dollars
 UNGLUEIT_LONGEST_DEADLINE = '180' # number of days allowed for a campaign
 UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
+B2U_TERM = datetime.timedelta(days=5*365 +1 ) # 5 years?
+MAX_CC_DATE = datetime.date( 2099,12,31)
 
 TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
 import djcelery

@@ -3,7 +3,7 @@ external library imports
 """
 import logging
 
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 from decimal import Decimal as D
 
 """
@@ -35,8 +35,10 @@ from regluit.core.models import (
     RightsHolder,
     Claim,
     Campaign,
+    Offer,
     Premium,
     Ebook,
+    EbookFile,
     Edition,
     PledgeExtra,
     Work,
@@ -120,7 +122,7 @@ class EditionForm(forms.ModelForm):
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
     
     def clean(self):
-        if not self.cleaned_data["isbn"] and not self.cleaned_data["oclc"] :
+        if not self.cleaned_data["isbn"] and not self.cleaned_data["oclc"]  and not self.cleaned_data["goog"]:
             raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
         return self.cleaned_data
     
@@ -133,6 +135,11 @@ class EditionForm(forms.ModelForm):
                 'add_subject': forms.TextInput(attrs={'size': 30}),
                 'unglued': forms.CheckboxInput(),
             }
+class EbookFileForm(forms.ModelForm):
+    class Meta:
+        model = EbookFile
+        widgets = { 'edition': forms.HiddenInput,  }
+        exclude = { 'created', }
 
 class EbookForm(forms.ModelForm):
     class Meta:
@@ -270,7 +277,7 @@ class OpenCampaignForm(forms.ModelForm):
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
     class Meta:
         model = Campaign
-        fields = 'name', 'work',  'managers'
+        fields = 'name', 'work',  'managers', 'type'
         widgets = { 'work': forms.HiddenInput }
 
 def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
@@ -346,10 +353,23 @@ class CustomPremiumForm(forms.ModelForm):
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
                 'limit': forms.TextInput(attrs={'value':'0'}),
             }
+class OfferForm(forms.ModelForm):
+
+    class Meta:
+        model = Offer
+        widgets = { 
+                'work': forms.HiddenInput,
+            }
+            
+date_selector=range(date.today().year, settings.MAX_CC_DATE.year+1)
+
 def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
+    
     def get_queryset():
         work=instance.work
         return Edition.objects.filter(work = work)
+    def get_widget_class(widget_classes):
+        return widget_classes[instance.type-1]
             
     class ManageCampaignForm(forms.ModelForm):
         paypal_receiver = forms.EmailField(
@@ -360,14 +380,19 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a target price.'} )
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
-        latest_ending = (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()).date
+        maximum_target = settings.UNGLUEIT_MAXIMUM_TARGET
+        max_cc_date = settings.MAX_CC_DATE
         publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
+        cc_date_initial = forms.DateTimeField(
+                required = (instance.type==2) and instance.status=='INITIALIZED',
+                widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
+            )
                 
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher'
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial',
             widgets = { 
-                    'deadline': SelectDateWidget,
+                    'deadline': get_widget_class((SelectDateWidget,forms.HiddenInput)), 
                 }
     
         def clean_target(self):
@@ -377,19 +402,42 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                     raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
             if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
                 raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+            if new_target > D(settings.UNGLUEIT_MAXIMUM_TARGET):
+                raise forms.ValidationError(_('A campaign may not be launched with a target more than $%s' % settings.UNGLUEIT_MAXIMUM_TARGET))
             return new_target
+
+        def clean_cc_date_initial(self):
+            if self.instance.type==1:
+                return None
+            new_cc_date_initial = self.cleaned_data['cc_date_initial']
+            if self.instance:
+                if self.instance.status != 'INITIALIZED':
+                    # can't change this once launched
+                    return self.instance.cc_date_initial
+            if new_cc_date_initial.date() > settings.MAX_CC_DATE:
+                raise forms.ValidationError('The initial CC date cannot be after %s'%settings.MAX_CC_DATE)
+            elif new_cc_date_initial - now() < timedelta(days=0):         
+                raise forms.ValidationError('The initial CC date must be in the future!')
+            return new_cc_date_initial
+            
         
         def clean_deadline(self):
-            new_deadline_date = self.cleaned_data['deadline']
-            new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
-            if self.instance:
-                if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
-                    raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-            if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-                raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-            elif new_deadline - now() < timedelta(days=0):         
-                raise forms.ValidationError(_('The chosen closing date is in the past'))
-            return new_deadline
+            if self.instance.type==1:
+                new_deadline_date = self.cleaned_data['deadline']
+                new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
+                if self.instance:
+                    if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
+                        raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+                if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                    raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+                elif new_deadline - now() < timedelta(days=0):         
+                    raise forms.ValidationError(_('The chosen closing date is in the past'))
+                return new_deadline
+            else:
+                if self.instance.status == 'ACTIVE':
+                    return self.instance.deadline
+                else:
+                    return date.today() + settings.B2U_TERM
             
         def clean_license(self):
             new_license = self.cleaned_data['license']
@@ -413,6 +461,25 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return new_license
     return ManageCampaignForm(instance = instance, data=data)
 
+class CampaignPurchaseForm(forms.Form):
+    anonymous = forms.BooleanField(required=False, label=_("Make this purchase anonymous, please"))
+    offer_id = forms.IntegerField(required=False)
+    offer=None
+    def clean_offer_id(self):
+        offer_id = self.cleaned_data['offer_id']
+        try:
+            self.offer= Offer.objects.get(id=offer_id)
+        except  Offer.DoesNotExist:
+            raise forms.ValidationError(_("Sorry, that offer is not valid."))
+
+    def amount(self):
+        return self.offer.price if self.offer else None
+        
+    @property
+    def trans_extra(self):
+        return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
+                            offer = self.offer )
+
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
@@ -421,6 +488,9 @@ class CampaignPledgeForm(forms.Form):
         decimal_places=2, 
         label="Pledge Amount",
     )
+    def amount(self):
+        return self.cleaned_data["preapproval_amount"] if self.cleaned_data else None
+        
     anonymous = forms.BooleanField(required=False, label=_("Make this pledge anonymous, please"))
     ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
@@ -429,7 +499,7 @@ class CampaignPledgeForm(forms.Form):
     premium=None
     
     @property
-    def pledge_extra(self):
+    def trans_extra(self):
         return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
                             ack_name=self.cleaned_data['ack_name'],
                             ack_dedication=self.cleaned_data['ack_dedication'],

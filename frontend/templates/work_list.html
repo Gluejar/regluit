@@ -82,7 +82,7 @@
                 <div id="content-block-content">
                     {% ifequal work_list.count 0 %}
                     {% block noworks %}
-                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  {% block add_more %}Why not add your favorite books to your wishlist, so we can feature them here?{% endblock %}
+                    There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  {% block add_more %}Why not add your favorite books to your list, so we can feature them here?{% endblock %}
 					{% endblock %}
                     {% else %}
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}

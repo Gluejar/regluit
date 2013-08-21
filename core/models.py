@@ -9,7 +9,7 @@ import random
 import urllib
 
 from ckeditor.fields import RichTextField
-from datetime import timedelta
+from datetime import timedelta, datetime
 from decimal import Decimal
 from notification import models as notification
 from postmonkey import PostMonkey, MailChimpException
@@ -132,6 +132,7 @@ class RightsHolder(models.Model):
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=False)
     owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    can_sell = models.BooleanField(default=False)
     def __unicode__(self):
         return self.rights_holder_name
     
@@ -157,15 +158,19 @@ class Premium(models.Model):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
     
 class PledgeExtra:
-    premium=None
-    anonymous=False
-    ack_name=''
-    ack_dedication=''
-    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication=''):
-        self.premium=premium
-        self.anonymous=anonymous
-        self.ack_name=ack_name
-        self.ack_dedication=ack_dedication
+    extra = {}
+    anonymous = False
+    premium = None
+    offer = None
+                    
+    def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication='',offer=None):
+        self.anonymous = anonymous
+        self.premium = premium
+        self.offer = offer
+        if ack_name:
+            self.extra['ack_name']=ack_name
+        if ack_dedication:
+            self.extra['ack_dedication']=ack_dedication
 
 class CampaignAction(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -220,6 +225,29 @@ class CCLicense():
             return ''
 
     
+(INDIVIDUAL, LIBRARY, BORROWED) = (1, 2, 3)
+class Offer(models.Model):
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
+    work = models.ForeignKey("Work", related_name="offers", null=False)
+    price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=False)
+    license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
+            choices=CHOICES)
+    active = models.BooleanField(default=False)
+    
+    
+class Acq(models.Model):
+    """ 
+    Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
+    """
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'))
+    created = models.DateTimeField(auto_now_add=True)
+    expires = models.DateTimeField(null=True)
+    work = models.ForeignKey("Work", related_name='acqs', null=False)
+    user = models.ForeignKey(User, related_name='acqs')
+    license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
+            choices=CHOICES)
+
+(REWARDS, BUY2UNGLUE) = (1, 2)
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
@@ -230,6 +258,8 @@ class Campaign(models.Model):
     license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
     left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
     deadline = models.DateTimeField(db_index=True)
+    dollar_per_day = models.FloatField(null=True)
+    cc_date_initial = models.DateTimeField(null=True)
     activated = models.DateTimeField(null=True)
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
@@ -237,6 +267,8 @@ class Campaign(models.Model):
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
+    type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
+            choices=((REWARDS,'Rewards-based fixed duration campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign')))
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
@@ -249,7 +281,10 @@ class Campaign(models.Model):
             return u"Campaign %s (no associated work)" % self.name
     
     def clone(self):
-        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign"""
+        """use a previous UNSUCCESSFUL campaign's data as the basis for a new campaign
+         assume that B2U campaigns don't need cloning
+        """
+        
         if self.clonable():
             old_managers= self.managers.all()
             
@@ -292,21 +327,34 @@ class Campaign(models.Model):
     @property
     def launchable(self):
         may_launch=True
-        if self.status != 'INITIALIZED':
-            if self.status == 'ACTIVE':
-                self.problems.append(_('The campaign is already launched'))            
-            else:
-                self.problems.append(_('A campaign must initialized properly before it can be launched'))
+        try:
+            if self.status != 'INITIALIZED':
+                if self.status == 'ACTIVE':
+                    self.problems.append(_('The campaign is already launched'))            
+                else:
+                    self.problems.append(_('A campaign must initialized properly before it can be launched'))
+                may_launch = False
+            if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
+                self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+                may_launch = False
+            if self.type==REWARDS and self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+                may_launch = False  
+            elif self.deadline.date()- date_today() < timedelta(days=0):         
+                self.problems.append(_('The chosen closing date is in the past'))
+                may_launch = False  
+            if self.type==BUY2UNGLUE and self.work.offers.filter(price__gt=0,active=True).count()==0: 
+                self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks' ))
+                may_launch = False  
+            if self.type==BUY2UNGLUE and EbookFile.objects.filter(edition__work=self.work).count()==0: 
+                self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
+                may_launch = False  
+            if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now())):
+                self.problems.append(_('You must set an initial CC Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
+                may_launch = False  
+        except Exception as e :
+            self.problems.append('Exception checking launchability ' + str(e))
             may_launch = False
-        if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
-            self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
-            may_launch = False
-        if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-            self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-            may_launch = False  
-        elif self.deadline.date()- date_today() < timedelta(days=0):         
-            self.problems.append(_('The chosen closing date is in the past'))
-            may_launch = False  
         return may_launch
 
     
@@ -352,18 +400,41 @@ class Campaign(models.Model):
             return True
         else:
             return False
-
+    
+    _current_total = None
     @property
     def current_total(self):
-        if self.left is not None:
-            return self.target-self.left
-        else:
-            return 0
+        if self._current_total is None:
+            p = PaymentManager()
+            self._current_total =  p.query_campaign(self,summary=True, campaign_total=True)
+        return self._current_total
+    
+    def set_dollar_per_day(self):
+        if self.status!='INITIALIZED' and self.dollar_per_day:
+            return self.dollar_per_day
+        if self.cc_date_initial is None:
+            return None
+        time_to_cc = self.cc_date_initial - datetime.today()
+        self.dollar_per_day = float(self.target)/float(time_to_cc.days)
+        self.save()
+        return self.dollar_per_day
+    
+    def set_cc_date_initial(self, a_date=settings.MAX_CC_DATE):
+        self.cc_date_initial = datetime.combine(a_date, datetime.min.time()) 
+        
+    @property
+    def cc_date(self):
+        if self.dollar_per_day is None:
+            return self.cc_date_initial.date()
+        cc_advance_days = float(self.current_total) / self.dollar_per_day
+        return (self.cc_date_initial-timedelta(days=cc_advance_days)).date()
             
+        
     def update_left(self):
-        p = PaymentManager()
-        amount = p.query_campaign(self,summary=True, campaign_total=True)
-        self.left = self.target - amount
+        if self.type == BUY2UNGLUE:
+            self.left = Decimal(self.dollar_per_day*float((self.cc_date_initial - datetime.today()).days))-self.current_total
+        else:
+            self.left = self.target - self.current_total
         self.save()
         
     def transactions(self,  **kwargs):
@@ -521,20 +592,36 @@ class Campaign(models.Model):
 
     def effective_premiums(self):
         """returns the available premiums for the Campaign including any default premiums"""
+        if self.type is BUY2UNGLUE:
+            return Premium.objects.none()
         q = Q(campaign=self) | Q(campaign__isnull=True)
         return Premium.objects.filter(q).exclude(type='XX').order_by('amount')
 
     def custom_premiums(self):
         """returns only the active custom premiums for the Campaign"""
+        if self.type is BUY2UNGLUE:
+            return Premium.objects.none()
         return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
-        
+    
+    def active_offers(self):
+        if self.type is REWARDS:
+            return Offer.objects.none()
+        return Offer.objects.filter(work=self.work,active=True).order_by('price')
+       
+    @property
+    def rh(self):
+        """returns the rights holder for an active or initialized campaign"""
+        try:
+            q = Q(status='ACTIVE') | Q(status='INITIALIZED')
+            rh = self.work.claim.filter(q)[0].rights_holder
+            return rh
+        except:
+            return None
     @property
     def rightsholder(self):
         """returns the name of the rights holder for an active or initialized campaign"""
         try:
-            q = Q(status='ACTIVE') | Q(status='INITIALIZED')
-            rh = self.work.claim.filter(q)[0].rights_holder.rights_holder_name
-            return rh
+            return self.rh.rights_holder_name
         except:
             return ''
     
@@ -571,6 +658,10 @@ class Campaign(models.Model):
             countdown = "Seconds"
             
         return countdown    
+
+    @classmethod
+    def latest_ending(cls):
+        return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -736,20 +827,21 @@ class Work(models.Model):
 
     def percent_unglued(self):
         status = 0
-        if self.last_campaign() is not None:
-            if(self.last_campaign_status() == 'SUCCESSFUL'):
+        campaign = self.last_campaign()
+        if campaign is not None:
+            if(campaign.status == 'SUCCESSFUL'):
                 status = 6
-            elif(self.last_campaign_status() == 'ACTIVE'):
-                target = float(self.last_campaign().target)
+            elif(campaign.status == 'ACTIVE'):
+                target = float(campaign.target)
                 if target <= 0:
                     status = 6
                 else:
-                    total = float(self.last_campaign().current_total)
-                    percent = int(total*6/target)
-                    if percent >= 6:
-                        status = 6
+                    if campaign.type == BUY2UNGLUE:
+                        status = int( 6 - 6*campaign.left/campaign.target)
                     else:
-                        status = percent
+                        status = int(float(campaign.current_total)*6/target)
+                    if status >= 6:
+                        status = 6
         return status
 
     def percent_of_goal(self):
@@ -757,13 +849,17 @@ class Work(models.Model):
         campaign = self.last_campaign()
         if campaign is not None:
             if(campaign.status == 'SUCCESSFUL' or campaign.status == 'ACTIVE'):
-                target = campaign.target
-                total = campaign.current_total
-                percent = int(total/target*100)
+                if campaign.type == BUY2UNGLUE:
+                    percent = int(100 - 100*campaign.left/campaign.target)
+                else:
+                    percent = int(campaign.current_total/campaign.target*100)
         return percent
 
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
+
+    def ebookfiles(self):
+        return EbookFile.objects.filter(edition__work=self).order_by('format')
     
     @property
     def download_count(self):
@@ -869,7 +965,26 @@ class Work(models.Model):
     def publishers(self):
         # returns a set of publishers associated with this Work
         return Publisher.objects.filter(name__editions__work=self).distinct()
+
+    def create_offers(self):
+        for choice in Offer.CHOICES:
+            if not self.offers.filter(license=choice[0]):
+                self.offers.create(license=choice[0])
+        return self.offers.all()
         
+    def purchased_by(self,user):
+        if user==None or not user.is_authenticated():
+            return False
+        acqs= Acq.objects.filter(user=user,work=self)
+        if acqs.count()==0:
+            return False
+        for acq in acqs:
+            if acq.expires is None:
+                return True
+            if acq.expires > now():
+                return True
+        return False
+            
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
@@ -1024,6 +1139,19 @@ class WasWork(models.Model):
     was = models.IntegerField(unique = True)
     moved = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, null=True)
+
+FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
+
+def path_for_file(instance, filename):
+    version = EbookFile.objects.filter(edition = instance.edition, format = instance.format).count()
+    fn = "ebf/%s.%d.%s"%(instance.edition.pk,version,instance.format)
+    return fn
+    
+class EbookFile(models.Model):
+    file = models.FileField(upload_to=path_for_file)
+    format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
+    edition = models.ForeignKey('Edition', related_name='ebook_files')
+    created =  models.DateTimeField(auto_now_add=True)
     
     
 class Ebook(models.Model):
@@ -1085,7 +1213,7 @@ class Wishlist(models.Model):
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
     def __unicode__(self):
-        return "%s's Wishlist" % self.user.username
+        return "%s's Books" % self.user.username
         
     def add_work(self, work, source, notify=False):
         try:
@@ -1226,8 +1354,8 @@ class UserProfile(models.Model):
     def ack_name(self):
         # use preferences from last transaction, if any
         last = self.last_transaction
-        if last and last.ack_name:
-            return last.ack_name
+        if last and last.extra:
+            return last.extra.get('ack_name', self.user.username)
         else:
             return self.user.username
 

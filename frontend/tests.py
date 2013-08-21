@@ -245,9 +245,9 @@ class UnifiedCampaignTests(TestCase):
         
         # Should now be on the fund page
         pledge_fund_path = r.request.get('PATH_INFO')
-        self.assertTrue(pledge_fund_path.startswith('/pledge/fund'))
+        self.assertTrue(pledge_fund_path.startswith('/payment/fund'))
         # pull out the transaction info
-        t_id = int(pledge_fund_path.replace('/pledge/fund/',''))
+        t_id = int(pledge_fund_path.replace('/payment/fund/',''))
         
         # r.content holds the page content
         # create a stripe token to submit to form
@@ -260,7 +260,7 @@ class UnifiedCampaignTests(TestCase):
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token.id}, follow=True)
         
         # where are we now?
-        self.assertEqual(r.request.get('PATH_INFO'), '/pledge/complete/')
+        self.assertEqual(r.request.get('PATH_INFO'), '/fund/complete/')
         self.assertEqual(r.status_code, 200)
         
         # dig up the transaction and charge it
@@ -414,9 +414,9 @@ class UnifiedCampaignTests(TestCase):
         
         # Should now be on the fund page
         pledge_fund_path = r.request.get('PATH_INFO')
-        self.assertTrue(pledge_fund_path.startswith('/pledge/fund'))
+        self.assertTrue(pledge_fund_path.startswith('/payment/fund'))
         # pull out the transaction info
-        t_id = int(pledge_fund_path.replace('/pledge/fund/',''))        
+        t_id = int(pledge_fund_path.replace('/payment/fund/',''))        
         
         stripe_token = ''
 

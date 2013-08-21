@@ -1,0 +1,45 @@
+{% extends "basedocumentation.html" %}
+
+{% block doccontent %}
+<div class="work_campaigns"> 
+    <b>Title</b>: {{ edition.title}}<br />
+    <b>Publisher</b> : {{ edition.publisher_name }}<br />
+    <b>Authors</b>:
+    <ul>
+        {% if edition.pk and edition.authors %}
+            {% for author in edition.authors.all %}
+                <li>{{ author.name }}</li>
+            {% endfor %}
+        {% endif %}
+    </ul>
+    <b>ISBN-13</b>: {{ edition.isbn_13 }}<br />
+    <b>OCLC Number</b>: {{ edition.oclc }}<br />
+    <b>Google Books ID</b>: {{ edition.googlebooks_id }}<br />
+    <b>GoodReads ID</b>: {{ edition.goodreads_id }}<br />
+    <b>LibraryThing ID</b>: {{ edition.librarything_id }}<br />
+
+</div>
+{% if edition.ebook_files.all %}
+<h2> Ebook Files for this Edition</h2>
+<ul>
+{% for ebook_file in edition.ebook_files.all %}
+<li>{{ebook_file.file}} created {{ebook_file.created}} </li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<h2>Upload Ebook files</h2>
+<form method="POST" action="#" enctype="multipart/form-data">
+{% csrf_token %}
+{{form.as_p}}
+<input type="submit" id="submit_file" value="submit ebook file">
+</form>
+{% if edition.work %}
+<h2>More Edition Management</h2>
+
+<div><a href="{% url new_edition edition.work.id edition.id %}">Edit this edition</a></div>
+{% if edition.work.last_campaign %}
+<div><a href="{% url manage_campaign edition.work.last_campaign.id %}">Manage this campaign</a></div>
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -103,10 +103,18 @@
                                     </div>
                                     <div class="pledged-info noborder">
                                         <div class="campaign-status-info">
+                                            {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
+                                            {% else %}
+                                            current ungluing date: 
+                                            {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">
+                                            {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
+                                            {% else %}
+                                            <span class="current_cc_date">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
+                                            {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">
                                             {% if work.last_campaign.supporters_count == 1 %}
@@ -116,7 +124,11 @@
                                             {% endif %}                                    
                                         </div>
                                         <div class="campaign-status-info">
+                                            {% ifequal work.last_campaign.type 1 %}
                                             <span>{{ work.last_campaign.countdown }}</span> to go
+                                            {% else %}
+                                            <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
+                                            {% endifequal %}
                                         </div>
                                     </div>
                                 {% else %}
@@ -149,7 +161,7 @@
                                             1 Ungluer has
                                         {% else %}
                                             {{ wishers }} Ungluers have
-                                        {% endif %} wished for this Work
+                                        {% endif %} Listed this Work
                                     </div>
                                 {% endifequal %}
                                 <div class="find-book">
@@ -179,15 +191,15 @@
                                         </div>
                                     {% else %}{% if request.user.id in work.last_campaign.supporters %}
                                         <div class="add-wishlist">
-                                            <span class="on-wishlist">On your wishlist!</span>
+                                            <span class="on-wishlist">On My List!</span>
                                         </div>
                                     {% else %}{% if work in request.user.wishlist.works.all %}
                                         <div class="remove-wishlist-workpage">
-                                            <span id="w{{ work_id }}">Remove from Wishlist</span>
+                                            <span id="w{{ work_id }}">Remove from My List</span>
                                         </div>
                                     {% else %}
                                         <div class="add-wishlist">
-                                            <span class="work_id" id="w{{ work_id }}">Add to Wishlist</span>
+                                            <span class="work_id" id="w{{ work_id }}">Add to My List</span>
                                         </div>
                                     {% endif %}{% endif %}{% endif %}
                                 </div>
@@ -274,15 +286,25 @@
                             <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
                                 <div class="tabs-content">
                                     {% if status == 'ACTIVE' %}
-                                        <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
-                                        <p>The rights holder, {% for claim in work.claim.all %}
-                                            {% if claim.status == 'active' %}
-                                            {{ claim.rights_holder.rights_holder_name }}
-                                            {% endif %} 
-                                        {% endfor %}
-                                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
-                                        You can help!</p>
-                
+                                        {% ifequal work.last_campaign 1 %}
+                                            <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                                            <p>The rights holder, {% for claim in work.claim.all %}
+                                                {% if claim.status == 'active' %}
+                                                {{ claim.rights_holder.rights_holder_name }}
+                                                {% endif %} 
+                                            {% endfor %}
+                                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
+                                            You can help!</p>
+                                        {% else %}
+                                            <h3 class="tabcontent-title">A sales campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                                            <p>The rights holder, {% for claim in work.claim.all %}
+                                                {% if claim.status == 'active' %}
+                                                {{ claim.rights_holder.rights_holder_name }}
+                                                {% endif %} 
+                                            {% endfor %}
+                                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) on {{ work.last_campaign.cc_date }}. For every copy that ungluers purchase, that date gets sooner. ${{ work.last_campaign.left|floatformat:0|intcomma }} of sales will unglue the book <i>TODAY</i>.
+                                            You can help!</p>
+                                        {% endifequal %}
                                         <h4>Campaign details: the fine print</h4>
                                         {{ work.last_campaign.details|safe }}
                                     {% endif %}
@@ -429,11 +451,21 @@
             <div id="js-rightcol">
                 <div class="clearfix">
                     {% if status == 'ACTIVE' %}
+                      {% if work.last_campaign.type == 1 %}
                         {% if pledged %}
                             <div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                         {% else %}
                             <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                         {% endif %}
+                      {% else %}
+                        {% if purchased %}
+                            <div class="btn_support">
+                                <a href="{% url download_purchased work_id %}" class="hijax"><span>Download</span></a>
+                            </div>
+                        {% else %}
+                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="Purchase" /></form></div>
+                        {% endif %}
+                      {% endif %}
                     {% else %}
                         {% if work.first_ebook %}
                             <div class="btn_support">
@@ -476,8 +508,8 @@
                             </div>
                     </div>
                     {% if status == 'ACTIVE' %}
+                        <div class="jsmodule">
                         {% if premiums %}
-                            <div class="jsmodule">
                                 <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
                                 <div class="jsmod-content">
                                     <ul class="support menu">
@@ -506,9 +538,8 @@
                                         {% endif %}                        
                                     </ul>
                                 </div>
-                            </div>
                         {% endif %}
-                        <div class="jsmodule">
+                        {% ifequal work.last_campaign.type 1 %}
                             <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
                             <div class="jsmod-content">
                                 In addition to any premiums you're eligible for, you'll automatically be acknowledged in the unglued ebook as follows:
@@ -568,6 +599,26 @@
                                     {% endif %}
                                 </ul>
                             </div>
+                        {% else %}
+                            {% if purchased %}
+                                <h3 class="jsmod-title">
+                                    <span class="on-wishlist">Purchased!</span>
+                                </h3>
+                            {% else %}
+                            <a href="{% url purchase work_id %}"><h3 class="jsmod-title"><span>Purchase Options</span></h3></a>
+                            <div class="jsmod-content">
+                                <ul class="support menu">
+                                    {% for offer in work.last_campaign.active_offers %}
+                                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                        <a href="{% url purchase work_id %}?offer_id={{offer.id}}">
+                                        <span class="menu-item-price">${{ offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ offer.get_license_display }}</span>
+                                        </a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            {% endif %}
+                        {% endifequal %}
                         </div>
                     {% endif %}
                 </div>

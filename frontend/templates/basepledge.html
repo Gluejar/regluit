@@ -33,11 +33,16 @@ $j("#js-leftcol").ready(function() {
 		<div id="js-leftcol">
 			{% if faqmenu == "pledge" %}
 			{% include "faq_pledge.html" %}
-			{% else %}{% if faqmenu == "cancel" %}
+			{% endif %}
+			{% if faqmenu == "cancel" %}
 			{% include "faq_pledge_cancel.html" %}
-			{% else %}{% if faqmenu == "complete" %}
+			{% endif %}
+			{% if faqmenu == "complete" %}
 			{% include "explore.html" %}
-			{% endif %}{% endif %}{% endif %}
+			{% endif %}
+			{% if faqmenu == "purchase" %}
+			{% include "faq_purchase.html" %}
+			{% endif %}
 		</div>
 		<div id="js-maincol-fr" class="have-right doc">
 			<div class="js-maincol-inner">

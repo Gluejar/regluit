@@ -47,7 +47,7 @@ from regluit.core.models import (
     Ebook,
     Premium,
     Subject,
-    Publisher
+    Publisher,
 )
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
@@ -424,6 +424,25 @@ class SearchTests(TestCase):
 
 class CampaignTests(TestCase):
 
+    def test_b2u(self):
+        w = Work()
+        w.save()
+        c = Campaign(
+            target=D('12000.00'), 
+            deadline=datetime(2013, 1, 1), 
+            work=w, type=2, 
+            cc_date_initial=datetime(2113, 1, 1),
+            )
+        self.assertTrue(c.set_dollar_per_day()<0.34)
+        self.assertTrue(c.dollar_per_day>0.31)
+        c._current_total = D(6000.1)
+        c.status = 'ACTIVE'
+        c.save()
+        c.update_left()
+        #print(w.percent_of_goal())
+        self.assertEqual(w.percent_unglued(),3)
+        self.assertTrue(w.percent_of_goal()>49)
+
     def test_required_fields(self):
         # a campaign must have a target, deadline and a work
 
@@ -454,7 +473,7 @@ class CampaignTests(TestCase):
         w2 = Work()
         w2.save()
         # INITIALIZED
-        c1 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
+        c1 = Campaign(target=D('1000.00'),deadline=Campaign.latest_ending(),work=w)
         c1.save()
         self.assertEqual(c1.status, 'INITIALIZED')
         # ACTIVATED
@@ -538,6 +557,28 @@ class CampaignTests(TestCase):
         t.user = user
         t.save()
         self.assertEqual(w2.percent_of_goal(), 23)
+        
+        self.assertEqual(c1.launchable, True)
+        c1.work.create_offers()
+        self.assertEqual(c1.work.offers.count(), 2)
+        self.assertEqual(c1.work.offers.filter(license=2).count(), 1)
+        c1.type = 2
+        c1.save()
+        self.assertEqual(c1.launchable, False)
+        of1=c1.work.offers.get(license=2)
+        of1.price=2
+        of1.active=True
+        of1.save()
+        self.assertEqual(c1.launchable, False)
+        e1= models.Edition(title="title",work=c1.work)
+        e1.save()
+        ebf1= models.EbookFile(edition=e1, format=1)
+        ebf1.save()
+        c1.set_cc_date_initial()
+        self.assertEqual(c1.cc_date, settings.MAX_CC_DATE)
+        c1.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
+        c1.save()
+        self.assertEqual(c1.launchable, True)
 
 class WishlistTest(TestCase):
 

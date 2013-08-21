@@ -45,7 +45,7 @@
         <h2>Supporters of this edition:</h2>
         {% for transaction in transactions.supporters %}
             <div class="ackbox">
-                    {{ transaction.ack_name }}
+                    {{ transaction.extra.ack_name }}
             </div>
         {% endfor %}
         {% if transactions.anon_supporters %}
@@ -60,9 +60,9 @@
         {% for transaction in transactions.patrons %}
             <div class="ackbox">
                 {% if transaction.ack_link %}
-                    <a href="{{ transaction.ack_link }}">{{ transaction.ack_name }}</a>
+                    <a href="{{ transaction.ack_link }}">{{ transaction.extra.ack_name }}</a>
                 {% else %}
-                    {{ transaction.ack_name }}
+                    {{ transaction.extra.ack_name }}
                 {% endif %}
             </div>
         {% endfor %}
@@ -78,11 +78,11 @@
         <dl>
         {% for transaction in transactions.bibliophiles %}
             {% if not transaction.anonymous %}
-                <dt>{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.ack_name }}</a>{% else %}{{ transaction.ack_name }}{% endif %}</dt>
+                <dt>{% if transaction.ack_link %}<a href="{{transaction.ack_link}}">{{ transaction.extra.ack_name }}</a>{% else %}{{ transaction.extra.ack_name }}{% endif %}</dt>
             {% else %}
                 <dt>Anonymous</dt>
             {% endif %}
-            <dd>{{ transaction.ack_dedication }}</dd>
+            <dd>{{ transaction.extra.ack_dedication }}</dd>
             <br />
         {% endfor %}
         </dl>
