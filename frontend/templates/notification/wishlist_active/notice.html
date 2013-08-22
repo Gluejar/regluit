@@ -10,6 +10,11 @@
 {% endblock %}
 
 {% block comments_textual %}
+{% ifequal campaign.type 1 %}
 	<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ campaign.work.title }}</i> will be released under a <a href="http://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
 	<div>You can help!  <a href="{% url pledge campaign.work.id %}">Pledge</a> any amount, and use the sharing options on the <a href="{% url work campaign.work.id %}">campaign page</a> to tell your friends.</a></div>
+{% else %}
+	<div>Great!  You wished for a campaign, and here it is. Someday, the book will be released under a <a href="http://creativecommons.org">Creative Commons license</a> for everyone to enjoy. Every copy purchased brings that day {{ campaign.days_per_copy|floatformat }} days sooner.</div>
+	<div>You can help!  <a href="{% url purchase campaign.work.id %}">Purchase</a> a copy, and use the sharing options on the <a href="{% url work campaign.work.id %}">campaign page</a> to tell your friends.</a></div>
+{% endifequal %}
 {% endblock %}

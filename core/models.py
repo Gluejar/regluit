@@ -47,6 +47,7 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_FAILED,
     TRANSACTION_STATUS_INCOMPLETE
 )
+from regluit.core.parameters import *
 
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
@@ -234,6 +235,10 @@ class Offer(models.Model):
             choices=CHOICES)
     active = models.BooleanField(default=False)
     
+    @property
+    def days_per_copy(self):
+        return Decimal(float(self.price) / self.work.last_campaign().dollar_per_day )
+    
     
 class Acq(models.Model):
     """ 
@@ -247,7 +252,6 @@ class Acq(models.Model):
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
 
-(REWARDS, BUY2UNGLUE) = (1, 2)
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
@@ -607,6 +611,13 @@ class Campaign(models.Model):
         if self.type is REWARDS:
             return Offer.objects.none()
         return Offer.objects.filter(work=self.work,active=True).order_by('price')
+
+    @property
+    def days_per_copy(self):
+        if self.active_offers().count()>0:
+            return Decimal(float(self.active_offers()[0].price) / self.dollar_per_day )
+        else: 
+            return Decimal(0)
        
     @property
     def rh(self):
