@@ -31,6 +31,7 @@ regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
 from regluit.utils.localdatetime import now
+from regluit.core.parameters import REWARDS, BUY2UNGLUE
 
 logger = logging.getLogger(__name__)
 

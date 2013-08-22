@@ -76,6 +76,7 @@ from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications
+from regluit.core.parameters import *
 
 from regluit.frontend.forms import (
     UserData,
@@ -596,7 +597,7 @@ def manage_campaign(request, id):
             if form.is_valid():     
                 form.save() 
                 campaign.set_dollar_per_day()
-                if campaign.type==models.BUY2UNGLUE:
+                if campaign.type==BUY2UNGLUE:
                     offers= campaign.work.create_offers()
                     for offer in offers:
                         offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
@@ -1167,7 +1168,7 @@ class FundView(FormView):
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
 
-        self.action = 'pledge' if self.transaction.campaign.type == models.REWARDS else 'purchase'
+        self.action = 'pledge' if self.transaction.campaign.type == REWARDS else 'purchase'
 
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
@@ -1601,7 +1602,7 @@ def rh_tools(request):
                 claim.campaign_form = OpenCampaignForm(request.POST)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
-                    if new_campaign.type==models.BUY2UNGLUE:
+                    if new_campaign.type==BUY2UNGLUE:
                         new_campaign.deadline = date_today() + settings.B2U_TERM
                         new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
                         new_campaign.set_cc_date_initial()

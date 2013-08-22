@@ -47,6 +47,7 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_FAILED,
     TRANSACTION_STATUS_INCOMPLETE
 )
+from regluit.core.parameters import *
 
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
@@ -247,7 +248,6 @@ class Acq(models.Model):
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
 
-(REWARDS, BUY2UNGLUE) = (1, 2)
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
