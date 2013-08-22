@@ -48,6 +48,7 @@ from regluit.core.models import (
     Premium,
     Subject,
     Publisher,
+    Offer,
 )
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
@@ -442,6 +443,9 @@ class CampaignTests(TestCase):
         #print(w.percent_of_goal())
         self.assertEqual(w.percent_unglued(),3)
         self.assertTrue(w.percent_of_goal()>49)
+        ofr = Offer.objects.create(work=w,price=D(10),active=True)
+        self.assertTrue(c.days_per_copy <D(32.26))
+        self.assertTrue(c.days_per_copy >D(29.41))
 
     def test_required_fields(self):
         # a campaign must have a target, deadline and a work
@@ -566,7 +570,7 @@ class CampaignTests(TestCase):
         c1.save()
         self.assertEqual(c1.launchable, False)
         of1=c1.work.offers.get(license=2)
-        of1.price=2
+        of1.price=D(2)
         of1.active=True
         of1.save()
         self.assertEqual(c1.launchable, False)

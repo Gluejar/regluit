@@ -235,6 +235,10 @@ class Offer(models.Model):
             choices=CHOICES)
     active = models.BooleanField(default=False)
     
+    @property
+    def days_per_copy(self):
+        return Decimal(float(self.price) / self.work.last_campaign().dollar_per_day )
+    
     
 class Acq(models.Model):
     """ 
@@ -607,6 +611,13 @@ class Campaign(models.Model):
         if self.type is REWARDS:
             return Offer.objects.none()
         return Offer.objects.filter(work=self.work,active=True).order_by('price')
+
+    @property
+    def days_per_copy(self):
+        if self.active_offers().count()>0:
+            return Decimal(float(self.active_offers()[0].price) / self.dollar_per_day )
+        else: 
+            return Decimal(0)
        
     @property
     def rh(self):
