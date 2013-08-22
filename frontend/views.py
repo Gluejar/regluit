@@ -1132,6 +1132,7 @@ class PurchaseView(PledgeView):
 
     def get_preapproval_amount(self):
         offer_id = self.request.REQUEST.get('offer_id', None)
+        preapproval_amount = None
         if offer_id != None:
             try:
                 preapproval_amount = D(models.Offer.objects.get(id=offer_id).price)
