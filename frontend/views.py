@@ -1236,10 +1236,6 @@ class FundView(FormView):
             t, url = p.authorize(self.transaction)
         else:
             t, url = p.charge(self.transaction, return_url=reverse('download', kwargs={'work_id': self.transaction.campaign.work.id}))
-            if t.status == TRANSACTION_STATUS_COMPLETE:
-                # provision the book
-                models.Acq.objects.create(user=t.user,work=t.campaign.work,license= t.offer.license)
-                t.campaign.update_left()
         logger.info("t, url: {0} {1}".format(t, url))
         
         # redirecting user to pledge_complete on successful preapproval (in the case of stripe)

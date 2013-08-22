@@ -1,8 +1,15 @@
-{% load humanize %}Congratulations, you wished for it, and now there is an active Campaign for {{ campaign.work.title }} to be unglued.  If ungluers like you pledge ${{ campaign.target|intcomma }} by {{ campaign.deadline }}, this book will be released under a Creative Commons license for everyone to enjoy.
+{% load humanize %}{% ifequal campaign.type 1 %}Congratulations, you wished for it, and now there is an active Campaign for {{ campaign.work.title }} to be unglued.  If ungluers like you pledge ${{ campaign.target|intcomma }} by {{ campaign.deadline }}, this book will be released under a Creative Commons license for everyone to enjoy.
 
 You can help!
 
 Pledge toward ungluing. https://{{ current_site.domain }}{% url pledge work_id=campaign.work.id %}
+{% else %}Great, you wished for it, and now there is a campaign for {{ campaign.work.title }} to be unglued.  Someday, the book will be released under a Creative Commons license for everyone to enjoy. Every copy purchased until then brings that day {{ campaign.day_per_copy|floatformat }} days sooner.
+
+You can help!
+
+Buy a copy to help unglue the book. https://{{ current_site.domain }}{% url purchase work_id=campaign.work.id %}
+
+{% endifequal %}
 
 Tell your friends -- there are handy share options on the campaign page.  There's even a widget you can put on your blog or home page. https://{{ current_site.domain }}{% url work campaign.work.id %}
 

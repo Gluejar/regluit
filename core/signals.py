@@ -116,6 +116,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("account_expiring", _("Credit Card Expiring Soon"), _("Your credit card is about to expire."))
     notification.create_notice_type("account_expired", _("Credit Card Has Expired"), _("Your credit card has expired."))
     notification.create_notice_type("account_active", _("Credit Card Number Updated"), _("Payment method updated."), default = 1)
+    notification.create_notice_type("purchase_complete", _("Your Purchase is Complete"), _("Your Unglue.it Purchase is Complete."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -178,7 +179,14 @@ unsuccessful_campaign.connect(notify_unsuccessful_campaign)
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
         return
-    notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
+    if transaction.campaign.type is REWARDS:
+        notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
+    else:
+        # provision the book
+        Acq = get_model('core', 'Acq')
+        Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
+        transaction.campaign.update_left()
+        notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 

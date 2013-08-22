@@ -1,0 +1,21 @@
+{% extends "notification/notice_template.html" %}
+{% load humanize %}
+
+{% block comments_book %}
+			<a href="{% url work transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+			Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|intcomma }}.  If you have not already done so, download your ebook at <a href="{% url download transaction.campaign.work.id %}">the book's download page.</a>
+{% endblock %}
+
+{% block comments_textual %}
+		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be eventually be released to the world in an unglued ebook edition. Thanks to your purchase, the ungluing date advanced {{ transaction.offer.days_per_copy|floatformat }} days to {{ transaction.campaign.cc_date }}.</p>
+		<p>This ebook is licensed to you personally, and your personal license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.</p>
+		<p>For more information about the book, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">book's unglue.it page</a>.
+		</p>
+		<p>Thank you again for your support.
+		</p>
+		<p>{{ transaction.campaign.rightsholder }} and the Unglue.it team
+		</p>
+{% endblock %}
