@@ -1,0 +1,71 @@
+import requests
+from django.conf import settings
+from urllib import quote
+from functools import partial
+from xml.etree import ElementTree
+
+
+from . exceptions import BooXtreamError
+
+
+class BooXtream(object):
+    """ ``apikey``
+
+          The API key for your BooXtream account, obtained from BooXtream. Defaults to using 
+          settings.BOOXTREAM_API_KEY
+
+        ``apiuser``
+
+          The username key for your BooXtream account, obtained from BooXtream. Defaults to using 
+          settings.BOOXTREAM_API_USER
+          
+        ``params``
+
+          Any extra keyword arguments supplied on initialization will be made
+          available in a dict via this attribute. Only include parameters that
+          should be used on each and every API call. 
+          
+        ``timeout``
+        
+        passed to requests
+    """
+    def __init__(self,
+                 apikey='', apiuser='',
+                 timeout=None,
+                 **params):
+        if not apikey:
+            apikey = settings.BOOXTREAM_API_KEY
+        if not apiuser:
+            apiuser = settings.BOOXTREAM_API_USER
+        self.params = params
+        self.endpoint = 'http://service.booxtream.com/'
+        self.postrequest = partial(requests.post, timeout=timeout, auth=(apiuser,apikey))
+        
+
+    def platform(self,  epubfile=None, epub=True, kf8mobi=False,  **kwargs):
+        """ Make an API request to BooXtream 
+        ``self.apikey``, ``self.params``, ``epubfile`` and the supplied ``kwargs``.
+        Attempts to deserialize the XML response and return the download link.
+
+        Will raise ``BooXtreamError`` if BooXtream returns an exception
+        code.
+        """
+        url = self.endpoint + 'booxtream.xml' 
+        kwargs['epub'] =  '1' if epub else '0'
+        kwargs['kf8mobi'] = '1' if kf8mobi else '0'
+        
+        files= {'epubfile': epubfile} if epubfile else {}
+        resp = self.postrequest(url, data=kwargs, files=files)
+        doc = ElementTree.fromstring(resp.content)
+        errors = doc.findall('.//Error')
+        if len(errors) > 0:
+            raise BooXtreamError(errors)
+        download_link_epub = doc.find('.//DownloadLink[@type="epub"]')
+        if download_link_epub is not None:
+            download_link_epub = download_link_epub.text  
+        download_link_mobi = doc.find('.//DownloadLink[@type="mobi"]')
+        if download_link_mobi is not None:
+            download_link_mobi = download_link_mobi.text 
+      
+        return (download_link_epub, download_link_mobi)
+

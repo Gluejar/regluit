@@ -148,6 +148,7 @@ INSTALLED_APPS = (
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
+    'booxtream',
                             
 )
 
@@ -407,3 +408,6 @@ MARC_CHOICES = (
     ('UNGLUE', 'Unglue.it link'),
 )
 
+BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
+BOOXTREAM_API_USER = 'ungluetest'
+BOOXTREAM_TEST_EPUB = STATIC_ROOT+'/test/134221.0.epub'
