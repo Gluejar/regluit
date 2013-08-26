@@ -6,6 +6,7 @@ from xml.etree import ElementTree
 
 
 from . exceptions import BooXtreamError
+from . models import Boox
 
 
 class BooXtream(object):
@@ -66,6 +67,12 @@ class BooXtream(object):
         download_link_mobi = doc.find('.//DownloadLink[@type="mobi"]')
         if download_link_mobi is not None:
             download_link_mobi = download_link_mobi.text 
-      
-        return (download_link_epub, download_link_mobi)
+        boox = Boox.objects.create(
+                download_link_epub=download_link_epub, 
+                download_link_mobi=download_link_mobi, 
+                referenceid= kwargs.get('referenceid'),
+                downloads_remaining= kwargs.get('downloadlimit'),
+                expirydays=kwargs.get('expirydays'),
+            )
+        return boox
 

@@ -32,6 +32,7 @@ class TestBooXtream(unittest.TestCase):
             }
         params['referenceid']= 'order'+str(time.time())
         epubfile= open(settings.BOOXTREAM_TEST_EPUB)
-        (epub_url,mobi_url)=inst.platform(epubfile=epubfile, **params)
-        print epub_url
-        self.assertRegexpMatches(epub_url,'download.booxtream.com/')
+        boox=inst.platform(epubfile=epubfile, **params)
+        self.assertRegexpMatches(boox.download_link_epub,'download.booxtream.com/')
+        self.assertFalse(boox.expired)
+        self.assertEqual(boox.downloads_remaining,3)
