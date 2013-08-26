@@ -226,7 +226,6 @@ class CCLicense():
             return ''
 
     
-(INDIVIDUAL, LIBRARY, BORROWED) = (1, 2, 3)
 class Offer(models.Model):
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
     work = models.ForeignKey("Work", related_name="offers", null=False)
