@@ -49,6 +49,9 @@ from regluit.payment.parameters import (
 )
 from regluit.core.parameters import *
 
+from regluit.booxtream import BooXtream 
+watermarker = BooXtream()
+
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
 logger = logging.getLogger(__name__)
@@ -243,13 +246,32 @@ class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
     """
-    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'))
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'))
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
     work = models.ForeignKey("Work", related_name='acqs', null=False)
     user = models.ForeignKey(User, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
+    watermarked = models.ForeignKey("booxtream.Boox",  null=True)
+
+    def get_epub_url(self):
+        if self.watermarked == None or self.watermarked.expired:
+            params={
+                'customeremailaddress': self.user.email,
+                'customername': self.user.username,
+                'languagecode':'1043',
+                'expirydays': 1,
+                'downloadlimit': 7,
+                'exlibris':1,
+                'chapterfooter':1,
+                'disclaimer':1,
+                'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id),
+                }
+            print params['referenceid']
+            self.watermarked = watermarker.platform(epubfile= self.work.ebookfiles()[0].file, **params)
+            self.save()
+        return self.watermarked.download_link_epub
 
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
@@ -869,7 +891,7 @@ class Work(models.Model):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
 
     def ebookfiles(self):
-        return EbookFile.objects.filter(edition__work=self).order_by('format')
+        return EbookFile.objects.filter(edition__work=self).order_by('-created')
     
     @property
     def download_count(self):
@@ -985,7 +1007,7 @@ class Work(models.Model):
     def purchased_by(self,user):
         if user==None or not user.is_authenticated():
             return False
-        acqs= Acq.objects.filter(user=user,work=self)
+        acqs= self.acqs.filter(user=user)
         if acqs.count()==0:
             return False
         for acq in acqs:

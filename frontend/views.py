@@ -134,6 +134,7 @@ from regluit.payment.parameters import (
 )
 
 from regluit.utils.localdatetime import now, date_today
+from regluit.booxtream.exceptions import BooXtreamError
 
 logger = logging.getLogger(__name__)
 
@@ -424,6 +425,7 @@ def work(request, work_id, action='display'):
     })    
 
 def edition_uploads(request, edition_id):
+    context = {}
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
     try:
@@ -437,13 +439,22 @@ def edition_uploads(request, edition_id):
         form = EbookFileForm(request.POST,request.FILES)
         if form.is_valid() :
             form.save()
-            
-    else:
-        form = EbookFileForm(initial={'edition':edition})
-    return render(request, 'edition_uploads.html', {
+            context['uploaded']=True
+            # campaign mangager gets a copy
+            test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
+            try:
+                test_acq.get_epub_url()
+                context['watermarked']= test_acg.watermarked
+            except BooXtreamError,e:
+                context['upload_error']= e
+                form.instance.delete()
+
+    form = EbookFileForm(initial={'edition':edition,'format':'epub'})
+    context.update({
             'form': form, 'edition': edition, 
             'ebook_files': models.EbookFile.objects.filter(edition = edition)
         })
+    return render(request, 'edition_uploads.html', context )
 
 
 def new_edition(request, work_id, edition_id, by=None):
