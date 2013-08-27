@@ -711,6 +711,9 @@ class Processor(baseprocessor.Processor):
         def __init__(self, transaction=None):
             self.transaction = transaction
             
+            # make sure transaction hasn't already been executed
+            if transaction.status == TRANSACTION_STATUS_COMPLETE:
+                return
             # make sure we are dealing with a stripe transaction
             if transaction.host <> PAYMENT_HOST_STRIPE:
                 raise StripeLibError("transaction.host {0} is not the expected {1}".format(transaction.host, PAYMENT_HOST_STRIPE))

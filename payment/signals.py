@@ -7,7 +7,7 @@ transaction_failed = Signal(providing_args=["transaction"])
 transaction_refunded = Signal(providing_args=["transaction"])
 transaction_disputed = Signal(providing_args=["transaction"])
 
-pledge_created = Signal(providing_args=["transaction"])
+pledge_created = Signal(providing_args=["transaction"]) # should really be called "authorization created
 pledge_modified = Signal(providing_args=["transaction", "up_or_down"])
 credit_balance_added = Signal(providing_args=["amount"])
 

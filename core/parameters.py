@@ -1,0 +1,1 @@
+(REWARDS, BUY2UNGLUE) = (1, 2)
