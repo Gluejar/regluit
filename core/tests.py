@@ -49,7 +49,10 @@ from regluit.core.models import (
     Subject,
     Publisher,
     Offer,
+    EbookFile,
+    Acq,
 )
+from regluit.core.parameters import *
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -812,4 +815,21 @@ class MailingListTests(TestCase):
         self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
         self.assertTrue(self.user.profile.on_ml)
 
+class EbookFileTests(TestCase):
+
+    def test_ebookfile(self):
+        w = Work.objects.create(title="Work 1")
+        e = Edition.objects.create(title=w.title,work=w)
+        u = User.objects.create_user('test', 'test@example.org', 'testpass')
+        test_file = open(settings.BOOXTREAM_TEST_EPUB)
+        from django.core.files import File as DjangoFile
+        dj_file = DjangoFile(test_file)
+        ebf = EbookFile( format='epub', edition=e, file=dj_file)
+        ebf.save()
+        
+        acq=Acq.objects.create(user=u,work=w,license=TESTING)
+        url= acq.get_epub_url()
+        self.assertRegexpMatches(url,'download.booxtream.com/')
+
+        
         

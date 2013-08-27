@@ -267,8 +267,9 @@ class Acq(models.Model):
                 'chapterfooter':1,
                 'disclaimer':1,
                 'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id),
+                'kf8mobi': True,
+                'epub': True,
                 }
-            print params['referenceid']
             self.watermarked = watermarker.platform(epubfile= self.work.ebookfiles()[0].file, **params)
             self.save()
         return self.watermarked.download_link_epub
