@@ -20,11 +20,6 @@ class BooXtream(object):
           The username key for your BooXtream account, obtained from BooXtream. Defaults to using 
           settings.BOOXTREAM_API_USER
           
-        ``params``
-
-          Any extra keyword arguments supplied on initialization will be made
-          available in a dict via this attribute. Only include parameters that
-          should be used on each and every API call. 
           
         ``timeout``
         
@@ -38,14 +33,13 @@ class BooXtream(object):
             apikey = settings.BOOXTREAM_API_KEY
         if not apiuser:
             apiuser = settings.BOOXTREAM_API_USER
-        self.params = params
         self.endpoint = 'http://service.booxtream.com/'
         self.postrequest = partial(requests.post, timeout=timeout, auth=(apiuser,apikey))
         
 
     def platform(self,  epubfile=None, epub=True, kf8mobi=False,  **kwargs):
         """ Make an API request to BooXtream 
-        ``self.apikey``, ``self.params``, ``epubfile`` and the supplied ``kwargs``.
+        ``self.apikey``, ``epubfile`` and the supplied ``kwargs``.
         Attempts to deserialize the XML response and return the download link.
 
         Will raise ``BooXtreamError`` if BooXtream returns an exception
@@ -58,7 +52,9 @@ class BooXtream(object):
         files= {'epubfile': epubfile} if epubfile else {}
         resp = self.postrequest(url, data=kwargs, files=files)
         doc = ElementTree.fromstring(resp.content)
-        errors = doc.findall('.//Error')
+
+        # it turns out an Error can have an Error in it
+        errors = doc.findall('.//Response/Error') 
         if len(errors) > 0:
             raise BooXtreamError(errors)
         download_link_epub = doc.find('.//DownloadLink[@type="epub"]')
