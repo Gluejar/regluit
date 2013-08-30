@@ -134,6 +134,7 @@ from regluit.payment.parameters import (
 )
 
 from regluit.utils.localdatetime import now, date_today
+from regluit.booxtream.exceptions import BooXtreamError
 
 logger = logging.getLogger(__name__)
 
@@ -424,6 +425,7 @@ def work(request, work_id, action='display'):
     })    
 
 def edition_uploads(request, edition_id):
+    context = {}
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
     try:
@@ -437,13 +439,22 @@ def edition_uploads(request, edition_id):
         form = EbookFileForm(request.POST,request.FILES)
         if form.is_valid() :
             form.save()
-            
-    else:
-        form = EbookFileForm(initial={'edition':edition})
-    return render(request, 'edition_uploads.html', {
+            context['uploaded']=True
+            # campaign mangager gets a copy
+            test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
+            try:
+                test_acq.get_epub_url()
+                context['watermarked']= test_acq.watermarked
+            except (BooXtreamError, ET.ParseError) as e:
+                context['upload_error']= e
+                form.instance.delete()
+
+    form = EbookFileForm(initial={'edition':edition,'format':'epub'})
+    context.update({
             'form': form, 'edition': edition, 
             'ebook_files': models.EbookFile.objects.filter(edition = edition)
         })
+    return render(request, 'edition_uploads.html', context )
 
 
 def new_edition(request, work_id, edition_id, by=None):
@@ -1091,6 +1102,7 @@ class PurchaseView(PledgeView):
     template_name="purchase.html"
     form_class = CampaignPurchaseForm
     action = "purchase"
+    offer_id = None
 
     def get_context_data(self, **kwargs):
         context = super(PledgeView, self).get_context_data(**kwargs)
@@ -1100,7 +1112,8 @@ class PurchaseView(PledgeView):
                 'faqmenu': 'purchase' , 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
-                'cover_width': cover_width(self.work)
+                'cover_width': cover_width(self.work),
+                'offer_id':self.offer_id,
            })
             
         return context
@@ -1117,10 +1130,9 @@ class PurchaseView(PledgeView):
         except Exception, e:
             # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
             return {}
-        
         self.data = {
             'preapproval_amount':self.get_preapproval_amount(),
-            'anonymous':self.request.user.profile.anon_pref
+            'anonymous':self.request.user.profile.anon_pref,
             }
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
@@ -1131,11 +1143,13 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
-        offer_id = self.request.REQUEST.get('offer_id', None)
+        self.offer_id = self.request.REQUEST.get('offer_id', None)
+        if not self.offer_id:
+            self.offer_id = self.work.last_campaign().active_offers()[0].id
         preapproval_amount = None
-        if offer_id != None:
+        if self.offer_id != None:
             try:
-                preapproval_amount = D(models.Offer.objects.get(id=offer_id).price)
+                preapproval_amount = D(models.Offer.objects.get(id=self.offer_id).price)
             except:
                 preapproval_amount = None
         return preapproval_amount

@@ -55,6 +55,7 @@ from regluit.core.lookups import (
     EditionLookup
 )
 from regluit.utils.localdatetime import now
+from regluit.utils.fields import EpubFileField
 
 logger = logging.getLogger(__name__)
 
@@ -135,10 +136,15 @@ class EditionForm(forms.ModelForm):
                 'add_subject': forms.TextInput(attrs={'size': 30}),
                 'unglued': forms.CheckboxInput(),
             }
+            
 class EbookFileForm(forms.ModelForm):
+    file = EpubFileField(max_length=16777216)
+    def clean_format(self):
+        return 'epub'
+    
     class Meta:
         model = EbookFile
-        widgets = { 'edition': forms.HiddenInput,  }
+        widgets = { 'edition': forms.HiddenInput, 'format': forms.HiddenInput }
         exclude = { 'created', }
 
 class EbookForm(forms.ModelForm):
