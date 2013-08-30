@@ -6,8 +6,11 @@ from decimal import Decimal as D
 from math import factorial
 from time import sleep, mktime
 from urlparse import parse_qs, urlparse
+from tempfile import NamedTemporaryFile
 from celery.task import chord
 from celery.task.sets import TaskSet
+import requests
+import os
 
 """
 django imports
@@ -17,6 +20,7 @@ from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
+from django.core.files import File as DjangoFile
 from django.db import IntegrityError
 from django.http import Http404
 from django.test import TestCase
@@ -52,7 +56,8 @@ from regluit.core.models import (
     EbookFile,
     Acq,
 )
-from regluit.core.parameters import *
+
+from regluit.core.parameters import TESTING
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -818,14 +823,33 @@ class MailingListTests(TestCase):
 class EbookFileTests(TestCase):
 
     def test_ebookfile(self):
+        """
+        Read the test epub file
+        """
         w = Work.objects.create(title="Work 1")
         e = Edition.objects.create(title=w.title,work=w)
         u = User.objects.create_user('test', 'test@example.org', 'testpass')
-        test_file = open(settings.BOOXTREAM_TEST_EPUB)
-        from django.core.files import File as DjangoFile
-        dj_file = DjangoFile(test_file)
-        ebf = EbookFile( format='epub', edition=e, file=dj_file)
-        ebf.save()
+        
+        # download the test epub into a temp file
+        temp = NamedTemporaryFile(delete=False)
+        test_file_content = requests.get(settings.BOOXTREAM_TEST_EPUB_URL).content
+        
+        temp.write(test_file_content)
+        temp.close()
+        
+        try:
+            # now we can try putting the test epub file into Django storage
+            temp_file = open(temp.name)
+                
+            dj_file = DjangoFile(temp_file)
+            ebf = EbookFile( format='epub', edition=e, file=dj_file)
+            ebf.save()
+                
+            temp_file.close()
+        finally:
+            # make sure we get rid of temp file
+            os.remove(temp.name)
+            
         
         acq=Acq.objects.create(user=u,work=w,license=TESTING)
         url= acq.get_epub_url()

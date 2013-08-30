@@ -47,7 +47,16 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_FAILED,
     TRANSACTION_STATUS_INCOMPLETE
 )
-from regluit.core.parameters import *
+
+from regluit.core.parameters import (
+    REWARDS,
+    BUY2UNGLUE,
+    INDIVIDUAL,
+    LIBRARY,
+    BORROWED,
+    TESTING
+)
+    
 
 from regluit.booxtream import BooXtream 
 watermarker = BooXtream()
