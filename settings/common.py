@@ -148,7 +148,7 @@ INSTALLED_APPS = (
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
-    'booxtream',
+    'regluit.booxtream',
                             
 )
 
