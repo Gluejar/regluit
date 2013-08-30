@@ -121,5 +121,7 @@ def notify_ending_soon():
             """
             deadline_impending.send(sender=None, campaign=c)
 
-
+@task
+def watermark_acq(acq):
+    acq.get_epub_url()
     

@@ -54,10 +54,11 @@
                 </div>
             </div>
             <div class="find-book">
-                <label>Available formats...</label>
-                {% for ebookfile in work.ebookfiles %}
-                <span class="format_display"><img src="/static/images/{{ ebookfile.format }}32.png" height="32" alt="{{ ebookfile.get_format_display }}" title="{{ ebookfile.get_format_display }}" /></span>
-                {% endfor %}
+                <h4>Available formats...</h4>
+                <ul>
+                <li><span class="format_display"><img src="/static/images/mobi32.png" height="32" alt="mobi" title="mobi" /> (for Kindle) </span></li>
+                <li><span class="format_display"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /> (for iBooks, Readmill, Nook, Kobo) </span></li>
+                </ul>
             </div>
         </div>
     </div>
