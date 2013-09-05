@@ -465,13 +465,7 @@ def new_edition(request, work_id, edition_id, by=None):
     description=''
     title=''
     if work_id:
-        try:
-            work = models.Work.objects.get(id = work_id)
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = work_id).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
+        work = safe_get_work(work_id)
         language=work.language
         description=work.description
         title=work.title
@@ -885,7 +879,7 @@ class CampaignListView(FilterableListView):
 def split_work(request,work_id):
     if not request.user.is_staff:
         return render(request, "admins_only.html")
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
     
     if request.method == "POST":
@@ -919,7 +913,7 @@ class MergeView(FormView):
             return OtherWorkForm
                     
     def get_form_kwargs(self):
-        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        self.work = safe_get_work(self.kwargs["work_id"])
         form_kwargs= {'work':self.work}
         if self.request.method == 'POST':
             form_kwargs.update({'data':self.request.POST})
@@ -999,7 +993,7 @@ class PledgeView(FormView):
     def get_form_kwargs(self):
         
         assert self.request.user.is_authenticated()
-        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        self.work = safe_get_work(self.kwargs["work_id"])
         
         # if there is no campaign or if campaign is not active, we should raise an error
         try:
@@ -1120,7 +1114,7 @@ class PurchaseView(PledgeView):
 
     def get_form_kwargs(self):
         assert self.request.user.is_authenticated()
-        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        self.work = safe_get_work(self.kwargs["work_id"])
         
         # if there is no campaign or if campaign is not active, we should raise an error
         try:
@@ -1356,7 +1350,7 @@ class PledgeRechargeView(TemplateView):
         assert self.request.user.is_authenticated()
         user = self.request.user
         
-        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        work = safe_get_work(self.kwargs["work_id"])
         campaign = work.last_campaign()
         
         if campaign is None:
@@ -1990,25 +1984,12 @@ def wishlist(request):
             return HttpResponse('error adding googlebooks id')
         # TODO: redirect to work page, when it exists
     elif remove_work_id:
-        try:
-            work = models.Work.objects.get(id=int(remove_work_id))
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = work_id).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
+        work = safe_get_work(int(remove_work_id))
         request.user.wishlist.remove_work(work)
         return HttpResponse('removed work from wishlist')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
-        try:
-            work = models.Work.objects.get(pk=add_work_id)
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = work_id).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
-
+        work =safe_get_work(add_work_id)
         request.user.wishlist.add_work(work,'user', notify=True)
         return HttpResponse('added work to wishlist')
   
@@ -2357,7 +2338,7 @@ def celery_test(request):
 # routing based on ISBN or search
 
 def work_librarything(request, work_id):
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     isbn = work.first_isbn_13()
     if work.librarything_id:
         url = work.librarything_url
@@ -2371,7 +2352,7 @@ def work_librarything(request, work_id):
     return HttpResponseRedirect(url)
 
 def work_openlibrary(request, work_id):
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     isbns = ["ISBN:" + i.value for i in work.identifiers.filter(type='isbn')]
     url = None
 
@@ -2396,7 +2377,7 @@ def work_openlibrary(request, work_id):
     return HttpResponseRedirect(url)
 
 def work_goodreads(request, work_id):
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     isbn = work.first_isbn_13()
     if work.goodreads_id:
         url = work.goodreads_url
