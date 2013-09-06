@@ -2550,7 +2550,7 @@ def download(request, work_id):
     acq=None
     formats = {}  # a dict of format name and url
     for ebook in work.ebooks().all():
-        formats[ebook.format] = reverse('download_ebook', ebook.id )
+        formats[ebook.format] = reverse('download_ebook', args=[ebook.id] )
     
     if request.user.is_authenticated(): 
         all_acqs=request.user.acqs.filter(work=work).order_by('-created')
