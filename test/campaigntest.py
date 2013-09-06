@@ -162,7 +162,7 @@ def recipient_status(clist):
 
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
-def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='chrome'):
+def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='firefox'):
     django.db.transaction.enter_transaction_management()
 
     UNGLUE_IT_URL = unglue_it_url
