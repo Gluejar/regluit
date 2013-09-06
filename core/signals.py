@@ -188,7 +188,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         transaction.campaign.update_left()
         notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
         from regluit.core.tasks import watermark_acq
-        watermark_acq(new_acq).delay()
+        watermark_acq.delay(new_acq)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 

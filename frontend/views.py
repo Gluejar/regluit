@@ -75,7 +75,7 @@ from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
-from regluit.core.tasks import send_mail_task, emit_notifications
+from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
 from regluit.core.parameters import *
 
 from regluit.frontend.forms import (
@@ -443,7 +443,7 @@ def edition_uploads(request, edition_id):
             # campaign mangager gets a copy
             test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
             try:
-                test_acq.get_epub_url()
+                test_acq.get_watermarked()
                 context['watermarked']= test_acq.watermarked
             except (BooXtreamError, ET.ParseError) as e:
                 context['upload_error']= e
@@ -465,13 +465,7 @@ def new_edition(request, work_id, edition_id, by=None):
     description=''
     title=''
     if work_id:
-        try:
-            work = models.Work.objects.get(id = work_id)
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = work_id).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
+        work = safe_get_work(work_id)
         language=work.language
         description=work.description
         title=work.title
@@ -690,12 +684,6 @@ def googlebooks(request, googlebooks_id):
 
     return HttpResponseRedirect(work_url)
 
-def download_ebook(request, ebook_id):
-    ebook = get_object_or_404(models.Ebook,id=ebook_id)
-    ebook.increment()
-    logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
-    return HttpResponseRedirect(ebook.url)
-
 def subjects(request):
     order = request.GET.get('order')
     subjects = models.Subject.objects.all()
@@ -885,7 +873,7 @@ class CampaignListView(FilterableListView):
 def split_work(request,work_id):
     if not request.user.is_staff:
         return render(request, "admins_only.html")
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
     
     if request.method == "POST":
@@ -919,7 +907,7 @@ class MergeView(FormView):
             return OtherWorkForm
                     
     def get_form_kwargs(self):
-        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        self.work = safe_get_work(self.kwargs["work_id"])
         form_kwargs= {'work':self.work}
         if self.request.method == 'POST':
             form_kwargs.update({'data':self.request.POST})
@@ -999,7 +987,7 @@ class PledgeView(FormView):
     def get_form_kwargs(self):
         
         assert self.request.user.is_authenticated()
-        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        self.work = safe_get_work(self.kwargs["work_id"])
         
         # if there is no campaign or if campaign is not active, we should raise an error
         try:
@@ -1120,7 +1108,7 @@ class PurchaseView(PledgeView):
 
     def get_form_kwargs(self):
         assert self.request.user.is_authenticated()
-        self.work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        self.work = safe_get_work(self.kwargs["work_id"])
         
         # if there is no campaign or if campaign is not active, we should raise an error
         try:
@@ -1356,7 +1344,7 @@ class PledgeRechargeView(TemplateView):
         assert self.request.user.is_authenticated()
         user = self.request.user
         
-        work = get_object_or_404(models.Work, id=self.kwargs["work_id"])
+        work = safe_get_work(self.kwargs["work_id"])
         campaign = work.last_campaign()
         
         if campaign is None:
@@ -1990,25 +1978,12 @@ def wishlist(request):
             return HttpResponse('error adding googlebooks id')
         # TODO: redirect to work page, when it exists
     elif remove_work_id:
-        try:
-            work = models.Work.objects.get(id=int(remove_work_id))
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = work_id).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
+        work = safe_get_work(int(remove_work_id))
         request.user.wishlist.remove_work(work)
         return HttpResponse('removed work from wishlist')
     elif add_work_id:
         # if adding from work page, we have may work.id, not googlebooks_id
-        try:
-            work = models.Work.objects.get(pk=add_work_id)
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = work_id).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
-
+        work =safe_get_work(add_work_id)
         request.user.wishlist.add_work(work,'user', notify=True)
         return HttpResponse('added work to wishlist')
   
@@ -2357,7 +2332,7 @@ def celery_test(request):
 # routing based on ISBN or search
 
 def work_librarything(request, work_id):
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     isbn = work.first_isbn_13()
     if work.librarything_id:
         url = work.librarything_url
@@ -2371,7 +2346,7 @@ def work_librarything(request, work_id):
     return HttpResponseRedirect(url)
 
 def work_openlibrary(request, work_id):
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     isbns = ["ISBN:" + i.value for i in work.identifiers.filter(type='isbn')]
     url = None
 
@@ -2396,7 +2371,7 @@ def work_openlibrary(request, work_id):
     return HttpResponseRedirect(url)
 
 def work_goodreads(request, work_id):
-    work = get_object_or_404(models.Work, id=work_id)
+    work = safe_get_work(work_id)
     isbn = work.first_isbn_13()
     if work.goodreads_id:
         url = work.goodreads_url
@@ -2571,28 +2546,49 @@ def download(request, work_id):
 
     unglued_ebooks = work.ebooks().filter(edition__unglued=True)
     other_ebooks = work.ebooks().filter(edition__unglued=False)
-    formats = {}
-            
+    
+    acq=None
+    formats = {}  # a dict of format name and url
     for ebook in work.ebooks().all():
-        formats[ebook.format] = ebook
+        formats[ebook.format] = reverse('download_ebook', args=[ebook.id] )
     
-    # google ebooks have a captcha which breaks some of our services
-    non_google_ebooks = work.ebooks().exclude(provider='Google Books')
-     
-    try:
-        kindle_ebook_id = non_google_ebooks.filter(format='mobi')[0].id
-    except IndexError:
+    if request.user.is_authenticated(): 
+        all_acqs=request.user.acqs.filter(work=work).order_by('-created')
+        for an_acq in all_acqs:
+            if not an_acq.expired:
+                # prepare this acq for download
+                if not an_acq.watermarked or an_acq.watermarked.expired:
+                    watermark_acq.delay(an_acq)
+                acq = an_acq
+                formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
+                formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
+                readmill_epub_url = settings.BASE_URL_SECURE + formats['epub']
+                can_kindle = True
+                break
+            
+    
+    if not acq:
+        # google ebooks have a captcha which breaks some of our services
+        non_google_ebooks = work.ebooks().exclude(provider='Google Books')
+        
+        #send to kindle 
+        
         try:
-            kindle_ebook_id = non_google_ebooks.filter(format='pdf')[0].id
+            non_google_ebooks.filter(format='mobi')[0]
+            can_kindle = True
         except IndexError:
-            kindle_ebook_id = None
-    
-    try:
-        readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
-        #readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
-        readmill_epub_url = readmill_epub_ebook.url
-    except:
-        readmill_epub_url = None
+            try:
+                non_google_ebooks.filter(format='pdf')[0]
+                can_kindle = True
+            except IndexError:
+                can_kindle = False
+        # configure the readmillurl
+        try:
+            readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
+            readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+            #readmill_epub_url = readmill_epub_ebook.url
+        except:
+            readmill_epub_url = None
     agent = request.META.get('HTTP_USER_AGENT','')   
     iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
     iOS_app = iOS and not 'Safari' in agent
@@ -2602,21 +2598,35 @@ def download(request, work_id):
         'unglued_ebooks': unglued_ebooks,
         'other_ebooks': other_ebooks,
         'formats': formats,
-        'kindle_ebook_id': kindle_ebook_id,
         'readmill_epub_url': readmill_epub_url,
+        'can_kindle': can_kindle,
         'base_url': settings.BASE_URL_SECURE,
         'iOS': iOS,
         'iOS_app': iOS_app,
         'android': android,
-        'desktop': desktop
+        'desktop': desktop,
+        'acq':acq,
     })
 
     return render(request, "download.html", context)
     
+def download_ebook(request, ebook_id):
+    ebook = get_object_or_404(models.Ebook,id=ebook_id)
+    ebook.increment()
+    logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
+    return HttpResponseRedirect(ebook.url)
+
 def download_purchased(request, work_id):
     if request.user.is_anonymous:
         HttpResponseRedirect('/accounts/login/download/')
     return download(request, work_id)
+
+def download_acq(request, nonce, format):
+    acq = get_object_or_404(models.Acq,nonce=nonce)
+    if format == 'epub':
+        return HttpResponseRedirect( acq.get_epub_url() )
+    else:
+        return HttpResponseRedirect( acq.get_mobi_url() )
     
 def about(request, facet):
     template = "about_" + facet + ".html"
@@ -2671,19 +2681,8 @@ def press_submitterator(request):
         })
 
 @login_required
-def kindle_config(request, kindle_ebook_id=None):
-    def get_title_from_kindle_id(kindle_ebook_id):
-        # protect against user URL manipulation
-        work = None
-        if kindle_ebook_id:
-            try:
-                ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
-                work = ebook.edition.work
-            except:
-                kindle_ebook_id = None
-        return work, kindle_ebook_id
-
-    (work, kindle_ebook_id) = get_title_from_kindle_id(kindle_ebook_id)
+def kindle_config(request, work_id=None):
+    work = safe_get_work(work_id)
     template = "kindle_config.html"
     if request.method == 'POST':
         form = KindleEmailForm(request.POST)
@@ -2693,15 +2692,12 @@ def kindle_config(request, kindle_ebook_id=None):
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
-    return render(
-        request,
-        template, 
-        {'form': form, 'kindle_ebook_id': kindle_ebook_id, 'work': work}
-    )
+    return render(request, template, {'form': form, 'work': work})
 
 @require_POST
 @csrf_exempt
-def send_to_kindle(request, kindle_ebook_id, javascript='0'):
+def send_to_kindle(request, work_id, javascript='0'):
+
     # make sure to gracefully communicate with both js and non-js (kindle!) users
     def local_response(request, javascript, message):
         if javascript == '1':
@@ -2710,8 +2706,36 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
             # can't pass context with HttpResponseRedirect
             # must use an HttpResponse, not a render(), after POST
             return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
+    
+    work=safe_get_work(work_id)
+    acq = None
+    if request.user.is_authenticated():
+        try:
+            acq = request.user.acqs.filter(work=work).order_by('-created')[0]
+        except IndexError:
+            acq = None
+    
+    if acq:
+        eboook_url = acq.get_mobi_url()
+        ebook_format = 'mobi'
+        title = acq.work.title
+    else:
+        non_google_ebooks = work.ebooks().exclude(provider='Google Books')
+        try:
+            ebook = non_google_ebooks.filter(format='mobi')[0]
+        except IndexError:
+            try:
+                ebook = non_google_ebooks.filter(format='pdf')[0]
+            except IndexError:
+                raise Http404
 
-    ebook = models.Ebook.objects.get(pk=kindle_ebook_id)
+        # don't forget to increment the download counter!
+        ebook.increment()
+        eboook_url = ebook.url
+        ebook_format = ebook.format
+        logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
+        title = ebook.edition.title
+    title = title.replace(' ', '_')
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']
@@ -2723,13 +2747,7 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     elif request.user.is_authenticated():
         kindle_email = request.user.profile.kindle_email     
             
-    # don't forget to increment the download counter!
-    assert ebook.format == 'mobi' or ebook.format == 'pdf'
-    ebook.increment()
-    logger.info('ebook: {0}, user_ip: {1}'.format(kindle_ebook_id, request.META['REMOTE_ADDR']))
 
-    title = ebook.edition.title
-    title = title.replace(' ', '_')
     
     """
     TO FIX rigorously:
@@ -2744,16 +2762,16 @@ def send_to_kindle(request, kindle_ebook_id, javascript='0'):
     * mime encoding will add 33% to filesize
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
-    filehandle = urllib.urlopen(ebook.url)
+    filehandle = urllib.urlopen(ebook_url)
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
     if filesize > 7492232:
-        logger.info('ebook %s is too large to be emailed' % kindle_ebook_id)
+        logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript, 0)
         
     try:
         email = EmailMessage(from_email='notices@gluejar.com',
                 to=[kindle_email])
-        email.attach(title + '.' + ebook.format, filehandle.read())
+        email.attach(title + '.' + ebook_format, filehandle.read())
         email.send()
     except:
         logger.warning('Unexpected error: %s', sys.exc_info())

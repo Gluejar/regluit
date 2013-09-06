@@ -23,6 +23,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import F, Q, get_model
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
 
 '''
@@ -263,8 +264,22 @@ class Acq(models.Model):
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
     watermarked = models.ForeignKey("booxtream.Boox",  null=True)
+    nonce = models.CharField(max_length=32, null=True)
 
+    @property
+    def expired(self):
+        if self.expires is None:
+            return False
+        else: 
+            return self.expires < datetime.now()
+            
+    def get_mobi_url(self):
+        return self.get_watermarked().download_link_mobi
+        
     def get_epub_url(self):
+        return self.get_watermarked().download_link_epub
+        
+    def get_watermarked(self):
         if self.watermarked == None or self.watermarked.expired:
             params={
                 'customeremailaddress': self.user.email,
@@ -281,7 +296,17 @@ class Acq(models.Model):
                 }
             self.watermarked = watermarker.platform(epubfile= self.work.ebookfiles()[0].file, **params)
             self.save()
-        return self.watermarked.download_link_epub
+        return self.watermarked
+        
+    def _hash(self):
+        return hashlib.md5('%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
+
+def add_acq_nonce(sender, instance, created,  **kwargs):
+    if created:
+        instance.nonce=instance._hash()
+        instance.save()
+
+post_save.connect(add_acq_nonce,sender=Acq)
 
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
