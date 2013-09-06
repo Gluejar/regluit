@@ -76,7 +76,7 @@ $j(document).ready(function() {
                 </form>
             </div>
             <div id="pledge_area">    	
-                <a class="fakeinput" id="pledge_option">Pledge</a>
+                <a class="fakeinput" id="pledge_option">{{ action|capfirst  }}</a>
             </div>
         </div>
         
@@ -112,7 +112,7 @@ $j(document).ready(function() {
                     {% csrf_token %}
                     {{ form.non_field_errors }}
                     {{ form.as_p }}	
-                    <input id="use_account_submit" name="use_account" type="submit" class="submit-button loader-gif" value="Complete Pledge" /> 
+                    <input id="use_account_submit" name="use_account" type="submit" class="submit-button loader-gif" value="Complete {{ action|capfirst  }}" /> 
                 </div>           
             </form>
         </div>
