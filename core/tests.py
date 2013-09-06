@@ -828,7 +828,9 @@ class EbookFileTests(TestCase):
         ebf.save()
         
         acq=Acq.objects.create(user=u,work=w,license=TESTING)
-        url= acq.get_epub_url()
+        self.assertIsNot(acq.nonce, None)
+
+        url= acq.get_watermarked().download_link_epub
         self.assertRegexpMatches(url,'download.booxtream.com/')
 
         

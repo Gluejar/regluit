@@ -9,9 +9,9 @@
     var $j = jQuery.noConflict();
     
     $j(document).ready(function() {
-        var kindle_ebook_id = {{ kindle_ebook_id }};
-        if(kindle_ebook_id) {
-            $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
+        var work_id = {{ work.id }};
+        if(work_id) {
+            $j.post('/send_to_kindle/' + work_id + '/1/', function(data) {
                 $j('#replace_me').html(data);
                 return false;
             });
@@ -24,7 +24,7 @@
     <h2>Kindle email change successful</h2>
     <div id="content-main">
         <p>Hooray!  We can now send unglued ebooks to you at {{ request.user.profile.kindle_email }}.</p>
-        {% if kindle_ebook_id %}
+        {% if work %}
             <p>
                 We're emailing you the ebook you wanted, <i><a href="{% url work work.id %}">{{ work.title }}</a></i>...
             </p>

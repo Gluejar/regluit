@@ -123,5 +123,5 @@ def notify_ending_soon():
 
 @task
 def watermark_acq(acq):
-    acq.get_epub_url()
+    acq.get_watermarked()
     
