@@ -8,9 +8,9 @@
     var $j = jQuery.noConflict();
     
     $j(document).ready(function() {
-        var kindle_ebook_id = {{ kindle_ebook_id }};
-        if(kindle_ebook_id) {
-            $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
+        var work_id = {{ work.id }};
+        if(work_id) {
+            $j.post('/send_to_kindle/' + work_id + '/1/', function(data) {
                 $j('#replace_me').html(data);
                 return false;
             });
@@ -24,7 +24,7 @@
     <h2>Add or change your Kindle email</h2>
     <div id="content-main">
         {% if kindle_email %}
-            {% if kindle_ebook_id %}
+            {% if work %}
                 <p>
                     Welcome back, {{ user.username }}! We're sending <I><a href="{% url work work.id %}">{{ work.title }}</a></I> to {{ kindle_email }}.
                 </p>
@@ -45,8 +45,8 @@
             </p>
             <p>Then, enter your Kindle email address below:</p>
         {% endif %}
-        {% if kindle_ebook_id %}
-            <form method="post" action="{% url kindle_config_download kindle_ebook_id %}">{% csrf_token %}
+        {% if work %}
+            <form method="post" action="{% url kindle_config_download work.id %}">{% csrf_token %}
                 {{ form.as_p }}
                 <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
             </form>

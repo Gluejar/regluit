@@ -24,9 +24,9 @@ $j(document).on('click', '.other_instructions', function(e) {
 
 $j(document).on('click', '#kindle.authenticated', function() {
     var myDiv = $j(this);
-    kindle_ebook_id = myDiv.attr('title');
+    work_id = myDiv.attr('title');
     myDiv.html('<img src="/static/images/loading.gif">')
-    $j.post('/send_to_kindle/' + kindle_ebook_id + '/1/', function(data) {
+    $j.post('/send_to_kindle/' + work_id + '/1/', function(data) {
         myDiv.removeClass('btn_support');
         myDiv.html(data);
         myDiv.removeAttr('id');

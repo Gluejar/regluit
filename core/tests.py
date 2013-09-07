@@ -767,7 +767,7 @@ class DownloadPageTest(TestCase):
         
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
-        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=9) 
+        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=10) 
         self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=4)
 
 
@@ -852,7 +852,9 @@ class EbookFileTests(TestCase):
             
         
         acq=Acq.objects.create(user=u,work=w,license=TESTING)
-        url= acq.get_epub_url()
+        self.assertIsNot(acq.nonce, None)
+
+        url= acq.get_watermarked().download_link_epub
         self.assertRegexpMatches(url,'download.booxtream.com/')
 
         
