@@ -551,7 +551,7 @@ class CCForm(PlainCCForm):
         min_value=D('1.00'), 
         max_value=D('100000.00'), 
         decimal_places=2, 
-        label="Pledge",
+        label="Amount",
     )
 
 class DonateForm(forms.Form):

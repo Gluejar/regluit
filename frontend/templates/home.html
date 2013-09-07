@@ -167,7 +167,11 @@ function put_un_in_cookie2(){
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
-                                            pledged to the campaign to unglue <br />
+                                            {% ifequal object.type 2 %}
+                                            pledged to unglue 
+                                            {% else %}
+                                            bought a copy of 
+                                            {% endifequal %}<br />
                                             <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                     {% else %}{% ifequal event.2 "comment" %}
@@ -185,7 +189,7 @@ function put_un_in_cookie2(){
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url supporter object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
-                                            wishlisted <br />
+                                            added to list<br />
                                             <a class="user-book-name" href="{% url work object.work.id %}">{{ object.work.title }}</a>
                                         </span>                                    
                                     {% endifequal %}{% endifequal %}{% endifequal %}
