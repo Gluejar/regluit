@@ -2682,7 +2682,10 @@ def press_submitterator(request):
 
 @login_required
 def kindle_config(request, work_id=None):
-    work = safe_get_work(work_id)
+    if work_id:
+        work = safe_get_work(work_id)
+    else:
+        work = None
     template = "kindle_config.html"
     if request.method == 'POST':
         form = KindleEmailForm(request.POST)
