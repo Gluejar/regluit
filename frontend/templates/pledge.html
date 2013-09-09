@@ -69,6 +69,11 @@
 	<br /> You can modify your pledge below.
 	</div>
 	{% endif %}
+	{% ifnotequal work.last_campaign.status 'ACTIVE' %}	
+	<div class="clearfix"><h4>Campaign NOT ACTIVE</h4>
+		This pledge form is not functional because the campaign is NOT ACTIVE.<br /><br /><br />
+	</div>
+	{% endifnotequal %}
 
     	{% comment %}
     	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.

@@ -965,7 +965,7 @@ class PledgeView(FormView):
     campaign = None
     work = None
     premiums = None
-    data = None
+    data = {}
     
     def get_preapproval_amount(self):
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
@@ -1042,7 +1042,7 @@ class PledgeView(FormView):
                 'work':self.work,
                 'campaign':self.campaign, 
                 'premiums':self.premiums, 
-                'premium_id':self.data['premium_id'], 
+                'premium_id':self.data.get('premium_id',None), 
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
