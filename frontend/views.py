@@ -2682,7 +2682,10 @@ def press_submitterator(request):
 
 @login_required
 def kindle_config(request, work_id=None):
-    work = safe_get_work(work_id)
+    if work_id:
+        work = safe_get_work(work_id)
+    else:
+        work = None
     template = "kindle_config.html"
     if request.method == 'POST':
         form = KindleEmailForm(request.POST)
@@ -2716,7 +2719,7 @@ def send_to_kindle(request, work_id, javascript='0'):
             acq = None
     
     if acq:
-        eboook_url = acq.get_mobi_url()
+        ebook_url = acq.get_mobi_url()
         ebook_format = 'mobi'
         title = acq.work.title
     else:
@@ -2731,7 +2734,7 @@ def send_to_kindle(request, work_id, javascript='0'):
 
         # don't forget to increment the download counter!
         ebook.increment()
-        eboook_url = ebook.url
+        ebook_url = ebook.url
         ebook_format = ebook.format
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.title
