@@ -2562,7 +2562,7 @@ def download(request, work_id):
                 acq = an_acq
                 formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
                 formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
-                readmill_epub_url = settings.BASE_URL_SECURE + formats['epub']
+                readmill_epub_url = settings.BASE_URL + formats['epub']
                 can_kindle = True
                 break
             
@@ -2585,7 +2585,10 @@ def download(request, work_id):
         # configure the readmillurl
         try:
             readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
-            readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+            if readmill_epub_ebook.url.startswith('https'):
+                readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+            else:
+                readmill_epub_url = settings.BASE_URL + reverse('download_ebook',args=[readmill_epub_ebook.id])
             #readmill_epub_url = readmill_epub_ebook.url
         except:
             readmill_epub_url = None
