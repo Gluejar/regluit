@@ -31,6 +31,7 @@ regluit imports
 '''
 import regluit
 import regluit.core.isbn
+from regluit.core.epub import personalize
 
 from regluit.core.signals import (
     successful_campaign,
@@ -294,7 +295,16 @@ class Acq(models.Model):
                 'kf8mobi': True,
                 'epub': True,
                 }
-            self.watermarked = watermarker.platform(epubfile= self.work.ebookfiles()[0].file, **params)
+            personalized = personalize(self.work.ebookfiles()[0].file, self)
+            print personalized.mode
+            print personalized.info['spine']
+            print personalized.filename.__class__.__name__
+            personalized.filename.seek(0)
+            f=open('testfile.epub','w')
+            f.write(personalized.filename.read())
+            f.close()
+            personalized.filename.seek(0)
+            self.watermarked = watermarker.platform(epubfile= personalized.filename, **params)
             self.save()
         return self.watermarked
         

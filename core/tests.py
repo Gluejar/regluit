@@ -62,6 +62,7 @@ from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 from regluit.utils.localdatetime import now, date_today
+from regluit.pyepub import EPUB
 
 class BookLoaderTests(TestCase):
     def setUp(self):
@@ -850,12 +851,16 @@ class EbookFileTests(TestCase):
             # make sure we get rid of temp file
             os.remove(temp.name)
             
+        test_epub= EPUB(ebf.file, mode='a')
+        self.assertEqual(len(test_epub.opf) , 4)
+        self.assertTrue(len(test_epub.opf[2]) < 30) 
         
         acq=Acq.objects.create(user=u,work=w,license=TESTING)
         self.assertIsNot(acq.nonce, None)
 
         url= acq.get_watermarked().download_link_epub
         self.assertRegexpMatches(url,'download.booxtream.com/')
+        print url
 
         
         
