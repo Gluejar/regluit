@@ -38,7 +38,8 @@ from regluit.core import (
     search,
     goodreads,
     librarything,
-    tasks
+    tasks,
+    parameters,
 )
 from regluit.core.models import (
     Campaign,
@@ -830,6 +831,7 @@ class EbookFileTests(TestCase):
         w = Work.objects.create(title="Work 1")
         e = Edition.objects.create(title=w.title,work=w)
         u = User.objects.create_user('test', 'test@example.org', 'testpass')
+        c = Campaign.objects.create(work=w, type = parameters.BUY2UNGLUE, cc_date_initial= datetime(2020,1,1),target=1000, deadline=datetime(2020,1,1))
         
         # download the test epub into a temp file
         temp = NamedTemporaryFile(delete=False)
