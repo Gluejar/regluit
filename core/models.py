@@ -252,7 +252,6 @@ class Offer(models.Model):
     def days_per_copy(self):
         return Decimal(float(self.price) / self.work.last_campaign().dollar_per_day )
     
-    
 class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
@@ -266,7 +265,7 @@ class Acq(models.Model):
             choices=CHOICES)
     watermarked = models.ForeignKey("booxtream.Boox",  null=True)
     nonce = models.CharField(max_length=32, null=True)
-
+    
     @property
     def expired(self):
         if self.expires is None:
@@ -285,12 +284,12 @@ class Acq(models.Model):
             params={
                 'customeremailaddress': self.user.email,
                 'customername': self.user.username,
-                'languagecode':'1043',
+                'languagecode':'1033',
                 'expirydays': 1,
                 'downloadlimit': 7,
                 'exlibris':1,
                 'chapterfooter':1,
-                'disclaimer':1,
+                'disclaimer':0,
                 'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id),
                 'kf8mobi': True,
                 'epub': True,
@@ -302,7 +301,7 @@ class Acq(models.Model):
         return self.watermarked
         
     def _hash(self):
-        return hashlib.md5('%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
+        return hashlib.md5('1c1a56974ef08edc%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
 
 def add_acq_nonce(sender, instance, created,  **kwargs):
     if created:
