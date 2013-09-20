@@ -38,7 +38,8 @@ from regluit.core import (
     search,
     goodreads,
     librarything,
-    tasks
+    tasks,
+    parameters,
 )
 from regluit.core.models import (
     Campaign,
@@ -62,6 +63,7 @@ from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 from regluit.utils.localdatetime import now, date_today
+from regluit.pyepub import EPUB
 
 class BookLoaderTests(TestCase):
     def setUp(self):
@@ -829,6 +831,7 @@ class EbookFileTests(TestCase):
         w = Work.objects.create(title="Work 1")
         e = Edition.objects.create(title=w.title,work=w)
         u = User.objects.create_user('test', 'test@example.org', 'testpass')
+        c = Campaign.objects.create(work=w, type = parameters.BUY2UNGLUE, cc_date_initial= datetime(2020,1,1),target=1000, deadline=datetime(2020,1,1))
         
         # download the test epub into a temp file
         temp = NamedTemporaryFile(delete=False)
@@ -850,12 +853,16 @@ class EbookFileTests(TestCase):
             # make sure we get rid of temp file
             os.remove(temp.name)
             
+        test_epub= EPUB(ebf.file, mode='a')
+        self.assertEqual(len(test_epub.opf) , 4)
+        self.assertTrue(len(test_epub.opf[2]) < 30) 
         
         acq=Acq.objects.create(user=u,work=w,license=TESTING)
         self.assertIsNot(acq.nonce, None)
 
         url= acq.get_watermarked().download_link_epub
         self.assertRegexpMatches(url,'download.booxtream.com/')
+        print url
 
         
         
