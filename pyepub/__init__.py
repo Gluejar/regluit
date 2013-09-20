@@ -3,7 +3,6 @@ import os
 import re
 import uuid
 from StringIO import StringIO
-from io import BytesIO
 import datetime
 
 try:
@@ -191,7 +190,6 @@ class EPUB(zipfile.ZipFile):
             zipfile.ZipFile.close(self)
             return
         else:
-            print "epub closing"
             try:
                 global TMP                  # in-memory copy of existing opf-ncx. When the epub gets re-init,
                                             # it loses track of modifications
