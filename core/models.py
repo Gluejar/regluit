@@ -296,13 +296,6 @@ class Acq(models.Model):
                 'epub': True,
                 }
             personalized = personalize(self.work.ebookfiles()[0].file, self)
-            print personalized.mode
-            print personalized.info['spine']
-            print personalized.filename.__class__.__name__
-            personalized.filename.seek(0)
-            f=open('testfile.epub','w')
-            f.write(personalized.filename.read())
-            f.close()
             personalized.filename.seek(0)
             self.watermarked = watermarker.platform(epubfile= personalized.filename, **params)
             self.save()
