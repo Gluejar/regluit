@@ -3,6 +3,10 @@ import urllib2
 from tempfile import NamedTemporaryFile
 from StringIO import StringIO
 from . import EPUB
+try:
+    import lxml.etree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 
 
 class EpubTests(unittest.TestCase):
@@ -30,4 +34,11 @@ class EpubTests(unittest.TestCase):
         part = StringIO('<?xml version="1.0" encoding="utf-8" standalone="yes"?>')
         epub.addpart(part, "testpart.xhtml", "application/xhtml+xml", 2)
         self.assertEqual(len(epub.opf[2]),9) #spine items
+        
+    def test_addmetadata(self):
+        epub=EPUB(self.epub2file,mode='a')
+        epub.addmetadata('test', 'GOOD')
+        self.assertIn('<dc:test>GOOD<',ET.tostring(epub.opf, encoding="UTF-8"))
+        self.assertTrue(epub.opf.find('.//{http://purl.org/dc/elements/1.1/}test') is not None)
+        self.assertEqual(epub.info['metadata']['test'], 'GOOD')
         

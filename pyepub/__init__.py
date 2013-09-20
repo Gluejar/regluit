@@ -309,7 +309,30 @@ class EPUB(zipfile.ZipFile):
         zipfile.ZipFile.close(self)     # Don't know why
         new_zip.close()                 # but it works, don't ever touch
         zipfile.ZipFile.__init__(self, FLO, mode="a")
+    
+    def addmetadata(self, term, value, namespace='dc'):
+        """
+        Add an metadata entry 
 
+        :type term: str
+        :param term: element name/tag for metadata item
+        :type value: str
+        :param value: a value
+        :type namespace: str
+        :param namespace. either a '{URI}' or a registered prefix ('dc', 'opf', 'ncx') are currently built-in
+        """
+        assert self.mode != "r", "%s is not writable" % self
+        namespace = NAMESPACE.get(namespace,namespace)
+        element = ET.Element(namespace+term, attrib={})
+        element.text = value
+        self.opf[0].append(element)
+        # note that info is ignoring namespace entirely
+        if self.info["metadata"].has_key(term):
+            self.info["metadata"][term] = [self.info["metadata"][term] , value]
+        else:
+            self.info["metadata"][term] = value
+        
+        
     def additem(self, fileObject, href, mediatype):
         """
         Add a file to manifest only
