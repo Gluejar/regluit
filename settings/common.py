@@ -149,6 +149,7 @@ INSTALLED_APPS = (
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
     'regluit.booxtream',
+    'pyepub',
                             
 )
 
