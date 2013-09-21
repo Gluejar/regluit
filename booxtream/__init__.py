@@ -1,4 +1,5 @@
 import requests
+import random
 from django.conf import settings
 from urllib import quote
 from functools import partial
@@ -48,8 +49,15 @@ class BooXtream(object):
         url = self.endpoint + 'booxtream.xml' 
         kwargs['epub'] =  '1' if epub else '0'
         kwargs['kf8mobi'] = '1' if kf8mobi else '0'
-        
-        files= {'epubfile': epubfile} if epubfile else {}
+        if epubfile:
+            if hasattr(epubfile,'name') and str(epubfile.name).endswith('.epub'):
+                files= {'epubfile': (str(epubfile.name),epubfile)}
+            else:
+                # give it a random file name so that kindlegen doesn't choke 
+                # needed for in-memory (StringIO) epubs 
+                files= {'epubfile': ('%012x.epub' % random.randrange(16**12),epubfile)}
+        else:
+             files={}      
         resp = self.postrequest(url, data=kwargs, files=files)
         doc = ElementTree.fromstring(resp.content)
 
