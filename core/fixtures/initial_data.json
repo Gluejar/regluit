@@ -35,7 +35,7 @@
     "pk": 5, 
     "model": "sites.site", 
     "fields": {
-      "domain": "just.unglueit.com", 
+      "domain": "just.unglue.it", 
       "name": "unglue.it staging"
     }
   },    
