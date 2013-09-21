@@ -39,6 +39,40 @@ def all_hosted_zones():
     hzones = route53.get_all_hosted_zones() 
     return hzones['ListHostedZonesResponse']['HostedZones']
 
+def rrsets_for_domain(domain_name):
+    """
+    all rrsets for domain_name
+    """
+    
+    zone = route53.get_hosted_zone_by_name(domain_name)
+    
+    if zone is not None:
+    
+        zone_id = zone.GetHostedZoneResponse.Id.replace('/hostedzone/', '')
+        rrsets = route53.get_all_rrsets(zone_id)
+    
+        for rrset in rrsets:
+            yield rrset
+
+def route53_records(domain_name, name, record_type):
+    """
+    return route53 record for given domain name, host name, type
+    """
+    
+    zone = route53.get_hosted_zone_by_name(domain_name)
+    
+    if zone is None:
+        return ([], None)
+    
+    zone_id = zone.GetHostedZoneResponse.Id.replace('/hostedzone/', '')
+    rrsets = route53.get_all_rrsets(zone_id)
+    
+    full_name = "{0}.{1}.".format(name, domain_name)
+    
+    return ([rset for rset in route53.get_all_rrsets(zone_id) if rset.name == full_name and rset.type == record_type ],
+            rrsets)
+    
+
 def modify_rds_parameter(group_name, parameter, value, apply_immediate=False):
     """change parameter in RDS parameter group_name to value
     http://stackoverflow.com/a/9085381/7782
