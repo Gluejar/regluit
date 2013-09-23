@@ -185,7 +185,7 @@ def makemarc(marcfile,  edition):
     title = record.get_fields('245')[0].get_subfields('a')[0]
     title = title.split('/')[0]
     try:
-        oclcnum = edition.identifiers.filter(type='oclc')
+        oclcnum = edition.identifiers.filter(type='oclc')[0].value
     except IndexError:
         oclcnum = None
     
