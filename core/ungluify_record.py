@@ -27,10 +27,6 @@ def makemarc(marcfile,  edition):
     license = edition.ebooks.all()[0].rights
     logger = logging.getLogger(__name__)
     logger.info("Making MARC records for edition %s and license %s" % (edition, license))
-    if '/unglue.it' in settings.BASE_URL:
-        directory = 'marc'
-    else:
-        directory = 'marc_test'
         
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
@@ -51,10 +47,7 @@ def makemarc(marcfile,  edition):
     # create accession number and write 001 field 
     # (control field syntax is special)
     (marc_record, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='DIRECT')
-    marc_id = marc_record.id
-    zeroes = 9 - len(str(marc_id))
-    accession = 'ung' + zeroes*'0' + str(marc_id)
-    field001 = pymarc.Field(tag='001', data=accession)
+    field001 = pymarc.Field(tag='001', data=marc_record.accession)
     record.add_ordered_field(field001)
 
     # add field indicating record originator
@@ -261,52 +254,28 @@ def makemarc(marcfile,  edition):
     field001 = record_via_unglueit.get_fields('001')[0]
     record_via_unglueit.remove_field(field001)
     (marc_record_via, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='UNGLUE')
-    marc_id_via = marc_record_via.id
-    zeroes = 9 - len(str(marc_id_via))
-    accession_via = 'ung' + zeroes*'0' + str(marc_id_via)
-    field001 = pymarc.Field(tag='001', data=accession_via)
+    field001 = pymarc.Field(tag='001', data=marc_record_via.accession)
     record_via_unglueit.add_ordered_field(field001)
 
     # write the unglued MARCxml records
-    xml_filename = directory + '/' + accession + '_unglued.xml'
     xmlrecord = pymarc.record_to_xml(record)
-    xml_file = default_storage.open(xml_filename, 'w')
+    xml_file = default_storage.open(marc_record.xml_record, 'w')
     xml_file.write(xmlrecord)
     xml_file.close()
-    logger.info("MARCXML record for edition %s written to S3" % edition)
     
-    xml_filename_via = directory + '/' + accession_via + '_via_unglueit.xml'
     xmlrecord = pymarc.record_to_xml(record_via_unglueit)
-    xml_file = default_storage.open(xml_filename_via, 'w')
+    xml_file = default_storage.open(marc_record_via.xml_record, 'w')
     xml_file.write(xmlrecord)
     xml_file.close()
-    logger.info("MARCXML record for edition %s via unglue.it written to S3" % edition)
 
     # write the unglued .mrc records, then save to s3
-    string = StringIO()
-    mrc_filename = directory + '/' + accession + '_unglued.mrc'
-    writer = pymarc.MARCWriter(string)
+    mrc_file = default_storage.open(marc_record.mrc_record, 'w')
+    writer = pymarc.MARCWriter(mrc_file)
     writer.write(record)
-    mrc_file = default_storage.open(mrc_filename, 'w')
-    mrc_file.write(string.getvalue())
     mrc_file.close()
-    logger.info(".mrc record for edition %s written to S3" % edition)
 
-    string = StringIO()
-    mrc_filename_via = directory + '/' + accession_via + '_via_unglueit.mrc'
-    writer = pymarc.MARCWriter(string)
+    mrc_file = default_storage.open(marc_record_via.mrc_record, 'w')
+    writer = pymarc.MARCWriter(mrc_file)
     writer.write(record_via_unglueit)
-    mrc_file = default_storage.open(mrc_filename_via, 'w')
-    mrc_file.write(string.getvalue())
     mrc_file.close()
-    logger.info(".mrc record for edition %s via unglue.it written to S3" % edition)
 
-    marc_record.xml_record = default_storage.url(xml_filename)
-    marc_record.mrc_record = default_storage.url(mrc_filename)
-    marc_record.link_target = 'DIRECT'
-    marc_record.save()     
-    marc_record_via.xml_record = default_storage.url(xml_filename_via)
-    marc_record_via.mrc_record = default_storage.url(mrc_filename_via)
-    marc_record_via.link_target = 'UNGLUE'
-    marc_record_via.save()    
-    logger.info("MARCRecord instances complete for edition %s with accession numbers %s and %s" % (edition, accession, accession_via))
