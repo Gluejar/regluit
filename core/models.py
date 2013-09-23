@@ -1346,7 +1346,7 @@ class Libpref(models.Model):
     marc_link_target = models.CharField(
         max_length=6,
         default = 'UNGLUE', 
-        choices = settings.MARC_CHOICES,
+        choices = settings.MARC_PREF_OPTIONS,
         verbose_name="MARC record link targets"
     )
 
@@ -1524,8 +1524,13 @@ class MARCRecord(models.Model):
         
     def _record(self, filetype):
         test = '' if '/unglue.it' in settings.BASE_URL else '_test'
-        via = '_via_unglueit.' if self.link_target!='DIRECT' else '_unglued.'
-        return 'marc' + test + '/' + self.accession + via + filetype
+        if self.link_target == 'DIRECT':
+            fn = '_unglued.'
+        elif self.link_target == 'UNGLUE':
+            fn = '_via_unglueit.'  
+        else:
+            fn = '_ungluing.'
+        return 'marc' + test + '/' + self.accession + fn + filetype
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line

@@ -2803,13 +2803,15 @@ def marc(request, userlist=None):
     except:
         if not request.user.is_anonymous():
             libpref = models.Libpref(user=request.user)
+    unwanted = 'UNGLUE' if link_target == 'DIRECT' else 'DIRECT'
     if userlist:
         records = []
         user = get_object_or_404(User,username=userlist)
         for work in user.wishlist.works.all():
             records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target=link_target))
+            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target='B2U'))
     else:
-        records = models.MARCRecord.objects.filter(link_target=link_target)
+        records = models.MARCRecord.objects.exclude(link_target=unwanted)
     return render(
         request,
         'marc.html',
@@ -2827,7 +2829,7 @@ class MARCUngluifyView(FormView):
             edition = self.request.GET.get('edition',None)
             if models.Edition.objects.filter(id=edition).count():
                 edition = models.Edition.objects.filter(id=edition)[0]
-                if edition.ebooks.count():
+                if edition.ebooks.count() or edition.ebook_files.count():
                     return {'edition':edition.id}
         return {}
 
@@ -2910,12 +2912,10 @@ def marc_concatenate(request):
             record_url = models.MARCRecord.objects.get(
                             pk=record_id
                          ).xml_record
-            logger.info(record_url)
         elif format == 'mrc':
             record_url = models.MARCRecord.objects.get(
                             pk=record_id
                          ).mrc_record
-            logger.info(record_url)
         try:
             record_file = default_storage.open(record_url).read()
             outfile.write(record_file)
