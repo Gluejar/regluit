@@ -407,6 +407,11 @@ CONTENT_TYPES = {
 MARC_CHOICES = (
     ('DIRECT', 'Raw link'),
     ('UNGLUE', 'Unglue.it link'),
+    ('B2U', 'Library link'),
+)
+MARC_PREF_OPTIONS =(
+    ('DIRECT', 'Raw link'),
+    ('UNGLUE', 'Unglue.it link'),
 )
 
 BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'

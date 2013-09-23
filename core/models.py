@@ -1346,7 +1346,7 @@ class Libpref(models.Model):
     marc_link_target = models.CharField(
         max_length=6,
         default = 'UNGLUE', 
-        choices = settings.MARC_CHOICES,
+        choices = settings.MARC_PREF_OPTIONS,
         verbose_name="MARC record link targets"
     )
 
@@ -1505,17 +1505,33 @@ class Press(models.Model):
     note = models.CharField(max_length=140, blank=True)
     
 class MARCRecord(models.Model):
-    xml_record = models.URLField(blank=True)
-    mrc_record = models.URLField(blank=True)
     edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
     # this is where the download link points to, direct link or via Unglue.it.
     link_target = models.CharField(max_length=6,choices = settings.MARC_CHOICES, default='DIRECT')
+    
+    @property
+    def accession(self):
+        zeroes = 9 - len(str(self.id))
+        return 'ung' + zeroes*'0' + str(self.id)
+        
+    @property
+    def xml_record(self):
+        return self._record('xml')
+        
+    @property
+    def mrc_record(self):
+        return self._record('mrc')
+        
+    def _record(self, filetype):
+        test = '' if '/unglue.it' in settings.BASE_URL else '_test'
+        if self.link_target == 'DIRECT':
+            fn = '_unglued.'
+        elif self.link_target == 'UNGLUE':
+            fn = '_via_unglueit.'  
+        else:
+            fn = '_ungluing.'
+        return 'marc' + test + '/' + self.accession + fn + filetype
 
-    def clean(self):
-        from django.core.exceptions import ValidationError
-        super(MARCRecord, self).clean()
-        if not self.xml_record and not self.mrc_record:
-            raise ValidationError('You must have at least one of xml_record and mrc_record')
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
 # from regluit.core import signals
