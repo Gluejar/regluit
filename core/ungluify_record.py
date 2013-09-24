@@ -261,7 +261,7 @@ def makemarc(marcfile,  edition):
         record_direct.remove_field(field001)
         (marc_record_direct, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='DIRECT')
         field001 = pymarc.Field(tag='001', data=marc_record_direct.accession)
-        marc_record_direct.add_ordered_field(field001)
+        record_direct.add_ordered_field(field001)
 
         # write the unglued MARCxml records
         xmlrecord = pymarc.record_to_xml(record_direct)
