@@ -474,7 +474,11 @@ class Campaign(models.Model):
             return self.dollar_per_day
         if self.cc_date_initial is None:
             return None
-        time_to_cc = self.cc_date_initial - datetime.today()
+        
+        start_datetime= self.activated if self.activated else datetime.today()
+        
+        time_to_cc = self.cc_date_initial - start_datetime
+        
         self.dollar_per_day = float(self.target)/float(time_to_cc.days)
         self.save()
         return self.dollar_per_day
@@ -518,8 +522,9 @@ class Campaign(models.Model):
             
         self.status= 'ACTIVE'
         self.left = self.target
+        self.activated = datetime.today()
         self.save()
-
+        action = CampaignAction( campaign = self, type='activated', comment = self.get_type_display()) 
         ungluers = self.work.wished_by()        
         notification.queue(ungluers, "wishlist_active", {'campaign':self}, True)
         return self
