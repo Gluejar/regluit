@@ -18,19 +18,16 @@ from django.core.urlresolvers import reverse
 from regluit.core import models
 
 def makemarc(marcfile,  edition):
-    """
-    fyi if we're going to suck down LOC records directly:
-        parse_xml_to_array takes a file, so we need to faff about with file writes
-        would be nice to have a suitable z39.50
-        can use LCCN to grab record with urllib, but file writes are inconsistent
-    """
-    license = edition.ebooks.all()[0].rights
     logger = logging.getLogger(__name__)
-    logger.info("Making MARC records for edition %s and license %s" % (edition, license))
-    if '/unglue.it' in settings.BASE_URL:
-        directory = 'marc'
-    else:
-        directory = 'marc_test'
+    
+    try:
+        license = edition.ebooks.all()[0].rights
+        ebf = None
+    except IndexError:
+        license = None
+        ebf = edition.ebook_files.all()[0]
+    
+    logger.info("Making MARC records for edition %s " % edition)
         
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
@@ -50,11 +47,11 @@ def makemarc(marcfile,  edition):
         
     # create accession number and write 001 field 
     # (control field syntax is special)
-    (marc_record, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='DIRECT')
-    marc_id = marc_record.id
-    zeroes = 9 - len(str(marc_id))
-    accession = 'ung' + zeroes*'0' + str(marc_id)
-    field001 = pymarc.Field(tag='001', data=accession)
+    if ebf:
+        (marc_record, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='B2U')
+    else:
+        (marc_record, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='UNGLUE')
+    field001 = pymarc.Field(tag='001', data=marc_record.accession)
     record.add_ordered_field(field001)
 
     # add field indicating record originator
@@ -142,34 +139,35 @@ def makemarc(marcfile,  edition):
     field300.delete_subfield('a')
     field300.add_subfield('a', new300a)
     field300.delete_subfield('c')
-
-    # add 536 field (funding information)
-    if edition.unglued:
-        funding_info = 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
-    else:
-        if edition.ebooks.all()[0].rights in ['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']:
-            funding_info = 'The book is available as a free download thanks to a Creative Commons license.'
-        else:
-            funding_info = 'The book is available as a free download because it is in the Public Domain.'
-    field536 = pymarc.Field(
-        tag='536',
-        indicators = [' ', ' '],
-        subfields = [
-            'a', funding_info,
-        ]
-    )
-    record.add_ordered_field(field536)
     
-    # add 540 field (terms governing use)
-    field540 = pymarc.Field(
-        tag='540',
-        indicators = [' ', ' '],
-        subfields = [
-            'a', dict(settings.CHOICES)[license],
-            'u', dict(settings.GRANTS)[license], 
-        ]
-    )
-    record.add_ordered_field(field540)
+    if license:
+        # add 536 field (funding information)
+        if edition.unglued:
+            funding_info = 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
+        else:
+            if edition.ebooks.all()[0].rights in ['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']:
+                funding_info = 'The book is available as a free download thanks to a Creative Commons license.'
+            else:
+                funding_info = 'The book is available as a free download because it is in the Public Domain.'
+        field536 = pymarc.Field(
+            tag='536',
+            indicators = [' ', ' '],
+            subfields = [
+                'a', funding_info,
+            ]
+        )
+        record.add_ordered_field(field536)
+    
+        # add 540 field (terms governing use)
+        field540 = pymarc.Field(
+            tag='540',
+            indicators = [' ', ' '],
+            subfields = [
+                'a', dict(settings.CHOICES)[license],
+                'u', dict(settings.GRANTS)[license], 
+            ]
+        )
+        record.add_ordered_field(field540)
 
     # add 588 field (source of description) - credit where credit is due
     field588 = pymarc.Field(
@@ -185,7 +183,7 @@ def makemarc(marcfile,  edition):
     title = record.get_fields('245')[0].get_subfields('a')[0]
     title = title.split('/')[0]
     try:
-        oclcnum = edition.identifiers.filter(type='oclc')
+        oclcnum = edition.identifiers.filter(type='oclc')[0].value
     except IndexError:
         oclcnum = None
     
@@ -227,25 +225,25 @@ def makemarc(marcfile,  edition):
     # add 856 fields with links for each available file
     # doing this out of order as it's the only thing that differs
     # between direct-link and via-unglue.it versions
-    # need deepcopy() because omg referential transparency!
-    record_via_unglueit = deepcopy(record)
+    if not ebf:
+        # need deepcopy() because omg referential transparency!
+        record_direct = deepcopy(record)  # 2 records for unglued stuff
     
-    content_types = settings.CONTENT_TYPES
-    for format_tuple in settings.FORMATS:
-        format = format_tuple[0]
-        ebooks = edition.ebooks.filter(format=format)
-        if ebooks:
-            for book in ebooks:
-                field856 = pymarc.Field(
-                    tag='856',
-                    indicators = ['4', '0'],
-                    subfields = [
-                        '3', format + ' version',
-                        'q', content_types[format],
-                        'u', book.url,
-                    ]
-                )
-                record.add_ordered_field(field856)
+        for format_tuple in settings.FORMATS:
+            format = format_tuple[0]
+            ebooks = edition.ebooks.filter(format=format)
+            if ebooks:
+                for book in ebooks:
+                    field856 = pymarc.Field(
+                        tag='856',
+                        indicators = ['4', '0'],
+                        subfields = [
+                            '3', format + ' version',
+                            'q', settings.CONTENT_TYPES[format],
+                            'u', book.url,
+                        ]
+                    )
+                    record_direct.add_ordered_field(field856)
                 
     unglued_url = settings.BASE_URL_SECURE + reverse('download', args=[edition.work.id])
     field856_via = pymarc.Field(
@@ -255,58 +253,35 @@ def makemarc(marcfile,  edition):
             'u', unglued_url,
         ]
     )
-    record_via_unglueit.add_ordered_field(field856_via)
+    record.add_ordered_field(field856_via)
 
-    # this via_unglueit record needs its own accession number
-    field001 = record_via_unglueit.get_fields('001')[0]
-    record_via_unglueit.remove_field(field001)
-    (marc_record_via, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='UNGLUE')
-    marc_id_via = marc_record_via.id
-    zeroes = 9 - len(str(marc_id_via))
-    accession_via = 'ung' + zeroes*'0' + str(marc_id_via)
-    field001 = pymarc.Field(tag='001', data=accession_via)
-    record_via_unglueit.add_ordered_field(field001)
+    if not ebf:
+        # this via_unglueit record needs its own accession number
+        field001 = record_direct.get_fields('001')[0]
+        record_direct.remove_field(field001)
+        (marc_record_direct, created) = models.MARCRecord.objects.get_or_create(edition=edition,link_target='DIRECT')
+        field001 = pymarc.Field(tag='001', data=marc_record_direct.accession)
+        record_direct.add_ordered_field(field001)
 
-    # write the unglued MARCxml records
-    xml_filename = directory + '/' + accession + '_unglued.xml'
-    xmlrecord = pymarc.record_to_xml(record)
-    xml_file = default_storage.open(xml_filename, 'w')
-    xml_file.write(xmlrecord)
-    xml_file.close()
-    logger.info("MARCXML record for edition %s written to S3" % edition)
+        # write the unglued MARCxml records
+        xmlrecord = pymarc.record_to_xml(record_direct)
+        xml_file = default_storage.open(marc_record_direct.xml_record, 'w')
+        xml_file.write(xmlrecord)
+        xml_file.close()
     
-    xml_filename_via = directory + '/' + accession_via + '_via_unglueit.xml'
-    xmlrecord = pymarc.record_to_xml(record_via_unglueit)
-    xml_file = default_storage.open(xml_filename_via, 'w')
+        # write the unglued .mrc records, then save to s3
+        mrc_file = default_storage.open(marc_record_direct.mrc_record, 'w')
+        writer = pymarc.MARCWriter(mrc_file)
+        writer.write(record_direct)
+        mrc_file.close()
+
+    xmlrecord = pymarc.record_to_xml(record)
+    xml_file = default_storage.open(marc_record.xml_record, 'w')
     xml_file.write(xmlrecord)
     xml_file.close()
-    logger.info("MARCXML record for edition %s via unglue.it written to S3" % edition)
 
-    # write the unglued .mrc records, then save to s3
-    string = StringIO()
-    mrc_filename = directory + '/' + accession + '_unglued.mrc'
-    writer = pymarc.MARCWriter(string)
+    mrc_file = default_storage.open(marc_record.mrc_record, 'w')
+    writer = pymarc.MARCWriter(mrc_file)
     writer.write(record)
-    mrc_file = default_storage.open(mrc_filename, 'w')
-    mrc_file.write(string.getvalue())
     mrc_file.close()
-    logger.info(".mrc record for edition %s written to S3" % edition)
 
-    string = StringIO()
-    mrc_filename_via = directory + '/' + accession_via + '_via_unglueit.mrc'
-    writer = pymarc.MARCWriter(string)
-    writer.write(record_via_unglueit)
-    mrc_file = default_storage.open(mrc_filename_via, 'w')
-    mrc_file.write(string.getvalue())
-    mrc_file.close()
-    logger.info(".mrc record for edition %s via unglue.it written to S3" % edition)
-
-    marc_record.xml_record = default_storage.url(xml_filename)
-    marc_record.mrc_record = default_storage.url(mrc_filename)
-    marc_record.link_target = 'DIRECT'
-    marc_record.save()     
-    marc_record_via.xml_record = default_storage.url(xml_filename_via)
-    marc_record_via.mrc_record = default_storage.url(mrc_filename_via)
-    marc_record_via.link_target = 'UNGLUE'
-    marc_record_via.save()    
-    logger.info("MARCRecord instances complete for edition %s with accession numbers %s and %s" % (edition, accession, accession_via))

@@ -149,6 +149,7 @@ INSTALLED_APPS = (
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
     'regluit.booxtream',
+    'regluit.pyepub',
                             
 )
 
@@ -404,6 +405,11 @@ CONTENT_TYPES = {
 
 # if you add more of these, make sure core/ungluify_record.py can deal
 MARC_CHOICES = (
+    ('DIRECT', 'Raw link'),
+    ('UNGLUE', 'Unglue.it link'),
+    ('B2U', 'Library link'),
+)
+MARC_PREF_OPTIONS =(
     ('DIRECT', 'Raw link'),
     ('UNGLUE', 'Unglue.it link'),
 )

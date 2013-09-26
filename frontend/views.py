@@ -965,7 +965,7 @@ class PledgeView(FormView):
     campaign = None
     work = None
     premiums = None
-    data = None
+    data = {}
     
     def get_preapproval_amount(self):
         preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
@@ -1042,7 +1042,7 @@ class PledgeView(FormView):
                 'work':self.work,
                 'campaign':self.campaign, 
                 'premiums':self.premiums, 
-                'premium_id':self.data['premium_id'], 
+                'premium_id':self.data.get('premium_id',None), 
                 'faqmenu': 'modify' if self.transaction else 'pledge', 
                 'transaction': self.transaction,
                 'tid': self.transaction.id if self.transaction else None,
@@ -2562,7 +2562,7 @@ def download(request, work_id):
                 acq = an_acq
                 formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
                 formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
-                readmill_epub_url = settings.BASE_URL_SECURE + formats['epub']
+                readmill_epub_url = settings.BASE_URL + formats['epub']
                 can_kindle = True
                 break
             
@@ -2585,7 +2585,10 @@ def download(request, work_id):
         # configure the readmillurl
         try:
             readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
-            readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+            if readmill_epub_ebook.url.startswith('https'):
+                readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+            else:
+                readmill_epub_url = settings.BASE_URL + reverse('download_ebook',args=[readmill_epub_ebook.id])
             #readmill_epub_url = readmill_epub_ebook.url
         except:
             readmill_epub_url = None
@@ -2682,9 +2685,9 @@ def press_submitterator(request):
 
 @login_required
 def kindle_config(request, work_id=None):
-    try:
+    if work_id:
         work = safe_get_work(work_id)
-    except Http404:
+    else:
         work = None
     template = "kindle_config.html"
     if request.method == 'POST':
@@ -2719,7 +2722,7 @@ def send_to_kindle(request, work_id, javascript='0'):
             acq = None
     
     if acq:
-        eboook_url = acq.get_mobi_url()
+        ebook_url = acq.get_mobi_url()
         ebook_format = 'mobi'
         title = acq.work.title
     else:
@@ -2734,7 +2737,7 @@ def send_to_kindle(request, work_id, javascript='0'):
 
         # don't forget to increment the download counter!
         ebook.increment()
-        eboook_url = ebook.url
+        ebook_url = ebook.url
         ebook_format = ebook.format
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.title
@@ -2800,13 +2803,15 @@ def marc(request, userlist=None):
     except:
         if not request.user.is_anonymous():
             libpref = models.Libpref(user=request.user)
+    unwanted = 'UNGLUE' if link_target == 'DIRECT' else 'DIRECT'
     if userlist:
         records = []
         user = get_object_or_404(User,username=userlist)
         for work in user.wishlist.works.all():
             records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target=link_target))
+            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target='B2U'))
     else:
-        records = models.MARCRecord.objects.filter(link_target=link_target)
+        records = models.MARCRecord.objects.exclude(link_target=unwanted)
     return render(
         request,
         'marc.html',
@@ -2824,7 +2829,7 @@ class MARCUngluifyView(FormView):
             edition = self.request.GET.get('edition',None)
             if models.Edition.objects.filter(id=edition).count():
                 edition = models.Edition.objects.filter(id=edition)[0]
-                if edition.ebooks.count():
+                if edition.ebooks.count() or edition.ebook_files.count():
                     return {'edition':edition.id}
         return {}
 
@@ -2870,15 +2875,6 @@ class MARCConfigView(FormView):
             return super(MARCConfigView, self).form_valid(form)
             
 def marc_concatenate(request):
-    """
-    options for future work...
-    cache files: keep records of each combo created, check before building anew?
-    dispatch as background process, email when done?
-    if not caching, delete files on s3 after a while?
-    make the control flow suck less during file write
-    
-    Can be used as a GET URL
-    """
     if request.method == 'POST':
         params=request.POST
     elif request.method == 'GET':
@@ -2898,45 +2894,35 @@ def marc_concatenate(request):
         )
         return HttpResponseRedirect(reverse('marc', args=[]))
     
-    # keep test files from stepping on production files
-    if '/unglue.it' in settings.BASE_URL:
-        directory = 'marc/'
-    else:
-        directory = 'marc_test/'
-    
-    # write the concatenated file
-    datestamp = now().strftime('%Y%m%d%H%M%S')
-    filename = directory + datestamp + '.' +  format
-    with default_storage.open(filename, 'w') as outfile:
-        if format == 'xml':
-            string = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    preamble = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
                      '<collection '
                      'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
                      'xmlns="http://www.loc.gov/MARC21/slim" '
                      'xsi:schemaLocation="http://www.loc.gov/MARC21/slim '
                      'http://www.loc.gov/standards/marcxml/schema/'
                      'MARC21slim.xsd">')
-            outfile.write(string)
-        for record in selected_records:
-            record_id = long(record[7:])
-            if format == 'xml':
-                record_url = models.MARCRecord.objects.get(
-                                pk=record_id
-                             ).xml_record
-                logger.info(record_url)
-            elif format == 'mrc':
-                record_url = models.MARCRecord.objects.get(
-                                pk=record_id
-                             ).mrc_record
-                logger.info(record_url)
-            try:
-                record_file = urllib.urlopen(record_url).read()
-                outfile.write(record_file)
-            except IOError:
-                logger.warning('MARC record with id number %s has a problem with its URL' % record_id)
+    outfile = HttpResponse('', content_type='application/marc')
+    outfile['Content-Disposition'] = 'attachment; filename='+ now().strftime('%Y%m%d%H%M%S') + '.' +  format
+
+    if format == 'xml':
+        outfile.write(preamble)
+    for record in selected_records:
+        record_id = long(record[7:])
         if format == 'xml':
-            string = ('</collection>')
-            outfile.write(string)
-    download_url = default_storage.url(filename)
-    return HttpResponseRedirect(download_url)
+            record_url = models.MARCRecord.objects.get(
+                            pk=record_id
+                         ).xml_record
+        elif format == 'mrc':
+            record_url = models.MARCRecord.objects.get(
+                            pk=record_id
+                         ).mrc_record
+        try:
+            record_file = default_storage.open(record_url).read()
+            outfile.write(record_file)
+        except IOError:
+            logger.warning('MARC record with id number %s has a problem with its URL' % record_id)
+    if format == 'xml':
+        outfile.write('</collection>')
+
+    return outfile
         
