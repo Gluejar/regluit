@@ -34,6 +34,10 @@ to install python-setuptools in step 1:
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. point your browser at http://localhost:8000/
 
+CSS development
+
+1. We are using Less version 2.8 for CSS. http://incident57.com/less/. We use minified CSS.
+
 Production Deployment
 ---------------------
 
