@@ -79,11 +79,8 @@ $j().ready(function() {
         cvc: $j('.card-cvc').val(),
         exp_month: $j('.card-expiry-month').val(),
         exp_year: $j('.card-expiry-year').val(),
-        address_line1: $j('#card_AddressLine1').val(),
-        address_line2: $j('#card_AddressLine2').val(),
         address_state: $j('#card_AddressState').val(),
         address_zip: $j('#card_AddressZip').val(),
-        address_city: $j('#card_AddressCity').val(),
         address_country: $j('#card_AddressCountry').val(),
         name: $j('#card_Name').val()
     }, stripeResponseHandler);
