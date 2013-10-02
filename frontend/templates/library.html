@@ -15,28 +15,6 @@
 <script type="text/javascript" src="/static/js/import_books.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 
-{% ifequal supporter request.user %}
-<!-- we only need to be able to toggle the profile edit area in this case -->
-<script type="text/javascript">
-    var $j = jQuery.noConflict();
-    $j(document).ready(function(){
-        if(window.location.hash!="#edit") {
-            $j('#user-block-hide').hide();
-        } else {
-            $j('#user-block-hide').css({"background": "#8dc63f"}).animate(
-                {backgroundColor: "white"}, 1500
-            );
-        }
-        $j('#edit_profile').click(function() {
-            $j("#user-block-hide").slideToggle(300);
-        });
-        $j('#profile_edit').click(function() {
-            $j("#user-block-hide").slideToggle(300);
-        });
-    });
-</script>
-{% endifequal %}
-
 {% if works %}
 <!-- when the user's wishlist is empty, views.py gives us works for a slideshow -->
 <script src="/static/js/slides.min.jquery.js"></script>
@@ -70,12 +48,13 @@ function highlightTarget(targetdiv) {
 <link rel="alternate" type="application/atom+xml" title="feed for books from {{ supporter }}'s ungluing list" href="feed" />
 {% endblock %}
 
+
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
-{% if supporter.library %}
-    <div class="launch_top pale">{{ supporter.username }} is a Library participating in Unglue.it. <a href="{% url library supporter.username %}">Click here</a> to use {{ supporter.username }}'s books.
+{% ifequal supporter request.user %}
+    <div class="launch_top pale">You are logged in as the administrator of {{ supporter.username }}
     </div>
-{% endif %}
+{% endifequal %}
 
 <div id="js-topsection">
     <div class="js-main">
@@ -100,31 +79,18 @@ function highlightTarget(targetdiv) {
                                 </span>
                             </div>
 
-                            <div class="user-block2">
+                            <div class="user-block23">
                                 <span class="user-short-info">
                                     {% with supporter.profile.tagline as tagline %}{% if tagline %}{{ tagline }}{% else %}&nbsp;{% endif %}{% endwith %}
                                 </span>
+                                {% if supporter.library.group in request.user.groups.all  %}
+                                    This is YOUR Library!
+                                {% else %}
+                                    <a href="{% url join_library supporter.username %}" class="fakeinput">Make this my Library</a>
+                                {% endif %}
                             </div>
 
-                            <div class="user-block3">
-                                <div class="badges">
-                                {% ifequal request.user supporter %}
-                                    <span class="rounded"><span class="blue tabs1" title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I've unglued&nbsp;</span>{{ backed }}</span></span>
-                                    <span class="rounded"><span class="orange tabs2" title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I'm ungluing&nbsp;</span>{{ backing }}</span></span>
-                                    <span class="rounded"><span class="grey tabs3" title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I'm wishing for&nbsp;</span>{{ wished }}</span></span>
-                                {% else %}
-                                    <span class="rounded"><span class="blue tabs1" title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."><span class="hovertext">has unglued&nbsp;</span>{{ backed }}</span></span>
-                                    <span class="rounded"><span class="orange tabs2" title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is ungluing&nbsp;</span>{{ backing }}</span></span>
-                                    <span class="rounded"><span class="grey tabs3" title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is wishing for&nbsp;</span>{{ wished }}</span></span>
-                                {% endifequal %}
-                                </div>
-                            </div>
                             <div class="user-block4">
-                                {% ifequal request.user supporter %}
-                                <div id="edit_profile">
-                                    <img src="/static/images/header/icon-edit.png" alt="Edit Your Profile" title="Edit Your Profile" />
-                                </div>
-                                {% endifequal %}
                                 <div class="social">
                                 {% if supporter.profile.home_url %}
                                    <a href="{{ supporter.profile.home_url }}" class="nounderline">
@@ -154,83 +120,6 @@ function highlightTarget(targetdiv) {
                                </div>
                             </div>
                         </div>
-                        {% ifequal supporter request.user %}
-                        <div id="user-block-hide">
-                        <form method="POST" action="#">
-                            {% csrf_token %}
-                            <div class="block block1">
-                            <div class="block-inner">
-                                {{ profile_form.avatar_source.errors }}
-                                Your profile pic: {{ profile_form.avatar_source }} {% ifequal supporter.profile.avatar_source 1 %} <br /><a href="http://en.gravatar.com/">Set your Gravatar</a><br /><br />{% endifequal %}
-                            </div>
-                            <div class="block-inner">
-                                <p>Your Tagline</p>
-                                    {{ profile_form.tagline.errors }}
-                                    {{ profile_form.tagline }}<br />
-                                <span id="count_display">140</span> characters remaining<br /><br />
-
-                            </div>
-                                     <input class="profile-save" type="submit" name="submit" value="Update" id="submit">
-                            </div>
-                            
-                             <div class="block block2">
-                                <h3 class="title">Your Links</h3>
-                                <div class="check-list">
-                                   <label> {% if supporter.profile.home_url %}Change{% else %}Add{% endif %} your homepage URL:</label>
-                                    {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
-                                </div>
-                                <div class="check-list">
-                                    {% if supporter.profile.twitter_id %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
-                                    {% else %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
-                                    {% endif %} 
-                                </div>
-                                <div class="check-list">
-                                    {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
-                                    {% else %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
-                                    {% endif %} 
-                                </div>
-                                <div class="check-list" id="connectgr">
-                                    {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
-                                    {% else %}
-                                    <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
-                                    {% endif %} 
-                                </div>
-                                <div class="check-list" id="connectlt">
-                                    <label>{% if supporter.profile.librarything_id %}Change{% else %}Add{% endif %} your LibraryThing User ID:</label>
-                                    {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
-                                </div>
-                            </div>
-                            </form> 
-                            <div class="block block3">
-                                <h3 class="title">Import your books</h3>
-                                {% if goodreads_id %}
-                                <form id="load_shelf_form" method="post" action="#">
-                                    {% csrf_token %}
-                                    <div class="fieldWrapper">
-                                        
-                                        <div id="loadgr"><span><span id="goodreads_shelves"></span><input id="goodreads_input" type="submit" value="Select your GoodReads shelves" /></span>
-                                        </div>
-                                    </div>
-                                </form>
-                                {% else %}
-                                <div id="loadgr" onclick="highlightTarget('#connectgr'); return false;"><div>Connect your GoodReads account to import from GoodReads.</div></div>
-                                {% endif %}
-                                {% if librarything_id %}
-                                <form id="librarything_load" method="post" action="#">
-                                    {% csrf_token %}
-                                    <div id="loadlt"><input type="submit" id="librarything_input" value="Add your LibraryThing library" /></div>
-                                </form>
-                                {% else %}
-                                <div id="loadlt" onclick="highlightTarget('#connectlt'); return false;"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
-                                {% endif %}
-                            </div>
-                        </div>
-                      {% endifequal %}
                     </div>
                 </div>
             </div>

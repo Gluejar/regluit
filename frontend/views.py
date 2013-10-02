@@ -135,6 +135,7 @@ from regluit.payment.parameters import (
 
 from regluit.utils.localdatetime import now, date_today
 from regluit.booxtream.exceptions import BooXtreamError
+from regluit.libraryauth.models import Library
 
 logger = logging.getLogger(__name__)
 
@@ -312,6 +313,15 @@ def social_auth_reset_password(request):
         request.user.set_password('%010x' % random.randrange(16**10))
         request.user.save()
     return password_reset(request)
+
+def join_library(request, library):
+    library=get_object_or_404(Library, user__username=library)
+    if library.authenticate(request.user):
+        request.user.groups.add(library.group)
+        return HttpResponseRedirect(reverse('library',args=[str(library)]))
+    else:
+        return library.authenticator(request)
+    return render(request, 'join_library.html', {'library': library}) 
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
