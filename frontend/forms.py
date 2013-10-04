@@ -369,6 +369,37 @@ class OfferForm(forms.ModelForm):
             
 date_selector=range(date.today().year, settings.MAX_CC_DATE.year+1)
 
+class CCDateForm(object):
+    target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a Revenue Target.'} )
+    minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
+    maximum_target = settings.UNGLUEIT_MAXIMUM_TARGET
+    max_cc_date = settings.MAX_CC_DATE
+
+    def clean_target(self):
+        new_target = self.cleaned_data['target']
+        if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
+            raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+        if new_target > D(settings.UNGLUEIT_MAXIMUM_TARGET):
+            raise forms.ValidationError(_('A campaign may not be launched with a target more than $%s' % settings.UNGLUEIT_MAXIMUM_TARGET))
+        return new_target
+
+    def clean_cc_date_initial(self):
+        new_cc_date_initial = self.cleaned_data['cc_date_initial']
+        if new_cc_date_initial.date() > settings.MAX_CC_DATE:
+            raise forms.ValidationError('The initial Ungluing Date cannot be after %s'%settings.MAX_CC_DATE)
+        elif new_cc_date_initial - now() < timedelta(days=0):         
+            raise forms.ValidationError('The initial Ungluing date must be in the future!')
+        return new_cc_date_initial
+
+class DateCalculatorForm(CCDateForm, forms.ModelForm):
+    revenue = forms.DecimalField()
+    cc_date_initial = forms.DateTimeField(
+            widget = SelectDateWidget(years=date_selector) 
+        )
+    class Meta:
+        model = Campaign
+        fields = 'target',  'cc_date_initial', 'revenue',
+
 def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
     
     def get_queryset():
@@ -377,22 +408,18 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
     def get_widget_class(widget_classes):
         return widget_classes[instance.type-1]
             
-    class ManageCampaignForm(forms.ModelForm):
+    class ManageCampaignForm(CCDateForm,forms.ModelForm):
+        cc_date_initial = forms.DateTimeField(
+                required = (instance.type==2) and instance.status=='INITIALIZED',
+                widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
+            )
         paypal_receiver = forms.EmailField(
             label=_("contact email address for this campaign"), 
             max_length=100, 
             error_messages={'required': 'You must enter the email we should contact you at for this campaign.'},
             )
-        target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a target price.'} )
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
-        minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
-        maximum_target = settings.UNGLUEIT_MAXIMUM_TARGET
-        max_cc_date = settings.MAX_CC_DATE
         publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
-        cc_date_initial = forms.DateTimeField(
-                required = (instance.type==2) and instance.status=='INITIALIZED',
-                widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
-            )
                 
         class Meta:
             model = Campaign
@@ -402,30 +429,20 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                 }
     
         def clean_target(self):
-            new_target = self.cleaned_data['target']
+            new_target = super(ManageCampaignForm,self).clean_target()
             if self.instance:
                 if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
                     raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
-            if new_target < D(settings.UNGLUEIT_MINIMUM_TARGET):
-                raise forms.ValidationError(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
-            if new_target > D(settings.UNGLUEIT_MAXIMUM_TARGET):
-                raise forms.ValidationError(_('A campaign may not be launched with a target more than $%s' % settings.UNGLUEIT_MAXIMUM_TARGET))
             return new_target
 
         def clean_cc_date_initial(self):
             if self.instance.type==1:
                 return None
-            new_cc_date_initial = self.cleaned_data['cc_date_initial']
             if self.instance:
                 if self.instance.status != 'INITIALIZED':
                     # can't change this once launched
                     return self.instance.cc_date_initial
-            if new_cc_date_initial.date() > settings.MAX_CC_DATE:
-                raise forms.ValidationError('The initial CC date cannot be after %s'%settings.MAX_CC_DATE)
-            elif new_cc_date_initial - now() < timedelta(days=0):         
-                raise forms.ValidationError('The initial CC date must be in the future!')
-            return new_cc_date_initial
-            
+            return super(ManageCampaignForm,self).clean_cc_date_initial()            
         
         def clean_deadline(self):
             if self.instance.type==1:

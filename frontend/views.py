@@ -111,7 +111,8 @@ from regluit.frontend.forms import (
     PressForm,
     KindleEmailForm,
     MARCUngluifyForm,
-    MARCFormatForm
+    MARCFormatForm,
+    DateCalculatorForm
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -569,7 +570,6 @@ def new_edition(request, work_id, edition_id, by=None):
     return render(request, 'new_edition.html', {
             'form': form, 'edition': edition, 
         })
-    
     
 def manage_campaign(request, id):
     campaign = get_object_or_404(models.Campaign, id=id)
@@ -2077,6 +2077,25 @@ class FAQView(TemplateView):
         sublocation = self.kwargs["sublocation"]
         return {'location': location, 'sublocation': sublocation}
 
+class CCDateView(FormView):
+    template_name = 'calculator.html'
+    form_class = DateCalculatorForm
+
+    def form_valid(self, form):
+        form.instance._current_total=form.cleaned_data['revenue']
+        form.instance.status='DEMO'
+        form.instance.update_left()
+        form.instance.set_dollar_per_day()
+        return self.render_to_response(self.get_context_data(form=form))
+    
+    def get_initial(self):
+        return {'target':10000, 'cc_date_initial': date_today()+timedelta(days=1461),'revenue':0, 'type':BUY2UNGLUE, 'status':'DEMO'}
+
+    def get_context_data(self, **kwargs):
+        cd = super(CCDateView,self).get_context_data(**kwargs)
+        cd.update({'location': 'campaigns', 'sublocation': 'ccdate'})
+        return cd
+    
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
     def get_context_data(self, **kwargs):

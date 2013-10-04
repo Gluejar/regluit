@@ -179,10 +179,10 @@ Please fix the following before launching your campaign:
     
         {{ form.target.errors }}${{ form.target }}
     
-        <h3>Initial CC Date</h3>
+        <h3>Initial Ungluing Date</h3>
         <p>When you launch a Buy-To-Unglue campaign, you will specify a date in the future at which your book will become Creative Commons Licensed. eBooks sold via unglue.it will include a notice of this license. With every sale, the effective date of this license will advance a bit toward the present.  </p>
 
-	    <p>Before launching a campaign, you'll need to select Your initial CC Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Your starting CC Date must be before {{ form.max_cc_date }}</p>
+	    <p>Before launching a campaign, you'll need to select Your initial Ungluing Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Your starting Ungluing Date must be before {{ form.max_cc_date }}</p>
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
 	    <!--{{ form.deadline.errors }}-->{{ form.deadline }}
 	{% endifequal %}
@@ -201,12 +201,12 @@ Please fix the following before launching your campaign:
         <p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
         {{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
 	{% else %}
-	    <h3>CC Date</h3>
-	    <p> This campaign was launched with a CC Date of {{ campaign.cc_date_initial }}.</p>
-	    <p> Based on a total revenue of {{ campaign.current_total }} the CC Date has been advanced to {{ campaign.cc_date }}.</p>
+	    <h3>Ungluing Date</h3>
+	    <p> This campaign was launched with a Ungluing Date of {{ campaign.cc_date_initial }}.</p>
+	    <p> Based on a total revenue of {{ campaign.current_total }} the Ungluing Date has been advanced to {{ campaign.cc_date }}.</p>
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
         <h3>Ending date</h3>
-        <p>Your sales campaign will run until <b>{{ campaign.deadline }}</b>. Contact unglue.it staff to extend it.</p>
+        <p>Your Buy-to-Unglue Campaign will run until <b>{{ campaign.deadline }}</b>. Contact unglue.it staff to extend it.</p>
         <!--{{ form.deadline.errors }}-->{{ form.deadline }}
 	{% endifequal %}
 {% endifnotequal %}
