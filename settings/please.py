@@ -15,13 +15,15 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'please',
-        'USER': 'root',
-        'PASSWORD': 'forgetn0t',
-        'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'NAME': 'regluit',
+        'USER': 'regluit',
+        'PASSWORD': 'regluit',
+        'HOST': '',
         'PORT': '',
+        'TEST_CHARSET': 'utf8',
     }
 }
+
 
 TIME_ZONE = 'America/New_York'
 SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'

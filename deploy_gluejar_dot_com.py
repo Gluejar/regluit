@@ -2,9 +2,9 @@
 # # Goals of this notebook
 # 
 # * instantiate a new EC2 instance with which to build a new image for the purpose of deploying gluejar_dot_com: https://github.com/Gluejar/gluejar_dot_com
-# * configure the instance -- what's involved?  Essentially I need to adapt https://github.com/Gluejar/regluit/blob/master/README.md (written for unglue.it) into a fabric script that will work for gluejar_dot_com.
-# * security group
-# * database -- local db -- no need for RDS
+# * configure the instance.  Essentially we need to adapt https://github.com/Gluejar/regluit/blob/master/README.md (written for unglue.it) into a fabric script that will work for gluejar_dot_com.
+# * security group for gluejar.com (`gluejar_dot_com_sg`)
+# * database -- we use a local db -- no need for RDS
 # * IAM
 # * elastic IP
 # * route53?
@@ -29,7 +29,9 @@ reload(aws)
 # EBS boot	ami-e7582d8e
 
 #AMI_UBUNTU_12_04_ID = 'ami-79c0ae10' # older one
-AMI_UBUNTU_12_04_ID = 'ami-e7582d8e'
+#AMI_UBUNTU_12_04_ID = 'ami-e7582d8e' # ubuntu-precise-12.04-amd64-server-20130603
+AMI_UBUNTU_12_04_ID = 'ami-53b1ff3a' # ubuntu-precise-12.04-amd64-server-20130909
+
 image = aws.ec2.get_all_images(image_ids=[AMI_UBUNTU_12_04_ID])[0]
 
 
@@ -265,7 +267,8 @@ EOF
         sudo('chown ubuntu:ubuntu /var/www/static')
         run('django-admin.py collectstatic  --noinput --settings gluejar_dot_com.settings')
 
-        # must be a better way
+        # must be a better way to have the correct permissions, like clarifying what user the Django app
+        # is running under and then granting ownership of this file to the process
         sudo('chmod go+w /opt/gluejar_dot_com/logs/gluejar_dot_com.log')
         
         sudo('a2dissite 000-default')
@@ -865,4 +868,61 @@ fabric.tasks.execute(run_on_ry_dev, hosts=hosts)
 # In[ ]:
 
 instance.state
+
+
+## Elastic IP
+
+# In[ ]:
+
+from regluit.sysadmin import aws
+reload(aws)
+
+
+[(address.public_ip, address.instance_id) for address in aws.ec2.get_all_addresses()]
+
+
+# In[ ]:
+
+GLUEJAR_DOT_COM_ADDRESS = '184.73.231.81'
+
+candidate_addresses = filter(lambda x: x.public_ip == GLUEJAR_DOT_COM_ADDRESS, 
+                                aws.ec2.get_all_addresses()) 
+
+address_for_gluejar_dot_com = candidate_addresses[0] if candidate_addresses else None
+
+
+
+(address_for_gluejar_dot_com)
+
+
+# In[ ]:
+
+address_for_gluejar_dot_com.associate(instance_id=aws.instance('gluejar_dot_com').id)
+
+
+## Route 53
+
+# In[ ]:
+
+from regluit.sysadmin import aws
+reload(aws)
+
+hzones = aws.all_hosted_zones()
+hzones
+
+
+# **Some of the records required for gluejar.com**
+# 
+# * `A` record to tie to the reserved elastic IP address we have reserved and which is assigned to the instance we are using to run the gluejar.com site
+# * `MX`:  to send email to gmail 
+# * 
+
+# In[ ]:
+
+list(aws.rrsets_for_domain('gluejar.com'))
+
+
+# In[ ]:
+
+
 
