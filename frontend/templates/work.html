@@ -296,7 +296,7 @@
                                             , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
                                             You can help!</p>
                                         {% else %}
-                                            <h3 class="tabcontent-title">A sales campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                                            <h3 class="tabcontent-title">A Buy-to-Unglue Campaign is running to unglue <i>{{work.title}}</i>!</h3>
                                             <p>The rights holder, {% for claim in work.claim.all %}
                                                 {% if claim.status == 'active' %}
                                                 {{ claim.rights_holder.rights_holder_name }}

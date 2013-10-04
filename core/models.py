@@ -412,7 +412,7 @@ class Campaign(models.Model):
                 self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
                 may_launch = False  
             if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now())):
-                self.problems.append(_('You must set an initial CC Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
+                self.problems.append(_('You must set an initial Ungluing Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
                 may_launch = False  
         except Exception as e :
             self.problems.append('Exception checking launchability ' + str(e))
@@ -482,7 +482,8 @@ class Campaign(models.Model):
         time_to_cc = self.cc_date_initial - start_datetime
         
         self.dollar_per_day = float(self.target)/float(time_to_cc.days)
-        self.save()
+        if self.status!='DEMO':
+            self.save()
         return self.dollar_per_day
     
     def set_cc_date_initial(self, a_date=settings.MAX_CC_DATE):
@@ -501,7 +502,8 @@ class Campaign(models.Model):
             self.left = Decimal(self.dollar_per_day*float((self.cc_date_initial - datetime.today()).days))-self.current_total
         else:
             self.left = self.target - self.current_total
-        self.save()
+        if self.status != 'DEMO':
+            self.save()
         
     def transactions(self,  **kwargs):
         p = PaymentManager()
