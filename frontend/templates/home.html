@@ -159,17 +159,18 @@ function put_un_in_cookie2(){
                             {% comment %}
                                 events are tuples of date, object, and string representing object type
                             {% endcomment %}
-                        	<li>
-                        	    {% with event.1 as object %}
-                        	        {% ifequal event.2 "pledge" %}
+                            <li>
+                                {% with event.1 as object %}
+                                    {% ifequal event.2 "pledge" %}
                                         <span class="user-avatar">
                                             <a href="{% url supporter object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
-                                            {% ifequal object.type 2 %}
+                                            {% ifequal object.campaign.type 1 %}
                                             pledged to unglue 
-                                            {% else %}
+                                            {% endifequal %}
+                                            {% ifequal object.campaign.type 2 %}
                                             bought a copy of 
                                             {% endifequal %}<br />
                                             <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>

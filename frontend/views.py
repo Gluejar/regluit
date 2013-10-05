@@ -232,6 +232,8 @@ def home(request, landing=False):
         )[:10]
     latest_pledges = Transaction.objects.filter(
             anonymous=False
+        ).exclude(
+            type=0  #incomplete
         ).only(
             'date_created', 'user', 'campaign'
         ).order_by(
