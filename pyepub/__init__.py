@@ -373,10 +373,11 @@ class EPUB(zipfile.ZipFile):
         reference = ET.Element("reference", attrib={"title": href, "href": href, "type": reftype})
         if position is None or position>len(self.opf[2]):
             self.opf[2].append(itemref)
-            self.opf[3].append(reference)
+            if self.info["guide"]:
+                self.opf[3].append(reference)
         else:
             self.opf[2].insert(position, itemref)
-            if len(self.opf[3]) >= position+1:
+            if self.info["guide"] and len(self.opf[3]) >= position+1:
                 self.opf[3].insert(position, reference)
 
     def writetodisk(self, filename):
