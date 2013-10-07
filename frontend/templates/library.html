@@ -84,7 +84,7 @@ function highlightTarget(targetdiv) {
                                     {% with supporter.profile.tagline as tagline %}{% if tagline %}{{ tagline }}{% else %}&nbsp;{% endif %}{% endwith %}
                                 </span>
                                 {% if supporter.library.group in request.user.groups.all  %}
-                                    This is YOUR Library!
+                                    <i>This is MY Library!</i>
                                 {% else %}
                                     <a href="{% url join_library supporter.username %}" class="fakeinput">Make this my Library</a>
                                 {% endif %}
