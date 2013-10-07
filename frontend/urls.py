@@ -37,7 +37,8 @@ from regluit.frontend.views import (
     send_to_kindle,
     send_to_kindle_graceful,
     MARCUngluifyView,
-    MARCConfigView
+    MARCConfigView,
+    CCDateView
 )
 
 urlpatterns = patterns(
@@ -63,6 +64,7 @@ urlpatterns = patterns(
     url(r"^rightsholders/claim/$", "claim", name="claim"), 
     url(r"^rh_admin/$", "rh_admin", name="rh_admin"),
     url(r"^campaign_admin/$", "campaign_admin", name="campaign_admin"),    
+    url(r"^faq/ccdate/$",CCDateView.as_view(), name="ccdate"), 
     url(r"^faq/$", FAQView.as_view(), {'location':'faq', 'sublocation':'all'}, name="faq"), 
     url(r"^faq/(?P<location>\w*)/$", FAQView.as_view(), {'sublocation':'all'}, name="faq_location"), 
     url(r"^faq/(?P<location>\w*)/(?P<sublocation>\w*)/$", FAQView.as_view(), name="faq_sublocation"), 

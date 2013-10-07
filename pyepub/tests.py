@@ -17,6 +17,11 @@ class EpubTests(unittest.TestCase):
         test_file_content = urllib2.urlopen('http://www.hxa.name/articles/content/EpubGuide-hxa7241.epub')
         self.epub2file.write(test_file_content.read())
         self.epub2file.seek(0)
+        # get an epub with no guide element
+        self.epub2file2 = NamedTemporaryFile(delete=False)
+        test_file_content2 = urllib2.urlopen('http://www.gutenberg.org/ebooks/2701.epub.noimages')
+        self.epub2file2.write(test_file_content2.read())
+        self.epub2file2.seek(0)
         
         
     def test_instantiation(self):
@@ -34,6 +39,15 @@ class EpubTests(unittest.TestCase):
         part = StringIO('<?xml version="1.0" encoding="utf-8" standalone="yes"?>')
         epub.addpart(part, "testpart.xhtml", "application/xhtml+xml", 2)
         self.assertEqual(len(epub.opf[2]),9) #spine items
+        
+    def test_addpart_noguide(self):
+        epub2=EPUB(self.epub2file2,mode='a')
+        self.assertEqual(len(epub2.opf),3)
+        self.assertEqual(epub2.info['guide'],None)
+        num_spine_items = len(epub2.opf[2])
+        part = StringIO('<?xml version="1.0" encoding="utf-8" standalone="yes"?>')
+        epub2.addpart(part, "testpart.xhtml", "application/xhtml+xml", 2)
+        self.assertEqual(len(epub2.opf[2]), num_spine_items +1) #spine items
         
     def test_addmetadata(self):
         epub=EPUB(self.epub2file,mode='a')

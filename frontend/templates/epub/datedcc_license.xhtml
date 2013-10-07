@@ -6,13 +6,14 @@
 </head>
 <body>
 <div class="booksection">
-<p>
-This copyrighted work was licensed to you, {{ acq.user.username }}, on {{ acq.created }} through https://unglue.it for your personal use only. It may not be transferred to third parties without the express written permission of the rights holder. This license has been embedded into the digital file, along with your identity, that of the licensor, and terms of the license. You can use this file to prove your license status. It may be unlawful for you to remove the embedded license. Unauthorized distribution of this work is not permitted and may have serious legal consequences including the revocation of your license.
+<p class="copyk">
+RESTRICTED NON-TRANSFERABLE DIGITAL LICENSE FOR PERSONAL USE ONLY: This copyrighted work is licensed to you, {{ acq.user.username }}, on {{ acq.created }} through https://unglue.it under an individual, restricted, non-transferrable license for your personal use only.  You are not authorized to copy, transfer, distribute, display or otherwise transmit this work to third parties without the express written permission of the copyright holder. The license has been embedded into the digital file, along with your identity, that of the licensor, and the details of the restricted terms of this license. You can use this file to prove your license status. This embedded license must not be altered, removed or tampered with for any reason and any effort to do so will result in the immediate revocation of this license. Unauthorized distribution of this work is a copyright violation and may be enforced by the rights holder accordingly to the fullest extent available under the law. 
 </p>
 <p>&#x00A0;</p>
-<p class="copyk">Notwithstanding the above, after {{ acq.work.last_campaign.cc_date }}, this book is licensed under a {{ acq.work.last_campaign.license }} license. Details are available at <a href="{{ acq.work.last_campaign.license_url }}">{{ acq.work.last_campaign.license_url }}</a></p>
+<p class="copyk">After {{ acq.work.last_campaign.cc_date }}, this book shall be released under a {{ acq.work.last_campaign.license }} license at which time the above restricted license terms shall be replaced and superseded by the terms of the applicable Creative Commons license <a href="{{ acq.work.last_campaign.license_url }}">{{ acq.work.last_campaign.license_url }}</a></p>
 <p class="copy"></p>
 
 </div>
 </body>
 </html>
+
