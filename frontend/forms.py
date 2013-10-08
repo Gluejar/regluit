@@ -13,7 +13,6 @@ from django import forms
 from django.conf import settings
 from django.conf.global_settings import LANGUAGES
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
 from django.core.validators import validate_email
 from django.db import models
 from django.forms.widgets import RadioSelect
@@ -621,14 +620,6 @@ class FeedbackForm(forms.Form):
             raise forms.ValidationError(_("Whoops, try that sum again."))
             
         return cleaned_data
-
-class AuthForm(AuthenticationForm):
-    def __init__(self, request=None, *args, **kwargs):
-        if request and request.method == 'GET':
-            saved_un= request.COOKIES.get('un', None)
-            super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
-        else:
-            super(AuthForm, self).__init__(*args, **kwargs)
 
 class MsgForm(forms.Form):
     msg = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})

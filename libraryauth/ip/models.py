@@ -1,6 +1,4 @@
-# IP address part of this of this copied from https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
-
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core import validators
 from django.db import models
@@ -8,31 +6,7 @@ from django.db.models import Q
 from django.forms import IPAddressField as BaseIPAddressField
 from django.utils.translation import ugettext_lazy as _
 
-class Library(models.Model):
-    '''
-    name and other things derive from the User
-    '''
-    user = models.OneToOneField(User, related_name='library')
-    backend =  models.CharField(max_length=10, default='ip')
-        
-    @property
-    def group(self):
-        (libgroup, created)=Group.objects.get_or_create(name=self.user.username)
-        return libgroup
 
-    def __unicode__(self):
-        return self.user.username
-        
-    def add_user(self, user):
-        user.groups.add(self.group)
-    
-    def has_user(self, user):
-        return self.group in user.groups.all()
-        
-    @property
-    def join_template(self):
-        return 'libraryauth/' + self.backend + '_join.html'
-    
 
 def ip_to_long(value):
     validators.validate_ipv4_address(value)
@@ -82,7 +56,7 @@ class IP(object):
     int = property(_get_int, _set_int)
 
     def _get_str(self):
-        if self.int!=None:
+        if self.int:
             return long_to_ip(self.int)
         return ''
 
@@ -127,8 +101,6 @@ class IPAddressFormField(BaseIPAddressField):
         return value
 
     def to_python(self, value):
-        if value==0:
-            return IP(0)
         if value in validators.EMPTY_VALUES:
             return None
 
@@ -168,21 +140,22 @@ class IPAddressModelField(models.IPAddressField):
         defaults.update(kwargs)
         return super(models.IPAddressField, self).formfield(**defaults)
 
-class Block(models.Model):
-    library = models.ForeignKey(Library, related_name='block')
+
+class Range(models.Model):
+    user = models.ForeignKey(User, related_name='+')
     lower = IPAddressModelField(db_index=True, unique=True)
     upper = IPAddressModelField(db_index=True, blank=True, null=True)
 
     def clean(self):
         if self.upper and self.upper.int:
             try:
-                if self.lower > self.upper:
-                    raise ValidationError('Lower end of the Block must be less '
-                                          'than or equal to the upper end')
+                if self.lower >= self.upper:
+                    raise ValidationError('Lower end of the range must be less '
+                                          'than the upper end')
             except ValueError, e:
                 pass
 
-        others = Block.objects.exclude(pk=self.pk)
+        others = Range.objects.exclude(pk=self.pk)
         query = Q(lower__lte=self.lower, upper__gte=self.lower) | \
                 Q(lower=self.lower)
         if self.upper and self.upper.int:
@@ -195,19 +168,16 @@ class Block(models.Model):
         query = others.filter(query)
 
         if query.exists():
-            values = query.distinct().values_list('library__user__username', flat=True)
-            raise ValidationError('%s overlaps a block in in use by: %s' % (textual,
+            values = query.distinct().values_list('user__username', flat=True)
+            raise ValidationError('%s overlaps a range in in use by: %s' % (textual,
                 ', '.join(list(frozenset(values))[:5])))
 
 
     def __unicode__(self):
         if self.upper and self.upper.int:
-            return u'%s %s-%s' % (self.library, self.lower, self.upper)
-        return u'%s %s' % (self.library, self.lower)
+            return u'%s %s-%s' % (self.user.get_full_name(), self.lower,
+                                  self.upper)
+        return u'%s %s' % (self.user.get_full_name(), self.lower)
 
     class Meta:
         ordering = ['lower',]
-
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^regluit\.libraryauth\.models\.IPAddressModelField"])
-

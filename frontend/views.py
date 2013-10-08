@@ -107,7 +107,6 @@ from regluit.frontend.forms import (
     WorkForm,
     OtherWorkForm,
     MsgForm,
-    AuthForm,
     PressForm,
     KindleEmailForm,
     MARCUngluifyForm,
@@ -136,6 +135,7 @@ from regluit.payment.parameters import (
 
 from regluit.utils.localdatetime import now, date_today
 from regluit.booxtream.exceptions import BooXtreamError
+from regluit.libraryauth.views import Authenticator
 from regluit.libraryauth.models import Library
 
 logger = logging.getLogger(__name__)
@@ -297,18 +297,6 @@ def stub(request):
 def acks(request, work):
     return render(request,'front_matter.html', {'campaign': work.last_campaign()})
     
-def superlogin(request, **kwargs):
-    extra_context = None
-    if request.method == 'POST' and request.user.is_anonymous():
-        username=request.POST.get("username", "")
-        try:
-            user=models.User.objects.get(username=username)
-            extra_context={"socials":user.profile.social_auths}
-        except:
-            pass
-    if request.GET.has_key("add"):
-        request.session["add_wishlist"]=request.GET["add"]
-    return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
 
 @login_required
 def social_auth_reset_password(request):
@@ -316,15 +304,6 @@ def social_auth_reset_password(request):
         request.user.set_password('%010x' % random.randrange(16**10))
         request.user.save()
     return password_reset(request)
-
-def join_library(request, library):
-    library=get_object_or_404(Library, user__username=library)
-    if library.authenticate(request.user):
-        request.user.groups.add(library.group)
-        return HttpResponseRedirect(reverse('library',args=[str(library)]))
-    else:
-        return library.authenticator(request)
-    return render(request, 'join_library.html', {'library': library}) 
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
@@ -1871,6 +1850,10 @@ def supporter(request, supporter_username, template_name):
         librarything_id = None
 
     process_kindle_email(request)
+    try:
+        authenticator = Authenticator(request,supporter.library)
+    except Library.DoesNotExist:
+        authenticator=None
                 
     context = {
             "supporter": supporter,
@@ -1888,7 +1871,8 @@ def supporter(request, supporter_username, template_name):
             "goodreads_auth_url": reverse('goodreads_auth'),
             "goodreads_id": goodreads_id,
             "librarything_id": librarything_id,
-            "activetab": activetab
+            "activetab": activetab,
+            "authenticator":  authenticator
     }
     
     return render(request, template_name, context)

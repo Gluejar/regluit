@@ -12,14 +12,26 @@ class Migration(SchemaMigration):
         db.create_table('libraryauth_library', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='library', unique=True, to=orm['auth.User'])),
-            ('backend', self.gf('django.db.models.fields.CharField')(default='IP', max_length=10)),
+            ('backend', self.gf('django.db.models.fields.CharField')(default='ip', max_length=10)),
         ))
         db.send_create_signal('libraryauth', ['Library'])
+
+        # Adding model 'Block'
+        db.create_table('libraryauth_block', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='block', to=orm['libraryauth.Library'])),
+            ('lower', self.gf('regluit.libraryauth.models.IPAddressModelField')(unique=True, db_index=True)),
+            ('upper', self.gf('regluit.libraryauth.models.IPAddressModelField')(db_index=True, null=True, blank=True)),
+        ))
+        db.send_create_signal('libraryauth', ['Block'])
 
 
     def backwards(self, orm):
         # Deleting model 'Library'
         db.delete_table('libraryauth_library')
+
+        # Deleting model 'Block'
+        db.delete_table('libraryauth_block')
 
 
     models = {
@@ -59,9 +71,16 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        'libraryauth.block': {
+            'Meta': {'ordering': "['lower']", 'object_name': 'Block'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'block'", 'to': "orm['libraryauth.Library']"}),
+            'lower': ('regluit.libraryauth.models.IPAddressModelField', [], {'unique': 'True', 'db_index': 'True'}),
+            'upper': ('regluit.libraryauth.models.IPAddressModelField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'})
+        },
         'libraryauth.library': {
             'Meta': {'object_name': 'Library'},
-            'backend': ('django.db.models.fields.CharField', [], {'default': "'IP'", 'max_length': '10'}),
+            'backend': ('django.db.models.fields.CharField', [], {'default': "'ip'", 'max_length': '10'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'library'", 'unique': 'True', 'to': "orm['auth.User']"})
         }

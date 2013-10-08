@@ -28,4 +28,7 @@ class LibraryAdmin(ModelAdmin):
     form = LibraryAdminForm
     search_fields = ['user__username']
 
+class BlockAdmin(ModelAdmin):
+    list_display = ('library', 'lower', 'upper',)
+    search_fields = ('library__user__username', 'lower', 'upper',)
 
