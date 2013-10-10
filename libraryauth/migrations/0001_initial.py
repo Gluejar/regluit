@@ -12,6 +12,7 @@ class Migration(SchemaMigration):
         db.create_table('libraryauth_library', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='library', unique=True, to=orm['auth.User'])),
+            ('group', self.gf('django.db.models.fields.related.OneToOneField')(related_name='library', unique=True, null=True, to=orm['auth.Group'])),
             ('backend', self.gf('django.db.models.fields.CharField')(default='ip', max_length=10)),
         ))
         db.send_create_signal('libraryauth', ['Library'])
@@ -19,11 +20,29 @@ class Migration(SchemaMigration):
         # Adding model 'Block'
         db.create_table('libraryauth_block', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='block', to=orm['libraryauth.Library'])),
+            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='blocks', to=orm['libraryauth.Library'])),
             ('lower', self.gf('regluit.libraryauth.models.IPAddressModelField')(unique=True, db_index=True)),
             ('upper', self.gf('regluit.libraryauth.models.IPAddressModelField')(db_index=True, null=True, blank=True)),
         ))
         db.send_create_signal('libraryauth', ['Block'])
+
+        # Adding model 'CardPattern'
+        db.create_table('libraryauth_cardpattern', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='card_patterns', to=orm['libraryauth.Library'])),
+            ('pattern', self.gf('django.db.models.fields.CharField')(max_length=20)),
+            ('checksum', self.gf('django.db.models.fields.BooleanField')(default=True)),
+        ))
+        db.send_create_signal('libraryauth', ['CardPattern'])
+
+        # Adding model 'UserCard'
+        db.create_table('libraryauth_usercard', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='library_cards', to=orm['libraryauth.Library'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='library_cards', to=orm['auth.User'])),
+            ('number', self.gf('django.db.models.fields.CharField')(max_length=20)),
+        ))
+        db.send_create_signal('libraryauth', ['UserCard'])
 
 
     def backwards(self, orm):
@@ -32,6 +51,12 @@ class Migration(SchemaMigration):
 
         # Deleting model 'Block'
         db.delete_table('libraryauth_block')
+
+        # Deleting model 'CardPattern'
+        db.delete_table('libraryauth_cardpattern')
+
+        # Deleting model 'UserCard'
+        db.delete_table('libraryauth_usercard')
 
 
     models = {
@@ -74,15 +99,30 @@ class Migration(SchemaMigration):
         'libraryauth.block': {
             'Meta': {'ordering': "['lower']", 'object_name': 'Block'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'block'", 'to': "orm['libraryauth.Library']"}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'blocks'", 'to': "orm['libraryauth.Library']"}),
             'lower': ('regluit.libraryauth.models.IPAddressModelField', [], {'unique': 'True', 'db_index': 'True'}),
             'upper': ('regluit.libraryauth.models.IPAddressModelField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'})
+        },
+        'libraryauth.cardpattern': {
+            'Meta': {'object_name': 'CardPattern'},
+            'checksum': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'card_patterns'", 'to': "orm['libraryauth.Library']"}),
+            'pattern': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
         'libraryauth.library': {
             'Meta': {'object_name': 'Library'},
             'backend': ('django.db.models.fields.CharField', [], {'default': "'ip'", 'max_length': '10'}),
+            'group': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'library'", 'unique': 'True', 'null': 'True', 'to': "orm['auth.Group']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'library'", 'unique': 'True', 'to': "orm['auth.User']"})
+        },
+        'libraryauth.usercard': {
+            'Meta': {'object_name': 'UserCard'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'library_cards'", 'to': "orm['libraryauth.Library']"}),
+            'number': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'library_cards'", 'to': "orm['auth.User']"})
         }
     }
 

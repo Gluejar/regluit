@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load truncatechars %}
-{% block title %} &#8212; {{ supporter.username }}{% endblock %}
+{% block title %} &#8212; {{ library.user.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css" />
@@ -52,7 +52,7 @@ function highlightTarget(targetdiv) {
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
 {% ifequal supporter request.user %}
-    <div class="launch_top pale">You are logged in as the administrator of {{ supporter.username }}
+    <div class="launch_top pale">You are logged in as the administrator of {{ library.user.username }}
     </div>
 {% endifequal %}
 
@@ -65,60 +65,59 @@ function highlightTarget(targetdiv) {
                         <div class="user-block" itemscope itemtype="http://schema.org/Person">
                             <div id="user-block1">
                                 <div class="block-inner">
-                                    <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="Avatar" />
+                                    <img class="user-avatar" src="{{ library.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="Avatar" />
                                     <span class="user-name">
-                                        <a href="#"><span itemprop="name">{{ supporter.username }}</span></a>
+                                        <a href="#"><span itemprop="name">{{ library.user.username }}</span></a>
                                     </span>
                                 </div>
                                 <span class="user-badges">
-                                    {% if supporter.profile.badges.all %}
-                                        {% for badge in supporter.profile.badges.all %}
+                                    {% if library.user.profile.badges.all %}
+                                        {% for badge in library.user.profile.badges.all %}
                                             <img src="{{ badge.path }}" alt="{{ badge.description }}" title="{{ badge.description }}" width="26" height="26" class="{{ badge.name }}" />                                
                                         {% endfor %}
                                     {% endif %}
                                 </span>
                             </div>
 
-                            <div class="user-block23">
-                                <span class="user-short-info">
-                                    {% with supporter.profile.tagline as tagline %}{% if tagline %}{{ tagline }}{% else %}&nbsp;{% endif %}{% endwith %}
-                                </span>
-                                {% if supporter.library.group in request.user.groups.all  %}
-                                    <i>This is {{ request.user }}'s Library!</i>
-                                {% else %}
-                                    {% include supporter.library.join_template %}
-                                {% endif %}
-                            </div>
+                            {% if library.group in request.user.groups.all  %}
+                                <div class="user-block23">
+                                    <i>{{ library }} is {{ request.user }}'s Library!</i>
+                                </div>
+                                <div class="user-block4">
+                                    <div class="social">
+                                    {% if library.user.profile.home_url %}
+                                       <a href="{{ library.user.profile.home_url }}" class="nounderline">
+                                           <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
+                                       </a>
+                                    {% endif %}
+                                    {% if library.user.profile.facebook_id %}
+                                        <a href="http://www.facebook.com/profile.php?id={{library.user.profile.facebook_id}}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/facebook_square.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
+                                        </a>
+                                    {% endif %}
+                                    {% if library.user.profile.twitter_id %}
+                                        <a href="https://twitter.com/#!/{{ library.user.profile.twitter_id }}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
+                                        </a>
+                                    {% endif %}
+                                    {% if library.user.profile.goodreads_user_link %}
+                                        <a href="{{library.user.profile.goodreads_user_link}}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
+                                        </a>
+                                    {% endif %}
+                                    {% if library.user.profile.librarything_id %}
+                                        <a href="http://www.librarything.com/profile/{{ library.user.profile.librarything_id }}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
+                                        </a>
+                                     {% endif %}
+                                   </div>
+                                </div>
+                            {% else %}
+                                <div class="user-block24">
+                                    {% include library.join_template %}
+                                </div>
+                            {% endif %}
 
-                            <div class="user-block4">
-                                <div class="social">
-                                {% if supporter.profile.home_url %}
-                                   <a href="{{ supporter.profile.home_url }}" class="nounderline">
-                                       <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
-                                   </a>
-                                {% endif %}
-                                {% if supporter.profile.facebook_id %}
-									<a href="http://www.facebook.com/profile.php?id={{supporter.profile.facebook_id}}" class="nounderline">
-										<img src="/static/images/supporter_icons/facebook_square.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
-									</a>
-                                {% endif %}
-                                {% if supporter.profile.twitter_id %}
-									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}" class="nounderline">
-										<img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
-									</a>
-                                {% endif %}
-                                {% if supporter.profile.goodreads_user_link %}
-									<a href="{{supporter.profile.goodreads_user_link}}" class="nounderline">
-										<img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
-									</a>
-                                {% endif %}
-                                {% if supporter.profile.librarything_id %}
-									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
-										<img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
-									</a>
-                                 {% endif %}
-                               </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -170,7 +169,7 @@ function highlightTarget(targetdiv) {
                         </ul>
                 </div>
                 {% endif %}
-                
+                {% if wishlist %}
                 <div id="content-block-content">
                     {% ifequal wishlist.works.all.count 0 %}
                         {% ifequal request.user supporter %}
@@ -200,7 +199,7 @@ function highlightTarget(targetdiv) {
                         </div>
                         {% else %}
                         <div class="empty-wishlist">
-                            It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
+                            It looks like {{ library.user.username }} is just getting started, and hasn't added books just yet.<br /><br />
                         {% endifequal %}
                     {% else %}
                     
@@ -275,7 +274,8 @@ function highlightTarget(targetdiv) {
                     
                     {% endifequal %}
                 </div>
-            </div>    
+            </div>   
+                {% endif %}
         </div>
         </div>
     </div>

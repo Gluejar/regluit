@@ -6,7 +6,7 @@ from selectable.registry import registry
 
 from django import forms
 from django.contrib.admin import ModelAdmin
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 class UserLookup(ModelLookup):
     model = User
@@ -22,7 +22,10 @@ class LibraryAdminForm(forms.ModelForm):
         )
     class Meta(object):
         model = models.Library
-
+        widgets= {'group':forms.HiddenInput}
+        exclude = ('group', )
+        
+        
 class LibraryAdmin(ModelAdmin):
     list_display = ('user', )
     form = LibraryAdminForm
@@ -32,3 +35,6 @@ class BlockAdmin(ModelAdmin):
     list_display = ('library', 'lower', 'upper',)
     search_fields = ('library__user__username', 'lower', 'upper',)
 
+class CardPatternAdmin(ModelAdmin):
+    list_display = ('library', 'pattern', 'checksum',)
+    search_fields = ('library__user__username', 'lower', 'upper',)

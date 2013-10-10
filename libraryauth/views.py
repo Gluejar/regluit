@@ -34,9 +34,14 @@ class Authenticator:
     request=None
     library=None
 
-    def __init__(self, request, library):
-        self.request=request
-        self.library=library
+    def __init__(self, request, library, *args, **kwargs):
+        self.request = request
+        self.library = library
+        try:
+            form_class = getattr(backends, self.library.backend + '_form')
+            self.form = form_class(request, library, *args, **kwargs)
+        except AttributeError:
+            self.form = None
         
     def process(self, success_url, deny_url):
         logger.info('authenticator for %s at %s.'%(self.request.user, self.library))
@@ -52,7 +57,7 @@ class Authenticator:
             
         else:
             backend_authenticator= getattr(backends, self.library.backend + '_authenticator')
-            return backend_authenticator(self.request, self.library, success_url, deny_url)
+            return backend_authenticator().process(self, success_url, deny_url)
             
     def allowed(self):
         backend_test= getattr(backends, self.library.backend + '_authenticate')

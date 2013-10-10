@@ -1851,9 +1851,12 @@ def supporter(request, supporter_username, template_name):
 
     process_kindle_email(request)
     try:
+        # determine if the supporter is a library
         authenticator = Authenticator(request,supporter.library)
+        library = supporter.library
     except Library.DoesNotExist:
         authenticator=None
+        library=None
                 
     context = {
             "supporter": supporter,
@@ -1872,6 +1875,7 @@ def supporter(request, supporter_username, template_name):
             "goodreads_id": goodreads_id,
             "librarything_id": librarything_id,
             "activetab": activetab,
+            "library":library,
             "authenticator":  authenticator
     }
     

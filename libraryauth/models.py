@@ -1,10 +1,12 @@
 # IP address part of this of this copied from https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
 
+import re
 from django.contrib.auth.models import User, Group
 from django.core.exceptions import ValidationError
 from django.core import validators
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save
 from django.forms import IPAddressField as BaseIPAddressField
 from django.utils.translation import ugettext_lazy as _
 
@@ -13,13 +15,9 @@ class Library(models.Model):
     name and other things derive from the User
     '''
     user = models.OneToOneField(User, related_name='library')
-    backend =  models.CharField(max_length=10, default='ip')
-        
-    @property
-    def group(self):
-        (libgroup, created)=Group.objects.get_or_create(name=self.user.username)
-        return libgroup
-
+    group = models.OneToOneField(Group, related_name='library', null = True)
+    backend =  models.CharField(max_length=10, choices=(('ip','IP authentication'),('cardnum', 'Library Card Number check')),default='ip')
+    
     def __unicode__(self):
         return self.user.username
         
@@ -32,7 +30,26 @@ class Library(models.Model):
     @property
     def join_template(self):
         return 'libraryauth/' + self.backend + '_join.html'
-    
+
+def add_group(sender, created, instance, **kwargs):
+    if created:
+        num=''
+        while created:
+            (group,created)=Group.objects.get_or_create(name=instance.user.username + num)
+            # make sure not using a group twice!
+            if created:
+                created = False
+            else:
+                num += '+'
+                try:
+                    group.library
+                    created = True
+                except Library.DoesNotExist:
+                    pass
+        instance.group=group
+        instance.save()
+
+post_save.connect(add_group, sender=Library)
 
 def ip_to_long(value):
     validators.validate_ipv4_address(value)
@@ -169,7 +186,7 @@ class IPAddressModelField(models.IPAddressField):
         return super(models.IPAddressField, self).formfield(**defaults)
 
 class Block(models.Model):
-    library = models.ForeignKey(Library, related_name='block')
+    library = models.ForeignKey(Library, related_name='blocks')
     lower = IPAddressModelField(db_index=True, unique=True)
     upper = IPAddressModelField(db_index=True, blank=True, null=True)
 
@@ -208,6 +225,40 @@ class Block(models.Model):
     class Meta:
         ordering = ['lower',]
 
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^regluit\.libraryauth\.models\.IPAddressModelField"])
 
+from south.modelsinspector import add_introspection_rules
+escaped_package= __name__.replace('.', '\.')
+add_introspection_rules([], ['^' + escaped_package + '\.IPAddressModelField'])
+
+# from http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
+def luhn_checksum(card_number):
+    def digits_of(n):
+        return [int(d) for d in str(n)]
+    digits = digits_of(card_number)
+    odd_digits = digits[-1::-2]
+    even_digits = digits[-2::-2]
+    checksum = 0
+    checksum += sum(odd_digits)
+    for d in even_digits:
+        checksum += sum(digits_of(d*2))
+    return checksum % 10
+     
+class CardPattern(models.Model):
+    library = models.ForeignKey(Library, related_name='card_patterns')
+    # match pattern ^\d+#+$
+    pattern = models.CharField(max_length=20)
+    checksum = models.BooleanField(default=True)
+
+    def is_valid(self, card_number):
+        match_pattern='^' + self.pattern.replace('#','\d',20) + '$'
+        if re.match(match_pattern,card_number) is None:
+            return False
+        if self.checksum:
+            return luhn_checksum(card_number) == 0
+        else:
+            return True
+
+class UserCard(models.Model):
+    library = models.ForeignKey(Library, related_name='library_cards')
+    user = models.ForeignKey(User, related_name='library_cards')
+    number = models.CharField(max_length=20)

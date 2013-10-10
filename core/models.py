@@ -63,6 +63,8 @@ from regluit.core.parameters import (
 from regluit.booxtream import BooXtream 
 watermarker = BooXtream()
 
+from regluit.libraryauth.models import Library
+
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
 logger = logging.getLogger(__name__)
@@ -1501,6 +1503,17 @@ class UserProfile(models.Model):
         for social in socials:
             auths[social.provider]=True
         return auths
+
+    @property
+    def libraries(self):
+        libs=[]
+        for group in self.user.groups.all():
+            try:
+                libs.append(group.library)
+            except Library.DoesNotExist:
+                pass
+        return libs
+            
         
 class Press(models.Model):
     url =  models.URLField()
