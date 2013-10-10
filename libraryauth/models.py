@@ -17,12 +17,16 @@ class Library(models.Model):
     user = models.OneToOneField(User, related_name='library')
     group = models.OneToOneField(Group, related_name='library', null = True)
     backend =  models.CharField(max_length=10, choices=(('ip','IP authentication'),('cardnum', 'Library Card Number check')),default='ip')
+    credential = None
     
     def __unicode__(self):
         return self.user.username
         
     def add_user(self, user):
         user.groups.add(self.group)
+        (library_user, created) = LibraryUser.objects.get_or_create(library=self, user=user)
+        library_user.credential=self.credential
+        library_user.save()
     
     def has_user(self, user):
         return self.group in user.groups.all()
@@ -258,7 +262,8 @@ class CardPattern(models.Model):
         else:
             return True
 
-class UserCard(models.Model):
-    library = models.ForeignKey(Library, related_name='library_cards')
-    user = models.ForeignKey(User, related_name='library_cards')
-    number = models.CharField(max_length=20)
+class LibraryUser(models.Model):
+    library = models.ForeignKey(Library, related_name='library_users')
+    user = models.ForeignKey(User, related_name='user_libraries')
+    credential = models.CharField(max_length=30, null=True)
+    date_modified = models.DateTimeField(auto_now=True)

@@ -35,14 +35,15 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('libraryauth', ['CardPattern'])
 
-        # Adding model 'UserCard'
-        db.create_table('libraryauth_usercard', (
+        # Adding model 'LibraryUser'
+        db.create_table('libraryauth_libraryuser', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='library_cards', to=orm['libraryauth.Library'])),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='library_cards', to=orm['auth.User'])),
-            ('number', self.gf('django.db.models.fields.CharField')(max_length=20)),
+            ('library', self.gf('django.db.models.fields.related.ForeignKey')(related_name='library_users', to=orm['libraryauth.Library'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='user_libraries', to=orm['auth.User'])),
+            ('credential', self.gf('django.db.models.fields.CharField')(max_length=30, null=True)),
+            ('date_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
         ))
-        db.send_create_signal('libraryauth', ['UserCard'])
+        db.send_create_signal('libraryauth', ['LibraryUser'])
 
 
     def backwards(self, orm):
@@ -55,8 +56,8 @@ class Migration(SchemaMigration):
         # Deleting model 'CardPattern'
         db.delete_table('libraryauth_cardpattern')
 
-        # Deleting model 'UserCard'
-        db.delete_table('libraryauth_usercard')
+        # Deleting model 'LibraryUser'
+        db.delete_table('libraryauth_libraryuser')
 
 
     models = {
@@ -117,12 +118,13 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'library'", 'unique': 'True', 'to': "orm['auth.User']"})
         },
-        'libraryauth.usercard': {
-            'Meta': {'object_name': 'UserCard'},
+        'libraryauth.libraryuser': {
+            'Meta': {'object_name': 'LibraryUser'},
+            'credential': ('django.db.models.fields.CharField', [], {'max_length': '30', 'null': 'True'}),
+            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'library_cards'", 'to': "orm['libraryauth.Library']"}),
-            'number': ('django.db.models.fields.CharField', [], {'max_length': '20'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'library_cards'", 'to': "orm['auth.User']"})
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'library_users'", 'to': "orm['libraryauth.Library']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'user_libraries'", 'to': "orm['auth.User']"})
         }
     }
 

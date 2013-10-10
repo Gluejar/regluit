@@ -1,11 +1,11 @@
 <div class="p_form">To use {{ library }}...{{authenticator.form.non_field_errors}}<br />
 <form action="{% url join_library library %}#" method="POST" class="std_form " id="join_form">
     {% csrf_token %}
-    {{ authenticator.form.number.label_tag }}: {{ authenticator.form.number }} 
-    {% if authenticator.form.number.errors %}
-        {{ authenticator.form.number.errors }}
+    {{ authenticator.form.credential.label_tag }}: {{ authenticator.form.credential }} 
+    {% if authenticator.form.credential.errors %}
+        {{ authenticator.form.credential.errors }}
     {% else %}
-        {{ authenticator.form.number.help_text }} 
+        {{ authenticator.form.credential.help_text }} 
     {% endif %}<br />
     <input type="submit" name="join" value="Make this my Library">
     {{ authenticator.form.library }}

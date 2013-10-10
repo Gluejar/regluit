@@ -1,10 +1,22 @@
+'''
+to make a backend named <backend> you need to...
+1. define a function <backend>_authenticate(request, library)
+    returns true if can request.user can be authenticated to the library, and attaches a credential property to the library object
+    returns fals if otherwise.
+2. define a class <backend>_authenticator
+    with a process((self, authenticator, success_url, deny_url) method which is expected to return a response
+3. make a libraryauth/<backend>_join.html template (authenticator will be in its context) to insert a link or form for a user to join the library
+4. if you need to show the user a form, define a model form class <backend>_form with init method  __init__(self, request, library, *args, **kwargs)
+    and model LibraryUser
+
+'''
 import logging
 from django.db.models import Q
 from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import Block, IP, UserCard
+from .models import Block, IP, LibraryUser
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +28,7 @@ def ip_authenticate(request, library):
         for block in blocks:
             if block.library==library:
                 logger.info('%s authenticated for %s from %s'%(request.user, library, ip))
+                library.credential=ip
                 return True
         return False
     except KeyError:
@@ -42,7 +55,7 @@ class cardnum_authenticator():
                     })
 
 class cardnum_form(forms.ModelForm):
-    number = forms.RegexField(
+    credential = forms.RegexField(
             label="Enter Your Library Card Number", 
             max_length=20, 
             regex=r'^\d+$',
@@ -60,12 +73,12 @@ class cardnum_form(forms.ModelForm):
     
     def clean(self):
         library = self.cleaned_data.get('library', None)
-        number = self.cleaned_data.get('number', '')
+        credential = self.cleaned_data.get('credential', '')
         for card_pattern in library.card_patterns.all():
-            if card_pattern.is_valid(number):
+            if card_pattern.is_valid(credential):
                 return self.cleaned_data
         raise forms.ValidationError("the library card number must be VALID.")
         
     class Meta:
-        model = UserCard
+        model = LibraryUser
         widgets = { 'library': forms.HiddenInput, 'user': forms.HiddenInput }
