@@ -7,5 +7,5 @@ urlpatterns = patterns(
     "",
     url(r"^libraryauth/(?P<library>[^/]+)/join/$", views.join_library, name="join_library"),
     url(r"^libraryauth/(?P<library>[^/]+)/deny/$", direct_to_template, {'template':'libraryauth/denied.html'}, name="bad_library"),
-    url(r'^accounts/superlogin/$', 'superlogin', name='superlogin'),
+    url(r'^accounts/superlogin/$', views.superlogin, name='superlogin'),
     )
