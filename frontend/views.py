@@ -413,7 +413,7 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'cover_width': cover_width_number,
-        'purchased': work.purchased_by(request.user),
+        'user_license': work.get_user_license(request.user),
     })    
 
 def edition_uploads(request, edition_id):
@@ -1124,7 +1124,7 @@ class PurchaseView(PledgeView):
     def get_preapproval_amount(self):
         self.offer_id = self.request.REQUEST.get('offer_id', None)
         if not self.offer_id:
-            self.offer_id = self.work.last_campaign().active_offers()[0].id
+            self.offer_id = self.work.last_campaign().individual_offer.id
         preapproval_amount = None
         if self.offer_id != None:
             try:

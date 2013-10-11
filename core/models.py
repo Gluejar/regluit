@@ -674,10 +674,21 @@ class Campaign(models.Model):
             return Premium.objects.none()
         return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
     
-    def active_offers(self):
+    @property
+    def library_offer(self):
+        return self._offer(LIBRARY)
+    
+    @property
+    def individual_offer(self):
+        return self._offer(INDIVIDUAL)
+    
+    def _offer(self, license):
         if self.type is REWARDS:
             return Offer.objects.none()
-        return Offer.objects.filter(work=self.work,active=True).order_by('price')
+        try:
+            return Offer.objects.get(work=self.work, active=True, license=license)
+        except Offer.DoesNotExist:
+            return Offer.objects.none()
 
     @property
     def days_per_copy(self):
@@ -1050,18 +1061,32 @@ class Work(models.Model):
                 self.offers.create(license=choice[0],active=True,price=Decimal(10))
         return self.offers.all()
         
-    def purchased_by(self,user):
+    class user_license:
+        acqs=Acq.objects.none()
+        def __init__(self,acqs):
+            self.acqs=acqs
+        def is_active(self):
+            if self.acqs.count()==0:
+                return False
+        
+            for acq in self.acqs:
+                if acq.expires is None:
+                    return True
+                if acq.expires > now():
+                    return True
+            return False
+        def purchased(self):
+            for acq in self.acqs:
+                if acq.license == INDIVIDUAL:
+                    return True
+            return False
+            
+    
+    def get_user_license(self,user):
         if user==None or not user.is_authenticated():
-            return False
-        acqs= self.acqs.filter(user=user)
-        if acqs.count()==0:
-            return False
-        for acq in acqs:
-            if acq.expires is None:
-                return True
-            if acq.expires > now():
-                return True
-        return False
+            return None
+        return self.user_license(self.acqs.filter(user=user))
+
             
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)

@@ -77,8 +77,8 @@
                 <div style="height:10px;"></div>
     
                 <ul class="support menu" id="premiums_list">
-                    {% for offer in work.last_campaign.active_offers %}
-                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                    {% with work.last_campaign.individual_offer as offer  %}
+                    <li class="first">
                     <label for="offer_{{offer.id}}">
                         <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
                         <span class="menu-item-price">
@@ -88,7 +88,7 @@
                             {{ offer.get_license_display }} 
                         </span>
                     </label></li>
-                    {% endfor %}
+                    {% endwith %}
                 </ul>
             {% else %}
                 <div style="height:10px;"></div>

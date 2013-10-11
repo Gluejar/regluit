@@ -8,7 +8,8 @@ def purchased(context):
     work = context['work']
     user = context['request'].user
     try: 
-        context['purchased'] = work.purchased_by(user)
+        user_license = work.get_user_licence(user)
+        context['purchased'] = user_license.purchased
     except:
         context['purchased'] = False
     return ''
