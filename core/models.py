@@ -1047,7 +1047,7 @@ class Work(models.Model):
     def create_offers(self):
         for choice in Offer.CHOICES:
             if not self.offers.filter(license=choice[0]):
-                self.offers.create(license=choice[0])
+                self.offers.create(license=choice[0],active=True,price=Decimal(10))
         return self.offers.all()
         
     def purchased_by(self,user):

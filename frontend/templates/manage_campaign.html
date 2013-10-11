@@ -114,29 +114,34 @@ Please fix the following before launching your campaign:
 <div class="tabs-1">
     <h3>Edit the editions (if needed)</h3>
 {% if campaign.rh.can_sell %}
-	<p> If you want to sell ebooks as part of a buy to unglue campaign, you'll need to upload the ebook files that you want to sell. </p>
+	<p> If you want to sell ebooks as part of a buy to unglue campaign, you'll also need to upload an EPUB file for the ebook you want to sell. </p>
 {% endif %}
     <ul>
     {% for edition in campaign.work.editions.all %}
-    <li> <a href="{% url new_edition edition.work.id edition.id %}"> Edit </a><i>{{ edition }}</i>
-        {% if campaign.rh.can_sell %}You can also <a href="{% url edition_uploads edition.id %}"> load files</a> for this edition.
+    <li>Edition: <i>{{ edition }}</i>
         <ul>
-        {% for ebook_file in edition.ebook_files.all %}
-        <li>{{ebook_file.file}} created {{ebook_file.created}} </li>
-        {% endfor %}
-        </ul>
+        <li><a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the edition</li>
+        {% if campaign.rh.can_sell %}
+            <li>You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.</li>
         {% endif %}
+        </ul>
     </li>
     {% endfor %}
     </ul>
+    {% if campaign.work.ebookfiles.0 %}
+        <p> <b>An Ebook file has been loaded.</b> </p>
+        <p>Active file: {{campaign.work.ebookfiles.0.file}} created {{campaign.work.ebookfiles.0.created}} </p>
+        <p>Edition: <i>{{ campaign.work.ebookfiles.0.edition }}</i> </p>
+    {% endif %}
 <form action="#" method="POST">
 	{% csrf_token %}
 	{{ form.media }}
 	<h3>Select the main edition</h3>
 	<p> Please choose the edition that most closely matches the edition to be unglued.  This is the edition whose cover image will display on your book's page.  Your unglued edition should be identical to this edition if possible; you should note any differences under Rights Details below.</p>
 
-	
+	<div class="std_form">
 	{{ form.edition.errors }}{{ form.edition }}
+	</div>
 	{% if campaign.edition %}
 	<p>If the details of the edition you've chosen aren't accurate, you can <a href="{% url rh_edition work.id campaign.edition.id %}">edit the edition</a>.</p>
 	{% else %}
@@ -146,8 +151,9 @@ Please fix the following before launching your campaign:
 {% ifnotequal campaign_status 'ACTIVE' %}
 	<h3>License being offered</h3>
 	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+	<div class="std_form">
 	{{ form.license.errors }}{{ form.license }}
-	
+	</div>
 	{% ifequal campaign.type 1 %}
         <h3>Target Price</h3>
         <p>This is the target price for your campaign. The <i>minimum</i> target is ${{form.minimum_target|intcomma}}.</p>
@@ -157,9 +163,9 @@ Please fix the following before launching your campaign:
         <p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
     
         <p>Please email us if you want to talk about pricing strategy.</p>
-    
+        <div class="std_form">
         {{ form.target.errors }}${{ form.target }}
-    
+        </div>
         <h3>Ending date</h3>
         <p> This is the ending date of your campaign. Once you launch the campaign, you won't be able to change it.</p>
     
@@ -176,9 +182,9 @@ Please fix the following before launching your campaign:
         <p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
     
         <p>Please email us if you want to talk about pricing strategy.</p>
-    
+        <div class="std_form">
         {{ form.target.errors }}${{ form.target }}
-    
+        </div>
         <h3>Initial Ungluing Date</h3>
         <p>When you launch a Buy-To-Unglue campaign, you will specify a date in the future at which your book will become Creative Commons Licensed. eBooks sold via unglue.it will include a notice of this license. With every sale, the effective date of this license will advance a bit toward the present.  </p>
 
@@ -191,23 +197,32 @@ Please fix the following before launching your campaign:
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
 	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
+	<div class="std_form">
 	{{ form.license.errors }}<span>{{ form.license }}</span>
+	</div>
 	<h3>Target Price</h3>
 	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	<div class="std_form">
 	${{ form.target.errors }}{{ form.target }}
-
+    </div>
 	{% ifequal campaign.type 1 %}
         <h3>Ending date</h3>
         <p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
+        <div class="std_form">
         {{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
+        </div>
 	{% else %}
 	    <h3>Ungluing Date</h3>
 	    <p> This campaign was launched with a Ungluing Date of {{ campaign.cc_date_initial }}.</p>
 	    <p> Based on a total revenue of {{ campaign.current_total }} the Ungluing Date has been advanced to {{ campaign.cc_date }}.</p>
+	    <div class="std_form">
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
+        </div>
         <h3>Ending date</h3>
         <p>Your Buy-to-Unglue Campaign will run until <b>{{ campaign.deadline }}</b>. Contact unglue.it staff to extend it.</p>
+        <div class="std_form">
         <!--{{ form.deadline.errors }}-->{{ form.deadline }}
+        </div>
 	{% endifequal %}
 {% endifnotequal %}
 
@@ -279,14 +294,14 @@ Please fix the following before launching your campaign:
 	
 	<h3>e-mail contact addresses</h3>
 	<p>Enter the email address where notifications about this campaign should be sent. If your campaign succeeds, this email needs to work if you want to get paid! This address will not be exposed on the website.</p>
-	<p>{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
+	<p class="std_form">{{ form.paypal_receiver.errors }}{{ form.paypal_receiver }}</p>
 	<p>(Optional, but highly recommended). Enter an email address where ungluers with questions about the book or the campaign can contact you or someone involved. This address will not be exposed on the website.</p>
-	<p>{{ form.email.errors }}{{ form.email }}</p>
+	<p class="std_form">{{ form.email.errors }}{{ form.email }}</p>
     
     {% if work.publishers %}
 	<h3>Publisher</h3>
 	<p>If you are set up as an unglue.it publisher (send us a url, logo, description and list of ways your name might appear) you can link your campaign by selecting the publisher here:
-	<p>{{ form.publisher.errors }}{{ form.publisher }}</p>	
+	<p class="std_form">{{ form.publisher.errors }}{{ form.publisher }}</p>	
 	{% endif %}
 	{% ifequal campaign_status 'ACTIVE' %}
 		<div class="yikes">When you click this button, your changes will be visible to supporters immediately. Make sure to proofread!</div><br />
@@ -363,17 +378,21 @@ Please fix the following before launching your campaign:
 {% endifequal %}
 {% ifequal campaign.type 2 %}
 <h3> Offers to sell </h3>
-<p> Make sure that ebook files for this work <a class="tabs1">have been loaded</a>!
+{% if not campaign.work.ebookfiles.0 %}
+<p> <b>An EPUB file for this work <a class="tabs1">needs to be loaded</a>!</b></p>
+{% endif %}
+<p> Enter a per/copy price for each license type. You may change these prices after the campaign has begun.</p>
 <div class="jsmod-content">
-<p>
 {% for offer in offers %}
-<form action="#" method="POST">
+<form action="#" method="POST"><div>
 {% csrf_token %}
-{{ offer.offer_form.as_p }}
-<br />
-<input type="submit" name="change_offer" value="Change Offer" />
-</form>
-
+<span class="std_form">{{ offer.get_license_display }}: ${{ offer.offer_form.price }}{{ offer.offer_form.price.errors }}
+{{ offer.offer_form.active }}
+{{ offer.offer_form.license }}
+{{ offer.offer_form.work }}</span>
+<input type="submit" name="change_offer" value="Change Price" />
+</div></form>
+<p />
 {% endfor %}
 </div>
 {% endifequal %}
@@ -422,10 +441,14 @@ Please fix the following before launching your campaign:
 <li>Need help doing any of this?  Talk to us.</li>
 </ul>
 {% endif %}
+{% ifequal campaign.type 1 %}
 <h3>Acknowledgements</h3>
 <p>When you're logged in, the "Ungluers" tab on the <a href="{% url work work.id %}">campaign page</a> will tell you a bit about each ungluer- when they last pledged, for example, and you can send individual messages to each ungluer. Use this tool with care! You can see who your biggest supporters are by looking at the <a href="{% url work_acks campaign.work.id %}">sample acknowledgement page</a>. 
 After your campaign succeeds, you can used this page to generate epub code for the acknowledgements section of your unglued ebook.
 </p>
+{% else %}
+{% comment %}This might be a good place to put a sales report. {% endcomment %}
+{% endifequal %}
 {% endif %}
 </div>
 

@@ -364,6 +364,8 @@ class OfferForm(forms.ModelForm):
         model = Offer
         widgets = { 
                 'work': forms.HiddenInput,
+                'license': forms.HiddenInput,
+                'active': forms.HiddenInput,
             }
             
 date_selector=range(date.today().year, settings.MAX_CC_DATE.year+1)
