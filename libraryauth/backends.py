@@ -83,3 +83,18 @@ class cardnum_form(forms.ModelForm):
     class Meta:
         model = LibraryUser
         widgets = { 'library': forms.HiddenInput, 'user': forms.HiddenInput }
+        
+def email_authenticate(request, library):
+    if request.user.is_anonymous():
+        return False
+    email = request.user.email
+    for email_pattern in library.email_patterns.all():
+        if email_pattern.is_valid(email):
+            logger.info('%s authenticated for %s from %s'%(request.user, library, email))
+            library.credential=email
+            return True
+    return False
+     
+class email_authenticator():
+    def process(authenticator, success_url, deny_url):
+        return HttpResponseRedirect(deny_url)

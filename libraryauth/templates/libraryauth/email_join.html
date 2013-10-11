@@ -1,0 +1,6 @@
+<br />
+{% if authenticator.allowed %}
+<a href="{% url join_library authenticator.library %}?next={% url join_library authenticator.library %}" class="fakeinput">Make this my Library</a>
+{% else %}
+Based on your account's email address, you can't join {{ authenticator.library }}. You can < a href="{% url email_change %}"> change your email address</a> if you need to.
+{% endif %}

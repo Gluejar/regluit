@@ -38,3 +38,7 @@ class BlockAdmin(ModelAdmin):
 class CardPatternAdmin(ModelAdmin):
     list_display = ('library', 'pattern', 'checksum',)
     search_fields = ('library__user__username', )
+
+class EmailPatternAdmin(ModelAdmin):
+    list_display = ('library', 'pattern', )
+    search_fields = ('library__user__username',)

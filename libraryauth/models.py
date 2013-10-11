@@ -16,7 +16,11 @@ class Library(models.Model):
     '''
     user = models.OneToOneField(User, related_name='library')
     group = models.OneToOneField(Group, related_name='library', null = True)
-    backend =  models.CharField(max_length=10, choices=(('ip','IP authentication'),('cardnum', 'Library Card Number check')),default='ip')
+    backend =  models.CharField(max_length=10, choices=(
+            ('ip','IP authentication'),
+            ('cardnum', 'Library Card Number check'),
+            ('email', 'e-mail pattern check'),
+        ),default='ip')
     credential = None
     
     def __unicode__(self):
@@ -267,3 +271,15 @@ class LibraryUser(models.Model):
     user = models.ForeignKey(User, related_name='user_libraries')
     credential = models.CharField(max_length=30, null=True)
     date_modified = models.DateTimeField(auto_now=True)
+
+class EmailPattern(models.Model):
+    library = models.ForeignKey(Library, related_name='email_patterns')
+    # email endswith string
+    pattern = models.CharField(max_length=20)
+
+    def is_valid(self, email):
+        if email.lower().endswith(self.pattern.lower()):
+            return True
+        else:
+            return False
+
