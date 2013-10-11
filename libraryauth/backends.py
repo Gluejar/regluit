@@ -8,6 +8,7 @@ to make a backend named <backend> you need to...
 3. make a libraryauth/<backend>_join.html template (authenticator will be in its context) to insert a link or form for a user to join the library
 4. if you need to show the user a form, define a model form class <backend>_form with init method  __init__(self, request, library, *args, **kwargs)
     and model LibraryUser
+5. add new auth choice to Library.backend choices and the admin as desired
 
 '''
 import logging
@@ -23,7 +24,6 @@ logger = logging.getLogger(__name__)
 def ip_authenticate(request, library):
     try:
         ip = IP(request.META['REMOTE_ADDR'])
-        print str(ip)
         blocks = Block.objects.filter(Q(lower=ip) | Q(lower__lte=ip, upper__gte=ip))
         for block in blocks:
             if block.library==library:
@@ -44,9 +44,10 @@ def cardnum_authenticate(request, library):
 class cardnum_authenticator():
     def process(self, authenticator, success_url, deny_url):
         if authenticator.form and authenticator.request.method=='POST' and authenticator.form.is_valid():
-            authenticator.form.save()
+            library = authenticator.form.cleaned_data['library']
+            library.credential = authenticator.form.cleaned_data['credential']
             logger.info('%s authenticated for %s from %s'%(authenticator.request.user, authenticator.library, authenticator.form.cleaned_data.get('number')))
-            authenticator.form.cleaned_data['library'].add_user(authenticator.form.cleaned_data['user'])
+            library.add_user(authenticator.form.cleaned_data['user'])
             return HttpResponseRedirect(success_url)
         else:
             return render(authenticator.request, 'libraryauth/library.html', {
