@@ -638,7 +638,7 @@
                                 <div class="jsmod-content">
                                     <ul class="support menu">
                                         <li class="first last">
-                                        {% if request.user.profile.libraries.all %}
+                                        {% if request.user.profile.libraries %}
                                             <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
                                             <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_license_display }}</span>
