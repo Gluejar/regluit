@@ -644,7 +644,7 @@
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_license_display }}</span>
                                             </a>
                                         {% else %}
-                                            <a href="something"><span class="menu-item-desc">
+                                            <a href="{% url library_list %}"><span class="menu-item-desc">
                                             Join a Library to share and borrow unglue.it ebooks
                                             </span></a>
                                         {% endif %}
