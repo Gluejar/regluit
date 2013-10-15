@@ -1,1 +1,1 @@
-You have purchased {{transaction.campaign.work.title}}.
+You have purchased {{transaction.campaign.work.title}}{% ifequal transaction.offer.license 2 %} for your library{% endifequal %}.

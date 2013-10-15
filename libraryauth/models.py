@@ -33,7 +33,7 @@ class Library(models.Model):
         library_user.save()
     
     def has_user(self, user):
-        return self.group in user.groups.all()
+        return self.group in user.groups.all() or user == self.user
         
     @property
     def join_template(self):

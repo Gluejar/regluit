@@ -2632,6 +2632,9 @@ def download(request, work_id):
     })
 
     return render(request, "download.html", context)
+
+def borrow(request, work_id):
+    return download(request, work_id)
     
 def download_ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)

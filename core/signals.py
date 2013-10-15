@@ -31,7 +31,8 @@ regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
 from regluit.utils.localdatetime import now
-from regluit.core.parameters import REWARDS, BUY2UNGLUE
+from regluit.core.parameters import REWARDS, BUY2UNGLUE, LIBRARY
+from regluit.libraryauth.models import Library
 
 logger = logging.getLogger(__name__)
 
@@ -184,7 +185,11 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
     else:
         # provision the book
         Acq = get_model('core', 'Acq')
-        new_acq = Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
+        if transaction.offer.license == LIBRARY:
+            library = Library.objects.get(id=transaction.extra['library_id'])
+            new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= transaction.offer.license)
+        else:
+            new_acq = Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
         transaction.campaign.update_left()
         notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
         from regluit.core.tasks import watermark_acq
