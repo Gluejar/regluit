@@ -72,22 +72,51 @@
 			{{ form.non_field_errors }}
         	
         	{% if work.offers.all|length > 1 %}
-                <div class="pledge_amount premium_level">Choose your license type:</div>
+                <div class="pledge_amount premium_level">Individual or Library License?</div>
                 
                 <div style="height:10px;"></div>
     
                 <ul class="support menu" id="premiums_list">
                     {% with work.last_campaign.individual_offer as offer  %}
                     <li class="first">
-                    <label for="offer_{{offer.id}}">
-                        <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
-                        <span class="menu-item-price">
-                            ${{ offer.price|intcomma }}
-                        </span>
-                        <span class="menu-item-desc">
-                            {{ offer.get_license_display }} 
-                        </span>
-                    </label></li>
+                        {% if user_license.purchased %}
+                            <span class="menu-item-desc">Individual license already purchased!</span>
+                        {% else %}
+                            <label for="offer_{{offer.id}}">
+                                <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                                <span class="menu-item-price">
+                                    ${{ offer.price|intcomma }}
+                                </span>
+                                <span class="menu-item-desc">
+                                    {{ offer.get_license_display }} 
+                                </span>
+                            </label>
+                        {% endif %}
+                    </li>
+                    {% endwith %}
+                    {% with work.last_campaign.library_offer as offer  %}
+                    <li class="last">
+                    {% if request.user.profile.libraries %}
+                        <label for="offer_{{offer.id}}">
+                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                            <span class="menu-item-price">
+                                ${{ offer.price|intcomma }}
+                            </span>
+                            <span class="menu-item-desc">
+                                {{ offer.get_license_display }} for 
+                                <select name="library" class="std_form">
+                                {% for library in request.user.profile.libraries %}
+                                <option value="library.id">{{ library }}</option>
+                                {% endfor %}
+                                </select>
+                            </span>
+                        </label>
+                    {% else %}
+                        <a href="{% url library_list %}"><span class="menu-item-desc">
+                            Join a Library to share and borrow unglue.it ebooks
+                        </span></a>
+                    {% endif %}
+                    </li>
                     {% endwith %}
                 </ul>
             {% else %}

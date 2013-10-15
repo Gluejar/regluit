@@ -1093,6 +1093,7 @@ class PurchaseView(PledgeView):
                 'tid': self.transaction.id if self.transaction else None,
                 'cover_width': cover_width(self.work),
                 'offer_id':self.offer_id,
+                'user_license': self.work.get_user_license(self.request.user),
            })
             
         return context
