@@ -2649,6 +2649,8 @@ def download_purchased(request, work_id):
 
 def download_acq(request, nonce, format):
     acq = get_object_or_404(models.Acq,nonce=nonce)
+    if acq.on_reserve:
+        acq.borrow()
     if format == 'epub':
         return HttpResponseRedirect( acq.get_epub_url() )
     else:
