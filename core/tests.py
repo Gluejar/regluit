@@ -57,8 +57,8 @@ from regluit.core.models import (
     EbookFile,
     Acq,
 )
-
-from regluit.core.parameters import TESTING
+from regluit.libraryauth.models import Library
+from regluit.core.parameters import TESTING, LIBRARY, RESERVE
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -864,5 +864,26 @@ class EbookFileTests(TestCase):
         self.assertRegexpMatches(url,'download.booxtream.com/')
         print url
 
+from .signals import handle_transaction_charged
+class LibTests(TestCase):
+
+    class transaction:
+        pass
         
+    def test_purchase(self):
+        w = Work.objects.create(title="Work 1")
+        e = Edition.objects.create(title=w.title,work=w)
+        u = User.objects.create_user('test', 'test@example.org', 'testpass')
+        lu = User.objects.create_user('library', 'testu@example.org', 'testpass')
+        lib = Library.objects.create(user=lu)
+        c = Campaign.objects.create(work=w, type = parameters.BUY2UNGLUE, cc_date_initial= datetime(2020,1,1),target=1000, deadline=datetime(2020,1,1))
+        
+        new_acq = Acq.objects.create(user=lib.user,work=c.work,license= LIBRARY)
+        self.assertTrue(new_acq.borrowable)
+        reserve_acq =  Acq.objects.create(user=u,work=c.work,license= RESERVE, lib_acq = new_acq)
+        self.assertTrue(reserve_acq.borrowable)
+        print reserve_acq.expires
+        self.assertTrue(reserve_acq.expires< now()+timedelta(hours=3))
+        self.assertFalse(new_acq.borrowable)
+        self.assertTrue(reserve_acq.expires> now()+timedelta(hours=3))
         

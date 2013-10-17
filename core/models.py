@@ -56,7 +56,8 @@ from regluit.core.parameters import (
     INDIVIDUAL,
     LIBRARY,
     BORROWED,
-    TESTING
+    TESTING,
+    RESERVE,
 )
     
 
@@ -258,7 +259,7 @@ class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
     """
-    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'))
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
     work = models.ForeignKey("Work", related_name='acqs', null=False)
@@ -268,6 +269,9 @@ class Acq(models.Model):
     watermarked = models.ForeignKey("booxtream.Boox",  null=True)
     nonce = models.CharField(max_length=32, null=True)
     
+    # when the acq is a loan, this points at the library's acq it's derived from 
+    lib_acq = models.ForeignKey("self", related_name="loans", null=True)
+    
     @property
     def expired(self):
         if self.expires is None:
@@ -276,13 +280,19 @@ class Acq(models.Model):
             return self.expires < datetime.now()
             
     def get_mobi_url(self):
+        if self.expired:
+            return ''
         return self.get_watermarked().download_link_mobi
         
     def get_epub_url(self):
+        if self.expired:
+            return ''
         return self.get_watermarked().download_link_epub
         
     def get_watermarked(self):
         if self.watermarked == None or self.watermarked.expired:
+            if self.on_reserve:
+                self.borrow(self.user)
             params={
                 'customeremailaddress': self.user.email,
                 'customername': self.user.username,
@@ -304,13 +314,46 @@ class Acq(models.Model):
         
     def _hash(self):
         return hashlib.md5('1c1a56974ef08edc%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
+        
+    def expire_in(self, delta):
+        self.expires = now()+delta
+        self.save()
+        
+    @property
+    def on_reserve(self):
+        return self.license==RESERVE
+        
+    def borrow(self, user=None):
+        if self.on_reserve:
+            self.license=BORROWED
+            self.expire_in(timedelta(days=14))
+            return self
+        if self.borrowable and user:
+            return Acq.objects.create(user=user,work=self.work,license= BORROWED)
+
+    @property
+    def borrowable(self): 
+        if self.license == RESERVE and not self.expired:
+            return True
+        if self.license != LIBRARY:
+            return False
+        return Acq.objects.filter(lib_acq=self,expires__gt=datetime.now()).count()==0
+         
+        
 
 def add_acq_nonce(sender, instance, created,  **kwargs):
     if created:
         instance.nonce=instance._hash()
         instance.save()
+def set_expiration(sender, instance, created,  **kwargs):
+    if created:
+        if instance.license == RESERVE:
+            instance.expire_in(timedelta(hours=2))
+        if instance.license == BORROWED:
+            instance.expire_in(timedelta(days=14))
 
 post_save.connect(add_acq_nonce,sender=Acq)
+post_save.connect(set_expiration,sender=Acq)
 
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES

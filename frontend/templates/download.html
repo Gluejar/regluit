@@ -99,7 +99,7 @@ $j(document).ready(function() {
             </div>
         {% endif %}
         {% if acq %}
-            <h3>Download your ebook!</h3>
+            <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
             <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
                     <a href="{{ formats.epub }}">EPUB</a> (for iBooks, Nook, Kobo)
