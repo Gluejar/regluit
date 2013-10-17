@@ -36,7 +36,12 @@ class Authenticator:
 
     def __init__(self, request, library, *args, **kwargs):
         self.request = request
-        self.library = library
+        if  isinstance(library , basestring):
+            self.library = Library.objects.get(user__username=library)
+        elif isinstance(library , Library):
+            self.library=library
+        else:
+            raise Exception
         try:
             form_class = getattr(backends, self.library.backend + '_form')
             self.form = form_class(request, library, *args, **kwargs)

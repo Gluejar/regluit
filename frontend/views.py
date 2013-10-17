@@ -1756,7 +1756,7 @@ def campaign_admin(request):
 
     return render(request, "campaign_admin.html", context)
 
-def supporter(request, supporter_username, template_name):
+def supporter(request, supporter_username, template_name, extra_context={}):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
     works = []
@@ -1836,29 +1836,10 @@ def supporter(request, supporter_username, template_name):
         else:
             profile_form= ProfileForm(instance=profile_obj)
         
-        if request.user.profile.goodreads_user_id is not None:
-            goodreads_id = request.user.profile.goodreads_user_id
-        else:
-            goodreads_id = None
-
-        if request.user.profile.librarything_id is not None:
-            librarything_id = request.user.profile.librarything_id
-        else:
-            librarything_id = None
     else:
         profile_form = ''
-        goodreads_id = None
-        librarything_id = None
 
     process_kindle_email(request)
-    try:
-        # determine if the supporter is a library
-        authenticator = Authenticator(request,supporter.library)
-        library = supporter.library
-    except Library.DoesNotExist:
-        authenticator=None
-        library=None
-                
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
@@ -1872,15 +1853,23 @@ def supporter(request, supporter_username, template_name):
             "wished": wished,
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
-            "goodreads_auth_url": reverse('goodreads_auth'),
-            "goodreads_id": goodreads_id,
-            "librarything_id": librarything_id,
             "activetab": activetab,
-            "library":library,
-            "authenticator":  authenticator
     }
-    
+    context.update(extra_context)
     return render(request, template_name, context)
+
+def library(request,library):
+    context={}
+    try:
+        # determine if the supporter is a library
+        authenticator = Authenticator(request,library)
+        context['authenticator'] = authenticator
+        context['library'] = authenticator.library
+    except Library.DoesNotExist:
+        raise Http404
+    return supporter(request,library,template_name='libraryauth/library.html', extra_context=context)
+                
+    
 
 def edit_user(request):
     if not request.user.is_authenticated():
