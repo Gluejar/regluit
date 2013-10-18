@@ -2624,8 +2624,32 @@ def download(request, work_id):
 
     return render(request, "download.html", context)
 
+@login_required
 def borrow(request, work_id):
-    return download(request, work_id)
+    work = safe_get_work(work_id)
+    library =  request.GET.get('library', '')
+    try:
+        libuser = User.objects.get(username = library)
+    except User.DoesNotExist:
+        libuser = None
+    if libuser:
+        acqs= models.Acq.objects.filter(user = libuser, license = LIBRARY, refreshes__lt = now())
+    if not libuser or acqs.count()==0:
+        acq=None
+        for other_library in request.user.profile.libraries:
+            if other_library.user!=libuser:
+                acqs= models.Acq.objects.filter(user = other_library.user, license = LIBRARY, refreshes__lt = now())
+                if acqs.count()>0:
+                    acq=acqs[0]
+                    continue
+    else:
+        acq=acqs[0]
+    if acq:
+        borrowed = acq.borrow(request.user)
+        return download(request, work_id)
+    else:
+        # shouldn't happen
+        return work(request, work_id)
     
 def download_ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)

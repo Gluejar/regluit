@@ -331,9 +331,14 @@ class Acq(models.Model):
         if self.on_reserve:
             self.license=BORROWED
             self.expire_in(timedelta(days=14))
+            self.user.wishlist.add_work( self.work, "borrow")
             return self
-        if self.borrowable and user:
-            return Acq.objects.create(user=user,work=self.work,license= BORROWED)
+        elif self.borrowable and user:
+            user.wishlist.add_work( self.work, "borrow")
+            borrowed = Acq.objects.create(user=user,work=self.work,license= BORROWED, lib_acq=self)
+            from regluit.core.tasks import watermark_acq
+            watermark_acq.delay(borrowed)
+            return borrowed
 
     @property
     def borrowable(self): 
@@ -1150,6 +1155,7 @@ class Work(models.Model):
         @property
         def lib_acqs(self):
             return  self.acqs.filter(license=LIBRARY)
+            
 
         @property
         def borrowable(self):
