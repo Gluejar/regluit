@@ -1858,16 +1858,19 @@ def supporter(request, supporter_username, template_name, extra_context={}):
     context.update(extra_context)
     return render(request, template_name, context)
 
-def library(request,library):
+def library(request,library_name):
     context={}
     try:
         # determine if the supporter is a library
-        authenticator = Authenticator(request,library)
+        authenticator = Authenticator(request,library_name)
         context['authenticator'] = authenticator
-        context['library'] = authenticator.library
+        context['library'] = library = authenticator.library
     except Library.DoesNotExist:
         raise Http404
-    return supporter(request,library,template_name='libraryauth/library.html', extra_context=context)
+    context['works_active']= models.Work.objects.filter(acqs__user=library.user,acqs__license=LIBRARY).distinct()
+    context['activetab'] = "#2"
+
+    return supporter(request,library_name,template_name='libraryauth/library.html', extra_context=context)
                 
     
 

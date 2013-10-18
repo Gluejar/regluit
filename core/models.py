@@ -262,6 +262,7 @@ class Acq(models.Model):
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
+    refreshes = models.DateTimeField(auto_now_add=True, default=now())
     work = models.ForeignKey("Work", related_name='acqs', null=False)
     user = models.ForeignKey(User, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
@@ -318,6 +319,9 @@ class Acq(models.Model):
     def expire_in(self, delta):
         self.expires = now()+delta
         self.save()
+        if self.lib_acq:
+            self.lib_acq.refreshes = now()+ (timedelta(days=14))
+            self.lib_acq.save()
         
     @property
     def on_reserve(self):
@@ -335,9 +339,10 @@ class Acq(models.Model):
     def borrowable(self): 
         if self.license == RESERVE and not self.expired:
             return True
-        if self.license != LIBRARY:
+        if self.license == LIBRARY:
+            return self.refreshes < datetime.now()
+        else:
             return False
-        return Acq.objects.filter(lib_acq=self,expires__gt=datetime.now()).count()==0
          
         
 
@@ -1108,25 +1113,37 @@ class Work(models.Model):
         acqs=Acq.objects.none()
         def __init__(self,acqs):
             self.acqs=acqs
-        def is_active(self):
-            if self.acqs.count()==0:
-                return False
         
-            for acq in self.acqs:
-                if acq.expires is None:
-                    return True
-                if acq.expires > now():
-                    return True
-            return False
+        @property
+        def is_active(self):
+            return  self.acqs.filter(expires__isnull = True).count()>0 or self.acqs.filter(expires__gt= now()).count()>0
+        
+        @property
+        def borrowed(self):
+            loans =  self.acqs.filter(license=BORROWED,expires__gt= now())
+            if loans.count()==0:
+                return None
+            else:
+                return loans[0]
+                
+        @property
         def purchased(self):
-            for acq in self.acqs:
-                if acq.license == INDIVIDUAL:
-                    return True
-            return False
-            
+            purchases =  self.acqs.filter(license=INDIVIDUAL)
+            if purchases.count()==0:
+                return None
+            else:
+                return purchases[0]
+
+        @property
+        def lib_acqs(self):
+            return  self.acqs.filter(license=LIBRARY)
+
+        @property
+        def borrowable(self):
+            return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).count()>0
     
     def get_user_license(self,user):
-        if user==None or not user.is_authenticated():
+        if user==None or user.is_anonymous():
             return None
         return self.user_license(self.acqs.filter(user=user))
 

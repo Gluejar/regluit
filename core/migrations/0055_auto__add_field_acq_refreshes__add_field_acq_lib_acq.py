@@ -8,6 +8,11 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'Acq.refreshes'
+        db.add_column('core_acq', 'refreshes',
+                      self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2013, 10, 17, 0, 0), auto_now_add=True, blank=True),
+                      keep_default=False)
+
         # Adding field 'Acq.lib_acq'
         db.add_column('core_acq', 'lib_acq',
                       self.gf('django.db.models.fields.related.ForeignKey')(related_name='loans', null=True, to=orm['core.Acq']),
@@ -15,6 +20,9 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
+        # Deleting field 'Acq.refreshes'
+        db.delete_column('core_acq', 'refreshes')
+
         # Deleting field 'Acq.lib_acq'
         db.delete_column('core_acq', 'lib_acq_id')
 
@@ -74,6 +82,7 @@ class Migration(SchemaMigration):
             'lib_acq': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'loans'", 'null': 'True', 'to': "orm['core.Acq']"}),
             'license': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'nonce': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
+            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 10, 17, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['auth.User']"}),
             'watermarked': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['booxtream.Boox']", 'null': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['core.Work']"})
@@ -126,7 +135,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 10, 16, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2013, 10, 17, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),

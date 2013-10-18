@@ -882,8 +882,9 @@ class LibTests(TestCase):
         self.assertTrue(new_acq.borrowable)
         reserve_acq =  Acq.objects.create(user=u,work=c.work,license= RESERVE, lib_acq = new_acq)
         self.assertTrue(reserve_acq.borrowable)
-        print reserve_acq.expires
-        self.assertTrue(reserve_acq.expires< now()+timedelta(hours=3))
         self.assertFalse(new_acq.borrowable)
+
+        self.assertTrue(reserve_acq.expires< now()+timedelta(hours=3))
+        reserve_acq.borrow()
         self.assertTrue(reserve_acq.expires> now()+timedelta(hours=3))
         
