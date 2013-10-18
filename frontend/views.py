@@ -413,7 +413,6 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'cover_width': cover_width_number,
-        'user_license': work.get_user_license(request.user),
     })    
 
 def edition_uploads(request, edition_id):

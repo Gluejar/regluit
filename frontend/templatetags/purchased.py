@@ -18,11 +18,5 @@ def purchased(context):
         context['purchased'] = None
         context['borrowed'] = None
         context['license_is_active'] = False
-    borrowable = False
-    for library in user.profile.libraries:
-        lib_license=work.get_user_license(library.user)
-        if lib_license and lib_license.borrowable:
-            borrowable = True
-            continue
-    context['borrowable'] = borrowable
+    context['borrowable'] = work.borrowable(user)
     return ''

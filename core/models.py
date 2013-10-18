@@ -1108,7 +1108,20 @@ class Work(models.Model):
             if not self.offers.filter(license=choice[0]):
                 self.offers.create(license=choice[0],active=True,price=Decimal(10))
         return self.offers.all()
-        
+    
+    def borrowable(self, user):
+        if user.is_anonymous():
+            return False
+        for library in user.profile.libraries:
+            lib_license=self.get_user_license(library.user)
+            if lib_license and lib_license.borrowable:
+                return True
+        return False
+
+    @property
+    def lib_acqs(self):
+        return  self.acqs.filter(license=LIBRARY)
+
     class user_license:
         acqs=Acq.objects.none()
         def __init__(self,acqs):
