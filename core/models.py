@@ -737,16 +737,16 @@ class Campaign(models.Model):
     
     def _offer(self, license):
         if self.type is REWARDS:
-            return Offer.objects.none()
+            return None
         try:
             return Offer.objects.get(work=self.work, active=True, license=license)
         except Offer.DoesNotExist:
-            return Offer.objects.none()
+            return None
 
     @property
     def days_per_copy(self):
-        if self.active_offers().count()>0:
-            return Decimal(float(self.active_offers()[0].price) / self.dollar_per_day )
+        if self.individual_offer:
+            return Decimal(float(self.individual_offer.price) / self.dollar_per_day )
         else: 
             return Decimal(0)
        

@@ -14,7 +14,10 @@ def lib_acqs(context):
             return ''
         else:
             lib_user = (lib.user for lib in user.profile.libraries)
-    user_license = work.get_user_license(lib_user)
+    try:
+        user_license = work.get_user_license(lib_user)
+    except AttributeError:
+        user_license = None
     if user_license:
         context['lib_acqs'] = user_license.lib_acqs
         context['next_acq'] = user_license.next_acq
