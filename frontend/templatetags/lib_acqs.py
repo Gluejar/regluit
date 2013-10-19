@@ -6,11 +6,19 @@ register = template.Library()
 def lib_acqs(context):
     work = context['work']
     library = context.get('library',False)
-    if not library:
-        return ''
-    user_license = work.get_user_license(library.user)
+    if library:
+        lib_user = library.user
+    else:
+        user = context['request'].user
+        if user.is_anonymous():
+            return ''
+        else:
+            lib_user = (lib.user for lib in user.profile.libraries)
+    user_license = work.get_user_license(lib_user)
     if user_license:
         context['lib_acqs'] = user_license.lib_acqs
+        context['next_acq'] = user_license.next_acq
     else:
         context['lib_acqs'] = None
+    
     return ''

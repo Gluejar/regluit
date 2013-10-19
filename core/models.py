@@ -1117,10 +1117,19 @@ class Work(models.Model):
     def borrowable(self, user):
         if user.is_anonymous():
             return False
-        for library in user.profile.libraries:
-            lib_license=self.get_user_license(library.user)
-            if lib_license and lib_license.borrowable:
-                return True
+        lib_user=(lib.user for lib in user.profile.libraries)
+        lib_license=self.get_user_license(lib_user)
+        if lib_license and lib_license.borrowable:
+            return True
+        return False
+    
+    def in_library(self,user):
+        if user.is_anonymous():
+            return False
+        lib_user=(lib.user for lib in user.profile.libraries)
+        lib_license=self.get_user_license(lib_user)
+        if lib_license and lib_license.acqs.count():
+            return True
         return False
 
     @property
@@ -1155,17 +1164,29 @@ class Work(models.Model):
         @property
         def lib_acqs(self):
             return  self.acqs.filter(license=LIBRARY)
-            
-
+        
+        @property
+        def next_acq(self):  
+            loans = self.acqs.filter(license=LIBRARY, refreshes__gt=now()).order_by('refreshes')
+            if loans.count()==0:
+                return None
+            else:
+                return loans[0]
+                
         @property
         def borrowable(self):
             return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).count()>0
     
-    def get_user_license(self,user):
-        if user==None or user.is_anonymous():
+    def get_user_license(self, user):
+        if user==None:
             return None
-        return self.user_license(self.acqs.filter(user=user))
-
+        if isinstance(user, User):
+            if user.is_anonymous():
+                return None
+            return self.user_license(self.acqs.filter(user=user))
+        else:
+            # assume it's several users
+            return self.user_license(self.acqs.filter(user__in=user))
             
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)

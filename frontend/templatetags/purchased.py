@@ -19,4 +19,5 @@ def purchased(context):
         context['borrowed'] = None
         context['license_is_active'] = False
     context['borrowable'] = work.borrowable(user)
+    context['in_library'] = work.in_library(user)
     return ''

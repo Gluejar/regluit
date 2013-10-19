@@ -88,6 +88,7 @@ urlpatterns = patterns(
     url(r"^lockss/(?P<year>\d+)/$", "lockss_manifest", name="lockss_manifest"),
     url(r"^work/(?P<work_id>\d+)/download/$", "download", name="download"),
     url(r"^work/(?P<work_id>\d+)/borrow/$", "borrow", name="borrow"),
+    url(r"^work/(?P<work_id>\d+)/reserve/$", login_required(PurchaseView.as_view(),login_url='/accounts/login/purchase/'), name="reserve"),
     url(r"^work/(?P<work_id>\d+)/merge/$", login_required(MergeView.as_view()), name="merge"),
     url(r"^work/(?P<work_id>\d+)/split/$", "split_work", name="split"),
     url(r"^work/\d+/acks/images/(?P<file_name>[\w\.]*)$", "static_redirect_view",{'dir': 'images'}), 

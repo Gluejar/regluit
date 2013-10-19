@@ -35,8 +35,8 @@
                         <b>Purchased!</b>
                     </div>  
                     {% else %}{% if borrowed %}
-                        <b>Borrowed!</b>
-                        <p><b>Until</b> {{ borrowed.expires|date:"M d, Y" }}</p>
+                        <b>Borrowed! </b>
+                        <p><b>until</b> {{ borrowed.expires|date:"M d, Y" }}</p>
                     {% else %}{% if borrowable %}
                     <div class="unglued_white">
                         <b>Library has it!</b>
@@ -79,16 +79,24 @@
                     </div>
 
                     <div class="unglued_white">
-                        <b>UNGLUE IT!</b>
-                        {% ifequal work.last_campaign.type 1 %}
-                            <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
-                            <p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
-                            <p>by {{ deadline|naturalday:"M d, Y" }}</p>
+                        {% if in_library %}
+                            {% if borrowable %}
+                                <p>Available in your library  now!</p>
+                            {% else %}
+                                <p>Available in your library on<br />{{ next_acq.refreshes|date:"M j, Y" }}</p>
+                            {% endif %}
                         {% else %}
-                            <p><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> needed</p>
-                            <p>will unglue on </p>
-                            <p>{{ work.last_campaign.cc_date|naturalday:"M d, Y" }}</p>
-                        {% endifequal %}
+                            <b>UNGLUE IT!</b>
+                            {% ifequal work.last_campaign.type 1 %}
+                                <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
+                                <p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
+                                <p>by {{ deadline|naturalday:"M d, Y" }}</p>
+                            {% else %}
+                                <p><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> needed</p>
+                                <p>will unglue on </p>
+                                <p>{{ work.last_campaign.cc_date|naturalday:"M d, Y" }}</p>
+                            {% endifequal %}
+                        {% endif %}
                     </div>                    
                 </div>
                 {% if request.user.id in supporters %}
@@ -103,7 +111,11 @@
                         {% ifequal work.last_campaign.type 1 %}
                             <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
                         {% else %}
-                            <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
+                            {% if in_library %}
+                                <a href="{% url reserve workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
+                            {% else %}
+                                <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
+                            {% endif %}
                         {% endifequal %}
                     </div>
                {% endif %}
@@ -206,7 +218,7 @@
                 {% if purchased %}
                     <span>Purchased!</span>
                 {% else %}{% if borrowed %}
-                    <span>Borrowed!</span>
+                    <span>Borrowed! ...until</span>
                 {% else %}{% if request.user.id in supporters %}
                     <span>Pledged!</span>
                 {% else %}
@@ -226,15 +238,19 @@
     
     <div class="listview panelfront side1 booklist-status">
 		{% ifequal status "ACTIVE" %}
-		    {% if library %}
-		    <span class="booklist-status-text"><b>{{ lib_acqs.count }}</b> {% ifequal lib_acqs.count 1 %} copy{% else %} copies{% endifequal %}</span>
+		    {% if in_library %}
+		        {% if borrowed %}
+                <span class="booklist-status-text">{{ borrowed.expires|date:"M j, Y" }}</span>
+                {% else %}
+                <span class="booklist-status-text" style="line-height:19px">available<br />{{ next_acq.refreshes|date:"M j, Y" }}</span>
+                {% endif %}
 		    {% else %}{% ifequal work.last_campaign.type 1 %}
-		    <span class="booklist-status-text"><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b>/<b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b></span>
+		        <span class="booklist-status-text"><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b>/<b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b></span>
 		    {% else %}
-		    <span class="booklist-status-text"><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> to go</span>
+		        <span class="booklist-status-text"><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> to go</span>
 		    {% endifequal %}{% endif %}
 		{% else %}{% ifequal status "INITIALIZED" %}
-		<span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
+		    <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 		{% else %}{% ifequal status "SUCCESSFUL" %}
 		    {% if not first_ebook %}
 		        <span class="booklist-status-text">Ebook coming soon</span>
@@ -249,28 +265,29 @@
     		For status icons, we should display...
     			If there is an ebook: options to get it
     			If no ebook but there is an active or successful campaign: progress toward goal
+    			If B2U, read, borrow, reserve, purchase
     			Otherwise: number of wishes
     	{% endcomment %}
-        {% if purchased %}
-            <a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>
-        {% else %}{% if borrowed %}
-            <a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>
+        {% if purchased or borrowed or first_ebook %}
+            <a href="{% url download workid %}" class="hijax" title="Download this work"><div class="read_itbutton"><span>Read it Now</span></div></a>
         {% else %}{% if borrowable %}
-            <a href="{% url borrow workid %}?library={{library}}" class="hijax"><div class="read_itbutton"><span>Borrow It</span></div></a>
-        {% else %}{% if first_ebook %}
-			<a href="{% url download workid %}" class="hijax"><div class="read_itbutton"><span>Read it Now</span></div></a>
+            <a href="{% url borrow workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
+        {% else %}{% if in_library %}
+            <a href="{% url reserve workid %}?library={{library}}" title="Reserve or buy this work"><div class="read_itbutton"><span>Reserve It</span></div></a>
         {% else %}{% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
+			{% if not library or not in_library %}
 			<div class="booklist-status-img">
 				<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
 			</div>
         	<div class="booklist-status-label panel">{{ work.percent_of_goal }}%</div>
+        	{% endif %}
         {% else %}
             {% if work.num_wishes %}
 	        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Listed by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
 	        {% else %}
 	        	<a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="panelnope">Listed by&nbsp;</span>0</span></span></a>
 	        {% endif %}
-        {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
+        {% endif %}{% endif %}{% endif %}{% endif %}
         
     </div>
     <div class="listview panelfront side1 ebooks">
