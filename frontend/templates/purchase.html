@@ -1,5 +1,6 @@
 {% extends "basepledge.html" %}
 {% load humanize %}
+{% load lib_acqs %}
 
 {% block title %}Pledge{% endblock %}
 
@@ -64,15 +65,22 @@
     </div>
 </div>
 {% ifequal work.last_campaign.status "ACTIVE" %}
+{% lib_acqs %}
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
-	
     	<form class="pledgeform" method="POST" action="#">
+            {% if next_acq %}
+                <div class="pledge_amount">This ebook can be reserved from your library.</div>
+                <div class="bigger" style="margin:20px">Available starting {{ next_acq.refreshes|date:"M j, Y"}} at {{ next_acq.user }}.</div>
+                <div><a href="{% url reserve work.id%}?library={{ next_acq.user }}" class="fakeinput">Reserve Now</a> </div>
+                <div style="height:30px;"></div>
+                <div class="bigger" style="height:30px;clear:both;margin:20px">If you'd rather not wait, consider one of the purchase options.</div>
+            {% endif %}
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	
         	{% if work.offers.all|length > 1 %}
-                <div class="pledge_amount premium_level">Individual or Library License?</div>
+                <div class="pledge_amount premium_level">Purchase Options: Individual or Library?</div>
                 
                 <div style="height:10px;"></div>
     

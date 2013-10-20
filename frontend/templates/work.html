@@ -2,6 +2,7 @@
 {% load comments %}
 {% load humanize %}
 {% load purchased %}
+{% load lib_acqs %}
 {% block title %}&#151; 
     {% if work.first_ebook %}
         {{ work.title }} is a Free eBook
@@ -60,6 +61,7 @@
 
 {% block content %}  
 {% purchased %}
+{% lib_acqs %}
 {% with work.last_campaign_status as status %} 
 {% with work.id as work_id %}
     <div id="main-container">
@@ -475,7 +477,7 @@
                         {% else %}{% if borrowable %}
                             <div class="btn_support"><form action="{% url borrow work_id %}" method="get"><input type="submit" value="Borrow" /></form></div>
                         {% else %}
-                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="Purchase" /></form></div>
+                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="{% if next_acq %}Reserve{% else %}Purchase{% endif %}" /></form></div>
                         {% endif %}{% endif %}
                       {% endif %}
                     {% else %}

@@ -112,7 +112,7 @@
                             <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
                         {% else %}
                             {% if in_library %}
-                                <a href="{% url reserve workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
+                                <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
                             {% else %}
                                 <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
                             {% endif %}
@@ -273,7 +273,7 @@
         {% else %}{% if borrowable %}
             <a href="{% url borrow workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
         {% else %}{% if in_library %}
-            <a href="{% url reserve workid %}?library={{library}}" title="Reserve or buy this work"><div class="read_itbutton"><span>Reserve It</span></div></a>
+            <a href="{% url purchase work_id=workid %}" title="Reserve or buy this work"><div class="read_itbutton"><span>Reserve It</span></div></a>
         {% else %}{% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
 			{% if not library or not in_library %}
 			<div class="booklist-status-img">
