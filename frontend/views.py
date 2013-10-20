@@ -1868,7 +1868,7 @@ def library(request,library_name):
         raise Http404
     context['works_active']= models.Work.objects.filter(acqs__user=library.user,acqs__license=LIBRARY).distinct()
     context['activetab'] = "#2"
-
+    context['ungluers'] = userlists.library_users(library, 5 )
     return supporter(request,library_name,template_name='libraryauth/library.html', extra_context=context)
                 
     

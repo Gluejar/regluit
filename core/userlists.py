@@ -41,3 +41,11 @@ def campaign_list_users(campaign_list, how_many):
     else :
         user_list = users[0: how_many]
     return user_list
+
+def library_users(library, how_many):
+    count= library.group.user_set.all().count()
+    if count <= how_many :
+        user_list = library.group.user_set.all().order_by('-last_login')[0: count]
+    else :
+        user_list = library.group.user_set.all().order_by('-last_login')[0: how_many]
+    return user_list
