@@ -1,9 +1,13 @@
-{% load humanize %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|intcomma }}.  If you have not already done so, download your ebook at 
-https://{{ current_site.domain }}{% url download transaction.campaign.work.id %}
+{% load humanize %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|intcomma }}.  {% ifequal transaction.offer.license 2 %}If you have not already done so, download your ebook at 
+https://{{ current_site.domain }}{% url download transaction.campaign.work.id %}{% endifequal %}
 
 Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be eventually be released to the world in an unglued ebook edition. Thanks to your purchase, the ungluing date advanced {{ transaction.offer.days_per_copy|floatformat }} days to {{ transaction.campaign.cc_date }}.
-
+{% ifequal transaction.offer.license 1 %}
 This ebook is licensed to you personally, and your personal license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.
+{% else %}
+This ebook is licensed to your library and its license has been embedded in the ebook file. If you'd like to be the first to use it, please get your copy now at
+https://{{ current_site.domain }}{% url borrow transaction.campaign.work.id %}
+After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.{% endifequal %}
 
 For more information about the book, visit the  visit the book's unglue.it page at 
 https://{{ current_site.domain }}{% url work transaction.campaign.work.id %}

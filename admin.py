@@ -41,6 +41,8 @@ from regluit.core.lookups import (
     OwnerLookup,
     EditionLookup
 )
+from regluit.libraryauth.models import Library, Block, CardPattern, EmailPattern
+from regluit.libraryauth.admin import LibraryAdmin, BlockAdmin, CardPatternAdmin, EmailPatternAdmin
 
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
@@ -211,6 +213,10 @@ class MARCRecordAdmin(ModelAdmin):
 admin_site = RegluitAdmin("Admin")
 
 admin_site.register(User, UserAdmin)
+admin_site.register(Library, LibraryAdmin)
+admin_site.register(Block, BlockAdmin)
+admin_site.register(CardPattern, CardPatternAdmin)
+admin_site.register(EmailPattern, EmailPatternAdmin)
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.RightsHolder, RightsHolderAdmin)

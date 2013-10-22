@@ -13,7 +13,6 @@ from django import forms
 from django.conf import settings
 from django.conf.global_settings import LANGUAGES
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import AuthenticationForm
 from django.core.validators import validate_email
 from django.db import models
 from django.forms.widgets import RadioSelect
@@ -48,6 +47,8 @@ from regluit.core.models import (
     FACEBOOK,
     GRAVATAR
 )
+from regluit.libraryauth.models import Library
+from regluit.core.parameters import LIBRARY
 from regluit.core.lookups import (
     OwnerLookup,
     WorkLookup,
@@ -365,6 +366,8 @@ class OfferForm(forms.ModelForm):
         model = Offer
         widgets = { 
                 'work': forms.HiddenInput,
+                'license': forms.HiddenInput,
+                'active': forms.HiddenInput,
             }
             
 date_selector=range(date.today().year, settings.MAX_CC_DATE.year+1)
@@ -488,6 +491,9 @@ class CampaignPurchaseForm(forms.Form):
     anonymous = forms.BooleanField(required=False, label=_("Make this purchase anonymous, please"))
     offer_id = forms.IntegerField(required=False)
     offer=None
+    library_id = forms.IntegerField(required=False)
+    library = None
+    
     def clean_offer_id(self):
         offer_id = self.cleaned_data['offer_id']
         try:
@@ -495,13 +501,30 @@ class CampaignPurchaseForm(forms.Form):
         except  Offer.DoesNotExist:
             raise forms.ValidationError(_("Sorry, that offer is not valid."))
 
+    def clean_library_id(self):
+        library_id = self.cleaned_data['library_id']
+        if library_id:
+            try:
+                self.library = Library.objects.get(id=library_id)
+            except  Library.DoesNotExist:
+                raise forms.ValidationError(_("Sorry, that Library is not valid."))
+ 
+    def clean(self):
+        if self.offer.license == LIBRARY:
+            if not self.library:
+                raise forms.ValidationError(_("No library specified." ))
+        return self.cleaned_data
+
     def amount(self):
         return self.offer.price if self.offer else None
         
     @property
     def trans_extra(self):
-        return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
+        pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'],
                             offer = self.offer )
+        if self.library:
+            pe.extra['library_id']=self.library.id
+        return pe
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
@@ -621,14 +644,6 @@ class FeedbackForm(forms.Form):
             raise forms.ValidationError(_("Whoops, try that sum again."))
             
         return cleaned_data
-
-class AuthForm(AuthenticationForm):
-    def __init__(self, request=None, *args, **kwargs):
-        if request and request.method == 'GET':
-            saved_un= request.COOKIES.get('un', None)
-            super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
-        else:
-            super(AuthForm, self).__init__(*args, **kwargs)
 
 class MsgForm(forms.Form):
     msg = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})

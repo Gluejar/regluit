@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% load comments %}
 {% load humanize %}
+{% load purchased %}
+{% load lib_acqs %}
 {% block title %}&#151; 
     {% if work.first_ebook %}
         {{ work.title }} is a Free eBook
@@ -11,7 +13,6 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
-
 {% endblock %}
 
 {% block extra_js %}
@@ -58,7 +59,9 @@
 {% endif %}
 {% endblock %}
 
-{% block content %}    
+{% block content %}  
+{% purchased %}
+{% lib_acqs %}
 {% with work.last_campaign_status as status %} 
 {% with work.id as work_id %}
     <div id="main-container">
@@ -123,6 +126,15 @@
                                                 <span>{{ work.last_campaign.supporters_count }}</span> ungluers
                                             {% endif %}                                    
                                         </div>
+                                        {% ifequal work.last_campaign.type 2 %}
+                                            <div class="campaign-status-info">
+                                                {% if work.lib_acqs.count == 1 %}
+                                                    <span>1</span> copy in a library
+                                                {% else %}
+                                                    <span>{{ work.lib_acqs.count }}</span> in libraries
+                                                {% endif %}                                    
+                                            </div>
+                                        {% endifequal %}
                                         <div class="campaign-status-info">
                                             {% ifequal work.last_campaign.type 1 %}
                                             <span>{{ work.last_campaign.countdown }}</span> to go
@@ -458,13 +470,15 @@
                             <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                         {% endif %}
                       {% else %}
-                        {% if purchased %}
+                        {% if license_is_active %}
                             <div class="btn_support">
                                 <a href="{% url download_purchased work_id %}" class="hijax"><span>Download</span></a>
                             </div>
+                        {% else %}{% if borrowable %}
+                            <div class="btn_support"><form action="{% url borrow work_id %}" method="get"><input type="submit" value="Borrow" /></form></div>
                         {% else %}
-                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="Purchase" /></form></div>
-                        {% endif %}
+                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="{% if next_acq %}Reserve{% else %}Purchase{% endif %}" /></form></div>
+                        {% endif %}{% endif %}
                       {% endif %}
                     {% else %}
                         {% if work.first_ebook %}
@@ -600,23 +614,57 @@
                                 </ul>
                             </div>
                         {% else %}
-                            {% if purchased %}
-                                <h3 class="jsmod-title">
-                                    <span class="on-wishlist">Purchased!</span>
-                                </h3>
-                            {% else %}
-                            <a href="{% url purchase work_id %}"><h3 class="jsmod-title"><span>Purchase Options</span></h3></a>
+                            {% if lib_licenses.available %}
+                                <h3 class="jsmod-title"><span>Borrow</span></h3>
+                                <div class="jsmod-content">
+                                    <ul class="support menu">
+                                    {% for lib_license in lib_licenses.all %}
+                                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                            <a href="???">Borrow!</a>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            <h3 class="jsmod-title"><span>Buy for Yourself</span></h3>
                             <div class="jsmod-content">
                                 <ul class="support menu">
-                                    {% for offer in work.last_campaign.active_offers %}
-                                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                                        <a href="{% url purchase work_id %}?offer_id={{offer.id}}">
-                                        <span class="menu-item-price">${{ offer.price|floatformat:0|intcomma }}</span>
-                                        <span class="menu-item-desc">{{ offer.get_license_display }}</span>
-                                        </a></li>
-                                    {% endfor %}
+                                    {% if purchased %}
+                                    <li class="first no_link">
+                                        <span class="menu-item-desc">Purchased!</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="first">
+                                        <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
+                                        <span class="menu-item-price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
                                 </ul>
                             </div>
+                            {% if borrowed %}
+                                <h3 class="jsmod-title">
+                                    <span class="on-wishlist">Borrowed!</span>
+                                </h3>
+                            {% else %}
+                                <h3 class="jsmod-title"><span>Buy for a Library</span></h3>
+                                <div class="jsmod-content">
+                                    <ul class="support menu">
+                                        <li class="first last">
+                                        {% if request.user.profile.libraries %}
+                                            <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
+                                            <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_license_display }}</span>
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url library_list %}"><span class="menu-item-desc">
+                                            Join a Library to share and borrow unglue.it ebooks
+                                            </span></a>
+                                        {% endif %}
+                                        </li>
+                                    </ul>
+                                </div>
                             {% endif %}
                         {% endifequal %}
                         </div>

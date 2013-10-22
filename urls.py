@@ -4,7 +4,8 @@ from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 
 from frontend.forms import ProfileForm
-from frontend.views import superlogin, social_auth_reset_password
+from frontend.views import social_auth_reset_password
+from libraryauth.views import superlogin
 from regluit.admin import admin_site
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
 
@@ -40,6 +41,7 @@ urlpatterns = patterns('',
     (r'^api/', include('regluit.api.urls')),
     (r'', include('regluit.frontend.urls')),
     (r'', include('regluit.payment.urls')),
+    (r'', include('regluit.libraryauth.urls')),
     (r'^selectable/', include('selectable.urls')),
     url(r'^admin/', include(admin_site.urls)), 
     (r'^comments/', include('django.contrib.comments.urls')),

@@ -364,7 +364,9 @@ ul.support li {
 	border-bottom:1px solid @blue-grey;
 	padding:10px 5px 10px 10px;
 	background:url("@{image-base}icons/pledgearrow.png") 98% center no-repeat;
-	
+	&.no_link{
+	    background:none;
+	}
 	&.last {
 	    border-bottom: none;
 	}
@@ -396,6 +398,11 @@ ul.support li {
 			color: #fff;
 			text-decoration: none;
 		}
+        &.no_link{
+            background:#fff;
+            color:@call-to-action
+        }
+
 	}
 }
 

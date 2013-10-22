@@ -56,12 +56,15 @@ from regluit.core.parameters import (
     INDIVIDUAL,
     LIBRARY,
     BORROWED,
-    TESTING
+    TESTING,
+    RESERVE,
 )
     
 
 from regluit.booxtream import BooXtream 
 watermarker = BooXtream()
+
+from regluit.libraryauth.models import Library
 
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
@@ -256,15 +259,19 @@ class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
     """
-    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'))
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
+    refreshes = models.DateTimeField(auto_now_add=True, default=now())
     work = models.ForeignKey("Work", related_name='acqs', null=False)
     user = models.ForeignKey(User, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
     watermarked = models.ForeignKey("booxtream.Boox",  null=True)
     nonce = models.CharField(max_length=32, null=True)
+    
+    # when the acq is a loan, this points at the library's acq it's derived from 
+    lib_acq = models.ForeignKey("self", related_name="loans", null=True)
     
     @property
     def expired(self):
@@ -274,13 +281,19 @@ class Acq(models.Model):
             return self.expires < datetime.now()
             
     def get_mobi_url(self):
+        if self.expired:
+            return ''
         return self.get_watermarked().download_link_mobi
         
     def get_epub_url(self):
+        if self.expired:
+            return ''
         return self.get_watermarked().download_link_epub
         
     def get_watermarked(self):
         if self.watermarked == None or self.watermarked.expired:
+            if self.on_reserve:
+                self.borrow(self.user)
             params={
                 'customeremailaddress': self.user.email,
                 'customername': self.user.username,
@@ -302,13 +315,55 @@ class Acq(models.Model):
         
     def _hash(self):
         return hashlib.md5('1c1a56974ef08edc%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
+        
+    def expire_in(self, delta):
+        self.expires = now()+delta
+        self.save()
+        if self.lib_acq:
+            self.lib_acq.refreshes = now()+ (timedelta(days=14))
+            self.lib_acq.save()
+        
+    @property
+    def on_reserve(self):
+        return self.license==RESERVE
+        
+    def borrow(self, user=None):
+        if self.on_reserve:
+            self.license=BORROWED
+            self.expire_in(timedelta(days=14))
+            self.user.wishlist.add_work( self.work, "borrow")
+            return self
+        elif self.borrowable and user:
+            user.wishlist.add_work( self.work, "borrow")
+            borrowed = Acq.objects.create(user=user,work=self.work,license= BORROWED, lib_acq=self)
+            from regluit.core.tasks import watermark_acq
+            watermark_acq.delay(borrowed)
+            return borrowed
+
+    @property
+    def borrowable(self): 
+        if self.license == RESERVE and not self.expired:
+            return True
+        if self.license == LIBRARY:
+            return self.refreshes < datetime.now()
+        else:
+            return False
+         
+        
 
 def add_acq_nonce(sender, instance, created,  **kwargs):
     if created:
         instance.nonce=instance._hash()
         instance.save()
+def set_expiration(sender, instance, created,  **kwargs):
+    if created:
+        if instance.license == RESERVE:
+            instance.expire_in(timedelta(hours=2))
+        if instance.license == BORROWED:
+            instance.expire_in(timedelta(days=14))
 
 post_save.connect(add_acq_nonce,sender=Acq)
+post_save.connect(set_expiration,sender=Acq)
 
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
@@ -672,15 +727,26 @@ class Campaign(models.Model):
             return Premium.objects.none()
         return Premium.objects.filter(campaign=self).filter(type='CU').order_by('amount')
     
-    def active_offers(self):
+    @property
+    def library_offer(self):
+        return self._offer(LIBRARY)
+    
+    @property
+    def individual_offer(self):
+        return self._offer(INDIVIDUAL)
+    
+    def _offer(self, license):
         if self.type is REWARDS:
-            return Offer.objects.none()
-        return Offer.objects.filter(work=self.work,active=True).order_by('price')
+            return None
+        try:
+            return Offer.objects.get(work=self.work, active=True, license=license)
+        except Offer.DoesNotExist:
+            return None
 
     @property
     def days_per_copy(self):
-        if self.active_offers().count()>0:
-            return Decimal(float(self.active_offers()[0].price) / self.dollar_per_day )
+        if self.individual_offer:
+            return Decimal(float(self.individual_offer.price) / self.dollar_per_day )
         else: 
             return Decimal(0)
        
@@ -1045,21 +1111,82 @@ class Work(models.Model):
     def create_offers(self):
         for choice in Offer.CHOICES:
             if not self.offers.filter(license=choice[0]):
-                self.offers.create(license=choice[0])
+                self.offers.create(license=choice[0],active=True,price=Decimal(10))
         return self.offers.all()
-        
-    def purchased_by(self,user):
-        if user==None or not user.is_authenticated():
+    
+    def borrowable(self, user):
+        if user.is_anonymous():
             return False
-        acqs= self.acqs.filter(user=user)
-        if acqs.count()==0:
-            return False
-        for acq in acqs:
-            if acq.expires is None:
-                return True
-            if acq.expires > now():
-                return True
+        lib_user=(lib.user for lib in user.profile.libraries)
+        lib_license=self.get_user_license(lib_user)
+        if lib_license and lib_license.borrowable:
+            return True
         return False
+    
+    def in_library(self,user):
+        if user.is_anonymous():
+            return False
+        lib_user=(lib.user for lib in user.profile.libraries)
+        lib_license=self.get_user_license(lib_user)
+        if lib_license and lib_license.acqs.count():
+            return True
+        return False
+
+    @property
+    def lib_acqs(self):
+        return  self.acqs.filter(license=LIBRARY)
+
+    class user_license:
+        acqs=Acq.objects.none()
+        def __init__(self,acqs):
+            self.acqs=acqs
+        
+        @property
+        def is_active(self):
+            return  self.acqs.filter(expires__isnull = True).count()>0 or self.acqs.filter(expires__gt= now()).count()>0
+        
+        @property
+        def borrowed(self):
+            loans =  self.acqs.filter(license=BORROWED,expires__gt= now())
+            if loans.count()==0:
+                return None
+            else:
+                return loans[0]
+                
+        @property
+        def purchased(self):
+            purchases =  self.acqs.filter(license=INDIVIDUAL)
+            if purchases.count()==0:
+                return None
+            else:
+                return purchases[0]
+
+        @property
+        def lib_acqs(self):
+            return  self.acqs.filter(license=LIBRARY)
+        
+        @property
+        def next_acq(self):  
+            loans = self.acqs.filter(license=LIBRARY, refreshes__gt=now()).order_by('refreshes')
+            if loans.count()==0:
+                return None
+            else:
+                return loans[0]
+                
+        @property
+        def borrowable(self):
+            return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).count()>0
+    
+    def get_user_license(self, user):
+        if user==None:
+            return None
+        if isinstance(user, User):
+            if user.is_anonymous():
+                return None
+            return self.user_license(self.acqs.filter(user=user))
+        else:
+            # assume it's several users
+            return self.user_license(self.acqs.filter(user__in=user))
             
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -1501,6 +1628,17 @@ class UserProfile(models.Model):
         for social in socials:
             auths[social.provider]=True
         return auths
+
+    @property
+    def libraries(self):
+        libs=[]
+        for group in self.user.groups.all():
+            try:
+                libs.append(group.library)
+            except Library.DoesNotExist:
+                pass
+        return libs
+            
         
 class Press(models.Model):
     url =  models.URLField()

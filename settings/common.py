@@ -150,7 +150,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'regluit.booxtream',
     'regluit.pyepub',
-                            
+    'regluit.libraryauth',                    
 )
 
 # A sample logging configuration. The only tangible logging

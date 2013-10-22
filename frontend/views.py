@@ -107,7 +107,6 @@ from regluit.frontend.forms import (
     WorkForm,
     OtherWorkForm,
     MsgForm,
-    AuthForm,
     PressForm,
     KindleEmailForm,
     MARCUngluifyForm,
@@ -136,6 +135,8 @@ from regluit.payment.parameters import (
 
 from regluit.utils.localdatetime import now, date_today
 from regluit.booxtream.exceptions import BooXtreamError
+from regluit.libraryauth.views import Authenticator
+from regluit.libraryauth.models import Library
 
 logger = logging.getLogger(__name__)
 
@@ -296,18 +297,6 @@ def stub(request):
 def acks(request, work):
     return render(request,'front_matter.html', {'campaign': work.last_campaign()})
     
-def superlogin(request, **kwargs):
-    extra_context = None
-    if request.method == 'POST' and request.user.is_anonymous():
-        username=request.POST.get("username", "")
-        try:
-            user=models.User.objects.get(username=username)
-            extra_context={"socials":user.profile.social_auths}
-        except:
-            pass
-    if request.GET.has_key("add"):
-        request.session["add_wishlist"]=request.GET["add"]
-    return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
 
 @login_required
 def social_auth_reset_password(request):
@@ -424,7 +413,6 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'cover_width': cover_width_number,
-        'purchased': work.purchased_by(request.user),
     })    
 
 def edition_uploads(request, edition_id):
@@ -1104,6 +1092,7 @@ class PurchaseView(PledgeView):
                 'tid': self.transaction.id if self.transaction else None,
                 'cover_width': cover_width(self.work),
                 'offer_id':self.offer_id,
+                'user_license': self.work.get_user_license(self.request.user),
            })
             
         return context
@@ -1135,7 +1124,7 @@ class PurchaseView(PledgeView):
     def get_preapproval_amount(self):
         self.offer_id = self.request.REQUEST.get('offer_id', None)
         if not self.offer_id:
-            self.offer_id = self.work.last_campaign().active_offers()[0].id
+            self.offer_id = self.work.last_campaign().individual_offer.id
         preapproval_amount = None
         if self.offer_id != None:
             try:
@@ -1766,7 +1755,7 @@ def campaign_admin(request):
 
     return render(request, "campaign_admin.html", context)
 
-def supporter(request, supporter_username, template_name):
+def supporter(request, supporter_username, template_name, extra_context={}):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
     works = []
@@ -1846,22 +1835,10 @@ def supporter(request, supporter_username, template_name):
         else:
             profile_form= ProfileForm(instance=profile_obj)
         
-        if request.user.profile.goodreads_user_id is not None:
-            goodreads_id = request.user.profile.goodreads_user_id
-        else:
-            goodreads_id = None
-
-        if request.user.profile.librarything_id is not None:
-            librarything_id = request.user.profile.librarything_id
-        else:
-            librarything_id = None
     else:
         profile_form = ''
-        goodreads_id = None
-        librarything_id = None
 
     process_kindle_email(request)
-                
     context = {
             "supporter": supporter,
             "wishlist": wishlist,
@@ -1875,13 +1852,26 @@ def supporter(request, supporter_username, template_name):
             "wished": wished,
             "profile_form": profile_form,
             "ungluers": userlists.other_users(supporter, 5 ),
-            "goodreads_auth_url": reverse('goodreads_auth'),
-            "goodreads_id": goodreads_id,
-            "librarything_id": librarything_id,
-            "activetab": activetab
+            "activetab": activetab,
     }
-    
+    context.update(extra_context)
     return render(request, template_name, context)
+
+def library(request,library_name):
+    context={}
+    try:
+        # determine if the supporter is a library
+        authenticator = Authenticator(request,library_name)
+        context['authenticator'] = authenticator
+        context['library'] = library = authenticator.library
+    except Library.DoesNotExist:
+        raise Http404
+    context['works_active']= models.Work.objects.filter(acqs__user=library.user,acqs__license=LIBRARY).distinct()
+    context['activetab'] = "#2"
+    context['ungluers'] = userlists.library_users(library, 5 )
+    return supporter(request,library_name,template_name='libraryauth/library.html', extra_context=context)
+                
+    
 
 def edit_user(request):
     if not request.user.is_authenticated():
@@ -2633,6 +2623,33 @@ def download(request, work_id):
     })
 
     return render(request, "download.html", context)
+
+@login_required
+def borrow(request, work_id):
+    work = safe_get_work(work_id)
+    library =  request.GET.get('library', '')
+    try:
+        libuser = User.objects.get(username = library)
+    except User.DoesNotExist:
+        libuser = None
+    if libuser:
+        acqs= models.Acq.objects.filter(user = libuser, license = LIBRARY, refreshes__lt = now())
+    if not libuser or acqs.count()==0:
+        acq=None
+        for other_library in request.user.profile.libraries:
+            if other_library.user!=libuser:
+                acqs= models.Acq.objects.filter(user = other_library.user, license = LIBRARY, refreshes__lt = now())
+                if acqs.count()>0:
+                    acq=acqs[0]
+                    continue
+    else:
+        acq=acqs[0]
+    if acq:
+        borrowed = acq.borrow(request.user)
+        return download(request, work_id)
+    else:
+        # shouldn't happen
+        return work(request, work_id)
     
 def download_ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)
@@ -2647,6 +2664,8 @@ def download_purchased(request, work_id):
 
 def download_acq(request, nonce, format):
     acq = get_object_or_404(models.Acq,nonce=nonce)
+    if acq.on_reserve:
+        acq.borrow()
     if format == 'epub':
         return HttpResponseRedirect( acq.get_epub_url() )
     else:

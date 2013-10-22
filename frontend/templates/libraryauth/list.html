@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %} Comments {% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/liblist.css" />
+{% endblock %}
+{% block extra_head %}
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
+{% endblock %}
+{% block topsection %}
+
+<div id="js-topsection">
+    <div class="js-main">
+        <div class="js-topnews">
+            <div class="js-topnews1">
+                <div class="js-topnews2">
+                    <div class="js-topnews3">
+                        <div class="user-block">
+                            <div id="user-block1">
+                            	<div id="block-intro-text"><span class="special-user-name">Unglue.it Libraries</span></div>
+                            </div>
+                            <div class="user-block24"><span class="user-short-info">These libraries are participating in Unglue.it. If one of these is your library, you should be able to join, borrow and donate books. If your library is not on this list, contact your librarian and have them check out our <a href="{% url libraries %}">libraries FAQ</a>.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="main-container">
+    <div class="js-main">
+        <div id="js-leftcol">
+            {% include "explore.html" %}
+        </div>
+
+        <div id="js-maincol-fr">
+            <div class="js-maincol-inner">
+                <div id="content-block">
+                    <div id="content-block-content">
+                        <div style="height:46px;"></div>
+                        {% for library in libraries %}
+                            <div class="items {% cycle 'row1' 'row2' %}{% if library.group in request.user.groups.all %} joined{% endif %}">
+                               <div class="avatar">
+                                  <a href="{% url library library %}">
+                                    <img class="user-avatar" src="{{ library.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ library }}" title="{{ library }}" />
+                                  </a>
+                               </div>
+                              <div class="nonavatar">
+                                  <div class="libname"><a href="{% url library library %}">{{ library }}</a> {{ library.user.tagline }}</div>
+                                  <div class="libstat">{% if library.group in request.user.groups.all %}<em>joined</em>{% else %}&nbsp;{% endif %}</div>
+                                  <div class="libstat">{{ library.library_users.count }} Unglue.it users</div>
+                                  <div class="libstat">{{ library.user.acqs.count }} Unglue.it holdings</div>
+                                  <div class="libstat">{{ library.user.wishlist.works.count }} books on list</div>
+                               </div>
+                           
+                            </div>
+                        {% empty %}
+                        No libraries yet.
+                        {% endfor %}
+                    </div>
+                </div>    
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

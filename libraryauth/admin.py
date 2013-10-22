@@ -1,0 +1,44 @@
+from . import models
+
+from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
+from selectable.base import ModelLookup
+from selectable.registry import registry
+
+from django import forms
+from django.contrib.admin import ModelAdmin
+from django.contrib.auth.models import User, Group
+
+class UserLookup(ModelLookup):
+    model = User
+    search_fields = ('username__icontains',)
+
+registry.register(UserLookup)
+
+class LibraryAdminForm(forms.ModelForm):
+    user = AutoCompleteSelectField(
+            UserLookup,
+            widget=AutoCompleteSelectWidget(UserLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Library
+        widgets= {'group':forms.HiddenInput}
+        exclude = ('group', )
+        
+        
+class LibraryAdmin(ModelAdmin):
+    list_display = ('user', )
+    form = LibraryAdminForm
+    search_fields = ['user__username']
+
+class BlockAdmin(ModelAdmin):
+    list_display = ('library', 'lower', 'upper',)
+    search_fields = ('library__user__username', 'lower', 'upper',)
+
+class CardPatternAdmin(ModelAdmin):
+    list_display = ('library', 'pattern', 'checksum',)
+    search_fields = ('library__user__username', )
+
+class EmailPatternAdmin(ModelAdmin):
+    list_display = ('library', 'pattern', )
+    search_fields = ('library__user__username',)

@@ -70,25 +70,13 @@ function highlightTarget(targetdiv) {
 <link rel="alternate" type="application/atom+xml" title="feed for books from {{ supporter }}'s ungluing list" href="feed" />
 {% endblock %}
 
-{% comment %}
-To do:
-create topsection file for inclusion in multiple contexts, if needed
-Goodreads 
-    be sure words display correctlydja
-    do I need both add-wishlist and remove-wishlist classes? do they differ?
-better alignment on I am ungluing & badges
-
-make sure backed/backing/wishlist is the order we want the badges to be in
-test code with other campaign statuses -- random_campaigns needs to set a variety of statuses!
-why is there a status in regluit.payment.models.Transaction?  does it duplicate the status in regluit.core.models.Campaign?
-
-
-there's no tab for seeing ALL my books, only the filters! huh.
-
-{% endcomment %}
-
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
+{% if supporter.library %}
+    <div class="launch_top pale">{{ supporter.library }} is a Library participating in Unglue.it. <a href="{% url join_library supporter.username %}">Click here</a> to use {{ supporter.library }}'s books.
+    </div>
+{% endif %}
+
 <div id="js-topsection">
     <div class="js-main">
         <div class="js-topnews">
@@ -207,9 +195,9 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 </div>
                                 <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{{goodreads_auth_url}}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
+                                    <a href="{% url goodreads_auth %}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
-                                    <a href="{{goodreads_auth_url}}">Connect your GoodReads account</a> to Unglue.it                                   
+                                    <a href="{% url goodreads_auth %}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
                                 <div class="check-list" id="connectlt">
@@ -220,7 +208,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                             </form> 
                             <div class="block block3">
                                 <h3 class="title">Import your books</h3>
-                                {% if goodreads_id %}
+                                {% if request.user.profile.goodreads_user_id %}
                                 <form id="load_shelf_form" method="post" action="#">
                                     {% csrf_token %}
                                     <div class="fieldWrapper">
@@ -232,7 +220,7 @@ there's no tab for seeing ALL my books, only the filters! huh.
                                 {% else %}
                                 <div id="loadgr" onclick="highlightTarget('#connectgr'); return false;"><div>Connect your GoodReads account to import from GoodReads.</div></div>
                                 {% endif %}
-                                {% if librarything_id %}
+                                {% if request.user.profile.librarything_id %}
                                 <form id="librarything_load" method="post" action="#">
                                     {% csrf_token %}
                                     <div id="loadlt"><input type="submit" id="librarything_input" value="Add your LibraryThing library" /></div>

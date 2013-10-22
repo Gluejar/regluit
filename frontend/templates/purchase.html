@@ -1,5 +1,6 @@
 {% extends "basepledge.html" %}
 {% load humanize %}
+{% load lib_acqs %}
 
 {% block title %}Pledge{% endblock %}
 
@@ -64,31 +65,67 @@
     </div>
 </div>
 {% ifequal work.last_campaign.status "ACTIVE" %}
+{% lib_acqs %}
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
-	
     	<form class="pledgeform" method="POST" action="#">
+            {% if next_acq %}
+                <div class="pledge_amount">This ebook can be reserved from your library.</div>
+                <div class="bigger" style="margin:20px">Available starting {{ next_acq.refreshes|date:"M j, Y"}} at {{ next_acq.user }}.</div>
+                <div><a href="{% url reserve work.id%}?library={{ next_acq.user }}" class="fakeinput">Reserve Now</a> </div>
+                <div style="height:30px;"></div>
+                <div class="bigger" style="height:30px;clear:both;margin:20px">If you'd rather not wait, consider one of the purchase options.</div>
+            {% endif %}
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	
         	{% if work.offers.all|length > 1 %}
-                <div class="pledge_amount premium_level">Choose your license type:</div>
+                <div class="pledge_amount premium_level">Purchase Options: Individual or Library?</div>
                 
                 <div style="height:10px;"></div>
     
                 <ul class="support menu" id="premiums_list">
-                    {% for offer in work.last_campaign.active_offers %}
-                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                    <label for="offer_{{offer.id}}">
-                        <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
-                        <span class="menu-item-price">
-                            ${{ offer.price|intcomma }}
-                        </span>
-                        <span class="menu-item-desc">
-                            {{ offer.get_license_display }} 
-                        </span>
-                    </label></li>
-                    {% endfor %}
+                    {% with work.last_campaign.individual_offer as offer  %}
+                    <li class="first">
+                        {% if user_license.purchased %}
+                            <span class="menu-item-desc">Individual license already purchased!</span>
+                        {% else %}
+                            <label for="offer_{{offer.id}}">
+                                <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                                <span class="menu-item-price">
+                                    ${{ offer.price|intcomma }}
+                                </span>
+                                <span class="menu-item-desc">
+                                    {{ offer.get_license_display }} 
+                                </span>
+                            </label>
+                        {% endif %}
+                    </li>
+                    {% endwith %}
+                    {% with work.last_campaign.library_offer as offer  %}
+                    <li class="last">
+                    {% if request.user.profile.libraries %}
+                        <label for="offer_{{offer.id}}">
+                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                            <span class="menu-item-price">
+                                ${{ offer.price|intcomma }}
+                            </span>
+                            <span class="menu-item-desc">
+                                {{ offer.get_license_display }} for 
+                                <select name="library_id" class="std_form">
+                                {% for library in request.user.profile.libraries %}
+                                <option value="{{library.id}}">{{ library }}</option>
+                                {% endfor %}
+                                </select>
+                            </span>
+                        </label>
+                    {% else %}
+                        <a href="{% url library_list %}"><span class="menu-item-desc">
+                            Join a Library to share and borrow unglue.it ebooks
+                        </span></a>
+                    {% endif %}
+                    </li>
+                    {% endwith %}
                 </ul>
             {% else %}
                 <div style="height:10px;"></div>
