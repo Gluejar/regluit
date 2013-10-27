@@ -54,6 +54,9 @@
                                 	<a href="{% url supporter ungluer %}"><span class="ungluer-name">{{ungluer|truncatechars:20}}</span>
                                 </a></li>
                             {% endfor %}
+                            {% if library %}
+                                <li class="first"><a href="{% url library_users library %}"><span>More from {{ library }}</span></a></li>
+                            {% endif %}
                             </ul>
                         </li>
                         {% endif %}

@@ -7,6 +7,7 @@ urlpatterns = patterns(
     "",
     url(r"^libraryauth/(?P<library>[^/]+)/join/$", views.join_library, name="join_library"),
     url(r"^libraryauth/(?P<library>[^/]+)/deny/$", direct_to_template, {'template':'libraryauth/denied.html'}, name="bad_library"),
+    url(r"^libraryauth/(?P<library>[^/]+)/users/$", views.library, {'template':'libraryauth/users.html'}, name="library_users"),
     url(r"^libraryauth/list/$", direct_to_template, {
             'template':'libraryauth/list.html', 
             'extra_context':{'libraries':models.Library.objects.order_by('user__username')}
