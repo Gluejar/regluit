@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %} Users of {{ library }} {% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/liblist.css" />
+{% endblock %}
+{% block extra_head %}
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
+{% endblock %}
+{% block topsection %}
+
+<div id="js-topsection">
+    <div class="js-main">
+        <div class="js-topnews">
+            <div class="js-topnews1">
+                <div class="js-topnews2">
+                    <div class="js-topnews3">
+                        <div class="user-block">
+                            <div id="user-block1">
+                            	<div id="block-intro-text"><span class="special-user-name">{{ library }} </span> </div>
+                            </div>
+                            <div class="user-block24"><span class="user-short-info">These ungluers are are using <a href="{% url library library %}">{{ library }}</a>. </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+       
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="main-container">
+    <div class="js-main">
+        <div id="js-leftcol">
+            {% include "explore.html" %}
+        </div>
+
+        <div id="js-maincol-fr">
+            <div class="js-maincol-inner">
+                <div id="content-block">
+                    <div id="content-block-content">
+                        <div style="height:46px;"></div>
+                        {% if is_member %}
+                            {% for libuser in library.library_users.all %}
+                                <div class="items {% cycle 'row1' 'row2' %}">
+                                   <div class="avatar">
+                                      <a href="{% url supporter libuser.user.username %}">
+                                        <img class="user-avatar" src="{{ libuser.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ libuser.user.username }}" title="{{ libuser.user }}" />
+                                      </a>
+                                   </div>
+                                  <div class="nonavatar">
+                                      <div class="libname"><a href="{% url supporter libuser.user.username %}">{{ libuser.user.username }}</a> {{ libuser.user.profile.tagline }}</div>
+                                      <div class="libstat">{{ libuser.user.wishlist.works.count }} books on list</div>
+                                      {% if is_admin %}
+                                          <div class="libstat">authorized {{ libuser.date_modified|date:"M j, Y" }}</div>
+                                          <div class="libstat">credential: {{ libuser.credential }}</div>
+                                          <div class="libstat"></div>
+                                      {% endif %}
+                                   </div>
+                           
+                                </div>
+                            {% empty %}
+                                No users yet.
+                            {% endfor %}
+                        {% else %}
+                        You need to be a member of {{ library }} to see all its members. They can borrow and donate books. Perhaps you'd like to <a href="{% url join_library library %}">join them</a>?
+                        {% endif %}
+                    </div>
+                </div>    
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

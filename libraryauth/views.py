@@ -1,6 +1,6 @@
 import logging
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.views import login
 from django.http import HttpResponseRedirect
 from . import backends
@@ -10,6 +10,17 @@ from .forms import AuthForm
 
 logger = logging.getLogger(__name__)
 
+def library(request, library,  
+        extra_context={}, 
+        template='libraryauth/library.html',
+        **kwargs):
+    library=get_object_or_404(Library, user__username=library)
+    context={   'library':library, 
+                'is_admin':  request.user.is_staff or request.user==library.user,
+                'is_member': request.user.is_staff or library.has_user(request.user),
+            }
+    context.update(extra_context)
+    return render(request, template, context)
 
 def join_library(request, library):
     library=get_object_or_404(Library, user__username=library)
