@@ -176,7 +176,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
     {% if not request.user.is_authenticated %}<li>{% else %}<li class="checked">{% endif %}Set up an Unglue.it account (start at the Sign Up button at the top of the page).</li>
 	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Email rights@gluejar.com about becoming an authorized rights holder.</li>
 	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}After we review your credentials, sign a Platform Services Agreement (available from us).</li>
-	<li>Claim your work(s):
+	<li>Claim your work(s)...
 	<ul>
 	    <li>Find them through the search box at the top of every page.</li>
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
@@ -184,17 +184,24 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	    <li>If you have any questions or you claim a work by mistake, email us.</li>
 	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url regluit.frontend.views.edit_user %}">change the email address</a> for your account.</li>
 	</ul></li>
+	<li>...or send us metadata for books you have rights to.
+	<ul>
+	    <li>Your ebooks must have ISBNs assigned.</li>
+	    <li>Your metadata should have title, authors, language, description.</li>
+	    <li>Contact us to load ONIX or CSV files for you.</li>
+	</ul></li>
 	<li>Once your claim is approved, you can set up a campaign for it.  All the campaigns you can manage will be listed on this page.</li>
 	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page.</li> 
 </ol>
-
-<h2>Rewards</h2>
+<h2>Campaigns </h2>
+<p> if you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge" campaign.</p>
+<h2>Rewards for Pledge Campaigns</h2>
 
 <p>Campaigns can have rewards as a way to motivate and thank supporters.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
 
 <p>What should you add as rewards?  Anything (legal) that you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
 
-<h2>Acknowledgements</h2>
+<h2>Acknowledgements for Pledge Campaigns</h2>
 <p>Here are the standard acknowledgements.  These automatically combine with your rewards.  For example, if you offer a $30 reward, ungluers who pledge $30 will receive the $25 acknowledgement as well.</p>
 <ul class="terms">
 <li><em>Any amount</em> &#8212; The unglued ebook</li>

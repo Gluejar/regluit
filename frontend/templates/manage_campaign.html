@@ -177,7 +177,7 @@ Please fix the following before launching your campaign:
         
         <p>The <i>minimum</i> revenue target is ${{form.minimum_target|intcomma}}.The <i>maximum</i> revenue target is ${{form.maximum_target|intcomma}}. Yep. </p>
     
-        <p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed.</p>
+        <p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url ccdate %}#calculator">the ungluing date calculator</a></p>
     
         <p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
     
@@ -188,7 +188,7 @@ Please fix the following before launching your campaign:
         <h3>Initial Ungluing Date</h3>
         <p>When you launch a Buy-To-Unglue campaign, you will specify a date in the future at which your book will become Creative Commons Licensed. eBooks sold via unglue.it will include a notice of this license. With every sale, the effective date of this license will advance a bit toward the present.  </p>
 
-	    <p>Before launching a campaign, you'll need to select Your initial Ungluing Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Your starting Ungluing Date must be before {{ form.max_cc_date }}</p>
+	    <p>Before launching a campaign, you'll need to select Your initial Ungluing Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Check out the <a href="{% url ccdate %}#calculator">the ungluing date calculator</a> to see how this works. Your starting Ungluing Date must be before {{ form.max_cc_date }}</p>
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
 	    <!--{{ form.deadline.errors }}-->{{ form.deadline }}
 	{% endifequal %}
@@ -196,12 +196,12 @@ Please fix the following before launching your campaign:
 {% else %}
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
-	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p></p>
+	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
 	<div class="std_form">
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	</div>
-	<h3>Target Price</h3>
-	<p>The current target price for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target.</p>
+	<h3>Target Revenue</h3>
+	<p>The current target revenue for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url ccdate %}#calculator">the ungluing date calculator</a></p>
 	<div class="std_form">
 	${{ form.target.errors }}{{ form.target }}
     </div>
@@ -226,7 +226,7 @@ Please fix the following before launching your campaign:
 
 
 	<h3>Make Your Pitch</h3>
-	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters.</p>
+	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters/purchasers.</p>
 	
 	<p>This isn't a dry synopsis in a catalog.  It's your chance to be creative, to share your passion for this work, and to inspire readers.  A strong pitch:</p>
 	
@@ -237,7 +237,8 @@ Please fix the following before launching your campaign:
 	<li>Defines important but potentially unfamiliar things.  What's an ungluing campaign, and why are you running one?  Is there anything unusual about the book, its genre, et cetera?  For those who aren't already familiar with you (or the author), who are you?  {% ifequal campaign.type 1 %}Are you offering any particularly great premiums you want to call people's attention to?{% endifequal %}</li>
 	<li>Gives examples of the author's work.  This could be links to your site or places people can find more information about you or the book.  You can also add quotes, embed a free sample chapter or story, display images, et cetera.  These work samples might be from the campaign book itself, or from your (or the author's) other creative works.</li>
 	<li>Has personality.  The writing should be thoroughly proofread but it should have a point of view.  This is the place to be conversational, opinionated, funny, quirky -- whatever reflects your style.  Be you.</li>
-	<li>Optionally, provides extra incentives (like new or improved premiums) that will kick in if the campaign is unusually successful.  Will you do something special when you reach 10% or 50% or 75% of your goal?  Or if you reach that milestone before a particular deadline (e.g. in the first week of your campaign)?</li>
+	{% ifequal campaign.type 1 %}
+	<li>Optionally, provides extra incentives (like new or improved premiums) that will kick in if the campaign is unusually successful.  Will you do something special when you reach 10% or 50% or 75% of your goal?  Or if you reach that milestone before a particular deadline (e.g. in the first week of your campaign)?</li>{% endifequal %}
 	</ul>
 	
 	<h4>How to add video</h4>
@@ -279,12 +280,17 @@ Please fix the following before launching your campaign:
 
 	{{ form.description.errors }}{{ form.description }}
 	<h3>Edition and Rights Details</h3>
-	<p>This will be displayed on the More... tab for your work.  It's the fine print for your campaign.  Make sure to disclose any ways the unglued edition will differ from the existing edition; for example:
-	<ul>
+	<p>This will be displayed on the More... tab for your work.  It's the fine print for your campaign.  {% ifequal campaign.type 1 %}Make sure to disclose any ways the unglued edition will differ from the existing edition; for example:
+	<ul class="bullets">
 	<li>Any material that may have to be excluded due to permissions issues: illustrations, forewords, etc.</li>
 	<li>Any additional materials that will be included, if not already covered in your pitch -- but we encourage you to cover them there to show supporters the value of ungluing!</li>
 	<li>If the cover image will differ.</li>
 	</ul>
+	{% else %}Make sure to disclose any licensing carve-outs, for example:</p>
+	<ul class="bullets">
+	<li>If the text is to be CC BY, but illustrations are only licensed as part of the ebook.</li>
+	</ul>
+	{% endifequal %}
 	
 	<p>In short, is there a fact about this campaign that you think would matter to your agent or another publishing wonk, but that no one else is likely to care about?  Put it here.  If your campaign doesn't have any fine print, you can leave this blank.</p>
 	{{ form.details.errors }}{{ form.details }}
@@ -358,7 +364,7 @@ Please fix the following before launching your campaign:
 	<p>If you deactivate a premium that people have pledged toward, you are <b>still responsible for delivering it</b> to those pledgers.</p>
 	
 	<p>A few things to keep in mind:</p>
-	<ul>
+	<ul class="bullets">
 	<li>Are your premiums cumulative?  That is, if you have a $10 and a $25 premium, does the $25 pledger get everything that the $10 pledger gets also?  Either cumulative or not-cumulative is fine, but make sure you've communicated clearly</li>
 	<li>Adding new premiums during your campaign is a great way to build momentum.  If you do, make sure to leave a comment in the Comments tab of your campaign page to tell supporters (it will be automatically emailed to them).  Some of them may want to change (hopefully increase) their pledge to take advantage of it.</li>
 	<li>Also make sure to think about how your new premiums interact with old ones.  If you add a new premium at $10, will people who have already pledged $25 be automatically eligible for it or not?  Again, you can choose whatever you want; just be sure to communicate clearly.</li>
@@ -401,18 +407,18 @@ Please fix the following before launching your campaign:
 	{% if not is_preview or request.user.is_staff %}
 		{% if campaign.description and campaign.target and campaign.deadline and campaign.launchable %}
 		<p>Before you hit launch:</p>
-		<ul>
+		<ul class="bullets">
 			<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
 			<li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
 		</ul>
 			
-		<p>If it doesn't look exactly the way you like, or you're having any trouble with your description or premiums, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
+		<p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
 		
 		<p>If you're happy with your campaign, here's your moment of truth!</p>
 		
 		<div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
 		{% else %}
-            <p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, and premiums, and previewed your campaign, before launching.</p>
+            <p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, prices or premiums, and previewed your campaign, before launching.</p>
             {% ifequal campaign.type 2 %}
             <p> Buy To Unglue campaigns can't be launched until ebook files <a class="tabs1">have been loaded</a> and <a  class="tabs2">pricing has been set and made active</a></p>
             <!-- {{campaign.problems }} -->
@@ -432,9 +438,13 @@ Please fix the following before launching your campaign:
 <h2 class="thank-you">Your campaign is now active! Hooray!</h2>
 
 <h3>What to do next</h3>
-<ul>
+<ul class="bullets">
 <li>Tell your friends, relatives, media contacts, professional organizations, social media networks -- everyone!</li>
+{% ifequal campaign.type 1 %}
 <li>Check in with your campaign frequently.  Use comments, description updates, and maybe new premiums to spark additional interest, keep supporters engaged, and keep the momentum going.</li>
+{% else %}
+<li>Check in on your sales frequently. Remember, you control the per-copy pricing, so think about the promotional value of a temporary price reduction.</li>
+{% endifequal %}
 <li>Watch media and social networks for mentions of your campaign, and engage in those conversations.</li>
 <li>Need help doing any of this?  Talk to us.</li>
 </ul>
