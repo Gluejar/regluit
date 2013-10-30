@@ -27,6 +27,8 @@ from regluit.core import models
 from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
+request_log = logging.getLogger("requests")
+request_log.setLevel(logging.WARNING)
 
 def add_by_oclc(isbn, work=None):
     # this is indirection in case we have a data source other than google
@@ -457,7 +459,7 @@ def thingisbn(isbn):
 def merge_works(w1, w2, user=None):
     """will merge the second work (w2) into the first (w1)
     """
-    logger.info("merging work %s into %s", w2, w1)
+    logger.info("merging work %s into %s", w2.id, w1.id)
     # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return
