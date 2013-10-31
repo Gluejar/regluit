@@ -1,0 +1,1 @@
+You have borrowed {{ acq.work.title }} from {{ acq.lib_acq.user.username }}

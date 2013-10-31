@@ -1,0 +1,12 @@
+{{ user.username }},
+
+Your request to join {{ library }} has been accepted. Welcome!
+
+{{ library }} is participating in Unglue.it. That means you can borrow Unglue.it ebooks owned by {{ library }} (when available). A list of the ebooks available to {{ library }} members is available here: 
+https://{{ current_site.domain }}{% url library library %}
+
+When you buy an ebook through Unglue.it, you'll be offered the option to by a library license in stead of an individual license. That means that {{ library }} will own the ebook, but you'll be the first in line to borrow it. After two weeks, the book will be available to other members of {{ library }}. 
+
+eBooks available for purchase through Unglue.it will eventually be free to the whole world, for free. Every purchase of a book through Unglue.it brings the "ungluing date" of that book closer to the present. We hope you'll join us in our effort to make these books free.
+
+{{ library.username }} and the Unglue.it team

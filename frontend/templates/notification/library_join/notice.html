@@ -1,0 +1,20 @@
+{% extends "notification/notice_template.html" %}
+{% block comments_book %}
+			<a href="{% url library library %}"><img src="{{ library.user.profile.avatar_url }}" alt="avatar for {{ library }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+			Your request to join {{ library }} has been accepted. Welcome!
+{% endblock %}
+
+{% block comments_textual %}
+
+		<p>{{ library }} is participating in Unglue.it. That means you can borrow Unglue.it ebooks owned by {{ library }} (when available). Here's <a href="{% url library library %}">a list of the ebooks available</a> to {{ library }} members. <p>
+		
+		<p>When you buy an ebook through unglue.it, you'll be offered the option to by a library license in stead of an individual license. That means that {{ library }} will own the ebook, but you'll be the first in line to borrow it. After two weeks, the book will be available to other members of {{ library }}. </p>
+		
+		<p> eBooks available for purchase through Unglue.it will eventually be free to the whole world, for free. Every purchase of a book through Unglue.it brings the "ungluing date" of that book closer to the present. We hope you'll join us in our effort to make these books free.</p>
+
+		<p>{{ library.username }} and the Unglue.it team
+		</p>
+{% endblock %}
