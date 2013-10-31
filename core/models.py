@@ -332,11 +332,13 @@ class Acq(models.Model):
             self.license=BORROWED
             self.expire_in(timedelta(days=14))
             self.user.wishlist.add_work( self.work, "borrow")
+            notification.send([self.user], "library_borrow", {'acq':self})
             return self
         elif self.borrowable and user:
             user.wishlist.add_work( self.work, "borrow")
             borrowed = Acq.objects.create(user=user,work=self.work,license= BORROWED, lib_acq=self)
             from regluit.core.tasks import watermark_acq
+            notification.send([user], "library_borrow", {'acq':borrowed})
             watermark_acq.delay(borrowed)
             return borrowed
 

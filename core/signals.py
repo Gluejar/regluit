@@ -32,7 +32,7 @@ regluit imports
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
 from regluit.utils.localdatetime import now
 from regluit.core.parameters import REWARDS, BUY2UNGLUE, LIBRARY, RESERVE
-from regluit.libraryauth.models import Library
+from regluit.libraryauth.models import Library, LibraryUser
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +118,8 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("account_expired", _("Credit Card Has Expired"), _("Your credit card has expired."))
     notification.create_notice_type("account_active", _("Credit Card Number Updated"), _("Payment method updated."), default = 1)
     notification.create_notice_type("purchase_complete", _("Your Purchase is Complete"), _("Your Unglue.it Purchase is Complete."))
+    notification.create_notice_type("library_borrow", _("Library eBook Borrowed."), _("You've borrowed an ebook through a Library participating in Unglue.it"))
+    notification.create_notice_type("library_join", _("New Library User."), _("A library participating in Unglue.it has added a user"))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -324,3 +326,12 @@ def notify_supporter_message(sender, work, supporter, msg, **kwargs):
     emit_notifications.delay()
     
 supporter_message.connect(notify_supporter_message)
+
+def notify_join_library(sender, created, instance, **kwargs):
+    if created:
+        notification.send((instance.user, instance.library.user), "library_join", {
+            'library': instance.library,
+            'user': instance.user,
+            })
+
+post_save.connect(notify_join_library, sender=LibraryUser)
