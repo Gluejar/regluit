@@ -72,13 +72,13 @@ def ip_to_long(value):
         validators.validate_integer(value[i])
         lower_validator(value[i])
         upper_validator(value[i])
-        output += int(value[i]) * (256**(3-i))
+        output += long(value[i]) * (256**(3-i))
 
     return output
 
 def long_to_ip(value):
     validators.validate_integer(value)
-    value = int(value)
+    value = long(value)
 
     validators.MinValueValidator(0)(value)
     validators.MaxValueValidator(4294967295)(value)
@@ -206,23 +206,6 @@ class Block(models.Model):
                                           'than or equal to the upper end')
             except ValueError, e:
                 pass
-
-        others = Block.objects.exclude(pk=self.pk)
-        query = Q(lower__lte=self.lower, upper__gte=self.lower) | \
-                Q(lower=self.lower)
-        if self.upper and self.upper.int:
-            textual = u'%s-%s' % (self.lower, self.upper)
-            query = query | Q(lower__range=(self.lower, self.upper)) | \
-                    Q(lower__lte=self.upper, upper__gte=self.upper)
-        else:
-            textual = str(self.lower)
-
-        query = others.filter(query)
-
-        if query.exists():
-            values = query.distinct().values_list('library__user__username', flat=True)
-            raise ValidationError('%s overlaps a block in in use by: %s' % (textual,
-                ', '.join(list(frozenset(values))[:5])))
 
 
     def __unicode__(self):
