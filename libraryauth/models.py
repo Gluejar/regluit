@@ -207,23 +207,6 @@ class Block(models.Model):
             except ValueError, e:
                 pass
 
-        others = Block.objects.exclude(pk=self.pk)
-        query = Q(lower__lte=self.lower, upper__gte=self.lower) | \
-                Q(lower=self.lower)
-        if self.upper and self.upper.int:
-            textual = u'%s-%s' % (self.lower, self.upper)
-            query = query | Q(lower__range=(self.lower, self.upper)) | \
-                    Q(lower__lte=self.upper, upper__gte=self.upper)
-        else:
-            textual = str(self.lower)
-
-        query = others.filter(query)
-
-        if query.exists():
-            values = query.distinct().values_list('library__user__username', flat=True)
-            raise ValidationError('%s overlaps a block in in use by: %s' % (textual,
-                ', '.join(list(frozenset(values))[:5])))
-
 
     def __unicode__(self):
         if self.upper and self.upper.int:
