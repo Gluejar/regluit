@@ -72,13 +72,13 @@ def ip_to_long(value):
         validators.validate_integer(value[i])
         lower_validator(value[i])
         upper_validator(value[i])
-        output += int(value[i]) * (256**(3-i))
+        output += long(value[i]) * (256**(3-i))
 
     return output
 
 def long_to_ip(value):
     validators.validate_integer(value)
-    value = int(value)
+    value = long(value)
 
     validators.MinValueValidator(0)(value)
     validators.MaxValueValidator(4294967295)(value)
