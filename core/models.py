@@ -317,10 +317,10 @@ class Acq(models.Model):
         return hashlib.md5('1c1a56974ef08edc%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
-        self.expires = now()+delta
+        self.expires = now() + delta
         self.save()
         if self.lib_acq:
-            self.lib_acq.refreshes = now()+ (timedelta(days=14))
+            self.lib_acq.refreshes = now() + delta
             self.lib_acq.save()
         
     @property
@@ -353,19 +353,16 @@ class Acq(models.Model):
          
         
 
-def add_acq_nonce(sender, instance, created,  **kwargs):
+def config_acq(sender, instance, created,  **kwargs):
     if created:
         instance.nonce=instance._hash()
         instance.save()
-def set_expiration(sender, instance, created,  **kwargs):
-    if created:
         if instance.license == RESERVE:
             instance.expire_in(timedelta(hours=2))
         if instance.license == BORROWED:
             instance.expire_in(timedelta(days=14))
 
-post_save.connect(add_acq_nonce,sender=Acq)
-post_save.connect(set_expiration,sender=Acq)
+post_save.connect(config_acq,sender=Acq)
 
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
