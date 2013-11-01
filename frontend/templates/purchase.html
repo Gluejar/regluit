@@ -91,6 +91,7 @@
                             <span class="menu-item-desc">Individual license already purchased!</span>
                         {% else %}
                             <label for="offer_{{offer.id}}">
+                                <input type="hidden" name="copies" value="1" />
                                 <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
                                 <span class="menu-item-price">
                                     ${{ offer.price|intcomma }}
@@ -111,12 +112,13 @@
                                 ${{ offer.price|intcomma }}
                             </span>
                             <span class="menu-item-desc">
+                                <input type="text" name="copies" value="1" size="2" />
                                 {{ offer.get_license_display }} for 
                                 <select name="library_id" class="std_form">
                                 {% for library in request.user.profile.libraries %}
                                 <option value="{{library.id}}">{{ library }}</option>
                                 {% endfor %}
-                                </select>
+                                </select>{{ form.copies.errors }}{{ form.library_id.errors }}
                             </span>
                         </label>
                     {% else %}
@@ -130,6 +132,7 @@
             {% else %}
                 <div style="height:10px;"></div>
                 <input type="hidden" name="offer_id" id="offer_{{ offers.0.id }}" value="{{ offers.0.id }}" checked="checked" />
+                <input type="hidden" name="copies" value="1" />
          	{% endif %}
 
 			

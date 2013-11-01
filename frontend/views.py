@@ -1866,8 +1866,10 @@ def library(request,library_name):
         context['library'] = library = authenticator.library
     except Library.DoesNotExist:
         raise Http404
-    context['works_active']= models.Work.objects.filter(acqs__user=library.user,acqs__license=LIBRARY).distinct()
-    context['activetab'] = "#2"
+    works_active= models.Work.objects.filter(acqs__user=library.user,acqs__license=LIBRARY).distinct()
+    if works_active.count()>0:
+        context['works_active'] = works_active
+        context['activetab'] = "#2"
     context['ungluers'] = userlists.library_users(library, 5 )
     return supporter(request,library_name,template_name='libraryauth/library.html', extra_context=context)
                 

@@ -493,6 +493,7 @@ class CampaignPurchaseForm(forms.Form):
     offer=None
     library_id = forms.IntegerField(required=False)
     library = None
+    copies = forms.IntegerField(required=False,min_value=1)
     
     def clean_offer_id(self):
         offer_id = self.cleaned_data['offer_id']
@@ -516,7 +517,8 @@ class CampaignPurchaseForm(forms.Form):
         return self.cleaned_data
 
     def amount(self):
-        return self.offer.price if self.offer else None
+        
+        return self.offer.price * self.cleaned_data.get('copies',1) if self.offer else None
         
     @property
     def trans_extra(self):
@@ -524,6 +526,7 @@ class CampaignPurchaseForm(forms.Form):
                             offer = self.offer )
         if self.library:
             pe.extra['library_id']=self.library.id
+        pe.extra['copies']=self.cleaned_data.get('copies',1)
         return pe
 
 class CampaignPledgeForm(forms.Form):
