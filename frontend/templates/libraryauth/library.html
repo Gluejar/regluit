@@ -15,23 +15,8 @@
 <script type="text/javascript" src="/static/js/import_books.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 
-{% if works %}
-<!-- when the user's wishlist is empty, views.py gives us works for a slideshow -->
-<script src="/static/js/slides.min.jquery.js"></script>
-<script src="/static/js/slideshow.js"></script>
-
-<!-- toggle to panelview instead of listview default so slideshow will look right -->
-<script type="text/javascript">
-    var $j = jQuery.noConflict();
-	$j(document).ready(function($) { 
-        $('.listview').addClass("panelview").removeClass("listview");
-    });    
-</script>  
-{% else %}
-<!-- we only need these when there's stuff on the user's wishlist -->
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
-{% endif %}
 
 <!-- highlight LT/GR add functions when people click on import divs -->
 <script type="text/javascript">
@@ -141,12 +126,6 @@ function highlightTarget(targetdiv) {
         <div class="js-maincol-inner">
             <div id="content-block">
 
-                {% if not works %}
-                
-                {% comment %}
-                if we're in empty-wishlist, slideshow mode, suppress tab area
-                {% endcomment %}
-
                 <div class="content-block-heading wantto" id="tabs">
                     <ul class="tabs">
                         <li class="tabs1"><a href="#">Unglued</a></li>
@@ -167,7 +146,6 @@ function highlightTarget(targetdiv) {
                             </li>
                         </ul>
                 </div>
-                {% endif %}
                 {% if wishlist %}
                 <div id="content-block-content">
                     {% if not works_active.count and not works_unglued.count %}
