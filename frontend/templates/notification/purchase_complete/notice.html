@@ -21,7 +21,7 @@
 {% else %}
 		<p>This ebook {% ifnotequal transaction.extra.copies 1 %}({{ transaction.extra.copies }} copies){% endifnotequal %} is licensed to your library and its license has been embedded in the ebook file. If you'd like to be the first to use it, please <a href="{% url borrow transaction.campaign.work.id %}">get your copy now</a>. After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.</p>
 {% endifequal %}
-		<p>For more information about the book, visit the  visit the <a href="{% url work transaction.campaign.work.id %}">book's unglue.it page</a>.
+		<p>For more information about the book, visit the <a href="{% url work transaction.campaign.work.id %}">book's unglue.it page</a>.
 		</p>
 		<p>Thank you again for your support.
 		</p>

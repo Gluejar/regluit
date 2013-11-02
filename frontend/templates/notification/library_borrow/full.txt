@@ -3,7 +3,7 @@ https://{{ current_site.domain }}{% url download acq.work.id %}
 
 This ebook is made available to you by {{ acq.lib_acq.user.username }} for your personal use only, and a personal license has been embedded in the ebook file. You may download as many times as you need to until {{ acq.expires }}. If you want to use the ebook after that, please consider buying a copy for yourself. Doing so will bring closer the day when this ebook is free for everyone to read.
 
-For more information about the book, visit the  visit the book's unglue.it page at 
+For more information about the book, visit the book's unglue.it page at 
 https://{{ current_site.domain }}{% url work acq.work.id %}
 
 Thank you again for your support.
