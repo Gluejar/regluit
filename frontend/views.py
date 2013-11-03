@@ -2062,17 +2062,9 @@ class InfoLangView(TemplateView):
         return {
             'wished_languages': languages, 
         }
-
-
-class FAQView(TemplateView):
+    
+class FAQView(FormView):
     template_name = "faq.html"
-    def get_context_data(self, **kwargs):
-        location = self.kwargs["location"]
-        sublocation = self.kwargs["sublocation"]
-        return {'location': location, 'sublocation': sublocation}
-
-class CCDateView(FormView):
-    template_name = 'calculator.html'
     form_class = DateCalculatorForm
 
     def form_valid(self, form):
@@ -2086,10 +2078,13 @@ class CCDateView(FormView):
         return {'target':10000, 'cc_date_initial': date_today()+timedelta(days=1461),'revenue':0, 'type':BUY2UNGLUE, 'status':'DEMO'}
 
     def get_context_data(self, **kwargs):
-        cd = super(CCDateView,self).get_context_data(**kwargs)
-        cd.update({'location': 'campaigns', 'sublocation': 'ccdate'})
+        cd = super(FAQView,self).get_context_data(**kwargs)
+        cd.update({
+                'location': self.kwargs["location"], 
+                'sublocation': self.kwargs["sublocation"],
+                })
         return cd
-    
+
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
     def get_context_data(self, **kwargs):

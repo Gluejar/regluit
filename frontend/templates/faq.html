@@ -273,6 +273,9 @@ If you want to find an interesting campaign and don't have a specific book in mi
 <dd>There's a $1 minimum and a $2000 maximum.</dd>
 </dl>
 {% endif %}
+{% if sublocation == 'b2u' or sublocation == 'all' %}
+{% include 'faq_b2u.html' %}
+{% endif %}
 {% endif %}
 
 {% if location == 'unglued_ebooks' or location == 'faq' %}
@@ -376,18 +379,23 @@ Unglue.it signs agreements assuring the copyright status of every work we unglue
 <dl>
 <dt>What do I need to do to become an authorized Rights Holder on Unglue.it?</dt>
 
-<dd>Contact our Rights Holder Relations team, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>, to discuss signing our Platform Services Agreement (PSA), setting a monetary goal, and running a campaign on Unglue.it to release your book under a <a href="http://creativecommons.org">Creative Commons</a> license.<br /><br />
+<dd>Contact our Rights Holder Relations team, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>, to discuss signing our Platform Services Agreement (PSA), setting a revenue goal, and running a campaign on Unglue.it to release your book under a <a href="http://creativecommons.org">Creative Commons</a> license.<br /><br />
 The more Unglue.it knows about you and your books, the faster your campaign can be up and running.<br /><br />
 For example, it would help to have you tell us the following in your initial query:<br /><br />
 <em>About your books:</em><br />
 Title(s) for which you hold the rights and which you might want to unglue. (ISBNs help too!)<br />
 How long have print and/or ebook editions of these titles been for sale?<br />
 Where are your books sold?<br />
-If your title went out of print, how many copies had it sold until then?<br /><br />
+If your title went out of print, how many copies had it sold until then?<br />
+Have you self-published this title or other works?<br /><br />
 
+
+<em>Note:  If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. If there is no ebook yet, you'll want to offer a "Pledge" campaign.</em><br /><br />
 <em>About the ebook rights:</em><br />
-Have rights reverted, or have you already requested reversion?<br />
-Have you self-published?<br /><br />
+If you are the copyright holder, have ebook rights reverted to you or have you requested reversion from the original publisher? <br />
+If you are a publisher, do you have the right to publish using a Creative Common license? Who distributes your ebooks for online sales to individuals and via 3rd party platforms to libraries for lending?<br />
+If there is an ebook how long is has it been for sale?  <br />
+Are ebooks available to Libraries for lending?<br /><br />
 
 <em>About you as an author and marketer:</em><br />
 What social media (blog, Twitter, Facebook, Goodreads, etc.) do you currently use?<br />

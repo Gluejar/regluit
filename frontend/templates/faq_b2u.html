@@ -1,19 +1,4 @@
-{% extends "basedocumentation.html" %}
-{% load humanize %}
-
-{% block title %}Buy-to-Unglue Campaign Mechanics{% endblock %}
-{% block topsection %}
-{% endblock %}
-
-{% block doccontent %}
-<h2>Frequently Asked Questions</h2>
-<dl>
-<dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
-
-<dd>Please email us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
-</dl>
-<h3> Campaigns</h3>
-<h4> Buy-to-Unglue Campaigns</h4>
+{% load humanize %}<h4> Buy-to-Unglue Campaigns</h4>
 <dl>
 <dt>What is Buy-to-Unglue?</dt>
 
@@ -36,7 +21,10 @@ Here's a calculator you can use to see how this works:
 <form  action="#calculator" method="POST"  style="margin:5px" id="calculator">
 {% csrf_token %}
 <p>Starting with an Initial Ungluing Date of
+{% if form %}
 {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}</p>
+{% else %}
+{% endif %}
 <p>and a revenue goal of 
 {{ form.target.errors }}${{ form.target }},</p>
 
@@ -55,10 +43,6 @@ ${{ form.revenue.errors }}{{ form.revenue }}
 {% endif %}
 </dd>
 <dt>How do I tell what a book's ungluing date is?</dt>
-<dd>The ungluing date is displayed on the campaign page for every Buy-to-Unglue book, and is printed inside every copy sold through Unglue.it on the license/copyright page. For ebooks sold anywhere else, you'll need to wait for the author(s) to die, and many decades after that, for the copyright to expire.</dd>
+<dd>The ungluing date is displayed on the campaign page for every Buy-to-Unglue book, and is printed inside every copy sold through Unglue.it on the license/copyright page. For ebooks sold anywhere else, you'll need to wait for the author(s) to die, and many decades after that, for the copyright to expire, even if the author or heirs no longer receive royalties or can’t be found.</dd>
 </dl>
 </form>
-
-</div>
-</div>
-{% endblock %}

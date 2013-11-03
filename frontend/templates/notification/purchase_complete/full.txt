@@ -9,7 +9,7 @@ This ebook {% ifnotequal transaction.extra.copies 1 %}({{ transaction.extra.copi
 https://{{ current_site.domain }}{% url borrow transaction.campaign.work.id %}
 After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.{% endifequal %}
 
-For more information about the book, visit the  visit the book's unglue.it page at 
+For more information about the book, visit the book's unglue.it page at 
 https://{{ current_site.domain }}{% url work transaction.campaign.work.id %}
 
 Thank you again for your support.
