@@ -177,7 +177,7 @@ Please fix the following before launching your campaign:
         
         <p>The <i>minimum</i> revenue target is ${{form.minimum_target|intcomma}}.The <i>maximum</i> revenue target is ${{form.maximum_target|intcomma}}. Yep. </p>
     
-        <p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url ccdate %}#calculator">the ungluing date calculator</a></p>
+        <p>Your target should be high enough to compensate you for potential lost future revenue from sales of this edition and reflect well on your brand, but low enough to seem realistic to supporters; people are more likely to back campaigns that they think will succeed. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url faq_sublocation 'campaigns' 'b2u' %}#calculator">the ungluing date calculator</a></p>
     
         <p>Once you launch the campaign, you'll be able to decrease your target, but not increase it.</p>
     
@@ -188,7 +188,7 @@ Please fix the following before launching your campaign:
         <h3>Initial Ungluing Date</h3>
         <p>When you launch a Buy-To-Unglue campaign, you will specify a date in the future at which your book will become Creative Commons Licensed. eBooks sold via unglue.it will include a notice of this license. With every sale, the effective date of this license will advance a bit toward the present.  </p>
 
-	    <p>Before launching a campaign, you'll need to select Your initial Ungluing Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Check out the <a href="{% url ccdate %}#calculator">the ungluing date calculator</a> to see how this works. Your starting Ungluing Date must be before {{ form.max_cc_date }}</p>
+	    <p>Before launching a campaign, you'll need to select Your initial Ungluing Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Check out the <a href="{% url faq_sublocation 'campaigns' 'b2u' %}#calculator">the ungluing date calculator</a> to see how this works. Your starting Ungluing Date must be before {{ form.max_cc_date }}</p>
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
 	    <!--{{ form.deadline.errors }}-->{{ form.deadline }}
 	{% endifequal %}
@@ -201,7 +201,7 @@ Please fix the following before launching your campaign:
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	</div>
 	<h3>Target Revenue</h3>
-	<p>The current target revenue for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url ccdate %}#calculator">the ungluing date calculator</a></p>
+	<p>The current target revenue for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url faq_sublocation 'campaigns' 'b2u' %}#calculator">the ungluing date calculator</a></p>
 	<div class="std_form">
 	${{ form.target.errors }}{{ form.target }}
     </div>

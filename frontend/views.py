@@ -2062,10 +2062,9 @@ class InfoLangView(TemplateView):
         return {
             'wished_languages': languages, 
         }
-
-
-class CCDateView(FormView):
-    template_name = 'calculator.html'
+    
+class FAQView(FormView):
+    template_name = "faq.html"
     form_class = DateCalculatorForm
 
     def form_valid(self, form):
@@ -2078,13 +2077,6 @@ class CCDateView(FormView):
     def get_initial(self):
         return {'target':10000, 'cc_date_initial': date_today()+timedelta(days=1461),'revenue':0, 'type':BUY2UNGLUE, 'status':'DEMO'}
 
-    def get_context_data(self, **kwargs):
-        cd = super(CCDateView,self).get_context_data(**kwargs)
-        cd.update({'location': 'campaigns', 'sublocation': 'ccdate'})
-        return cd
-    
-class FAQView(CCDateView):
-    template_name = "faq.html"
     def get_context_data(self, **kwargs):
         cd = super(FAQView,self).get_context_data(**kwargs)
         cd.update({
