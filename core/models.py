@@ -1000,7 +1000,8 @@ class Work(models.Model):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
 
     def ebookfiles(self):
-        return EbookFile.objects.filter(edition__work=self).order_by('-created')
+        # filter out non-epub because that's what booxtream accepts now
+        return EbookFile.objects.filter(edition__work=self, format='epub').order_by('-created')
     
     @property
     def download_count(self):
