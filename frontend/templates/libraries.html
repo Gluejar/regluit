@@ -20,15 +20,22 @@
 <h2 class="unglueit_loves_libraries"><img src="/static/images/logo.png" alt="Unglue.it"> <span style="color:#e35351;">&hearts;</span> <img src="/static/images/librarysymbol.png" alt="libraries"></h2>
 <h3>Unglue.it loves libraries</h3>
 
-<p>We want you to have books you can share with your patrons with no DRM, no simultaneous user limits, no device restrictions, no tracking of patron data, for free, forever.</p>
+<p>We want you to have books you can share with your patrons with no DRM, no device restrictions, no tracking of patrons, no license expirations. And we want everyone to have access to those books eventually in a public commons that belong to all of us.</p>
 
-<p>We love libraries because we're from the library world.  Our team includes a librarian; an iSchool professor; and a library software entrepreneur.  We've built Unglue.it in part because we've seen that the ebook system we have now really doesn't work for libraries, and we believe in making things better.</p>
+<p>We love libraries because we're from the library world.  And because we live in a real world that still needs libraries.  We've built Unglue.it in part because we've seen that the ebook system we have now really doesn't work for libraries, and we believe in making things better.</p>
+
+<p>We started out with "Pledge" campaigns to help books become Creative Commons licensed ebooks.  
+We’ve added "Buy-to-Unglue" campaigns to so that libraries can lend ebooks on the road to being unglued. </p>
 
 <p><strong>We need your help, though.</strong>  We can't unglue ebooks all by ourselves; we need lots of people to pitch in.  If you'd like to share free, unlimited, no-DRM, privacy-respecting ebooks with your patrons, here are some ways you can help:</p>
 
 <dl>
 <dt><a href="{% url registration_register %}?next={% request.get_full_path|urlencode }}">Sign up.</a></dt>
-<dd>Starting an account, for yourself or your library, is free, and lets you add books to your wishlist, comment on them, and support campaigns.  <a href="{{ request.get_full_path|urlencode}}">Sign up here.</a></dd>
+<dd>Starting an account, for yourself or your library, is free, and lets you add books to your wishlist, comment on them, and support campaigns.  <a href="{{ request.get_full_path|urlencode}}">Sign up here.</a> It's the first step towards becoming an Unglue.it participating library. </dd>
+<dt>Become an Unglue.it participating library</dt>
+<dd>Review our LIBRARY DISTRIBUTION SERVICES AGREEMENT (coming soon, email us if you're interested). Once an agreement has been signed, you and your patrons can buy Library Licenses for any ebook with a Buy-to-Unglue campaign. You can lend these ebooks to your patrons immediately using our free distribution platform.  
+The library license gives download access to one library member at a time for 14 days each, in multiple formats, from the our platform or yours, if you have one. 
+</dd>
 <dt>Stay in touch.</dt>
 <dd>You can follow us on Twitter (<a href="http://twitter.com/unglueit">@unglueit</a>), <a href="http://facebook/com/unglueit">Facebook</a>, and our <a href="http://blog.unglue.it">blog</a>, and <a href="http://eepurl.com/fKLfI">subscribe to our newsletter</a> (1-2 emails per month).</dd>
 <dt>Add unglued ebooks to your collection.</dt>
@@ -48,7 +55,7 @@
 <dt>Educate yourself and your patrons about ebook issues and Creative Commons licenses.</dt>
 <dd>Checkout limits, publishers who won't sell ebooks to libraries, DRM, companies tracking readers' behavior, library prices far in excess of consumer costs, incompatible technologies and formats, cataloging silos...you know why it's hard for you to deliver a seamless ereading experience to your patrons.  Make sure they know, too.  And make sure everyone knows how solutions, like <a href="http://creativecommons.org">Creative Commons</a> licenses, can help libraries and readers while respecting copyright and protecting creators' rights.</dd>
 <dt>Support <a href="{% url campaign_list 'ending' %}">our active campaigns</a>.</dt>
-<dd>Ultimately ebooks can't be unglued unless authors and publishers are paid for their work.  Many of our staunchest supporters are librarians.  There are also several libraries which have supported campaigns, including Leddy Library (University of Windsor, Ontario; ungluer <a href="{% url supporter 'LeddyLibraryUWin' %}">LeddyLibraryUWin</a>); the University of Alberta library (ungluer <a href="{% url supporter 'UAlbertaLibrary' %}">UAlbertaLibrary</a>); and the Z. Smith Reynolds library (Wake Forest University; see their <a href="http://cloud.lib.wfu.edu/blog/gazette/category/zsreads/winter-2013/#zsreads-2653">newsletter announcement</a>).</dd>
+<dd>Ultimately ebooks can't be unglued unless authors and publishers are paid for their work.  Many of our staunchest supporters are librarians.  There are also several libraries which have supported campaigns, including Leddy Library (University of Windsor, Ontario); the University of Alberta library ; and the Z. Smith Reynolds library (Wake Forest University.</dd>
 <dt>Give feedback and ask questions.</dt>
 <dd>Want to know more?  Need help?  Have ideas for how we could improve the site or make it more library-friendly?  Contact us at: <a href="mailto:libraries@gluejar.com">libraries@gluejar.com</a>.</dd>
 </dl>

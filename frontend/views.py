@@ -2064,13 +2064,6 @@ class InfoLangView(TemplateView):
         }
 
 
-class FAQView(TemplateView):
-    template_name = "faq.html"
-    def get_context_data(self, **kwargs):
-        location = self.kwargs["location"]
-        sublocation = self.kwargs["sublocation"]
-        return {'location': location, 'sublocation': sublocation}
-
 class CCDateView(FormView):
     template_name = 'calculator.html'
     form_class = DateCalculatorForm
@@ -2090,6 +2083,16 @@ class CCDateView(FormView):
         cd.update({'location': 'campaigns', 'sublocation': 'ccdate'})
         return cd
     
+class FAQView(CCDateView):
+    template_name = "faq.html"
+    def get_context_data(self, **kwargs):
+        cd = super(FAQView,self).get_context_data(**kwargs)
+        cd.update({
+                'location': self.kwargs["location"], 
+                'sublocation': self.kwargs["sublocation"],
+                })
+        return cd
+
 class GoodreadsDisplayView(TemplateView):
     template_name = "goodreads_display.html"
     def get_context_data(self, **kwargs):
