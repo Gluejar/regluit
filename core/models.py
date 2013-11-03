@@ -300,7 +300,7 @@ class Acq(models.Model):
                 'languagecode':'1033',
                 'expirydays': 1,
                 'downloadlimit': 7,
-                'exlibris':1,
+                'exlibris':0,
                 'chapterfooter':1,
                 'disclaimer':0,
                 'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id),
