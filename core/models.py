@@ -300,7 +300,7 @@ class Acq(models.Model):
                 'languagecode':'1033',
                 'expirydays': 1,
                 'downloadlimit': 7,
-                'exlibris':1,
+                'exlibris':0,
                 'chapterfooter':1,
                 'disclaimer':0,
                 'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id),
@@ -1000,7 +1000,8 @@ class Work(models.Model):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
 
     def ebookfiles(self):
-        return EbookFile.objects.filter(edition__work=self).order_by('-created')
+        # filter out non-epub because that's what booxtream accepts now
+        return EbookFile.objects.filter(edition__work=self, format='epub').order_by('-created')
     
     @property
     def download_count(self):
