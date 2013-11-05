@@ -135,6 +135,7 @@ from regluit.payment.parameters import (
 
 from regluit.utils.localdatetime import now, date_today
 from regluit.booxtream.exceptions import BooXtreamError
+from regluit.pyepub import InvalidEpub
 from regluit.libraryauth.views import Authenticator
 from regluit.libraryauth.models import Library
 
@@ -436,7 +437,7 @@ def edition_uploads(request, edition_id):
             try:
                 test_acq.get_watermarked()
                 context['watermarked']= test_acq.watermarked
-            except (BooXtreamError, ET.ParseError) as e:
+            except (BooXtreamError, ET.ParseError, InvalidEpub) as e:
                 context['upload_error']= e
                 form.instance.delete()
 
