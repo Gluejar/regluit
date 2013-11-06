@@ -144,6 +144,18 @@ class Claim(models.Model):
         return True
     def  __unicode__(self):
         return self.work.title
+
+def notify_claim(sender, created, instance, **kwargs):
+    try:
+        (rights, new_rights) = User.objects.get_or_create(email='rights@gluejar.com',defaults={'username':'RightsatUnglueit'})
+    except:
+        rights = None
+    if instance.user == instance.rights_holder.owner:
+        ul=(instance.user, rights)
+    else:
+        ul=(instance.user, instance.rights_holder.owner, rights)
+    notification.send(ul, "rights_holder_claim", {'claim': instance,})
+post_save.connect(notify_claim,sender=Claim)
         
 class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
