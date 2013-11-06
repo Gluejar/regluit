@@ -146,6 +146,8 @@ class Claim(models.Model):
         return self.work.title
 
 def notify_claim(sender, created, instance, **kwargs):
+    if 'example.org' in claim.user.email:
+        return
     try:
         (rights, new_rights) = User.objects.get_or_create(email='rights@gluejar.com',defaults={'username':'RightsatUnglueit'})
     except:
