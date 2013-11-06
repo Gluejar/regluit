@@ -1,4 +1,4 @@
-{% load humanize %}Congratulations!
+{% load humanize %}An Ungluing!
 
 Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your credit card has been charged ${{ transaction.amount|intcomma }}.
 

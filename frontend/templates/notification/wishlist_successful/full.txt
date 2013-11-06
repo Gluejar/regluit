@@ -1,4 +1,4 @@
-{% if pledged %}Congratulations!  You pledged toward{% else %}Hooray! You wished for{% endif %} it, and now the campaign
+{% if pledged %}You pledged toward{% else %}Hooray! You wished for{% endif %} it, and now the campaign
 for {{ campaign.work.title}} (https://{{current_site.domain}}{% url work campaign.work.id %}) has succeeded.
 
 You will notified when an Unglued ebook edition is available, within 90 days.
