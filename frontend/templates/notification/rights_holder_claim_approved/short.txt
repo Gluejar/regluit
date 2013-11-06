@@ -1,1 +1,0 @@
-Congratulations! Your claim to {{ claim.work }} has been approved.

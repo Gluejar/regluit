@@ -1,0 +1,1 @@
+{{ claim.rights_holder }}'s claim to {{ claim.work }} is now {{ claim.status }}

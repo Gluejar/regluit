@@ -1,0 +1,23 @@
+{% extends "notification/notice_template.html" %}
+
+{% block comments_book %}
+	<a href="{% url work claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+	{{ claim.rights_holder }}'s Claim to {{ claim.work.title }} is now {{ claim.status }}.
+{% endblock %}
+
+{% block comments_textual %}
+	{{ claim.rights_holder }}'s Claim to {{ claim.work.title }} is now {{ claim.status }}.  
+	<br /><br />
+	{% ifequal claim.status 'active' %}
+	To get started on the on a campaign, please visit <a href="{% url rightsholders %}">rights holder tools page</a> (also available through a link at the bottom of every page).  Contact us at support@gluejar.com if you need any help.
+	{% endifequal %}
+	{% ifequal claim.status 'pending' %}
+	The claim will be examined, and we'll email you.  Contact us at support@gluejar.com if you need any help.
+	{% endifequal %}
+	{% ifequal claim.status 'release' %}
+	The claim has been released.  Contact us at rights@gluejar.com if you have questions.
+	{% endifequal %}
+{% endblock %}

@@ -173,41 +173,45 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 <h2>How to launch an Unglue.it campaign</h2>
 
 <ol>
-    {% if not request.user.is_authenticated %}<li>{% else %}<li class="checked">{% endif %}Set up an Unglue.it account (start at the Sign Up button at the top of the page).</li>
-	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Email rights@gluejar.com about becoming an authorized rights holder.</li>
+    {% if not request.user.is_authenticated %}
+    <li>Set up an Unglue.it account. (<a href="{% url registration_register %}?next={% url rightsholders %}">Click here</a> or use the Sign Up button at the top of the page).</li>
+    {% else %}
+    <li class="checked">You've already set up an Unglue.it account.</li>
+    {% endif %}
+	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Email <a href="mailto:rights@gluejar.com?subject=Becoming%20an%20authorized%20rights%20holder">rights@gluejar.com</a> about becoming an authorized rights holder.</li>
 	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}After we review your credentials, sign a Platform Services Agreement (available from us).</li>
 	<li>Claim your work(s)...
 	<ul>
 	    <li>Find them through the search box at the top of every page.</li>
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
 	    <li>Agree to our <a href="{{ termsurl }}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
-	    <li>If you have any questions or you claim a work by mistake, email us.</li>
+	    <li>If you have any questions or you claim a work by mistake, <a href="mailto:rights@gluejar.com?subject=claiming%20works">email us</a>.</li>
 	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url regluit.frontend.views.edit_user %}">change the email address</a> for your account.</li>
 	</ul></li>
 	<li>...or send us metadata for books you have rights to.
 	<ul>
 	    <li>Your ebooks must have ISBNs assigned.</li>
 	    <li>Your metadata should have title, authors, language, description.</li>
-	    <li>Contact us to load ONIX or CSV files for you.</li>
+	    <li><a href="mailto:support@gluejar.com?subject=loading%20metadata">Contact us</a> to load ONIX or CSV files for you.</li>
 	</ul></li>
-	<li>Once your claim is approved, you can set up a campaign for it.  All the campaigns you can manage will be listed on this page.</li>
-	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page.</li> 
+	<li>Once your claim is approved (you should get an email), you can set up a campaign for it.  All the campaigns you can manage will be listed on this page, above.</li>
+	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page, above.</li> 
 </ol>
 <h2>Campaigns </h2>
 <p> if you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge" campaign. </p>
 
-<p>For Pledge campaigns, you can run campaigns for books that exist only as print or are out of print.  
+<p>For Pledge campaigns, you can run campaigns for books that haven't been converted to digital.  
 Any print book can be scanned to create a digital file that can then become an ePub-format unglued ebook to be released after the Pledge Campaign succeeds.</p>
 
-<h3>Files for Buy-to-Unglue Campaigns</h3>
-<p>Buy-to-Unglue is a program that delivering sales revenue for downloads. To make that happen,  you'll need to upload an epub file for each book. 
-There are no “rewards” for a “Buy to Unglue” campaign, but you may offer time-limited, special price promotions for the ebook download.</p>
+<h2>Buy-to-Unglue Campaigns</h2>
+<p>Buy-to-Unglue is a program that sells ebook licenses to reach the campaign goal. To enable ebook sales,  you'll need to upload an epub file for each book. 
+There are no “rewards” for a “Buy to Unglue” campaign, but you may offer time-limited, special price promotions for the ebook.</p>
 
 <p>
 A Buy-to-Unglue Campaign provides long-term promotion and sales opportunities for your ebook before it becomes an Unglued Ebook.  Until the revenue goal is reached, supporters and libraries know that every book that gets purchased through Unglue.it brings the ungluing date closer to the present.
 </p>
 
-<h3>Rewards for Pledge Campaigns</h3>
+<h2>Rewards for Pledge Campaigns</h2>
 
 <p>Campaigns run for a short period (2-6 months) and can have rewards as a way to motivate and thank supporters for helping to reach your goal.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
 
