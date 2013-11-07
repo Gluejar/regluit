@@ -2566,7 +2566,8 @@ def download(request, work_id):
             if not an_acq.expired:
                 # prepare this acq for download
                 if not an_acq.watermarked or an_acq.watermarked.expired:
-                    watermark_acq.delay(an_acq)
+                    if not an_acq.on_reserve:
+                        watermark_acq.delay(an_acq)
                 acq = an_acq
                 formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
                 formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
