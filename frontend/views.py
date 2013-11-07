@@ -1589,7 +1589,7 @@ def rh_tools(request):
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.can_open_new:
             if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
-                claim.campaign_form = OpenCampaignForm(request.POST)
+                claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
                     if new_campaign.type==BUY2UNGLUE:
@@ -1604,7 +1604,8 @@ def rh_tools(request):
             else:
                 c_type = 2 if claim.rights_holder.can_sell else 1
                 claim.campaign_form = OpenCampaignForm(
-                    data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type}
+                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type},
+                    prefix = 'cl_'+str(claim.id),
                     )
     campaigns = request.user.campaigns.all()
     new_campaign = None
