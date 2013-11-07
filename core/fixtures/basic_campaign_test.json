@@ -12,7 +12,7 @@
       "groups": [], 
       "user_permissions": [], 
       "password": "pbkdf2_sha256$10000$zc7vkOO4vlqP$s1w18zWhceosicKg9mWDkrctFs0SPy4iPVHIrzoMJBg=", 
-      "email": "raymond.yee@gmail.com", 
+      "email": "raymond.yee@example.org", 
       "date_joined": "2012-10-12T22:58:33"
     }
 },
@@ -30,7 +30,7 @@
     "groups": [], 
     "user_permissions": [], 
     "password": "pbkdf2_sha256$10000$GCt0LGDcpeDI$7XMz81+zL9XsmDRMTVHAbzLfKHOwp7SYCdOzOdTP0EA=", 
-    "email": "rdhyee@yahoo.com", 
+    "email": "rdhyee@example.org", 
     "date_joined": "2012-10-14T09:57:15"
   }
 }, 
@@ -48,7 +48,7 @@
     "groups": [], 
     "user_permissions": [], 
     "password": "pbkdf2_sha256$10000$sILqnpDfTw8Z$djqLomeFeVJIEEqAbp+YqXVOVKI0onS6OwJvpiTEe2g=", 
-    "email": "raymond.yee@dataunbound.com", 
+    "email": "raymond.yee2@example.org", 
     "date_joined": "2012-10-14T10:03:43"
   }
 },
