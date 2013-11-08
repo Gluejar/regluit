@@ -83,6 +83,11 @@ class RightsHolderAdmin(ModelAdmin):
     date_hierarchy = 'created'
     form = RightsHolderAdminForm
 
+class AcqAdmin(ModelAdmin):
+    fields = ("expires", "refreshes", )
+    search_fields = ['user__username']
+    date_hierarchy = 'created'
+
 class PremiumAdmin(ModelAdmin):
     list_display = ('campaign', 'amount', 'description')
     date_hierarchy = 'created'
@@ -217,6 +222,7 @@ admin_site.register(Library, LibraryAdmin)
 admin_site.register(Block, BlockAdmin)
 admin_site.register(CardPattern, CardPatternAdmin)
 admin_site.register(EmailPattern, EmailPatternAdmin)
+admin_site.register(models.Acq, AcqAdmin)
 admin_site.register(models.Work, WorkAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.RightsHolder, RightsHolderAdmin)
