@@ -277,6 +277,7 @@ class Acq(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
     refreshes = models.DateTimeField(auto_now_add=True, default=now())
+    refreshes.editable=True
     work = models.ForeignKey("Work", related_name='acqs', null=False)
     user = models.ForeignKey(User, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
@@ -287,6 +288,12 @@ class Acq(models.Model):
     # when the acq is a loan, this points at the library's acq it's derived from 
     lib_acq = models.ForeignKey("self", related_name="loans", null=True)
     
+    def __unicode__(self):
+        if self.lib_acq:
+            return "%s, %s: %s for %s" % (self.work, self.get_license_display(), self.lib_acq.user, self.user)
+        else:
+            return "%s, %s for %s" % (self.work, self.get_license_display(), self.user,)
+        
     @property
     def expired(self):
         if self.expires is None:
