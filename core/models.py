@@ -146,7 +146,7 @@ class Claim(models.Model):
         return self.work.title
 
 def notify_claim(sender, created, instance, **kwargs):
-    if 'example.org' in instance.user.email:
+    if 'example.org' in instance.user.email or instance.dont_notify:
         return
     try:
         (rights, new_rights) = User.objects.get_or_create(email='rights@gluejar.com',defaults={'username':'RightsatUnglueit'})
@@ -278,6 +278,7 @@ class Acq(models.Model):
     expires = models.DateTimeField(null=True)
     refreshes = models.DateTimeField(auto_now_add=True, default=now())
     refreshes.editable=True
+    refreshed = models.BooleanField(default=True)
     work = models.ForeignKey("Work", related_name='acqs', null=False)
     user = models.ForeignKey(User, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
@@ -342,6 +343,7 @@ class Acq(models.Model):
         self.save()
         if self.lib_acq:
             self.lib_acq.refreshes = now() + delta
+            self.lib_acq.refreshed = False
             self.lib_acq.save()
         
     @property
@@ -371,7 +373,10 @@ class Acq(models.Model):
             return self.refreshes < datetime.now()
         else:
             return False
-         
+    
+    @property
+    def holds(self):
+        return Hold.objects.filter(library__user=self.user,work=self.work).order_by('created')
         
 
 def config_acq(sender, instance, created,  **kwargs):
@@ -379,11 +384,22 @@ def config_acq(sender, instance, created,  **kwargs):
         instance.nonce=instance._hash()
         instance.save()
         if instance.license == RESERVE:
-            instance.expire_in(timedelta(hours=2))
+            instance.expire_in(timedelta(hours=24))
         if instance.license == BORROWED:
             instance.expire_in(timedelta(days=14))
 
 post_save.connect(config_acq,sender=Acq)
+
+class Hold(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    work = models.ForeignKey("Work", related_name='holds', null=False)
+    user = models.ForeignKey(User, related_name='holds', null=False)
+    library = models.ForeignKey(Library, related_name='holds', null=False)
+
+    def __unicode__(self):
+        return '%s for %s at %s' % (self.work,self.user.username,self.library)
+    def ahead(self):
+        return Hold.objects.filter(work=self.work,library=self.library,created__lt=self.created).count()
 
 class Campaign(models.Model):
     LICENSE_CHOICES = settings.CCCHOICES
@@ -1135,11 +1151,14 @@ class Work(models.Model):
                 self.offers.create(license=choice[0],active=True,price=Decimal(10))
         return self.offers.all()
     
+    def get_lib_license(self,user):
+        lib_user=(lib.user for lib in user.profile.libraries)
+        return self.get_user_license(lib_user)
+        
     def borrowable(self, user):
         if user.is_anonymous():
             return False
-        lib_user=(lib.user for lib in user.profile.libraries)
-        lib_license=self.get_user_license(lib_user)
+        lib_license=self.get_lib_license(user)
         if lib_license and lib_license.borrowable:
             return True
         return False
@@ -1147,8 +1166,7 @@ class Work(models.Model):
     def in_library(self,user):
         if user.is_anonymous():
             return False
-        lib_user=(lib.user for lib in user.profile.libraries)
-        lib_license=self.get_user_license(lib_user)
+        lib_license=self.get_lib_license(user)
         if lib_license and lib_license.acqs.count():
             return True
         return False
@@ -1187,7 +1205,8 @@ class Work(models.Model):
             return  self.acqs.filter(license=LIBRARY)
         
         @property
-        def next_acq(self):  
+        def next_acq(self): 
+            """ This is the next available copy in the user's libraries"""
             loans = self.acqs.filter(license=LIBRARY, refreshes__gt=now()).order_by('refreshes')
             if loans.count()==0:
                 return None
@@ -1197,8 +1216,16 @@ class Work(models.Model):
         @property
         def borrowable(self):
             return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).count()>0
+            
+        @property
+        def borrowable_acq(self):
+            for acq in self.acqs.filter(license=LIBRARY, refreshes__lt=now()):
+                return acq
+            else:
+                return None
     
     def get_user_license(self, user):
+        """ This is all the acqs, wrapped in user_license object for the work, user(s) """
         if user==None:
             return None
         if isinstance(user, User):

@@ -315,6 +315,12 @@ NOTIFY_ENDING_SOON_JOB = {
     "args": ()
 }
 
+REFRESH_ACQS_JOB = {
+    "task": "regluit.core.tasks.refresh_acqs",
+    "schedule": datetime.timedelta(minutes=10),
+    "args": ()
+}
+
 UPDATE_ACCOUNT_STATUSES = {
     "task": "regluit.payment.tasks.update_account_status",
     "schedule": crontab(day_of_month=1, hour=0, minute=0),

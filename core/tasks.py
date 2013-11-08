@@ -25,8 +25,9 @@ from regluit.core import (
     goodreads, 
     librarything
 )
-from regluit.core.models import Campaign
+from regluit.core.models import Campaign, Acq
 from regluit.core.signals import deadline_impending
+from regluit.core.parameters import RESERVE
 
 from regluit.utils.localdatetime import now, date_today
 
@@ -124,4 +125,30 @@ def notify_ending_soon():
 @task
 def watermark_acq(acq):
     acq.get_watermarked()
+    
+@task
+def refresh_acqs():
+    in_10_min = now() + timedelta(minutes=10)
+    acqs = Acq.objects.filter(refreshed=False, refreshes__lt=in_10_min)
+    logger.info('refreshing %s acqs' % acqs.count())
+    for acq in acqs:
+        for hold in acq.holds:
+            # create a 1 day reserve on the acq
+            reserve_acq =  Acq.objects.create(
+                                user = hold.user,
+                                work = hold.work,
+                                license = RESERVE, 
+                                lib_acq = acq,
+                                )
+            # the post_save handler takes care of pushing expires  vis acq.expires_in
+            
+            # notify the user with the hold
+            if 'example.org' not in reserve_acq.user.email:
+                notification.send([reserve_acq.user], "library_reserve", {'acq':reserve_acq})
+            # delete the hold
+            hold.delete()
+            break
+        else:
+            acq.refreshed = True
+        
     

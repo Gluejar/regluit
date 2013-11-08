@@ -119,6 +119,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("account_active", _("Credit Card Number Updated"), _("Payment method updated."), default = 1)
     notification.create_notice_type("purchase_complete", _("Your Purchase is Complete"), _("Your Unglue.it Purchase is Complete."))
     notification.create_notice_type("library_borrow", _("Library eBook Borrowed."), _("You've borrowed an ebook through a Library participating in Unglue.it"))
+    notification.create_notice_type("library_reserve", _("Library eBook Reserved."), _("An ebook you've reserved is available."))
     notification.create_notice_type("library_join", _("New Library User."), _("A library participating in Unglue.it has added a user"))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
@@ -191,6 +192,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             library = Library.objects.get(id=transaction.extra['library_id'])
             new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
             reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
+            reserve_acq.expire_in(timedelta(hours=2))
             copies = int(transaction.extra.get('copies',1))
             while copies > 1:
                 Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)

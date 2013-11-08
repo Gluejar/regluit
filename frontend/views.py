@@ -1590,7 +1590,7 @@ def rh_tools(request):
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.can_open_new:
             if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
-                claim.campaign_form = OpenCampaignForm(request.POST)
+                claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
                     if new_campaign.type==BUY2UNGLUE:
@@ -1605,7 +1605,8 @@ def rh_tools(request):
             else:
                 c_type = 2 if claim.rights_holder.can_sell else 1
                 claim.campaign_form = OpenCampaignForm(
-                    data={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type}
+                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type},
+                    prefix = 'cl_'+str(claim.id),
                     )
     campaigns = request.user.campaigns.all()
     new_campaign = None
@@ -2567,7 +2568,8 @@ def download(request, work_id):
             if not an_acq.expired:
                 # prepare this acq for download
                 if not an_acq.watermarked or an_acq.watermarked.expired:
-                    watermark_acq.delay(an_acq)
+                    if not an_acq.on_reserve:
+                        watermark_acq.delay(an_acq)
                 acq = an_acq
                 formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
                 formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
@@ -2626,28 +2628,39 @@ def download(request, work_id):
 def borrow(request, work_id):
     work = safe_get_work(work_id)
     library =  request.GET.get('library', '')
-    try:
-        libuser = User.objects.get(username = library)
-    except User.DoesNotExist:
-        libuser = None
-    if libuser:
-        acqs= models.Acq.objects.filter(user = libuser, license = LIBRARY, refreshes__lt = now())
-    if not libuser or acqs.count()==0:
-        acq=None
-        for other_library in request.user.profile.libraries:
-            if other_library.user!=libuser:
-                acqs= models.Acq.objects.filter(user = other_library.user, license = LIBRARY, refreshes__lt = now())
-                if acqs.count()>0:
-                    acq=acqs[0]
-                    continue
-    else:
-        acq=acqs[0]
+    libuser = None
+    acq = None
+    if library:
+        try:
+            libuser = User.objects.get(username = library)
+        except User.DoesNotExist:
+            libuser = None
+        if libuser:
+            acq = work.user_license(libuser).borrowable_acq
+    if not libuser or not acq:
+        acq=work.get_lib_license(request.user).borrowable_acq
     if acq:
         borrowed = acq.borrow(request.user)
         return download(request, work_id)
     else:
         # shouldn't happen
         return work(request, work_id)
+
+@login_required
+def reserve(request, work_id):
+    work = safe_get_work(work_id)
+    lib =  request.GET.get('library', '')
+    library = None
+    try:
+        library = Library.objects.get(user__username = lib)
+    except Library.DoesNotExist:
+        try:
+            library = work.get_lib_license(request.user).next_acq.library
+        except:
+            library = None
+        
+    models.Hold.objects.get_or_create(library=library,work=work,user=request.user)
+    return PurchaseView.as_view()(request,work_id=work_id)
     
 def download_ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)

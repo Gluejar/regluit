@@ -1,0 +1,1 @@
+{{ acq.work.title }} is on reserve for you at {{ acq.lib_acq.user.username }}
