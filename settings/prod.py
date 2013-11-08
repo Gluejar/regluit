@@ -142,6 +142,7 @@ CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 CELERYBEAT_SCHEDULE['notify_ending_soon'] = NOTIFY_ENDING_SOON_JOB
 CELERYBEAT_SCHEDULE['update_account_statuses'] = UPDATE_ACCOUNT_STATUSES
 CELERYBEAT_SCHEDULE['notify_expiring_accounts'] = NOTIFY_EXPIRING_ACCOUNTS
+CELERYBEAT_SCHEDULE['refresh_acqs'] = REFRESH_ACQS_JOB
 
 # set -- sandbox or production Amazon FPS?
 #AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"

@@ -2627,28 +2627,39 @@ def download(request, work_id):
 def borrow(request, work_id):
     work = safe_get_work(work_id)
     library =  request.GET.get('library', '')
-    try:
-        libuser = User.objects.get(username = library)
-    except User.DoesNotExist:
-        libuser = None
-    if libuser:
-        acqs= models.Acq.objects.filter(user = libuser, license = LIBRARY, refreshes__lt = now())
-    if not libuser or acqs.count()==0:
-        acq=None
-        for other_library in request.user.profile.libraries:
-            if other_library.user!=libuser:
-                acqs= models.Acq.objects.filter(user = other_library.user, license = LIBRARY, refreshes__lt = now())
-                if acqs.count()>0:
-                    acq=acqs[0]
-                    continue
-    else:
-        acq=acqs[0]
+    libuser = None
+    acq = None
+    if library:
+        try:
+            libuser = User.objects.get(username = library)
+        except User.DoesNotExist:
+            libuser = None
+        if libuser:
+            acq = work.user_license(libuser).borrowable_acq
+    if not libuser or not acq:
+        acq=work.get_lib_license(request.user).borrowable_acq
     if acq:
         borrowed = acq.borrow(request.user)
         return download(request, work_id)
     else:
         # shouldn't happen
         return work(request, work_id)
+
+@login_required
+def reserve(request, work_id):
+    work = safe_get_work(work_id)
+    lib =  request.GET.get('library', '')
+    library = None
+    try:
+        library = Library.objects.get(user__username = lib)
+    except Library.DoesNotExist:
+        try:
+            library = work.get_lib_license(request.user).next_acq.library
+        except:
+            library = None
+        
+    models.Hold.objects.get_or_create(library=library,work=work,user=request.user)
+    return PurchaseView.as_view()(request,work_id=work_id)
     
 def download_ebook(request, ebook_id):
     ebook = get_object_or_404(models.Ebook,id=ebook_id)

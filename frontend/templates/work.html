@@ -477,7 +477,7 @@
                         {% else %}{% if borrowable %}
                             <div class="btn_support"><form action="{% url borrow work_id %}" method="get"><input type="submit" value="Borrow" /></form></div>
                         {% else %}
-                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="{% if next_acq %}Reserve{% else %}Purchase{% endif %}" /></form></div>
+                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="{% if next_acq %}{% if on_hold %}On Hold{% else %}Reserve{% endif %}{% else %}Purchase{% endif %}" /></form></div>
                         {% endif %}{% endif %}
                       {% endif %}
                     {% else %}

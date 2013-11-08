@@ -1,6 +1,7 @@
 {% extends "basepledge.html" %}
 {% load humanize %}
 {% load lib_acqs %}
+{% load purchased %}
 
 {% block title %}Pledge{% endblock %}
 
@@ -65,14 +66,29 @@
     </div>
 </div>
 {% ifequal work.last_campaign.status "ACTIVE" %}
-{% lib_acqs %}
+{% lib_acqs %}{% purchased %}
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
     	<form class="pledgeform" method="POST" action="#">
+    	    {% if borrowable %}
+    	         <div class="pledge_amount">This ebook can be borrowed from your library.</div>
+    	         <div><a href="{% url borrow work.id %}" class="fakeinput">Borrow Now</a> </div>
+    	         <div style="height:75px;"></div>
+    	    {% endif %}
             {% if next_acq %}
                 <div class="pledge_amount">This ebook can be reserved from your library.</div>
-                <div class="bigger" style="margin:20px">Available starting {{ next_acq.refreshes|date:"M j, Y"}} at {{ next_acq.user }}.</div>
-                <div><a href="{% url reserve work.id%}?library={{ next_acq.user }}" class="fakeinput">Reserve Now</a> </div>
+                {% if on_hold %}
+                    <div class="bigger" style="margin:20px">You are on the {{ on_hold.library }} waiting list for this ebook. 
+                    {% if on_hold.held %}There are {{on_hold.held}} ahead of you.{% else %}You are first on the list.{% endif %} 
+                    You'll be notified when it's available, sometime after {{ next_acq.refreshes|date:"M j, Y"}}.</div>
+                {% else %}
+                    <div class="bigger" style="margin:20px">
+                        Available starting {{ next_acq.refreshes|date:"M j, Y"}} at {{ next_acq.user }}. 
+                        {% if next_acq.holds.count == 1 %}There is {{ next_acq.holds.count }} person waiting.{% endif %}
+                        {% if next_acq.holds.count >  1 %}There are {{ next_acq.holds.count }} people waiting.{% endif %}
+                    </div>
+                    <div><a href="{% url reserve work.id %}?library={{ next_acq.user }}" class="fakeinput">Reserve Now</a> </div>
+                {% endif %}
                 <div style="height:30px;"></div>
                 <div class="bigger" style="height:30px;clear:both;margin:20px">If you'd rather not wait, consider one of the purchase options.</div>
             {% endif %}

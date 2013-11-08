@@ -1,0 +1,11 @@
+ is reserved for you from {{ acq.lib_acq.user.username }} until {{ acq.expires }}.  You can borrow the ebook by downloading it from the book's download page:
+https://{{ current_site.domain }}{% url download acq.work.id %}
+
+If you don't download the book before {{ acq.expires }}, other members of {{ acq.lib_acq.user.username }} will be able to use it instead.
+
+This ebook is made available to you by {{ acq.lib_acq.user.username }} for your personal use only, and a personal license will be embedded in the ebook file. If you do not download the ebook before then, the ebook may be borrowed by another {{ acq.lib_acq.user.username }} member.
+
+For more information about the book, visit the book's unglue.it page at 
+https://{{ current_site.domain }}{% url work acq.work.id %}
+
+{{ acq.lib_acq.user.username }} and the Unglue.it team

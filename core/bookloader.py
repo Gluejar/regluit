@@ -464,6 +464,14 @@ def merge_works(w1, w2, user=None):
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return
     
+    models.WasWork(was=w2.pk, work=w1, user=user).save()
+    for ww in models.WasWork.objects.filter(work = w2):
+        ww.work = w1
+        ww.save()
+    for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
+        w2source = wishlist.work_source(w2)
+        wishlist.remove_work(w2)
+        wishlist.add_work(w1, w2source)
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
@@ -478,22 +486,21 @@ def merge_works(w1, w2, user=None):
         campaign.save()
     for claim in w2.claim.all():
         claim.work = w1
+        claim.dont_notify = True
         claim.save()
     for offer in w2.offers.all():
         offer.work = w1
         offer.save()
-    for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
-        w2source = wishlist.work_source(w2)
-        wishlist.remove_work(w2)
-        wishlist.add_work(w1, w2source)
+    for acq in w2.acqs.all():
+        acq.work = w1
+        acq.save()
+    for hold in w2.holds.all():
+        hold.work = w1
+        hold.save()
     for subject in w2.subjects.all():
         if subject not in w1.subjects.all():
             w1.subjects.add(subject)
 
-    models.WasWork(was=w2.pk, work=w1, user=user).save()
-    for ww in models.WasWork.objects.filter(work = w2):
-        ww.work = w1
-        ww.save()
         
     w2.delete()
     

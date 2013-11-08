@@ -1,0 +1,19 @@
+{% extends "notification/notice_template.html" %}
+
+{% block comments_book %}
+			<a href="{% url work acq.work.id %}"><img src="{{ acq.work.cover_image_small }}" alt="cover image for {{ acq.work.title }}" /></a>
+{% endblock %}
+
+{% block comments_graphical %}
+			{{ acq.work }} is reserved for you from {{ acq.lib_acq.user.username }} until {{ acq.expires }}.  Until then, you can borrow the ebook at <a href="{% url download acq.work.id %}">the book's download page.</a>
+{% endblock %}
+
+{% block comments_textual %}
+
+		<p>This ebook is made available to you by {{ acq.lib_acq.user.username }} for your personal use only, and a personal license will be embedded in the ebook file. If you do not download the ebook before then, the ebook may be borrowed by another {{ acq.lib_acq.user.username }} member.</p>
+
+		<p>For more information about the book, visit the <a href="{% url work acq.work.id %}">book's unglue.it page</a>.
+		</p>
+		<p>{{ acq.lib_acq.user.username }} and the Unglue.it team
+		</p>
+{% endblock %}

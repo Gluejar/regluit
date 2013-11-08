@@ -56,6 +56,7 @@ from regluit.core.models import (
     Offer,
     EbookFile,
     Acq,
+    Hold,
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import TESTING, LIBRARY, RESERVE
@@ -884,7 +885,14 @@ class LibTests(TestCase):
         self.assertTrue(reserve_acq.borrowable)
         self.assertFalse(new_acq.borrowable)
 
-        self.assertTrue(reserve_acq.expires< now()+timedelta(hours=3))
+        self.assertTrue(reserve_acq.expires< now()+timedelta(hours=25))
         reserve_acq.borrow()
-        self.assertTrue(reserve_acq.expires> now()+timedelta(hours=3))
+        self.assertTrue(reserve_acq.expires> now()+timedelta(hours=25))
+        
+        u2 = User.objects.create_user('user2', 'test2@example.org', 'testpass')
+        Hold.objects.get_or_create(library=lib,work=w,user=u2)
+        reserve_acq.expire_in(timedelta(seconds=0))
+        tasks.refresh_acqs()
+        self.assertEqual(reserve_acq.holds.count(),0)
+        
         
