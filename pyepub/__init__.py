@@ -137,8 +137,7 @@ class EPUB(zipfile.ZipFile):
             self.id = self.opf.find('.//{0}identifier[@id="{1}"]'.format(NAMESPACE["dc"],
                                                                          self.opf.get("unique-identifier"))).text
         except AttributeError:
-            raise InvalidEpub  # Cannot process an EPUB without unique-identifier
-                               # attribute of the package element
+            raise InvalidEpub("Cannot process an EPUB without unique-identifier attribute of the package element")
         # Get and parse the TOC
         toc_id = self.opf[2].get("toc")
         expr = ".//{0}item[@id='{1:s}']".format(NAMESPACE["opf"], toc_id)
