@@ -112,12 +112,13 @@
                                             current ungluing date: 
                                             {% endifequal %}
                                         </div>
-                                        <div class="campaign-status-info">
+                                        <div class="campaign-status-info  explainer">
                                             {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
                                             {% else %}
-                                            <span class="current_cc_date">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
-                                            {% endifequal %}
+                                            <span class="current_cc_date ">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
+                                            <span class="explanation">After {{ work.last_campaign.cc_date|date:"M j, Y" }} this book will be available for free to anyone, anywhere. Every purchase before then brings that date closer.</span>
+                                           {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info">
                                             {% if work.last_campaign.supporters_count == 1 %}
@@ -135,12 +136,13 @@
                                                 {% endif %}                                    
                                             </div>
                                         {% endifequal %}
-                                        <div class="campaign-status-info">
+                                        <div class="campaign-status-info explainer">
                                             {% ifequal work.last_campaign.type 1 %}
                                             <span>{{ work.last_campaign.countdown }}</span> to go
                                             {% else %}
                                             <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
-                                            {% endifequal %}
+                                            <span class="explanation">${{ work.last_campaign.left|floatformat:0|intcomma  }} is the amount it would take to make this ebook free to the world tomorrow.</span>
+                                           {% endifequal %}
                                         </div>
                                     </div>
                                 {% else %}
