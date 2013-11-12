@@ -20,4 +20,4 @@
 # For more information see the manual pages of crontab(5) and cron(8)
 # 
 # m h  dom mon dow   command
-* * * * * cd /opt/regluit; source /opt/regluit/ENV/bin/activate; /opt/regluit/ENV/bin/django-admin.py emit_notices --settings=regluit.settings.please > /opt/regluit/deploy/emit_notices.log 2>&1 ; touch /opt/regluit/deploy/last-cron
+* * * * * cd /opt/regluit; source /opt/regluit/ENV/bin/activate; /opt/regluit/ENV/bin/django-admin.py emit_notices --settings=regluit.settings.just > /opt/regluit/deploy/emit_notices.log 2>&1 ; touch /opt/regluit/deploy/last-cron
