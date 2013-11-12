@@ -183,6 +183,7 @@ unsuccessful_campaign.connect(notify_unsuccessful_campaign)
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
         return
+    transaction._current_total = None
     if transaction.campaign.type is REWARDS:
         notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
     else:
