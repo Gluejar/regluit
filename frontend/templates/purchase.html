@@ -41,8 +41,9 @@
                 <div class="campaign-status-info">
                     current ungluing date: 
                 </div>
-                <div class="campaign-status-info">
+                <div class="campaign-status-info explainer">
                     <span class="current_cc_date">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
+                    <span class="explanation">After {{ work.last_campaign.cc_date|date:"M j, Y" }} this book will be available for free to anyone, anywhere. Every purchase before then brings that date closer.</span>
                 </div>
                 <div class="campaign-status-info">
                     {% if work.last_campaign.supporters_count == 1 %}
@@ -51,8 +52,9 @@
                         <span>{{ work.last_campaign.supporters_count }}</span> ungluers
                     {% endif %}                                    
                 </div>
-                <div class="campaign-status-info">
+                <div class="campaign-status-info explainer">
                     <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
+                    <span class="explanation">${{ work.last_campaign.left|floatformat:0|intcomma  }} is the amount it would take to make this ebook free to the world tomorrow.</span>
                 </div>
             </div>
             <div class="find-book">
