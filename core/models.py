@@ -513,10 +513,12 @@ class Campaign(models.Model):
     
     def update_status(self, ignore_deadline_for_success=False, send_notice=False, process_transactions=False):
         """Updates the campaign's status. returns true if updated.
+        for REWARDS:
         Computes UNSUCCESSFUL only after the deadline has passed
         Computes SUCCESSFUL only after the deadline has passed if ignore_deadline_for_success is TRUE -- otherwise looks just at amount of pledges accumulated
         by default, send_notice is False so that we have to explicitly send specify delivery of successful_campaign notice
-        
+        for BUY2UNGLUE:
+        Sets SUCCESSFUL when cc_date is in the past.
         if process_transactions is True, also execute or cancel associated transactions
           
         """
