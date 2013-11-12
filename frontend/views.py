@@ -2636,7 +2636,7 @@ def borrow(request, work_id):
         except User.DoesNotExist:
             libuser = None
         if libuser:
-            acq = work.user_license(libuser).borrowable_acq
+            acq = work.get_user_license(libuser).borrowable_acq
     if not libuser or not acq:
         acq=work.get_lib_license(request.user).borrowable_acq
     if acq:
