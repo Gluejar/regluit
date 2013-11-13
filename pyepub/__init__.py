@@ -348,7 +348,7 @@ class EPUB(zipfile.ZipFile):
                              attrib={"id": "id_"+str(uuid.uuid4())[:5], "href": href, "media-type": mediatype})
 
         try:
-            self.writestr(os.path.join(self.root_folder, element.attrib["href"]), fileObject.getvalue())
+            self.writestr(os.path.join(self.root_folder, element.attrib["href"]), fileObject.getvalue().encode('utf-8'))
         except AttributeError:
             self.writestr(os.path.join(self.root_folder, element.attrib["href"]), fileObject)
         self.opf[1].append(element)
