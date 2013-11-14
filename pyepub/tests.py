@@ -1,3 +1,4 @@
+# coding=utf-8
 import unittest
 import urllib2 
 from tempfile import NamedTemporaryFile
@@ -45,9 +46,11 @@ class EpubTests(unittest.TestCase):
         self.assertEqual(len(epub2.opf),3)
         self.assertEqual(epub2.info['guide'],None)
         num_spine_items = len(epub2.opf[2])
-        part = StringIO('<?xml version="1.0" encoding="utf-8" standalone="yes"?>')
+        uxml = u'<?xml version="1.0" encoding="utf-8" standalone="yes"?><test>VojtěchVojtíšek</test>'
+        part = StringIO(unicode(uxml))
         epub2.addpart(part, "testpart.xhtml", "application/xhtml+xml", 2)
         self.assertEqual(len(epub2.opf[2]), num_spine_items +1) #spine items
+        epub2.close()
         
     def test_addmetadata(self):
         epub=EPUB(self.epub2file,mode='a')
