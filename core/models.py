@@ -336,7 +336,7 @@ class Acq(models.Model):
         return self.watermarked
         
     def _hash(self):
-        return hashlib.md5('1c1a56974ef08edc%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
+        return hashlib.md5('%s:%s:%s:%s'%(settings.TWITTER_CONSUMER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
         self.expires = now() + delta
@@ -1410,7 +1410,8 @@ FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT
 
 def path_for_file(instance, filename):
     version = EbookFile.objects.filter(edition = instance.edition, format = instance.format).count()
-    fn = "ebf/%s.%d.%s"%(instance.edition.pk,version,instance.format)
+    hash = hashlib.md5('%s.%s.%d'%(settings.TWITTER_CONSUMER_SECRET, instance.edition.pk, version)).hexdigest()
+    fn = "ebf/%s.%s"%(hash,instance.format)
     return fn
     
 class EbookFile(models.Model):
