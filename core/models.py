@@ -555,7 +555,7 @@ class Campaign(models.Model):
                 # should be more sophisticated in whether to return True -- look at all the transactions?
                 return True
         elif  self.type==BUY2UNGLUE:
-            if self.cc_date < now():
+            if self.cc_date < date_today():
                 self.status = 'SUCCESSFUL'
                 self.save()
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
