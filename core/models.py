@@ -834,6 +834,14 @@ class Campaign(models.Model):
                 return ''
         return ''
         
+    def percent_of_goal(self):
+        if(self.status == 'SUCCESSFUL' or self.status == 'ACTIVE'):
+            if self.type == BUY2UNGLUE:
+                percent = int(100 - 100*self.left/self.target)
+            else:
+                percent = int(self.current_total/self.target*100)
+        return percent
+        
     @property
     def countdown(self):
         from math import ceil
@@ -1037,15 +1045,8 @@ class Work(models.Model):
         return status
 
     def percent_of_goal(self):
-        percent = 0
         campaign = self.last_campaign()
-        if campaign is not None:
-            if(campaign.status == 'SUCCESSFUL' or campaign.status == 'ACTIVE'):
-                if campaign.type == BUY2UNGLUE:
-                    percent = int(100 - 100*campaign.left/campaign.target)
-                else:
-                    percent = int(campaign.current_total/campaign.target*100)
-        return percent
+        return 0 if campaign is None else campaign.percent_of_goal()
 
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
