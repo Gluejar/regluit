@@ -7,6 +7,7 @@ import hashlib
 import re
 import random
 import urllib
+import urllib2
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -21,6 +22,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q, get_model
 from django.db.models.signals import post_save
@@ -31,7 +33,7 @@ regluit imports
 '''
 import regluit
 import regluit.core.isbn
-from regluit.core.epub import personalize
+from regluit.core.epub import personalize, ungluify
 
 from regluit.core.signals import (
     successful_campaign,
@@ -862,6 +864,36 @@ class Campaign(models.Model):
     @classmethod
     def latest_ending(cls):
         return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
+    
+    def make_unglued_ebf(self, format, watermarked):
+        ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
+        r=urllib2.urlopen(watermarked.download_link(format))
+        ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
+        ebf.file.close()
+        ebf.save()
+
+    def watermark_success(self):
+        if self.status == 'SUCCESSFUL' and self.type == BUY2UNGLUE:
+            params={
+                'customeremailaddress': self.license,
+                'customername': 'The Public',
+                'languagecode':'1033',
+                'expirydays': 1,
+                'downloadlimit': 7,
+                'exlibris':0,
+                'chapterfooter':0,
+                'disclaimer':0,
+                'referenceid': '%s:%s:%s' % (self.work.id, self.id, self.license),
+                'kf8mobi': True,
+                'epub': True,
+                }
+            ungluified = ungluify(self.work.ebookfiles()[0].file, self)
+            ungluified.filename.seek(0)
+            watermarked = watermarker.platform(epubfile= ungluified.filename, **params)
+            self.make_unglued_ebf('epub', watermarked)
+            self.make_unglued_ebf('mobi', watermarked)
+            return True
+        return False
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue

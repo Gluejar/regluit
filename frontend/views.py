@@ -2679,7 +2679,7 @@ def download_campaign(request, work_id, format):
     if campaign is None or (campaign.status != 'SUCCESSFUL'):
         raise Http404
     if campaign.type is BUY2UNGLUE:
-        ebfs= models.EbookFile.objects.filter(edition__work=campaign.work, format=format).order_by('-created')
+        ebfs= models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
         logger.info(ebfs.count())
         for ebf in ebfs:
             logger.info(ebf.file.url)

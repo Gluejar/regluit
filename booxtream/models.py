@@ -17,3 +17,11 @@ class Boox(models.Model):
     def expired(self):
         return self.created+timedelta(days=self.expirydays) < datetime.now()
         
+    def download_link(self, format):
+        if format == 'epub':
+            return self.download_link_epub
+        elif  format == 'mobi':
+            return self.download_link_mobi
+        else:
+            return None
+        
