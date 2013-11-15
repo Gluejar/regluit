@@ -7,6 +7,7 @@ from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
 LANGUAGE_CODE = 'en-us'
+LOCAL_TEST = False
 
 WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
 

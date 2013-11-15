@@ -58,6 +58,17 @@ class BooXtream(object):
                 files= {'epubfile': ('%012x.epub' % random.randrange(16**12),epubfile)}
         else:
              files={}      
+        if settings.LOCAL_TEST:
+            # fake it, so you can test other functions without hitting booxtream
+            boox = Boox.objects.create(
+                    download_link_epub='https://github.com/eshellman/42_ebook/blob/master/download/42.epub?raw=true', 
+                    download_link_mobi='https://github.com/eshellman/42_ebook/blob/master/download/42.mobi?raw=true', 
+                    referenceid= kwargs.get('referenceid'),
+                    downloads_remaining= kwargs.get('downloadlimit'),
+                    expirydays=kwargs.get('expirydays'),
+                )
+            return boox
+
         resp = self.postrequest(url, data=kwargs, files=files)
         doc = ElementTree.fromstring(resp.content)
 
