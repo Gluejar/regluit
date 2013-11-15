@@ -15,3 +15,14 @@ def personalize(epub_file, acq):
     output.close()
     #output.writetodisk('testfile2.epub')
     return output
+    
+        
+def ungluify(epub_file, campaign):
+    output = EPUB(epub_file, "a")
+    context={'campaign':campaign}
+    part = StringIO(unicode(render_to_string('epub/cc_license.xhtml', context)))
+    output.addpart(part, "cc_license.xhtml", "application/xhtml+xml", 1) #after title, we hope
+    output.addmetadata('rights', campaign.license_url)
+    output.close()
+    #output.writetodisk('testfile3.epub')
+    return output

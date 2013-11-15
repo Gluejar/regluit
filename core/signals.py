@@ -30,7 +30,7 @@ from social_auth.backends.facebook import FacebookBackend
 regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
-from regluit.utils.localdatetime import now
+from regluit.utils.localdatetime import now, date_today
 from regluit.core.parameters import REWARDS, BUY2UNGLUE, LIBRARY, RESERVE
 from regluit.libraryauth.models import Library, LibraryUser
 
@@ -183,6 +183,7 @@ unsuccessful_campaign.connect(notify_unsuccessful_campaign)
 def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
         return
+    transaction._current_total = None
     if transaction.campaign.type is REWARDS:
         notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
     else:
@@ -203,6 +204,8 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
         from regluit.core.tasks import watermark_acq
         watermark_acq.delay(new_acq)
+        if transaction.campaign.cc_date < date_today() :
+            transaction.campaign.update_status(send_notice=True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 

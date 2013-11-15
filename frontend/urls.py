@@ -85,6 +85,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/lockss/$", "lockss", name="lockss"),
     url(r"^lockss/(?P<year>\d+)/$", "lockss_manifest", name="lockss_manifest"),
     url(r"^work/(?P<work_id>\d+)/download/$", "download", name="download"),
+    url(r"^work/(?P<work_id>\d+)/unglued/(?P<format>\w+)/$", "download_campaign", name="download_campaign"),
     url(r"^work/(?P<work_id>\d+)/borrow/$", "borrow", name="borrow"),
     url(r"^work/(?P<work_id>\d+)/reserve/$", "reserve", name="reserve"),
     url(r"^work/(?P<work_id>\d+)/merge/$", login_required(MergeView.as_view()), name="merge"),

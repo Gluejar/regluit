@@ -823,6 +823,7 @@ class MailingListTests(TestCase):
         self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
         self.assertTrue(self.user.profile.on_ml)
 
+@override_settings(LOCAL_TEST=True)
 class EbookFileTests(TestCase):
 
     def test_ebookfile(self):
@@ -832,8 +833,15 @@ class EbookFileTests(TestCase):
         w = Work.objects.create(title="Work 1")
         e = Edition.objects.create(title=w.title,work=w)
         u = User.objects.create_user('test', 'test@example.org', 'testpass')
-        c = Campaign.objects.create(work=w, type = parameters.BUY2UNGLUE, cc_date_initial= datetime(2020,1,1),target=1000, deadline=datetime(2020,1,1))
-        
+        rh = RightsHolder.objects.create(owner = u, rights_holder_name = 'rights holder name')
+        cl = Claim.objects.create(rights_holder = rh, work = w, user = u, status = 'active')
+        c = Campaign.objects.create(work = w, 
+                                    type = parameters.BUY2UNGLUE, 
+                                    cc_date_initial = datetime(2020,1,1),
+                                    target = 1000, 
+                                    deadline = datetime(2020,1,1),
+                                    license = 'CC BY',
+                                    )
         # download the test epub into a temp file
         temp = NamedTemporaryFile(delete=False)
         test_file_content = requests.get(settings.BOOXTREAM_TEST_EPUB_URL).content
@@ -862,10 +870,16 @@ class EbookFileTests(TestCase):
         self.assertIsNot(acq.nonce, None)
 
         url= acq.get_watermarked().download_link_epub
-        self.assertRegexpMatches(url,'download.booxtream.com/')
-        print url
-
+        self.assertRegexpMatches(url,'github.com/eshellman/42_ebook/blob/master/download/42')
+        
+        c.activate()
+        #flip the campaign to success
+        c.cc_date_initial= datetime(2012,1,1)
+        c.update_status()
+        self.assertEqual( c.work.ebooks().count(),2 )
+        
 from .signals import handle_transaction_charged
+@override_settings(LOCAL_TEST=True)
 class LibTests(TestCase):
 
     class transaction:

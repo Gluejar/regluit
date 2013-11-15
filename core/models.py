@@ -7,6 +7,7 @@ import hashlib
 import re
 import random
 import urllib
+import urllib2
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -21,6 +22,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
+from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q, get_model
 from django.db.models.signals import post_save
@@ -31,7 +33,7 @@ regluit imports
 '''
 import regluit
 import regluit.core.isbn
-from regluit.core.epub import personalize
+from regluit.core.epub import personalize, ungluify
 
 from regluit.core.signals import (
     successful_campaign,
@@ -336,7 +338,7 @@ class Acq(models.Model):
         return self.watermarked
         
     def _hash(self):
-        return hashlib.md5('1c1a56974ef08edc%s:%s:%s'%(self.user.id,self.work.id,self.created)).hexdigest() 
+        return hashlib.md5('%s:%s:%s:%s'%(settings.TWITTER_CONSUMER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
         self.expires = now() + delta
@@ -513,46 +515,61 @@ class Campaign(models.Model):
     
     def update_status(self, ignore_deadline_for_success=False, send_notice=False, process_transactions=False):
         """Updates the campaign's status. returns true if updated.
+        for REWARDS:
         Computes UNSUCCESSFUL only after the deadline has passed
         Computes SUCCESSFUL only after the deadline has passed if ignore_deadline_for_success is TRUE -- otherwise looks just at amount of pledges accumulated
         by default, send_notice is False so that we have to explicitly send specify delivery of successful_campaign notice
-        
+        for BUY2UNGLUE:
+        Sets SUCCESSFUL when cc_date is in the past.
         if process_transactions is True, also execute or cancel associated transactions
           
         """
         if not self.status=='ACTIVE':
             return False
-        elif (ignore_deadline_for_success or self.deadline < now()) and self.current_total >= self.target:
-            self.status = 'SUCCESSFUL'
-            self.save()
-            action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
-            action.save()
+        elif self.type==REWARDS:
+            if (ignore_deadline_for_success or self.deadline < now()) and self.current_total >= self.target:
+                self.status = 'SUCCESSFUL'
+                self.save()
+                action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
+                action.save()
 
-            if process_transactions:
-                p = PaymentManager()
-                results = p.execute_campaign(self)
+                if process_transactions:
+                    p = PaymentManager()
+                    results = p.execute_campaign(self)
                 
-            if send_notice:
-                successful_campaign.send(sender=None,campaign=self)
+                if send_notice:
+                    successful_campaign.send(sender=None,campaign=self)
                 
-            # should be more sophisticated in whether to return True -- look at all the transactions?
-            return True
-        elif self.deadline < now() and self.current_total < self.target:
-            self.status = 'UNSUCCESSFUL'
-            self.save()
-            action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
-            action.save()
+                # should be more sophisticated in whether to return True -- look at all the transactions?
+                return True
+            elif self.deadline < now() and self.current_total < self.target:
+                self.status = 'UNSUCCESSFUL'
+                self.save()
+                action = CampaignAction(campaign=self, type='failed', comment = self.current_total) 
+                action.save()
 
-            if process_transactions:
-                p = PaymentManager()
-                results = p.cancel_campaign(self)            
+                if process_transactions:
+                    p = PaymentManager()
+                    results = p.cancel_campaign(self)            
             
-            if send_notice:
-                regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
-            # should be more sophisticated in whether to return True -- look at all the transactions?
-            return True
-        else:
-            return False
+                if send_notice:
+                    regluit.core.signals.unsuccessful_campaign.send(sender=None,campaign=self)
+                # should be more sophisticated in whether to return True -- look at all the transactions?
+                return True
+        elif  self.type==BUY2UNGLUE:
+            if self.cc_date < date_today():
+                self.status = 'SUCCESSFUL'
+                self.save()
+                action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
+                action.save() 
+                self.watermark_success()               
+                if send_notice:
+                    successful_campaign.send(sender=None,campaign=self)
+                
+                # should be more sophisticated in whether to return True -- look at all the transactions?
+                return True
+        
+        return False
     
     _current_total = None
     @property
@@ -820,6 +837,14 @@ class Campaign(models.Model):
                 return ''
         return ''
         
+    def percent_of_goal(self):
+        if(self.status == 'SUCCESSFUL' or self.status == 'ACTIVE'):
+            if self.type == BUY2UNGLUE:
+                percent = int(100 - 100*self.left/self.target)
+            else:
+                percent = int(self.current_total/self.target*100)
+        return percent
+        
     @property
     def countdown(self):
         from math import ceil
@@ -840,6 +865,45 @@ class Campaign(models.Model):
     @classmethod
     def latest_ending(cls):
         return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
+    
+    def make_unglued_ebf(self, format, watermarked):
+        ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
+        r=urllib2.urlopen(watermarked.download_link(format))
+        ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
+        ebf.file.close()
+        ebf.save()
+        ebook=Ebook.objects.create(
+                edition=self.work.preferred_edition, 
+                format=format, 
+                rights=self.license, 
+                provider="Unglue.it",
+                url= settings.BASE_URL_SECURE + reverse('download_campaign',args=[self.work.id,format]),
+                )
+        return ebook.pk
+                
+
+    def watermark_success(self):
+        if self.status == 'SUCCESSFUL' and self.type == BUY2UNGLUE:
+            params={
+                'customeremailaddress': self.license,
+                'customername': 'The Public',
+                'languagecode':'1033',
+                'expirydays': 1,
+                'downloadlimit': 7,
+                'exlibris':0,
+                'chapterfooter':0,
+                'disclaimer':0,
+                'referenceid': '%s:%s:%s' % (self.work.id, self.id, self.license),
+                'kf8mobi': True,
+                'epub': True,
+                }
+            ungluified = ungluify(self.work.ebookfiles()[0].file, self)
+            ungluified.filename.seek(0)
+            watermarked = watermarker.platform(epubfile= ungluified.filename, **params)
+            self.make_unglued_ebf('epub', watermarked)
+            self.make_unglued_ebf('mobi', watermarked)
+            return True
+        return False
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -1023,15 +1087,8 @@ class Work(models.Model):
         return status
 
     def percent_of_goal(self):
-        percent = 0
         campaign = self.last_campaign()
-        if campaign is not None:
-            if(campaign.status == 'SUCCESSFUL' or campaign.status == 'ACTIVE'):
-                if campaign.type == BUY2UNGLUE:
-                    percent = int(100 - 100*campaign.left/campaign.target)
-                else:
-                    percent = int(campaign.current_total/campaign.target*100)
-        return percent
+        return 0 if campaign is None else campaign.percent_of_goal()
 
     def ebooks(self):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
@@ -1395,7 +1452,8 @@ FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT
 
 def path_for_file(instance, filename):
     version = EbookFile.objects.filter(edition = instance.edition, format = instance.format).count()
-    fn = "ebf/%s.%d.%s"%(instance.edition.pk,version,instance.format)
+    hash = hashlib.md5('%s.%s.%d'%(settings.TWITTER_CONSUMER_SECRET, instance.edition.pk, version)).hexdigest()
+    fn = "ebf/%s.%s"%(hash,instance.format)
     return fn
     
 class EbookFile(models.Model):

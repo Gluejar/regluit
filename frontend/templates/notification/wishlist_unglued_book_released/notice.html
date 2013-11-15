@@ -12,11 +12,11 @@
 {% block comments_textual %}
 	{% if work.last_campaign_status == 'SUCCESSFUL' %}
 		<p>
-		Great News!  <a href="{% url work work.id %}">{{ work.title }}</a> which you have supported is now available for download as an Unglued Ebook.  
+		Great News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your ungluing list is now available for download as an Unglued Ebook.  
 		</p>
 	{% else %}
 		<p>
-		Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your wishlist is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
+		Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your ungluing list is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
 		</p>
 		{% if work.ebooks.0.user %}
 			<p>
