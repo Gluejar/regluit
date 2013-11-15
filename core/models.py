@@ -561,7 +561,8 @@ class Campaign(models.Model):
                 self.status = 'SUCCESSFUL'
                 self.save()
                 action = CampaignAction(campaign=self, type='succeeded', comment = self.current_total) 
-                action.save()                
+                action.save() 
+                self.watermark_success()               
                 if send_notice:
                     successful_campaign.send(sender=None,campaign=self)
                 
@@ -871,6 +872,15 @@ class Campaign(models.Model):
         ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
         ebf.file.close()
         ebf.save()
+        ebook=Ebook.objects.create(
+                edition=self.work.preferred_edition, 
+                format=format, 
+                rights=self.license, 
+                provider="Unglue.it",
+                url= settings.BASE_URL_SECURE + reverse('download_campaign',args=[self.work.id,format]),
+                )
+        return ebook.pk
+                
 
     def watermark_success(self):
         if self.status == 'SUCCESSFUL' and self.type == BUY2UNGLUE:
