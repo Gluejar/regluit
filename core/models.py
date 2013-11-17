@@ -838,6 +838,7 @@ class Campaign(models.Model):
         return ''
         
     def percent_of_goal(self):
+        percent = 0
         if(self.status == 'SUCCESSFUL' or self.status == 'ACTIVE'):
             if self.type == BUY2UNGLUE:
                 percent = int(100 - 100*self.left/self.target)
