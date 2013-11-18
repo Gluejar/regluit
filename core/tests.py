@@ -871,7 +871,7 @@ class EbookFileTests(TestCase):
 
         url= acq.get_watermarked().download_link_epub
         self.assertRegexpMatches(url,'github.com/eshellman/42_ebook/blob/master/download/42')
-        
+        #self.assertRegexpMatches(url,'booxtream.com/')
         c.activate()
         #flip the campaign to success
         c.cc_date_initial= datetime(2012,1,1)
