@@ -192,15 +192,11 @@ class Premium(models.Model):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
     
 class PledgeExtra:
-    extra = {}
-    anonymous = False
-    premium = None
-    offer = None
-                    
     def __init__(self,premium=None,anonymous=False,ack_name='',ack_dedication='',offer=None):
         self.anonymous = anonymous
         self.premium = premium
         self.offer = offer
+        self.extra = {}
         if ack_name:
             self.extra['ack_name']=ack_name
         if ack_dedication:
@@ -427,7 +423,10 @@ class Campaign(models.Model):
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
-    problems = []
+    
+    def __init__(self, *args, **kwargs):
+        self.problems=[]
+        return super(Campaign, self).__init__(*args, **kwargs)
     
     def __unicode__(self):
         try:
@@ -478,7 +477,7 @@ class Campaign(models.Model):
             return True
         else:
             return False
-            
+
     @property
     def launchable(self):
         may_launch=True
