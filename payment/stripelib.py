@@ -716,7 +716,7 @@ class Processor(baseprocessor.Processor):
                 return
             # make sure we are dealing with a stripe transaction
             if transaction.host <> PAYMENT_HOST_STRIPE:
-                raise StripeLibError("transaction.host {0} is not the expected {1}".format(transaction.host, PAYMENT_HOST_STRIPE))
+                raise StripelibError("transaction.host {0} is not the expected {1}".format(transaction.host, PAYMENT_HOST_STRIPE))
             
             sc = StripeClient()
             
@@ -771,7 +771,7 @@ class Processor(baseprocessor.Processor):
                     
             else:
                 # nothing to charge
-                raise StripeLibError("No customer id available to charge for transaction {0}".format(transaction.id), None)
+                raise StripelibError("No customer id available to charge for transaction {0}".format(transaction.id), None)
     
     
         def api(self):
