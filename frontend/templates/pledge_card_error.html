@@ -1,7 +1,7 @@
 {% extends "basepledge.html" %}
 {% load humanize %}
 
-{% block title %}Credit card processing Error{% endblock %}
+{% block title %}Credit card processing Issue{% endblock %}
 
 {% block doccontent %}
 <div style="height:15px"></div>
@@ -9,9 +9,11 @@
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
 
-	<div><h2>Error: Card authorization</h2>
+	<div><h2>Credit Card not Authorized</h2>
 		<div>
-		<p>Unglue.it would like to accept your credit card, but we encountered the following problem: <b>{{exception.message}}</b>. Please <a href="{{ request.get_full_path }}">try again</a>, or  contact <a href="mailto:support@gluejar.com?subject={{ request.get_full_path|urlencode }}">unglue.it support</a>.
+		<p>Unglue.it would like to accept your credit card, but we encountered a problem: <b>{{transaction.error}}</b> {% if request.user.account_set %}Please <a href="{% url manage_account %}">Update your credit card</a>,
+		{% else %}Please <a href="{{ request.get_full_path }}">try again</a>,{% endif %}
+		 or  contact <a href="mailto:support@gluejar.com?subject={{ request.get_full_path|urlencode }}">unglue.it support</a>.
         </p>
         </div>
 	</div>
