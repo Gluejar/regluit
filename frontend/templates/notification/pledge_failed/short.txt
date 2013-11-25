@@ -1,1 +1,1 @@
-Attention needed: your pledge to unglue {{transaction.campaign.work.title}}
+Attention needed: your {% ifequal transaction.campaign.type 1 %}pledge to unglue{% else %}purchase of{% endifequal %} {{transaction.campaign.work.title}}
