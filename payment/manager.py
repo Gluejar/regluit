@@ -637,26 +637,8 @@ class PaymentManager( object ):
         # we might want to not allow for a return_url to be passed in but calculated
         # here because we have immediate access to the Transaction object.
         
-        #if return_url is None:
-        #    
-        #    #return_path = "{0}?{1}".format(reverse('charge_complete'), 
-        #    #                    urllib.urlencode({'tid':transaction.id}))
-        #    return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-        #                        urllib.urlencode({'tid':transaction.id})) 
-        #    return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
-        
-        # Question:  do I need to set transaction.amount = transaction.max_amount ?
         p = transaction.get_payment_class().Pay(transaction, amount=transaction.max_amount, return_url=return_url, paymentReason=paymentReason)
        
-         # Create a response for this
-        #envelope = p.envelope()
-        #
-        #if envelope:        
-        #    r = PaymentResponse.objects.create(api=p.url,
-        #                                      correlation_id = p.correlation_id(),
-        #                                      timestamp = p.timestamp(),
-        #                                      info = p.raw_response,
-        #                                      transaction=transaction)
         
         if p.success() and not p.error():
             transaction.preapproval_key = p.key()
