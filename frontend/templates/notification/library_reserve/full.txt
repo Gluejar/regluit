@@ -1,4 +1,4 @@
- is reserved for you from {{ acq.lib_acq.user.username }} until {{ acq.expires }}.  You can borrow the ebook by downloading it from the book's download page:
+{{ acq.work.title }} is reserved for you from {{ acq.lib_acq.user.username }} until {{ acq.expires }}.  You can borrow the ebook by downloading it from the book's download page:
 https://{{ current_site.domain }}{% url download acq.work.id %}
 
 If you don't download the book before {{ acq.expires }}, other members of {{ acq.lib_acq.user.username }} will be able to use it instead.
