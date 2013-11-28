@@ -1,0 +1,39 @@
+{% extends "basedocumentation.html" %}
+{% block title %} Library Admin {% endblock %}
+{% block extra_extra_head %}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+{{ form.media.css }}
+<script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
+
+{{ form.media.js }}
+{% endblock %}
+
+{% block doccontent %}
+{% if library.pk %}
+<h2>Edit Library</h2>
+<ul><li> Go to <a href="{% url library library.user %}">{{ library }} Page</a></li>
+<li><a href="{% url library_login library.id %}">Log in</a> as the library user </li>
+{% else %}
+<h2>Create New Library</h2>
+{% endif %}
+<p>{{ status }}</p>
+<form method="POST" action="#" class="std_form">
+	{% csrf_token %}
+	{{ form.work }}
+	{{ form.non_field_errors }}
+	<div> 
+		<p><b>Library Name</b>: {{ form.name.errors }}{{ form.name }}</p>
+		{% if form.instance.user %}
+		<p><b>Library Username</b>: {{ form.instance.user }}</p>
+		<p><b>Library Email</b>: {{ form.instance.user.email }}</p>
+		{% else %}
+		<p><b>Library Username</b>: {{ form.username.errors }}{{ form.username }} This will be the Unglue.it username for the library.</p>
+		<p><b>Library Email</b>: {{ form.email.errors }}{{ form.email }} The notification address for the library.</p>
+
+		{% endif %}
+		<p><b>Library Authentication Method</b>: {{ form.backend.errors }}{{ form.backend }}</p>
+	</div>    
+	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
+</form>
+
+{% endblock %}

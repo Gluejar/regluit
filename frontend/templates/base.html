@@ -155,6 +155,9 @@ Not needed on newly designed home page?
             <li><a href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
             <li><a href="{{ privacyurl }}">Privacy</a></li>
             <li><a href="{{ termsurl }}">Terms of Use</a></li>
+            {% for library in user.libraries.all %}
+                <li><a href="{% url library_admin library.id %}">{{ library }} Administration</a></li>
+            {% endfor %}
             {% if user.is_staff %}
                 <li><a href="{{ adminurl }}">Unglue.it Administration</a></li>
                 <li><a href="{{ editionurl }}">Create New Editions</a></li>

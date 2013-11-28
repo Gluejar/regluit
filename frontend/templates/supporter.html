@@ -73,7 +73,7 @@ function highlightTarget(targetdiv) {
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
 {% if supporter.library %}
-    <div class="launch_top pale">{{ supporter.library }} is a Library participating in Unglue.it. <a href="{% url join_library supporter.username %}">Click here</a> to use {{ supporter.library }}'s books.
+    <div class="launch_top pale">{{ supporter.library }} is a Library participating in Unglue.it. <a href="{% url join_library supporter.library.id %}">Click here</a> to use {{ supporter.library }}'s books.
     </div>
 {% endif %}
 

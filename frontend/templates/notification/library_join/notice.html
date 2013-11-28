@@ -1,6 +1,6 @@
 {% extends "notification/notice_template.html" %}
 {% block comments_book %}
-			<a href="{% url library library %}"><img src="{{ library.user.profile.avatar_url }}" alt="avatar for {{ library }}" /></a>
+			<a href="{% url library library.user %}"><img src="{{ library.user.profile.avatar_url }}" alt="avatar for {{ library }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -13,7 +13,7 @@
 
 {% block comments_textual %}
     {% ifequal user recipient %}
-		<p>{{ library }} is participating in Unglue.it. That means you can borrow Unglue.it ebooks owned by {{ library }} (when available). Here's <a href="{% url library library %}">a list of the ebooks available</a> to {{ library }} members. <p>
+		<p>{{ library }} is participating in Unglue.it. That means you can borrow Unglue.it ebooks owned by {{ library }} (when available). Here's <a href="{% url library library.user %}">a list of the ebooks available</a> to {{ library }} members. <p>
 		
 		<p>When you buy an ebook through unglue.it, you'll be offered the option to by a library license in stead of an individual license. That means that {{ library }} will own the ebook, but you'll be the first in line to borrow it. After two weeks, the book will be available to other members of {{ library }}. </p>
 		
@@ -22,6 +22,6 @@
 		<p>{{ library }} and the Unglue.it team
 		</p>
 	{% else %}
-	    <p>You can manage your users <a href="{% url library_users library %}">on this page</a>.</p>
+	    <p>You can manage your users <a href="{% url library_users library.id %}">on this page</a>.</p>
 	{% endifequal %}
 {% endblock %}

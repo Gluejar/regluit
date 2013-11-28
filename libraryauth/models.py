@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.forms import IPAddressField as BaseIPAddressField
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 class Library(models.Model):
     '''
@@ -21,10 +22,13 @@ class Library(models.Model):
             ('cardnum', 'Library Card Number check'),
             ('email', 'e-mail pattern check'),
         ),default='ip')
+    name = models.CharField(max_length=80, default='') 
+    approved = models.BooleanField(default=False)
+    owner = models.ForeignKey(User, related_name="libraries")
     credential = None
     
     def __unicode__(self):
-        return self.user.username
+        return unicode(self.name)
         
     def add_user(self, user):
         user.groups.add(self.group)
@@ -38,6 +42,9 @@ class Library(models.Model):
     @property
     def join_template(self):
         return 'libraryauth/' + self.backend + '_join.html'
+        
+    def get_absolute_url(self):
+        return reverse('library', args=[self.user.username])
 
 def add_group(sender, created, instance, **kwargs):
     if created:

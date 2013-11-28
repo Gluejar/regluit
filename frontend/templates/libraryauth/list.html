@@ -47,12 +47,12 @@
                         {% for library in libraries %}
                             <div class="items {% cycle 'row1' 'row2' %}{% if library.group in request.user.groups.all %} joined{% endif %}">
                                <div class="avatar">
-                                  <a href="{% url library library %}">
+                                  <a href="{% url library library.user %}">
                                     <img class="user-avatar" src="{{ library.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ library }}" title="{{ library }}" />
                                   </a>
                                </div>
                               <div class="nonavatar">
-                                  <div class="libname"><a href="{% url library library %}">{{ library }}</a> {{ library.user.tagline }}</div>
+                                  <div class="libname"><a href="{% url library library.user %}">{{ library }}</a> {{ library.user.tagline }}</div>
                                   <div class="libstat">{% if library.group in request.user.groups.all %}<em>joined</em>{% else %}&nbsp;{% endif %}</div>
                                   <div class="libstat">{{ library.library_users.count }} Unglue.it users</div>
                                   <div class="libstat">{{ library.user.acqs.count }} Unglue.it holdings</div>
