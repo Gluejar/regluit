@@ -890,7 +890,7 @@ class LibTests(TestCase):
         e = Edition.objects.create(title=w.title,work=w)
         u = User.objects.create_user('test', 'test@example.org', 'testpass')
         lu = User.objects.create_user('library', 'testu@example.org', 'testpass')
-        lib = Library.objects.create(user=lu)
+        lib = Library.objects.create(user=lu,owner=u)
         c = Campaign.objects.create(work=w, type = parameters.BUY2UNGLUE, cc_date_initial= datetime(2020,1,1),target=1000, deadline=datetime(2020,1,1))
         
         new_acq = Acq.objects.create(user=lib.user,work=c.work,license= LIBRARY)
