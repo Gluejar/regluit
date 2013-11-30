@@ -102,7 +102,7 @@ class IP(object):
             self._int = IP.int
 
         try:
-            self._int = int(value)
+            self._int = long(value)
         except ValueError:
             self._int = ip_to_long(value)
         except (TypeError, ValidationError):
@@ -201,7 +201,7 @@ class IPAddressModelField(models.IPAddressField):
         return super(models.IPAddressField, self).formfield(**defaults)
 
 class Block(models.Model):
-    library = models.ForeignKey(Library, related_name='blocks')
+    library = models.ForeignKey(Library, related_name='ip_auths')
     lower = IPAddressModelField(db_index=True, unique=True)
     upper = IPAddressModelField(db_index=True, blank=True, null=True)
 
@@ -242,7 +242,7 @@ def luhn_checksum(card_number):
     return checksum % 10
      
 class CardPattern(models.Model):
-    library = models.ForeignKey(Library, related_name='card_patterns')
+    library = models.ForeignKey(Library, related_name='cardnum_auths')
     # match pattern ^\d+#+$
     pattern = models.CharField(max_length=20)
     checksum = models.BooleanField(default=True)
@@ -263,7 +263,7 @@ class LibraryUser(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
 class EmailPattern(models.Model):
-    library = models.ForeignKey(Library, related_name='email_patterns')
+    library = models.ForeignKey(Library, related_name='email_auths')
     # email endswith string
     pattern = models.CharField(max_length=20)
 

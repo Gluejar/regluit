@@ -7,7 +7,7 @@ from django.contrib.auth import login as login_to_user
 from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.views.generic.edit import FormView, CreateView, UpdateView
+from django.views.generic.edit import FormView, CreateView, UpdateView, SingleObjectMixin
 from . import backends
 
 from .models import Library
@@ -90,9 +90,12 @@ class Authenticator:
         backend_test= getattr(backends, self.library.backend + '_authenticate')
         return  backend_test(self.request, self.library)
 
-class CreateLibraryView(CreateView):
+class BaseLibraryView:
     model = Library 
     template_name="libraryauth/edit.html"
+    
+
+class CreateLibraryView(BaseLibraryView, CreateView):
     form_class = NewLibraryForm
     
     def get_initial(self):
@@ -109,22 +112,98 @@ class CreateLibraryView(CreateView):
         context_data['status'] = 'Library Updated'
         return HttpResponseRedirect(reverse('library_admin',args=[form.instance.id]))
 
-    
-class UpdateLibraryView(UpdateView):
-    model = Library 
+class UpdateLibraryView(BaseLibraryView, UpdateView):
     pk_url_kwarg =  'library_id'
-    template_name="libraryauth/edit.html"
     form_class = LibraryForm
     
     def form_valid(self, form):
-        if self.request.user in [form.instance.owner, form.instance.user]:
-            form.instance.save()
-            context_data = self.get_context_data(form=form)
-            context_data['status'] = 'Library Updated.'
-        else:
-            context_data['status'] = 'You\'re not permitted to edit this library.'
+        context_data = self.get_context_data(form=form)
+        form.instance.save()
+        context_data['status'] = 'Library Updated.'
         return self.render_to_response(context_data)
-    
+
+    def get_backend_form_class(self):
+        if self.object and self.object.backend:
+            backend_admin_form_name = '%s_admin_form' % self.object.backend
+            return getattr(backends,backend_admin_form_name)
+        else:
+            return None
+            
+    def get_backend_admin_forms(self):
+        if self.object and self.object.backend:
+            backend_models_name = '%s_auths' % self.object.backend
+            backend_models = getattr(self.object,backend_models_name)
+            backend_new_form = self.get_backend_form_class()(initial = {'library':self.object}, prefix="new")
+            backend_old_forms = [self.get_backend_form_class()(instance = backend_model, prefix="backend_%s"%backend_model.id) for backend_model in backend_models.all()]
+            return backend_old_forms + [backend_new_form]
+        else:
+            return []
+            
+    def get_context_data(self, backend_form=None, form=None, **kwargs):
+        context = super(UpdateLibraryView,self).get_context_data(**kwargs)
+        backend_admin_forms = self.get_backend_admin_forms()
+        if backend_form:
+            backend_admin_forms = [ backend_form if backend_form.prefix== backend_admin_form.prefix else backend_admin_form for backend_admin_form in backend_admin_forms] 
+        context['backend_admin_forms'] = backend_admin_forms
+        if form:
+            context['form'] = form
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # check permissions
+        if request.user not in [self.object.owner, self.object.user]:
+            context_data={'status': 'You\'re not permitted to edit this library.'}
+            return self.render_to_response(context_data)
+        form = self.get_form(self.form_class)
+        return self.render_to_response(self.get_context_data(form=form))
+        
+    def post(self, request, *args, **kwargs):
+        # get the user instance (the library)
+        self.object = self.get_object()
+        # check permissions
+        if request.user not in [self.object.owner, self.object.user]:
+            context_data={'status': 'You\'re not permitted to edit this library.'}
+            return self.render_to_response(context_data)
+        # determine if backend form is being submitted
+        # uses the name of the form's submit button
+        if 'backend_submit' in request.POST or 'backend_delete' in request.POST:
+            # get the form
+            form_class = self.get_backend_form_class()
+            form_model = form_class.Meta.model
+            backend_id = request.POST['id']
+            if 'backend_submit' in request.POST:
+                # we're editing the backend
+                if backend_id is None or backend_id=="None":
+                    backend_model_instance = form_model(library=self.object)
+                    form = form_class(data=request.POST, instance=backend_model_instance, prefix="new")
+                else:
+                    backend_model_instance = form_model.objects.get(id=backend_id)
+                    form = form_class(data=request.POST, instance=backend_model_instance, prefix="backend_%s"%request.POST['id'])
+                if form.is_valid():
+                    form.save()
+                    status = 'User Validation Updated.'
+                    context_data = self.get_context_data( form=self.form_class(instance=self.object))
+                else:
+                    status = 'Problem with User Validation.'
+                    context_data = self.get_context_data(backend_form=form, form=self.form_class(instance=self.object))
+            else:
+                #deleting a backend
+                if backend_id is not None and backend_id!="None":
+                    backend_model_instance = form_model.objects.get(id=backend_id)
+                    backend_model_instance.delete()
+                    status = 'Deleted.'
+                context_data = self.get_context_data( form=self.form_class(instance=self.object))
+            context_data['status'] = status
+            return self.render_to_response(context_data)
+        else:
+            # just use regular post handler 
+            form = self.get_form(self.form_class)
+            if form.is_valid():
+                return self.form_valid(form)
+            else:
+                return self.form_invalid(form)
+                
 @login_required
 def login_as_library(request, library_id):   
     library=get_library_or_404(library_id=library_id)

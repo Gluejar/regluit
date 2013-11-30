@@ -17,7 +17,8 @@ from django import forms
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from .models import Block, IP, LibraryUser
+from .models import Block, IP, LibraryUser, CardPattern, EmailPattern
+                    
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,11 @@ def ip_authenticate(request, library):
 class ip_authenticator():
     def process(authenticator, success_url, deny_url):
         return HttpResponseRedirect(deny_url)
+
+class ip_admin_form(forms.ModelForm):
+    class Meta:
+        model = Block
+        exclude = "library"
     
 def cardnum_authenticate(request, library):
     return False
@@ -55,6 +61,11 @@ class cardnum_authenticator():
                     'authenticator':authenticator,
                     })
 
+class cardnum_admin_form(forms.ModelForm):
+    class Meta:
+        model = CardPattern
+        exclude = "library"
+    
 class cardnum_form(forms.ModelForm):
     credential = forms.RegexField(
             label="Enter Your Library Card Number", 
@@ -75,7 +86,7 @@ class cardnum_form(forms.ModelForm):
     def clean(self):
         library = self.cleaned_data.get('library', None)
         credential = self.cleaned_data.get('credential', '')
-        for card_pattern in library.card_patterns.all():
+        for card_pattern in library.cardnum_auths.all():
             if card_pattern.is_valid(credential):
                 return self.cleaned_data
         raise forms.ValidationError("the library card number must be VALID.")
@@ -88,7 +99,7 @@ def email_authenticate(request, library):
     if request.user.is_anonymous():
         return False
     email = request.user.email
-    for email_pattern in library.email_patterns.all():
+    for email_pattern in library.email_auths.all():
         if email_pattern.is_valid(email):
             logger.info('%s authenticated for %s from %s'%(request.user, library, email))
             library.credential=email
@@ -98,3 +109,8 @@ def email_authenticate(request, library):
 class email_authenticator():
     def process(authenticator, success_url, deny_url):
         return HttpResponseRedirect(deny_url)
+
+class email_admin_form(forms.ModelForm):
+    class Meta:
+        model = EmailPattern
+        exclude = "library"

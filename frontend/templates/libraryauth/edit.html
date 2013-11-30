@@ -35,5 +35,16 @@
 	</div>    
 	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
 </form>
-
+{% if backend_admin_forms %}
+<h2>User Validation Setup</h2>
+    {% for backend_admin_form in backend_admin_forms %}
+        <form method="POST" action="#" class="std_form">
+        {% csrf_token %}
+        {{ backend_admin_form }}
+        <input type="hidden" name="id" value="{{backend_admin_form.instance.id}}" />
+        <input type="submit" name="backend_submit" value="Save User Verifier" id="auth_submit_{{backend_admin_form.instance.id}}" />
+        <input type="submit" name="backend_delete" value="Delete" id="auth_delete_{{backend_admin_form.instance.id}}" />
+        </form>
+    {% endfor %}
+{% endif %}
 {% endblock %}
