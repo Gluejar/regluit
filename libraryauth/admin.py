@@ -20,6 +20,11 @@ class LibraryAdminForm(forms.ModelForm):
             widget=AutoCompleteSelectWidget(UserLookup),
             required=True,
         )
+    owner = AutoCompleteSelectField(
+            UserLookup,
+            widget=AutoCompleteSelectWidget(UserLookup),
+            required=True,
+        )
     class Meta(object):
         model = models.Library
         widgets= {'group':forms.HiddenInput}
@@ -33,12 +38,12 @@ class LibraryAdmin(ModelAdmin):
 
 class BlockAdmin(ModelAdmin):
     list_display = ('library', 'lower', 'upper',)
-    search_fields = ('library__user__username', 'lower', 'upper',)
+    search_fields = ('library__name', 'lower', 'upper',)
 
 class CardPatternAdmin(ModelAdmin):
     list_display = ('library', 'pattern', 'checksum',)
-    search_fields = ('library__user__username', )
+    search_fields = ('library__name', )
 
 class EmailPatternAdmin(ModelAdmin):
     list_display = ('library', 'pattern', )
-    search_fields = ('library__user__username',)
+    search_fields = ('library__name',)
