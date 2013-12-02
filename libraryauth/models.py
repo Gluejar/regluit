@@ -41,7 +41,10 @@ class Library(models.Model):
         
     @property
     def join_template(self):
-        return 'libraryauth/' + self.backend + '_join.html'
+        if self.approved:
+            return 'libraryauth/' + self.backend + '_join.html'
+        else:
+            return 'libraryauth/unapproved.html'
         
     def get_absolute_url(self):
         return reverse('library', args=[self.user.username])

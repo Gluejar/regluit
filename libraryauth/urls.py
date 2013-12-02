@@ -14,7 +14,11 @@ urlpatterns = patterns(
     url(r"^libraryauth/create/$", login_required(views.CreateLibraryView.as_view()),  name="library_create"),
     url(r"^libraryauth/list/$", direct_to_template, {
             'template':'libraryauth/list.html', 
-            'extra_context':{'libraries':models.Library.objects.order_by('name')}
+            'extra_context':{'libraries':models.Library.objects.filter(approved=True).order_by('name')}
             }, name="library_list"),
+    url(r"^libraryauth/unapproved/$", direct_to_template, {
+            'template':'libraryauth/list.html', 
+            'extra_context':{'libraries':models.Library.objects.filter(approved=False).order_by('name')}
+            }, name="new_libraries"),
     url(r'^accounts/superlogin/$', views.superlogin, name='superlogin'),
     )
