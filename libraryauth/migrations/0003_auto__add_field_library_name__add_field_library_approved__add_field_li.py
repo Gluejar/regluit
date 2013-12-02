@@ -75,7 +75,7 @@ class Migration(SchemaMigration):
         'libraryauth.block': {
             'Meta': {'ordering': "['lower']", 'object_name': 'Block'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'blocks'", 'to': "orm['libraryauth.Library']"}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ip_auths'", 'to': "orm['libraryauth.Library']"}),
             'lower': ('regluit.libraryauth.models.IPAddressModelField', [], {'unique': 'True', 'db_index': 'True'}),
             'upper': ('regluit.libraryauth.models.IPAddressModelField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'})
         },
@@ -83,13 +83,13 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'CardPattern'},
             'checksum': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'card_patterns'", 'to': "orm['libraryauth.Library']"}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'cardnum_auths'", 'to': "orm['libraryauth.Library']"}),
             'pattern': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
         'libraryauth.emailpattern': {
             'Meta': {'object_name': 'EmailPattern'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'email_patterns'", 'to': "orm['libraryauth.Library']"}),
+            'library': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'email_auths'", 'to': "orm['libraryauth.Library']"}),
             'pattern': ('django.db.models.fields.CharField', [], {'max_length': '20'})
         },
         'libraryauth.library': {
