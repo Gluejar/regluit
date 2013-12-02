@@ -14,7 +14,7 @@
 <ul><li> Go to <a href="{% url library library.user %}">{{ library }} Page</a></li>
 <li><a href="{% url library_login library.id %}">Log in</a> as the library user </li>
 {% else %}
-<h2>Create New Library</h2>
+<h2>Add a Library to Unglue.it</h2>
 {% endif %}
 <p>{{ status }}</p>
 <form method="POST" action="#" class="std_form">
@@ -36,15 +36,17 @@
 	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
 </form>
 {% if backend_admin_forms %}
-<h2>User Validation Setup</h2>
+<h2>User Verification Setup</h2>
+{% include form.instance.help_template %}
     {% for backend_admin_form in backend_admin_forms %}
-        <form method="POST" action="#" class="std_form">
+        <form method="POST" action="#">
         {% csrf_token %}
-        {{ backend_admin_form }}
-        <input type="hidden" name="id" value="{{backend_admin_form.instance.id}}" />
+        <span  class="std_form">{{ backend_admin_form }}</span>
+        <input type="hidden" name="id" value="{{backend_admin_form.instance.id}}"  />
         <input type="submit" name="backend_submit" value="Save User Verifier" id="auth_submit_{{backend_admin_form.instance.id}}" />
         <input type="submit" name="backend_delete" value="Delete" id="auth_delete_{{backend_admin_form.instance.id}}" />
         </form>
+        <br />
     {% endfor %}
 {% endif %}
 {% endblock %}
