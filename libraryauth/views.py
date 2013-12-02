@@ -209,9 +209,7 @@ def login_as_library(request, library_id):
     if request.user == library.owner:
         login_user(request, library.user)
             
-        return HttpResponseRedirect(reverse('library',args=[library.user]))
-    else:
-        return HttpResponseRedirect(reverse('library_admin',args=[library.user]))
+    return HttpResponseRedirect(reverse('library_admin',args=[library.id]))
 
 
 def login_user(request, user):

@@ -10,9 +10,7 @@
 
 {% block doccontent %}
 {% if library.pk %}
-<h2>Edit Library</h2>
-<ul><li> Go to <a href="{% url library library.user %}">{{ library }} Page</a></li>
-<li><a href="{% url library_login library.id %}">Log in</a> as the library user </li>
+<h2>Configure {{ library }}</h2>
 {% else %}
 <h2>Add a Library to Unglue.it</h2>
 {% endif %}
@@ -35,6 +33,23 @@
 	</div>    
 	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
 </form>
+{% if library.pk %}
+<h2>Settings for {{ library }}</h2>
+<ul class="terms">
+<li> Go to <a href="{% url library library.user %}">{{ library }} Page</a></li>
+{% ifequal request.user library.user %}
+<li> <i>You are logged in as the library user.</i> You can...</li>
+<li> ... edit the <a href="{% url supporter library.user %}#edit">Profile Settings</a> or ... </li>
+<li> ... <a href="{% url manage_account %}">configure</a> the library's account</li>
+{% else %}
+{% ifequal request.user library.owner %}
+<li> To set links and tagline, configure the account, and build book lists for {{ library }}, first <a href="{% url library_login library.id %}">click here to log in</a> as the library user </li>
+{% else %}
+<li> <i>{{ library.owner }}</i> is authorized to set links and tagline, configure the account, and build book lists for {{ library }}.</li>
+{% endifequal %}
+{% endifequal %}
+</ul>
+{% endif %}
 {% if backend_admin_forms %}
 <h2>User Verification Setup</h2>
 {% include form.instance.help_template %}
