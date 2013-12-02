@@ -64,18 +64,19 @@ class Authenticator:
             self.library=library
         else:
             raise Exception
-        try:
-            form_class = getattr(backends, self.library.backend + '_form')
+        self.backend_class=getattr(backends,self.library.backend)
+        form_class = self.backend_class.form
+        if form_class:
             self.form = form_class(request, library, *args, **kwargs)
-        except AttributeError:
+        else:
             self.form = None
         
     def process(self, success_url, deny_url):
         logger.info('authenticator for %s at %s.'%(self.request.user, self.library))
         if self.library.has_user(self.request.user):
             return HttpResponseRedirect(success_url)
-        backend_test= getattr(backends, self.library.backend + '_authenticate')
-        if backend_test(self.request, self.library):
+        
+        if self.backend_class().authenticate(self.request, self.library):
             if self.request.user.is_authenticated():
                 self.library.add_user(self.request.user)
                 return HttpResponseRedirect(success_url)
@@ -83,12 +84,10 @@ class Authenticator:
                 return superlogin(self.request, extra_context={'library':self.library}, template_name='libraryauth/library_login.html')
             
         else:
-            backend_authenticator= getattr(backends, self.library.backend + '_authenticator')
-            return backend_authenticator().process(self, success_url, deny_url)
+            return self.backend_class.authenticator().process(success_url, deny_url)
             
     def allowed(self):
-        backend_test= getattr(backends, self.library.backend + '_authenticate')
-        return  backend_test(self.request, self.library)
+        return  self.backend_class.authenticate(self.request, self.library)
 
 class BaseLibraryView:
     model = Library 
@@ -124,8 +123,8 @@ class UpdateLibraryView(BaseLibraryView, UpdateView):
 
     def get_backend_form_class(self):
         if self.object and self.object.backend:
-            backend_admin_form_name = '%s_admin_form' % self.object.backend
-            return getattr(backends,backend_admin_form_name)
+            backend_class=getattr(backends,self.object.backend)
+            return backend_class.admin_form
         else:
             return None
             
