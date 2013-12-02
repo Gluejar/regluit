@@ -8,7 +8,12 @@
 {% endblock %}
 
 {% block doccontent %}
-
+<h2>Admin Links</h2>
+<ul>
+<li><a href="/admin/">Admin</a></li>
+<li><a href="{% url new_libraries %}">Libraries Needing Approval</a></li>
+<li><a href="{% url press_submitterator %}">Press Coverage</a></li>
+</ul>
 <h2>Rights Holder Admin</h2>
 
 <h3> Create New Rights Holder </h3>
