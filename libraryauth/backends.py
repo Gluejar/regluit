@@ -39,7 +39,7 @@ class ip:
             return False
      
     class authenticator():
-        def process(authenticator, success_url, deny_url):
+        def process(self, caller, success_url, deny_url):
             return HttpResponseRedirect(deny_url)
     
     form = None
@@ -54,17 +54,17 @@ class cardnum:
         return False
 
     class authenticator():
-        def process(self, authenticator, success_url, deny_url):
-            if authenticator.form and authenticator.request.method=='POST' and authenticator.form.is_valid():
-                library = authenticator.form.cleaned_data['library']
-                library.credential = authenticator.form.cleaned_data['credential']
-                logger.info('%s authenticated for %s from %s'%(authenticator.request.user, authenticator.library, authenticator.form.cleaned_data.get('number')))
-                library.add_user(authenticator.form.cleaned_data['user'])
+        def process(self, caller, success_url, deny_url):
+            if caller.form and caller.request.method=='POST' and caller.form.is_valid():
+                library = caller.form.cleaned_data['library']
+                library.credential = caller.form.cleaned_data['credential']
+                logger.info('%s authenticated for %s from %s'%(caller.request.user, caller.library, caller.form.cleaned_data.get('number')))
+                library.add_user(caller.form.cleaned_data['user'])
                 return HttpResponseRedirect(success_url)
             else:
-                return render(authenticator.request, 'libraryauth/library.html', {
-                        'library':authenticator.library,
-                        'authenticator':authenticator,
+                return render(caller.request, 'libraryauth/library.html', {
+                        'library':caller.library,
+                        'authenticator':caller,
                         })
 
     class admin_form(forms.ModelForm):
@@ -113,7 +113,7 @@ class email:
         return False
      
     class authenticator():
-        def process(authenticator, success_url, deny_url):
+        def process(self, caller, success_url, deny_url):
             return HttpResponseRedirect(deny_url)
     form = None
     class admin_form(forms.ModelForm):

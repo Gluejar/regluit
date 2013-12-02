@@ -67,7 +67,7 @@ class Authenticator:
         self.backend_class=getattr(backends,self.library.backend)
         form_class = self.backend_class.form
         if form_class:
-            self.form = form_class(request, library, *args, **kwargs)
+            self.form = form_class(request, self.library, *args, **kwargs)
         else:
             self.form = None
         
@@ -84,7 +84,7 @@ class Authenticator:
                 return superlogin(self.request, extra_context={'library':self.library}, template_name='libraryauth/library_login.html')
             
         else:
-            return self.backend_class.authenticator().process(success_url, deny_url)
+            return self.backend_class.authenticator().process(self, success_url, deny_url)
             
     def allowed(self):
         return  self.backend_class.authenticate(self.request, self.library)
