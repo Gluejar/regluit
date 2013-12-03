@@ -25,8 +25,8 @@ function put_un_in_cookie(){
 
 <div>
 <div class="google_signup">
-	<h3>Or use an account you already have:</h3> 
-	<a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"><div>Sign in with Google</div></a>
+	<h3>...or</h3>
+	<a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png"><div>Sign up using Google</div></a>
 </div>
 {% else %}
 <div>
