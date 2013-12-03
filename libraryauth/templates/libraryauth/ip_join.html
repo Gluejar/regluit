@@ -1,6 +1,6 @@
 <br />
 {% if authenticator.allowed %}
-<a href="{% url join_library authenticator.library %}?next={% url join_library authenticator.library %}" class="fakeinput">Make this my Library</a>
+<a href="{% url join_library authenticator.library.id %}?next={% url join_library authenticator.library.id %}" class="fakeinput">Make this my Library</a>
 {% else %}
 You can't join {{ authenticator.library }} at your current location.
 {% endif %}

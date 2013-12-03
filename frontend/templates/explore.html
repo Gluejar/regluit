@@ -11,7 +11,7 @@
                             {% if not request.user.is_anonymous %}
                                 <li class="first"><a href="/"><span>My Books</span></a></li>
                                 {% for library in request.user.profile.libraries %}
-                                    <li><a href="{% url library library %}"><span>{{ library }}</span></a></li>
+                                    <li><a href="{% url library library.user %}"><span>{{ library }}</span></a></li>
                                 {% endfor %}
                                 <li>
                             {% else %}
@@ -55,7 +55,7 @@
                                 </a></li>
                             {% endfor %}
                             {% if library %}
-                                <li class="first"><a href="{% url library_users library %}"><span>More from {{ library }}</span></a></li>
+                                <li class="first"><a href="{% url library_users library.id %}"><span>More from {{ library }}</span></a></li>
                             {% endif %}
                             </ul>
                         </li>

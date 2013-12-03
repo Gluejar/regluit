@@ -1,5 +1,5 @@
 <div class="p_form">To use {{ library }}...{{authenticator.form.non_field_errors}}<br />
-<form action="{% url join_library library %}#" method="POST" class="std_form " id="join_form">
+<form action="{% url join_library library.id %}#" method="POST" class="std_form " id="join_form">
     {% csrf_token %}
     {{ authenticator.form.credential.label_tag }}: {{ authenticator.form.credential }} 
     {% if authenticator.form.credential.errors %}
