@@ -63,7 +63,7 @@ function highlightTarget(targetdiv) {
                                     {% endif %}
                                 </span>
                             </div>
-
+                            {% if request.user.is_authenticated %}
                             {% if library.group in request.user.groups.all  %}
                                 <div class="user-block23">
                                     <i>{{ library }} is {{ request.user }}'s Library!</i>
@@ -100,6 +100,11 @@ function highlightTarget(targetdiv) {
                             {% else %}
                                 <div class="user-block24">
                                     {% include library.join_template %}
+                                </div>
+                            {% endif %}
+                            {% else %}
+                                <div class="user-block24">
+                                    <p> To join a library or borrow books, you'll need to <a href="{% url superlogin %}?next={% url library library.user %}">sign in</a> or <a href="{% url registration_register %}?next={% url library library.user %}">create an account</a>. </p>
                                 </div>
                             {% endif %}
 
