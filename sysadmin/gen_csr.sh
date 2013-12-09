@@ -1,12 +1,5 @@
 #!/bin/bash
-# gen_csr.sh - Generate CSR  for a host name.
-
-HOSTNAME="$1";
-
-if [ -z "${HOSTNAME}" ]; then
-echo "Usage : gen_csr.sh HOSTNAME";
-exit;
-fi
+# gen_csr.sh - Generate SSL Certificates for a host name.
 
 # Country Name (2 letter code) [GB]:.
 #  State or Province Name (full name) [Berkshire]:.
@@ -23,7 +16,7 @@ STATE="NJ";
 LOCALITY="Montclair";
 ORGNAME="Gluejar, Inc.";
 ORGUNIT="";
-CNAME=$HOSTNAME;
+CNAME="*.unglue.it";
 EMAIL="support@gluejar.com";
 PASSWORD="";
 OPTION_COMPANY_NAME="";
@@ -36,5 +29,5 @@ $ORGUNIT
 $CNAME
 $EMAIL
 $PASSWORD
-$OPTIONAL_COMPANY_NAME" | openssl req -new -key $HOSTNAME.key -out $HOSTNAME.csr
+$OPTIONAL_COMPANY_NAME" | openssl req -new -key server.key -out unglue.it.wildcard.csr
 
