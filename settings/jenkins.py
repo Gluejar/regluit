@@ -58,8 +58,8 @@ GOOGLE_OAUTH2_CLIENT_SECRET = ''
 GOOGLE_DISPLAY_NAME = 'unglue it!'
 
 # you'll need to register a GoogleBooks API key
-# https://code.google.com/apis/console
-GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
+# registered to rdhye@gluejar.com on 2013.12.10
+GOOGLE_BOOKS_API_KEY = 'AIzaSyC-nBaK90PIsovMRbswPYEKgA6cJfYSDmY'
 
 PAYPAL_USERNAME = ''
 PAYPAL_PASSWORD =  ''
