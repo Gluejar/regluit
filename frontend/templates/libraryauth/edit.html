@@ -13,6 +13,13 @@
 <h2>Configure {{ library }}</h2>
 {% else %}
 <h2>Add a Library to Unglue.it</h2>
+<p> By creating a library on Unglue.it, you'll be able to:</p>
+<ol>
+<li>Purchase "buy-to-unglue" ebook licenses for your library.</li>
+<li>Allow library users to borrow "buy-to-unglue" ebooks.</li>
+<li>Allow library users to purchase "buy-to-unglue" ebooks for your library.</li>
+<li>Manage lists of unglued and public domain ebooks for your users.</li>
+</ol>
 {% endif %}
 <p>{{ status }}</p>
 <form method="POST" action="#" class="std_form">
@@ -25,11 +32,12 @@
 		<p><b>Library Username</b>: {{ form.instance.user }}</p>
 		<p><b>Library Email</b>: {{ form.instance.user.email }}</p>
 		{% else %}
-		<p><b>Library Username</b>: {{ form.username.errors }}{{ form.username }} This will be the Unglue.it username for the library.</p>
+		<p><b>Library Username</b>: {{ form.username.errors }}{{ form.username }} This will be the Unglue.it username for the library. You'll be able to log in as the library to do things like setting links making book lists.</p>
 		<p><b>Library Email</b>: {{ form.email.errors }}{{ form.email }} The notification address for the library.</p>
 
 		{% endif %}
-		<p><b>Library Authentication Method</b>: {{ form.backend.errors }}{{ form.backend }}</p>
+		<p><b>Library User Verification Method</b>: {{ form.backend.errors }}{{ form.backend }}</p>
+		<p>You'll be able to configure user verification once you've added the library.</p>
 	</div>    
 	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
 </form>
@@ -69,4 +77,7 @@
         <br />
     {% endfor %}
 {% endif %}
+
+<h2>More info</h2>
+<ul><li><a href="{% url libraries %}">Unglue.it libraries</a></li></ul>
 {% endblock %}

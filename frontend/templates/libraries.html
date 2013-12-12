@@ -30,7 +30,7 @@ We’ve added "Buy-to-Unglue" campaigns to so that libraries can lend ebooks on 
 <p><strong>We need your help, though.</strong>  We can't unglue ebooks all by ourselves; we need lots of people to pitch in.  If you'd like to share free, unlimited, no-DRM, privacy-respecting ebooks with your patrons, here are some ways you can help:</p>
 
 <dl>
-<dt><a href="{% url registration_register %}?next={% request.get_full_path|urlencode }}">Sign up.</a> It's Free!</dt>
+<dt><a href="{% url registration_register %}?next={{ request.get_full_path|urlencode }}">Sign up.</a> It's Free!</dt>
 <dd>Starting an account, for yourself or your library, is free. Use it to help us distribute unglued and ungluing ebooks.   </dd>
 <dt>Become an Unglue.it participating library</dt>
 <dd><ol><li><a href="{% url library_create %}">Make your library page</a> on Unglue.it. It takes just a few minutes.  It's the first step towards becoming an Unglue.it participating library.</li>
