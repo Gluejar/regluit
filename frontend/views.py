@@ -916,8 +916,8 @@ class MergeView(FormView):
             context['other_work']=other_work
         return render(self.request, self.template_name, context)
 
-class DonationView(TemplateView):
-    template_name = "donation.html"
+class GiftView(TemplateView):
+    template_name = "gift.html"
     
     def get(self, request, *args, **kwargs): 
         context = self.get_context_data()
@@ -1266,20 +1266,20 @@ class NonprofitCampaign(FormView):
         forward['amount']= int(amount)
         forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
         token=signing.dumps(forward)
-        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('donation_credit',kwargs={'token':token}))
+        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('gift_credit',kwargs={'token':token}))
 
-class DonationCredit(TemplateView):
-    template_name="donation_credit.html"
+class GiftCredit(TemplateView):
+    template_name="gift_credit.html"
 
     def get_context_data(self, **kwargs):
-        context = super(DonationCredit, self).get_context_data(**kwargs)
-        context['faqmenu']="donation"
+        context = super(GiftCredit, self).get_context_data(**kwargs)
+        context['faqmenu']="gift"
         context['nonprofit'] = settings.NONPROFIT
         try:
             envelope=signing.loads(kwargs['token'])
             context['envelope']=envelope
         except signing.BadSignature:
-            self.template_name="donation_error.html"
+            self.template_name="gift_error.html"
             return context
         try:
             work = models.Work.objects.get(id=envelope['work_id'])
@@ -1290,11 +1290,11 @@ class DonationCredit(TemplateView):
         try:
             user = User.objects.get(username=envelope['username'])
         except User.DoesNotExist:
-            self.template_name="donation_user_error.html"
+            self.template_name="gift_user_error.html"
             context['error']='user does not exist'
             return context
         if user != self.request.user:
-            self.template_name="donation_user_error.html"
+            self.template_name="gift_user_error.html"
             context['error']='wrong user logged in'
             return context
         try:

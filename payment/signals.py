@@ -33,7 +33,7 @@ def create_user_objects(sender, created, instance, **kwargs):
 post_save.connect(create_user_objects, sender=User)
 
 def handle_credit_balance(sender, amount=0, **kwargs):
-    notification.queue([sender.user], "pledge_donation_credit", {
+    notification.queue([sender.user], "pledge_gift_credit", {
             'user':sender.user,
             'amount':amount,
             'minus_amount':-amount

@@ -234,7 +234,7 @@ class Receiver(models.Model):
         return u"Receiver -- email: {0} status: {1} transaction: {2}".format(self.email, self.status, unicode(self.transaction))
 
 class CreditLog(models.Model):
-    # a write only record of Donation Credit Transactions
+    # a write only record of Gift Credit Transactions
     user = models.ForeignKey(User, null=True) 
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
@@ -312,7 +312,7 @@ class Credit(models.Model):
             return False
 
 class Sent(models.Model):
-    '''used by donation view to record donations it has sent'''
+    '''used by gift view to record gifts it has sent'''
     user = models.CharField(max_length=32, null=True)
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
