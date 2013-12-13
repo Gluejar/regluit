@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load librarylist %}
 {% block title %} Libraries {% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
@@ -33,6 +34,7 @@
 {% endblock %}
 
 {% block content %}
+{% librarylist %}
 <div id="main-container">
     <div class="js-main">
         <div id="js-leftcol">
