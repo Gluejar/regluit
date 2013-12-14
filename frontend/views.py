@@ -144,7 +144,8 @@ logger = logging.getLogger(__name__)
 def static_redirect_view(request, file_name, dir=""):
     return HttpResponseRedirect('/static/'+dir+"/"+file_name)
 
-def slideshow(max):
+def slideshow():
+    max = 8
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
     j = 0
@@ -155,9 +156,9 @@ def slideshow(max):
         for campaign in ending:
             worklist.append(campaign.work)
 
-        # then fill out the rest of the list with popular but inactive works
+        # then fill out the rest of the list with slide works
         remainder = max - count
-        remainder_works = models.Work.objects.filter(wishlists__user=recommended_user).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL')[:remainder]
+        remainder_works = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:remainder]
         worklist.extend(remainder_works)
     else:
         # if the active campaign list has more works than we can fit 
@@ -166,7 +167,7 @@ def slideshow(max):
             worklist.append(ending[j].work)
             j +=1
                 
-    return worklist
+    return (worklist[:4],worklist[4:8])
 
 def process_kindle_email(request):
     """
@@ -1428,16 +1429,11 @@ class FundCompleteView(TemplateView):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging', notify=True)
             
-        worklist = slideshow(8)
-        works = worklist[:4]
-        works2 = worklist[4:8]
-
         context["transaction"] = transaction
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
-        context["works"] = works
-        context["works2"] = works2   
+        context["slidelist"] = slideshow()
         context["site"] = Site.objects.get_current()
         
         return context        
@@ -1760,8 +1756,6 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name, extra_context={}):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
-    works = []
-    works2 = []
     works_unglued = []
     works_active = []
     works_wished = []
@@ -1781,6 +1775,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         # everything else goes in tab 3
         works_wished = works_on_wishlist.exclude(pk__in=works_active.values_list('pk', flat=True)).exclude(pk__in=works_unglued.values_list('pk', flat=True)).order_by('-num_wishes')
         
+        slidelist = []
         # badge counts
         backed = works_unglued.count()
         backing = works_active.count()
@@ -1790,11 +1785,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         backed = 0
         backing = 0
         wished = 0
-        
-        worklist = slideshow(8)
-        works = worklist[:4]
-        works2 = worklist[4:8]
-        
+        slidelist = slideshow()
     # default to showing the Active tab if there are active campaigns, else show Wishlist
     if backing > 0:
         activetab = "#2"
@@ -1847,8 +1838,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
             "works_unglued": works_unglued,
             "works_active": works_active,
             "works_wished": works_wished,
-            "works": works,
-            "works2": works2,
+            "slidelist": slidelist,
             "backed": backed,
             "backing": backing,
             "wished": wished,
