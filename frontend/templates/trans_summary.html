@@ -27,13 +27,13 @@
     {% ifequal transaction.host 'credit' %}
         Amount: ${{transaction.max_amount|intcomma}}.<br />
         This amount has been deducted from your Unglue.it credit balance.<br />
-        You have ${{request.user.credit.available}} of credit left.<br />
+        You have ${{request.user.credit.available|intcomma}} of credit left.<br />
     {% else %}
         Total: ${{transaction.max_amount|intcomma}}.<br />
         {% if transaction.max_amount > transaction.amount %}
             Your credit card has been charged ${{transaction.amount}}.<br />
             The rest has been deducted from your unglue.it credit balance.<br />
-            You have ${{request.user.credit.available}} of credit left.<br />
+            You have ${{request.user.credit.available|intcomma}} of credit left.<br />
         {% else %}
             This amount has been charged to your credit card.<br />
         {% endif %}
