@@ -1,5 +1,5 @@
 {% load humanize %}
-{% load libutils %}
+{% load libraryauthtags %}
 <div class="trans_summary">
 {% ifequal transaction.campaign.type 1 %}
     Your pledge: ${{transaction.amount|intcomma}}.<br />
