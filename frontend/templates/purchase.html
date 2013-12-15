@@ -157,7 +157,11 @@
 			<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
 			<input name="pledge" type="submit" value="Buy Now" id="pledgesubmit" class="loader-gif" />
 			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
-    	</form>    	
+    	{% if request.user.credit.available > 0 %}
+    	<div class="bigger" style="height:45px;clear:both"> You have an available gift credit of ${{ request.user.credit.available }} which will be applied to your purchase.</div>
+    	{% endif %}
+    	</form> 
+    	  	
     </div>
 </div>
 {% else %}

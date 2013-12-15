@@ -459,8 +459,7 @@ class PaymentManager( object ):
         transaction.create_receivers(receiver_list)
         
         # Mark as payment attempted so we will poll this periodically for status changes
-        transaction.date_payment = now()
-        transaction.save()
+        transaction.set_payment()
         
         p = transaction.get_payment_class().Execute(transaction)
         
@@ -636,15 +635,19 @@ class PaymentManager( object ):
                 
         # we might want to not allow for a return_url to be passed in but calculated
         # here because we have immediate access to the Transaction object.
-        
-        p = transaction.get_payment_class().Pay(transaction, amount=transaction.max_amount, return_url=return_url, paymentReason=paymentReason)
+        charge_amount = transaction.needed_amount
+        if transaction.credit_amount > 0 :
+            success = credit.pay_transaction(transaction, transaction.user, transaction.campaign.user_to_pay, transaction.credit_amount)
+            if not success:  #shouldn't happen
+                logger.error('could not use credit for transaction %s' % transaction.id)
+                charge_amount =transaction.max_amount
+        p = transaction.get_payment_class().Pay(transaction, amount=charge_amount, return_url=return_url, paymentReason=paymentReason)
        
         
         if p.success() and not p.error():
             transaction.preapproval_key = p.key()
             transaction.execution = EXECUTE_TYPE_INSTANT
-            transaction.date_executed = now()
-            transaction.save()
+            transaction.set_executed() # also does the save
             
             # it make sense for the payment processor library to calculate next_url when
             # user is redirected there.  But if no redirection is required, send user
@@ -703,15 +706,32 @@ class PaymentManager( object ):
         # does user have enough credit to transact now?
         if user.credit.available >= amount :
             # YES!
-            credit.pledge_transaction(t,user,amount)
-            return_path = "{0}?{1}".format(reverse('fund_complete'), 
+            return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urllib.urlencode({'tid':t.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
-            pledge_created.send(sender=self, transaction=t)
-            return t, return_url
-        else:
-            # send user to choose payment path
-            return t, reverse('fund', args=[t.id])
+            if campaign.is_pledge() :
+                success = credit.pledge_transaction(t,user,amount)
+                if success:
+                    pledge_created.send(sender=self, transaction=t)
+            else:
+                success = credit.pay_transaction(t,user,t.campaign.user_to_pay, amount)
+                if success:
+                    t.amount = amount
+                    t.host = PAYMENT_HOST_CREDIT
+                    t.execution = EXECUTE_TYPE_INSTANT
+                    t.date_executed = now()
+                    t.status = TRANSACTION_STATUS_COMPLETE
+                    t.save()
+                    transaction_charged.send(sender=self, transaction=t)
+            if success:
+                return t, return_url
+            else:
+                # shouldn't happen
+                logger.error('could not use credit for transaction %s' % t.id)
+            
+                
+        # send user to choose payment path
+        return t, reverse('fund', args=[t.id])
 
         
     def cancel_related_transaction(self, transaction, status=TRANSACTION_STATUS_ACTIVE, campaign=None):

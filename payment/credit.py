@@ -12,21 +12,32 @@ def pledge_transaction(t,user,amount):
     
     if t.amount and t.host == PAYMENT_HOST_CREDIT:
         #changing the pledge_transaction
-        user.credit.add_to_pledged(amount-t.amount)
+        success = user.credit.add_to_pledged(amount-t.amount)
     else:  
-        user.credit.add_to_pledged(amount)
-    t.max_amount=amount
-    t.set_credit_approved(amount)
+        success = user.credit.add_to_pledged(amount)
+    if success:
+        t.max_amount=amount
+        t.set_credit_approved(amount)
+    return success
 
 def credit_transaction(t,user,amount):
     '''user has new credit, use it to fund the transaction'''
     # first, credit the user's account
-    user.credit.add_to_balance(amount)
-    
-    # now pledge to the transaction
-    pledge_amount = t.max_amount if t.max_amount <= user.credit.available else amount
-    user.credit.add_to_pledged(pledge_amount)
-    t.set_credit_approved(pledge_amount)
+    success = user.credit.add_to_balance(amount)
+    if success:
+        # now pledge to the transaction
+        pledge_amount = t.max_amount if t.max_amount <= user.credit.available else amount
+        success = user.credit.add_to_pledged(pledge_amount)
+        if success:
+            t.set_credit_approved(pledge_amount)
+    return success
+
+def pay_transaction(t, user, to_user, amount):
+    '''user has credit, transfer it to rh account'''
+    success = user.credit.transfer_to(to_user , amount)
+    if success:
+        t.set_executed()
+    return success
 
 class Processor(baseprocessor.Processor):
     class CancelPreapproval(BasePaymentRequest):

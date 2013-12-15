@@ -1172,7 +1172,7 @@ class FundView(FormView):
             data = {}
         
         data.update(
-            {'preapproval_amount':self.transaction.max_amount,
+            {'preapproval_amount':self.transaction.needed_amount,
                 'username':self.request.user.username,
                 'work_id':self.transaction.campaign.work.id,
                 'title':self.transaction.campaign.work.title}
@@ -1186,15 +1186,16 @@ class FundView(FormView):
         context = super(FundView, self).get_context_data(**kwargs)
         context['modified'] = self.transaction.status==TRANSACTION_STATUS_MODIFIED
         context['preapproval_amount']=self.transaction.max_amount
-        context['needed'] = self.transaction.max_amount - self.request.user.credit.available
+        context['needed'] = self.transaction.needed_amount
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
         context['STRIPE_PK'] = stripelib.STRIPE_PK
         context['action'] = self.action
-        # note that get_form_kwargs() will already have been called once
-        donate_args=self.get_form_kwargs()
-        donate_args['data']['preapproval_amount']=context['needed']
-        context['donate_form'] = DonateForm(**donate_args)
+        if settings.NONPROFIT.is_on:
+            # note that get_form_kwargs() will already have been called once
+            donate_args=self.get_form_kwargs()
+            donate_args['data']['preapproval_amount']=self.transaction.needed_amount
+            context['donate_form'] = DonateForm(**donate_args)
         return context
     
     def post(self, request, *args, **kwargs):
@@ -1223,18 +1224,15 @@ class FundView(FormView):
                 return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
             
         self.transaction.host = settings.PAYMENT_PROCESSOR
-            
-        preapproval_amount = form.cleaned_data["preapproval_amount"]
         
         # with the Account in hand, now do the transaction
-        self.transaction.max_amount = preapproval_amount
+        return_url = "%s?tid=%s" % (reverse('pledge_complete'),self.transaction.id)
         if self.action == 'pledge':
-            t, url = p.authorize(self.transaction)
+            t, url = p.authorize(self.transaction, return_url =  return_url )
         else:
-            t, url = p.charge(self.transaction, return_url=reverse('download', kwargs={'work_id': self.transaction.campaign.work.id}))
-        logger.info("t, url: {0} {1}".format(t, url))
+            t, url = p.charge(self.transaction, return_url = return_url )
         
-        # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
+        # redirecting user to pledge_complete/payment_complete on successful preapproval (in the case of stripe)
         if url is not None:
             return HttpResponseRedirect(url)
         else:
