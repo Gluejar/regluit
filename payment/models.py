@@ -165,6 +165,10 @@ class Transaction(models.Model):
     def set_executed(self):
         self.date_executed = now()
         self.save()
+
+    def set_payment(self):      
+        self.date_payment = now()
+        self.save() 
     
     def set_credit_approved(self, amount):
         self.amount=amount
