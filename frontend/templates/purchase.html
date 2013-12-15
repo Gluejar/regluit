@@ -76,7 +76,7 @@
     	         <div class="pledge_amount">This ebook can be borrowed from your library.</div>
     	         <div><a href="{% url borrow work.id %}" class="fakeinput">Borrow Now</a> </div>
     	         <div style="height:75px;"></div>
-    	    {% endif %}
+    	    {% else %}
             {% if next_acq %}
                 <div class="pledge_amount">This ebook can be reserved from your library.</div>
                 {% if on_hold %}
@@ -94,6 +94,7 @@
                 <div style="height:30px;"></div>
                 <div class="bigger" style="height:30px;clear:both;margin:20px">If you'd rather not wait, consider one of the purchase options.</div>
             {% endif %}
+    	    {% endif %}
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	
