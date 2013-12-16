@@ -13,6 +13,13 @@
 <h2>Configure {{ library }}</h2>
 {% else %}
 <h2>Add a Library to Unglue.it</h2>
+<p> By creating a library on Unglue.it, you'll be able to:</p>
+<ol>
+<li>Purchase "buy-to-unglue" ebook licenses for your library.</li>
+<li>Allow library users to borrow "buy-to-unglue" ebooks.</li>
+<li>Allow library users to purchase "buy-to-unglue" ebooks for your library.</li>
+<li>Manage lists of unglued and public domain ebooks for your users.</li>
+</ol>
 {% endif %}
 <p>{{ status }}</p>
 <form method="POST" action="#" class="std_form">
@@ -25,11 +32,12 @@
 		<p><b>Library Username</b>: {{ form.instance.user }}</p>
 		<p><b>Library Email</b>: {{ form.instance.user.email }}</p>
 		{% else %}
-		<p><b>Library Username</b>: {{ form.username.errors }}{{ form.username }} This will be the Unglue.it username for the library.</p>
+		<p><b>Library Username</b>: {{ form.username.errors }}{{ form.username }} This will be the Unglue.it username for the library. You ( <i>{{ request.user }}</i> ) will be able to log in as the library to do things like setting links making book lists.</p>
 		<p><b>Library Email</b>: {{ form.email.errors }}{{ form.email }} The notification address for the library.</p>
 
 		{% endif %}
-		<p><b>Library Authentication Method</b>: {{ form.backend.errors }}{{ form.backend }}</p>
+		<p><b>Library User Verification Method</b>: {{ form.backend.errors }}{{ form.backend }}</p>
+		<p>You'll be able to configure user verification once you've added the library.</p>
 	</div>    
 	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
 </form>
@@ -41,14 +49,15 @@
     {% else %}
         <li> This library has not yet been approved by Unglue.it staff. Please make sure that a <a href="https://www.docracy.com/0_uyw26qv9c/unglue-it-library-license-agreement">library agreement</a> has been executed.</li>
     {% endif %}
-    <li> Go to <a href="{% url library library.user %}">{{ library }} Page</a></li>
+    <li> Go to <a href="{% url library library.user %}">{{ library }}'s page</a></li>
+    <li> Go to <a href="{% url supporter library.user %}"><i>{{ library.user }}</i>'s user page</a></li>
     {% ifequal request.user library.user %}
-        <li> <i>You are logged in as the library user.</i> You can...</li>
+        <li> <i>You are logged in as the library user ( {{ library.user }} ).</i> You can...</li>
         <li> ... edit the <a href="{% url supporter library.user %}#edit">Profile Settings</a> or ... </li>
         <li> ... <a href="{% url manage_account %}">configure</a> the library's account</li>
     {% else %}
         {% ifequal request.user library.owner %}
-            <li> To set links and tagline, configure the account, and build book lists for {{ library }}, first <a href="{% url library_login library.id %}">click here to log in</a> as the library user </li>
+            <li> To set links and tagline, configure the account, and build book lists for {{ library }}, first <br /> <br /><a class="fakeinput" href="{% url library_login library.id %}">log in as {{ library.user }}</a></li>
         {% else %}
             <li> <i>{{ library.owner }}</i> is authorized to set links and tagline, configure the account, and build book lists for {{ library }}.</li>
         {% endifequal %}
@@ -69,4 +78,7 @@
         <br />
     {% endfor %}
 {% endif %}
+
+<h2>More info</h2>
+<ul><li><a href="{% url libraries %}">Unglue.it libraries</a></li></ul>
 {% endblock %}

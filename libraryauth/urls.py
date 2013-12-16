@@ -15,12 +15,12 @@ urlpatterns = patterns(
     url(r"^libraryauth/create/$", login_required(views.CreateLibraryView.as_view()),  name="library_create"),
     url(r"^libraryauth/list/$", direct_to_template, {
             'template':'libraryauth/list.html', 
-            'extra_context':{'libraries':models.Library.objects.filter(approved=True).order_by('name'),
-        }}, name="library_list"),
+            'extra_context':{'libraries_to_show':'approved'}}, 
+            name="library_list"),
     url(r"^libraryauth/unapproved/$", direct_to_template, {
             'template':'libraryauth/list.html', 
-            'extra_context':{'libraries':models.Library.objects.filter(approved=False).order_by('name'),
-        }}, name="new_libraries"),
+            'extra_context':{'libraries_to_show':'new'}}, 
+            name="new_libraries"),
     url(r'^accounts/register/$', CustomRegistrationView.as_view(), name='registration_register'),
     url(r'^accounts/superlogin/$', views.superlogin, name='superlogin'),
     url(r"^accounts/superlogin/welcome/$", direct_to_template, 
