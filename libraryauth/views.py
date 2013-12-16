@@ -227,6 +227,20 @@ def login_user(request, user):
                 break
     if hasattr(user, 'backend'):
         return login_to_user(request, user)
-        
+
+robot_qs = {
+            'user',
+            'user/register',
+            'node/add',
+            }  
+            
 class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormNoDisposableEmail
+    def form_valid(self, request, form):
+        q =  request.session.get('q', False)
+        if q and q in robot_qs:
+            return self.render_to_response({'form':form})
+        return super(CustomRegistrationView,self).form_valid(request, form)
+        
+    
+    
