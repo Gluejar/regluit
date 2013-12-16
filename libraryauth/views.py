@@ -8,10 +8,10 @@ from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView, CreateView, UpdateView, SingleObjectMixin
+from registration.backends.default.views import RegistrationView
 from . import backends
-
 from .models import Library
-from .forms import AuthForm, LibraryForm, NewLibraryForm
+from .forms import AuthForm, LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +51,7 @@ def superlogin(request, extra_context=None, **kwargs):
     if request.GET.has_key("add"):
         request.session["add_wishlist"]=request.GET["add"]
     return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
+
 
 class Authenticator:
     request=None
@@ -226,3 +227,6 @@ def login_user(request, user):
                 break
     if hasattr(user, 'backend'):
         return login_to_user(request, user)
+        
+class CustomRegistrationView(RegistrationView):
+    form_class = RegistrationFormNoDisposableEmail
