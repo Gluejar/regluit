@@ -8,13 +8,13 @@
 {% block comments_graphical %}
 {% ifequal transaction.host 'credit' %}
     Your Unglue.it transaction has completed and ${{transaction.max_amount|intcomma}} has been deducted from your Unglue.it credit balance.
-    You have ${{request.user.credit.available|intcomma}} of credit left.
+    You have ${{transaction.user.credit.available|default:"0"}} of credit left.
 {% else %}
     {% if transaction.max_amount > transaction.amount %}
     Your transaction for ${{transaction.max_amount|intcomma}} has completed.
         Your credit card has been charged ${{transaction.amount}} and the
          rest has been deducted from your unglue.it credit balance. 
-        You have ${{request.user.credit.available|intcomma}} of credit left.
+        You have ${{transaction.user.credit.available|intcomma}} of credit left.
     {% else %}
         Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|intcomma }}.
     {% endif %}
