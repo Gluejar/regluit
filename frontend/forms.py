@@ -426,7 +426,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                 
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial',
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial', "do_watermark"
             widgets = { 
                     'deadline': get_widget_class((SelectDateWidget,forms.HiddenInput)), 
                 }
