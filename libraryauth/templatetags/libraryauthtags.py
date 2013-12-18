@@ -1,6 +1,21 @@
-from django import template
-from .. import models 
-register = template.Library()
+import unicodedata
+
+from django.template.base import Library
+from .. import models
+
+register = Library()
+
+@register.filter()
+def libname(value):
+    """
+    returns library name  .
+    """
+    try:
+        vl = long( value )
+        lib = models.Library.objects.get(pk=vl)
+        return lib.__unicode__()
+    except models.Library.DoesNotExist:
+        return value
 
 @register.simple_tag(takes_context=True)
 def librarylist(context):

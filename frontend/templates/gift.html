@@ -1,7 +1,7 @@
 {% extends "basedocumentation.html" %}
 {% load humanize %}
 
-{% block title %}Donations{% endblock %}
+{% block title %}Gifts{% endblock %}
 
 {% block extra_extra_head %}
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
@@ -12,24 +12,24 @@
 {% endblock %}
 
 {% block doccontent %}
-<h2>Donation Credits</h2>
+<h2>gift Credits</h2>
 <p>
-You have a balance of {{ user.credit.balance }} donation credits. <br />
-You have pledged {{ user.credit.pledged }} donation credits to ungluing campaigns.<br />
-You have {{ user.credit.available }} donation credits available to pledge or transfer.<br />
+You have a balance of {{ user.credit.balance }} gift credits. <br />
+You have pledged {{ user.credit.pledged }} gift credits to ungluing campaigns.<br />
+You have {{ user.credit.available }} gift credits available to pledge or transfer.<br />
 </p>
 <div class="clearfix">
-<h2>Donation Credit Transfers</h2>
+<h2>Gift Credit Transfers</h2>
 {% if transfer_message %}
 <p>{{ transfer_message }}
 {% if transfer_amount %}
 <br /> Recipient: <a href="{% url supporter recipient %}">{{ recipient }}</a>
-<br /> Amount: {{ transfer_amount }} donation credits
+<br /> Amount: {{ transfer_amount }} gift credits
 {% endif %}
 </p>
 {% endif %}
 <p>
-You may transfer up to {{ user.credit.available }} donation credits to another Unglue.it user.<br />
+You may transfer up to {{ user.credit.available }} gift credits to another Unglue.it user.<br />
 </p>
 <form action="#" method="POST">
 	{% csrf_token %}
@@ -38,7 +38,7 @@ You may transfer up to {{ user.credit.available }} donation credits to another U
 </form>
 </div>
 <div class="clearfix">
-<h2>About Donation Credits</h2>
+<h2>About Gift Credits</h2>
 {% if nonprofit.is_on %}
     <p>Unglue.it uses donation credits to cooperate with a non-profit charity, {{ nonprofit.name }} in the ungluing of books. When you make a donation to {{ nonprofit.name }}, you can get credits for your donation. Then you can direct how {{ nonprofit.name }} uses your donation in support of ungluing campaigns. You can also transfer your credits to other ungluers. To make a donation, and receive credits, click the button!
     </p>
@@ -53,7 +53,7 @@ You may transfer up to {{ user.credit.available }} donation credits to another U
 	    </div>
 </div>    
 {% else %}
-    <p>Donation credits are not turned on yet.</p>
+    <p>Gift credits are not turned on yet.</p>
 {% endif %}
 {% endblock %}
 

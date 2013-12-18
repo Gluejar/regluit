@@ -904,6 +904,13 @@ class Campaign(models.Model):
             self.make_unglued_ebf('mobi', watermarked)
             return True
         return False
+    
+    def is_pledge(self):
+        return  self.type==REWARDS
+    
+    @property   
+    def user_to_pay(self):
+        return self.rh.owner
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue

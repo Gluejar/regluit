@@ -1,6 +1,5 @@
 {% extends "basepledge.html" %}
 {% load humanize %}
-
 {% block title %}Pledge Completed{% endblock %}
 
 {% block extra_extra_head %}
@@ -28,9 +27,15 @@
 <div class="clearfix">
 
     <h2 class="thank-you">Thank you!</h2>
-    
-	<p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|intcomma }} to <I><a href="{% url work work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+    {% ifequal campaign.type 1 %}
+	    <p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|intcomma }} to <I><a href="{% url work work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+    {% endifequal %}
+    {% ifequal campaign.type 2 %}
+	    <p class="pledge_complete">You've just paid ${{ transaction.amount|intcomma }} for a copy of <I><a href="{% url work work.id %}">{{ work.title }}</a></I>.  Its ungluing date is now <i>{{ campaign.cc_date }}</i>. Thanks for helping to make that day come sooner!</p>
+         <div><a href="{% url download work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
+         <div style="height:75px;"></div>
 
+    {% endifequal %}
 	<div class="modify_notification clearfix">
 	{% include "trans_summary.html" %}
 	</div>
@@ -40,7 +45,7 @@
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
 	<ul class="social menu pledge">
 		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work.id|urlencode:"" %}&amp;text=I%20just%20pledged%20to%20unglue%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work.id|urlencode:"" %}&amp;text=I%20just%20supported%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
 		<a href="{% url emailshare 'pledge' %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>
 		<a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
 	</ul>
@@ -57,9 +62,9 @@
 
 <div id="js-maincontainer-bot-block">
 	<div id="js-search">
-		<label>What book would you give to the world? </label>
+		<label>What book should we give to the world? </label>
 			<form action="{% url search %}" method="get">
-				<input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
+				<input type="text" id="watermarkempty" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
 				<input type="submit" class="greenbutton" value="Search">
 			</form>
 	</div>

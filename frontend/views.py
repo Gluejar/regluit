@@ -144,7 +144,8 @@ logger = logging.getLogger(__name__)
 def static_redirect_view(request, file_name, dir=""):
     return HttpResponseRedirect('/static/'+dir+"/"+file_name)
 
-def slideshow(max):
+def slideshow():
+    max = 8
     ending = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
     count = ending.count()
     j = 0
@@ -155,9 +156,9 @@ def slideshow(max):
         for campaign in ending:
             worklist.append(campaign.work)
 
-        # then fill out the rest of the list with popular but inactive works
+        # then fill out the rest of the list with slide works
         remainder = max - count
-        remainder_works = models.Work.objects.filter(wishlists__user=recommended_user).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL')[:remainder]
+        remainder_works = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:remainder]
         worklist.extend(remainder_works)
     else:
         # if the active campaign list has more works than we can fit 
@@ -166,7 +167,7 @@ def slideshow(max):
             worklist.append(ending[j].work)
             j +=1
                 
-    return worklist
+    return (worklist[:4],worklist[4:8])
 
 def process_kindle_email(request):
     """
@@ -916,8 +917,8 @@ class MergeView(FormView):
             context['other_work']=other_work
         return render(self.request, self.template_name, context)
 
-class DonationView(TemplateView):
-    template_name = "donation.html"
+class GiftView(TemplateView):
+    template_name = "gift.html"
     
     def get(self, request, *args, **kwargs): 
         context = self.get_context_data()
@@ -1171,7 +1172,7 @@ class FundView(FormView):
             data = {}
         
         data.update(
-            {'preapproval_amount':self.transaction.max_amount,
+            {'preapproval_amount':self.transaction.needed_amount,
                 'username':self.request.user.username,
                 'work_id':self.transaction.campaign.work.id,
                 'title':self.transaction.campaign.work.title}
@@ -1185,15 +1186,16 @@ class FundView(FormView):
         context = super(FundView, self).get_context_data(**kwargs)
         context['modified'] = self.transaction.status==TRANSACTION_STATUS_MODIFIED
         context['preapproval_amount']=self.transaction.max_amount
-        context['needed'] = self.transaction.max_amount - self.request.user.credit.available
+        context['needed'] = self.transaction.needed_amount
         context['transaction']=self.transaction
         context['nonprofit'] = settings.NONPROFIT
         context['STRIPE_PK'] = stripelib.STRIPE_PK
         context['action'] = self.action
-        # note that get_form_kwargs() will already have been called once
-        donate_args=self.get_form_kwargs()
-        donate_args['data']['preapproval_amount']=context['needed']
-        context['donate_form'] = DonateForm(**donate_args)
+        if settings.NONPROFIT.is_on:
+            # note that get_form_kwargs() will already have been called once
+            donate_args=self.get_form_kwargs()
+            donate_args['data']['preapproval_amount']=self.transaction.needed_amount
+            context['donate_form'] = DonateForm(**donate_args)
         return context
     
     def post(self, request, *args, **kwargs):
@@ -1222,18 +1224,15 @@ class FundView(FormView):
                 return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
             
         self.transaction.host = settings.PAYMENT_PROCESSOR
-            
-        preapproval_amount = form.cleaned_data["preapproval_amount"]
         
         # with the Account in hand, now do the transaction
-        self.transaction.max_amount = preapproval_amount
+        return_url = "%s?tid=%s" % (reverse('pledge_complete'),self.transaction.id)
         if self.action == 'pledge':
-            t, url = p.authorize(self.transaction)
+            t, url = p.authorize(self.transaction, return_url =  return_url )
         else:
-            t, url = p.charge(self.transaction, return_url=reverse('download', kwargs={'work_id': self.transaction.campaign.work.id}))
-        logger.info("t, url: {0} {1}".format(t, url))
+            t, url = p.charge(self.transaction, return_url = return_url )
         
-        # redirecting user to pledge_complete on successful preapproval (in the case of stripe)
+        # redirecting user to pledge_complete/payment_complete on successful preapproval (in the case of stripe)
         if url is not None:
             return HttpResponseRedirect(url)
         else:
@@ -1266,20 +1265,20 @@ class NonprofitCampaign(FormView):
         forward['amount']= int(amount)
         forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
         token=signing.dumps(forward)
-        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('donation_credit',kwargs={'token':token}))
+        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('gift_credit',kwargs={'token':token}))
 
-class DonationCredit(TemplateView):
-    template_name="donation_credit.html"
+class GiftCredit(TemplateView):
+    template_name="gift_credit.html"
 
     def get_context_data(self, **kwargs):
-        context = super(DonationCredit, self).get_context_data(**kwargs)
-        context['faqmenu']="donation"
+        context = super(GiftCredit, self).get_context_data(**kwargs)
+        context['faqmenu']="gift"
         context['nonprofit'] = settings.NONPROFIT
         try:
             envelope=signing.loads(kwargs['token'])
             context['envelope']=envelope
         except signing.BadSignature:
-            self.template_name="donation_error.html"
+            self.template_name="gift_error.html"
             return context
         try:
             work = models.Work.objects.get(id=envelope['work_id'])
@@ -1290,11 +1289,11 @@ class DonationCredit(TemplateView):
         try:
             user = User.objects.get(username=envelope['username'])
         except User.DoesNotExist:
-            self.template_name="donation_user_error.html"
+            self.template_name="gift_user_error.html"
             context['error']='user does not exist'
             return context
         if user != self.request.user:
-            self.template_name="donation_user_error.html"
+            self.template_name="gift_user_error.html"
             context['error']='wrong user logged in'
             return context
         try:
@@ -1428,16 +1427,11 @@ class FundCompleteView(TemplateView):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging', notify=True)
             
-        worklist = slideshow(8)
-        works = worklist[:4]
-        works2 = worklist[4:8]
-
         context["transaction"] = transaction
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
-        context["works"] = works
-        context["works2"] = works2   
+        context["slidelist"] = slideshow()
         context["site"] = Site.objects.get_current()
         
         return context        
@@ -1760,8 +1754,6 @@ def campaign_admin(request):
 def supporter(request, supporter_username, template_name, extra_context={}):
     supporter = get_object_or_404(User, username=supporter_username)
     wishlist = supporter.wishlist
-    works = []
-    works2 = []
     works_unglued = []
     works_active = []
     works_wished = []
@@ -1781,6 +1773,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         # everything else goes in tab 3
         works_wished = works_on_wishlist.exclude(pk__in=works_active.values_list('pk', flat=True)).exclude(pk__in=works_unglued.values_list('pk', flat=True)).order_by('-num_wishes')
         
+        slidelist = []
         # badge counts
         backed = works_unglued.count()
         backing = works_active.count()
@@ -1790,11 +1783,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         backed = 0
         backing = 0
         wished = 0
-        
-        worklist = slideshow(8)
-        works = worklist[:4]
-        works2 = worklist[4:8]
-        
+        slidelist = slideshow()
     # default to showing the Active tab if there are active campaigns, else show Wishlist
     if backing > 0:
         activetab = "#2"
@@ -1847,8 +1836,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
             "works_unglued": works_unglued,
             "works_active": works_active,
             "works_wished": works_wished,
-            "works": works,
-            "works2": works2,
+            "slidelist": slidelist,
             "backed": backed,
             "backing": backing,
             "wished": wished,

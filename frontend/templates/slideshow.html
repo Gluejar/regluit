@@ -1,9 +1,9 @@
-<h3><span>{% if faqmenu %}You might also like...{% else %}Our most-loved books{% endif %}</span></h3>
+<h3><span>Books That want to be free...</span></h3>
 <div class="jsmod-content">
 	<div id="js-slideshow">
 		<div class="slides_container">
 			<div class="slide-page slide-page1">
-				{% for work in works %}
+				{% for work in slidelist.0 %}
 				{% with work.googlebooks_id as googlebooks_id %}					
 				<div class="spacer">
 					{% include "book_panel.html" %}
@@ -12,7 +12,7 @@
 				{% endfor %}
 			</div>
 			<div class="slide-page slide-page2">
-				{% for work in works2 %}
+				{% for work in slidelist.1 %}
 				{% with work.googlebooks_id as googlebooks_id %}					
 				<div class="spacer">
 					{% include "book_panel.html" %}

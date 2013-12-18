@@ -85,8 +85,8 @@ $j(document).ready(function() {
                 <ul>
                     <li>Donate to our partner nonprofit, {{ nonprofit.name }}</li>
                     <li>Pay immediately</li>
-                    <li>If the campaign succeeds, your donation will support it</li>
-                    <li>If not, your donation will support {{ nonprofit.name }}</li>
+                    <li>If the campaign succeeds, your gift will support it</li>
+                    <li>If not, your gift will support {{ nonprofit.name }}</li>
                     <li><a href="#">Learn more</a></li>
                 </ul>
             </div>
@@ -165,7 +165,7 @@ $j(document).ready(function() {
                     </div>
     
                     <div class="payment-errors"></div>
-                    <input id="cc_submit" type="submit" class="submit-button loader-gif" value="Complete Pledge" />
+                    <input id="cc_submit" type="submit" class="submit-button loader-gif" value="Complete {{ action|capfirst }}" />
     
                 </form>
             </div>
