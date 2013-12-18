@@ -1907,6 +1907,7 @@ class ManageAccount(FormView):
 
 def search(request):
     q = request.GET.get('q', '')
+    request.session['q']=q
     page = int(request.GET.get('page', 1))
     results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
     

@@ -26,7 +26,7 @@ django-maintenancemode==0.10
 django-nose-selenium==0.7.3
 #django-notification==0.2
 git+git://github.com/aladagemre/django-notification.git@2927346f4c513a217ac8ad076e494dd1adbf70e1
-django-registration==0.8
+django-registration==1.0
 django-selectable==0.7.0
 django-smtp-ssl==1.0
 django-social-auth==0.7.20

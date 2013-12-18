@@ -2,7 +2,8 @@ from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.views.generic.simple import direct_to_template
 from django.contrib.auth.decorators import login_required
-from . import views, models
+from . import views, models, forms
+from .views import superlogin, CustomRegistrationView
 
 urlpatterns = patterns(
     "",
@@ -20,5 +21,28 @@ urlpatterns = patterns(
             'template':'libraryauth/list.html', 
             'extra_context':{'libraries_to_show':'new'}}, 
             name="new_libraries"),
+    url(r'^accounts/register/$', CustomRegistrationView.as_view(), name='registration_register'),
     url(r'^accounts/superlogin/$', views.superlogin, name='superlogin'),
-    )
+    url(r"^accounts/superlogin/welcome/$", direct_to_template, 
+        {'template': 'registration/welcome.html',
+            'extra_context': {'suppress_search_box': True,} 
+        }), 
+    url(r'^accounts/login/pledge/$',superlogin,
+          {'template_name': 'registration/from_pledge.html'}),
+    url(r'^accounts/login/purchase/$',superlogin,
+          {'template_name': 'registration/from_purchase.html'}),
+    url(r'^accounts/login/add/$',superlogin,
+          {'template_name': 'registration/from_add.html'}),
+    url(r'^accounts/activate/complete/$',superlogin,
+          {'template_name': 'registration/activation_complete.html'}),
+    url(r'^accounts/login-error/$',superlogin,
+          {'template_name': 'registration/from_error.html'}),
+    url(r'^accounts/edit/$', 'regluit.frontend.views.edit_user'),
+    url(r"^accounts/login/welcome/$", direct_to_template, {
+            'template': 'registration/welcome.html',
+            'extra_context': {'suppress_search_box': True,} 
+        }), 
+    url(r'^socialauth/', include('social_auth.urls')),
+    url('accounts/', include('email_change.urls')),
+    url(r'^accounts/', include('registration.backends.default.urls')),
+)

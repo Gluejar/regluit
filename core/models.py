@@ -1686,6 +1686,9 @@ class UserProfile(models.Model):
      
     @property
     def on_ml(self):
+        if "@example.org" in self.user.email:
+            # use @example.org email addresses for testing!
+            return False
         try:
             return settings.MAILCHIMP_NEWS_ID in pm.listsForEmail(email_address=self.user.email)
         except MailChimpException, e:
@@ -1707,6 +1710,9 @@ class UserProfile(models.Model):
             return False
 
     def ml_unsubscribe(self):
+        if "@example.org" in self.user.email:
+            # use @example.org email addresses for testing!
+            return True
         try:
             return pm.listUnsubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email)
         except Exception, e:
