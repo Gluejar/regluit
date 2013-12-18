@@ -314,16 +314,17 @@ class Acq(models.Model):
         if self.watermarked == None or self.watermarked.expired:
             if self.on_reserve:
                 self.borrow(self.user)
+            do_watermark= self.work.last_campaign().do_watermark
             params={
-                'customeremailaddress': self.user.email,
-                'customername': self.user.username,
+                'customeremailaddress': self.user.email if do_watermark else '',
+                'customername': self.user.username if do_watermark else 'an ungluer',
                 'languagecode':'1033',
                 'expirydays': 1,
                 'downloadlimit': 7,
                 'exlibris':0,
-                'chapterfooter':1,
+                'chapterfooter': 1 if do_watermark else 0,
                 'disclaimer':0,
-                'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id),
+                'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id) if do_watermark else 'N/A',
                 'kf8mobi': True,
                 'epub': True,
                 }
@@ -423,6 +424,7 @@ class Campaign(models.Model):
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
+    do_watermark = models.BooleanField(default=True)
     
     def __init__(self, *args, **kwargs):
         self.problems=[]

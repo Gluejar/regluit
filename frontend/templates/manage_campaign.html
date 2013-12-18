@@ -197,7 +197,7 @@ Please fix the following before launching your campaign:
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
 	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
-	<div class="std_form">
+	<div>
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	</div>
 	<h3>Target Revenue</h3>
@@ -221,6 +221,9 @@ Please fix the following before launching your campaign:
         <div class="std_form">
         <!--{{ form.deadline.errors }}-->{{ form.deadline }}
         </div>
+        <h3>Personalization</h3>
+        <p>If you do not want Unglue.it to use digital watermarking techniques to encode a transaction number into the ebook files, uncheck this box. Either way, ebook files will be personalized; the difference is whether  personalization is easy or hard to remove.</p>
+        Use watermarking: {{ form.do_watermark.errors }} {{ form.do_watermark }}
 	{% endifequal %}
 {% endifnotequal %}
 
