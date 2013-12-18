@@ -1583,7 +1583,7 @@ def rh_tools(request):
                 else:
                     campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.can_open_new:
-            if request.method == 'POST' and  request.POST.has_key('work') and int(request.POST['work']) == claim.work.id :
+            if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
