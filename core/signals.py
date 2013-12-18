@@ -112,7 +112,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("rights_holder_created", _("Agreement Accepted"), _("You have become a verified Unglue.it rights holder."))
     notification.create_notice_type("rights_holder_claim", _("Claim Entered"), _("A claim has been entered."))
     notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
-    notification.create_notice_type("pledge_donation_credit", _("Donation Credit Balance"), _("You have a donation credit balance"))
+    notification.create_notice_type("pledge_gift_credit", _("Gift Credit Balance"), _("You have a gift credit balance"))
     notification.create_notice_type("new_wisher", _("New wisher"), _("Someone new has wished for a book that you're the rightsholder for"))
     notification.create_notice_type("account_expiring", _("Credit Card Expiring Soon"), _("Your credit card is about to expire."))
     notification.create_notice_type("account_expired", _("Credit Card Has Expired"), _("Your credit card has expired."))

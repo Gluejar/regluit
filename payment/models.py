@@ -119,6 +119,19 @@ class Transaction(models.Model):
             return 2
         else:
             return 3
+
+    @property
+    def needed_amount(self):
+        if self.user.credit.available >= self.max_amount:
+            return 0
+        else:
+            return self.max_amount - self.user.credit.available
+
+    @property
+    def credit_amount(self):
+        if self.user.credit.available >= self.max_amount:
+            return self.max_amount
+        return self.user.credit.available
             
     @property
     def ack_link(self):
@@ -148,7 +161,15 @@ class Transaction(models.Model):
         else:
             mod = __import__("regluit.payment." + self.host, fromlist=[str(self.host)])
             return mod.Processor()
+    
+    def set_executed(self):
+        self.date_executed = now()
+        self.save()
 
+    def set_payment(self):      
+        self.date_payment = now()
+        self.save() 
+    
     def set_credit_approved(self, amount):
         self.amount=amount
         self.host = PAYMENT_HOST_CREDIT
@@ -234,7 +255,7 @@ class Receiver(models.Model):
         return u"Receiver -- email: {0} status: {1} transaction: {2}".format(self.email, self.status, unicode(self.transaction))
 
 class CreditLog(models.Model):
-    # a write only record of Donation Credit Transactions
+    # a write only record of Gift Credit Transactions
     user = models.ForeignKey(User, null=True) 
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
@@ -284,7 +305,8 @@ class Credit(models.Model):
             return True
  
     def use_pledge(self, num_credits):
-        if not isinstance( num_credits, int):
+        num_credits=Decimal(num_credits)
+        if num_credits is Decimal('NaN'):
             return False
         if self.pledged <  num_credits :
             return False
@@ -299,7 +321,9 @@ class Credit(models.Model):
             return True
             
     def transfer_to(self, receiver, num_credits):
-        if not isinstance( num_credits, int) or not isinstance( receiver, User):
+        num_credits=Decimal(num_credits)
+        if num_credits is Decimal('NaN') or not isinstance( receiver, User):
+            logger.info('fail: %s, %s' % (num_credits,receiver))
             return False
         if self.add_to_balance(-num_credits):
             if receiver.credit.add_to_balance(num_credits):
@@ -312,7 +336,7 @@ class Credit(models.Model):
             return False
 
 class Sent(models.Model):
-    '''used by donation view to record donations it has sent'''
+    '''used by gift view to record gifts it has sent'''
     user = models.CharField(max_length=32, null=True)
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)

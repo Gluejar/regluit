@@ -76,7 +76,7 @@
     	         <div class="pledge_amount">This ebook can be borrowed from your library.</div>
     	         <div><a href="{% url borrow work.id %}" class="fakeinput">Borrow Now</a> </div>
     	         <div style="height:75px;"></div>
-    	    {% endif %}
+    	    {% else %}
             {% if next_acq %}
                 <div class="pledge_amount">This ebook can be reserved from your library.</div>
                 {% if on_hold %}
@@ -94,6 +94,7 @@
                 <div style="height:30px;"></div>
                 <div class="bigger" style="height:30px;clear:both;margin:20px">If you'd rather not wait, consider one of the purchase options.</div>
             {% endif %}
+    	    {% endif %}
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	
@@ -157,7 +158,11 @@
 			<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
 			<input name="pledge" type="submit" value="Buy Now" id="pledgesubmit" class="loader-gif" />
 			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
-    	</form>    	
+    	{% if request.user.credit.available > 0 %}
+    	<div class="bigger" style="height:45px;clear:both"> You have an available gift credit of ${{ request.user.credit.available|intcomma }} which will be applied to your purchase.</div>
+    	{% endif %}
+    	</form> 
+    	  	
     </div>
 </div>
 {% else %}

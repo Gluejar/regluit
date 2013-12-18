@@ -12,5 +12,5 @@ class Command(BaseCommand):
             amount= int(amount)
         user = User.objects.get(username=username)
         user.credit.add_to_balance(amount)
-        print "%s now has a balance of %s donation credits" % (username, user.credit.balance)
+        print "%s now has a balance of %s gift credits" % (username, user.credit.balance)
      
