@@ -879,6 +879,10 @@ class EbookFileTests(TestCase):
         c.cc_date_initial= datetime(2012,1,1)
         c.update_status()
         self.assertEqual( c.work.ebooks().count(),2 )
+        c.do_watermark=False
+        c.save()
+        url= acq.get_watermarked().download_link_epub
+
         
 from .signals import handle_transaction_charged
 @override_settings(LOCAL_TEST=True)
