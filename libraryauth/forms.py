@@ -1,9 +1,25 @@
+import logging
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-
+from registration.forms import RegistrationForm
+from .emailcheck import is_disposable
 from .models import Library
+
+logger = logging.getLogger(__name__)
+
+class RegistrationFormNoDisposableEmail(RegistrationForm):
+    def clean_email(self):
+        """
+        Check the supplied email address against a list of known disposable
+        webmail domains.
+        """
+        logger.info('cleaning email')
+        if is_disposable(self.cleaned_data['email']):
+            raise forms.ValidationError(_("Please supply a permanent email address."))
+        return self.cleaned_data['email']
+    
 
 class AuthForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
@@ -12,7 +28,7 @@ class AuthForm(AuthenticationForm):
             super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
         else:
             super(AuthForm, self).__init__(*args, **kwargs)
-
+            
 class NewLibraryForm(forms.ModelForm):
     username = forms.RegexField(
         label=_("Library Username"), 
