@@ -27,7 +27,7 @@ from regluit.core import (
 )
 from regluit.core.models import Campaign, Acq
 from regluit.core.signals import deadline_impending
-from regluit.core.parameters import RESERVE
+from regluit.core.parameters import RESERVE, REWARDS
 
 from regluit.utils.localdatetime import now, date_today
 
@@ -114,7 +114,7 @@ def report_new_ebooks(created=None):   #created= creation date
         
 @task
 def notify_ending_soon():
-    c_active = Campaign.objects.filter(status='Active')
+    c_active = Campaign.objects.filter(status='Active', type=REWARDS)
     for c in c_active:
         if c.deadline - now() < timedelta(7) and c.deadline - now() >= timedelta(6):
             """
