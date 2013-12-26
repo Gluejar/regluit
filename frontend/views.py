@@ -794,6 +794,21 @@ class ByPubListView(ByPubView):
         self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
         self.set_publisher()
 
+class CCListView(FilterableListView):
+    template_name = "cc_list.html"
+    context_object_name = "work_list"
+
+    def get_queryset_all(self):
+        return models.Work.objects.filter(
+                                          editions__ebooks__isnull=False,
+                                          editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                         ).distinct().order_by('-created')
+    def get_context_data(self, **kwargs):
+        context = super(CCListView, self).get_context_data(**kwargs)
+        qs=self.get_queryset()
+        context['ungluers'] = userlists.work_list_users(qs,5)
+        context['activetab'] = "#1"
+        return context
 
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
@@ -808,7 +823,7 @@ class UngluedListView(FilterableListView):
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,
                                               editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
-                                             ).distinct().order_by('-num_wishes')
+                                             ).exclude(campaigns__status="SUCCESSFUL").distinct().order_by('-num_wishes')
         elif (facet == 'pd' or facet == 'publicdomain'):
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,
