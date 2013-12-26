@@ -808,7 +808,7 @@ class UngluedListView(FilterableListView):
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,
                                               editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
-                                             ).distinct().order_by('-num_wishes')
+                                             ).exclude(campaigns__status="SUCCESSFUL").distinct().order_by('-num_wishes')
         elif (facet == 'pd' or facet == 'publicdomain'):
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,
