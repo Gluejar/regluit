@@ -124,7 +124,7 @@ class EditionForm(forms.ModelForm):
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
     
     def clean(self):
-        if not self.cleaned_data["isbn"] and not self.cleaned_data["oclc"]  and not self.cleaned_data["goog"]:
+        if not self.cleaned_data.get("isbn",False) and not self.cleaned_data.get("oclc",False)  and not self.cleaned_data.get("goog",False):
             raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
         return self.cleaned_data
     
