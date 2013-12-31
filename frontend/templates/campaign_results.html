@@ -1,0 +1,46 @@
+{% extends "basedocumentation.html" %}
+{% block title %}More Results of {{ campaign }}{% endblock %}
+{% block doccontent %}
+
+<h2> {{ campaign }} is {{ campaign.status }}</h2>
+{% ifequal campaign.type 1 %}
+<h3> Premium Summary </h3>
+    {% ifequal campaign.status 'SUCCESSFUL' %}
+        <p>Premiums offered:<p>
+        <table>
+        <tr><th>Premium ID </th><th>Description </th></tr>
+        {% for premium in campaign.premiums.all %}
+            <tr><td>{{premium.id }}</td><td>{{ premium.description }}</td></tr>
+        {% endfor %}
+        </table>
+        <p>Premiums Earned:<p>
+        <table>
+        <tr><th>Premium ID </th><th>Ungluer e-mail </th></tr>
+        {% for transaction in campaign.ungluer_transactions.all %}
+            {% if transaction.premium and transaction.premium.type == 'CU' %}
+            <tr><td>{{ transaction.premium.id }}</td><td>{{ transaction.user.email }}</td></tr>
+            {% endif %}
+        {% endfor %}
+        </table>
+    {% endifequal %}
+{% endifequal %}
+{% ifequal campaign.type 2 %}
+    <h3> Buy to unglue campaign results </h3>
+    What should we have here?
+{% endifequal %}
+{% ifequal campaign.type 3 %}
+    <h3> Thanks for ungluing campaign results </h3>
+    What should we have here?
+{% endifequal %}
+<h3> Transaction List </h3>
+    {% with campaign.ungluer_transactions as transactions %}
+        <p>Transactions:<p>
+        <table>
+        <tr><th>Date Executed </th><th>Amount </th></tr>
+        {% for transaction in transactions.all %}
+            <tr><td>{% if transaction.date_executed %}{{ transaction.date_executed }}{% else %}{{ transaction.date_payment }}{% endif %}</td><td>${{ transaction.amount }}</td></tr>
+        {% endfor %}
+        </table>
+    {% endwith %}
+
+{% endblock %}

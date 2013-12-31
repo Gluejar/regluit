@@ -136,6 +136,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 						{% else %}
 						${{ campaign.current_total }} sold. ${{ campaign.target }} to go, Ungluing Date: {{ campaign.cc_date }}
 						{% endifequal %}
+						<br /> <a href="{% url campaign_results campaign.id %}">Transaction Details</a>
 					</div>
 				{% endif %}
 			</div>

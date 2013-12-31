@@ -562,14 +562,22 @@ def new_edition(request, work_id, edition_id, by=None):
     return render(request, 'new_edition.html', {
             'form': form, 'edition': edition, 
         })
+
+def campaign_results(request, campaign):
+    return render(request, 'campaign_results.html', {
+            'campaign': campaign, 
+        })
     
-def manage_campaign(request, id):
+
+def manage_campaign(request, id, action='manage'):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
     campaign.problems=[]
     if (not request.user.is_authenticated) or (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
+    if action == 'results':
+        return campaign_results(request, campaign)
     alerts = []
     activetab = '#1'
     offers = campaign.work.offers.all()
