@@ -57,6 +57,7 @@ urlpatterns = patterns(
         name="terms"),
     url(r"^rightsholders/$", "rh_tools", name="rightsholders"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/$", "manage_campaign", name="manage_campaign"), 
+    url(r"^rightsholders/campaign/(?P<id>\d+)/results/$", "manage_campaign", {'action': 'results'}, name="campaign_results"), 
     url(r"^rightsholders/edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", "new_edition",{'by': 'rh'}, name="rh_edition"),
     url(r"^rightsholders/edition/(?P<edition_id>\d*)/upload/$", "edition_uploads", name="edition_uploads"),
     url(r"^rightsholders/claim/$", "claim", name="claim"), 
