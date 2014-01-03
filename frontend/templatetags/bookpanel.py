@@ -1,6 +1,6 @@
 from django import template
 from regluit.utils.localdatetime import now
-from regluit.parameters import *
+from regluit.core.parameters import REWARDS, BUY2UNGLUE
 
 register = template.Library()
 
@@ -12,13 +12,14 @@ def bookpanel(context):
     campaign = context.get('last_campaign', None)
     
     # compute a boolean that's true if bookpanel should show a "pledge" button...
-    # campaign is ACTIVE, type 1 - PLEDGE
+    # campaign is ACTIVE, type 1 - REWARDS
     # user has not pledged or user is anonymous
     
     show_pledge = False
-    if campaign and campaign.type==PLEDGE:
-        if user.is_anonymous() or not user.id in context.get('supporters', []):
-            show_pledge = True
+    if campaign and campaign.type==REWARDS:
+        if campaign.status == 'ACTIVE':
+            if user.is_anonymous() or not user.id in context.get('supporters', []):
+                show_pledge = True
     context['show_pledge'] = show_pledge          
     
     # compute a boolean that's true if bookpanel should show a "purchase" button...
@@ -31,8 +32,9 @@ def bookpanel(context):
     show_purchase = False
     if campaign and campaign.type==BUY2UNGLUE:
         if user.is_anonymous() or not context.get('license_is_active', False):
-            if not context.get('borrowable', False):
-                if not library:
-                    show_purchase = True
+            if campaign.status == 'ACTIVE':
+                if not context.get('borrowable', False):
+                    if not library:
+                        show_purchase = True
     context['show_purchase'] = show_purchase
     return ''

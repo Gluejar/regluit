@@ -562,14 +562,22 @@ def new_edition(request, work_id, edition_id, by=None):
     return render(request, 'new_edition.html', {
             'form': form, 'edition': edition, 
         })
+
+def campaign_results(request, campaign):
+    return render(request, 'campaign_results.html', {
+            'campaign': campaign, 
+        })
     
-def manage_campaign(request, id):
+
+def manage_campaign(request, id, action='manage'):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
     campaign.problems=[]
     if (not request.user.is_authenticated) or (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager=True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
+    if action == 'results':
+        return campaign_results(request, campaign)
     alerts = []
     activetab = '#1'
     offers = campaign.work.offers.all()
@@ -794,6 +802,21 @@ class ByPubListView(ByPubView):
         self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
         self.set_publisher()
 
+class CCListView(FilterableListView):
+    template_name = "cc_list.html"
+    context_object_name = "work_list"
+
+    def get_queryset_all(self):
+        return models.Work.objects.filter(
+                                          editions__ebooks__isnull=False,
+                                          editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                         ).distinct().order_by('-created')
+    def get_context_data(self, **kwargs):
+        context = super(CCListView, self).get_context_data(**kwargs)
+        qs=self.get_queryset()
+        context['ungluers'] = userlists.work_list_users(qs,5)
+        context['activetab'] = "#1"
+        return context
 
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"
@@ -808,7 +831,7 @@ class UngluedListView(FilterableListView):
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,
                                               editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
-                                             ).distinct().order_by('-num_wishes')
+                                             ).exclude(campaigns__status="SUCCESSFUL").distinct().order_by('-num_wishes')
         elif (facet == 'pd' or facet == 'publicdomain'):
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,

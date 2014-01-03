@@ -755,7 +755,7 @@ class Campaign(models.Model):
         else:
             translist = []
         for transaction in translist:
-            ungluers['all'].append(transaction.user)
+            ungluers['all'].append(transaction)
             if transaction.amount >= Premium.TIERS["bibliophile"]:
             	ungluers['bibliophiles'].append(transaction)
             elif transaction.amount >= Premium.TIERS["patron"]:
