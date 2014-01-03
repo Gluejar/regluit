@@ -149,8 +149,13 @@ Please fix the following before launching your campaign:
 	{% endif %}
 	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
 {% ifnotequal campaign_status 'ACTIVE' %}
-	<h3>License being offered</h3>
-	<p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+    {% ifnotequal campaign.type 3 %}
+        <h3>License being offered</h3>
+        <p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+	{% else %}
+        <h3>License Being Used</h3>
+        <p> This is the license you are using. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+	{% endifnotequal %}
 	<div>
 	{{ form.license.errors }}{{ form.license }}
 	</div>
@@ -171,7 +176,8 @@ Please fix the following before launching your campaign:
     
         <p>The ending date can't be more than six months away- that's a practical limit for credit card authorizations. The <i>latest</i> ending you can choose <i>right now</i> is {{ campaign.latest_ending }}</p>
         {{ form.deadline.errors }}{{ form.deadline }}
-    {% else %}
+    {% endifequal %}
+    {% ifequal campaign.type 2 %}
         <h3>Revenue Target</h3>
         <p>This is the revenue target for your campaign. If you hit this target, your book gets released immediately, for free, under the Creative Commons License that you've specified. With time the actual revenue needed to trigger Creative Commons will gradually decrease.</p>
         
@@ -190,9 +196,11 @@ Please fix the following before launching your campaign:
 
 	    <p>Before launching a campaign, you'll need to select Your initial Ungluing Date. Together with your campaign revenue target, this will define when your book becomes "unglued". Check out the <a href="{% url faq_sublocation 'campaigns' 'b2u' %}#calculator">the ungluing date calculator</a> to see how this works. Your starting Ungluing Date must be before {{ form.max_cc_date }}</p>
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
-	    <!--{{ form.deadline.errors }}-->{{ form.deadline }}
+	    <!--{{ form.deadline.errors }}-->
+    {% endifequal %}
+    {% ifequal campaign.type 3 %}
+    <!--{{ form.target.errors }}--><!--{{ form.cc_date_initial.errors }}--><!--{{ form.deadline.errors }}-->
 	{% endifequal %}
-	
 {% else %}
 	<h3>License being offered</h3>
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
@@ -200,32 +208,40 @@ Please fix the following before launching your campaign:
 	<div>
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	</div>
-	<h3>Target Revenue</h3>
-	<p>The current target revenue for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url faq_sublocation 'campaigns' 'b2u' %}#calculator">the ungluing date calculator</a></p>
-	<div class="std_form">
-	${{ form.target.errors }}{{ form.target }}
-    </div>
+	{% ifnotequal campaign.type 3 %}
+        <h3>Target Revenue</h3>
+        <p>The current target revenue for your campaign is <b>${{ campaign.target|intcomma }}</b>. Since your campaign is active, you may lower, but not raise, this target. You can get a feel for the interplay between revenue target and ungluing date with the <a href="{% url faq_sublocation 'campaigns' 'b2u' %}#calculator">the ungluing date calculator</a></p>
+        <div class="std_form">
+        ${{ form.target.errors }}{{ form.target }}
+        </div>
+    {% endifnotequal %}
 	{% ifequal campaign.type 1 %}
         <h3>Ending date</h3>
         <p>The ending date of your campaign is <b>{{ campaign.deadline }}</b>.  Your campaign will conclude on this date or when you meet your target price, whichever is earlier.  You may not change the ending date of an active campaign.</p>
         <div class="std_form">
         {{ form.deadline.errors }}<span style="display: none">{{ form.deadline }}</span>
         </div>
-	{% else %}
+	{% endifequal %}
+	{% ifequal campaign.type 2 %}
 	    <h3>Ungluing Date</h3>
 	    <p> This campaign was launched with a Ungluing Date of {{ campaign.cc_date_initial }}.</p>
 	    <p> Based on a total revenue of {{ campaign.current_total }} the Ungluing Date has been advanced to {{ campaign.cc_date }}.</p>
 	    <div class="std_form">
         {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}
         </div>
-        <div class="std_form">
-        <!--{{ form.deadline.errors }}-->{{ form.deadline }}
-        </div>
-        <h3>Personalization</h3>
-        <p>If you do not want Unglue.it to use digital watermarking techniques to encode a transaction number into the ebook files, uncheck this box. Either way, ebook files will be personalized; the difference is whether  personalization is easy or hard to remove.</p>
-        Use watermarking: {{ form.do_watermark.errors }} {{ form.do_watermark }}
+        
+        <!--{{ form.deadline.errors }}-->
+        
+	{% endifequal %}
+	{% ifequal campaign.type 3 %}
+	<!--{{ form.deadline.errors }}--><!--{{ form.cc_date_initial.errors }}-->
 	{% endifequal %}
 {% endifnotequal %}
+{% ifequal campaign.type 2 %}
+    <h3>Personalization</h3>
+    <p>If you do not want Unglue.it to use digital watermarking techniques to encode a transaction number into the ebook files, uncheck this box. Either way, ebook files will be personalized; the difference is whether  personalization is easy or hard to remove.</p>
+    <div class="std_form">Use watermarking: {{ form.do_watermark }}</div>
+{% endifequal %}{{ form.do_watermark.errors }}
 
 
 	<h3>Make Your Pitch</h3>
@@ -241,7 +257,8 @@ Please fix the following before launching your campaign:
 	<li>Gives examples of the author's work.  This could be links to your site or places people can find more information about you or the book.  You can also add quotes, embed a free sample chapter or story, display images, et cetera.  These work samples might be from the campaign book itself, or from your (or the author's) other creative works.</li>
 	<li>Has personality.  The writing should be thoroughly proofread but it should have a point of view.  This is the place to be conversational, opinionated, funny, quirky -- whatever reflects your style.  Be you.</li>
 	{% ifequal campaign.type 1 %}
-	<li>Optionally, provides extra incentives (like new or improved premiums) that will kick in if the campaign is unusually successful.  Will you do something special when you reach 10% or 50% or 75% of your goal?  Or if you reach that milestone before a particular deadline (e.g. in the first week of your campaign)?</li>{% endifequal %}
+	<li>Optionally, provides extra incentives (like new or improved premiums) that will kick in if the campaign is unusually successful.  Will you do something special when you reach 10% or 50% or 75% of your goal?  Or if you reach that milestone before a particular deadline (e.g. in the first week of your campaign)?</li>
+	{% endifequal %}
 	</ul>
 	
 	<h4>How to add video</h4>
@@ -384,24 +401,44 @@ Please fix the following before launching your campaign:
 	<p>Your premium values may be any amounts -- you do not need to offer premiums at $25/$50/$100.  For example, if you offer a $30 premium, anyone pledging to it will be eligible for the $25 reward.  This will be communicated to them during the pledging process; you do not need to explain it in your pitch.</p>
 {% endifequal %}
 {% ifequal campaign.type 2 %}
-<h3> Offers to sell </h3>
-{% if not campaign.work.ebookfiles.0 %}
-<p> <b>An EPUB file for this work <a class="tabs1">needs to be loaded</a>!</b></p>
-{% endif %}
-<p> Enter a per/copy price for each license type. You may change these prices after the campaign has begun.</p>
-<div class="jsmod-content">
-{% for offer in offers %}
-<form action="#" method="POST"><div>
-{% csrf_token %}
-<span class="std_form">{{ offer.get_license_display }}: ${{ offer.offer_form.price }}{{ offer.offer_form.price.errors }}
-{{ offer.offer_form.active }}
-{{ offer.offer_form.license }}
-{{ offer.offer_form.work }}</span>
-<input type="submit" name="change_offer" value="Change Price" />
-</div></form>
-<p />
-{% endfor %}
-</div>
+    <h3> Offers to sell </h3>
+    {% if not campaign.work.ebookfiles.0 %}
+    <p> <b>An EPUB file for this work <a class="tabs1">needs to be loaded</a>!</b></p>
+    {% endif %}
+    <p> Enter a per/copy price for each license type. You may change these prices after the campaign has begun.</p>
+    <div class="jsmod-content">
+    {% for offer in offers %}
+    <form action="#" method="POST"><div>
+    {% csrf_token %}
+    <span class="std_form">{{ offer.get_license_display }}: ${{ offer.offer_form.price }}{{ offer.offer_form.price.errors }}
+    {{ offer.offer_form.active }}
+    {{ offer.offer_form.license }}
+    {{ offer.offer_form.work }}</span>
+    <input type="submit" name="change_offer" value="Change Price" />
+    </div></form>
+    <p />
+    {% endfor %}
+    </div>
+{% endifequal %}
+{% ifequal campaign.type 3 %}
+    <h3> Suggested Contributions </h3>
+    {% if not campaign.work.ebookfiles.0 %}
+    <p> <b>An EPUB file for this work <a class="tabs1">needs to be loaded</a>!</b></p>
+    {% endif %}
+    <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed.</p>
+    <div class="jsmod-content">
+    {% for offer in offers %}
+    <form action="#" method="POST"><div>
+    {% csrf_token %}
+    <span class="std_form">{{ offer.get_license_display }}: ${{ offer.offer_form.price }}{{ offer.offer_form.price.errors }}
+    {{ offer.offer_form.active }}
+    {{ offer.offer_form.license }}
+    {{ offer.offer_form.work }}</span>
+    <input type="submit" name="change_offer" value="Change Suggested Contribution" />
+    </div></form>
+    <p />
+    {% endfor %}
+    </div>
 {% endifequal %}
 </div>
 

@@ -408,10 +408,13 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
     def get_queryset():
         work=instance.work
         return Edition.objects.filter(work = work)
-    def get_widget_class(widget_classes):
-        return widget_classes[instance.type-1]
             
     class ManageCampaignForm(CCDateForm,forms.ModelForm):
+        target = forms.DecimalField( required= (instance.type in {1,2}))
+        deadline = forms.DateTimeField(
+                required = (instance.type==1),
+                widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
+            )
         cc_date_initial = forms.DateTimeField(
                 required = (instance.type==2) and instance.status=='INITIALIZED',
                 widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
@@ -427,11 +430,11 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         class Meta:
             model = Campaign
             fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial', "do_watermark"
-            widgets = { 
-                    'deadline': get_widget_class((SelectDateWidget,forms.HiddenInput)), 
-                }
+            widgets = { 'deadline': SelectDateWidget }
     
         def clean_target(self):
+            if self.instance.type == 3:
+                return None
             new_target = super(ManageCampaignForm,self).clean_target()
             if self.instance:
                 if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
@@ -439,7 +442,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return new_target
 
         def clean_cc_date_initial(self):
-            if self.instance.type==1:
+            if self.instance.type in {1,3} :
                 return None
             if self.instance:
                 if self.instance.status != 'INITIALIZED':
@@ -448,22 +451,18 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return super(ManageCampaignForm,self).clean_cc_date_initial()            
         
         def clean_deadline(self):
-            if self.instance.type==1:
-                new_deadline_date = self.cleaned_data['deadline']
-                new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
-                if self.instance:
-                    if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
-                        raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
-                if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-                    raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-                elif new_deadline - now() < timedelta(days=0):         
-                    raise forms.ValidationError(_('The chosen closing date is in the past'))
-                return new_deadline
-            else:
-                if self.instance.status == 'ACTIVE':
-                    return self.instance.deadline
-                else:
-                    return date.today() + settings.B2U_TERM
+            if self.instance.type in {2,3} :
+                return None
+            new_deadline_date = self.cleaned_data['deadline']
+            new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
+            if self.instance:
+                if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
+                    raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+            if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+            elif new_deadline - now() < timedelta(days=0):         
+                raise forms.ValidationError(_('The chosen closing date is in the past'))
+            return new_deadline
             
         def clean_license(self):
             new_license = self.cleaned_data['license']
