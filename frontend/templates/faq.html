@@ -472,6 +472,46 @@ We strongly encourage you to include video.  You can upload it to YouTube and em
 <dd>It's up to you.  However, our experience watching and running crowdfunding campaigns suggests that you'll do best if you're engaged, prompt, and personable.  In fact, don't just think in terms of answering questions (though you should absolutely do that) -- think about cultivating and contributing to the conversation.</dd>
 </dl>
 {% endif %}
+{% if sublocation == 'addingmedia' or sublocation == 'all' %}
+<h4>Adding Media to a Campaign</h4>
+	<h5>How to add video</h5>
+	<p>We strongly encourage you to include video that communicates directly with your supporters.  To add a video:</p>
+	<ul class="bullets">
+	<li>Upload it to YouTube.</li>
+	<li>Underneath the video, click Share, then Embed.</li>
+	<li>In the embed options: click Use HTTPS.</li>
+	<li>In the Custom sizing area, enter a width of 445.</li>
+	<li>In the editor toolbar below, click Source.</li>
+	<li>Copy/paste the embed code from YouTube into your campaign below.</li>
+	<li>Click Source again to get back to the normal editing mode.</li>
+	</ul>
+	<p>You'll see an IFRAME code in the editor where your video will go.  The video will display normally on your campaign page.</p>
+	
+	<p>
+		Prefer screencasts? Here you go: <a href="/static/images/How_to_embed_a_video.mp4">how to embed a video</a> in your campaign page.
+	</p>
+	
+	<h5>How to add a PDF</h5>
+	<p>This assumes that you have a (free) Google account.</p>
+	
+	<ul class="bullets">
+		<li>Upload your PDF to <a href="http://drive.google.com">Google Drive</a>.</li>
+		<li>Click on the Share button.</li>
+		<li>Change the visibility to public on the web and click Save, then Done.</li>
+		<li>In the File menu, click the Embed this PDF option.</li>
+		<li>Copy the HTML code that pops up.</li>
+		<li>In the editor toolbar below, click Source.</li>
+		<li>Paste the HTML code from Google Drive in the box below.</li>
+		<li>Find the part of the code that says something like <pre>width="640"</pre> and change that to <pre>width="445"</pre>.</li>
+	<li>Click Source again to get back to the normal editing mode.</li>
+	</ul>
+	<p>You'll see an IFRAME code in the editor where your PDF will go.  The PDF will display normally on your campaign page.</p>
+
+	<p>
+    Prefer screencasts?  Here: <a href="/static/images/How_to_embed_a_PDF.mp4">how to embed a PDF</a> in your campaign page (screencast)
+	</p>
+
+{% endif %}
 {% if sublocation == 'publicity' or sublocation == 'all' %}
 <h4>Publicizing Campaigns</h4>
 <dl>

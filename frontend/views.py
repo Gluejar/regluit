@@ -602,7 +602,7 @@ def manage_campaign(request, id, action='manage'):
             if form.is_valid():     
                 form.save() 
                 campaign.set_dollar_per_day()
-                if campaign.type==BUY2UNGLUE:
+                if campaign.type in {BUY2UNGLUE,THANKS} :
                     offers= campaign.work.create_offers()
                     for offer in offers:
                         offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
