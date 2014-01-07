@@ -55,6 +55,7 @@ from regluit.payment.parameters import (
 from regluit.core.parameters import (
     REWARDS,
     BUY2UNGLUE,
+    THANKS,
     INDIVIDUAL,
     LIBRARY,
     BORROWED,
@@ -406,10 +407,10 @@ class Campaign(models.Model):
     name = models.CharField(max_length=500, null=True, blank=False)
     description = RichTextField(null=True, blank=False)
     details = RichTextField(null=True, blank=True)
-    target = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
+    target = models.DecimalField(max_digits=14, decimal_places=2, null=True, default=0.00)
     license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
-    left = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=False)
-    deadline = models.DateTimeField(db_index=True)
+    left = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    deadline = models.DateTimeField(db_index=True, null=True)
     dollar_per_day = models.FloatField(null=True)
     cc_date_initial = models.DateTimeField(null=True)
     activated = models.DateTimeField(null=True)
@@ -420,7 +421,7 @@ class Campaign(models.Model):
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
     type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
-            choices=((REWARDS,'Rewards-based fixed duration campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign')))
+            choices=((REWARDS,'Rewards-based fixed duration campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign'),(THANKS,'Thanks-for-ungluing campaign')))
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
@@ -607,7 +608,9 @@ class Campaign(models.Model):
             
         
     def update_left(self):
-        if self.type == BUY2UNGLUE:
+        if self.type == THANKS:
+            self.left == Decimal(0.00)
+        elif self.type == BUY2UNGLUE:
             self.left = Decimal(self.dollar_per_day*float((self.cc_date_initial - datetime.today()).days))-self.current_total
         else:
             self.left = self.target - self.current_total

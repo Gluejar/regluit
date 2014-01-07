@@ -20,9 +20,10 @@
                             <a href="{% url faq_location 'campaigns' %}"><span>Campaigns</span></a>
                             <ul class="menu level2">
                                 <li class="first"><a href="{% url faq_sublocation 'campaigns' 'overview' %}"><span>Overview</span></a></li>
+                                <li><a href="{% url faq_sublocation 'campaigns' 't4u' %}"><span>Thanks-for-Ungluing Campaigns</span></a></li>
+                                <li><a href="{% url faq_sublocation 'campaigns' 'b2u' %}"><span>Buy-to-Unglue Campaigns</span></a></li>
                                 <li><a href="{% url faq_sublocation 'campaigns' 'supporting' %}"><span>Pledge Campaigns</span></a></li>
-                                <li><a href="{% url faq_sublocation 'campaigns' 'premiums' %}"><span>Premiums</span></a></li>
-                                <li class="last"><a href="{% url faq_sublocation 'campaigns' 'b2u' %}"><span>Buy-to-Unglue Campaigns</span></a></li>
+                                <li class="last"><a href="{% url faq_sublocation 'campaigns' 'premiums' %}"><span>Premiums</span></a></li>
                             </ul>
                         </li>
                         
@@ -40,6 +41,7 @@
                             <ul class="menu level2">
                                 <li class="first"><a href="{% url faq_sublocation 'rightsholders' 'authorization' %}"><span>Becoming Authorized</span></a></li>
                                 <li><a href="{% url faq_sublocation 'rightsholders' 'campaigns' %}"><span>Running Campaigns</span></a></li>
+                                <li><a href="{% url faq_sublocation 'rightsholders' 'addingmedia' %}"><span>Adding Media</span></a></li>
                                 <li><a href="{% url faq_sublocation 'rightsholders' 'publicity' %}"><span>Publicizing Campaigns</span></a></li>
                                 <li><a href="{% url faq_sublocation 'rightsholders' 'funding' %}"><span>Funding</span></a></li>
                                 <li><a href="{% url faq_sublocation 'rightsholders' 'conversion' %}"><span>Ebook Conversion</span></a></li>
@@ -49,7 +51,7 @@
                         </li>
                         
                         <li class="parent">
-                            <a href="{% url libraries %}"><span>How Libraries Can Help</span></a>
+                            <a href="{% url libraries %}"><span>For Libraries</span></a>
                         </li>
                         <li class="parent">
                             <a href="{% url landing %}"><span>Start Exploring</span></a>
