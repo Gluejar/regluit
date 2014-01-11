@@ -3,11 +3,11 @@
 
 You are now free to start a campaign to sell or unglue your work.  If you're logged in, you will see the option to open a campaign at https://{{ current_site.domain }}/rightsholders .  (You can also find this page by clicking on "Rights Holder Tools" at the bottom of any Unglue.it page.)
 
-To run a campaign, you'll need to set up campaign parameters.  You'll also need to write a pitch.  This will appear in the Description tab on your book's page (https://{{ current_site.domain }}{% url work claim.work.id %}).  Think about who your book's audience is, and remind them why they'll love this book -- your pitch is not a catalog page!  We encourage video, audio, and links to make your pitch come alive.  Feel free to email us (rights@gluejar.com) if you need any help with this.
+To run a campaign, you'll need to set up campaign parameters.  You'll also need to write a pitch.  For Pledge-to-Unglue and Buy-to-Unglue campaigns, this will appear in the Description tab on your book's page (https://{{ current_site.domain }}{% url work claim.work.id %}).  Think about who your book's audience is, and remind them why they'll love this book -- your pitch is not a catalog page!  We encourage video, audio, and links to make your pitch come alive.  For Thanks-for-Ungluing, your pitch will occur when the user clicks a Download button. You should emphasize how the ungluer's support enables you to keep doing what you do. Feel free to email us (rights@gluejar.com) if you need any help with this.
+
+If you're running a Buy-to-Unglue or Thanks-for-Ungluing Campaign, now is the time to upload your digital files. For Buy-to-Unglue, you need to decide on revenue targets and pricing for individual and library licenses.
 
 If you're running a Pledge Campaign, you need to decide on a funding target, and you should also come up with some custom premiums to reward ungluers for supporting your book.  Again, we can help you if you need ideas for what these should be or how to price them.
-
-If you're running a Buy-to-Unglue Campaign, now is the time to upload your EPUB file and decide on revenue targets and pricing for individual and library licenses.
 
 Finally, think about how you're going to publicize your campaign: social media, newsletters, media contacts, professional organizations, et cetera.  Have a plan for how to reach out to these potential supporters before you launch your campaign.  Your supporters' sense of connection with you and your book is key to your campaign's success.  Again, email us if you'd like help.
 

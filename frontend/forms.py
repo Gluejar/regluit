@@ -48,7 +48,7 @@ from regluit.core.models import (
     GRAVATAR
 )
 from regluit.libraryauth.models import Library
-from regluit.core.parameters import LIBRARY
+from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS
 from regluit.core.lookups import (
     OwnerLookup,
     WorkLookup,
@@ -410,13 +410,13 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
         return Edition.objects.filter(work = work)
             
     class ManageCampaignForm(CCDateForm,forms.ModelForm):
-        target = forms.DecimalField( required= (instance.type in {1,2}))
+        target = forms.DecimalField( required= (instance.type in {REWARDS, BUY2UNGLUE}))
         deadline = forms.DateTimeField(
-                required = (instance.type==1),
+                required = (instance.type==REWARDS),
                 widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
             )
         cc_date_initial = forms.DateTimeField(
-                required = (instance.type==2) and instance.status=='INITIALIZED',
+                required = (instance.type==BUY2UNGLUE) and instance.status=='INITIALIZED',
                 widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
             )
         paypal_receiver = forms.EmailField(
@@ -433,7 +433,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             widgets = { 'deadline': SelectDateWidget }
     
         def clean_target(self):
-            if self.instance.type == 3:
+            if self.instance.type == THANKS:
                 return None
             new_target = super(ManageCampaignForm,self).clean_target()
             if self.instance:
@@ -442,7 +442,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return new_target
 
         def clean_cc_date_initial(self):
-            if self.instance.type in {1,3} :
+            if self.instance.type in {REWARDS,THANKS} :
                 return None
             if self.instance:
                 if self.instance.status != 'INITIALIZED':
@@ -451,7 +451,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             return super(ManageCampaignForm,self).clean_cc_date_initial()            
         
         def clean_deadline(self):
-            if self.instance.type in {2,3} :
+            if self.instance.type in {BUY2UNGLUE, THANKS} :
                 return None
             new_deadline_date = self.cleaned_data['deadline']
             new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
