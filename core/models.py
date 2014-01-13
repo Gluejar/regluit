@@ -601,7 +601,9 @@ class Campaign(models.Model):
         
     @property
     def cc_date(self):
-        if self.dollar_per_day is None:
+        if self.type in { REWARDS, THANKS }:
+            return None
+        if self.dollar_per_day == None:
             return self.cc_date_initial.date()
         cc_advance_days = float(self.current_total) / self.dollar_per_day
         return (self.cc_date_initial-timedelta(days=cc_advance_days)).date()
