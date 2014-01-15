@@ -491,24 +491,48 @@ class Campaign(models.Model):
                 else:
                     self.problems.append(_('A campaign must initialized properly before it can be launched'))
                 may_launch = False
-            if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
-                self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+            if not self.description:
+                self.problems.append(_('A campaign must have a description'))
                 may_launch = False
-            if self.type==REWARDS and self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-                self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-                may_launch = False  
-            elif self.deadline.date()- date_today() < timedelta(days=0):         
-                self.problems.append(_('The chosen closing date is in the past'))
-                may_launch = False  
-            if self.type==BUY2UNGLUE and self.work.offers.filter(price__gt=0,active=True).count()==0: 
-                self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks' ))
-                may_launch = False  
-            if self.type==BUY2UNGLUE and EbookFile.objects.filter(edition__work=self.work).count()==0: 
-                self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
-                may_launch = False  
-            if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now())):
-                self.problems.append(_('You must set an initial Ungluing Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
-                may_launch = False  
+            if self.type==REWARDS:
+                if self.deadline:
+                    if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                        self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+                        may_launch = False  
+                else:
+                    self.problems.append(_('A pledge campaign must have a closing date'))
+                    may_launch = False
+                if self.target:
+                    if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
+                        self.problems.append(_('A pledge campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+                        may_launch = False
+                else:
+                    self.problems.append(_('A campaign must have a target'))
+                    may_launch = False
+            if self.type==BUY2UNGLUE:
+                if self.work.offers.filter(price__gt=0,active=True).count()==0: 
+                    self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks' ))
+                    may_launch = False  
+                if EbookFile.objects.filter(edition__work=self.work).count()==0: 
+                    self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
+                    may_launch = False  
+                if ((self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now())):
+                    self.problems.append(_('You must set an initial Ungluing Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
+                    may_launch = False  
+                if self.target:
+                    if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
+                        self.problems.append(_('A buy-to-unglue campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+                        may_launch = False
+                else:
+                    self.problems.append(_('A buy-to-unglue campaign must have a target'))
+                    may_launch = False
+            if self.type==THANKS:
+                if self.work.offers.filter(price__gt=0,active=True).count()==0: 
+                    self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign without suggesting a contribution amount > 0' ))
+                    may_launch = False  
+                if EbookFile.objects.filter(edition__work=self.work).count()==0: 
+                    self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded' ))
+                    may_launch = False  
         except Exception as e :
             self.problems.append('Exception checking launchability ' + str(e))
             may_launch = False
