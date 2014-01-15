@@ -140,12 +140,23 @@ class EditionForm(forms.ModelForm):
             
 class EbookFileForm(forms.ModelForm):
     file = EpubFileField(max_length=16777216)
-    def clean_format(self):
-        return 'epub'
     
+    def __init__(self, campaign_type=BUY2UNGLUE, *args, **kwargs):
+        super(EbookFileForm, self).__init__(*args, **kwargs)
+        self.campaign_type = campaign_type
+        if campaign_type == BUY2UNGLUE:
+            self.fields['format'].widget=forms.HiddenInput
+        
+    def clean_format(self):
+        if self.campaign_type is BUY2UNGLUE:
+            return 'epub'
+        else:
+            logger.info("EbookFileForm "+self.cleaned_data.get('format',''))
+            return self.cleaned_data.get('format','')
+
     class Meta:
         model = EbookFile
-        widgets = { 'edition': forms.HiddenInput, 'format': forms.HiddenInput }
+        widgets = { 'edition': forms.HiddenInput}
         exclude = { 'created', }
 
 class EbookForm(forms.ModelForm):

@@ -33,7 +33,7 @@ regluit imports
 '''
 import regluit
 import regluit.core.isbn
-from regluit.core.epub import personalize, ungluify
+from regluit.core.epub import personalize, ungluify, test_epub
 
 from regluit.core.signals import (
     successful_campaign,
@@ -1476,6 +1476,10 @@ class EbookFile(models.Model):
     edition = models.ForeignKey('Edition', related_name='ebook_files')
     created =  models.DateTimeField(auto_now_add=True)
     
+    def check_file(self):
+        if self.format == 'epub':
+            return test_epub(self.file)
+        return None
     
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
