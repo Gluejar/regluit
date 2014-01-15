@@ -1042,12 +1042,18 @@ class Work(models.Model):
             pass
         return "/static/images/generic_cover_larger.png"
         
+    def authors(self):
+        # assumes that they come out in the same order they go in!
+        return  self.preferred_edition.authors.all()
+        
     def author(self):
-        # note: if you want this to be a real list, use distinct()
-        # perhaps should change this to vote on authors.
-        authors = list(Author.objects.filter(editions__work=self).all())
+        # assumes that they come out in the same order they go in!
+        if self.authors().count()>0:
+            return self.authors()[0].name
+        
+        # just in case that particular edition has no author
         try:
-            return authors[0].name
+            return list(Author.objects.filter(editions__work=self).all()).authors[0].name
         except:
             return ''
         
