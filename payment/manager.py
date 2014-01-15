@@ -694,7 +694,7 @@ class PaymentManager( object ):
                       the redirect url will be None
         '''    
         # set the expiry date based on the campaign deadline
-        expiry = campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+        expiry = campaign.deadline_or_now + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
 
         t = Transaction.create(amount=0,
                                    host = host,
@@ -841,7 +841,7 @@ class PaymentManager( object ):
             else:
                 # cancel old transaction, send user to choose new payment path
                 # set the expiry date based on the campaign deadline
-                expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+                expiry = transaction.campaign.deadline_or_now + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
                 t = Transaction.create(amount=0, 
                            max_amount=amount,
                            currency=transaction.currency,
@@ -857,7 +857,7 @@ class PaymentManager( object ):
         elif requires_explicit_preapprovals and (amount > transaction.max_amount or expiry != transaction.date_expired):
 
             # set the expiry date based on the campaign deadline
-            expiry = transaction.campaign.deadline + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
+            expiry = transaction.campaign.deadline_or_now + timedelta( days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN )
                 
             # Start a new transaction for the new amount
             t = Transaction.create(amount=amount, 

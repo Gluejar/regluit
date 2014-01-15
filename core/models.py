@@ -877,6 +877,8 @@ class Campaign(models.Model):
     @property
     def countdown(self):
         from math import ceil
+        if not self.deadline:
+            return ''
         time_remaining = self.deadline - now()
         countdown = ""
     
@@ -889,7 +891,11 @@ class Campaign(models.Model):
         else:
             countdown = "Seconds"
             
-        return countdown    
+        return countdown  
+    
+    @property
+    def deadline_or_now(self):
+        return self.deadline if self.deadline else now()
 
     @classmethod
     def latest_ending(cls):
