@@ -419,7 +419,7 @@ Please fix the following before launching your campaign:
 {% ifequal campaign_status 'INITIALIZED' %}
 <div class="tabs-3">
 	{% if not is_preview or request.user.is_staff %}
-		{% if campaign.description and campaign.target and campaign.deadline and campaign.launchable %}
+		{% if campaign.launchable %}
 		<p>Before you hit launch:</p>
 		<ul class="bullets">
 			<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>

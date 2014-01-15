@@ -575,6 +575,8 @@ class CampaignTests(TestCase):
         t.save()
         self.assertEqual(w2.percent_of_goal(), 23)
         
+        self.assertEqual(c1.launchable, False)
+        c1.description="description"
         self.assertEqual(c1.launchable, True)
         c1.work.create_offers()
         self.assertEqual(c1.work.offers.count(), 2)
