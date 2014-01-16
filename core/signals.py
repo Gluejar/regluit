@@ -197,7 +197,7 @@ def handle_transaction_failed(sender,transaction=None, **kwargs):
         return
     
     # window for recharging
-    recharge_deadline = transaction.campaign.deadline + datetime.timedelta(settings.RECHARGE_WINDOW)
+    recharge_deadline =  transaction.campaign.deadline_or_now + datetime.timedelta(settings.RECHARGE_WINDOW)
     
     notification.send([transaction.user], "pledge_failed", {
             'transaction':transaction,
