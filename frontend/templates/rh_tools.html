@@ -91,7 +91,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	<dl>
 	{% for claim in claims %}
 		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
-		<dd>Author: {{claim.work.author }}
+		<dd>Author: {{claim.work.authors_short }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
 			<br />Date of Claim : {{ claim.created }}

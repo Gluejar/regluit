@@ -5,7 +5,7 @@
 {% with work.first_ebook as first_ebook %}
 {% with work.last_campaign.supporters as supporters %}
 {% with work.cover_image_thumbnail as thumbnail %}
-{% with work.author as author %}
+{% with work.authors_short as author %}
 {% with work.title as title %}
 {% with work.last_campaign as last_campaign %}
 {% with work.last_campaign.status as status %}
@@ -192,7 +192,7 @@
         <div class="title">
             <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a>
         </div>
-        <div class="listview author {{ author }}">{{ author }}</div>
+        <div class="listview author">{{ author }}</div>
     </div>
     
     {% comment %}same logic as above{% endcomment %}
