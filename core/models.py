@@ -1066,21 +1066,37 @@ class Work(models.Model):
 
     def cover_image_thumbnail(self):
         try:
-            if self.preferred_edition.cover_image_thumbnail():
+            if self.preferred_edition and self.preferred_edition.cover_image_thumbnail():
                 return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             pass
         return "/static/images/generic_cover_larger.png"
         
-    def author(self):
-        # note: if you want this to be a real list, use distinct()
-        # perhaps should change this to vote on authors.
-        authors = list(Author.objects.filter(editions__work=self).all())
-        try:
-            return authors[0].name
-        except:
-            return ''
+    def authors(self):
+        # assumes that they come out in the same order they go in!
+        if self.preferred_edition and self.preferred_edition.authors.all().count()>0:
+            return  self.preferred_edition.authors.all()
+        for edition in self.editions.all():
+            if edition.authors.all().count()>0:
+                return edition.authors.all()
+        return []
         
+    def author(self):
+        # assumes that they come out in the same order they go in!
+        if self.authors().count()>0:
+            return self.authors()[0].name
+        return ''
+        
+    def authors_short(self):
+        # assumes that they come out in the same order they go in!
+        if self.authors().count()==1:
+            return self.authors()[0].name
+        elif self.authors().count()==2:
+            return "%s and %s" % (self.authors()[0].name, self.authors()[1].name)
+        elif self.authors().count()>2:
+            return "%s et al." % self.authors()[0].name
+        return ''
+
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
         if hasattr(self, '_last_campaign_'):
@@ -1096,7 +1112,7 @@ class Work(models.Model):
         if self.last_campaign():
             if self.last_campaign().edition:
                 return self.last_campaign().edition
-        return self.editions.all()[0]
+        return self.editions.all()[0] if self.editions.all().count() else None
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
