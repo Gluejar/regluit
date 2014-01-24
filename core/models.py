@@ -1079,7 +1079,7 @@ class Work(models.Model):
         for edition in self.editions.all():
             if edition.authors.all().count()>0:
                 return edition.authors.all()
-        return []
+        return Author.objects.none()
         
     def author(self):
         # assumes that they come out in the same order they go in!
