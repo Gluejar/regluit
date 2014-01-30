@@ -868,6 +868,8 @@ class Campaign(models.Model):
         return ''
         
     def percent_of_goal(self):
+        if self.type == THANKS:
+            return 100
         percent = 0
         if(self.status == 'SUCCESSFUL' or self.status == 'ACTIVE'):
             if self.type == BUY2UNGLUE:
