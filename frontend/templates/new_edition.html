@@ -26,7 +26,7 @@
 		
 		<p>
 		<b>Authors</b>:
-		{% if edition.authors or edition.new_author_names %}
+		{% if edition.pk and edition.authors or edition.new_author_names %}
 		<ul>
 			{% if edition.pk and edition.authors %}
 				{% for author in edition.authors.all %}
