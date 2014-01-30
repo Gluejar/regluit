@@ -491,24 +491,48 @@ class Campaign(models.Model):
                 else:
                     self.problems.append(_('A campaign must initialized properly before it can be launched'))
                 may_launch = False
-            if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
-                self.problems.append(_('A campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+            if not self.description:
+                self.problems.append(_('A campaign must have a description'))
                 may_launch = False
-            if self.type==REWARDS and self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-                self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-                may_launch = False  
-            elif self.deadline.date()- date_today() < timedelta(days=0):         
-                self.problems.append(_('The chosen closing date is in the past'))
-                may_launch = False  
-            if self.type==BUY2UNGLUE and self.work.offers.filter(price__gt=0,active=True).count()==0: 
-                self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks' ))
-                may_launch = False  
-            if self.type==BUY2UNGLUE and EbookFile.objects.filter(edition__work=self.work).count()==0: 
-                self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
-                may_launch = False  
-            if self.type==BUY2UNGLUE and ((self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now())):
-                self.problems.append(_('You must set an initial Ungluing Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
-                may_launch = False  
+            if self.type==REWARDS:
+                if self.deadline:
+                    if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
+                        self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
+                        may_launch = False  
+                else:
+                    self.problems.append(_('A pledge campaign must have a closing date'))
+                    may_launch = False
+                if self.target:
+                    if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
+                        self.problems.append(_('A pledge campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+                        may_launch = False
+                else:
+                    self.problems.append(_('A campaign must have a target'))
+                    may_launch = False
+            if self.type==BUY2UNGLUE:
+                if self.work.offers.filter(price__gt=0,active=True).count()==0: 
+                    self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks' ))
+                    may_launch = False  
+                if EbookFile.objects.filter(edition__work=self.work).count()==0: 
+                    self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded' ))
+                    may_launch = False  
+                if ((self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now())):
+                    self.problems.append(_('You must set an initial Ungluing Date that is in the future and not after %s' % settings.MAX_CC_DATE ))
+                    may_launch = False  
+                if self.target:
+                    if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
+                        self.problems.append(_('A buy-to-unglue campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
+                        may_launch = False
+                else:
+                    self.problems.append(_('A buy-to-unglue campaign must have a target'))
+                    may_launch = False
+            if self.type==THANKS:
+                if self.work.offers.filter(price__gt=0,active=True).count()==0: 
+                    self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign without suggesting a contribution amount > 0' ))
+                    may_launch = False  
+                if EbookFile.objects.filter(edition__work=self.work).count()==0: 
+                    self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded' ))
+                    may_launch = False  
         except Exception as e :
             self.problems.append('Exception checking launchability ' + str(e))
             may_launch = False
@@ -855,6 +879,8 @@ class Campaign(models.Model):
     @property
     def countdown(self):
         from math import ceil
+        if not self.deadline:
+            return ''
         time_remaining = self.deadline - now()
         countdown = ""
     
@@ -867,7 +893,11 @@ class Campaign(models.Model):
         else:
             countdown = "Seconds"
             
-        return countdown    
+        return countdown  
+    
+    @property
+    def deadline_or_now(self):
+        return self.deadline if self.deadline else now()
 
     @classmethod
     def latest_ending(cls):
@@ -1038,21 +1068,37 @@ class Work(models.Model):
 
     def cover_image_thumbnail(self):
         try:
-            if self.preferred_edition.cover_image_thumbnail():
+            if self.preferred_edition and self.preferred_edition.cover_image_thumbnail():
                 return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             pass
         return "/static/images/generic_cover_larger.png"
         
-    def author(self):
-        # note: if you want this to be a real list, use distinct()
-        # perhaps should change this to vote on authors.
-        authors = list(Author.objects.filter(editions__work=self).all())
-        try:
-            return authors[0].name
-        except:
-            return ''
+    def authors(self):
+        # assumes that they come out in the same order they go in!
+        if self.preferred_edition and self.preferred_edition.authors.all().count()>0:
+            return  self.preferred_edition.authors.all()
+        for edition in self.editions.all():
+            if edition.authors.all().count()>0:
+                return edition.authors.all()
+        return Author.objects.none()
         
+    def author(self):
+        # assumes that they come out in the same order they go in!
+        if self.authors().count()>0:
+            return self.authors()[0].name
+        return ''
+        
+    def authors_short(self):
+        # assumes that they come out in the same order they go in!
+        if self.authors().count()==1:
+            return self.authors()[0].name
+        elif self.authors().count()==2:
+            return "%s and %s" % (self.authors()[0].name, self.authors()[1].name)
+        elif self.authors().count()>2:
+            return "%s et al." % self.authors()[0].name
+        return ''
+
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
         if hasattr(self, '_last_campaign_'):
@@ -1068,7 +1114,7 @@ class Work(models.Model):
         if self.last_campaign():
             if self.last_campaign().edition:
                 return self.last_campaign().edition
-        return self.editions.all()[0]
+        return self.editions.all()[0] if self.editions.all().count() else None
         
     def last_campaign_status(self):
         campaign = self.last_campaign()

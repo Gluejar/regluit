@@ -1621,11 +1621,12 @@ def rh_tools(request):
                 if claim.campaign_form.is_valid():                    
                     new_campaign = claim.campaign_form.save(commit=False)
                     if new_campaign.type==BUY2UNGLUE:
-                        new_campaign.deadline = date_today() + settings.B2U_TERM
                         new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
                         new_campaign.set_cc_date_initial()
-                    else:
+                    elif new_campaign.type==REWARDS:
                         new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
+                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
+                    elif new_campaign.type==THANKS:
                         new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()

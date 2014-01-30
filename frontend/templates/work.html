@@ -86,7 +86,12 @@
                                     <h2 class="book-name" itemprop="name">{{ work.title }}</h2>
                                 <div>
                                         <div class="pubinfo">
-                                            <h3 class="book-author" itemprop="author">{{ work.author }}</h3>
+                                            <h3 class="book-author">
+                                            <span  itemprop="author">{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
+                                                and <span  itemprop="author">{{ work.authors.1.name }}
+                                            {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span  itemprop="author">{{ author.name }}</span>{% endif %}{% endfor %}
+                                            {% endif %}
+                                            </h3>
                                             <h3 class="book-year"> 
                                                 {% if work.last_campaign.publisher %}
                                                 <span itemprop="publisher"><a href="{% url bypubname_list work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>

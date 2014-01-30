@@ -8,7 +8,7 @@
 <h3> Work being claimed  </h3>
 <ul>
 <li>Title: <a href="{% url work work.id %}">{{ work.title }}</a></li>
-<li>Author: {{ work.author }}</li>
+<li>Author: {{ work.authors_short }}</li>
 </ul>
 {% if active_claims.count %}
 
