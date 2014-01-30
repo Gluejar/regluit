@@ -69,7 +69,7 @@
 		
             <p><b>Subjects</b>:
             <ul>
-                {% if edition.work.subjects %}
+                {% if edition.work.pk and edition.work.subjects %}
                     {% for subject in edition.work.subjects.all %}
                         <li>{{ subject.name }}</li>
                     {% endfor %}
