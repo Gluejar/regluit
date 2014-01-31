@@ -122,6 +122,7 @@ class EditionForm(forms.ModelForm):
     )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
+    coverfile = forms.ImageField(required=False)
     
     def clean(self):
         if not self.cleaned_data.get("isbn",False) and not self.cleaned_data.get("oclc",False)  and not self.cleaned_data.get("goog",False):
@@ -136,6 +137,7 @@ class EditionForm(forms.ModelForm):
                 'add_author': forms.TextInput(attrs={'size': 30}),
                 'add_subject': forms.TextInput(attrs={'size': 30}),
                 'unglued': forms.CheckboxInput(),
+                'cover_image': forms.TextInput(attrs={'size': 60}),
             }
             
 class EbookFileForm(forms.ModelForm):
