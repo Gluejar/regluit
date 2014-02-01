@@ -250,7 +250,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     # let's put in a Luhn-invalid # e.g., 4242424242424241
     sel.execute_script("""document.getElementById("card_Number").value="4242424242424241";""")
     sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
-    sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    sel.execute_script("""document.getElementById("card_ExpiryYear").value="18";""")
     sel.execute_script("""document.getElementById("card_CVC").value="321";""")
     
     verify_cc_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Complete Pledge']"))
@@ -262,7 +262,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     # should succeed
     sel.execute_script("""document.getElementById("card_Number").value={0};""".format(stripelib.TEST_CARDS[0][0]))
     sel.execute_script("""document.getElementById("card_ExpiryMonth").value="01";""")
-    sel.execute_script("""document.getElementById("card_ExpiryYear").value="14";""")
+    sel.execute_script("""document.getElementById("card_ExpiryYear").value="18";""")
     sel.execute_script("""document.getElementById("card_CVC").value="321";""")
     
     time.sleep(2)
