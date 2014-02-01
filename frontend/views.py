@@ -553,7 +553,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     file.write(cover_file.read())
                     file.close()
                     #and put its url into cover_image
-                    edition.cover_image = 'https://%s.s3.amazonaws.com%s' % (settings.AWS_STORAGE_BUCKET_NAME , cover_file_name)
+                    edition.cover_image = default_storage.url(cover_file_name)
                     edition.save()
                 return HttpResponseRedirect(work_url)
     else:
