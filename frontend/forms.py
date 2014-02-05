@@ -62,6 +62,7 @@ from regluit.core.lookups import (
 from regluit.utils.localdatetime import now
 from regluit.utils.fields import EpubFileField
 from regluit.mobi import Mobi
+from regluit.pyepub import EPUB
 
 logger = logging.getLogger(__name__)
 
@@ -168,12 +169,14 @@ class EbookFileForm(forms.ModelForm):
         the_file = self.cleaned_data.get('file',None)
         if the_file and the_file.name:
             if format == 'epub':
-                if not zipfile.is_zipfile(the_file.file):
-                    raise forms.ValidationError(_('%s is not a valid EPUB file' % the_file.name) )
+                try:
+                    book = EPUB(the_file.file)
+                except Exception as e:
+                    raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
             elif format == 'mobi':
                 try:
-                    book = Mobi(the_file.file);
-                    book.parse();
+                    book = Mobi(the_file.file)
+                    book.parse()
                 except Exception as e:
                     raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
             elif format == 'pdf':
