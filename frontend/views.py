@@ -436,14 +436,21 @@ def edition_uploads(request, edition_id):
             form.save()
             context['uploaded']=True
             if campaign_type == BUY2UNGLUE:
-                # campaign mangager gets a copy
-                test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
-                try:
-                    test_acq.get_watermarked()
-                    context['watermarked']= test_acq.watermarked
-                except Exception as e:
-                    context['upload_error']= e
-                    form.instance.delete()
+                if edition.work.last_campaign().status == 'SUCCESSFUL':
+                    try:
+                        edition.work.last_campaign().watermark_success()
+                    except Exception as e:
+                        context['upload_error']= e
+                        form.instance.delete()
+                else:
+                    # campaign mangager gets a copy
+                    test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
+                    try:
+                        test_acq.get_watermarked()
+                        context['watermarked']= test_acq.watermarked
+                    except Exception as e:
+                        context['upload_error']= e
+                        form.instance.delete()
             if campaign_type == THANKS:
                 e = form.instance.check_file()
                 if e != None:

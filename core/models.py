@@ -918,6 +918,13 @@ class Campaign(models.Model):
                 provider="Unglue.it",
                 url= settings.BASE_URL_SECURE + reverse('download_campaign',args=[self.work.id,format]),
                 )
+        old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
+                format=format, 
+                rights=self.license, 
+                provider="Unglue.it",
+                )
+        for old_ebook in old_ebooks:
+            old_ebook.delete()
         return ebook.pk
                 
 
