@@ -33,7 +33,7 @@ regluit imports
 '''
 import regluit
 import regluit.core.isbn
-from regluit.core.epub import personalize, ungluify
+from regluit.core.epub import personalize, ungluify, test_epub
 
 from regluit.core.signals import (
     successful_campaign,
@@ -625,7 +625,9 @@ class Campaign(models.Model):
         
     @property
     def cc_date(self):
-        if self.dollar_per_day is None:
+        if self.type in { REWARDS, THANKS }:
+            return None
+        if self.dollar_per_day == None:
             return self.cc_date_initial.date()
         cc_advance_days = float(self.current_total) / self.dollar_per_day
         return (self.cc_date_initial-timedelta(days=cc_advance_days)).date()
@@ -866,6 +868,8 @@ class Campaign(models.Model):
         return ''
         
     def percent_of_goal(self):
+        if self.type == THANKS:
+            return 100
         percent = 0
         if(self.status == 'SUCCESSFUL' or self.status == 'ACTIVE'):
             if self.type == BUY2UNGLUE:
@@ -1520,6 +1524,10 @@ class EbookFile(models.Model):
     edition = models.ForeignKey('Edition', related_name='ebook_files')
     created =  models.DateTimeField(auto_now_add=True)
     
+    def check_file(self):
+        if self.format == 'epub':
+            return test_epub(self.file)
+        return None
     
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS

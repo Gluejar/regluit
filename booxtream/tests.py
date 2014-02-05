@@ -11,6 +11,9 @@ class TestBooXtream(unittest.TestCase):
         test_file_content = urllib2.urlopen('http://www.hxa.name/articles/content/EpubGuide-hxa7241.epub')
         self.epub2file.write(test_file_content.read())
         self.epub2file.seek(0)
+        self.textfile = NamedTemporaryFile(delete=False)
+        self.textfile.write("bad text file")
+        self.textfile.seek(0)
 
 
     def _makeOne(self):
@@ -24,6 +27,19 @@ class TestBooXtream(unittest.TestCase):
         with self.assertRaises(BooXtreamError) as cm:
             inst.platform()
         self.assertIn( 'expirydays not set',str(cm.exception))
+        params={
+            'customername': 'Jane Test',
+            'languagecode':'1043',
+            'expirydays': 1,
+            'downloadlimit': 3,
+            'exlibris':1,
+            'chapterfooter':1,
+            'disclaimer':1,
+            'referenceid':'bad_file_check'
+            }
+        with self.assertRaises(BooXtreamError) as cm:
+            inst.platform(epubfile=self.textfile, **params)
+
 
 
     def test_booxtream_good(self):
