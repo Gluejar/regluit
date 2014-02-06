@@ -1072,11 +1072,8 @@ class Work(models.Model):
         return "http://openlibrary.org" + self.openlibrary_id
 
     def cover_image_small(self):
-        try:
-            if self.preferred_edition.cover_image_small():
-                return self.preferred_edition.cover_image_small()
-        except IndexError:
-            pass
+        if self.preferred_edition and self.preferred_edition.cover_image_small():
+            return self.preferred_edition.cover_image_small()
         return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
