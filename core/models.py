@@ -426,6 +426,7 @@ class Campaign(models.Model):
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
     do_watermark = models.BooleanField(default=True)
+    files_reviewed = models.BooleanField(default=True)
     
     def __init__(self, *args, **kwargs):
         self.problems=[]
@@ -533,6 +534,9 @@ class Campaign(models.Model):
                 if EbookFile.objects.filter(edition__work=self.work).count()==0: 
                     self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded' ))
                     may_launch = False  
+            if not self.files_reviewed:
+                self.problems.append(_('Ebook file needs to be reviewed by unglue.it Staff. Please contact support@gluejar.com ' ))
+                may_launch = False
         except Exception as e :
             self.problems.append('Exception checking launchability ' + str(e))
             may_launch = False

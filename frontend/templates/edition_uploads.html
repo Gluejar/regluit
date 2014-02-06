@@ -51,6 +51,9 @@
             {{ upload_error }}</pre></p>
         {% endif %}
     {% endifequal %}
+    {% if not work.last_campaign.files_reviewed %}
+    <p class="yikes">Uploaded files should be reviewed by Unglue.it staff. Please contact us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
+    {% endif %}
 {% endif %}
 {{ upload_error }}
 <h2>Upload Ebook files</h2>

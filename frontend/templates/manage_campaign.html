@@ -132,6 +132,9 @@ Please fix the following before launching your campaign:
         <p> <b>An Ebook file has been loaded.</b> </p>
         <p>Active file: {{campaign.work.ebookfiles.0.file}} created {{campaign.work.ebookfiles.0.created}} </p>
         <p>Edition: <i>{{ campaign.work.ebookfiles.0.edition }}</i> </p>
+        {% if not campaign.files_reviewed %}
+        <p class="yikes">Before you launch your campaign, please have your ebook files reviewed (email <a href="mailto:support@gluejar.com">support@gluejar.com</a>)</p>
+        {% endif %}
     {% endif %}
 <form action="#" method="POST">
 	{% csrf_token %}
@@ -437,6 +440,10 @@ Please fix the following before launching your campaign:
             <p> Buy To Unglue campaigns can't be launched until ebook files <a class="tabs1">have been loaded</a> and <a  class="tabs2">pricing has been set and made active</a></p>
             <!-- {{campaign.problems }} -->
             {% endifequal %}
+            {% if not campaign.files_reviewed %}
+            <p class="yikes">Before you launch your campaign, please have your ebook files reviewed (email <a href="mailto:support@gluejar.com">support@gluejar.com</a>)</p>
+            {% endif %}
+
             
 		{% endif %}
 	{% else %}
