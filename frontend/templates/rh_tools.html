@@ -119,7 +119,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				{% else %}
 					<input type="hidden" id="type" name="type" value="1" />
 				{% endif %}
-				<div style="width:200px" >Choose your Campaign Manager(s): {{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</div>
+				<p>Add a Campaign Manager(s) by their Unglue.it username: </p><div style="width:200px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</div>
 				<p>
 				{{ claim.campaign_form.work }}{{ claim.campaign_form.work.errors }}
 				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}

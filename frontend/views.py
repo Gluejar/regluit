@@ -1643,7 +1643,7 @@ def rh_tools(request):
             else:
                 c_type = 2 if claim.rights_holder.can_sell else 1
                 claim.campaign_form = OpenCampaignForm(
-                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type},
+                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers': [request.user.id], 'type': c_type},
                     prefix = 'cl_'+str(claim.id),
                     )
     campaigns = request.user.campaigns.all()
