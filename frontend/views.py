@@ -1658,7 +1658,7 @@ def rh_tools(request):
                 campaign.clone_form= CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix = 'c%s' % campaign.id)
     return render(request, "rh_tools.html", {'claims': claims ,'campaigns': campaigns}) 
 
-def rh_admin(request):
+def rh_admin(request, facet='top'):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
     if not request.user.is_staff :
@@ -1691,6 +1691,7 @@ def rh_admin(request):
         'pending': zip(pending_data,pending_formset),
         'pending_formset': pending_formset,
         'active_data': active_data,
+        'facet': facet,
     }
     return render(request, "rights_holders.html", context)
 
