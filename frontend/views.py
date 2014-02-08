@@ -2803,15 +2803,15 @@ def kindle_config(request, work_id=None):
 def send_to_kindle(request, work_id, javascript='0'):
 
     # make sure to gracefully communicate with both js and non-js (kindle!) users
-    def local_response(request, javascript, message):
+    def local_response(request, javascript, context, message):
+        context['message'] = message
         if javascript == '1':
-            return render(request,'kindle_response_message.html',{'message': message} )
+            return render(request,'kindle_response_message.html',context )
         else:
-            # can't pass context with HttpResponseRedirect
-            # must use an HttpResponse, not a render(), after POST
-            return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
+            return render(request, 'kindle_response_graceful_degradation.html', context)
     
     work=safe_get_work(work_id)
+    context= {'work':work}
     acq = None
     if request.user.is_authenticated():
         try:
@@ -2840,17 +2840,19 @@ def send_to_kindle(request, work_id, javascript='0'):
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.title
     title = title.replace(' ', '_')
+    context['ebook_url']=ebook_url
+    context['ebook_format']=ebook_format
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']
         try:
             validate_email(kindle_email)
         except ValidationError:
-            return local_response(request, javascript, 3)
+            return local_response(request, javascript,  context, 3)
         request.session['kindle_email'] = kindle_email
     elif request.user.is_authenticated():
         kindle_email = request.user.profile.kindle_email     
-            
+    context['kindle_email'] = kindle_email
 
     
     """
@@ -2870,7 +2872,7 @@ def send_to_kindle(request, work_id, javascript='0'):
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
     if filesize > 7492232:
         logger.info('ebook %s is too large to be emailed' % work.id)
-        return local_response(request, javascript, 0)
+        return local_response(request, javascript,  context, 0)
         
     try:
         email = EmailMessage(from_email='notices@gluejar.com',
@@ -2879,18 +2881,12 @@ def send_to_kindle(request, work_id, javascript='0'):
         email.send()
     except:
         logger.warning('Unexpected error: %s', sys.exc_info())
-        return local_response(request, javascript, 1)
+        return local_response(request, javascript,  context, 1)
 
     if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('superlogin'))
-    return local_response(request, javascript, 2)
-
-def send_to_kindle_graceful(request, message):
-    return render(
-        request,
-        'kindle_response_graceful_degradation.html',
-        {'message': int(message)}
-    )
+    return local_response(request, javascript,  context, 2)
+    
     
 def marc(request, userlist=None):
     link_target = 'UNGLUE'
