@@ -104,7 +104,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />PSA #: {{ claim.rights_holder.id }}
 			<br />Date of Claim : {{ claim.created }}
 			<br />Status of Claim: {{ claim.get_status_display }}
-			{% if claim.can_open_new  %}
+			{% if claim.campaign_form  %}
 			<h3>Open a blank campaign for this work</h3>
 			<form method="POST" action="#">
 				{% csrf_token %}
@@ -127,10 +127,10 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				
 				<input type="submit" name="submit" value="Open Campaign">
 			</form>
-			{% else %}{%if claim.campaigns %}			
-			<h3>Campaigns for this work</h3>
+			{% else %}{%if claim.campaign %}			
+			<h3>Campaign for this work</h3>
 
-			{% for campaign in claim.campaigns %}
+			{% with claim.campaign as campaign %}
 			<div class="work_campaigns clearfix">
 				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
 					<div class="campaign_info">
@@ -162,7 +162,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 					</div>
 				{% endif %}
 			</div>
-			{% endfor %}
+			{% endwith %}
 			{% endif %}
 			{% endif %}
 			{% if claim.work.first_ebook %}

@@ -1612,19 +1612,6 @@ def rh_tools(request):
     if not claims:
         return render(request, "rh_tools.html")
     for claim in claims:
-        if claim.status == 'active':
-            claim.campaigns = claim.work.campaigns.all()
-        else:
-            claim.campaigns = []
-        for campaign in claim.campaigns:
-            if campaign.status in ['ACTIVE','INITIALIZED']:
-                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
-                    campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
-                    if campaign.edit_managers_form.is_valid():
-                        campaign.edit_managers_form.save()
-                        campaign.edit_managers_form = EditManagersForm(instance=campaign, prefix=campaign.id)
-                else:
-                    campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.can_open_new:
             if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
@@ -1640,12 +1627,22 @@ def rh_tools(request):
                         new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
+                    claim.campaign_form = None
             else:
                 c_type = 2 if claim.rights_holder.can_sell else 1
                 claim.campaign_form = OpenCampaignForm(
                     initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers': [request.user.id], 'type': c_type},
                     prefix = 'cl_'+str(claim.id),
                     )
+        if claim.campaign:
+            if claim.campaign.status in ['ACTIVE','INITIALIZED']:
+                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% claim.campaign.id) :
+                    claim.campaign.edit_managers_form=EditManagersForm( instance=claim.campaign, data=request.POST, prefix=claim.campaign.id)
+                    if claim.campaign.edit_managers_form.is_valid():
+                        claim.campaign.edit_managers_form.save()
+                        claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
+                else:
+                    claim.campaign.edit_managers_form=EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
     campaigns = request.user.campaigns.all()
     new_campaign = None
     for campaign in campaigns:
