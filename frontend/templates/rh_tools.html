@@ -106,9 +106,10 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.campaign_form  %}
 			<h3>Open a blank campaign for this work</h3>
+			<div class="work_campaigns clearfix" style="padding: 5px;">
 			<form method="POST" action="#">
-				{% csrf_token %}
-				<p>Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
+				<p>{% csrf_token %}
+				Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
 				{% if claim.rights_holder.can_sell %}
 					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
 					<ol>
@@ -119,14 +120,17 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				{% else %}
 					<input type="hidden" id="type" name="type" value="1" />
 				{% endif %}
-				<p>Add a Campaign Manager(s) by their Unglue.it username: </p><div style="width:200px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}</div>
+				<p>Add a Campaign Manager(s) by their Unglue.it username: </p>
+				<div style="width:220px; padding-left:20px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}
+				<br />
+				<input type="submit" name="submit" value="Open Campaign">
+				</div>
 				<p>
 				{{ claim.campaign_form.work }}{{ claim.campaign_form.work.errors }}
 				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
 				</p>
-				
-				<input type="submit" name="submit" value="Open Campaign">
 			</form>
+			</div>
 			{% else %}{%if claim.campaign %}			
 			<h3>Campaign for this work</h3>
 
@@ -138,8 +142,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 						Created: {{ campaign.created }}<br />
 						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
 							<form method="POST" action="#">{% csrf_token %}
-								Add/Remove Managers: {{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+								<div style="width:220px; padding-left:20px" >
+								Add/Remove Managers: 
+								{{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
 								<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
+								</div>
 							</form>
 					</div>
 					{% if request.user in campaign.managers.all %}
