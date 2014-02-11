@@ -268,6 +268,13 @@ class Offer(models.Model):
     def days_per_copy(self):
         return Decimal(float(self.price) / self.work.last_campaign().dollar_per_day )
     
+    @property   
+    def get_thanks_display(self):
+        if self.license == LIBRARY:
+            return 'Suggested contribution for libraries'
+        else:
+            return 'Suggested contribution for individuals'
+    
 class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 

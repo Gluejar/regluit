@@ -102,28 +102,37 @@
                                     </div>
                                 </div>
                                 {% ifequal status 'ACTIVE' %}
-                                    <div class="thermometer" title="{{ work.percent_of_goal }}% of goal">
-                                        <div class="cover" style="width: {{ cover_width }}%;">
+                                    {% ifnotequal work.last_campaign.type 3 %}
+                                        <div class="thermometer" title="{{ work.percent_of_goal }}% of goal">
+                                            <div class="cover" style="width: {{ cover_width }}%;">
+                                            </div>
+                                            <span>{{ work.percent_of_goal }}% of goal</span>
                                         </div>
-                                        <span>{{ work.percent_of_goal }}% of goal</span>
-                                    </div>
+                                    {% endifnotequal %}
                                     <div class="pledged-info noborder">
                                         <div class="campaign-status-info">
                                             {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
-                                            {% else %}
+                                            {% endifequal %}
+                                            {% ifequal work.last_campaign.type 2 %}
                                             current ungluing date: 
+                                            {% endifequal %}
+                                            {% ifequal work.last_campaign.type 3 %}
+                                            <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> of thanks from
                                             {% endifequal %}
                                         </div>
                                         <div class="campaign-status-info  explainer">
                                             {% ifequal work.last_campaign.type 1 %}
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
-                                            {% else %}
+                                            {% endifequal %}
+                                            {% ifequal work.last_campaign.type 2 %}
                                             <span class="current_cc_date ">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
                                             <span class="explanation">After {{ work.last_campaign.cc_date|date:"M j, Y" }} this book will be available for free to anyone, anywhere. Every purchase before then brings that date closer.</span>
-                                           {% endifequal %}
+                                            {% endifequal %}
+                                            {% ifnotequal work.last_campaign.type 3 %}
                                         </div>
                                         <div class="campaign-status-info">
+                                            {% endifnotequal %}
                                             {% if work.last_campaign.supporters_count == 1 %}
                                                 <span>1</span> ungluer
                                             {% else %}
@@ -139,14 +148,16 @@
                                                 {% endif %}                                    
                                             </div>
                                         {% endifequal %}
-                                        <div class="campaign-status-info explainer">
-                                            {% ifequal work.last_campaign.type 1 %}
-                                            <span>{{ work.last_campaign.countdown }}</span> to go
-                                            {% else %}
-                                            <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
-                                            <span class="explanation">${{ work.last_campaign.left|floatformat:0|intcomma  }} is the amount it would take to make this ebook free to the world tomorrow.</span>
-                                           {% endifequal %}
-                                        </div>
+                                        {% ifnotequal work.last_campaign.type 3 %}
+                                            <div class="campaign-status-info explainer">
+                                                {% ifequal work.last_campaign.type 1 %}
+                                                <span>{{ work.last_campaign.countdown }}</span> to go
+                                                {% else %}
+                                                <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
+                                                <span class="explanation">${{ work.last_campaign.left|floatformat:0|intcomma  }} is the amount it would take to make this ebook free to the world tomorrow.</span>
+                                               {% endifequal %}
+                                            </div>
+                                        {% endifnotequal %}
                                     </div>
                                 {% else %}
                                     {% ifequal status 'SUCCESSFUL' %}
@@ -235,13 +246,17 @@
                         <div id="content-block-content">
                             <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                                 <div class="tabs-content">
-                                    {% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
-                                    <div  itemprop="description">{{ work.last_campaign.description|safe }}</div>
+                                    <div  itemprop="description">
+                                    {% if status == 'ACTIVE'  %}
+                                        {% if work.last_campaign.type != 3 %}
+                                            {{ work.last_campaign.description|safe }}
+                                        {% else %}
+                                            {{ work.description|safe }}
+                                        {% endif %}
                                     {% else %}
-                                    <h3 class="tabcontent-title">{{work.title}}</h3>
-                                    <p itemprop="description">{{ work.description|safe }}
-                                    </p>
+                                        {{ work.description|safe }}
                                     {% endif %}
+                                    </div>
                                 </div>
                             </div>
                             <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
@@ -474,6 +489,11 @@
                         {% else %}
                             <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                         {% endif %}
+                      {% else %}{% if work.last_campaign.type == 3 %}
+                        <div class="btn_support">
+                            <a href="{% url download work_id %}" class="hijax"><span>Download</span></a>
+                        </div>
+                        <div style="text-align: center;">... and thank the creators!</div>
                       {% else %}
                         {% if license_is_active %}
                             <div class="btn_support">
@@ -484,7 +504,7 @@
                         {% else %}
                             <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="{% if next_acq %}{% if on_hold %}On Hold{% else %}Reserve{% endif %}{% else %}Purchase{% endif %}" /></form></div>
                         {% endif %}{% endif %}
-                      {% endif %}
+                      {% endif %}{% endif %}
                     {% else %}
                         {% if work.first_ebook %}
                             <div class="btn_support">
@@ -618,7 +638,8 @@
                                     {% endif %}
                                 </ul>
                             </div>
-                        {% else %}
+                        {% endifequal %}
+                        {% ifequal work.last_campaign.type 2 %}
                             {% if lib_licenses.available %}
                                 <h3 class="jsmod-title"><span>Borrow</span></h3>
                                 <div class="jsmod-content">
@@ -671,6 +692,31 @@
                                     </ul>
                                 </div>
                             {% endif %}
+                        {% endifequal %}
+                        {% ifequal work.last_campaign.type 3 %}
+                            <h3 class="jsmod-title"><span>Thank the Creators</span></h3>
+                            <div class="jsmod-content">
+                                <ul class="support menu">
+                                    {% if purchased %}
+                                    <li class="first no_link">
+                                        <span class="menu-item-desc">You're welcome!</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="first">
+                                        <a href="{% url thank work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
+                                        <span class="menu-item-price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_thanks_display }}</span>
+                                        </a>
+                                    </li>
+                                    <li class="last">
+                                        <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
+                                        <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_thanks_display }}</span>
+                                        </a>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
                         {% endifequal %}
                         </div>
                     {% endif %}

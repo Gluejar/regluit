@@ -357,9 +357,9 @@ function highlightTarget(targetdiv) {
                     {% lazy_paginate 20 works_active using "works_active" %}
                     {% for work in works_active %}
                     <div class="{% cycle 'row1' 'row2' %}">
-					{% with work.googlebooks_id as googlebooks_id %}
+					{% with work.googlebooks_id as googlebooks_id %}{% with 'tabs-2' as tab_override %}
                     {% include "book_panel.html" %}
-                    {% endwith %}
+                    {% endwith %}{% endwith %}
                     </div>
                     {% endfor %}
                     <div class="pagination content-block-heading tabs-2">
