@@ -2,6 +2,14 @@
 {% block title %} Library Admin {% endblock %}
 {% block extra_extra_head %}
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+<style type="text/css">
+.group-border {
+    border: solid #edf3f4;
+    border-width: 2px;
+    padding: 10px;
+    border-radius: 10px;
+    }
+</style>
 {{ form.media.css }}
 <script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
 
@@ -22,6 +30,7 @@
 </ol>
 {% endif %}
 <p>{{ status }}</p>
+<div class="group-border">
 <form method="POST" action="#" class="std_form">
 	{% csrf_token %}
 	{{ form.work }}
@@ -41,6 +50,7 @@
 	</div>    
 	<input type="submit" name="create_new_library" value="{% if library.pk %}Save Edits{% else %}Create A Library{% endif %}" id="submit">
 </form>
+</div>
 {% if library.pk %}
     <h2>Settings for {{ library }}</h2>
     <ul class="terms">
@@ -66,6 +76,7 @@
 {% endif %}
 {% if backend_admin_forms %}
 <h2>User Verification Setup</h2>
+<div class="group-border">
 {% include form.instance.help_template %}
     {% for backend_admin_form in backend_admin_forms %}
         <form method="POST" action="#">
@@ -78,7 +89,7 @@
         <br />
     {% endfor %}
 {% endif %}
-
+</div>
 <h2>More info</h2>
 <ul><li><a href="{% url libraries %}">Unglue.it libraries</a></li></ul>
 {% endblock %}
