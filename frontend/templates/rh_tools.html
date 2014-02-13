@@ -49,22 +49,30 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<div class="work_campaigns clearfix">
 			<div class="campaign_info">
 			{% ifequal campaign.type 1 %}
-			<b>Pledge Campaign</b><br />
-			Campaign status: {{ campaign.status }}	<br />
-			Created: {{ campaign.created }}<br />
-			${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+				<b>Pledge Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 			{% endifequal %}
 			{% ifequal campaign.type 2 %}
-			<b>Buy-to-Unglue Campaign</b><br />
-			Campaign status: {{ campaign.status }}	<br />
-			Created: {{ campaign.created }}<br />
-			${{ campaign.current_total }} sold. ${{ campaign.target }} to go. Ungluing Date: {{ campaign.cc_date }}
+				<b>Buy-to-Unglue Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} sold. ${{ campaign.target }} to go. Ungluing Date: {{ campaign.cc_date }}<br />
+				{% with campaign.work.preferred_edition as edition %}
+					<a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.<br />
+				{% endwith %}
 			{% endifequal %}
 			{% ifequal campaign.type 3 %}
-			<b>Thanks-for-Ungluing Campaign</b><br />
-			Campaign status: {{ campaign.status }}	<br />
-			Created: {{ campaign.created }}<br />
-			${{ campaign.current_total }} raised from  {{ campaign.supporters_count }} supporters.
+				<b>Thanks-for-Ungluing Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} raised from  {{ campaign.supporters_count }} supporters.
+				{% with campaign.work.preferred_edition as edition %}
+					<a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.<br />
+				{% endwith %}
 			{% endifequal %}
 			</div>
 			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}

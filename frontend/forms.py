@@ -2,6 +2,7 @@
 external library imports
 """
 import logging
+import zipfile
 
 from datetime import timedelta, datetime, date
 from decimal import Decimal as D
@@ -25,6 +26,9 @@ from selectable.forms import (
     AutoCompleteSelectWidget,
     AutoCompleteSelectField
 )
+
+from PyPDF2 import PdfFileReader
+
 
 """
 regluit imports
@@ -122,6 +126,7 @@ class EditionForm(forms.ModelForm):
     )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
+    coverfile = forms.ImageField(required=False)
     
     def clean(self):
         if not self.cleaned_data.get("isbn",False) and not self.cleaned_data.get("oclc",False)  and not self.cleaned_data.get("goog",False):
@@ -136,16 +141,47 @@ class EditionForm(forms.ModelForm):
                 'add_author': forms.TextInput(attrs={'size': 30}),
                 'add_subject': forms.TextInput(attrs={'size': 30}),
                 'unglued': forms.CheckboxInput(),
+                'cover_image': forms.TextInput(attrs={'size': 60}),
             }
             
 class EbookFileForm(forms.ModelForm):
-    file = EpubFileField(max_length=16777216)
-    def clean_format(self):
-        return 'epub'
+    file = forms.FileField(max_length=16777216)
     
+    def __init__(self, campaign_type=BUY2UNGLUE, *args, **kwargs):
+        super(EbookFileForm, self).__init__(*args, **kwargs)
+        self.campaign_type = campaign_type
+        if campaign_type == BUY2UNGLUE:
+            self.fields['format'].widget=forms.HiddenInput()
+        if campaign_type == THANKS:
+            self.fields['format'].widget=forms.Select(choices=(('pdf','PDF'),( 'epub','EPUB'), ('mobi','MOBI')))
+        
+    def clean_format(self):
+        if self.campaign_type is BUY2UNGLUE:
+            return 'epub'
+        else:
+            logger.info("EbookFileForm "+self.cleaned_data.get('format',''))
+            return self.cleaned_data.get('format','')
+            
+    def clean(self):
+        format = self.cleaned_data['format']
+        the_file = self.cleaned_data.get('file',None)
+        if the_file and the_file.name:
+            if format == 'epub':
+                if not zipfile.is_zipfile(the_file.file):
+                    raise forms.ValidationError(_('%s is not a valid EPUB file' % the_file.name) )
+            elif format == 'mobi':
+                if not zipfile.is_zipfile(the_file.file):
+                    raise forms.ValidationError(_('%s is not a valid MOBI file' % the_file.name) )
+            elif format == 'pdf':
+                try:
+                    doc = PdfFileReader(the_file.file)
+                except Exception, e:
+                    raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+        return self.cleaned_data
+
     class Meta:
         model = EbookFile
-        widgets = { 'edition': forms.HiddenInput, 'format': forms.HiddenInput }
+        widgets = { 'edition': forms.HiddenInput}
         exclude = { 'created', }
 
 class EbookForm(forms.ModelForm):

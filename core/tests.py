@@ -65,6 +65,7 @@ from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 from regluit.utils.localdatetime import now, date_today
 from regluit.pyepub import EPUB
+from .epub import test_epub
 
 class BookLoaderTests(TestCase):
     def setUp(self):
@@ -829,6 +830,11 @@ class MailingListTests(TestCase):
 
 @override_settings(LOCAL_TEST=True)
 class EbookFileTests(TestCase):
+    def test_badepub_errors(self):
+        textfile = NamedTemporaryFile(delete=False)
+        textfile.write("bad text file")
+        textfile.seek(0)
+        self.assertTrue(test_epub(textfile))
 
     def test_ebookfile(self):
         """

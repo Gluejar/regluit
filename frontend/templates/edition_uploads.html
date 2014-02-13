@@ -29,22 +29,38 @@
 {% endif %}
 {% if uploaded %}
     <h2> Your file was successfully loaded. </h2>
-    {% if watermarked %}
-        <p> Reference id: <b>{{watermarked.referenceid}}</b></p>
-        <ul> 
-        <li><a href="{{watermarked.download_link_epub}}">Watermarked epub for testing</a></li>
-        <li><a href="{{watermarked.download_link_mobi}}">Watermarked mobi for testing</a></li>
-        </ul>
-    {% else %}
-        <p>
-        <span class="yikes">Unfortunately, your file failed testing.</span>
-        The error(s) were: <pre>
-        {{ upload_error }}</pre>
-    {% endif %}
+    {% ifequal edition.work.last_campaign.type 2 %}
+        {% if watermarked %}
+            <p> Reference id: <b>{{watermarked.referenceid}}</b></p>
+            <ul> 
+            <li><a href="{{watermarked.download_link_epub}}">Watermarked epub for testing</a></li>
+            <li><a href="{{watermarked.download_link_mobi}}">Watermarked mobi for testing</a></li>
+            </ul>
+        {% else %}
+            <p>
+            <span class="yikes">Unfortunately, your file failed testing.</span>
+            The error(s) were: <pre>
+            {{ upload_error }}</pre>
+            </p>
+        {% endif %}
+    {% endifequal %}
+    {% ifequal edition.work.last_campaign.type 3 %}
+        {% if upload_error %}
+            <p><span class="yikes">Unfortunately, your file failed testing.</span>
+            The error(s) were: <pre>
+            {{ upload_error }}</pre></p>
+        {% endif %}
+    {% endifequal %}
 {% endif %}
-
+{{ upload_error }}
 <h2>Upload Ebook files</h2>
-<p>At this time, we accept only EPUB files for "Buy to Unglue" campaigns. Use the <a href=https://code.google.com/p/epubcheck/">epubcheck</a> tool to make sure everything will work properly.</p>
+{% ifequal edition.work.last_campaign.type 2 %}
+<p>At this time, we accept only EPUB files for "Buy to Unglue" campaigns. 
+{% endifequal %}
+{% ifequal edition.work.last_campaign.type 3 %}
+<p>You can upload PDF, EPUB and MOBI files for "Thanks for Ungluing" campaigns. 
+{% endifequal %}
+For ePUB files, use the <a href=https://code.google.com/p/epubcheck/">epubcheck</a> tool to make sure everything will work properly.</p>
 <form method="POST" action="#" enctype="multipart/form-data">
 {% csrf_token %}
 {{form.as_p}}

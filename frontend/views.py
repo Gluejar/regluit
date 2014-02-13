@@ -425,24 +425,34 @@ def edition_uploads(request, edition_id):
         edition = models.Edition.objects.get(id = edition_id)
     except models.Edition.DoesNotExist:
         raise Http404
+    campaign_type = edition.work.last_campaign().type
     if not request.user.is_staff :
         if not request.user in edition.work.last_campaign().managers.all():
             return render(request, "admins_only.html")
     if request.method == 'POST' :
-        form = EbookFileForm(request.POST,request.FILES)
+        form = EbookFileForm(data=request.POST, files=request.FILES, campaign_type=campaign_type)
         if form.is_valid() :
+            logger.info("EbookFileForm is_valid")
             form.save()
             context['uploaded']=True
-            # campaign mangager gets a copy
-            test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
-            try:
-                test_acq.get_watermarked()
-                context['watermarked']= test_acq.watermarked
-            except (BooXtreamError, ET.ParseError, InvalidEpub) as e:
-                context['upload_error']= e
-                form.instance.delete()
-
-    form = EbookFileForm(initial={'edition':edition,'format':'epub'})
+            if campaign_type == BUY2UNGLUE:
+                # campaign mangager gets a copy
+                test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
+                try:
+                    test_acq.get_watermarked()
+                    context['watermarked']= test_acq.watermarked
+                except Exception as e:
+                    context['upload_error']= e
+                    form.instance.delete()
+            if campaign_type == THANKS:
+                e = form.instance.check_file()
+                if e != None:
+                    logger.error(e)
+                    context['upload_error']= e
+                    form.instance.delete()
+        else:
+            context['upload_error']= form.errors
+    form = EbookFileForm(initial={'edition':edition,'format':'epub'}, campaign_type=campaign_type)
     context.update({
             'form': form, 'edition': edition, 
             'ebook_files': models.EbookFile.objects.filter(edition = edition)
@@ -495,7 +505,7 @@ def new_edition(request, work_id, edition_id, by=None):
             except models.Author.DoesNotExist:
                 author=models.Author.objects.create(name=new_author_name)
             edition.new_author_names.append(new_author_name)
-            form = EditionForm(instance=edition, data=request.POST)
+            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         elif request.POST.has_key('add_subject_submit'):
             new_subject = request.POST['add_subject'].strip()
             try:
@@ -503,9 +513,9 @@ def new_edition(request, work_id, edition_id, by=None):
             except models.Subject.DoesNotExist:
                 author=models.Subject.objects.create(name=new_subject)
             edition.new_subjects.append(new_subject)
-            form = EditionForm(instance=edition, data=request.POST)
+            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         else:
-            form = EditionForm(instance=edition, data=request.POST)
+            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
                 form.save()
                 if not work:
@@ -545,6 +555,16 @@ def new_edition(request, work_id, edition_id, by=None):
                         subject=models.Subject.objects.create(name=subject_name)
                     subject.works.add(work)
                 work_url = reverse('work', kwargs={'work_id': edition.work.id})
+                cover_file=form.cleaned_data.get("coverfile",None)
+                if cover_file:
+                    # save it 
+                    cover_file_name= '/Users/%s/covers/%s/%s' % ( request.user.username, edition.pk, cover_file.name)
+                    file = default_storage.open(cover_file_name, 'w')
+                    file.write(cover_file.read())
+                    file.close()
+                    #and put its url into cover_image
+                    edition.cover_image = default_storage.url(cover_file_name)
+                    edition.save()
                 return HttpResponseRedirect(work_url)
     else:
         form = EditionForm(instance=edition, initial={
