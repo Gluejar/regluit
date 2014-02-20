@@ -138,6 +138,14 @@
                                             {% else %}
                                                 <span>{{ work.last_campaign.supporters_count }}</span> ungluers
                                             {% endif %}                                    
+                                            {% ifequal work.last_campaign.type 3 %}
+                                                <br />
+                                                {% if work.last_campaign.anon_count == 1 %}
+                                                    <span>1</span> other
+                                                {% else %}
+                                                    <span>{{ work.last_campaign.anon_count }}</span> others
+                                                {% endif %}                                    
+                                            {% endifequal %}
                                         </div>
                                         {% ifequal work.last_campaign.type 2 %}
                                             <div class="campaign-status-info">

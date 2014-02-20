@@ -83,7 +83,7 @@ Please fix the following before launching your campaign:
         	{% ifequal work.last_campaign.type 1 %}
         		{{ work.last_campaign.supporters_count }} Ungluers have pledged ${{ work.last_campaign.current_total|intcomma }}
         	{% else %}
-        		Total revenue: ${{ work.last_campaign.current_total|intcomma }} from {{ work.last_campaign.supporters_count }} Ungluers 
+        		Total revenue: ${{ work.last_campaign.current_total|intcomma }} from {{ work.last_campaign.supporters_count }} Ungluers and {{ work.last_campaign.anon_count }} others
         	{% endifequal %}
         	</div>
         	<div class="status">

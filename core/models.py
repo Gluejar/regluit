@@ -732,6 +732,11 @@ class Campaign(models.Model):
         active = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
         complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE).values_list('user', flat=True).distinct().count()
         return active+complete
+    @property
+    def anon_count(self):
+        # avoid transmitting the whole list if you don't need to; let the db do the count.
+        complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE,user=None).count()
+        return complete
 
     def transaction_to_recharge(self, user):
         """given a user, return the transaction to be recharged if there is one -- None otherwise"""

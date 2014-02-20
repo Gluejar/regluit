@@ -68,7 +68,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 				<b>Thanks-for-Ungluing Campaign</b><br />
 				Campaign status: {{ campaign.status }}	<br />
 				Created: {{ campaign.created }}<br />
-				${{ campaign.current_total }} raised from  {{ campaign.supporters_count }} supporters.
+				${{ campaign.current_total }} raised from {{ campaign.supporters_count }} ungluers, {{ campaign.anon_count }} others.
 				{% with campaign.work.preferred_edition as edition %}
 					<a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
 					You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.<br />
