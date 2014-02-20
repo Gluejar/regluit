@@ -1266,7 +1266,7 @@ class FundView(FormView):
             #anonymous user, just charge the card!
             # if there's an email address, put it in the receipt column, so far unused.
             self.transaction.receipt = form.cleaned_data["email"]
-            t, url = p.charge(self.transaction, return_url =  return_url )
+            t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token )
         elif self.request.user.is_anonymous():
             #somehow the user lost their login
             return HttpResponseRedirect(reverse('superlogin'))
@@ -1452,12 +1452,7 @@ class FundCompleteView(TemplateView):
     def get_context_data(self):
         # pick up all get and post parameters and display
         context = super(FundCompleteView, self).get_context_data()
-        
-        if self.request.user.is_authenticated():
-            user = self.request.user
-        else:
-            user = None
-        
+
         # pull out the transaction id and try to get the corresponding Transaction
         transaction_id = self.request.REQUEST.get("tid")
         transaction = Transaction.objects.get(id=transaction_id)
@@ -1471,13 +1466,11 @@ class FundCompleteView(TemplateView):
             work = None
         
         # we need to check whether the user tied to the transaction is indeed the authenticated user.
-        try:
-            if user.id != transaction.user.id:
-                # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
-                raise Http404
-        except Exception, e:
+        if transaction.campaign.type == THANKS and transaction.user == None:
+            pass
+        elif self.request.user.id != transaction.user.id:
+            # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
             raise Http404
-            
             
         # check that the user had not already approved the transaction
         # do we need to first run PreapprovalDetails to check on the status
@@ -1491,9 +1484,15 @@ class FundCompleteView(TemplateView):
             
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
         # fire add-wishlist notification if needed
-        if user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
+        if transaction.user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
             user.wishlist.add_work(work, 'pledging', notify=True)
+        else:
+            #put info into session for download page to pick up.
+            self.request.session['amount']= transaction.amount
+            if transaction.receipt:
+                self.request.session['receipt']= transaction.receipt
+                
             
         context["transaction"] = transaction
         context["work"] = work
@@ -2731,6 +2730,7 @@ class DownloadView(PurchaseView):
             'site': site,
             'action': "Contribution",
             'user_license': self.user_license,
+            'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
         })
         return context
 

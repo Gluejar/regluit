@@ -563,7 +563,7 @@ class StripePaymentRequest(baseprocessor.BasePaymentRequest):
 
 class Processor(baseprocessor.Processor):
     
-    def make_account(self, user, token=None):
+    def make_account(self, user=None, token=None, email=None):
         """returns a payment.models.Account based on stripe token and user"""
         
         if token is None or len(token) == 0:
@@ -577,7 +577,7 @@ class Processor(baseprocessor.Processor):
                 customer = sc.create_customer(card=token, description=user.username,
                                       email=user.email)
             else:
-                customer = sc.create_customer(card=token, description='anonymous user')
+                customer = sc.create_customer(card=token, description='anonymous user', email=email)
         except stripe.StripeError as e:
             raise StripelibError(e.message, e)
             
@@ -666,7 +666,7 @@ class Processor(baseprocessor.Processor):
         # ASSUMPTION:  a user has any given moment one and only one active payment Account
         if token:
             # user is anonymous
-            account =  self.make_account(token = token, email = transaction.receipt)
+            account =  transaction.get_payment_class().make_account(token = token, email = transaction.receipt)
         else:
             account = transaction.user.profile.account        
         

@@ -43,13 +43,23 @@ $j(document).ready(function() {
     </div>
 </div>
 {% endif %}
-    {% if user_license.thanked %}
-    <div style="text-align: center; padding: 10px;">
+{% if user_license.thanked %}
+    <div style="text-align: center; padding: 20px;">
     <div style="background: #edf3f4; padding: 10px; width:35%; display: inline; ">
     You have supported this free book!
     </div>
     </div>
+{% endif %}
+{% if amount %}
+    <div style="text-align: center; padding: 20px;">
+    <div style="background: #edf3f4; padding: 10px; width:35%; display: inline; ">
+    Your contribution of ${{amount}} is confirmed.
+    {% if request.session.receipt %}
+    A confirmation is being sent to {{ request.session.receipt }}.
     {% endif %}
+    </div>
+    </div>
+{% endif %}
 <div class="border">
     <h2 style="width:60%">Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
     <div class="sharing ebook_download_container">

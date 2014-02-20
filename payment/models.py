@@ -131,6 +131,8 @@ class Transaction(models.Model):
 
     @property
     def credit_amount(self):
+        if self.user == None or self.user.is_anonymous():
+            return 0
         if self.user.credit.available >= self.max_amount:
             return self.max_amount
         return self.user.credit.available

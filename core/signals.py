@@ -20,6 +20,7 @@ from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import Signal
 from django.utils.translation import ugettext_noop as _
+from django.template.loader import render_to_string
 
 from notification import models as notification
 from social_auth.signals import pre_update
@@ -192,8 +193,9 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             if transaction.user:
                 notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
             elif transaction.receipt:
-                #?????? will notifications send to email addresses without users?
-                notification.send([transaction.receipt], "purchase_complete", {'transaction':transaction}, True)
+                from regluit.core.tasks import send_mail_task
+                message = render_to_string("notification/purchase_complete/full.txt",{'transaction':transaction})
+                send_mail_task.delay('unglue.it transaction confirmation', message, 'notices@gluejar.com', transaction.receipt)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 
