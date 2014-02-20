@@ -82,7 +82,7 @@ function put_un_in_cookie2(){
                 </div>
                 <div class="spacer"></div>
         	
-        	    <h3 class="featured_books">Most Listed</h3>
+        	    <h3 class="featured_books">Site Faves</h3>
         	    <div>
                     {% for work in most_wished %}
                         {% with work.googlebooks_id as googlebooks_id %}
@@ -172,6 +172,9 @@ function put_un_in_cookie2(){
                                             {% endifequal %}
                                             {% ifequal object.campaign.type 2 %}
                                             bought a copy of 
+                                            {% endifequal %}
+                                            {% ifequal object.campaign.type 3 %}
+                                            supported 
                                             {% endifequal %}<br />
                                             <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
                                         </span>
@@ -190,7 +193,7 @@ function put_un_in_cookie2(){
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url supporter object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
-                                            added to list<br />
+                                            faved<br />
                                             <a class="user-book-name" href="{% url work object.work.id %}">{{ object.work.title }}</a>
                                         </span>                                    
                                     {% endifequal %}{% endifequal %}{% endifequal %}

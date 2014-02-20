@@ -1,4 +1,4 @@
-{% load humanize %}{% if campaign.left > 0 %}	The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is almost out of time.  We need to raise ${{ campaign.left|intcomma }} more by {{ campaign.deadline }} in order to give this book to the world.
+{% load humanize %}{% if campaign.left > 0 %}	The campaign to unglue a book you've faved, {{ campaign.work.title}}, is almost out of time.  We need to raise ${{ campaign.left|intcomma }} more by {{ campaign.deadline }} in order to give this book to the world.
 	
 	{% if pledged %}
 		Your pledge is helping {{ campaign.work.title }} to reach its goal, but we can only unglue this book if the campaign succeeds.  You can help your pledge go farther by sharing the campaign ({{ domain }}{% url work work_id=campaign.work.id %}) with your friends through your favorite media: tweet, Facebook, Tumblr, blog, G+, Pinterest, email, carrier pigeon, or good old-fashioned conversation.
@@ -11,7 +11,7 @@
 	Thank you!
 
 {% else %}
-	The campaign to unglue a book you've wishlisted, {{ campaign.work.title}}, is on track to succeed!  It has met its target price of {{ campaign.target|intcomma }} and will close soon.
+	The campaign to unglue a book you've faved, {{ campaign.work.title}}, is on track to succeed!  It has met its target price of {{ campaign.target|intcomma }} and will close soon.
 	
 	{% if pledged %}
 		Your pledge is helping us give this book to the world.  Thank you!  When the campaign closes, we'll be in touch about how and when you'll receive your premiums.

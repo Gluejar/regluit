@@ -36,6 +36,12 @@
          <div style="height:75px;"></div>
 
     {% endifequal %}
+    {% ifequal campaign.type 3 %}
+	    <p class="pledge_complete">You've just contributed ${{ transaction.amount|intcomma }} to the creators of <I><a href="{% url work work.id %}">{{ work.title }}</a></I> to thank them for making it free to the world.</p>
+         <div><a href="{% url download work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
+         <div style="height:75px;"></div>
+
+    {% endifequal %}
 	<div class="modify_notification clearfix">
 	{% include "trans_summary.html" %}
 	</div>

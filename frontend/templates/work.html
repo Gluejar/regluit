@@ -189,7 +189,7 @@
                                             1 Ungluer has
                                         {% else %}
                                             {{ wishers }} Ungluers have
-                                        {% endif %} Listed this Work
+                                        {% endif %} Faved this Work
                                     </div>
                                 {% endifequal %}
                                 <div class="find-book">
@@ -215,19 +215,19 @@
                                 <div class="btn_wishlist" id="wishlist_actions">
                                     {% if request.user.is_anonymous %}
                                         <div class="create-account">
-                                            <span title="{% url work work_id %}">Login to Add</span>
+                                            <span title="{% url work work_id %}">Login to Fave</span>
                                         </div>
                                     {% else %}{% if request.user.id in work.last_campaign.supporters %}
                                         <div class="add-wishlist">
-                                            <span class="on-wishlist">On My List!</span>
+                                            <span class="on-wishlist">Faved!</span>
                                         </div>
                                     {% else %}{% if work in request.user.wishlist.works.all %}
                                         <div class="remove-wishlist-workpage">
-                                            <span id="w{{ work_id }}">Remove from My List</span>
+                                            <span id="w{{ work_id }}">Remove from My Faves</span>
                                         </div>
                                     {% else %}
                                         <div class="add-wishlist">
-                                            <span class="work_id" id="w{{ work_id }}">Add to My List</span>
+                                            <span class="work_id" id="w{{ work_id }}">Add to My Faves</span>
                                         </div>
                                     {% endif %}{% endif %}{% endif %}
                                 </div>

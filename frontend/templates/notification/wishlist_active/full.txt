@@ -3,11 +3,15 @@
 You can help!
 
 Pledge toward ungluing. https://{{ current_site.domain }}{% url pledge work_id=campaign.work.id %}
-{% else %}Great, you wished for it, and now there is a campaign for {{ campaign.work.title }} to be unglued.  Someday, the book will be released under a Creative Commons license for everyone to enjoy. Every copy purchased until then brings that day {{ campaign.day_per_copy|floatformat }} days sooner.
+{% endifequal %}{% ifequal campaign.type 2 %}Great, you wished for it, and now there is a campaign for {{ campaign.work.title }} to be unglued.  Someday, the book will be released under a Creative Commons license for everyone to enjoy. Every copy purchased until then brings that day {{ campaign.day_per_copy|floatformat }} days sooner.
 
 You can help!
 
 Buy a copy to help unglue the book. https://{{ current_site.domain }}{% url purchase work_id=campaign.work.id %}
+
+{% endifequal %}{% ifequal campaign.type 3 %}There is a new "Thanks for Ungluing" campaign for {{ campaign.work.title }} one of your Creative Commons license favorites.
+
+Join us in thanking the creators! Download a copy and leave a contribution. https://{{ current_site.domain }}{% url download work_id=campaign.work.id %}
 
 {% endifequal %}
 
