@@ -2612,7 +2612,7 @@ class DownloadView(PurchaseView):
         if not self.campaign or self.campaign.type != THANKS:
             return  False
         elif self.user_license and self.user_license.thanked:
-            return  False
+            return self.request.REQUEST.has_key('offer_id')
         else: 
             return True
         

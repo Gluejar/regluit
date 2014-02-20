@@ -710,17 +710,18 @@
                                         <span class="menu-item-desc">You're welcome!</span>
                                     </li>
                                     {% else %}
-                                    <li class="first">
-                                        <a href="{% url thank work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
-                                        <span class="menu-item-price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
-                                        <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_thanks_display }}</span>
-                                        </a>
-                                    </li>
-                                    <li class="last">
-                                        <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
-                                        <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
-                                        <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_thanks_display }}</span>
-                                        </a>
+                                    <li class="first last">
+                                        {% if request.user.library %}
+                                            <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
+                                            <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_thanks_display }}</span>
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url thank work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
+                                            <span class="menu-item-price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_thanks_display }}</span>
+                                            </a>
+                                        {% endif %}
                                     </li>
                                     {% endif %}
                                 </ul>

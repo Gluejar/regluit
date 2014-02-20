@@ -48,7 +48,7 @@
                         <b>UNGLUED!</b>
                         {% ifequal work.last_campaign.type 3 %}
                             <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> of thanks</p>
-                            <p> by <b>{{ work.last_campaign.supporters_count }}</b> ungluers</p>
+                            <p> from <b>{{ work.last_campaign.supporters_count }}</b> ungluers</p>
                             <p> and <b>{{ work.last_campaign.anon_count }}</b> others</p>
                         {% else %}
                             <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
