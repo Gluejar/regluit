@@ -61,6 +61,7 @@ from regluit.core.parameters import (
     BORROWED,
     TESTING,
     RESERVE,
+    THANKED,
 )
     
 
@@ -279,7 +280,7 @@ class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
     """
-    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),)
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
     refreshes = models.DateTimeField(auto_now_add=True, default=now())
@@ -1348,6 +1349,14 @@ class Work(models.Model):
                 return purchases[0]
 
         @property
+        def thanked(self):
+            purchases =  self.acqs.filter(license=THANKED)
+            if purchases.count()==0:
+                return None
+            else:
+                return purchases[0]
+
+        @property
         def lib_acqs(self):
             return  self.acqs.filter(license=LIBRARY)
         
@@ -1375,7 +1384,7 @@ class Work(models.Model):
         """ This is all the acqs, wrapped in user_license object for the work, user(s) """
         if user==None:
             return None
-        if isinstance(user, User):
+        if hasattr(user, 'is_anonymous'):
             if user.is_anonymous():
                 return None
             return self.user_license(self.acqs.filter(user=user))

@@ -30,7 +30,7 @@ regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
 from regluit.utils.localdatetime import now, date_today
-from regluit.core.parameters import REWARDS, BUY2UNGLUE, LIBRARY, RESERVE
+from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS, LIBRARY, RESERVE, THANKED
 from regluit.libraryauth.models import Library, LibraryUser
 
 logger = logging.getLogger(__name__)
@@ -165,7 +165,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
     transaction._current_total = None
     if transaction.campaign.type is REWARDS:
         notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
-    else:
+    elif transaction.campaign.type is BUY2UNGLUE:
         # provision the book
         Acq = get_model('core', 'Acq')
         if transaction.offer.license == LIBRARY:
@@ -185,6 +185,15 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         watermark_acq.delay(new_acq)
         if transaction.campaign.cc_date < date_today() :
             transaction.campaign.update_status(send_notice=True)
+    elif transaction.campaign.type is THANKS:
+        if transaction.user:
+            Acq = get_model('core', 'Acq')
+            new_acq = Acq.objects.create(user=transaction.user, work=transaction.campaign.work, license=THANKED)
+            if transaction.user:
+                notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
+            elif transaction.receipt:
+                #?????? will notifications send to email addresses without users?
+                notification.send([transaction.receipt], "purchase_complete", {'transaction':transaction}, True)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
 

@@ -1,0 +1,50 @@
+<script type="text/javascript" src="/static/js/loader-gif.js"></script>
+<script type="application/x-javascript">
+
+var $j = jQuery.noConflict();
+
+$j(document).ready(function() {
+    // don't let users modify their pledge amount on this page; it's just here for reference
+    // if they modified it here we'd have to faff about with validating premiums
+    $j('#id_preapproval_amount').prop('disabled', true);
+
+    {% if nonprofit.is_on %} 
+    // make the donate/pledge buttons pretty
+    $j("#pledge_option").click(function() {
+        $j("#authorize").show();
+    });
+    
+    $j("#donate_area").mouseenter(function() {
+        $j("#donate_explanation").addClass("highlight");
+    });
+
+    $j("#donate_area").mouseleave(function() {
+        $j("#donate_explanation").removeClass("highlight");
+    });
+
+    $j("#donate_explanation").mouseenter(function() {
+        $j("#donate_explanation").addClass("highlight");
+    });
+
+    $j("#donate_explanation").mouseleave(function() {
+        $j("#donate_explanation").removeClass("highlight");
+    });
+
+    $j("#pledge_area").mouseenter(function() {
+        $j("#pledge_explanation").addClass("highlight");
+    });
+
+    $j("#pledge_area").mouseleave(function() {
+        $j("#pledge_explanation").removeClass("highlight");
+    });
+
+    $j("#pledge_explanation").mouseenter(function() {
+        $j("#pledge_explanation").addClass("highlight");
+    });
+
+    $j("#pledge_explanation").mouseleave(function() {
+        $j("#pledge_explanation").removeClass("highlight");
+    });
+    {% endif %}
+});
+</script>

@@ -1,0 +1,72 @@
+{% load humanize %}
+{% if request.user.profile.account %}
+    <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
+        <h3>{{ action|capfirst  }} by Credit Card</h3>
+        <p>Unglue.it has a {{ request.user.profile.account.card_type }} credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
+        The last four digits of the card are {{ request.user.profile.account.card_last4 }}. 
+        </p>
+        <form action="#" method="POST" id="use-account-form">
+            <div class="innards">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                {{ form.as_p }}	
+                <input id="use_account_submit" name="use_account" type="submit" class="submit-button loader-gif" value="Complete {{ action|capfirst  }}" /> 
+            </div>           
+        </form>
+    </div>
+    <br />
+    <p>Want to use a different card?  You can change your credit card info on your <a href="{% url manage_account %}?next={{ request.get_full_path|urlencode }}#your_payment_info">Account &amp; Pledges page</a>.
+    </p>
+{% else %}
+    <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
+        <h3>{{ action|capfirst }} by Credit Card</h3>
+        <p>Unglue.it uses <a href="https://stripe.com/">Stripe</a> to securely manage your credit card information.
+        </p>
+        {% if form.email %}<p>Enter your email address to get a confirmation of your {{action }}.</p>{% endif %}
+        <div id="cc_pledge">
+            <form action="" method="POST" id="payment-form">
+                <div class="innards">
+                    <div class="clearfix">
+                        {{ form.as_p }}	
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Card Number:</label>
+                        <input id="card_Number" type="text" class="card-number" />
+                    </div>
+                    <div class="form-row clearfix cvc">
+                        <label>CVC:</label>
+                        <input id="card_CVC" type="password" size="4" autocomplete="off" class="card-cvc" /> <span id="cvc_help">(what is this?)</span>
+                        <div id="cvc_answer"><img src="/static/images/cvcimage.jpeg" alt="a typical credit card with CVC">For most cards, this is a 3-digit number at the end of the signature strip on the back.  For American Express, it's a four-digit number in small print on the front.</div>
+                    </div>
+                    <div class="form-row clearfix initial_values">
+                        <label>Expiration:</label>
+                        <input id="card_ExpiryMonth" type="text" size="2" value="MM" class="card-expiry-month" />
+                        <input id="card_ExpiryYear" type="text" size="4" value="YYYY" class="card-expiry-year" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Name:</label>
+                        <input id="card_Name" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>State/Province :</label>
+                        <input id="card_AddressState" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>ZIP/Postal Code:</label>
+                        <input id="card_AddressZip" type="text" class="address" />
+                    </div>
+                    <div class="form-row clearfix">
+                        <label>Country:</label>
+                        <input id="card_AddressCountry" type="text" class="address" />
+                    </div>
+                </div>
+
+                <div class="payment-errors"></div>
+                <input id="cc_submit" type="submit" class="submit-button loader-gif" value="Complete {{ action|capfirst }}" />
+
+            </form>
+        </div>
+    </div>
+{% endif %}

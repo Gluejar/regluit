@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load humanize %}
 {% with work.title as title %}
 {% block title %}
 &mdash; Downloads for {{ work.title }}
@@ -21,8 +21,37 @@ $j(document).ready(function() {
 {% block content %}
 <div class="download_container">
 <div id="lightbox_content">
+
+{% if show_beg %}
+<div class="border" style="padding: 10px;">
+    <div id="begblock" class="rh_beg">
+        <div>Please help us thank the creators for making this book free. The amount is up to you.</div>
+        <form class="begform" method="POST" action="{% url thank work.id %}#">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+                <div class="contrib_amount">Amount: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
+                <div style="text-align: center;"><input name="pledge" type="submit" value="Say Thank You" id="contribsubmit" class="loader-gif" /></div>
+                <div id="anoncontribbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
+            {% if request.user.credit.available > 0 %}
+                <div > You have an available  credit of ${{ request.user.credit.available|intcomma }} which will be applied to your contribution.</div>
+            {% endif %}
+        </form> 
+    </div>
+    
+    <div class="rh_beg" style="">
+            {{ work.last_campaign.description|safe }}
+    </div>
+</div>
+{% endif %}
+    {% if user_license.thanked %}
+    <div style="text-align: center; padding: 10px;">
+    <div style="background: #edf3f4; padding: 10px; width:35%; display: inline; ">
+    You have supported this free book!
+    </div>
+    </div>
+    {% endif %}
 <div class="border">
-    <h2>Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
+    <h2 style="width:60%">Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
     <div class="sharing ebook_download_container">
         <h3 class="jsmod-title"><span>Share</span></h3>
         <ul class="social menu">

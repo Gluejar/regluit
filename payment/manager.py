@@ -706,7 +706,7 @@ class PaymentManager( object ):
                                    )
         t.save()
         # does user have enough credit to transact now?
-        if user.credit.available >= amount :
+        if user.is_authenticated() and user.credit.available >= amount :
             # YES!
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urllib.urlencode({'tid':t.id})) 
