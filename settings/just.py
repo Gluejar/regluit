@@ -158,7 +158,7 @@ MAINTENANCE_MODE = False
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
 AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'just_unglueit'
+AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
