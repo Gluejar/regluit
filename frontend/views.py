@@ -1246,11 +1246,7 @@ class FundView(FormView):
             donate_args['data']['preapproval_amount']=self.transaction.needed_amount
             context['donate_form'] = DonateForm(**donate_args)
         return context
-    
-    def post(self, request, *args, **kwargs):
-        logger.info('request.POST: {0}'.format(request.POST))
-        return super(FundView, self).post(request, *args, **kwargs)
-    
+        
     def form_valid(self, form):
         p = PaymentManager()
         stripe_token = form.cleaned_data["stripe_token"]

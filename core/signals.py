@@ -190,14 +190,14 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         if transaction.user:
             Acq = get_model('core', 'Acq')
             new_acq = Acq.objects.create(user=transaction.user, work=transaction.campaign.work, license=THANKED)
-            if transaction.user:
-                notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
-            elif transaction.receipt:
-                from regluit.core.tasks import send_mail_task
-                message = render_to_string("notification/purchase_complete/full.txt",{'transaction':transaction})
-                send_mail_task.delay('unglue.it transaction confirmation', message, 'notices@gluejar.com', transaction.receipt)
-    from regluit.core.tasks import emit_notifications
-    emit_notifications.delay()
+            notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
+        elif transaction.receipt:
+            from regluit.core.tasks import send_mail_task
+            message = render_to_string("notification/purchase_complete/full.txt",{'transaction':transaction,'current_site':Site.objects.get_current()})
+            send_mail_task.delay('unglue.it transaction confirmation', message, 'notices@gluejar.com', [transaction.receipt])
+    if transaction.user:
+        from regluit.core.tasks import emit_notifications
+        emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
 
@@ -319,7 +319,6 @@ def notify_supporter_message(sender, work, supporter, msg, **kwargs):
     """send notification in of supporter message"""
     logger.info('received supporter_message signal for {0}'.format(supporter))
     
-    site = Site.objects.get_current()
     notification.send( [supporter], "wishlist_message", {'work':work, 'msg':msg}, True, sender)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()
