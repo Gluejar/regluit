@@ -1,4 +1,4 @@
 Help me unglue one of my favorite books, "{{ work.title }}" on Unglue.it: 
 https://{{site}}{% url work work.id %} 
 
-If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.
+{% ifequal work.last_campaign.type 1 %}If enough of us pledge to unglue this book, the creator will be paid and the ebook will become free to everyone on earth.{% endifequal %}{% ifequal work.last_campaign.type 2 %}If enough of us buy this book, the ebook will become free to everyone on earth.{% endifequal %}{% ifequal work.last_campaign.type 3 %}Creators of free ebooks need support if we want there to be more of them.{% endifequal %}

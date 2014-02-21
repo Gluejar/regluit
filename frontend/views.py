@@ -2474,44 +2474,25 @@ def emailshare(request, action):
             work_id = next.split('/')[-2]
             work_id = int(work_id)
             work = models.Work.objects.get(pk=work_id)
-            if action == 'pledge':
-                message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                subject = "Help me unglue "+work.title
-            else:
-                try:
-                    status = work.last_campaign().status
-                except:
-                    status = None
-            
-                # customize the call to action depending on campaign status
-                if status == 'SUCCESSFUL' or work.first_ebook():
-                    message = render_to_string('emails/read_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                    subject = 'I think you\'d like this book I\'m reading'
-                elif status == 'ACTIVE':
-                    message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                    subject = 'Please help me give this book to the world'
-                else:
-                    message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                    subject = 'Come see one of my favorite books on Unglue.it'
-            
-            form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
+            if not action:
+                status = work.last_campaign().status
         except:
             pass
-
-        if action == 'pledge':
-            message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+        context = {'request':request,'work':work,'site': Site.objects.get_current(), 'action': action}
+        if work and action :
+            message = render_to_string('emails/i_just_pledged.txt', context)
             subject = "Help me unglue "+work.title
         else:            
             # customize the call to action depending on campaign status
             if status == 'ACTIVE':
-                message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                message = render_to_string('emails/pledge_this.txt', context)
                 subject = 'Please help me give this book to the world'
             elif work:
-                message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                subject = 'Come see one of my favorite books on Unglue.it'
+                message = render_to_string('emails/wish_this.txt', context)
+                subject = 'This is one of my favorite books on Unglue.it'
             else:
                 # for email shares not bound to a campaign or pledge
-                message = render_to_string('emails/join_me.txt',{'request':request,'site': Site.objects.get_current()})
+                message = render_to_string('emails/join_me.txt', context)
                 subject = "Help me give books to the world"
 
         form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
