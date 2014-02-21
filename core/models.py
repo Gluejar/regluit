@@ -669,8 +669,8 @@ class Campaign(models.Model):
             active_claim = self.work.claim.filter(status="active")[0]
         except IndexError, e:
             raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
-        if not self.launchable():
-            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % self.problems)
+        if not self.launchable:
+            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % unicode(self.problems[0]))
         self.status= 'ACTIVE'
         self.left = self.target
         self.activated = datetime.today()
@@ -1081,7 +1081,7 @@ class Work(models.Model):
         try:
             if self.preferred_edition.cover_image_small():
                 return self.preferred_edition.cover_image_small()
-        except IndexError:
+        except (IndexError, AttributeError):
             pass
         return "/static/images/generic_cover_larger.png"
 

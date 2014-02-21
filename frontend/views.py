@@ -29,7 +29,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth.views import login,password_reset
+from django.contrib.auth.views import login,password_reset, redirect_to_login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
@@ -344,13 +344,7 @@ def work(request, work_id, action='display'):
     except:
         pledged = None
         
-    logger.info("pledged: {0}".format(pledged))
     cover_width_number = 0
-    
-    try:
-        assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
-    except:
-        logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     
     if work.last_campaign_status() == 'ACTIVE':
         cover_width_number = cover_width(work)
@@ -1169,8 +1163,9 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
+        
         self.offer_id = self.request.REQUEST.get('offer_id', None)
-        if not self.offer_id:
+        if not self.offer_id and self.work.last_campaign() and self.work.last_campaign().individual_offer:
             self.offer_id = self.work.last_campaign().individual_offer.id
         preapproval_amount = None
         if self.offer_id != None:
@@ -1446,7 +1441,11 @@ class FundCompleteView(TemplateView):
         if context['campaign'].type == THANKS:
             return DownloadView.as_view()(request, work=context['work'])
         else:
-            return login_required(self.render_to_response)(context)
+            if request.user.is_authenticated:
+                return self.render_to_response(context)
+            else:
+                return redirect_to_login(request.get_full_path())
+        
             
 
     def get_context_data(self):
@@ -1486,7 +1485,7 @@ class FundCompleteView(TemplateView):
         # fire add-wishlist notification if needed
         if transaction.user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
-            user.wishlist.add_work(work, 'pledging', notify=True)
+            transaction.user.wishlist.add_work(work, 'pledging', notify=True)
         else:
             #put info into session for download page to pick up.
             self.request.session['amount']= transaction.amount
