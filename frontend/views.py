@@ -2697,6 +2697,7 @@ class DownloadView(PurchaseView):
             'base_url': settings.BASE_URL_SECURE,
             'iOS': iOS,
             'iOS_app': iOS_app,
+            'iphone': 'iPhone' in agent,
             'android': android,
             'desktop': desktop,
             'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent,

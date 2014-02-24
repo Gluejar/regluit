@@ -179,7 +179,8 @@ $j(document).ready(function() {
             </p>
             <p>
                 {% if formats.epub or formats.mobi %}
-                    To read this ebook you should open this page in safari, or use one of the "One-click" buttons, above. <br /><img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" /><br clear="left" />
+                    To read this ebook you should open this page in safari, or use one of the "One-click" buttons, above. <br />
+                    {% if iphone %}<img width="357" height="156" src="/static/images/clickhere.png" alt="how to open in safari" />{% else %}<img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" />{% endif %}<br clear="left" />
                 {% endif %}
                 {% if formats.pdf %}
                     You should also be able to use the  <a href="{{ formats.pdf }}">pdf</a> file.
