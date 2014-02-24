@@ -145,8 +145,17 @@ class Claim(models.Model):
             if campaign.status in ['ACTIVE','INITIALIZED', 'SUCCESSFUL']:
                 return False
         return True
+
     def  __unicode__(self):
         return self.work.title
+        
+    @property
+    def campaign(self):
+        return self.work.last_campaign()
+
+    @property
+    def campaigns(self):
+        return self.work.campaigns.all()
 
 def notify_claim(sender, created, instance, **kwargs):
     if 'example.org' in instance.user.email or hasattr(instance,'dont_notify'):

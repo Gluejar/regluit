@@ -1621,19 +1621,6 @@ def rh_tools(request):
     if not claims:
         return render(request, "rh_tools.html")
     for claim in claims:
-        if claim.status == 'active':
-            claim.campaigns = claim.work.campaigns.all()
-        else:
-            claim.campaigns = []
-        for campaign in claim.campaigns:
-            if campaign.status in ['ACTIVE','INITIALIZED']:
-                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% campaign.id) :
-                    campaign.edit_managers_form=EditManagersForm( instance=campaign, data=request.POST, prefix=campaign.id)
-                    if campaign.edit_managers_form.is_valid():
-                        campaign.edit_managers_form.save()
-                        campaign.edit_managers_form = EditManagersForm(instance=campaign, prefix=campaign.id)
-                else:
-                    campaign.edit_managers_form=EditManagersForm(instance=campaign, prefix=campaign.id)
         if claim.can_open_new:
             if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work.id :
                 claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
@@ -1649,12 +1636,22 @@ def rh_tools(request):
                         new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
                     new_campaign.save()
                     claim.campaign_form.save_m2m()
+                    claim.campaign_form = None
             else:
                 c_type = 2 if claim.rights_holder.can_sell else 1
                 claim.campaign_form = OpenCampaignForm(
-                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers_1': request.user.id, 'type': c_type},
+                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers': [request.user.id], 'type': c_type},
                     prefix = 'cl_'+str(claim.id),
                     )
+        if claim.campaign:
+            if claim.campaign.status in ['ACTIVE','INITIALIZED']:
+                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% claim.campaign.id) :
+                    claim.campaign.edit_managers_form=EditManagersForm( instance=claim.campaign, data=request.POST, prefix=claim.campaign.id)
+                    if claim.campaign.edit_managers_form.is_valid():
+                        claim.campaign.edit_managers_form.save()
+                        claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
+                else:
+                    claim.campaign.edit_managers_form=EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
     campaigns = request.user.campaigns.all()
     new_campaign = None
     for campaign in campaigns:
@@ -1667,7 +1664,7 @@ def rh_tools(request):
                 campaign.clone_form= CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix = 'c%s' % campaign.id)
     return render(request, "rh_tools.html", {'claims': claims ,'campaigns': campaigns}) 
 
-def rh_admin(request):
+def rh_admin(request, facet='top'):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
     if not request.user.is_staff :
@@ -1700,6 +1697,7 @@ def rh_admin(request):
         'pending': zip(pending_data,pending_formset),
         'pending_formset': pending_formset,
         'active_data': active_data,
+        'facet': facet,
     }
     return render(request, "rights_holders.html", context)
 
@@ -2812,15 +2810,15 @@ def kindle_config(request, work_id=None):
 def send_to_kindle(request, work_id, javascript='0'):
 
     # make sure to gracefully communicate with both js and non-js (kindle!) users
-    def local_response(request, javascript, message):
+    def local_response(request, javascript, context, message):
+        context['message'] = message
         if javascript == '1':
-            return render(request,'kindle_response_message.html',{'message': message} )
+            return render(request,'kindle_response_message.html',context )
         else:
-            # can't pass context with HttpResponseRedirect
-            # must use an HttpResponse, not a render(), after POST
-            return HttpResponseRedirect(reverse('send_to_kindle_graceful', args=(message,)))
+            return render(request, 'kindle_response_graceful_degradation.html', context)
     
     work=safe_get_work(work_id)
+    context= {'work':work}
     acq = None
     if request.user.is_authenticated():
         try:
@@ -2849,17 +2847,19 @@ def send_to_kindle(request, work_id, javascript='0'):
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.title
     title = title.replace(' ', '_')
+    context['ebook_url']=ebook_url
+    context['ebook_format']=ebook_format
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']
         try:
             validate_email(kindle_email)
         except ValidationError:
-            return local_response(request, javascript, 3)
+            return local_response(request, javascript,  context, 3)
         request.session['kindle_email'] = kindle_email
     elif request.user.is_authenticated():
         kindle_email = request.user.profile.kindle_email     
-            
+    context['kindle_email'] = kindle_email
 
     
     """
@@ -2879,7 +2879,7 @@ def send_to_kindle(request, work_id, javascript='0'):
     filesize = int(filehandle.info().getheaders("Content-Length")[0])
     if filesize > 7492232:
         logger.info('ebook %s is too large to be emailed' % work.id)
-        return local_response(request, javascript, 0)
+        return local_response(request, javascript,  context, 0)
         
     try:
         email = EmailMessage(from_email='notices@gluejar.com',
@@ -2888,18 +2888,12 @@ def send_to_kindle(request, work_id, javascript='0'):
         email.send()
     except:
         logger.warning('Unexpected error: %s', sys.exc_info())
-        return local_response(request, javascript, 1)
+        return local_response(request, javascript,  context, 1)
 
     if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('superlogin'))
-    return local_response(request, javascript, 2)
-
-def send_to_kindle_graceful(request, message):
-    return render(
-        request,
-        'kindle_response_graceful_degradation.html',
-        {'message': int(message)}
-    )
+    return local_response(request, javascript,  context, 2)
+    
     
 def marc(request, userlist=None):
     link_target = 'UNGLUE'

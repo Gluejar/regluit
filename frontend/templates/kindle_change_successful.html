@@ -23,10 +23,10 @@
 {% block ce_content %}
     <h2>Kindle email change successful</h2>
     <div id="content-main">
-        <p>Hooray!  We can now send unglued ebooks to you at {{ request.user.profile.kindle_email }}.</p>
+        <p>Hooray!  We can now send most unglued ebooks to you at {{ request.user.profile.kindle_email }}. Some ebooks are too big for us to send, though.</p>
         {% if work %}
             <p>
-                We're emailing you the ebook you wanted, <i><a href="{% url work work.id %}">{{ work.title }}</a></i>...
+                We're now emailing you the ebook you wanted, <i><a href="{% url work work.id %}">{{ work.title }}</a></i>...
             </p>
             <span id="replace_me"><img src="{{ STATIC_URL }}images/loading.gif"></span>
         {% else %}
