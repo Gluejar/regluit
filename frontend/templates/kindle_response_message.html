@@ -1,4 +1,4 @@
-{% ifequal message 0 %}This ebook is too big to be sent by email. Please download the file and then sideload it to your device using the instructions under Ereaders or PC/Mac/Linux.
+{% ifequal message 0 %}It turns out that this ebook is too big for us to send by email. Using a computer, <a href="{{ebook_url}}">download the file</a>. Plug your Kindle into your computer using a USB cable. It will mount as a filesystem. Drag the downloaded {{ebook_format}} file into the documents folder on the Kindle, and then unmount the Kindle. (Kindle 1 owners: you’ll also need to unplug the USB cable to get your Kindle back into book-reading mode. Kindle 2 owners can leave the cable connected). 
 {% endifequal %}
 {% ifequal message 1 %}Well, this is awkward. We can't seem to email that.  Please download it using the instructions for your device, and we'll look into the error.
 {% endifequal %}
