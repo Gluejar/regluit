@@ -194,6 +194,8 @@ class UpdateLibraryView(BaseLibraryView, UpdateView):
                     backend_model_instance = form_model.objects.get(id=backend_id)
                     backend_model_instance.delete()
                     status = 'Deleted.'
+                else:
+                    status = 'Nothing to delete.'
                 context_data = self.get_context_data( form=self.form_class(instance=self.object))
             context_data['status'] = status
             return self.render_to_response(context_data)

@@ -155,7 +155,7 @@ MAINTENANCE_MODE = False
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAIRLBDIET3DFCNU4A'
 AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'unglueit_files'
+AWS_STORAGE_BUCKET_NAME = 'unglueit-files'
 
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = True

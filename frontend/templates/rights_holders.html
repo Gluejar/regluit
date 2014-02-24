@@ -13,7 +13,14 @@
 <li><a href="/admin/">Admin</a></li>
 <li><a href="{% url new_libraries %}">Libraries Needing Approval</a></li>
 <li><a href="{% url press_submitterator %}">Press Coverage</a></li>
+{% if facet = 'top' %}
+<li><a href="{% url accepted %}">Accepted Rights Holders</a></li>
+<li><a href="{% url claims %}">Active Claims</a></li>
+{% else %}
+<li><a href="{% url rh_admin %}">Unglue.it Admin</a></li>
+{% endif %}
 </ul>
+{% if facet = 'top' %}
 <h2>Rights Holder Admin</h2>
 
 <h3> Create New Rights Holder </h3>
@@ -22,7 +29,8 @@
     {{ form.as_p }}
     <input type="submit" name="create_rights_holder" value="Create" id="submit">
 </form>
-
+{% endif %}
+{% if facet = 'accepted' %}
 <h3> Accepted Rights Holders </h3>
 <dl>
 {% for rights_holder in rights_holders %}
@@ -34,8 +42,9 @@
 <p>No rights holders have been accepted yet</p>
 {% endfor %}
 </dl>
+{% endif %}
 
-{% if pending %}
+{% if pending and facet = 'top' %}
 <h3> Pending Claims </h3>
 <form method="POST" action="#">
     {{ pending_formset.management_form }}
@@ -56,7 +65,7 @@
 </form>
 {% endif %}
 
-{% if active_data.count %}
+{% if active_data.count and facet = 'claims' %}
 <h3> Active Claims: {{ active_data.count }} </h3>
 <dl>
 {% for claim in active_data %}
