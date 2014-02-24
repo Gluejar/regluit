@@ -14,10 +14,10 @@ Finally, think about how you're going to publicize your campaign: social media, 
 We're thrilled to be working with you.
 {% endifequal %}
 {% ifequal claim.status 'pending' %}
-{{ claim.rights_holder }}'s claim to {{ claim.work }} on Unglue.it has been entered. Our team will examine the claim and get back to you soon.
+{{ claim.rights_holder }}'s claim to {{ claim.work }} (https://{{ current_site.domain }}{% url work claim.work.id %}) on Unglue.it has been entered. Our team will examine the claim and get back to you soon.
 {% endifequal %}
 {% ifequal claim.status 'release' %}
-{{ claim.rights_holder }}'s claim to {{ claim.work }} on Unglue.it has been released. email us (rights@gluejar.com) if you have any questions about this.
+{{ claim.rights_holder }}'s claim to {{ claim.work }} (https://{{ current_site.domain }}{% url work claim.work.id %}) on Unglue.it has been released. email us (rights@gluejar.com) if you have any questions about this.
 {% endifequal %}
 
 The Unglue.it team
