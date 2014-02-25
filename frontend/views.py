@@ -434,7 +434,6 @@ def edition_uploads(request, edition_id):
         if form.is_valid() :
             logger.info("EbookFileForm is_valid")
             form.save()
-            edition.work.last_campaign().files_reviewed = False
             edition.work.last_campaign().save()
             context['uploaded']=True
             if campaign_type == BUY2UNGLUE:
