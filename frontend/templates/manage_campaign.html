@@ -121,16 +121,24 @@ Please fix the following before launching your campaign:
     <li>Edition: <i>{{ edition }}</i>
         <ul>
         <li><a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the edition</li>
+        {% ifnotequal campaign.type 1 %}
         {% if campaign.rh.can_sell %}
             <li>You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.</li>
         {% endif %}
+        {% endifnotequal %}
         </ul>
     </li>
     {% endfor %}
     </ul>
     {% if campaign.work.ebookfiles.0 %}
         <p> <b>An Ebook file has been loaded.</b> </p>
-        <p>Active file: {{campaign.work.ebookfiles.0.file}} created {{campaign.work.ebookfiles.0.created}} </p>
+        <p>Active file: <a href="{{campaign.work.ebookfiles.0.file.url}}">{{campaign.work.ebookfiles.0.file}}</a> created {{campaign.work.ebookfiles.0.created}} </p>
+        {% if campaign.work.test_acqs.0 %}
+            <ul> 
+            <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_epub}}">Processed epub for testing</a></li>
+            <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_mobi}}">Processed mobi (kindle) for testing</a></li>
+            </ul>
+        {% endif %}
         <p>Edition: <i>{{ campaign.work.ebookfiles.0.edition }}</i> </p>
     {% endif %}
 <form action="#" method="POST">

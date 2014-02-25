@@ -1307,6 +1307,10 @@ class Work(models.Model):
     def lib_acqs(self):
         return  self.acqs.filter(license=LIBRARY)
 
+    @property
+    def test_acqs(self):
+        return  self.acqs.filter(license=TESTING).order_by('-created')
+
     class user_license:
         acqs=Acq.objects.none()
         def __init__(self,acqs):
