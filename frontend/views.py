@@ -665,6 +665,8 @@ def manage_campaign(request, id, action='manage'):
                     offer.offer_form=OfferForm(instance=offer, data = request.POST, prefix='offer_%d'%offer.id)
                     if offer.offer_form.is_valid():
                         offer.offer_form.save()
+                        offer.active =  True
+                        offer.save()
                         alerts.append(_('Offer has been changed'))
                     else:
                         alerts.append(_('Offer has not been changed'))              
