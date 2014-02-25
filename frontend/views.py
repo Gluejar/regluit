@@ -2061,6 +2061,12 @@ class InfoPageView(TemplateView):
         ebooks.year = ebooks.filter(created__year = date_today().year)
         ebooks.month = ebooks.year.filter(created__month = date_today().month)
         ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        ebookfiles = models.EbookFile.objects
+        ebookfiles.today = ebookfiles.filter(created__range = (date_today(), now()))
+        ebookfiles.days7 = ebookfiles.filter(created__range = (date_today()-timedelta(days=7), now()))
+        ebookfiles.year = ebookfiles.filter(created__year = date_today().year)
+        ebookfiles.month = ebookfiles.year.filter(created__month = date_today().month)
+        ebookfiles.yesterday = ebookfiles.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
         wishlists.today = wishlists.filter(created__range = (date_today(), now()))
         wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -2088,6 +2094,7 @@ class InfoPageView(TemplateView):
             'users': users, 
             'works': works,
             'ebooks': ebooks,
+            'ebookfiles': ebookfiles,
             'wishlists': wishlists,
             'transactions': transactions,
         }
