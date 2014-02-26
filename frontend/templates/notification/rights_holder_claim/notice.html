@@ -27,9 +27,9 @@ Finally, think about how you're going to publicize your campaign: social media, 
 We're thrilled to be working with you.
 	{% endifequal %}
 	{% ifequal claim.status 'pending' %}
-	The claim will be examined, and we'll email you.  Contact us at support@gluejar.com if you need any help.
+	The claim for <a href="{% url work claim.work.id %}">{{ claim.work }}</a> will be examined, and we'll email you.  Contact us at support@gluejar.com if you need any help.
 	{% endifequal %}
 	{% ifequal claim.status 'release' %}
-	The claim has been released.  Contact us at rights@gluejar.com if you have questions.
+	The claim for <a href="{% url work claim.work.id %}">{{ claim.work }}</a> has been released.  Contact us at rights@gluejar.com if you have questions.
 	{% endifequal %}
 {% endblock %}
