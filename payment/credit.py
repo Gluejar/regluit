@@ -16,6 +16,7 @@ def pledge_transaction(t,user,amount):
     else:  
         success = user.credit.add_to_pledged(amount)
     if success:
+        t.type = PAYMENT_TYPE_AUTHORIZATION
         t.max_amount=amount
         t.set_credit_approved(amount)
     return success
@@ -36,6 +37,7 @@ def pay_transaction(t, user, to_user, amount):
     '''user has credit, transfer it to rh account'''
     success = user.credit.transfer_to(to_user , amount)
     if success:
+        t.type = PAYMENT_TYPE_INSTANT
         t.set_executed()
     return success
 

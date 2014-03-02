@@ -643,6 +643,7 @@ class Campaign(models.Model):
             
         
     def update_left(self):
+        self._current_total=None
         if self.type == THANKS:
             self.left == Decimal(0.00)
         elif self.type == BUY2UNGLUE:
