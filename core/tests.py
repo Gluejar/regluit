@@ -450,7 +450,8 @@ class CampaignTests(TestCase):
             )
         self.assertTrue(c.set_dollar_per_day()<0.34)
         self.assertTrue(c.dollar_per_day>0.31)
-        c._current_total = D(6000.1)
+        t = Transaction(type=1, campaign=c, approved=True, amount= D(6000.1), status="Complete")
+        t.save()
         c.status = 'ACTIVE'
         c.save()
         c.update_left()
