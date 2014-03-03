@@ -102,7 +102,11 @@
                                 <p><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> needed</p>
                                 <p>will unglue on </p>
                                 <p>{{ work.last_campaign.cc_date|naturalday:"M d, Y" }}</p>
-                            {% else %}Never.{% endifequal %}{% endifequal %}
+                            {% else %}{% ifequal work.last_campaign.type 3 %}
+                                <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> of thanks</p>
+                                <p> from <b>{{ work.last_campaign.supporters_count }}</b> ungluers</p>
+                                <p> and <b>{{ work.last_campaign.anon_count }}</b> others</p>
+                            {% else %}Never.{% endifequal %}{% endifequal %}{% endifequal %}
                         {% endif %}
                     </div>                    
                 </div>
