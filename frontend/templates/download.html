@@ -150,7 +150,7 @@ $j(document).ready(function() {
         {% endif %}
     {% else %}
         <div class="border">
-            <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their wishlists!{% endif %}</p>
+            <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their favorites!{% endif %}</p>
         
             <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url work work.id %}?tab=4">More... tab of the book page</a>.</p>
         </div>
