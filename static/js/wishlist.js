@@ -80,7 +80,7 @@ $k(document).on("click", ".add-wishlist-workpage span", function() {
 	if (!work_id) return;
 	jQuery.post('/wishlist/', {'add_work_id': work_id}, function(data) {
 		span.fadeOut();
-		var newSpan = $k('<span class="on-wishlist">On Wishlist!</span>').hide();
+		var newSpan = $k('<span class="on-wishlist">Faved!</span>').hide();
 		span.replaceWith(newSpan);
 		newSpan.fadeIn('slow');
 		newSpan.removeAttr("id");

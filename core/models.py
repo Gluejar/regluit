@@ -651,6 +651,7 @@ class Campaign(models.Model):
             
         
     def update_left(self):
+        self._current_total=None
         if self.type == THANKS:
             self.left == Decimal(0.00)
         elif self.type == BUY2UNGLUE:
@@ -944,6 +945,13 @@ class Campaign(models.Model):
                 provider="Unglue.it",
                 url= settings.BASE_URL_SECURE + reverse('download_campaign',args=[self.work.id,format]),
                 )
+        old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
+                format=format, 
+                rights=self.license, 
+                provider="Unglue.it",
+                )
+        for old_ebook in old_ebooks:
+            old_ebook.delete()
         return ebook.pk
                 
 
@@ -1087,11 +1095,8 @@ class Work(models.Model):
         return "http://openlibrary.org" + self.openlibrary_id
 
     def cover_image_small(self):
-        try:
-            if self.preferred_edition.cover_image_small():
-                return self.preferred_edition.cover_image_small()
-        except (IndexError, AttributeError):
-            pass
+        if self.preferred_edition and self.preferred_edition.cover_image_small():
+            return self.preferred_edition.cover_image_small()
         return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
@@ -1336,6 +1341,10 @@ class Work(models.Model):
     @property
     def lib_acqs(self):
         return  self.acqs.filter(license=LIBRARY)
+
+    @property
+    def test_acqs(self):
+        return  self.acqs.filter(license=TESTING).order_by('-created')
 
     class user_license:
         acqs=Acq.objects.none()
