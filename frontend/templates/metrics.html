@@ -98,6 +98,25 @@
     </ul>
 </dd>
 </dl>
+<h2>Ebook Files</h2>
+<dd> 
+    <ul class="terms">
+        <li>{{ ebookfiles.today.count }} have been added today.         </li>
+        <li>{{ ebookfiles.yesterday.count }} were added yesterday.
+        </li>
+        <li>{{ ebookfiles.days7.count }} have been added in the past 7 days.{% if request.user.is_staff %} 
+            <ul class="terms">{% for ebook_file in ebookfiles.days7 %}
+                <li>{{ebook_file.edition.work.title}}: <a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}}</li>
+            {% endfor %}</ul>{% endif %}
+
+        </li>
+        <li>{{ ebookfiles.month.count }} have been added in this month.
+        </li>
+        <li>{{ ebookfiles.all.count }} have been added in total.
+        </li>
+    </ul>
+</dd>
+</dl>
 
 <h2>Pledges</h2>
 <dl>

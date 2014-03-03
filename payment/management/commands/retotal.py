@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = "retotal all campaigns"
 
     def handle(self, *args, **kwargs):
-        campaigns = regluit.payment.models.Campaign.objects.all()
+        campaigns = regluit.core.models.Campaign.objects.all()
         for c in campaigns:
             c.update_left()
             print c.left

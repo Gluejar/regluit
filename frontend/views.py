@@ -430,16 +430,24 @@ def edition_uploads(request, edition_id):
         if form.is_valid() :
             logger.info("EbookFileForm is_valid")
             form.save()
+            edition.work.last_campaign().save()
             context['uploaded']=True
             if campaign_type == BUY2UNGLUE:
-                # campaign mangager gets a copy
-                test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
-                try:
-                    test_acq.get_watermarked()
-                    context['watermarked']= test_acq.watermarked
-                except Exception as e:
-                    context['upload_error']= e
-                    form.instance.delete()
+                if edition.work.last_campaign().status == 'SUCCESSFUL':
+                    try:
+                        edition.work.last_campaign().watermark_success()
+                    except Exception as e:
+                        context['upload_error']= e
+                        form.instance.delete()
+                else:
+                    # campaign mangager gets a copy
+                    test_acq = models.Acq.objects.create(user=request.user,work=edition.work,license= TESTING)
+                    try:
+                        test_acq.get_watermarked()
+                        context['watermarked']= test_acq.watermarked
+                    except Exception as e:
+                        context['upload_error']= e
+                        form.instance.delete()
             if campaign_type == THANKS:
                 e = form.instance.check_file()
                 if e != None:
@@ -653,6 +661,8 @@ def manage_campaign(request, id, action='manage'):
                     offer.offer_form=OfferForm(instance=offer, data = request.POST, prefix='offer_%d'%offer.id)
                     if offer.offer_form.is_valid():
                         offer.offer_form.save()
+                        offer.active =  True
+                        offer.save()
                         alerts.append(_('Offer has been changed'))
                     else:
                         alerts.append(_('Offer has not been changed'))              
@@ -2070,6 +2080,12 @@ class InfoPageView(TemplateView):
         ebooks.year = ebooks.filter(created__year = date_today().year)
         ebooks.month = ebooks.year.filter(created__month = date_today().month)
         ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        ebookfiles = models.EbookFile.objects
+        ebookfiles.today = ebookfiles.filter(created__range = (date_today(), now()))
+        ebookfiles.days7 = ebookfiles.filter(created__range = (date_today()-timedelta(days=7), now()))
+        ebookfiles.year = ebookfiles.filter(created__year = date_today().year)
+        ebookfiles.month = ebookfiles.year.filter(created__month = date_today().month)
+        ebookfiles.yesterday = ebookfiles.filter(created__range = (date_today()-timedelta(days=1), date_today()))
         wishlists= models.Wishlist.objects.exclude(wishes__isnull=True)
         wishlists.today = wishlists.filter(created__range = (date_today(), now()))
         wishlists.days7 = wishlists.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -2097,6 +2113,7 @@ class InfoPageView(TemplateView):
             'users': users, 
             'works': works,
             'ebooks': ebooks,
+            'ebookfiles': ebookfiles,
             'wishlists': wishlists,
             'transactions': transactions,
         }
