@@ -411,6 +411,7 @@ def work(request, work_id, action='display'):
         'claimstatus': claimstatus,
         'rights_holder_name': rights_holder_name,
         'cover_width': cover_width_number,
+        'action': action,
     })    
 
 def edition_uploads(request, edition_id):
@@ -2604,6 +2605,8 @@ class DownloadView(PurchaseView):
             return  False
         elif self.user_license and self.user_license.thanked:
             return self.request.REQUEST.has_key('offer_id')
+        elif self.campaign.status != 'ACTIVE':
+            return self.request.REQUEST.has_key('testmode')
         else: 
             return True
         

@@ -254,7 +254,7 @@ Please fix the following before launching your campaign:
 
 	<h3>Make Your Pitch</h3>
 	{% ifequal campaign.type 3 %}
-	<p>This will be displayed to a user who has clicked a "download" button. It's your chance to ask for their support. The user can either accept the suggested contribution and go make a payment, or  enter "0" and go straight to download. </p>
+	<p>This will be displayed to a user who has clicked a "download" button. It's your chance to ask for their support. The user can either accept the suggested contribution and go make a payment, or  enter "0" and go straight to download. To see your request in test mode, <a href="{% url download campaign.work.id %}?testmode=1">click here</a>. </p>
 	{% else %}
 	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters/purchasers.</p>
 	{% endifequal %}
