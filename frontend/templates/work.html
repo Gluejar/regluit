@@ -45,7 +45,7 @@
 {% else %}
     {% if not work.user_with_rights %}
         {% if request.user.rights_holder.all %}
-            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  There's a screencast of the process at the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
+            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  Check out the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
         {% endif %}
     {% else %}
         {% if request.user == work.user_with_rights %}
