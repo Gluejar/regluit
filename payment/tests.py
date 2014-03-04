@@ -327,7 +327,7 @@ class TransactionTest(TestCase):
         # valid card and Account
         card0 = card()
         stripe_processor = Processor()
-        account = stripe_processor.make_account(user,token=card0)
+        account = stripe_processor.make_account(user=user,token=card0)
 
         w = Work()
         w.save()

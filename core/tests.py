@@ -496,7 +496,7 @@ class CampaignTests(TestCase):
         c1.save()
         self.assertEqual(c1.status, 'INITIALIZED')
         # ACTIVATED
-        c2 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
+        c2 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w,description='dummy description')
         c2.save()
         self.assertEqual(c2.status, 'INITIALIZED')
         u = User.objects.create_user('claimer', 'claimer@example.org', 'claimer')
@@ -519,7 +519,7 @@ class CampaignTests(TestCase):
         # should not let me suspend a campaign that hasn't been initialized
         self.assertRaises(UnglueitError, c1.suspend, "for testing")
         # UNSUCCESSFUL
-        c3 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w2)
+        c3 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w2,description='dummy description')
         c3.save()
         c3.activate()
         self.assertEqual(c3.status, 'ACTIVE')
@@ -539,7 +539,7 @@ class CampaignTests(TestCase):
         
         
         # SUCCESSFUL
-        c4 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w)
+        c4 = Campaign(target=D('1000.00'),deadline=now() - timedelta(days=1),work=w,description='dummy description')
         c4.save()
         c4.activate()
         t = Transaction()
@@ -554,7 +554,7 @@ class CampaignTests(TestCase):
         self.assertEqual(c4.status, 'SUCCESSFUL')
         
         # WITHDRAWN
-        c5 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w)
+        c5 = Campaign(target=D('1000.00'),deadline=datetime(2013,1,1),work=w,description='dummy description')
         c5.save()
         c5.activate().withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')     
@@ -562,7 +562,7 @@ class CampaignTests(TestCase):
         # testing percent-of-goal
         w2 = Work()
         w2.save()
-        c6 = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=1),work=w2)
+        c6 = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=1),work=w2,description='dummy description')
         c6.save()
         cl = Claim(rights_holder = rh, work = w2, user = u, status = 'active')
         cl.save()
@@ -852,6 +852,7 @@ class EbookFileTests(TestCase):
                                     target = 1000, 
                                     deadline = datetime(2020,1,1),
                                     license = 'CC BY',
+                                    description = "dummy description",
                                     )
         # download the test epub into a temp file
         temp = NamedTemporaryFile(delete=False)
@@ -883,6 +884,11 @@ class EbookFileTests(TestCase):
         url= acq.get_watermarked().download_link_epub
         self.assertRegexpMatches(url,'github.com/eshellman/42_ebook/blob/master/download/42')
         #self.assertRegexpMatches(url,'booxtream.com/')
+
+        with self.assertRaises(UnglueitError) as cm:
+            c.activate()
+        off = Offer(price=10.00, work=w, active=True)
+        off.save()
         c.activate()
         #flip the campaign to success
         c.cc_date_initial= datetime(2012,1,1)

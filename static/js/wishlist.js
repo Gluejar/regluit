@@ -16,11 +16,11 @@ $j().ready(function() {
         // actually perform action
         if (id_type=='work_id'){
             jQuery.post('/wishlist/', { 'add_work_id': id_val}, function(data) {
-        	span.html('On Wishlist!').addClass('on-wishlist');
+        	span.html('Faved!').addClass('on-wishlist');
         });}
         else if (id_type=='gb_id'){
             jQuery.post('/wishlist/', { 'googlebooks_id': id_val}, function(data) {
-        	span.html('On Wishlist!').addClass('on-wishlist');
+        	span.html('Faved!').addClass('on-wishlist');
         });}
         else {
             span.html('a type error occurred');
@@ -80,7 +80,7 @@ $k(document).on("click", ".add-wishlist-workpage span", function() {
 	if (!work_id) return;
 	jQuery.post('/wishlist/', {'add_work_id': work_id}, function(data) {
 		span.fadeOut();
-		var newSpan = $k('<span class="on-wishlist">On Wishlist!</span>').hide();
+		var newSpan = $k('<span class="on-wishlist">Faved!</span>').hide();
 		span.replaceWith(newSpan);
 		newSpan.fadeIn('slow');
 		newSpan.removeAttr("id");

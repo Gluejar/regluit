@@ -617,7 +617,7 @@ class PaymentManager( object ):
             logger.info("Authorize Error: " + p.error_string())
             return transaction, None
 
-    def charge(self, transaction,  return_url=None,  paymentReason="unglue.it Purchase"):
+    def charge(self, transaction,  return_url=None,  paymentReason="unglue.it Purchase", token = None):
         '''
         charge
         
@@ -643,7 +643,7 @@ class PaymentManager( object ):
             if not success:  #shouldn't happen
                 logger.error('could not use credit for transaction %s' % transaction.id)
                 charge_amount =transaction.max_amount
-        p = transaction.get_payment_class().Pay(transaction, amount=charge_amount, return_url=return_url, paymentReason=paymentReason)
+        p = transaction.get_payment_class().Pay(transaction, amount=charge_amount, return_url=return_url, paymentReason=paymentReason, token=token)
        
         
         if p.success() and not p.error():
@@ -706,7 +706,7 @@ class PaymentManager( object ):
                                    )
         t.save()
         # does user have enough credit to transact now?
-        if user.credit.available >= amount :
+        if user.is_authenticated() and user.credit.available >= amount :
             # YES!
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urllib.urlencode({'tid':t.id})) 
@@ -956,7 +956,7 @@ class PaymentManager( object ):
             logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
             return False
         
-    def make_account(self, user, host, token=None):
+    def make_account(self, user=None, host=None, token=None):
         """delegate to a specific payment module the task of creating a payment account"""
         
         mod = __import__("regluit.payment." + host, fromlist=[host])

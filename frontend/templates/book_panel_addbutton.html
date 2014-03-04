@@ -10,7 +10,7 @@
 {% endcomment %}
 			{% if request.user.is_anonymous %}
 				<div class="moreinfo create-account">
-				<span title="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Add</span>
+				<span title="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Fave</span>
 				</div>
 			{% else %}{% if request.user.id in supporters %}
 				<div class="moreinfo on-wishlist">
@@ -19,24 +19,24 @@
 			{% else %}{% ifequal supporter request.user %}
 				{% if wishlist %}
                     <div class="moreinfo remove-wishlist">
-                        <span id="p{{ workid }}">Un-list</span>
+                        <span id="p{{ workid }}">Un-Fave</span>
                     </div>
 				{% else %}
 				    {% comment %} on the empty-wishlist slideshow {% endcomment %}
                     <div class="moreinfo add-wishlist">
-                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;List</span>
+                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;Faves</span>
                     </div>
 				{% endif %}
 			{% else %}{% if work in wishlist %}
 				<div class="moreinfo on-wishlist">
-				 <a href="/#">On My List!</a>
+				 <a href="/#">A Fave!</a>
 				</div>
 			{% else %}
 				<div class="moreinfo add-wishlist">
 				{% if on_search_page %}
-				<span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;My&nbsp;List</span>
+				<span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;My&nbsp;Faves</span>
 				{% else %}
-				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;List</span>
+				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;Faves</span>
 				{% endif %}
 				</div>
 			{% endif %}{% endifequal %}{% endif %}{% endif %}

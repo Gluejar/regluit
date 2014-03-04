@@ -29,7 +29,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.contrib.auth.views import login,password_reset
+from django.contrib.auth.views import login,password_reset, redirect_to_login
 from django.contrib.comments import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
@@ -83,6 +83,7 @@ from regluit.frontend.forms import (
     ProfileForm,
     CampaignPledgeForm,
     CampaignPurchaseForm,
+    CampaignThanksForm,
     GoodreadsShelfLoadingForm,
     RightsHolderForm,
     UserClaimForm,
@@ -102,6 +103,7 @@ from regluit.frontend.forms import (
     PledgeCancelForm,
     getTransferCreditForm,
     CCForm,
+    AnonCCForm,
     CloneCampaignForm,
     PlainCCForm,
     WorkForm,
@@ -342,13 +344,7 @@ def work(request, work_id, action='display'):
     except:
         pledged = None
         
-    logger.info("pledged: {0}".format(pledged))
     cover_width_number = 0
-    
-    try:
-        assert not (work.last_campaign_status() == 'ACTIVE' and work.first_ebook())
-    except:
-        logger.warning("Campaign running for %s when ebooks are already available: why?" % work.title )
     
     if work.last_campaign_status() == 'ACTIVE':
         cover_width_number = cover_width(work)
@@ -1177,8 +1173,9 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
+        
         self.offer_id = self.request.REQUEST.get('offer_id', None)
-        if not self.offer_id:
+        if not self.offer_id and self.work.last_campaign() and self.work.last_campaign().individual_offer:
             self.offer_id = self.work.last_campaign().individual_offer.id
         preapproval_amount = None
         if self.offer_id != None:
@@ -1203,21 +1200,30 @@ class PurchaseView(PledgeView):
             logger.error("Attempt to produce transaction id {0} failed".format(t.id))
             return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
     
-               
 class FundView(FormView):
     template_name="fund_the_pledge.html"
-    form_class = CCForm
     transaction = None
     action = None
+    
+    def get_form_class(self):
+        if self.request.user.is_anonymous():
+            return AnonCCForm
+        else:
+            return CCForm
 
     def get_form_kwargs(self):
         kwargs = super(FundView, self).get_form_kwargs()
         
-        assert self.request.user.is_authenticated()
+        #assert self.request.user.is_authenticated()
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
 
-        self.action = 'pledge' if self.transaction.campaign.type == REWARDS else 'purchase'
+        if self.transaction.campaign.type == REWARDS:
+            self.action = 'pledge'
+        elif self.transaction.campaign.type == THANKS:
+            self.action = 'contribution'
+        else:
+            self.action = 'purchase'
 
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
@@ -1226,7 +1232,7 @@ class FundView(FormView):
         
         data.update(
             {'preapproval_amount':self.transaction.needed_amount,
-                'username':self.request.user.username,
+                'username':self.request.user.username if self.request.user.is_authenticated else None,
                 'work_id':self.transaction.campaign.work.id,
                 'title':self.transaction.campaign.work.title}
             )
@@ -1250,40 +1256,42 @@ class FundView(FormView):
             donate_args['data']['preapproval_amount']=self.transaction.needed_amount
             context['donate_form'] = DonateForm(**donate_args)
         return context
-    
-    def post(self, request, *args, **kwargs):
-        logger.info('request.POST: {0}'.format(request.POST))
-        return super(FundView, self).post(request, *args, **kwargs)
-    
-    def form_valid(self, form):
-        """ note desire to pledge; make sure there is a credit card to charge"""
-        if self.transaction.user.id != self.request.user.id:
-            # trouble!
-            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction, 'action': self.action }) 
-
-        p = PaymentManager()
-
-        # if the user has  active account, use it. Otherwise...
-        if not self.request.user.profile.account:
-            stripe_token = form.cleaned_data["stripe_token"]
-            # if we get a stripe_token, create a new stripe account for the user
-            if stripe_token:
-                try:
-                    p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
-                except baseprocessor.ProcessorError as e:
-                    return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
-            else: # empty token
-                e = baseprocessor.ProcessorError("Empty token")
-                return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
-            
-        self.transaction.host = settings.PAYMENT_PROCESSOR
         
-        # with the Account in hand, now do the transaction
+    def form_valid(self, form):
+        p = PaymentManager()
+        stripe_token = form.cleaned_data["stripe_token"]
+        self.transaction.host = settings.PAYMENT_PROCESSOR
         return_url = "%s?tid=%s" % (reverse('pledge_complete'),self.transaction.id)
-        if self.action == 'pledge':
-            t, url = p.authorize(self.transaction, return_url =  return_url )
+
+        if self.transaction.campaign.type == THANKS and self.transaction.user == None:
+            #anonymous user, just charge the card!
+            # if there's an email address, put it in the receipt column, so far unused.
+            self.transaction.receipt = form.cleaned_data["email"]
+            t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token )
+        elif self.request.user.is_anonymous():
+            #somehow the user lost their login
+            return HttpResponseRedirect(reverse('superlogin'))
+        elif self.transaction.user.id != self.request.user.id:
+            # other sort of strange trouble!
+            return render(self.request, "pledge_user_error.html", {'transaction': self.transaction, 'action': self.action }) 
         else:
-            t, url = p.charge(self.transaction, return_url = return_url )
+            # if the user has  active account, use it. Otherwise...
+            if not self.request.user.profile.account:
+            
+                # if we get a stripe_token, create a new stripe account for the user
+                if stripe_token:
+                    try:
+                        p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
+                    except baseprocessor.ProcessorError as e:
+                        return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
+                else: # empty token
+                    e = baseprocessor.ProcessorError("Empty token")
+                    return render(self.request, "pledge_card_error.html", {'transaction': self.transaction, 'exception':e })
+            # with the Account in hand, now do the transaction
+            if self.action == 'pledge':
+                t, url = p.authorize(self.transaction, return_url =  return_url )
+            else:
+                t, url = p.charge(self.transaction, return_url = return_url )
         
         # redirecting user to pledge_complete/payment_complete on successful preapproval (in the case of stripe)
         if url is not None:
@@ -1434,15 +1442,22 @@ class FundCompleteView(TemplateView):
     
     template_name="pledge_complete.html"
     
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if context['campaign'].type == THANKS:
+            return DownloadView.as_view()(request, work=context['work'])
+        else:
+            if request.user.is_authenticated:
+                return self.render_to_response(context)
+            else:
+                return redirect_to_login(request.get_full_path())
+        
+            
+
     def get_context_data(self):
         # pick up all get and post parameters and display
         context = super(FundCompleteView, self).get_context_data()
-        
-        if self.request.user.is_authenticated():
-            user = self.request.user
-        else:
-            user = None
-        
+
         # pull out the transaction id and try to get the corresponding Transaction
         transaction_id = self.request.REQUEST.get("tid")
         transaction = Transaction.objects.get(id=transaction_id)
@@ -1456,13 +1471,11 @@ class FundCompleteView(TemplateView):
             work = None
         
         # we need to check whether the user tied to the transaction is indeed the authenticated user.
-        try:
-            if user.id != transaction.user.id:
-                # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
-                raise Http404
-        except Exception, e:
+        if transaction.campaign.type == THANKS and transaction.user == None:
+            pass
+        elif self.request.user.id != transaction.user.id:
+            # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
             raise Http404
-            
             
         # check that the user had not already approved the transaction
         # do we need to first run PreapprovalDetails to check on the status
@@ -1476,9 +1489,15 @@ class FundCompleteView(TemplateView):
             
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
         # fire add-wishlist notification if needed
-        if user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
+        if transaction.user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
             # ok to overwrite Wishes.source?
-            user.wishlist.add_work(work, 'pledging', notify=True)
+            transaction.user.wishlist.add_work(work, 'pledging', notify=True)
+        else:
+            #put info into session for download page to pick up.
+            self.request.session['amount']= transaction.amount
+            if transaction.receipt:
+                self.request.session['receipt']= transaction.receipt
+                
             
         context["transaction"] = transaction
         context["work"] = work
@@ -2466,44 +2485,25 @@ def emailshare(request, action):
             work_id = next.split('/')[-2]
             work_id = int(work_id)
             work = models.Work.objects.get(pk=work_id)
-            if action == 'pledge':
-                message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                subject = "Help me unglue "+work.title
-            else:
-                try:
-                    status = work.last_campaign().status
-                except:
-                    status = None
-            
-                # customize the call to action depending on campaign status
-                if status == 'SUCCESSFUL' or work.first_ebook():
-                    message = render_to_string('emails/read_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                    subject = 'I think you\'d like this book I\'m reading'
-                elif status == 'ACTIVE':
-                    message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                    subject = 'Please help me give this book to the world'
-                else:
-                    message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                    subject = 'Come see one of my favorite books on Unglue.it'
-            
-            form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
+            if not action:
+                status = work.last_campaign().status
         except:
             pass
-
-        if action == 'pledge':
-            message = render_to_string('emails/i_just_pledged.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+        context = {'request':request,'work':work,'site': Site.objects.get_current(), 'action': action}
+        if work and action :
+            message = render_to_string('emails/i_just_pledged.txt', context)
             subject = "Help me unglue "+work.title
         else:            
             # customize the call to action depending on campaign status
             if status == 'ACTIVE':
-                message = render_to_string('emails/pledge_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
+                message = render_to_string('emails/pledge_this.txt', context)
                 subject = 'Please help me give this book to the world'
             elif work:
-                message = render_to_string('emails/wish_this.txt',{'request':request,'work':work,'site': Site.objects.get_current()})
-                subject = 'Come see one of my favorite books on Unglue.it'
+                message = render_to_string('emails/wish_this.txt', context)
+                subject = 'This is one of my favorite books on Unglue.it'
             else:
                 # for email shares not bound to a campaign or pledge
-                message = render_to_string('emails/join_me.txt',{'request':request,'site': Site.objects.get_current()})
+                message = render_to_string('emails/join_me.txt', context)
                 subject = "Help me give books to the world"
 
         form = EmailShareForm(initial={ 'next':next, 'subject': subject, 'message': message})
@@ -2596,81 +2596,134 @@ def lockss_manifest(request, year):
     
     return render(request, "lockss_manifest.html", {'ebooks':ebooks, 'year': year})
 
-def download(request, work_id):
-    context = {}
-    work = safe_get_work(work_id)
-    site = Site.objects.get_current()
-    context.update({'work': work, 'site': site})
+class DownloadView(PurchaseView):
+    template_name="download.html"
+    form_class = CampaignThanksForm    
+    def show_beg(self):
+        if not self.campaign or self.campaign.type != THANKS:
+            return  False
+        elif self.user_license and self.user_license.thanked:
+            return self.request.REQUEST.has_key('offer_id')
+        else: 
+            return True
+        
+    def form_valid(self, form):
+        p = PaymentManager()
+        t, url = p.process_transaction('USD',  form.cleaned_data["preapproval_amount"],  
+                host = PAYMENT_HOST_NONE, 
+                campaign=self.campaign, 
+                user=self.request.user,
+                paymentReason="Unglue.it Contribution for {0}".format(self.campaign.name), 
+                pledge_extra=form.trans_extra,
+                )    
+        if url:
+            return HttpResponseRedirect(url)
+        else:
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse("Our attempt to set up your contribution failed. We have logged this problem.")
 
-    unglued_ebooks = work.ebooks().filter(edition__unglued=True)
-    other_ebooks = work.ebooks().filter(edition__unglued=False)
+    def get_form_kwargs(self):
+        if self.kwargs.has_key('work'):
+            self.work = self.kwargs["work"]
+            self.show_beg= lambda: False
+        else:
+            self.work = safe_get_work(self.kwargs["work_id"])
+        self.campaign = self.work.last_campaign()
+        self.user_license = self.work.get_user_license(self.request.user)
+        self.data = {
+            'preapproval_amount':self.get_preapproval_amount(),
+            'anonymous':True if self.request.user.is_anonymous() else self.request.user.profile.anon_pref,
+            }
+        if self.request.method  == 'POST':
+            self.data.update(self.request.POST.dict())
+            if not self.request.POST.has_key('anonymous'):
+                del self.data['anonymous']
+            return {'data':self.data}
+        else:
+            return {'initial':self.data}
+
+    def get_context_data(self, **kwargs):
+        context = super(FormView, self).get_context_data(**kwargs)
+        # adapt funtion view to class view
+        work =  self.work 
+        request = self.request
+        site = Site.objects.get_current()
+
+        unglued_ebooks = work.ebooks().filter(edition__unglued=True)
+        other_ebooks = work.ebooks().filter(edition__unglued=False)
     
-    acq=None
-    formats = {}  # a dict of format name and url
-    for ebook in work.ebooks().all():
-        formats[ebook.format] = reverse('download_ebook', args=[ebook.id] )
+        acq=None
+        formats = {}  # a dict of format name and url
+        for ebook in work.ebooks().all():
+            formats[ebook.format] = reverse('download_ebook', args=[ebook.id] )
     
-    if request.user.is_authenticated(): 
-        all_acqs=request.user.acqs.filter(work=work).order_by('-created')
-        for an_acq in all_acqs:
-            if not an_acq.expired:
-                # prepare this acq for download
-                if not an_acq.watermarked or an_acq.watermarked.expired:
-                    if not an_acq.on_reserve:
-                        watermark_acq.delay(an_acq)
-                acq = an_acq
-                formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
-                formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
-                readmill_epub_url = settings.BASE_URL + formats['epub']
-                can_kindle = True
-                break
+        if request.user.is_authenticated(): 
+            all_acqs=request.user.acqs.filter(work=work).order_by('-created')
+            for an_acq in all_acqs:
+                if not an_acq.expired:
+                    # prepare this acq for download
+                    if not an_acq.watermarked or an_acq.watermarked.expired:
+                        if not an_acq.on_reserve:
+                            watermark_acq.delay(an_acq)
+                    acq = an_acq
+                    formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
+                    formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
+                    readmill_epub_url = settings.BASE_URL + formats['epub']
+                    can_kindle = True
+                    break
             
     
-    if not acq:
-        # google ebooks have a captcha which breaks some of our services
-        non_google_ebooks = work.ebooks().exclude(provider='Google Books')
+        if not acq:
+            # google ebooks have a captcha which breaks some of our services
+            non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         
-        #send to kindle 
+            #send to kindle 
         
-        try:
-            non_google_ebooks.filter(format='mobi')[0]
-            can_kindle = True
-        except IndexError:
             try:
-                non_google_ebooks.filter(format='pdf')[0]
+                non_google_ebooks.filter(format='mobi')[0]
                 can_kindle = True
             except IndexError:
-                can_kindle = False
-        # configure the readmillurl
-        try:
-            readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
-            if readmill_epub_ebook.url.startswith('https'):
-                readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
-            else:
-                readmill_epub_url = settings.BASE_URL + reverse('download_ebook',args=[readmill_epub_ebook.id])
-            #readmill_epub_url = readmill_epub_ebook.url
-        except:
-            readmill_epub_url = None
-    agent = request.META.get('HTTP_USER_AGENT','')   
-    iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
-    iOS_app = iOS and not 'Safari' in agent
-    android = 'Android' in agent
-    desktop = not iOS and not android
-    context.update({
-        'unglued_ebooks': unglued_ebooks,
-        'other_ebooks': other_ebooks,
-        'formats': formats,
-        'readmill_epub_url': readmill_epub_url,
-        'can_kindle': can_kindle,
-        'base_url': settings.BASE_URL_SECURE,
-        'iOS': iOS,
-        'iOS_app': iOS_app,
-        'android': android,
-        'desktop': desktop,
-        'acq':acq,
-    })
-
-    return render(request, "download.html", context)
+                try:
+                    non_google_ebooks.filter(format='pdf')[0]
+                    can_kindle = True
+                except IndexError:
+                    can_kindle = False
+            # configure the readmillurl
+            try:
+                readmill_epub_ebook = non_google_ebooks.filter(format='epub')[0]
+                if readmill_epub_ebook.url.startswith('https'):
+                    readmill_epub_url = settings.BASE_URL_SECURE + reverse('download_ebook',args=[readmill_epub_ebook.id])
+                else:
+                    readmill_epub_url = settings.BASE_URL + reverse('download_ebook',args=[readmill_epub_ebook.id])
+                #readmill_epub_url = readmill_epub_ebook.url
+            except:
+                readmill_epub_url = None
+        agent = request.META.get('HTTP_USER_AGENT','')   
+        iOS = 'iPad' in agent or 'iPhone' in agent or 'iPod' in agent
+        iOS_app = iOS and not 'Safari' in agent
+        android = 'Android' in agent
+        desktop = not iOS and not android
+        context.update({
+            'unglued_ebooks': unglued_ebooks,
+            'other_ebooks': other_ebooks,
+            'formats': formats,
+            'readmill_epub_url': readmill_epub_url,
+            'can_kindle': can_kindle,
+            'base_url': settings.BASE_URL_SECURE,
+            'iOS': iOS,
+            'iOS_app': iOS_app,
+            'android': android,
+            'desktop': desktop,
+            'acq':acq,
+            'show_beg': self.show_beg,
+            'preapproval_amount': self.get_preapproval_amount(),
+            'work': work, 
+            'site': site,
+            'action': "Contribution",
+            'user_license': self.user_license,
+            'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
+        })
+        return context
 
 @login_required
 def borrow(request, work_id):

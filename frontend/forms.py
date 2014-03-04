@@ -571,6 +571,20 @@ class CampaignPurchaseForm(forms.Form):
         pe.extra['copies']=self.cleaned_data.get('copies',1)
         return pe
 
+class CampaignThanksForm(forms.Form):
+    anonymous = forms.BooleanField(required=False, label=_("Make this contribution anonymous, please"))
+    preapproval_amount = forms.DecimalField(
+        required = False,
+        min_value=D('1.00'),
+        max_value=D('2000.00'), 
+        decimal_places=2, 
+        label="Pledge Amount",
+    )
+    @property
+    def trans_extra(self):
+        pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'] )
+
+
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
@@ -628,8 +642,7 @@ class CampaignPledgeForm(forms.Form):
 class PlainCCForm(forms.Form):
     stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
 
-class CCForm(PlainCCForm):
-    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput())
+class BaseCCForm(PlainCCForm):
     work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     preapproval_amount= forms.DecimalField(
         required=False,
@@ -638,6 +651,12 @@ class CCForm(PlainCCForm):
         decimal_places=2, 
         label="Amount",
     )
+
+class AnonCCForm(BaseCCForm):
+    email = forms.CharField(max_length=30, required=False, widget=forms.TextInput())
+
+class CCForm(BaseCCForm):
+    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput())
 
 class DonateForm(forms.Form):
     preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )

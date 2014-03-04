@@ -20,6 +20,7 @@ from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import Signal
 from django.utils.translation import ugettext_noop as _
+from django.template.loader import render_to_string
 
 from notification import models as notification
 from social_auth.signals import pre_update
@@ -30,7 +31,7 @@ regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
 from regluit.utils.localdatetime import now, date_today
-from regluit.core.parameters import REWARDS, BUY2UNGLUE, LIBRARY, RESERVE
+from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS, LIBRARY, RESERVE, THANKED
 from regluit.libraryauth.models import Library, LibraryUser
 
 logger = logging.getLogger(__name__)
@@ -72,18 +73,18 @@ post_save.connect(create_api_key, sender=User)
 def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("A comment has been received on a book that you've commented on."))
     notification.create_notice_type("wishlist_comment", _("Book List Comment"), _("A comment has been received on one of your books."), default = 1)
-    notification.create_notice_type("wishlist_official_comment", _("Book List Comment"), _("The author or publisher, or and Unglue.it staffer, has commented on one of your books."))
-    notification.create_notice_type("wishlist_work_claimed", _("Rights Holder is Active"), _("A rights holder has shown up for a book that you want unglued."), default = 1)
-    notification.create_notice_type("wishlist_active", _("New Campaign"), _("A book you've wishlisted has a newly launched campaign."))
+    notification.create_notice_type("wishlist_official_comment", _("Book List Comment"), _("The author or publisher, or and Unglue.it staffer, has commented on one of your faves."))
+    notification.create_notice_type("wishlist_work_claimed", _("Rights Holder is Active"), _("A rights holder has shown up for a book that you've faved."), default = 1)
+    notification.create_notice_type("wishlist_active", _("New Campaign"), _("A book you've favorited has a newly launched campaign."))
     notification.create_notice_type("wishlist_near_target", _("Campaign Near Target"), _("A book you want is near its ungluing target."))
     notification.create_notice_type("wishlist_near_deadline", _("Campaign Near Deadline"), _("A book you want is almost out of time."))
-    notification.create_notice_type("wishlist_premium_limited_supply", _("Only a Few Premiums Left"), _("A limited edition premium is running out on a book you like."))
-    notification.create_notice_type("wishlist_successful", _("Successful Campaign"), _("An ungluing campaign that you have supported or followed has succeeded."))
+    notification.create_notice_type("wishlist_premium_limited_supply", _("Only a Few Premiums Left"), _("A limited edition premium is running out on a book you've faved."))
+    notification.create_notice_type("wishlist_successful", _("Successful Campaign"), _("An ungluing campaign that you have supported or faved has succeeded."))
     notification.create_notice_type("wishlist_unsuccessful", _("Unsuccessful Campaign"), _("An ungluing campaign that you supported didn't succeed this time."))
     notification.create_notice_type("wishlist_updated", _("Campaign Updated"), _("An ungluing campaign you support has been updated."), default = 1)
-    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("You have a private message from unglue.it staff or the rights holder about a book on your wishlist."))
-    notification.create_notice_type("wishlist_price_drop", _("Campaign Price Drop"), _("An ungluing campaign you're interested in has a reduced target."), default = 1)
-    notification.create_notice_type("wishlist_unglued_book_released", _("Unglued Book!"), _("A book you wanted is now available to be downloaded."))
+    notification.create_notice_type("wishlist_message", _("Campaign Communication"), _("You have a private message from unglue.it staff or the rights holder about a book you've faved."))
+    notification.create_notice_type("wishlist_price_drop", _("Campaign Price Drop"), _("An ungluing campaign you've faved has a reduced target."), default = 1)
+    notification.create_notice_type("wishlist_unglued_book_released", _("Unglued Book!"), _("A book you've faved is now available to be downloaded."))
     notification.create_notice_type("pledge_you_have_pledged", _("Thanks For Your Pledge!"), _("Your ungluing pledge has been entered."))
     notification.create_notice_type("pledge_status_change", _("Your Pledge Has Been Modified"), _("Your ungluing pledge has been modified."))
     notification.create_notice_type("pledge_charged", _("Your Pledge has been Executed"), _("You have contributed to a successful ungluing campaign."))
@@ -92,7 +93,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("rights_holder_claim", _("Claim Entered"), _("A claim has been entered."))
     notification.create_notice_type("wishlist_unsuccessful_amazon", _("Campaign shut down"), _("An ungluing campaign that you supported had to be shut down due to an Amazon Payments policy change."))
     notification.create_notice_type("pledge_gift_credit", _("Gift Credit Balance"), _("You have a gift credit balance"))
-    notification.create_notice_type("new_wisher", _("New wisher"), _("Someone new has wished for a book that you're the rightsholder for"))
+    notification.create_notice_type("new_wisher", _("New wisher"), _("Someone new has faved a book that you're the rightsholder for"))
     notification.create_notice_type("account_expiring", _("Credit Card Expiring Soon"), _("Your credit card is about to expire."))
     notification.create_notice_type("account_expired", _("Credit Card Has Expired"), _("Your credit card has expired."))
     notification.create_notice_type("account_active", _("Credit Card Number Updated"), _("Payment method updated."), default = 1)
@@ -165,7 +166,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
     transaction._current_total = None
     if transaction.campaign.type is REWARDS:
         notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
-    else:
+    elif transaction.campaign.type is BUY2UNGLUE:
         # provision the book
         Acq = get_model('core', 'Acq')
         if transaction.offer.license == LIBRARY:
@@ -185,8 +186,18 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         watermark_acq.delay(new_acq)
         if transaction.campaign.cc_date < date_today() :
             transaction.campaign.update_status(send_notice=True)
-    from regluit.core.tasks import emit_notifications
-    emit_notifications.delay()
+    elif transaction.campaign.type is THANKS:
+        if transaction.user:
+            Acq = get_model('core', 'Acq')
+            new_acq = Acq.objects.create(user=transaction.user, work=transaction.campaign.work, license=THANKED)
+            notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
+        elif transaction.receipt:
+            from regluit.core.tasks import send_mail_task
+            message = render_to_string("notification/purchase_complete/full.txt",{'transaction':transaction,'current_site':Site.objects.get_current()})
+            send_mail_task.delay('unglue.it transaction confirmation', message, 'notices@gluejar.com', [transaction.receipt])
+    if transaction.user:
+        from regluit.core.tasks import emit_notifications
+        emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
 
@@ -308,7 +319,6 @@ def notify_supporter_message(sender, work, supporter, msg, **kwargs):
     """send notification in of supporter message"""
     logger.info('received supporter_message signal for {0}'.format(supporter))
     
-    site = Site.objects.get_current()
     notification.send( [supporter], "wishlist_message", {'work':work, 'msg':msg}, True, sender)
     from regluit.core.tasks import emit_notifications
     emit_notifications.delay()

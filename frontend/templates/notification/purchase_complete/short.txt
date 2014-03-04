@@ -1,1 +1,1 @@
-You have purchased {{transaction.campaign.work.title}}{% ifequal transaction.offer.license 2 %} for your library{% endifequal %}.
+{% ifequal transaction.campaign.type 2 %}You have purchased {{transaction.campaign.work.title}}{% ifequal transaction.offer.license 2 %} for your library{% endifequal %}.{% endifequal %}{% ifequal transaction.campaign.type 3 %}You have supported {{ transaction.campaign.work.title }}, a free ebook.{% endifequal %}

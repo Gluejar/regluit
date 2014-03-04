@@ -1,0 +1,9 @@
+{% if work.last_campaign.type == 3 %}
+    <a href="{% url work workid %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">Thanked by&nbsp;</span>{{ work.last_campaign.supporters_count }}</span></span></a>
+{% else %}
+    {% if work.num_wishes %}
+        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">Faved by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
+    {% else %}
+        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">No Faves</span></a>
+    {% endif %}
+{% endif %}

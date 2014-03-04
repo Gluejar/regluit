@@ -38,6 +38,7 @@ from regluit.frontend.views import (
     send_to_kindle,
     MARCUngluifyView,
     MARCConfigView,
+    DownloadView,
 )
 
 urlpatterns = patterns(
@@ -88,7 +89,8 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/acks/$", "work", {'action': 'acks'}, name="work_acks"),
     url(r"^work/(?P<work_id>\d+)/lockss/$", "lockss", name="lockss"),
     url(r"^lockss/(?P<year>\d+)/$", "lockss_manifest", name="lockss_manifest"),
-    url(r"^work/(?P<work_id>\d+)/download/$", "download", name="download"),
+    url(r"^work/(?P<work_id>\d+)/download/$", DownloadView.as_view(), name="download"),
+    url(r"^work/(?P<work_id>\d+)/download/$", DownloadView.as_view(), name="thank"),
     url(r"^work/(?P<work_id>\d+)/unglued/(?P<format>\w+)/$", "download_campaign", name="download_campaign"),
     url(r"^work/(?P<work_id>\d+)/borrow/$", "borrow", name="borrow"),
     url(r"^work/(?P<work_id>\d+)/reserve/$", "reserve", name="reserve"),
@@ -107,10 +109,10 @@ urlpatterns = patterns(
     url(r"^gift/credit/(?P<token>.+)/$", login_required(GiftCredit.as_view()), name="gift_credit"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view(),login_url='/accounts/login/pledge/'), name="pledge"),
     url(r"^pledge/cancel/(?P<campaign_id>\d+)$", login_required(PledgeCancelView.as_view()), name="pledge_cancel"),
-    url(r"^fund/complete/$", login_required(FundCompleteView.as_view()), name="pledge_complete"),
+    url(r"^fund/complete/$", FundCompleteView.as_view(), name="pledge_complete"),
     url(r"^pledge/modified/$", login_required(PledgeModifiedView.as_view()), name="pledge_modified"),
     url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(PledgeView.as_view()), name="pledge_modify"),
-    url(r"^payment/fund/(?P<t_id>\d+)$", login_required(FundView.as_view()), name="fund" ),
+    url(r"^payment/fund/(?P<t_id>\d+)$", FundView.as_view(), name="fund" ),
     url(r"^pledge/recharge/(?P<work_id>\d+)$", login_required(PledgeRechargeView.as_view()), name="pledge_recharge"),
     url(r"^purchase/(?P<work_id>\d+)/$", login_required(PurchaseView.as_view(),login_url='/accounts/login/purchase/'), name="purchase"),
     url(r"^purchase/(?P<work_id>\d+)/download/$", "download_purchased", name="download_purchased"),

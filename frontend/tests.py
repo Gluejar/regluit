@@ -109,7 +109,7 @@ class CampaignUiTests(TestCase):
         self.work = Work(title="test Work")
         self.work.save()
         self.campaign = Campaign(target=D('1000.00'), deadline=now() + timedelta(days=180),
-                                 work=self.work)
+                                 work=self.work, description='dummy description')
         self.campaign.save()
 
         rh = RightsHolder(owner = self.user, rights_holder_name = 'rights holder name')
@@ -162,7 +162,7 @@ class PledgingUiTests(TestCase):
         # load a Work and a Campaign to create a Pledge page
         self.work = self.user.wishlist.works.all()[0]
         self.campaign = Campaign(target=D('1000.00'), deadline=now() + timedelta(days=180),
-                                 work=self.work)
+                                 work=self.work, description='dummy description')
         self.campaign.save()
 
         rh = RightsHolder(owner = self.user, rights_holder_name = 'rights holder name')

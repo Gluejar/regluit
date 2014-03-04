@@ -61,6 +61,7 @@ from regluit.core.parameters import (
     BORROWED,
     TESTING,
     RESERVE,
+    THANKED,
 )
     
 
@@ -277,11 +278,18 @@ class Offer(models.Model):
     def days_per_copy(self):
         return Decimal(float(self.price) / self.work.last_campaign().dollar_per_day )
     
+    @property   
+    def get_thanks_display(self):
+        if self.license == LIBRARY:
+            return 'Suggested contribution for libraries'
+        else:
+            return 'Suggested contribution for individuals'
+    
 class Acq(models.Model):
     """ 
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
     """
-    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),)
+    CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
     created = models.DateTimeField(auto_now_add=True)
     expires = models.DateTimeField(null=True)
     refreshes = models.DateTimeField(auto_now_add=True, default=now())
@@ -671,10 +679,14 @@ class Campaign(models.Model):
             active_claim = self.work.claim.filter(status="active")[0]
         except IndexError, e:
             raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
-            
+        if not self.launchable:
+            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % unicode(self.problems[0]))
         self.status= 'ACTIVE'
         self.left = self.target
         self.activated = datetime.today()
+        if self.type == THANKS:
+            # make ebooks from ebookfiles
+            self.work.make_ebooks_from_ebfs()
         self.save()
         action = CampaignAction( campaign = self, type='activated', comment = self.get_type_display()) 
         ungluers = self.work.wished_by()        
@@ -730,6 +742,11 @@ class Campaign(models.Model):
         active = self.transactions().filter(status=TRANSACTION_STATUS_ACTIVE).values_list('user', flat=True).distinct().count()
         complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE).values_list('user', flat=True).distinct().count()
         return active+complete
+    @property
+    def anon_count(self):
+        # avoid transmitting the whole list if you don't need to; let the db do the count.
+        complete = self.transactions().filter(status=TRANSACTION_STATUS_COMPLETE,user=None).count()
+        return complete
 
     def transaction_to_recharge(self, user):
         """given a user, return the transaction to be recharged if there is one -- None otherwise"""
@@ -1172,7 +1189,24 @@ class Work(models.Model):
     def ebookfiles(self):
         # filter out non-epub because that's what booxtream accepts now
         return EbookFile.objects.filter(edition__work=self, format='epub').order_by('-created')
-    
+
+    def make_ebooks_from_ebfs(self):
+        if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
+            return
+        ebfs=EbookFile.objects.filter(edition__work=self).order_by('-created')
+        done_formats= []
+        for ebf in ebfs:
+            if ebf.format not in done_formats:
+                ebook=Ebook.objects.create(
+                        edition=ebf.edition, 
+                        format=ebf.format, 
+                        rights=self.last_campaign().license, 
+                        provider="Unglue.it",
+                        url= ebf.file.url,
+                        )
+                done_formats.append(ebf.format)
+        return 
+
     @property
     def download_count(self):
         dlc=0
@@ -1338,6 +1372,14 @@ class Work(models.Model):
                 return purchases[0]
 
         @property
+        def thanked(self):
+            purchases =  self.acqs.filter(license=THANKED)
+            if purchases.count()==0:
+                return None
+            else:
+                return purchases[0]
+
+        @property
         def lib_acqs(self):
             return  self.acqs.filter(license=LIBRARY)
         
@@ -1365,7 +1407,7 @@ class Work(models.Model):
         """ This is all the acqs, wrapped in user_license object for the work, user(s) """
         if user==None:
             return None
-        if isinstance(user, User):
+        if hasattr(user, 'is_anonymous'):
             if user.is_anonymous():
                 return None
             return self.user_license(self.acqs.filter(user=user))

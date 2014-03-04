@@ -563,7 +563,7 @@ class StripePaymentRequest(baseprocessor.BasePaymentRequest):
 
 class Processor(baseprocessor.Processor):
     
-    def make_account(self, user, token=None):
+    def make_account(self, user=None, token=None, email=None):
         """returns a payment.models.Account based on stripe token and user"""
         
         if token is None or len(token) == 0:
@@ -573,8 +573,11 @@ class Processor(baseprocessor.Processor):
         
         # create customer and charge id and then charge the customer
         try:
-            customer = sc.create_customer(card=token, description=user.username,
+            if user:
+                customer = sc.create_customer(card=token, description=user.username,
                                       email=user.email)
+            else:
+                customer = sc.create_customer(card=token, description='anonymous user', email=email)
         except stripe.StripeError as e:
             raise StripelibError(e.message, e)
             
@@ -588,7 +591,7 @@ class Processor(baseprocessor.Processor):
                           card_country = customer.active_card.country,
                           user = user
                           )
-        if user.profile.account:
+        if user and user.profile.account:
             user.profile.account.deactivate()
             account.save()  
             account.recharge_failed_transactions() 
@@ -650,9 +653,10 @@ class Processor(baseprocessor.Processor):
     
       '''
         The pay function generates a redirect URL to approve the transaction
+        If the transaction has a null user (is_anonymous), then a token musr be supplied
       '''
         
-      def __init__( self, transaction, return_url=None,  amount=None, paymentReason=""):
+      def __init__( self, transaction, return_url=None,  amount=None, paymentReason="", token=None):
         self.transaction=transaction
         self.url = return_url
           
@@ -660,8 +664,11 @@ class Processor(baseprocessor.Processor):
         transaction.date_authorized = now_val
           
         # ASSUMPTION:  a user has any given moment one and only one active payment Account
-
-        account = transaction.user.profile.account        
+        if token:
+            # user is anonymous
+            account =  transaction.get_payment_class().make_account(token = token, email = transaction.receipt)
+        else:
+            account = transaction.user.profile.account        
         
         if not account:
             logger.warning("user {0} has no active payment account".format(transaction.user))
@@ -704,7 +711,7 @@ class Processor(baseprocessor.Processor):
     class Execute(StripePaymentRequest):
         
         '''
-            The Execute function attempts to charge the credit card of stripe Customer associated with user connected to transaction
+            The Execute function attempts to charge the credit card of stripe Customer associated with user connected to transaction.
         '''
         
         def __init__(self, transaction=None):
@@ -731,7 +738,7 @@ class Processor(baseprocessor.Processor):
                     # useful things to put in description: transaction.id, transaction.user.id,  customer_id, transaction.amount
                     charge = sc.create_charge(transaction.amount, customer=customer_id,
                                               description=json.dumps({"t.id":transaction.id,
-                                                                      "email":transaction.user.email,
+                                                                      "email":transaction.user.email if transaction.user else transaction.receipt,
                                                                       "cus.id":customer_id,
                                                                       "tc.id": transaction.campaign.id,
                                                                       "amount": float(transaction.amount)}))

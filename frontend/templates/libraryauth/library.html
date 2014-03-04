@@ -156,9 +156,9 @@ function highlightTarget(targetdiv) {
                     {% if not works_active.count and not works_unglued.count %}
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
-                            <h2 style="padding-left:35px;">Your Unglue.it books will be listed here.</h2>
+                            <h2 style="padding-left:35px;">Your Unglue.it faves will be listed here.</h2>
                             <p>The "Available" tab will show all the books you have licensed though Unglue.it.
-                            The "Unglued" tab will show public domain, creative commons, and unglued titles that you add to your list of books</p>
+                            The "Unglued" tab will show public domain, creative commons, and unglued titles that you add to your list of faves</p>
                         </div>
                         {% else %}
                         <div class="empty-wishlist">

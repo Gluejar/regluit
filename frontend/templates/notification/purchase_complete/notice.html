@@ -26,12 +26,18 @@ If you have not already done so, download your ebook at <a href="{% url download
 {% endblock %}
 
 {% block comments_textual %}
-		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be eventually be released to the world in an unglued ebook edition. Thanks to your purchase, the ungluing date advanced {{ transaction.offer.days_per_copy|floatformat }}{% ifnotequal transaction.extra.copies 1 %} x {{ transaction.extra.copies }}{% endifnotequal %} days to {{ transaction.campaign.cc_date }}.</p>
+{% ifequal transaction.campaign.type 2 %}    
+	<p>Thanks to you and other ungluers, <i>{{ transaction.campaign.work.title }}</i> will be eventually be released to the world in an unglued ebook edition. Thanks to your purchase, the ungluing date advanced {{ transaction.offer.days_per_copy|floatformat }}{% ifnotequal transaction.extra.copies 1 %} x {{ transaction.extra.copies }}{% endifnotequal %} days to {{ transaction.campaign.cc_date }}.</p>
 
-{% ifequal transaction.offer.license 1 %}
+    {% ifequal transaction.offer.license 1 %}
 		<p>This ebook is licensed to you personally, and your personal license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.</p>
-{% else %}
+    {% else %}
 		<p>This ebook {% ifnotequal transaction.extra.copies 1 %}({{ transaction.extra.copies }} copies){% endifnotequal %} is licensed to your library and its license has been embedded in the ebook file. If you'd like to be the first to use it, please <a href="{% url borrow transaction.campaign.work.id %}">get your copy now</a>. After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.</p>
+    {% endifequal %}
+{% endifequal %}
+{% ifequal transaction.campaign.type 3 %}    
+    <p>The creators of <i>{{ transaction.campaign.work.title }}</i> would like to thank you for showing your appreciation for making it free.
+    </p>
 {% endifequal %}
 		<p>For more information about the book, visit the <a href="{% url work transaction.campaign.work.id %}">book's unglue.it page</a>.
 		</p>

@@ -80,7 +80,7 @@ class Processor:
     """a function that returns for the given payment processor"""
     requires_explicit_preapprovals=False
     
-    def make_account(self, user, token=None):
+    def make_account(self, user=None, token=None):
         """template function for return a payment.Account corresponding to the payment system"""
         return None
     
