@@ -510,7 +510,7 @@
                         {% endif %}
                       {% else %}{% if work.last_campaign.type == 3 %}
                         <div class="btn_support">
-                            <a href="{% url download work_id %}" class="hijax"><span>Download</span></a>
+                            <a href="{% url download work_id %}{% if action == 'preview' %}?testmode=1{% endif %}" class="hijax"><span>Download</span></a>
                         </div>
                         <div style="text-align: center;">... and thank the creators!</div>
                       {% else %}
