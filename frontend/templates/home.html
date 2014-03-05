@@ -81,6 +81,18 @@ function put_un_in_cookie2(){
                     <a class="more_featured_books" href="{% url unglued_list '' %}"></a>
                 </div>
                 <div class="spacer"></div>
+        	    <h3 class="featured_books">Latest Creative Commons</h3>
+        	    <div>
+                    {% for work in cc_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        {% with "ACTIVE" as status %}
+                        {% with work.last_campaign.deadline as deadline %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}{% endwith %}{% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url cc_list %}"></a>
+                </div>
+                <div class="spacer"></div>
         	
         	    <h3 class="featured_books">Site Faves</h3>
         	    <div>

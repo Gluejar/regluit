@@ -228,6 +228,11 @@ def home(request, landing=False):
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
     unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:4]
+    
+    cc_books = models.Work.objects.filter(
+                                          editions__ebooks__isnull=False,
+                                          editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                         ).distinct().order_by('-created')[:4]
 
     """
     get various recent types of site activity
@@ -290,7 +295,8 @@ def home(request, landing=False):
             'top_campaigns': top_campaigns, 
             'coming_soon': coming_soon,
             'unglued_books': unglued_books, 
-            'most_wished': most_wished
+            'cc_books': cc_books,
+            'most_wished': most_wished,
         }
     )
 
