@@ -77,6 +77,11 @@ $j(document).ready(function() {
     {% if readmill_epub_url or can_kindle %}
         <div class="one_click clearfix">
             <h3>One-click options</h3>
+            {% if mac_ibooks %}
+                <div id="mac_ibooks" title="{{ work.id }}" >
+                    <div class="btn_support mac_ibooks"><a href="{{readmill_epub_url}}">Load to iBooks</a></div>
+                </div>
+            {% endif %}
             {% if can_kindle %}
                 <div id="kindle_div">
                     {% if request.user.is_authenticated and request.user.profile.kindle_email %}
@@ -98,9 +103,15 @@ $j(document).ready(function() {
                 </div>
             {% endif %}
             {% if readmill_epub_url %}
+                {% if iOS %}
+                    <div id="marvin" title="{{ work.id }}" >
+                        <div class="btn_support marvin"><a href="marvinhttp://{{readmill_epub_url|urlencode}}">Load to Marvin</a></div>
+                    </div>
+                {% endif %}
                 <div id="readmill_div" class="yes_js">
                     <div class="send-to-readmill" data-download-url="{{ readmill_epub_url }}" data-buy-url="{{ base_url }}{% url work work.id %}"></div>
                 </div>
+
             {% endif %}
             {% if not request.user.is_authenticated  %}
                  <div style="clear:left"> You'll need an unglue.it account to <i>Send to Kindle</i>.</div>
@@ -168,7 +179,8 @@ $j(document).ready(function() {
             </p>
             <p>
                 {% if formats.epub or formats.mobi %}
-                    To read this ebook you should open this page in safari. <img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" /><br clear="left" />
+                    To read this ebook you should open this page in safari, or use one of the "One-click" buttons, above. <br />
+                    {% if iphone %}<img width="357" height="156" src="/static/images/clickhere.png" alt="how to open in safari" />{% else %}<img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" />{% endif %}<br clear="left" />
                 {% endif %}
                 {% if formats.pdf %}
                     You should also be able to use the  <a href="{{ formats.pdf }}">pdf</a> file.
@@ -189,7 +201,7 @@ $j(document).ready(function() {
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
-                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                 <ul>
                 <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
                 <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
@@ -197,15 +209,21 @@ $j(document).ready(function() {
                 </ul>
                 <p class="ebook_download logo"><img src="/static/images/readmill_logo.jpg" alt="iBooks Logo" />Readmill is another great option. </p>
                 <ul>
-                <li><a href="https://itunes.apple.com/us/app/readmill-book-reader-for-epub/id438032664?mt=8">Download the free Readmill app</a> from the App Store.</li>
+                <li><a href="https://itunes.apple.com/us/app/readmill-book-reader-for-epub/id438032664?mt=8">Install the free Readmill app</a> from the App Store.</li>
                 <li>Click the "Send to Readmill" button above.</li>
                 <li>If you don't have a free Readmill account, you'll be given the option of creating one.</li>
                 </ul>
+                <p class="ebook_download logo"><img src="/static/images/marvin_logo.jpg" alt="iBooks Logo" />We like Marvin, too. </p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/marvin-ebook-reader-for-epub/id667361209?ls=1&mt=8">Install Marvin</a> from the App Store.</li>
+                <li>Click the "Load to Marvin" button above.</li>
+                </ul>
+                
             {% else %}{% if formats.pdf %}
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
-                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpeg" alt="iBooks Logo" />iBooks</p>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                 <ul>
                 <li><a href="http://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
                 <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
@@ -242,6 +260,12 @@ $j(document).ready(function() {
                 <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
                 <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
                 </ul>
+                <p class="ebook_download logo"><img src="/static/images/readmill_logo.jpg" alt="iBooks Logo" />Readmill is another great option. </p>
+                <ul>
+                <li><a href="https://play.google.com/store/apps/details?id=com.readmill.android">Install the free Readmill app</a> from Google Play.</li>
+                <li>Click the "Send to Readmill" button above.</li>
+                <li>If you don't have a free Readmill account, you'll be given the option of creating one.</li>
+                </ul>
             {% else %}{% if formats.pdf %}
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
@@ -272,28 +296,33 @@ $j(document).ready(function() {
         </div>
         
         <div id="desktop_div"{% if desktop %} class="active"{% endif %}>
-            <h4>Reading on a PC, Mac, or Linux</h4>
+            <h4>Reading on a {% if mac_ibooks %}Mac{% else %}PC, Mac, or Linux{% endif %}</h4>
             {% if formats.pdf %}
                 <p>
                     You probably already have an app which reads PDFs.  Download the <a href="{{ formats.pdf }}">pdf file</a> and open it.
                 </p>
             {% else %}{% if formats.epub %}
+                {% if mac_ibooks %}
+                    <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                    <ul>
+                    <li>The iBooks app is pre-installed with your system software.</li>
+                    <li>Download the <a href="{{ formats.epub }}">epub file</a>. You should be offered the choice to open it in iBooks</li>
+                    </ul>
+                {% endif %}
                 <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                 <ul>
                 <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
                 <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
                 <li>Open the file in Calibre.</li>
+                <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
             {% else %}{% if formats.mobi %}
                 <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                 <ul>
                 <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-                {% if acq %}
                 <li>Download the <a href="{{ formats.mobi }}">mobi file</a>.</li>
-                {% else %}
-                <li>Download the <a href="{{ formats.mobi }}">mobi file</a>.</li>
-                {% endif %}
                 <li>Open the file in Calibre.</li>
+                <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
             {% else %}{% if formats.html %}
                 <p>
