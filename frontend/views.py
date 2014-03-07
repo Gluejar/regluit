@@ -505,10 +505,16 @@ def new_edition(request, work_id, edition_id, by=None):
         edition = models.Edition()
         if work:
             edition.work = work 
-
+    
     if request.method == 'POST' :
+        form = None
         edition.new_author_names=request.POST.getlist('new_author')
         edition.new_subjects=request.POST.getlist('new_subject')
+        for author in edition.authors.all():
+            if request.POST.has_key('delete_author_%s' % author.id):
+                edition.authors.remove(author)
+                form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                break
         if request.POST.has_key('add_author_submit'):
             new_author_name = request.POST['add_author'].strip()
             try:
@@ -525,7 +531,7 @@ def new_edition(request, work_id, edition_id, by=None):
                 author=models.Subject.objects.create(name=new_subject)
             edition.new_subjects.append(new_subject)
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        else:
+        elif not form:
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
                 form.save()

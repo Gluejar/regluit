@@ -30,7 +30,7 @@
 		<ul>
 			{% if edition.pk and edition.authors %}
 				{% for author in edition.authors.all %}
-					<li>{{ author.name }}</li>
+					<li>{{ author.name }}<input type="submit" name="delete_author_{{ author.id }}" value="x"  style="height: 20px;padding: .2em .6em;background-color: lightgray;margin-left: 1em;" title="delete author"></li>
 				{% endfor %}
 			{% endif %}
 			{% for author in edition.new_author_names %}
