@@ -53,7 +53,7 @@ pytz==2012d
 rdflib==2.4.0
 redis==2.6.2
 requests==0.14.0
-selenium==2.39.0
+selenium==2.40.0
 six==1.2.0
 ssh==1.7.14
 stevedore==0.4
