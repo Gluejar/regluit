@@ -1032,6 +1032,9 @@ class Work(models.Model):
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
+    selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
+    earliest_publication =  models.CharField(max_length=50, null=True)
+
 
     class Meta:
         ordering = ['title']
@@ -1144,10 +1147,19 @@ class Work(models.Model):
         
     @property
     def preferred_edition(self):
+        if self.selected_edition:
+            return self.selected_edition
         if self.last_campaign():
             if self.last_campaign().edition:
+                self.selected_edition = self.last_campaign().edition
+                self.save()
                 return self.last_campaign().edition
-        return self.editions.all()[0] if self.editions.all().count() else None
+        if self.editions.all() == self.editions.none():
+            return None
+        else:
+            self.selected_edition = self.editions.all()[0]
+            self.save()
+            return self.editions.all()[0] 
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
@@ -1269,8 +1281,12 @@ class Work(models.Model):
 
     @property
     def publication_date(self):
-        for edition in Edition.objects.filter(work=self):
+        if self.earliest_publication:
+            return  self.earliest_publication
+        for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('publication_date'):
             if edition.publication_date:
+                self.earliest_publication = edition.publication_date
+                self.save()
                 return edition.publication_date
         return ''
 
@@ -1441,7 +1457,6 @@ class Edition(models.Model):
     title = models.CharField(max_length=1000)
     publisher_name = models.ForeignKey("PublisherName", related_name="editions", null=True)
     publication_date = models.CharField(max_length=50, null=True, blank=True)
-    public_domain = models.NullBooleanField(null=True, blank=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(blank=True)
