@@ -317,9 +317,29 @@ def social_auth_reset_password(request):
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
+    alert=''
+
+    formset = None
     if action == "acks":
         return acks( request, work)
-        
+    elif action == "editions":
+        EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
+        if request.method == "POST" and (request.user.is_staff or user in work.last_campaign().managers.all()):
+            formset = EditionFormSet(data=request.POST, instance=work)
+            if formset.is_valid():
+                for form in formset.deleted_forms:
+                    detach_edition(form.instance)
+                    alert = 'editions have been split'
+            if request.POST.has_key('select_edition'):
+                selected_id=request.POST['select_edition']
+                try:
+                    work.selected_edition= work.editions.get(id=selected_id)
+                    work.save()
+                    alert = alert + 'edition selected'
+                except models.Edition.DoesNotExist:
+                    pass
+        formset = EditionFormSet(instance=work)
+
     # process waiting add request
     if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
         add_url = request.session["add_wishlist"]
@@ -331,6 +351,8 @@ def work(request, work_id, action='display'):
                 
     if request.method == 'POST' and not request.user.is_anonymous():
         activetab = '4'
+    elif action == 'editions':
+        activetab = '4'
     else:
         try:
             activetab = request.GET['tab']
@@ -339,12 +361,8 @@ def work(request, work_id, action='display'):
         except:
             activetab = '1';
             
-    alert=''
     campaign = work.last_campaign()
-    if campaign and campaign.edition and not request.user.is_staff:
-        editions = [campaign.edition]
-    else:
-        editions = work.editions.all().order_by('-publication_date')
+    editions = work.editions.all().order_by('-publication_date')[:10]
     try:
         pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
     except:
@@ -360,20 +378,6 @@ def work(request, work_id, action='display'):
         
     if not request.user.is_anonymous():
         claimform = UserClaimForm( request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
-        for edition in editions:
-            edition.hide_details = 1
-            if request.method == 'POST' and not request.user.is_anonymous():
-                if request.POST.has_key('ebook_%d-edition' % edition.id):
-                    edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
-                    if edition.ebook_form.is_valid():
-                        edition.ebook_form.save()
-                        alert = 'Thanks for adding an ebook to unglue.it!'
-                    else: 
-                        edition.hide_details = 0
-                        alert = 'your submitted ebook had errors'
-            else:
-                #edition.ebook_form = EbookForm( data = {'user':request.user.id, 'edition':edition.pk })
-                edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     else:
         claimform = None
         
@@ -418,6 +422,7 @@ def work(request, work_id, action='display'):
         'rights_holder_name': rights_holder_name,
         'cover_width': cover_width_number,
         'action': action,
+        'formset': formset,
     })    
 
 def edition_uploads(request, edition_id):
@@ -470,7 +475,7 @@ def edition_uploads(request, edition_id):
         })
     return render(request, 'edition_uploads.html', context )
 
-
+@login_required
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
@@ -485,13 +490,14 @@ def new_edition(request, work_id, edition_id, by=None):
         title=work.title
     else:
         work=None
-        
-    if not request.user.is_staff :
-        if by == 'rh' and work is not None:
-            if not request.user in work.last_campaign().managers.all():
-                return render(request, "admins_only.html")
-        else:
-            return render(request, "admins_only.html")
+    
+    alert = ''  
+    admin = False
+    if request.user.is_staff :
+        admin = True
+    elif work and work.last_campaign():
+        if request.user in work.last_campaign().managers.all():
+            admin = True
     if edition_id:
         try:
             edition = models.Edition.objects.get(id = edition_id)
@@ -505,18 +511,29 @@ def new_edition(request, work_id, edition_id, by=None):
         edition = models.Edition()
         if work:
             edition.work = work 
-    
+
+    initial={
+            'language':language,
+            'publisher_name':edition.publisher_name,
+            'isbn':edition.isbn_13, 
+            'oclc':edition.oclc,
+            'description':description,
+            'title': title,
+            'goog': edition.googlebooks_id,
+            'gdrd': edition.goodreads_id,
+            'thng': edition.librarything_id,
+            }
     if request.method == 'POST' :
         form = None
         edition.new_author_names=request.POST.getlist('new_author')
         edition.new_subjects=request.POST.getlist('new_subject')
-        if edition.id:
+        if edition.id and admin:
             for author in edition.authors.all():
                 if request.POST.has_key('delete_author_%s' % author.id):
                     edition.authors.remove(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
-        if request.POST.has_key('add_author_submit'):
+        if request.POST.has_key('add_author_submit') and admin:
             new_author_name = request.POST['add_author'].strip()
             try:
                 author= models.Author.objects.get(name=new_author_name)
@@ -524,7 +541,7 @@ def new_edition(request, work_id, edition_id, by=None):
                 author=models.Author.objects.create(name=new_author_name)
             edition.new_author_names.append(new_author_name)
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif request.POST.has_key('add_subject_submit'):
+        elif request.POST.has_key('add_subject_submit') and admin:
             new_subject = request.POST['add_subject'].strip()
             try:
                 author= models.Subject.objects.get(name=new_subject)
@@ -532,7 +549,17 @@ def new_edition(request, work_id, edition_id, by=None):
                 author=models.Subject.objects.create(name=new_subject)
             edition.new_subjects.append(new_subject)
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif not form:
+            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
+
+        elif request.POST.has_key('ebook_%d-edition' % edition.id):
+            edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
+            if edition.ebook_form.is_valid():
+                edition.ebook_form.save()
+                alert = 'Thanks for adding an ebook to unglue.it!'
+            else: 
+                alert = 'your submitted ebook had errors'
+            form = EditionForm(instance=edition, initial=initial)
+        elif not form  and admin:
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
                 form.save()
@@ -585,20 +612,12 @@ def new_edition(request, work_id, edition_id, by=None):
                     edition.save()
                 return HttpResponseRedirect(work_url)
     else:
-        form = EditionForm(instance=edition, initial={
-            'language':language,
-            'publisher_name':edition.publisher_name,
-            'isbn':edition.isbn_13, 
-            'oclc':edition.oclc,
-            'description':description,
-            'title': title,
-            'goog': edition.googlebooks_id,
-            'gdrd': edition.goodreads_id,
-            'thng': edition.librarything_id,
-            })
+        if edition.pk:
+            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
+        form = EditionForm(instance=edition, initial=initial)
 
     return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition, 
+            'form': form, 'edition': edition, 'admin':admin, 'alert':alert
         })
 
 def campaign_results(request, campaign):
@@ -923,22 +942,6 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             context['facet'] =self.kwargs['facet']
             return context
-
-@login_required
-def split_work(request,work_id):
-    if not request.user.is_staff:
-        return render(request, "admins_only.html")
-    work = safe_get_work(work_id)
-    EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
-    
-    if request.method == "POST":
-        formset = EditionFormSet(data=request.POST, instance=work)
-        if formset.is_valid():
-            for form in formset.deleted_forms:
-                detach_edition(form.instance)
-                
-    formset = EditionFormSet(instance=work)
-    return render(request, "split.html", { "work":work, "formset": formset,})
 
 class MergeView(FormView):
     template_name="merge.html"

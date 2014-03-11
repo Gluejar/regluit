@@ -1,0 +1,31 @@
+<div class="clearfix">
+    {% if edition.ebook_form %}
+        {% ifnotequal status 'ACTIVE' %}
+            <div id="add_ebook">
+
+                {% if edition.ebooks.all.0 %}
+                    <h2>eBooks for this Edition</h2>
+            {% if alert %}<div class="yikes">{{alert}}</div>{% endif %}
+                    {% for ebook in edition.ebooks.all %}
+                        <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. Downloaded {{ ebook.download_count }} times.<br />
+                    {% endfor %}
+                {% endif %}
+
+                <h2>Add an eBook for this Edition:</h2>
+            
+                <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
+            
+                <form method="POST" action="#add_ebook">
+                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
+                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
+                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
+                    <input type="submit" name="add_ebook" value="add ebook" />
+                </form>
+            </div>
+        {% else %}
+            <div> Uploads are disabled for this work.</div>
+        {% endifnotequal %}
+        
+    {% endif %}
+</div>

@@ -95,7 +95,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/borrow/$", "borrow", name="borrow"),
     url(r"^work/(?P<work_id>\d+)/reserve/$", "reserve", name="reserve"),
     url(r"^work/(?P<work_id>\d+)/merge/$", login_required(MergeView.as_view()), name="merge"),
-    url(r"^work/(?P<work_id>\d+)/split/$", "split_work", name="split"),
+    url(r"^work/(?P<work_id>\d+)/editions/$", "work",{'action': 'editions'}, name="work_editions"),
     url(r"^work/\d+/acks/images/(?P<file_name>[\w\.]*)$", "static_redirect_view",{'dir': 'images'}), 
     url(r"^work/(?P<work_id>\d+)/librarything/$", "work_librarything", name="work_librarything"),
     url(r"^work/(?P<work_id>\d+)/goodreads/$", "work_goodreads", name="work_goodreads"),

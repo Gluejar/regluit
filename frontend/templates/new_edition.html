@@ -9,12 +9,17 @@
 {% endblock %}
 
 {% block doccontent %}
-{% if edition.pk %}
-<h2>Edit Edition</h2>
+{% if admin %}
+    {% if edition.pk %}
+    <h2>Edit Edition / Add Ebook Links</h2>
+    {% else %}
+    <h2>Create New Edition</h2>
+    {% endif %}
 {% else %}
-<h2>Create New Edition</h2>
+    <h2>Add Ebook Links</h2>
 {% endif %}
 
+{% if admin %}
 <p>Title and ISBN 13 are required; the rest is optional, though a cover image link is strongly recommended.</p>
 <form  enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
@@ -22,7 +27,7 @@
 	{{ form.non_field_errors }}
 	<div> 
 		<p><b>Title</b>: {{ form.title.errors }}{{ form.title }}</p>
-		<p><b>Publisher</b> : {{ form.publisher_name.errors }}{{ form.publisher_name }}<br />(If you change this, click another form element before submitting)</p>
+		<p><b>Publisher Name</b> : {{ form.publisher_name.errors }}{{ form.publisher_name }}<br />(If you change this, click another form element before submitting)</p>
 		
 		<p>
 		<b>Authors</b>:
@@ -59,11 +64,10 @@
 		{{ form.description.errors }}{{ form.description }}<br />
 		(<I>This will appear in the Description tab on the book page.  If you create a campaign for this work, the campaign pitch will override this description</i>)</p>
 
-		<p><b>Publisher</b>: {{ form.publisher.errors }}{{ form.publisher }}</p>
+		<p><i>(Unglue.it participating publishers only.)</i><br /><b>Publisher</b>: {{ form.publisher.errors }}{{ form.publisher }}</p>
 
 		<p><b>Publication Date</b> (<I>four-digit year</I>): {{ form.publication_date.errors }}{{ form.publication_date }}</p>
 
-		<p><b>Public Domain?</b>: {{ form.public_domain.errors }}{{ form.public_domain }}</p>
 		{% comment %}
 		this has been removed since there's no point in exposing subject functionality when we're not doing anything with it -- will just confuse people.
 		
@@ -94,17 +98,25 @@
 		{{ form.coverfile.errors }}{{ form.coverfile }}{{ form.coverfile.help_text }}
 		(<i>upload a cover image file, ideally 120px wide. </i>)<br />
 		</p>
-		{% if request.user.is_staff %}
-		    <p><b>Is this the unglued edition?</b> {{ form.unglued }}</p>
-		{% endif %}
 	</div>    
 	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>
 {% if edition.work %}
+
 <h2>More Edition Management</h2>
 
 <div><a href="{% url merge edition.work.id  %}">Merge other works into this one</a></div>
-<div><a href="{% url split edition.work.id  %}">Remove editions from this work</a><br /><br /></div>
+<div><a href="{% url work_editions edition.work.id  %}">Remove editions from this work</a><br /><br /></div>
 {% endif %}
 
+{% else %}
+    {% if edition.work %}
+    {% include 'edition_display.html' %}
+    {% else %}
+    Sorry, there's no work specified.
+    {% endif %}
+{% endif %}
+{% include 'edition_upload.html' %}
+
 {% endblock %}
+

@@ -1154,12 +1154,12 @@ class Work(models.Model):
                 self.selected_edition = self.last_campaign().edition
                 self.save()
                 return self.last_campaign().edition
-        if self.editions.all() == self.editions.none():
-            return None
-        else:
+        try:
             self.selected_edition = self.editions.all()[0]
             self.save()
-            return self.editions.all()[0] 
+            return self.selected_edition 
+        except IndexError:
+            return None
         
     def last_campaign_status(self):
         campaign = self.last_campaign()

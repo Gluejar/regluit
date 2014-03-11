@@ -1,33 +1,14 @@
-{% extends "basedocumentation.html" %}
-
-{% block doccontent %}
-    <h2 class="book-name"><a href="{% url work work.id %}">{{ work.title }}</a></h2>
-            
-
-    <h2>Split Editions</h2>
-    <form method="POST" action="#">
-        {% csrf_token %}
-        {{ formset.management_form }}
-        <dl>
-        {% for form in formset %}
-            <dt class="editionbox">
-                {{ form.instance.title }},  published by {{form.instance.publisher}} in {{ form.instance.publication_date }} 
-                </dt>
-            <dd>with authors 
-            {% for author in form.instance.authors.all %}
-                {{author}}, 
-            {% endfor %}
-            <br />
-            ISBN: {{ form.instance.isbn_13 }}
-            <br />
-            {{ form.id }}Split this Edition: {{form.DELETE.0}}
-            </dd>
-        {% endfor %}
-        </dl>
-        <input type="submit" value="Split Editions" name="submit" />
-    </form>
-    <h2>More Edition Management</h2>
-    <div><a href="{% url merge work.id  %}">Merge other works into this one</a></div>
-    <div><a href="{% url new_edition work.id '' %}">Create a new edition for this work</a><br /><br /></div>
-
-{% endblock %}
+<form method="POST" action="#">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+        {% if request.user.is_staff %}
+            <div style="float:right;text-align:right">{{ form.id }}Split: {{form.DELETE.0}}<br /><br />
+            Select: <input type="radio" value="{{ form.instance.id }}" name="select_edition" /></div>
+        {% endif %}
+        {% with form.instance as edition %}
+            {% include 'edition_display.html' %}
+        {% endwith %}
+    {% endfor %}
+    {% if request.user.is_staff %}<input type="submit" value="Split/Select Editions" name="submit" />{% endif %}
+</form>

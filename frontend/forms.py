@@ -127,7 +127,7 @@ class EditionForm(forms.ModelForm):
         }
     )
     language = forms.ChoiceField(choices=LANGUAGES)
-    description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 2}))
+    description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 10}))
     coverfile = forms.ImageField(required=False)
     
     def clean(self):

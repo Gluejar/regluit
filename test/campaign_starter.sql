@@ -532,7 +532,6 @@ CREATE TABLE `core_edition` (
   `title` varchar(1000) NOT NULL,
   `publisher` varchar(255) DEFAULT NULL,
   `publication_date` varchar(50) DEFAULT NULL,
-  `public_domain` tinyint(1) DEFAULT NULL,
   `work_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `core_edition_50cafa73` (`work_id`),
