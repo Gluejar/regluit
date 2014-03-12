@@ -20,6 +20,8 @@ from django.forms.widgets import RadioSelect
 from django.forms.extras.widgets import SelectDateWidget
 from django.utils.translation import ugettext_lazy as _
 
+from ckeditor.widgets import CKEditorWidget
+
 from selectable.forms import (
     AutoCompleteSelectMultipleWidget,
     AutoCompleteSelectMultipleField,
@@ -446,7 +448,7 @@ class DateCalculatorForm(CCDateForm, forms.ModelForm):
         model = Campaign
         fields = 'target',  'cc_date_initial', 'revenue',
 
-def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
+def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs ):
     
     def get_queryset():
         work=instance.work
@@ -469,6 +471,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
             )
         edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
         publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
+        work_description =  forms.CharField( required=False , widget=CKEditorWidget())
         
         class Meta:
             model = Campaign
@@ -527,7 +530,7 @@ def getManageCampaignForm ( instance, data=None, *args, **kwargs ):
                     elif self.instance.license == 'CC0' :
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
             return new_license
-    return ManageCampaignForm(instance = instance, data=data)
+    return ManageCampaignForm(instance = instance, data=data, initial=initial)
 
 class CampaignPurchaseForm(forms.Form):
     anonymous = forms.BooleanField(required=False, label=_("Make this purchase anonymous, please"))
