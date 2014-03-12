@@ -117,6 +117,7 @@ Please fix the following before launching your campaign:
 	<p> If you want to sell ebooks as part of a buy to unglue campaign, you'll also need to upload an EPUB file for the ebook you want to sell. </p>
 {% endif %}
     <ul>
+    <li><a href="{% url new_edition campaign.work.id '' %}"> Create  a new edition</a> for this work</li>
     {% for edition in campaign.work.editions.all %}
     <li>Edition: <i>{{ edition }}</i>
         <ul>
