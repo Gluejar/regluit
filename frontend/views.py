@@ -616,9 +616,13 @@ def new_edition(request, work_id, edition_id, by=None):
         if edition.pk:
             edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
         form = EditionForm(instance=edition, initial=initial)
-
+    try:
+        show_ebook_form = edition.work.last_campaign().status not in ['ACTIVE','INITIALIZED']
+    except:
+        show_ebook_form = True
     return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition, 'admin':admin, 'alert':alert
+            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
+                'show_ebook_form':show_ebook_form, 
         })
 
 def campaign_results(request, campaign):
