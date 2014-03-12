@@ -162,7 +162,10 @@ Please fix the following before launching your campaign:
         <p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
 	{% else %}
         <h3>License Being Used</h3>
-        <p> This is the license you are using. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+        <p> This is the license you are using. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  
+        Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  
+        We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to participate.
+        </p>
 	{% endifnotequal %}
 	<div>
 	{{ form.license.errors }}{{ form.license }}
@@ -252,18 +255,22 @@ Please fix the following before launching your campaign:
 {% endifequal %}{{ form.do_watermark.errors }}
 
 
-	<h3>Make Your Pitch</h3>
+	<h3>Your Pitch</h3>
 	{% ifequal campaign.type 3 %}
-	<p>This will be displayed to a user who has clicked a "download" button. It's your chance to ask for their support. The user can either accept the suggested contribution and go make a payment, or  enter "0" and go straight to download. To see your request in test mode, <a href="{% url download campaign.work.id %}?testmode=1">click here</a>. </p>
-	{% else %}
-	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters/purchasers.</p>
-	{% endifequal %}
-	<p>This isn't a dry synopsis in a catalog.  It's your chance to be creative, to share your passion for this work, and to inspire readers.  A strong pitch:</p>
-	
+	<p>In a "thanks for ungluing" campaign, you want to first "motivate" your book- that is, you want to get the user to download the book.
+    Once the user has clicked a "Download" button or a "Read it Now" button, you have a chance for an "ask" - that's where a user can decide to also make a thank-you contribution.
+	The "ask" will be displayed to a user who has clicked a "Download" button. It's your chance to ask for their support. 
+	The user can decide to make a contribution and go enter a credit card, or can scroll down to download. 
+	To see your request in test mode, <a href="{% url download campaign.work.id %}?testmode=1">click here</a>. </p>
+	<p>A strong ask/motivation combination:</p>
+    {% else %}
+	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters/purchasers, and your chance to share your passion for this work, and to inspire readers..</p>
+	<p>A strong ask:</p>
+    {% endifequal %}
 	<ul class="terms">
 	{% ifequal campaign.type 3 %}
 	<li>Thanks the user for their interest in the book.</li>
-	<li>Makes a connection to the user while explaining how their contribution will make your work possible.</li>
+	<li>Makes a connection to the user while explaining how a contribution makes your work possible.</li>
 	<li>Speaks visually to the user (photos and/or videos). The FAQ has  <a hef="{% url faq_sublocation 'campaigns' 'addingmedia' %}">instruction on adding media</a>.</li>
 	{% else %}
 	<li>Introduces the work.  What's this book like?</li>
@@ -279,6 +286,11 @@ Please fix the following before launching your campaign:
 	{% endifequal %}
 	</ul>
 	<br />
+	{% ifequal campaign.type 3 %}
+	<div style="padding-top:2em;padding-bottom:0.5em">First, the <b>Motivation</b>. Note that users who immediately click on a "Read it Now" button won't see this.:</div>
+	{{ form.work_description.errors }}{{ form.work_description }}
+	<div style="padding-top:2em;padding-bottom:0.5em">Next, the <b>Ask</b>. A "thank you" form will float right in this area, so don't use wide graphic elements.</div>
+	{% endifequal %}
 	{{ form.description.errors }}{{ form.description }}
 	<h3>Edition and Rights Details</h3>
 	<p>This will be displayed on the More... tab for your work.  It's the fine print for your campaign.  {% ifequal campaign.type 1 %}Make sure to disclose any ways the unglued edition will differ from the existing edition; for example:
