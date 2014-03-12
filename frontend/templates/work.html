@@ -8,7 +8,7 @@
         {{ work.title }} is a Free eBook
     {% else %}
         Help us make  {{ work.title }} a Free eBook!
-    {% endif %}
+    {% endif %}{% ifequal action 'editions' %} – All Editions{% endifequal %}
 {% endblock %}
 
 {% block extra_css %}
