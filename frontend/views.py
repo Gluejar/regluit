@@ -645,6 +645,9 @@ def manage_campaign(request, id, action='manage'):
                     for offer in offers:
                         offer.offer_form=OfferForm(instance=offer,prefix='offer_%d'%offer.id)
                 campaign.update_left()
+                if campaign.type is THANKS :
+                    campaign.work.description = form.cleaned_data['work_description']
+                    campaign.work.save()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
             else:
@@ -684,7 +687,7 @@ def manage_campaign(request, id, action='manage'):
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             activetab = '#2'
     else:
-        form = getManageCampaignForm(instance=campaign)
+        form = getManageCampaignForm(instance=campaign, initial={'work_description':campaign.work.description})
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
     return render(request, 'manage_campaign.html', {
