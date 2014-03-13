@@ -1,0 +1,48 @@
+<div class="clearfix">
+    <div class="editions">
+            {% if edition.googlebooks_id %}
+                <div class="image">
+                    <img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" />
+                </div>
+            {% endif %}
+        <div class="metadata" id="edition_{{edition.id}}">
+            {% ifnotequal edition.title  work.title %}
+                Title: {{edition.title}}<br />
+            {% endifnotequal %}
+            {% if edition.authors.all.0 %}
+                Contributors: 
+                {% for author in edition.authors.all %}
+                    {{author}}, 
+                {% endfor %}
+                <br />
+            {% endif %}
+            {% if edition.publisher %}
+                Publisher: <a href="{% url bypubname_list edition.publisher_name.id %}">{{edition.publisher}}</a><br />
+            {% endif %}
+            {% if edition.publication_date %}
+                Published: {{ edition.publication_date }}<br />
+            {% endif %}
+            {% if edition.isbn_13 %}
+                ISBN: <span itemprop="isbn">{{ edition.isbn_13 }}</span><br />
+            {% endif %}
+            {% if edition.oclc %}
+                OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
+            {% endif %}
+            {% if user.is_staff %}
+                <a href="{% url new_edition work_id edition.id %}">Edit this edition/Add ebook</a><br />
+            {% else %}{% if user in work.last_campaign.managers.all %}
+                <a href="{% url new_edition work_id edition.id %}">Edit this edition/Add ebook</a><br />
+            {% endif %}{% endif %}
+            {% if edition.googlebooks_id %}
+                See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a><br />
+            {% endif %}                            	    
+            {% for record in edition.MARCrecords.all %}
+                Download {{record.link_target}} MARC record for this edition: (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=xml">XML</a>) (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=mrc">mrc</a>)<br />
+            {% endfor %}
+            {% if user.is_staff %}{% if edition.ebooks.0 or edition.ebook_files.0 %}
+                <a href="{% url MARCUngluify %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
+            {% endif %} {% endif %}
+        </div>
+
+    </div>
+</div>
