@@ -1502,20 +1502,9 @@ class FundCompleteView(TemplateView):
             # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
             raise Http404
             
-        # check that the user had not already approved the transaction
-        # do we need to first run PreapprovalDetails to check on the status
         
-        # is it of type=PAYMENT_TYPE_AUTHORIZATION and status is NONE or ACTIVE (but approved is false)
-        
-        if transaction.type == PAYMENT_TYPE_AUTHORIZATION:
-            correct_transaction_type = True
-        else:
-            correct_transaction_type = False
-            
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
-        # fire add-wishlist notification if needed
-        if transaction.user is not None and correct_transaction_type and (campaign is not None) and (work is not None):
-            # ok to overwrite Wishes.source?
+        if transaction.user is not None and (campaign is not None) and (work is not None):
             transaction.user.wishlist.add_work(work, 'pledging', notify=True)
         else:
             #put info into session for download page to pick up.
