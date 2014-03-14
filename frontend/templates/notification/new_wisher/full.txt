@@ -1,4 +1,4 @@
-{{ supporter }} ({{ base_url }}{% url supporter supporter.username %}) has wished for a work you hold rights to, {{ work.title }} ({{ base_url }}{% url work work.id %}).  Hooray!  {% with work.num_wishes as num_wishes %}{% ifequal num_wishes 1 %}Your first ungluer!{% else %}There are now {{ num_wishes }} people wishing for this work.{% endifequal %}{% endwith %}
+{{ supporter }} ({{ base_url }}{% url supporter supporter.username %}) has favorited for a work you hold rights to, {{ work.title }} ({{ base_url }}{% url work work.id %}).  Hooray!  {% with work.num_wishes as num_wishes %}{% ifequal num_wishes 1 %}Your first ungluer!{% else %}There are now {{ num_wishes }} people who have favorited this work.{% endifequal %}{% endwith %}
 
 
 The Unglue.it team
