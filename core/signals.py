@@ -172,8 +172,9 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         if transaction.offer.license == LIBRARY:
             library = Library.objects.get(id=transaction.extra['library_id'])
             new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
-            reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
-            reserve_acq.expire_in(datetime.timedelta(hours=2))
+            if transaction.user.id != library.user.id:  # don't put it on reserve if purchased by the library
+                reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
+                reserve_acq.expire_in(datetime.timedelta(hours=2))
             copies = int(transaction.extra.get('copies',1))
             while copies > 1:
                 Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
