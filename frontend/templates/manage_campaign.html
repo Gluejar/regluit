@@ -112,25 +112,7 @@ Please fix the following before launching your campaign:
 <div class="clearfix"></div>
 
 <div class="tabs-1">
-    <h3>Edit the editions (if needed)</h3>
-{% if campaign.rh.can_sell %}
-	<p> If you want to sell ebooks as part of a buy to unglue campaign, you'll also need to upload an EPUB file for the ebook you want to sell. </p>
-{% endif %}
-    <ul>
-    <li><a href="{% url new_edition campaign.work.id '' %}"> Create  a new edition</a> for this work</li>
-    {% for edition in campaign.work.editions.all %}
-    <li>Edition: <i>{{ edition }}</i>
-        <ul>
-        <li><a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the edition</li>
-        {% ifnotequal campaign.type 1 %}
-        {% if campaign.rh.can_sell %}
-            <li>You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.</li>
-        {% endif %}
-        {% endifnotequal %}
-        </ul>
-    </li>
-    {% endfor %}
-    </ul>
+    
     {% if campaign.work.ebookfiles.0 %}
         <p> <b>An Ebook file has been loaded.</b> </p>
         <p>Active file: <a href="{{campaign.work.ebookfiles.0.file.url}}">{{campaign.work.ebookfiles.0.file}}</a> created {{campaign.work.ebookfiles.0.created}} </p>
@@ -145,17 +127,37 @@ Please fix the following before launching your campaign:
 <form action="#" method="POST">
 	{% csrf_token %}
 	{{ form.media }}
-	<h3>Select the main edition</h3>
+	<h3>Edit the editions (if needed)</h3>
+    {% if campaign.rh.can_sell %}
+        {% ifequal work.last_campaign.type 2 %}
+            <p> To sell ebooks as part of a buy to unglue campaign, you will need to upload an EPUB file for the ebook you want to sell. </p>
+        {% endifequal %}
+        {% ifequal work.last_campaign.type 3 %}
+            <p> To distribute ebooks as part of a thanks for ungluing campaign, you will need to upload the ebook files to unglue.it. </p>
+        {% endifequal %}
+    {% endif %}
 	<p> Please choose the edition that most closely matches the edition to be unglued.  This is the edition whose cover image will display on your book's page.  Your unglued edition should be identical to this edition if possible; you should note any differences under Rights Details below.</p>
-
-	<div class="std_form">
-	{{ form.edition.errors }}{{ form.edition }}
+    <div class="std_form">
+    <ul>
+    {{ form.edition.errors }}
+    {% for edition in campaign.work.editions.all %}
+    <li>Edition: <label for="id_edition_{{forloop.counter}}"> {{ edition }}</label>
+        <ul style="text-indent:1em">
+        <li> <input type="radio" {% ifequal edition.id work.preferred_edition.id %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /> Use this edition </li>
+        <li style="text-indent:2.5em"><a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> this edition</li>
+        {% ifnotequal campaign.type 1 %}
+        {% if campaign.rh.can_sell %}
+            <li style="text-indent:2.5em">You can <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.</li>
+        {% endif %}
+        {% endifnotequal %}
+        </ul>
+    </li>
+    {% endfor %}
+    </ul>
 	</div>
-	{% if campaign.edition %}
-	<p>If the details of the edition you've chosen aren't accurate, you can <a href="{% url rh_edition work.id campaign.edition.id %}">edit the edition</a>.</p>
-	{% else %}
-	<p>If the edition details are inaccurate (e.g. wrong cover image), go ahead and set up the campaign with that edition anyway.  You'll be able to edit the edition details from this page later on.</p>
-	{% endif %}
+	
+	<p>If the details of the edition you've chosen aren't accurate, you can <a href="{% url rh_edition work.id work.preferred_edition.id %}">edit the edition</a>.</p>
+	
 	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
 {% ifnotequal campaign_status 'ACTIVE' %}
     {% ifnotequal campaign.type 3 %}
@@ -421,7 +423,7 @@ Please fix the following before launching your campaign:
 {% ifequal campaign.type 3 %}
     <h3> Suggested Contributions </h3>
     {% if not campaign.work.ebookfiles.0 %}
-    <p> <b>An EPUB file for this work <a class="tabs1">needs to be loaded</a>!</b></p>
+    <p> <b>ebook files for this work <a class="tabs1">need to be loaded</a>!</b></p>
     {% endif %}
     <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed.</p>
     <div class="jsmod-content">
@@ -443,31 +445,31 @@ Please fix the following before launching your campaign:
 
 {% ifequal campaign_status 'INITIALIZED' %}
 <div class="tabs-3">
-	{% if not is_preview or request.user.is_staff %}
-		{% if campaign.launchable %}
-		<p>Before you hit launch:</p>
-		<ul class="bullets">
-			<li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
-			<li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
-		</ul>
-			
-		<p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
-		
-		<p>If you're happy with your campaign, here's your moment of truth!</p>
-		
-		<div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
-		{% else %}
-            <p>Please make sure you've selected your campaign's edition and entered its description, target, deadline, prices or premiums, and previewed your campaign, before launching.</p>
-            {% ifequal campaign.type 2 %}
-            <p> Buy To Unglue campaigns can't be launched until ebook files <a class="tabs1">have been loaded</a> and <a  class="tabs2">pricing has been set and made active</a></p>
-            <!-- {{campaign.problems }} -->
-            {% endifequal %}
-
-            
-		{% endif %}
-	{% else %}
-		While you're free to edit your campaign, it won't be launchable until we've fully tested our new payment processor.
-	{% endif %}
+    {% if campaign.launchable %}
+        <p>Before you hit launch:</p>
+        <ul class="bullets">
+            <li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
+            <li>Have you <a href="{% url work_preview campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
+        </ul>
+        
+        <p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
+    
+        <p>If you're happy with your campaign, here's your moment of truth!</p>
+    
+        <div id="launchme"><a href="#" class="manage">Launch Campaign</a></div>
+    {% else %}
+        {% ifequal campaign.type 1 %}
+        <p>Please make sure you've selected your campaign's edition and entered its description, funding goal, deadline,  premiums, and previewed your campaign, before launching.</p>
+        {% endifequal %}
+        {% ifequal campaign.type 2 %}
+        <p>Please make sure you've selected your campaign's edition and entered its description, funding goal, initial ungluing date, prices, and previewed your campaign, before launching.</p>
+        <p> Buy To Unglue campaigns can't be launched until ebook files <a class="tabs1">have been loaded</a> and <a  class="tabs2">pricing has been set and made active</a></p>
+        {% endifequal %}
+        {% ifequal campaign.type 3 %}
+        <p>Please make sure you've selected your campaign's edition and entered its description and previewed your campaign, before launching.</p>
+        <p> Thanks for Ungluing campaigns can't be launched until ebook files <a class="tabs1">have been loaded</a> and <a  class="tabs2">a suggested contribution has been set </a></p>
+        {% endifequal %}
+    {% endif %}
 	
 </div>
 {% endifequal %}
