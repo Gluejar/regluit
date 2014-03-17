@@ -11,12 +11,12 @@
 {% block doccontent %}
 {% if admin %}
     {% if edition.pk %}
-    <h2>Edit Edition / Add Ebook Links</h2>
+    <h2>Edit Edition / Add Ebook Links for <a href="{% url work edition.work.id %}">{{ edition.work }}</a></h2>
     {% else %}
     <h2>Create New Edition</h2>
     {% endif %}
 {% else %}
-    <h2>Add Ebook Links</h2>
+    <h2>Add Ebook Links for <a href="{% url work edition.work.id %}">{{ edition.work }}</a></h2>
 {% endif %}
 
 {% if admin %}
