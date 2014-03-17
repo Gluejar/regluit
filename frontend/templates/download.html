@@ -23,10 +23,10 @@ $j(document).ready(function() {
 <div id="lightbox_content">
 
 {% if show_beg %}
-<div class="border" style="padding: 10px; height: 18em">
-    <div id="begblock" class="rh_beg">
+<div class="border" style="padding: 10px; min-height: 18em">
+    <div id="askblock">
         <div>Please help us thank the creators for making this book free. The amount is up to you.</div>
-        <form class="begform" method="POST" action="{% url thank work.id %}#">
+        <form class="askform" method="POST" action="{% url thank work.id %}#">
             {% csrf_token %}
             {{ form.non_field_errors }}
                 <div class="contrib_amount">Amount: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
@@ -38,7 +38,7 @@ $j(document).ready(function() {
         </form> 
     </div>
     
-    <div class="rh_beg" style="">
+    <div class="rh_ask">
             {{ work.last_campaign.description|safe }}
     </div>
 </div>

@@ -127,7 +127,7 @@
                     <li class="last">
                     {% if request.user.profile.libraries %}
                         <label for="offer_{{offer.id}}">
-                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% else %} {% if user.library %}checked="checked"{% endif %}{% endifequal %}{% endifequal %} />
                             <span class="menu-item-price">
                                 ${{ offer.price|intcomma }}
                             </span>

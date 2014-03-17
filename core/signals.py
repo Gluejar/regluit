@@ -172,8 +172,9 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         if transaction.offer.license == LIBRARY:
             library = Library.objects.get(id=transaction.extra['library_id'])
             new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
-            reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
-            reserve_acq.expire_in(datetime.timedelta(hours=2))
+            if transaction.user.id != library.user.id:  # don't put it on reserve if purchased by the library
+                reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
+                reserve_acq.expire_in(datetime.timedelta(hours=2))
             copies = int(transaction.extra.get('copies',1))
             while copies > 1:
                 Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
@@ -204,7 +205,8 @@ transaction_charged.connect(handle_transaction_charged)
 # dealing with failed transactions
 
 def handle_transaction_failed(sender,transaction=None, **kwargs):
-    if transaction is None:
+    if transaction is None or transaction.campaign.type == THANKS:
+        # no need to nag a failed THANKS transaction
         return
     
     # window for recharging

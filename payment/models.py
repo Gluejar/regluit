@@ -73,7 +73,7 @@ class Transaction(models.Model):
     # a preapproval key that Paypal generates to identify this transaction
     preapproval_key = models.CharField(max_length=128, null=True)
     
-    # (RY is not sure what receipt is for)
+    # (RY is not sure what receipt is for; t4u has hijacked this to be an email address for user.is_anonymous to send a receipt to)
     receipt = models.CharField(max_length=256, null=True)
     
     # whether a Preapproval has been approved or not

@@ -5,5 +5,5 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	<a href="{% url supporter supporter %}">{{ supporter }}</a> has wished for a work you hold rights to, <a href="{% url work work.id %}?tab=2">{{ work.title }}</a>.  Hooray!
+	<a href="{% url supporter supporter %}">{{ supporter }}</a> has favorited a work you hold rights to, <a href="{% url work work.id %}?tab=2">{{ work.title }}</a>.  Hooray!
 {% endblock %}

@@ -108,7 +108,8 @@ class CreateLibraryView(BaseLibraryView, CreateView):
         user.save()
         form.instance.user = user
         form.instance.save()
-        form.instance.add_user(user)
+        form.instance.add_user(user) # library is a member of itself
+        form.instance.add_user(self.request.user) # library.owner is a member of library
         context_data = self.get_context_data(form=form)
         context_data['status'] = 'Library Updated'
         return HttpResponseRedirect(reverse('library_admin',args=[form.instance.id]))

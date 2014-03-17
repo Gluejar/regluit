@@ -45,12 +45,13 @@
                     </div>  
                     {% else %}
                     <div class="unglued_white">
-                        <b>UNGLUED!</b>
                         {% ifequal work.last_campaign.type 3 %}
+                            <b>THANKED!</b>
                             <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> of thanks</p>
                             <p> from <b>{{ work.last_campaign.supporters_count }}</b> ungluers</p>
                             <p> and <b>{{ work.last_campaign.anon_count }}</b> others</p>
                         {% else %}
+                            <b>UNGLUED!</b>
                             <p><b>On:</b> {{ deadline|date:"M d, Y" }}</p>
                             <p><b>Raised:</b> {{ work.last_campaign.current_total|floatformat:0|intcomma }}</p>
                         {% endifequal %}
@@ -93,16 +94,18 @@
                                 <p>Available in your library on<br />{{ next_acq.refreshes|date:"M j, Y" }}</p>
                             {% endif %}
                         {% else %}
-                            <b>UNGLUE IT!</b>
                             {% ifequal work.last_campaign.type 1 %}
+                                <b>UNGLUE IT!</b>
                                 <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> raised</p>
                                 <p><b>${{ work.last_campaign.target|floatformat:0|intcomma }}</b> needed</p>
                                 <p>by {{ deadline|naturalday:"M d, Y" }}</p>
                             {% else %}{% ifequal work.last_campaign.type 2 %}
+                                <b>UNGLUE IT!</b>
                                 <p><b>${{ work.last_campaign.left|floatformat:0|intcomma }}</b> needed</p>
                                 <p>will unglue on </p>
                                 <p>{{ work.last_campaign.cc_date|naturalday:"M d, Y" }}</p>
                             {% else %}{% ifequal work.last_campaign.type 3 %}
+                                <b>SAY THANKS!</b>
                                 <p><b>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</b> of thanks</p>
                                 <p> from <b>{{ work.last_campaign.supporters_count }}</b> ungluers</p>
                                 <p> and <b>{{ work.last_campaign.anon_count }}</b> others</p>
