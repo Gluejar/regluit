@@ -88,8 +88,8 @@ class Authenticator:
             return self.backend_class.authenticator().process(self, success_url, deny_url)
             
     def allowed(self):
-        return  self.backend_class.authenticate(self.request, self.library)
-
+        return  self.backend_class().authenticate(self.request, self.library)
+        
 class BaseLibraryView:
     model = Library 
     template_name="libraryauth/edit.html"
