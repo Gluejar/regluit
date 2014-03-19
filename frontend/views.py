@@ -2618,6 +2618,8 @@ class DownloadView(PurchaseView):
             return  False
         elif self.user_license and self.user_license.thanked:
             return self.request.REQUEST.has_key('offer_id')
+        elif self.lib_thanked:
+            return False
         elif self.campaign.status != 'ACTIVE':
             return self.request.REQUEST.has_key('testmode')
         else: 
@@ -2646,6 +2648,7 @@ class DownloadView(PurchaseView):
             self.work = safe_get_work(self.kwargs["work_id"])
         self.campaign = self.work.last_campaign()
         self.user_license = self.work.get_user_license(self.request.user)
+        self.lib_thanked = self.work.lib_thanked(self.request.user)
         self.data = {
             'preapproval_amount':self.get_preapproval_amount(),
             'anonymous':True if self.request.user.is_anonymous() else self.request.user.profile.anon_pref,
@@ -2739,6 +2742,7 @@ class DownloadView(PurchaseView):
             'site': site,
             'action': "Contribution",
             'user_license': self.user_license,
+            'lib_thanked': self.lib_thanked,
             'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
         })
         return context

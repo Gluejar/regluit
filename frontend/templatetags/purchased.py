@@ -15,6 +15,7 @@ def purchased(context):
             user_license = work.get_user_license(user)
             context['borrowable'] = work.borrowable(user)
             context['in_library'] = work.in_library(user)
+            context['lib_thanked'] = work.lib_thanked(user)
         except AttributeError:
             user_license = None
             context['borrowable'] = None

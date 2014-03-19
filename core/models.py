@@ -1346,6 +1346,14 @@ class Work(models.Model):
             return True
         return False
     
+    def lib_thanked(self, user):
+        if user.is_anonymous():
+            return False
+        lib_license=self.get_lib_license(user)
+        if lib_license and lib_license.thanked:
+            return True
+        return False
+    
     def in_library(self,user):
         if user.is_anonymous():
             return False
@@ -1411,6 +1419,10 @@ class Work(models.Model):
         @property
         def borrowable(self):
             return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).count()>0
+            
+        @property
+        def thanked(self):
+            return  self.acqs.filter(license=THANKED).count()>0
             
         @property
         def borrowable_acq(self):
