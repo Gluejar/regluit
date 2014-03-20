@@ -2764,7 +2764,7 @@ def borrow(request, work_id):
         acq=work.get_lib_license(request.user).borrowable_acq
     if acq:
         borrowed = acq.borrow(request.user)
-        return download(request, work_id)
+        return DownloadView.as_view()(request, work=work)
     else:
         # shouldn't happen
         return work(request, work_id)
@@ -2794,7 +2794,7 @@ def download_ebook(request, ebook_id):
 def download_purchased(request, work_id):
     if request.user.is_anonymous:
         HttpResponseRedirect('/accounts/login/download/')
-    return download(request, work_id)
+    return DownloadView.as_view()(request, work_id)
 
 def download_campaign(request, work_id, format):
     work = safe_get_work(work_id)
