@@ -551,7 +551,7 @@ def new_edition(request, work_id, edition_id, by=None):
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
 
-        elif request.POST.has_key('ebook_%d-edition' % edition.id):
+        elif edition.id and request.POST.has_key('ebook_%d-edition' % edition.id):
             edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
             if edition.ebook_form.is_valid():
                 edition.ebook_form.save()
