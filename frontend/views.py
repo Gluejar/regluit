@@ -2618,6 +2618,8 @@ class DownloadView(PurchaseView):
             return  False
         elif self.user_license and self.user_license.thanked:
             return self.request.REQUEST.has_key('offer_id')
+        elif self.lib_thanked:
+            return False
         elif self.campaign.status != 'ACTIVE':
             return self.request.REQUEST.has_key('testmode')
         else: 
@@ -2646,6 +2648,7 @@ class DownloadView(PurchaseView):
             self.work = safe_get_work(self.kwargs["work_id"])
         self.campaign = self.work.last_campaign()
         self.user_license = self.work.get_user_license(self.request.user)
+        self.lib_thanked = self.work.lib_thanked(self.request.user)
         self.data = {
             'preapproval_amount':self.get_preapproval_amount(),
             'anonymous':True if self.request.user.is_anonymous() else self.request.user.profile.anon_pref,
@@ -2739,6 +2742,7 @@ class DownloadView(PurchaseView):
             'site': site,
             'action': "Contribution",
             'user_license': self.user_license,
+            'lib_thanked': self.lib_thanked,
             'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
         })
         return context
@@ -2760,7 +2764,7 @@ def borrow(request, work_id):
         acq=work.get_lib_license(request.user).borrowable_acq
     if acq:
         borrowed = acq.borrow(request.user)
-        return download(request, work_id)
+        return DownloadView.as_view()(request, work=work)
     else:
         # shouldn't happen
         return work(request, work_id)
@@ -2790,7 +2794,7 @@ def download_ebook(request, ebook_id):
 def download_purchased(request, work_id):
     if request.user.is_anonymous:
         HttpResponseRedirect('/accounts/login/download/')
-    return download(request, work_id)
+    return DownloadView.as_view()(request, work_id)
 
 def download_campaign(request, work_id, format):
     work = safe_get_work(work_id)

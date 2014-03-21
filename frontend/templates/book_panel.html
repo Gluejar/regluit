@@ -90,9 +90,11 @@
                         {% if in_library %}
                             {% if borrowable %}
                                 <p>Available in your library  now!</p>
+                            {% else %}{% if lib_thanked %}
+                                <p>Supported by your library!</p>
                             {% else %}
                                 <p>Available in your library on<br />{{ next_acq.refreshes|date:"M j, Y" }}</p>
-                            {% endif %}
+                            {% endif %}{% endif %}
                         {% else %}
                             {% ifequal work.last_campaign.type 1 %}
                                 <b>UNGLUE IT!</b>
