@@ -3,7 +3,7 @@ Fabric==1.4.3
 MySQL-python==1.2.3
 Pillow==1.7.7
 PyPDF2==1.20
-Pyzotero==0.9.51
+git+git://github.com/urschrei/pyzotero.git@v0.9.51
 South==0.7.6
 WebOb==1.2.3
 WebTest==1.4.0
