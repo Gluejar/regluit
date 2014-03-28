@@ -16,31 +16,104 @@
                             </div>
                         </div>
                     </div>
-                    <div id="user-block-hide" class="learnmore_block">
-                        <div class="quicktour">
-                            <span class="highlight">We all have books we love so much, we'd like to give them to the world.</span>  We want to share them, but also reward their creators. With digital books, it can be hard to do both.
+                    <div id="user-block-hide" class="learnmore_block ">
+                        <h1 style="text-align: center; padding-top: 1em; width: 75%"> 3 Ways to Make eBooks Free</h1>
+                         
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8ac3d7; ">MAKE</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                <span class="highlight">Create ebooks</span> in EPUB, MOBI, and PDF for reading everywhere.
+                            </div>
                         </div>
-                        <div class="quicktour">
-                            <span class="highlight">Unglue.it lets us do both.</span> We run campaigns for books; you help by buying, pledging, contributing, and telling your friends. The result: ebooks become free to the world!
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #e18551; ">GIVE</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                Apply <a href="https://creativecommons.org/">Creative Commons</a> licenses to ebooks, and <span class="highlight">we'll distribute them</span>, direct and through libraries.
+                            </div>
                         </div>
-                        <div class="quicktour">
-                            <a href="https://creativecommons.org/">Creative Commons</a> licensing means everyone, everywhere can read and share the unglued book - freely and legally. <span class="highlight">We can give our our favorite books to the world!</span>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; ">ASK</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                Ask people who are downloading the books to contribute what they choose, <span class="highlight">we'll get you the funds.</span>
+                            </div>
                         </div>
                         <div class="quicktour last">
-                            Still have questions? <a href="{% url faq %}">We've got answers.</a>
-                            {% if not user.is_authenticated %}
-                                {% if suppress_search_box %}
-                                    <div class="signup" id="highlighter">Or, sign up below. <img src="/static/images/landingpage/signmeup-arrow.png" alt="sign up below"></div>
-                                {% else %}
-                                    <div class="spacer"><div class="signuptoday"><a href="{% url registration_register %}">Or, sign up today</a></div></div>
-                                {% endif %}
-                            {% endif %}
+                            <div class="programlink">
+                                <a href="{% url faq_sublocation 'campaigns' 't4u' %}">"Thanks for Ungluing"</a>
+                            </div>
                         </div>
-                        {% comment %}
-                        <div style="clear: both; border: solid 3px #eee; border-radius: 10px; color: #aaa; font-size:22px; line-height: 33px; padding: 22px;">
-                            possibly there should be a 'how does it work' screencast here. maybe it should even replace the above text (or said text should be cut down sharply)
+                        <div class="learnmore_row"></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8ac3d7; ">MAKE</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                <span class="highlight">Create ebooks</span> in EPUB for reading everywhere.
+                            </div>
                         </div>
-                        {% endcomment %}
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; ">ASK</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                Set a revenue goal, offer the ebook for sale, <span class="highlight">we'll sell it</span> directly to readers and to libraries.
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #e18551; ">GIVE</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                Once <span class="highlight">book sales reach your goal</span>, <a href="https://creativecommons.org/">Creative Commons</a> licenses are automatically applied.
+                            </div>
+                        </div>
+                        <div class="quicktour last">
+                            <div class="programlink">
+                                <a href="{% url faq_sublocation 'campaigns' 'b2u' %}">"Buy to Unglue"</a>
+                            </div>
+                        </div>
+                        <div class="learnmore_row"></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; ">ASK</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                Ask people who are want your ebook to contribute what they like, <span class="highlight">we'll gather the pledges.</span>
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8ac3d7; ">MAKE</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                When you've reached your funding goal, <span class="highlight">we'll collect the funds</span> to fund your ebook conversion.
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview">
+                            <div class="panelview panelfront side1">
+                                <span style="color: #e18551; ">GIVE</span>
+                            </div>
+                            <div class="panelview panelback side2">
+                                Apply a <a href="https://creativecommons.org/">Creative Commons</a> license to the ebook, and <span class="highlight">we'll distribute it</span>, directly to readers and to libraries.
+                            </div>
+                        </div>
+                        <div class="quicktour last">
+                            <div class="programlink">
+                                <a href="{% url faq_sublocation 'campaigns' 'supporting' %}">"Pledge to Unglue"</a>
+                            </div>
+                        </div>
                     </div>
             </div>
         </div>

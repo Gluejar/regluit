@@ -6,7 +6,7 @@
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage3.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/learnmore2.css"  />
+<link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
 {% endblock %}
 {% block extra_js %}
 
@@ -52,7 +52,7 @@ function put_un_in_cookie2(){
                                 {% include "book_panel.html" %}
                             {% endwith %}{% endwith %}{% endwith %}{% endwith %}
                         {% endfor %}
-                        <a class="more_featured_books" href="{% url campaign_list 'ending' %}"></a>
+                        <a class="more_featured_books" href="{% url campaign_list 'ending' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
                 {% else %}{% if coming_soon %}
                     <h3 class="featured_books">Coming Soon</h3>
@@ -64,7 +64,7 @@ function put_un_in_cookie2(){
                                 {% include "book_panel.html" %}
                             {% endwith %}{% endwith %}{% endwith %}
                         {% endfor %}
-                        <a class="more_featured_books" href="{% url campaign_list 'soon' %}"></a>
+                        <a class="more_featured_books" href="{% url campaign_list 'soon' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
                 {% endif %}{% endif %}
                 <div class="spacer"></div>
@@ -78,7 +78,7 @@ function put_un_in_cookie2(){
                             {% include "book_panel.html" %}
                         {% endwith %}{% endwith %}{% endwith %}
                     {% endfor %}
-                    <a class="more_featured_books" href="{% url unglued_list '' %}"></a>
+                    <a class="more_featured_books" href="{% url unglued_list '' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
         	    <h3 class="featured_books">Latest Creative Commons</h3>
@@ -90,7 +90,7 @@ function put_un_in_cookie2(){
                             {% include "book_panel.html" %}
                         {% endwith %}{% endwith %}{% endwith %}
                     {% endfor %}
-                    <a class="more_featured_books" href="{% url cc_list %}"></a>
+                    <a class="more_featured_books" href="{% url cc_list %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
         	
@@ -103,7 +103,7 @@ function put_un_in_cookie2(){
                             {% include "book_panel.html" %}
                         {% endwith %}{% endwith %}{% endwith %}
                     {% endfor %}
-                    <a class="more_featured_books" href="{% url work_list 'popular' %}"></a>
+                    <a class="more_featured_books" href="{% url work_list 'popular' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
         	
