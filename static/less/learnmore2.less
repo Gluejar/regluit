@@ -24,22 +24,43 @@
 	border-top: solid 1px @bright-blue;
 	margin-top: 20px;
 	
+	.learnmore_row{
+	    border-bottom: dashed 2px @bright-blue;
+        clear: left;
+        width: 68%;
+	}
+	.arrow {
+	     font-size: 24pt;
+	     color: @bright-blue; 
+	     line-height: 48pt;
+	     float: left;
+	     padding-right: 8px;
+	     padding-left: 8px;
+	     padding-top: 20px;
+	     font-size: 24pt;
+	}
 	.quicktour {
-		width: 195px;
-		padding-right: 45px;
+		width: 20%;
 		float: left;
 		font-style: italic;
 		line-height:20px;
 		font-size: @font-size-default;
 		margin-top: 20px;
-	
+	    text-align: center;
+	    min-height: 64px;
 		.highlight {
 			font-weight: bold;
 		}
-	
+        .panelfront{
+            font-size: 48pt;
+            line-height: 48pt;
+            font-style: normal;
+        }
 		&.last {
-			padding-right:0px;
-			
+			padding-left:10px;
+            font-size: 20px;
+            width: 30%;
+            padding-top: 20px;
 			.signup {
 				color: @call-to-action;
 				font-weight: bold;
