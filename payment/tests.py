@@ -368,14 +368,14 @@ class BasicGuiTest(TestCase):
         sel.get(self.TEST_SERVER_URL)
         # if we click on the learn more, does the panel expand?
         # click on a id=readon -- or the Learn More span
-        sel.find_elements_by_css_selector('a#readon')[0].click()
-        time.sleep(2.0)
+        #sel.find_elements_by_css_selector('a#readon')[0].click()
+        #time.sleep(2.0)
         # the learn more panel should be displayed
-        self.assertTrue(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+        #self.assertTrue(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
         # click on the panel again -- and panel should not be displayed
-        sel.find_elements_by_css_selector('a#readon')[0].click()
-        time.sleep(2.0)
-        self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+        #sel.find_elements_by_css_selector('a#readon')[0].click()
+        #time.sleep(2.0)
+        #self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
     def tearDown(self):
         self.selenium.quit()
 

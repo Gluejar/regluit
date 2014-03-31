@@ -12,37 +12,46 @@
                                     <div><span class="def">unglue</span> (v. t.) 5. To make your favorite books free to everyone on earth.</div>
                                     <div><span class="def">unglue</span> (v. t.) 6. To reward authors and publishers for sharing books with the world.</div>
                                 </div>
-                                <a class="my-setting nounderline" id="readon"><span>Learn more</span></a>
+                                {%if request.user.is_authenticated %}<a class="my-setting nounderline" id="readon"><span>Learn more</span></a>{% endif %}
                             </div>
                         </div>
                     </div>
-                    <div id="user-block-hide" class="learnmore_block ">
+                    <div {%if request.user.is_authenticated %}id="user-block-hide" {% endif %}class="user-block-hide learnmore_block ">
                         <h1 style="text-align: center; padding-top: 1em; width: 75%"> 3 Ways to Make eBooks Free</h1>
                          
-                        <div class="quicktour panelview">
-                            <div class="panelview panelfront side1">
-                                <span style="color: #8ac3d7; ">MAKE</span>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1" >
+                                <span style="color: #8ac3d7; " class="makeaskgive">MAKE</span>
+                                <div class="qtbutton make"><i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i></div>
                             </div>
-                            <div class="panelview panelback side2">
-                                <span class="highlight">Create ebooks</span> in EPUB, MOBI, and PDF for reading everywhere.
-                            </div>
-                        </div>
-                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
-                        <div class="quicktour panelview">
-                            <div class="panelview panelfront side1">
-                                <span style="color: #e18551; ">GIVE</span>
-                            </div>
-                            <div class="panelview panelback side2">
-                                Apply <a href="https://creativecommons.org/">Creative Commons</a> licenses to ebooks, and <span class="highlight">we'll distribute them</span>, direct and through libraries.
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> make ebooks in EPUB, MOBI, and PDF.<br />
+                                <span class="highlight">Ungluers</span> love them for doing it.<br />
                             </div>
                         </div>
                         <div class="arrow"><i class="fa fa-arrow-right"></i></div>
-                        <div class="quicktour panelview">
+                        <div class="quicktour panelview" >
                             <div class="panelview panelfront side1">
-                                <span style="color: #8dc63f; ">ASK</span>
+                                <span style="color: #8dc63f; " class="makeaskgive">GIVE</span>
+                                <a   title="Download this work" class="qtbutton qtreadittext"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
                             </div>
-                            <div class="panelview panelback side2">
-                                Ask people who are downloading the books to contribute what they choose, <span class="highlight">we'll get you the funds.</span>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> apply <a href="https://creativecommons.org/">Creative Commons</a> licenses to ebooks.<br />
+                                <span class="highlight">Ungluers</span> read them at home, at a library, anywhere.<br />
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                            
+                                <span style="color: #e18551; " class="makeaskgive">ASK</span>
+                                <input name="pledge" type="submit" value="Say Thank You"  class="qtbutton" style="
+                                    left: 42px;
+                                ">
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> ask downloaders to contribute what they choose.<br />
+                                <span class="highlight">Ungluers</span> say thank you with their support.
                             </div>
                         </div>
                         <div class="quicktour last">
@@ -51,30 +60,38 @@
                             </div>
                         </div>
                         <div class="learnmore_row"></div>
-                        <div class="quicktour panelview">
-                            <div class="panelview panelfront side1">
-                                <span style="color: #8ac3d7; ">MAKE</span>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1" >
+                                <span style="color: #8ac3d7; " class="makeaskgive">MAKE</span>
+                                <div class="qtbutton make"><i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i></div>
                             </div>
-                            <div class="panelview panelback side2">
-                                <span class="highlight">Create ebooks</span> in EPUB for reading everywhere.
-                            </div>
-                        </div>
-                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
-                        <div class="quicktour panelview">
-                            <div class="panelview panelfront side1">
-                                <span style="color: #8dc63f; ">ASK</span>
-                            </div>
-                            <div class="panelview panelback side2">
-                                Set a revenue goal, offer the ebook for sale, <span class="highlight">we'll sell it</span> directly to readers and to libraries.
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> make ebooks in EPUB.<br />
+                                <span class="highlight">Ungluers</span> love them for doing it.<br />
                             </div>
                         </div>
                         <div class="arrow"><i class="fa fa-arrow-right"></i></div>
-                        <div class="quicktour panelview">
+                        <div class="quicktour panelview" >
                             <div class="panelview panelfront side1">
-                                <span style="color: #e18551; ">GIVE</span>
+                            
+                                <span style="color: #e18551; " class="makeaskgive">ASK</span>
+                                <input name="pledge" type="submit" value="Purchase"  class="qtbutton" style="
+                                    left: 84px;
+                                ">
                             </div>
-                            <div class="panelview panelback side2">
-                                Once <span class="highlight">book sales reach your goal</span>, <a href="https://creativecommons.org/">Creative Commons</a> licenses are automatically applied.
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> set a funding goal and a per-copy price.<br />
+                                <span class="highlight">Ungluers</span> purchase the ebook to advance the campaign.
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; " class="makeaskgive">GIVE</span>
+                                <a   title="Download this work" class="qtbutton qtreadittext"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                When the funding goal is met, <a href="https://creativecommons.org/">Creative Commons</a> licenses are automatically applied.<br />
                             </div>
                         </div>
                         <div class="quicktour last">
@@ -83,30 +100,39 @@
                             </div>
                         </div>
                         <div class="learnmore_row"></div>
-                        <div class="quicktour panelview">
+                        <div class="quicktour panelview" >
                             <div class="panelview panelfront side1">
-                                <span style="color: #8dc63f; ">ASK</span>
+                            
+                                <span style="color: #e18551; " class="makeaskgive">ASK</span>
+                                <input name="pledge" type="submit" value="Pledge"  class="qtbutton" style="
+                                    left: 100px;
+                                ">
                             </div>
-                            <div class="panelview panelback side2">
-                                Ask people who are want your ebook to contribute what they like, <span class="highlight">we'll gather the pledges.</span>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> set a funding goal and rewards for supporters.<br />
+                                <span class="highlight">Ungluers</span> pledge to support the campaign.
                             </div>
                         </div>
                         <div class="arrow"><i class="fa fa-arrow-right"></i></div>
-                        <div class="quicktour panelview">
-                            <div class="panelview panelfront side1">
-                                <span style="color: #8ac3d7; ">MAKE</span>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1" >
+                                <span style="color: #8ac3d7; " class="makeaskgive">MAKE</span>
+                                <div class="qtbutton make"><i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i></div>
                             </div>
-                            <div class="panelview panelback side2">
-                                When you've reached your funding goal, <span class="highlight">we'll collect the funds</span> to fund your ebook conversion.
+                            <div class="panelview panelback side2" >
+                                When the campaign succeeds, We collect <span class="highlight">Ungluer</span> pledges.<br />
+                                The ebook is <span class="highlight">created</span> and rewards are distributed.
                             </div>
                         </div>
                         <div class="arrow"><i class="fa fa-arrow-right"></i></div>
-                        <div class="quicktour panelview">
+                        <div class="quicktour panelview" >
                             <div class="panelview panelfront side1">
-                                <span style="color: #e18551; ">GIVE</span>
+                                <span style="color: #8dc63f; " class="makeaskgive">GIVE</span>
+                                <a   title="Download this work" class="qtbutton qtreadittext"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
                             </div>
-                            <div class="panelview panelback side2">
-                                Apply a <a href="https://creativecommons.org/">Creative Commons</a> license to the ebook, and <span class="highlight">we'll distribute it</span>, directly to readers and to libraries.
+                            <div class="panelview panelback side2" >
+                                <a href="https://creativecommons.org/">Creative Commons</a> licenses are  applied.<br />
+                                <span class="highlight">Ungluers</span> read them at home, at a library, anywhere.<br />
                             </div>
                         </div>
                         <div class="quicktour last">
