@@ -45,16 +45,59 @@
 		font-style: italic;
 		line-height:20px;
 		font-size: @font-size-default;
-		margin-top: 20px;
+		margin-top: 0;
 	    text-align: center;
 	    min-height: 64px;
 		.highlight {
 			font-weight: bold;
 		}
+		.programlink{
+		    margin-top: 20px;
+		}
+		.panelback{
+		    margin-top: 21px;
+		}
         .panelfront{
             font-size: 48pt;
             line-height: 48pt;
             font-style: normal;
+            .makeaskgive{
+                position: relative;
+                z-index: 1;
+                font-size: 40pt;
+                top: 10px;
+                right: 10pt;
+                text-shadow: 4px 2px 4px white;
+            }
+            .qtbutton{
+                position: relative;
+                z-index: 0;
+                opacity: 0.6;
+            }
+            .make{
+                line-height: 10pt;
+                color:red;
+                font-size:12pt;
+                top: 0;
+                left: 50px;
+            }
+            .qtreadit{
+                line-height: 0;
+                position: relative;
+                height:34px
+            }
+            .qtreadittext{
+                top: -15px;
+                left: 50px;
+                line-height: 10pt;
+            }
+            input{
+                line-height: 10pt;
+                display: inherit;
+                font-size: 10pt;
+                padding: .7em 1em;
+                top: -15px;            
+            }
         }
 		&.last {
 			padding-left:10px;
