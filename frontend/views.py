@@ -2794,7 +2794,7 @@ def download_ebook(request, ebook_id):
 def download_purchased(request, work_id):
     if request.user.is_anonymous:
         HttpResponseRedirect('/accounts/login/download/')
-    return DownloadView.as_view()(request, work_id)
+    return DownloadView.as_view()(request, work_id=work_id)
 
 def download_campaign(request, work_id, format):
     work = safe_get_work(work_id)
