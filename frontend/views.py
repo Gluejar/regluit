@@ -663,6 +663,7 @@ def manage_campaign(request, id, action='manage'):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                campaign.dollar_per_day = None
                 campaign.set_dollar_per_day()
                 if campaign.type in {BUY2UNGLUE,THANKS} :
                     offers= campaign.work.create_offers()
