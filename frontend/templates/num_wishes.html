@@ -4,6 +4,6 @@
     {% if work.num_wishes %}
         <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">Faved by&nbsp;</span>{{ work.num_wishes }}</span></span></a>
     {% else %}
-        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">No Faves</span></a>
+        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">No Faves</span></span></a>
     {% endif %}
 {% endif %}
