@@ -663,6 +663,7 @@ def manage_campaign(request, id, action='manage'):
             form= getManageCampaignForm(instance=campaign, data=request.POST)  
             if form.is_valid():     
                 form.save() 
+                campaign.dollar_per_day = None
                 campaign.set_dollar_per_day()
                 if campaign.type in {BUY2UNGLUE,THANKS} :
                     offers= campaign.work.create_offers()
@@ -2153,8 +2154,9 @@ class FAQView(FormView):
     def form_valid(self, form):
         form.instance._current_total=form.cleaned_data['revenue']
         form.instance.status='DEMO'
-        form.instance.update_left()
+        form.instance.type=BUY2UNGLUE
         form.instance.set_dollar_per_day()
+        form.instance.update_left()
         return self.render_to_response(self.get_context_data(form=form))
     
     def get_initial(self):
