@@ -10,10 +10,15 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     about_wishlist.html
     about_wishlist_empty.html
     campaign_list.html  extra_css    extra_head
+    cc_list.html    extra_css  extra_head
     comments.html   extra_css    extra_head
     download.html  extra_js
     goodreads_display.html    extra_head
     home.html   extra_css  extra_js
+    kindle_change_successful.html   extra_js
+    libraryauth/library.html    extra_head  extra_css  extra_js
+    libraryauth/list.html    extra_head  extra_css
+    libraryauth/users.html    extra_head  extra_css
     librarything.html
     lockss.html 
     lockss_manifest.html
@@ -22,15 +27,17 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     profiles/profile_detail.html
     profiles/profile_list.html
     registration/registration_base.html  extra_js    extra_head    extra_extra_head
-        basedocumentation.html  extra_js    extra_extra_head(empty)
+        basedocumentation.html  extra_js    extra_extra_head
             api_help.html
             about.html
             about_smashwords.html
             admins_only.html
             campaign_admin.html    extra_extra_head
+            campaign_results.html
             claim.html
             comments/base.html
                 comments/preview.html  extra_css
+            edition_uploads.html
             gift.html    extra_extra_head
             emailshare.html   extra_css
             faq.html
@@ -38,6 +45,7 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
             front_matter.html    extra_extra_head
             languages.html
             libraries.html   extra_css  extra_js
+            libraryauth/edit.html extra_extra_head
             manage_account.html    extra_extra_head
             manage_campaign.html    extra_extra_head
             merge.html    extra_extra_head
@@ -47,6 +55,7 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
                 notification/notice_settings.html   extra_css  extra_js
                 notification/notices.html   extra_css
             press.html
+            press_new.html
             privacy.html
             rh_tools.html    extra_extra_head
             rights_holders.html    extra_extra_head
@@ -64,6 +73,7 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
             pledge_nevermind.html    extra_css
             pledge_recharge.html    extra_css
             pledge_user_error.html    extra_extra_head
+            purchase.html   extra_extra_head
             stripe.html    extra_extra_head
         registration/activation_complete.html
         registration/activate.html
@@ -92,4 +102,17 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     
 nonprofit_base.html    extra_extra_head
     nonprofit.html    extra_extra_head
-    
+
+book_panel_addbutton.html
+cardform.html
+cardscripts.html  
+ebookfiles.html 
+edition_display.html
+edition_upload.html
+explore.html
+faqmenu.html
+faq_t4u.html
+learn_more.html
+num_wishes.html
+split.html
+trans_summary.html
