@@ -94,6 +94,11 @@
     		padding: 0 31px 0 11px;
     		width: 111px;
 		}
+		
+		div {
+	        padding:0px;
+	        margin:0px;
+		}
 	}
 	
 	div.button { 
@@ -113,7 +118,7 @@
 }
 
 .js-rightcol-padd { 
-	padding:0;
+    margin:0px;
 }
 
 h3.heading {
@@ -127,7 +132,7 @@ ul.ungluingwhat {
 	margin:0 -10px;
 	
 	li { 
-		margin-bottom:7px; 
+		margin-bottom:3px; 
 		background:#fff; 
 		padding: 10px; 
 		display:block; 
@@ -150,8 +155,8 @@ ul.ungluingwhat {
 		margin-left: 5px;
 		width: 160px;
 		word-wrap: break-word;
-		font-size: @font-size-larger;
-		line-height: @font-size-larger*1.3;
+		font-size: @font-size-default;
+		line-height: @font-size-default*1.3;
 		a {
 		    font-weight: normal;
 		}
@@ -257,6 +262,7 @@ h3.module-title {
 	padding: 10px 0;
 	font-size: @font-size-header;
 	font-weight: normal;
+	margin: 0;
 }
 
 .landingheader {
@@ -298,7 +304,7 @@ ul#as_seen_on {
     margin: 15px 0;
     position: relative;
     height: 80px;
-    
+    padding:0px;
     li {
         float: left;
         list-style-type: none;
@@ -326,7 +332,6 @@ ul#as_seen_on {
 	background: #fff;
 	font-size: @font-size-header;
 	padding: 1.5em;
-	
 	&:before {
         content: "";
 	    position: absolute;
@@ -340,6 +345,7 @@ ul#as_seen_on {
         /* reduce the damage in FF3.0 */
         display:block; 
         width:0;
+        
     }
 	
 	&:after {
@@ -358,8 +364,7 @@ ul#as_seen_on {
     }
     
     span {
-        margin-left: 1em;
-        
+        padding-left: 1em;
         &:before {
             position: absolute;
             top: .75em;
