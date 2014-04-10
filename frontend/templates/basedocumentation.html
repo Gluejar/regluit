@@ -14,7 +14,9 @@
 {% block title %}{% endblock %}
 
 {% block topsection %}
+{% with hide_learn_more='on' %}
 {% include "learn_more.html" %}
+{% endwith %}
 {% endblock %}
 
 {% block content %}
