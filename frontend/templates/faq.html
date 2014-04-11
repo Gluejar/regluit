@@ -5,12 +5,15 @@
 
 {% block doccontent %}
 
+{% if sublocation == 'all' %}
 <h2>Frequently Asked Questions</h2>
+
 <dl>
 <dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
 
 <dd>Please email us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
 </dl>
+{% endif %}
 {% if location == 'basics' or location == 'faq' %}
 <h3>Basics</h3>
 {% if sublocation == 'howitworks' or sublocation == 'all' %}
@@ -24,9 +27,9 @@
 
 <dd>We have three types of Ungluing Campaigns: Pledge Campaigns, Buy-to-Unglue Campaigns and Thanks-for-Ungluing campaigns.
 <ul class="bullets">
-<li> In a <i>Pledge Campaign</i>, book lovers pledge their support for ungluing a book. If enough support is found to reach the goal (and only then), the supporter's credit cards are charged, and an unglued ebook is released.</li>
-<li> In a <i>Buy-to-Unglue Campaign</i>, every ebook copy sold moves the book's ungluing date closer to the present. And you can donate ebooks to your local library- that's something you can't do in the Kindle or Apple Stores!</li>
-<li> In a <i>Thanks-for-Ungluing Campaign</i>, the ebook is already released with a Creative Commons license. Supporters can express their thanks by paying what they wish for the license and the ebook.</li>
+<li> In a <i><a href="{% url faq_sublocation 'campaigns' 'supporting' %}">Pledge Campaign</a></i>, book lovers pledge their support for ungluing a book. If enough support is found to reach the goal (and only then), the supporter's credit cards are charged, and an unglued ebook is released.</li>
+<li> In a <i><a href="{% url faq_sublocation 'campaigns' 'b2u' %}">Buy-to-Unglue Campaign</a></i>, every ebook copy sold moves the book's ungluing date closer to the present. And you can donate ebooks to your local library- that's something you can't do in the Kindle or Apple Stores!</li>
+<li> In a <i><a href="{% url faq_sublocation 'campaigns' 't4u' %}">Thanks-for-Ungluing Campaign</a></i>, the ebook is already released with a Creative Commons license. Supporters can express their thanks by paying what they wish for the license and the ebook.</li>
 </ul>
 </dd>
 
@@ -157,7 +160,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 
 <dt>Who is Unglue.it?</dt>
 
-<dd>We are a small group that believes strongly that ebooks can make the world richer in new and diverse ways, and that we all benefit from the hard work of their creators. We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about">about page</a> or our Unglue.it supporter profiles: <a href="{% url supporter 'eric' %}">Eric Hellman</a>, <a href="{% url supporter 'AmandaM' %}">Amanda Mecke</a>, <a href="{% url supporter 'rdhyee' %}">Raymond Yee</a>, <a href="{% url supporter 'luclewitanski' %}">Luc Lewitanski</a> and <a href="{% url supporter 'andromeda' %}">Andromeda Yelton</a>.</dd>
+<dd>We are a small group that believes strongly that ebooks can make the world richer in new and diverse ways, and that we all benefit from the hard work of their creators. We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about">about page</a> or our Unglue.it supporter profiles: <a href="{% url supporter 'eric' %}">Eric Hellman</a>, <a href="{% url supporter 'AmandaM' %}">Amanda Mecke</a> and <a href="{% url supporter 'rdhyee' %}">Raymond Yee</a>. Our alumni include  <a href="{% url supporter 'luclewitanski' %}">Luc Lewitanski</a> and <a href="{% url supporter 'andromeda' %}">Andromeda Yelton</a>.</dd>
 
 <dt>Are you a non-profit company?</dt>
 
@@ -172,55 +175,35 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 
 {% if location == 'campaigns' or location == 'faq' %}
 <h3>Campaigns</h3>
-{% if sublocation == 'overview' or sublocation == 'all' %}
-<h4>Overview</h4>
-<dl>
-<dt>Who is eligible to start a campaign or sell ebooks on Unglue.it?</dt>
 
-<dd>To start a campaign, you need to be a verified rights holder who has signed a Platform Services Agreement with us.  If you hold the commercial rights for one or more works, please consult the <a href="/faq/rightsholders/">FAQ for Rights Holders</a> and then contact <a href="mailto:rights@gluejar.com">rights@gluejar.com</a> to start the process.</dd>
+{% if sublocation == 'all' %}
+{% include "faq_t4u.html" %}
+{% include "faq_b2u.html" %}
 
-<dt>How can I claim a work for which I am the rights holder?</dt>
-
-<dd>On every book page there is a More... tab.  If you have a signed Platform Services Agreement on file, one of the options on the More... tab will be "Claim This Work".  If you represent more than one rights holder, choose the correct one for this work and click "Claim".<br /><br />If you expect to see a "Claim" button and do not, either we do not have a PSA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
-
-<dt>Why should I claim my works?</dt>
-
-<dd>You need to claim a work before you will be able to start a campaign for it.  Additionally, we're adding features for verified rights holders which will help you show off your works and connect to your readers.  Claiming your works will let you take advantage of these features in the future.</dd>
-
-<dt>Can I have more than one campaign?</dt>
-
-<dd>Yes!</dd>
-
-<dt>Where can I find a campaign page?</dt>
-
-<dd>If you're looking for a specific book, search for it.  The book's page becomes a campaign page when its campaign starts.  Your bookmarks and widgets for that book will still work.<br /><br />
-If you want to find an interesting campaign and don't have a specific book in mind, see the Explore sidebar (on almost any page except the FAQs) for some of our favorites.</dd>
-
-<dt>Why does it say a book's campaign has been suspended or withdrawn?</dt>
-
-<dd>If there is a dispute between Gluejar and the book's rights holder, or if we discover evidence that a book's rights are in dispute after launching a campaign, it may be necessary for us to withdraw or suspend the campaign.</dd>
-</dl>
-<h4>Pledge Campaign Pages</h4>
-<dl>
-<dt>Can a campaign be edited after launching?</dt>
-
-<dd>Yes.  In fact, campaign managers are encouraged to update their supporters about the progress of the campaign.  Note that the campaign's deadline cannot be changed and its target may not be increased, though it may be lowered.</dd>
-
-<dt>Can Pledge Campaigns be edited after funding is completed?</dt>
-
-<dd>Yes.  Again, while the deadline cannot be changed and the threshold cannot be increased, campaign managers are encouraged to add thank-you messages for supporters and update them on the progress of ebook conversion (if needed).</dd>
-
-<dt>What is a Pledge Campaign page?</dt>
-
-<dd>When a book has an active ungluing campaign, its book page turns into its Pledge Campaign page.  This means that, in addition to the standard book page information, it also features rewards for different pledge tiers; a Support button; and information supplied by the campaign manager (typically the author or publisher) about the book and the campaign.</dd>
-</dl>
+{% endif %}
+{% if sublocation == 'b2u' or sublocation == 'all' %}
+{% include 'faq_b2u.html' %}
+{% endif %}
+{% if sublocation == 't4u' or sublocation == 'all' %}
+{% include 'faq_t4u.html' %}
 {% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
 <h4>Pledge Campaigns</h4>
+<div class="faq_tldr">
+Support the books you've loved and make them free to everyone.
+</div>
 <dl>
+<dt>How does this work?</dt>
+
+<dd>Pledge Campaigns are aimed at books that have already been published and have been read - and loved - by many. At some point they stop selling, except in used bookstores where the creators don't make a dime. A pledge campaign asks those who love the book to pledge their support together with other ungluers to buy out enough rights to make the ebook free. Think of it as a way to make the public domain happen sooner.</dd>
+
+<dt>What the book I love doesn't have a campaign?</dt>
+
+<dd>To show the creators of a book that there are people willing to support it, just "Fave" the book. If enough people show their support in this way, the creators will take notice. They may even offer "<a href="{% url faq_sublocation 'campaigns' 'premiums' %}">premiums</a>" to encourage you to pledge!</dd>
+
 <dt>How do I pledge?</dt>
 
-<dd>There's a Support button on all Pledge Campaign pages, or you can just click on the premium you'd like to receive.  You'll be asked to select your premium and specify your pledge amount; choose how you'd like to be acknowledged, if your pledge is $25 or more; and enter your credit card information.</dd>
+<dd>When the creators of a book have been persuaded to launch a campaign, there will be a "Support" button on the book's unglue.it page.  You'll be asked to select your premium and specify your pledge amount; choose how you'd like to be acknowledged, if your pledge is $25 or more; and enter your credit card information.</dd>
 
 <dt>When will I be charged?</dt>
 
@@ -275,12 +258,6 @@ If you want to find an interesting campaign and don't have a specific book in mi
 
 <dd>There's a $1 minimum and a $2000 maximum.</dd>
 </dl>
-{% endif %}
-{% if sublocation == 'b2u' or sublocation == 'all' %}
-{% include 'faq_b2u.html' %}
-{% endif %}
-{% if sublocation == 't4u' or sublocation == 'all' %}
-{% include 'faq_t4u.html' %}
 {% endif %}
 {% endif %}
 
@@ -352,7 +329,7 @@ Unglue.it can't provide legal advice about how to interpret Creative Commons lic
 If you're reading a book you've purchased from unglue.it, you may keep it as long as you like.  There's no need to return it, and it won't stop working after some deadline.  You own it.<br /><br />
 If you're reading a book that's been unglued, you can keep the file forever AND you can make copies for friends.</dd>
 
-<dt>Can I dowload ebooks directly from Unglue.it?</dt>
+<dt>Can I download ebooks directly from Unglue.it?</dt>
 
 <dd>If you've purchased an ebook from unglue.it, you'll by able to download it through the website. All formats are included (where available), and you can download the ebooks for your personal use as many times as you need to.<br /><br />
 
@@ -383,42 +360,18 @@ Unglue.it signs agreements assuring the copyright status of every work we unglue
 {% if sublocation == 'authorization' or sublocation == 'all' %}
 <h4>Becoming Authorized</h4>
 <dl>
+<dt>Who is eligible to start a campaign or sell ebooks on Unglue.it?</dt>
+
+<dd>To start a campaign, you need to be a verified rights holder who has signed a Platform Services Agreement with us.  </dd>
 <dt>What do I need to do to become an authorized Rights Holder on Unglue.it?</dt>
 
-<dd>Contact our Rights Holder Relations team, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>, to discuss signing our <a href="https://www.docracy.com/1mud3ve9w8/unglue-it-non-exclusive-platform-services-agreement">Platform Services Agreement (PSA)</a>, setting a revenue goal, and running a campaign on Unglue.it to release your book under a <a href="http://creativecommons.org">Creative Commons</a> license, or to raise money for a book you've already released under such a license.<br /><br />
-The more Unglue.it knows about you and your books, the faster your campaign can be up and running.<br /><br />
-For example, it would help to have you tell us the following in your initial query:<br /><br />
-<em>About your books:</em>
-<ul class="bullets">
-<li>Title(s) for which you hold the rights and which you might want to unglue. (ISBNs help too!)</li>
-<li>How long have print and/or ebook editions of these titles been for sale?</li>
-<li>Where are your books sold?</li>
-<li>If your title went out of print, how many copies had it sold until then?</li>
-<li>Have you self-published this title or other works?</li>
-<li>Have you already applied a Creative Commons license to this work?</li>
-</ul>
-<em>Note:  If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. If there is no ebook yet, you'll want to offer a "Pledge" campaign.</em> And if you've already put a Creative Common License on the Book, you can use a "Thanks for Ungluing" Campaign.<br /><br />
-<em>About the ebook rights:</em>
-<ul class="bullets">
-<li>If you are the copyright holder, have ebook rights reverted to you or have you requested reversion from the original publisher? </li>
-<li>If you are a publisher, do you have the right to publish using a Creative Common license?</li>
-<li> Who distributes your ebooks for online sales to individuals and via 3rd party platforms to libraries for lending?</li>
-<li>If there is an ebook how long is has it been for sale?  </li>
-<li>Are ebooks available to Libraries for lending?</li>
-</ul><br />
-<em>About you as an author and marketer:</em>
-<ul class="bullets">
-<li>What social media (blog, Twitter, Facebook, Goodreads, etc.) do you currently use?</li>
-<li>How have you worked with libraries to promote your books in the past?</li>
-<li>Where do you think your key supporters will come from? -- a community of fans you're already in touch with, fans who read your genre, readers who have yet to discover your work, scholars or students, readers who support the open access movement or free culture?</li>
-</ul>
-</dd>
+<dd>Contact our Rights Holder Relations team, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>, to discuss signing our <a href="https://www.docracy.com/1mud3ve9w8/unglue-it-non-exclusive-platform-services-agreement">Platform Services Agreement (PSA)</a>, setting a revenue goal, and running a campaign on Unglue.it to release your book under a <a href="http://creativecommons.org">Creative Commons</a> license, or to raise money for a book you've already released under such a license.</dd>
 
 <dt>I haven't signed an agreement, but my books are listed on Unglue.it. What's going on?</dt>
 <dd>If your book is listed on Unglue.it, it's because an unglue.it user has indicated some interested in the book. Perhaps your book has been added to a user's favorites list. Users can also use the site to post links to Creative Commons licensed or public domain books. Unglue.it works with non-profit sites such as Internet Archive to improve their coverage and preservation of Creative Commons licensed books.
 </dd>
 <dt>I didn't give you permission to offer my CC-licensed book for download. Why is it there?</dt>
-<dd>When we don't have an agreement with a rights-holder, our download links lead to only reputable sites such as Internet Archive, Project Gutenberg, or Google Books. We are able to provide those links based on the fair use provisions of copyright. We strive to keep our information accurate, so the license we report is inaccurate, please <a href="mailto:rights@gluejar.com?subject=corrections">let us know</a> immediately. If for some reason you don't want us to provide download links, let us know using the "feedback" tab next to your book's page and we'll make a notation to that effect in our metadata. We may require evidence that you are authorized to act for the rights holders of your book.
+<dd>When we don't have an agreement with a rights-holder, our download links lead to sites such as Internet Archive, Project Gutenberg, or Google Books that facilitate this linking and free use of the works by our users. We strive to keep our information accurate, so if the license we report is inaccurate, please <a href="mailto:rights@gluejar.com?subject=corrections">let us know</a> immediately. If for some reason you don't want us to provide download links, let us know using the "feedback" tab next to your book's page and we'll make a notation to that effect in our metadata. We may require evidence that you are authorized to act for the rights holders of the book.
 </dd>
 
 <dt>Do I need to know the exact titles I might want to unglue before I sign the Platform Services Agreement?</dt>
@@ -427,6 +380,25 @@ For example, it would help to have you tell us the following in your initial que
 
 <dt>Can I run more than one campaign?</dt>
 <dd>You can run campaigns for as many, or as few, titles at a time as you like.  </dd>
+</dl>
+{% endif %}
+{% if sublocation == 'claiming' or sublocation == 'all' %}
+<h4>Claiming Works</h4>
+<dl>
+
+<dt>How can I claim a work for which I am the rights holder?</dt>
+
+<dd>On every book page there is a More... tab.  If you have a signed Platform Services Agreement on file, one of the options on the More... tab will be "Claim This Work".  If you represent more than one rights holder, choose the correct one for this work and click "Claim".<br /><br />If you expect to see a "Claim" button and do not, either we do not have a PSA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
+
+<dt>Why should I claim my works?</dt>
+
+<dd>You need to claim a work before you will be able to start a campaign for it.  Additionally, we're adding features for verified rights holders which will help you show off your works and connect to your readers.  Claiming your works will let you take advantage of these features in the future.</dd>
+
+<dt>Where can I find a campaign page?</dt>
+
+<dd>If you're looking for a specific book, search for it.  The book's page becomes a campaign page when its campaign starts.  Your bookmarks and widgets for that book will still work.<br /><br />
+If you want to find an interesting campaign and don't have a specific book in mind, see the Explore sidebar (on almost any page except the FAQs) for some of our favorites.</dd>
+
 </dl>
 {% endif %}
 {% if sublocation == 'campaigns' or sublocation == 'all' %}
@@ -446,9 +418,11 @@ For example, it would help to have you tell us the following in your initial que
 
 <dt>What should I include in my campaign page?</dt>
 
-<dd>Show the world why we should love your book.  What makes it powerful, intriguing, moving, thought-provoking, important?  How does it capture readers' imaginations, engage their minds, or connect to their emotions?  Remind readers who loved the book why they loved it, and give people who haven't read it reasons they want to.<br /><br />
+<dd>Show the world why we should love your book.  What makes it powerful, intriguing, moving, thought-provoking, important?  How does it capture readers' imaginations, engage their minds, or connect to their emotions?  Remind readers who loved the book why they loved it, and give people who haven't read it reasons they want to.</dd>
+</dl>
 
-We strongly encourage you to include video.  You can upload it to YouTube and embed it here.  We also strongly encourage links to help readers explore further -- authors' home pages, organizations which endorse the book, positive reviews, et cetera.  Think about blurbs and awards which showcase your book.  But don't just write a catalog entry or a laundry list: be relatable, and be concise.</dd>
+<h4>Pledge Campaigns</h4>
+<dl>
 
 <dt>What should I offer as premiums for a Pledge Campaign?</dt>
 
@@ -466,9 +440,6 @@ We strongly encourage you to include video.  You can upload it to YouTube and em
 
 <dd>Unglue.it will share supporters' emails and the premiums they are owed with rights holders if, and only if, a campaign succeeds.  Campaign managers can also message supporters via the website. If you need additional information to fulfill premiums, you may email ungluers directly.  Rights holders are required to comply with the Unglue.it privacy policy.</dd>
 
-<dt>What should I ask my supporters to do?</dt>
-
-<dd>Of course you'll want them to support your campaign financially, and make that pitch.  But they also want to feel like they're part of the excitement of the campaign and the love for your book.  Invite them to discuss the book in the Comments tab, to share the campaign via email and social media using the Share column links, and to embed the campaign widget in their blogs.  And think about other ways you can get supporters involved, too: discussions on social reading sites? A Twitter hashtag? Uploading Flickr photos or YouTube videos of themselves with your book?  (Prizes or acknowledgements for the person who photographs your book in the most unusual location?)  Think of ways you can invite them to express and share their enthusiasm, and how you can reward them (not just monetarily) for doing so.</dd>
 
 <dt>How can supporters contact me?</dt>
 
