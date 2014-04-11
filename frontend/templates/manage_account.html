@@ -1,7 +1,9 @@
 {% extends "basedocumentation.html" %}
 {% block title %}Your Unglue.it Account{% endblock %}
 {% block extra_extra_head %}
+{{ block.super }}
 <link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+
 {% include "stripe_stuff.html" %}
 <script>
 var $j = jQuery.noConflict();

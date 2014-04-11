@@ -12,11 +12,11 @@
                                     <div><span class="def">unglue</span> (v. t.) 5. To make your favorite books free to everyone on earth.</div>
                                     <div><span class="def">unglue</span> (v. t.) 6. To reward authors and publishers for sharing books with the world.</div>
                                 </div>
-                                {%if request.user.is_authenticated %}<a class="my-setting nounderline" id="readon"><span>Learn more</span></a>{% endif %}
+                                {%if request.user.is_authenticated or hide_learn_more %}<a class="my-setting nounderline" id="readon"><span>Learn more</span></a>{% endif %}
                             </div>
                         </div>
                     </div>
-                    <div {%if request.user.is_authenticated %}id="user-block-hide" {% endif %}class="user-block-hide learnmore_block ">
+                    <div {%if request.user.is_authenticated  or hide_learn_more %}id="user-block-hide" {% endif %}class="user-block-hide learnmore_block ">
                         <h1 style="text-align: center; padding-top: 1em; width: 70%">3 ways <i>we</i> can make ebooks <i>free</i></h1>
                          
                         <div class="quicktour panelview" >
