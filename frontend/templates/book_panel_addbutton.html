@@ -24,7 +24,7 @@
 				{% else %}
 				    {% comment %} on the empty-wishlist slideshow {% endcomment %}
                     <div class="moreinfo add-wishlist">
-                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;Faves</span>
+                        <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Faves</span>
                     </div>
 				{% endif %}
 			{% else %}{% if work in wishlist %}
@@ -34,9 +34,9 @@
 			{% else %}
 				<div class="moreinfo add-wishlist">
 				{% if on_search_page %}
-				<span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;My&nbsp;Faves</span>
+				<span class="gb_id" id="p{{ googlebooks_id }}">Add&nbsp;to&nbsp;Faves</span>
 				{% else %}
-				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;My&nbsp;Faves</span>
+				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Faves</span>
 				{% endif %}
 				</div>
 			{% endif %}{% endifequal %}{% endif %}{% endif %}
