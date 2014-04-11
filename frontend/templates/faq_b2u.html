@@ -1,24 +1,32 @@
 {% load humanize %}<h4> Buy-to-Unglue Campaigns</h4>
+<div class="faq_tldr">
+Read the ebook now, help to make if available to all in the future. The eBook wants to be free!
+</div>
 <dl>
-<dt>What is Buy-to-Unglue?</dt>
+<dt>How is Buying an eBook at Unglue.it Different?</dt>
 
-<dd>Buy-to-Unglue is a program that uses sales revenue to push books into the public commons. Every book that gets purchased through Unglue.it brings the ungluing date closer to the present.</dd>
+<dd>Buy-to-Unglue eBooks <i>want</i> to be free. But the people who create books have to make ends meet somehow. So they've chosen a funding level that will allow them to make the book free. When you buy an ebook at unglue.it, you're advancing the date at which the book will be free to <i>everyone</i>, but until then, the ebook is yours to enjoy. You can also buy the ebook for your library so that your neighbors can enjoy the ebook once you're done with it! </dd>
+<dt>What can I do with a Buy-to-Unglue eBook?</dt>
+
+<dd>There's no restrictive rights management on buy-to-unglue ebooks. That means you can put them on all your devices, and do the things you do with your print books. You're not allowed to publish or distribute them, but you'll be able to do that after the ungluing date. Once you've purchased a buy-to-unglue book, you can download it whenever you need it.</dd>
+
 <dt>What is an Ungluing Date?</dt>
 
-<dd>The ungluing date is the date a book gets released under a Creative Commons License. After the ungluing date, the ebook will be available for free at unglue.it, Internet Archive and any library, anywhere.</dd>
+<dd>The ungluing date is the date a book gets released under a Creative Commons License. After the ungluing date, the ebook will be available for free at unglue.it, Internet Archive and any library, anywhere. You'll be able to make copies for all your friends, if that's what you want to do.</dd>
 <dt>How does that work?</dt>
-<dd>The rights holder for the book picks <ol>
+<dd>The rights holder for the book picks 
+<ol>
 <li>an initial ungluing date some time in the future, and </li>
 <li>a revenue goal</li>
 </ol> When an ebook license is purchased, the ungluing date is recalculated according to these formulae:<pre> 
-(days per dollar) = [(initial ungluing date) - (campaign launch date)] / (campaign goal)
+(days per dollar) = [(initial ungluing date) - (launch date)] / (campaign goal)
 
 (current ungluing date) = (initial ungluing date) - (gross revenue)*(days per dollar)
 </pre>
 Here's a calculator you can use to see how this works:
 <div class="std_form">
-<div class=" work_campaigns">
-<form  action="#calculator" method="POST"  style="margin:5px" id="calculator">
+<div class="work_campaigns">
+<form  action="#calculator" method="POST"  style="margin:1em" id="calculator">
 {% csrf_token %}
 <p>Starting with an Initial Ungluing Date of
 {% if form %}
@@ -30,7 +38,7 @@ Here's a calculator you can use to see how this works:
 
 {% if form.instance.dollar_per_day %}
 
-<p>When the Book has earned 
+<p>If you launch today, when the Book has earned 
 ${{ form.revenue.errors }}{{ form.revenue }}, the new Ungluing Date will be <span class="call-to-action">{{ form.instance.cc_date }}</span> and every additional <span class="call-to-action">${{ form.instance.dollar_per_day|floatformat:2|intcomma }}</span> received will advance the Ungluing Date by one day.</p>
 
 <p><input type="submit" value="Calculate"  /> another Ungluing Date</p>
@@ -41,8 +49,10 @@ ${{ form.revenue.errors }}{{ form.revenue }}
 <input type="submit" value="Calculate"  /> a new Ungluing Date</p>
 
 {% endif %}
+</form>
+</div>
+</div>
 </dd>
 <dt>How do I tell what a book's ungluing date is?</dt>
 <dd>The ungluing date is displayed on the campaign page for every Buy-to-Unglue book, and is printed inside every copy sold through Unglue.it on the license/copyright page. For ebooks sold anywhere else, you'll need to wait for the author(s) to die, and many decades after that, for the copyright to expire, even if the author or heirs no longer receive royalties or can’t be found.</dd>
 </dl>
-</form>
