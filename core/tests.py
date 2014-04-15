@@ -219,6 +219,12 @@ class BookLoaderTests(TestCase):
         r = anon_client.get("/work/%s/" % w2_id)
         self.assertEqual(r.status_code, 200)               
         
+        # if the work has a selected edition, then don't touch the work.
+        w3= Work(title='work 3')
+        e_pref= Edition(work=w1)
+        w1.selected_edition=e_pref
+        bookloader.merge_works(w3, w1)
+        self.assertTrue(w1.title=='Work 1')
 
     def test_merge_works(self):
         # add two editions and see that there are two stub works

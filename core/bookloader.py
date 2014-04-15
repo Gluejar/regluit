@@ -462,7 +462,11 @@ def merge_works(w1, w2, user=None):
     # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return
-    
+    if w2.selected_edition != None and w1.selected_edition == None:
+        #the merge should be reversed
+        temp = w1
+        w1 = w2
+        w2 = temp
     models.WasWork(was=w2.pk, work=w1, user=user).save()
     for ww in models.WasWork.objects.filter(work = w2):
         ww.work = w1
