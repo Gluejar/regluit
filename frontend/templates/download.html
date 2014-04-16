@@ -84,7 +84,7 @@ $j(document).ready(function() {
     {% if readmill_epub_url or can_kindle %}
         <div class="one_click clearfix">
             <h3>One-click options</h3>
-            {% if mac_ibooks %}
+            {% if mac_ibooks and readmill_epub_url%}
                 <div id="mac_ibooks" title="{{ work.id }}" >
                     <div class="btn_support mac_ibooks"><a href="{{readmill_epub_url}}">Load to iBooks</a></div>
                 </div>
