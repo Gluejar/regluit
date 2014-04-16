@@ -62,14 +62,14 @@
 {% lib_acqs %}
 {% with work.last_campaign_status as status %} 
 {% with work.id as work_id %}
-    <div id="main-container">
+    <div id="main-container" itemscope itemtype="http://schema.org/Book">
         <div class="js-main">
             <div id="js-leftcol">
                 {% include "explore.html" %}
             </div>
             <div id="js-maincol">
                 <div class="js-maincol-inner">
-                    <div id="content-block" itemscope itemtype="http://schema.org/Book">
+                    <div id="content-block">
                         <div class="book-detail">
                             {% if work.googlebooks_id %}
                                 <div id="book-detail-img">
@@ -88,7 +88,7 @@
                                         <div class="pubinfo">
                                             <h3 class="book-author">
                                             <span  itemprop="author">{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
-                                                and <span  itemprop="author">{{ work.authors.1.name }}
+                                                and <span  itemprop="author">{{ work.authors.1.name }}</span>
                                             {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span  itemprop="author">{{ author.name }}</span>{% endif %}{% endfor %}
                                             {% endif %}
                                             </h3>
@@ -639,9 +639,9 @@
                                         <span class="menu-item-desc">Purchased!</span>
                                     </li>
                                     {% else %}
-                                    <li class="first">
+                                    <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                         <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
-                                        <span class="menu-item-price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
                                         <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
                                         </a>
                                     </li>
@@ -675,21 +675,21 @@
                         {% ifequal work.last_campaign.type 3 %}
                             <h3 class="jsmod-title"><span>Thank the Creators</span></h3>
                             <div class="jsmod-content">
-                                <ul class="support menu">
+                                <ul class="support menu" itemprop=">
                                     {% if purchased %}
                                     <li class="first no_link">
                                         <span class="menu-item-desc">You're welcome!</span>
                                     </li>
                                     {% else %}
-                                    <li class="first last">
+                                    <li class="first last" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                         {% if request.user.library %}
                                             <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
-                                            <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-price" itemprop="price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_thanks_display }}</span>
                                             </a>
                                         {% else %}
                                             <a href="{% url thank work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
-                                            <span class="menu-item-price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_thanks_display }}</span>
                                             </a>
                                         {% endif %}
