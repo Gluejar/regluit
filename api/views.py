@@ -33,49 +33,23 @@ def editions(request):
 
 def widget(request,isbn):
     """
-    Aim is to ultimately supply the following info:
-- campaign name
-- campaign description
-- rights holder
-- work title
-- work author
-- a link to an edition cover
-- a link to the campaign on unglue.it- the status, or progress of the ungluing
-- when the campaign is finished
-- whether the logged in user is a supporter
-- whether the logged in user is currently supporting the campaign
-    Current implementation is to supply info for current book panel design
+    supply info for book panel 
     """
    
+        
     if len(isbn)==10:
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
     try:
         identifier = models.Identifier.objects.get( Q( type = 'isbn', value = isbn ))
         work = identifier.work
         edition = identifier.edition
-        campaigns = work.campaigns.all()
     except models.Identifier.DoesNotExist:
-         edition = None
-         work = None
-         campaigns = []
-         
-    u = auth.get_user(request)
-    if isinstance(u, User):
-        logged_in_username = u.username
-    else:
-        logged_in_username = None
-             
-    # for now pass in first campaign -- but should loop through to prioritize any active campaigns
-    if len(campaigns):
-        campaign = campaigns[0]
-        progress = int(100*campaign.current_total/campaign.target)
-    else:
-        campaign = None
-        progress = None
-    
+        return render_to_response('widget.html', 
+             {'isbn':isbn,'edition':None, 'work':None, 'campaign':None,}, 
+             context_instance=RequestContext(request)
+            )
     return render_to_response('widget.html', 
-         {'isbn':isbn,'edition':edition, 'work':work, 'campaign':campaign, 'progress': progress,
-          'logged_in_username':logged_in_username}, 
+         {'isbn':isbn,'edition':edition, 'work':work, 'campaign':work.last_campaign(), }, 
          context_instance=RequestContext(request)
      )
 
