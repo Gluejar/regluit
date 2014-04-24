@@ -119,3 +119,7 @@ class ApiTests(TestCase):
         self.assertEqual(j['meta']['logged_in_username'], 'test')
         self.assertEqual(j['objects'][0]['in_wishlist'], True)
 
+    def test_widget(self):
+        r = self.client.get('/api/widget/0441007465/')
+        self.assertEqual(r.status_code, 200)
+
