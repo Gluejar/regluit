@@ -126,6 +126,9 @@ $j(document).ready(function() {
         </div>
     {% endif %}
     <div class="ebook_download_container">
+    {% if testmode %}
+        <i>Download links for uploaded files will appear here when campaign is launched.</i>
+    {% endif %}
     {% if unglued_ebooks or other_ebooks or acq %}
         {% if unglued_ebooks %}
             <h3>Download the unglued edition</h3>
