@@ -114,16 +114,16 @@ Please fix the following before launching your campaign:
 
 <div class="tabs-1">
     
-    {% if campaign.work.ebookfiles.0 %}
+    {% if campaign.work.epubfiles.0 %}
         <p> <b>An EPUB file has been loaded.</b> </p>
-        <p>Active file: <a href="{{campaign.work.ebookfiles.0.file.url}}">{{campaign.work.ebookfiles.0.file}}</a> created {{campaign.work.ebookfiles.0.created}} </p>
+        <p>Active file: <a href="{{campaign.work.epubfiles.0.file.url}}">{{campaign.work.epubfiles.0.file}}</a> created {{campaign.work.epubfiles.0.created}} </p>
         {% if campaign.work.test_acqs.0 %}
             <ul> 
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_epub}}">Processed epub for testing</a></li>
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_mobi}}">Processed mobi (kindle) for testing</a></li>
             </ul>
         {% endif %}
-        <p>Edition: <i>{{ campaign.work.ebookfiles.0.edition }}</i> </p>
+        <p>Edition: <i>{{ campaign.work.epubfiles.0.edition }}</i> </p>
     {% endif %}
     {% if campaign.work.mobifiles.0 %}
         <p> <b>A MOBI file (Kindle) has been loaded.</b> </p>
