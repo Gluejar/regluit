@@ -1159,6 +1159,7 @@ class Work(models.Model):
             self.save()
             return self.selected_edition 
         except IndexError:
+            #should only happen if there are no editions for the work
             return None
         
     def last_campaign_status(self):
@@ -1272,6 +1273,8 @@ class Work(models.Model):
         self.save()
 
     def first_oclc(self):
+        if self.preferred_edition == None:
+            return ''
         preferred_id=self.preferred_edition.oclc
         if preferred_id:
             return preferred_id
@@ -1281,6 +1284,8 @@ class Work(models.Model):
             return ''
 
     def first_isbn_13(self):
+        if self.preferred_edition == None:
+            return ''
         preferred_id=self.preferred_edition.isbn_13
         if preferred_id:
             return preferred_id
