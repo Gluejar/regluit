@@ -115,7 +115,7 @@ Please fix the following before launching your campaign:
 <div class="tabs-1">
     
     {% if campaign.work.ebookfiles.0 %}
-        <p> <b>An Ebook file has been loaded.</b> </p>
+        <p> <b>An EPUB file has been loaded.</b> </p>
         <p>Active file: <a href="{{campaign.work.ebookfiles.0.file.url}}">{{campaign.work.ebookfiles.0.file}}</a> created {{campaign.work.ebookfiles.0.created}} </p>
         {% if campaign.work.test_acqs.0 %}
             <ul> 
@@ -124,6 +124,16 @@ Please fix the following before launching your campaign:
             </ul>
         {% endif %}
         <p>Edition: <i>{{ campaign.work.ebookfiles.0.edition }}</i> </p>
+    {% endif %}
+    {% if campaign.work.mobifiles.0 %}
+        <p> <b>A MOBI file (Kindle) has been loaded.</b> </p>
+        <p>Active file: <a href="{{campaign.work.mobifiles.0.file.url}}">{{campaign.work.mobifiles.0.file}}</a> created {{campaign.work.mobifiles.0.created}} </p>
+        <p>Edition: <i>{{ campaign.work.mobifiles.0.edition }}</i> </p>
+    {% endif %}
+    {% if campaign.work.pdffiles.0 %}
+        <p> <b>A PDF file has been loaded.</b> </p>
+        <p>Active file: <a href="{{campaign.work.pdffiles.0.file.url}}">{{campaign.work.pdffiles.0.file}}</a> created {{campaign.work.pdffiles.0.created}} </p>
+        <p>Edition: <i>{{ campaign.work.pdffiles.0.edition }}</i> </p>
     {% endif %}
 <form action="#" method="POST">
 	{% csrf_token %}

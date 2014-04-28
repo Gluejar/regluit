@@ -346,7 +346,7 @@ class Acq(models.Model):
                 'kf8mobi': True,
                 'epub': True,
                 }
-            personalized = personalize(self.work.ebookfiles()[0].file, self)
+            personalized = personalize(self.work.epubfiles()[0].file, self)
             personalized.filename.seek(0)
             self.watermarked = watermarker.platform(epubfile= personalized.filename, **params)
             self.save()
@@ -970,7 +970,7 @@ class Campaign(models.Model):
                 'kf8mobi': True,
                 'epub': True,
                 }
-            ungluified = ungluify(self.work.ebookfiles()[0].file, self)
+            ungluified = ungluify(self.work.epubfiles()[0].file, self)
             ungluified.filename.seek(0)
             watermarked = watermarker.platform(epubfile= ungluified.filename, **params)
             self.make_unglued_ebf('epub', watermarked)
@@ -1199,8 +1199,18 @@ class Work(models.Model):
         return Ebook.objects.filter(edition__work=self).order_by('-created')
 
     def ebookfiles(self):
-        # filter out non-epub because that's what booxtream accepts now
+        # filter out non-epub because that's what booxtream accepts 
+        return EbookFile.objects.filter(edition__work=self).order_by('-created')
+
+    def epubfiles(self):
+        # filter out non-epub because that's what booxtream accepts 
         return EbookFile.objects.filter(edition__work=self, format='epub').order_by('-created')
+
+    def mobifiles(self):
+        return EbookFile.objects.filter(edition__work=self, format='mobi').order_by('-created')
+
+    def pdffiles(self):
+        return EbookFile.objects.filter(edition__work=self, format='pdf').order_by('-created')
 
     def make_ebooks_from_ebfs(self):
         if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
