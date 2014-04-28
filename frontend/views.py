@@ -2746,6 +2746,7 @@ class DownloadView(PurchaseView):
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
             'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
+            'testmode': self.request.REQUEST.has_key('testmode'),
         })
         return context
 
