@@ -665,6 +665,7 @@ def manage_campaign(request, id, action='manage'):
                 form.save() 
                 campaign.dollar_per_day = None
                 campaign.set_dollar_per_day()
+                campaign.work.selected_edition=campaign.edition
                 if campaign.type in {BUY2UNGLUE,THANKS} :
                     offers= campaign.work.create_offers()
                     for offer in offers:
@@ -672,7 +673,7 @@ def manage_campaign(request, id, action='manage'):
                 campaign.update_left()
                 if campaign.type is THANKS :
                     campaign.work.description = form.cleaned_data['work_description']
-                    campaign.work.save()
+                campaign.work.save()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
             else:
