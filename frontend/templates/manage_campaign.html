@@ -11,6 +11,7 @@ textarea {
 }
 </style>
 <link type="text/css" rel="stylesheet" href="/static/css/manage_campaign.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/campaign2.css" />
 
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 
@@ -114,62 +115,65 @@ Please fix the following before launching your campaign:
 
 <div class="tabs-1">
     
+<form action="#" method="POST">
+	{% csrf_token %}
+	{{ form.media }}
+	<h3>Edit the editions (if needed)</h3>
+    {% if campaign.rh.can_sell %}
+        {% if campaign.work.ebookfiles.0 %}
+            <p>You have uploaded ebook files for this work. </p>
+        {% else %}
+            {% ifequal work.last_campaign.type 2 %}
+                <p> To sell ebooks as part of a buy to unglue campaign, you will need to upload an EPUB file for the ebook you want to sell. </p>
+            {% endifequal %}
+            {% ifequal work.last_campaign.type 3 %}
+                <p> To distribute ebooks as part of a thanks for ungluing campaign, you will need to upload the ebook files to unglue.it. </p>
+            {% endifequal %}
+        {% endif %}
+    {% endif %}
+	<p> Please choose the edition that most closely matches the edition to be unglued.  This is the edition whose cover image will display on your book's page.  Your unglued edition should be identical to this edition if possible; you should note any differences under Rights Details below.</p>
+    
+    {{ form.edition.errors }}
+    {% for edition in campaign.work.editions.all %}
+        <div class="edition_form" id="edition_{{edition.id}}">
+        <p> Edition {{ edition.id }}:  <input type="radio" {% ifequal edition.id campaign.edition.id %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /><label for="id_edition_{{forloop.counter}}"> Prefer this edition </label>
+        <ul style="text-indent:1em">
+        <li style="text-indent:2.5em"><a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> this edition</li>
+        {% ifnotequal campaign.type 1 %}
+        {% if campaign.rh.can_sell %}
+            {% if edition.ebook_files.all.0 %}
+                <li style="text-indent:2.5em">You have uploaded ebook files for this edition. <a href="{% url edition_uploads edition.id %}"> Upload another</a></li>
+            {% else %}
+                <li style="text-indent:2.5em">You can <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.</li>
+            {% endif %}
+        {% endif %}
+        {% endifnotequal %}
+        </ul>
+        </p>
+        {% with managing='True' %}{% include "edition_display.html" %}{% endwith %}
+        </div>
+    {% endfor %}
+	
+		
+	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
+    {% if campaign.work.ebookfiles.0 %}
+        <h3>Uploaded Files</h3>
+    {% endif %}
     {% if campaign.work.epubfiles.0 %}
-        <p> <b>An EPUB file has been loaded.</b> </p>
-        <p>Active file: <a href="{{campaign.work.epubfiles.0.file.url}}">{{campaign.work.epubfiles.0.file}}</a> created {{campaign.work.epubfiles.0.created}} </p>
+        <p>Active EPUB file: <a href="{{campaign.work.epubfiles.0.file.url}}">{{campaign.work.epubfiles.0.file}}</a> <br />created {{campaign.work.epubfiles.0.created}} for edition <a href="#edition_{{campaign.work.epubfiles.0.edition.id}}">{{campaign.work.epubfiles.0.edition.id}}</a> </p>
         {% if campaign.work.test_acqs.0 %}
             <ul> 
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_epub}}">Processed epub for testing</a></li>
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_mobi}}">Processed mobi (kindle) for testing</a></li>
             </ul>
         {% endif %}
-        <p>Edition: <i>{{ campaign.work.epubfiles.0.edition }}</i> </p>
     {% endif %}
     {% if campaign.work.mobifiles.0 %}
-        <p> <b>A MOBI file (Kindle) has been loaded.</b> </p>
-        <p>Active file: <a href="{{campaign.work.mobifiles.0.file.url}}">{{campaign.work.mobifiles.0.file}}</a> created {{campaign.work.mobifiles.0.created}} </p>
-        <p>Edition: <i>{{ campaign.work.mobifiles.0.edition }}</i> </p>
+        <p>Active MOBI file: <a href="{{campaign.work.mobifiles.0.file.url}}">{{campaign.work.mobifiles.0.file}}</a> <br />created {{campaign.work.mobifiles.0.created}}  for edition <a href="#edition_{{campaign.work.mobifiles.0.edition.id}}">{{campaign.work.mobifiles.0.edition.id}}</a> </p>
     {% endif %}
     {% if campaign.work.pdffiles.0 %}
-        <p> <b>A PDF file has been loaded.</b> </p>
-        <p>Active file: <a href="{{campaign.work.pdffiles.0.file.url}}">{{campaign.work.pdffiles.0.file}}</a> created {{campaign.work.pdffiles.0.created}} </p>
-        <p>Edition: <i>{{ campaign.work.pdffiles.0.edition }}</i> </p>
+        <p>Active PDF file: <a href="{{campaign.work.pdffiles.0.file.url}}">{{campaign.work.pdffiles.0.file}}</a> <br />created {{campaign.work.pdffiles.0.created}}  for edition <a href="#edition_{{campaign.work.pdffiles.0.edition.id}}">{{campaign.work.pdffiles.0.edition.id}}</a> </p>
     {% endif %}
-<form action="#" method="POST">
-	{% csrf_token %}
-	{{ form.media }}
-	<h3>Edit the editions (if needed)</h3>
-    {% if campaign.rh.can_sell %}
-        {% ifequal work.last_campaign.type 2 %}
-            <p> To sell ebooks as part of a buy to unglue campaign, you will need to upload an EPUB file for the ebook you want to sell. </p>
-        {% endifequal %}
-        {% ifequal work.last_campaign.type 3 %}
-            <p> To distribute ebooks as part of a thanks for ungluing campaign, you will need to upload the ebook files to unglue.it. </p>
-        {% endifequal %}
-    {% endif %}
-	<p> Please choose the edition that most closely matches the edition to be unglued.  This is the edition whose cover image will display on your book's page.  Your unglued edition should be identical to this edition if possible; you should note any differences under Rights Details below.</p>
-    <div class="std_form">
-    <ul>
-    {{ form.edition.errors }}
-    {% for edition in campaign.work.editions.all %}
-    <li>Edition: <label for="id_edition_{{forloop.counter}}"> {{ edition }}</label>
-        <ul style="text-indent:1em">
-        <li> <input type="radio" {% ifequal edition.id work.preferred_edition.id %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /> Use this edition </li>
-        <li style="text-indent:2.5em"><a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> this edition</li>
-        {% ifnotequal campaign.type 1 %}
-        {% if campaign.rh.can_sell %}
-            <li style="text-indent:2.5em">You can <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.</li>
-        {% endif %}
-        {% endifnotequal %}
-        </ul>
-    </li>
-    {% endfor %}
-    </ul>
-	</div>
-	
-	<p>If the details of the edition you've chosen aren't accurate, you can <a href="{% url rh_edition work.id work.preferred_edition.id %}">edit the edition</a>.</p>
-	
-	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url rh_edition work.id '' %}">create a new edition</a>.</p>
 {% ifnotequal campaign_status 'ACTIVE' %}
     {% ifnotequal campaign.type 3 %}
         <h3>License being offered</h3>
@@ -228,7 +232,11 @@ Please fix the following before launching your campaign:
 	{% endifequal %}
 {% else %}
 	<h3>License being offered</h3>
+	{% ifnotequal campaign.type 3 %}
 	<p>If your campaign succeeds, you will be offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
+	{% else %}
+	<p>You are offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
+	{% endifnotequal %}
 	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
 	<div>
 	{{ form.license.errors }}<span>{{ form.license }}</span>
