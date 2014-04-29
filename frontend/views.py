@@ -290,7 +290,6 @@ def home(request, landing=False):
         request,
         'home.html', 
         {
-            'suppress_search_box': True, 
             'events': events, 
             'top_campaigns': top_campaigns, 
             'coming_soon': coming_soon,

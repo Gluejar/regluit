@@ -107,22 +107,6 @@ function put_un_in_cookie2(){
                 </div>
                 <div class="spacer"></div>
         	
-                <div class="js-main-container-inner">
-                    <div id="js-maincontainer-bot-block">
-                        <div id="js-search">
-                            <label>What book do you want to be free? </label>
-                                <form action="{% url search %}" method="get">
-                                    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-                                    <input type="submit" class="greenbutton" value="Search">
-                                </form>
-                        </div>
-                    </div>
-                    <div id="js-maincontainer-faq">
-                        <div class="js-maincontainer-faq-inner">
-                            Questions? Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">Author/Publisher FAQ</a>.
-                        </div>
-                    </div>
-                </div>
             </div>
             <div id="js-rightcol">
             <div class="js-rightcol-padd">
@@ -224,6 +208,12 @@ function put_un_in_cookie2(){
                             </li>
                         {% endfor %}
                         </ul>
+                    </div>
+                </div>
+                <div class="jsmodule">
+                <h3 class="module-title">Questions?</h3>
+                    <div id="jsmod-content">
+                             Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">Author/Publisher FAQ</a>.
                     </div>
                 </div>
             </div>
