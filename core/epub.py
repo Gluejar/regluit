@@ -12,9 +12,10 @@ def personalize(epub_file, acq):
     part = StringIO(unicode(render_to_string('epub/datedcc_license.xhtml', context)))
     output.addpart(part, "datedcc_license.xhtml", "application/xhtml+xml", 1) #after title, we hope
     output.addmetadata('rights','%s after %s'%(acq.work.last_campaign().license_url,acq.work.last_campaign().cc_date))
-    output.close()
-    #output.writetodisk('testfile2.epub')
-    return output
+    personalized_epub= StringIO()
+    output.writetodisk(personalized_epub)
+    #logger.info("personalized")
+    return personalized_epub
     
         
 def ungluify(epub_file, campaign):
@@ -24,7 +25,6 @@ def ungluify(epub_file, campaign):
     output.addpart(part, "cc_license.xhtml", "application/xhtml+xml", 1) #after title, we hope
     output.addmetadata('rights', campaign.license_url)
     output.close()
-    #output.writetodisk('testfile3.epub')
     return output
 
 from regluit.booxtream import BooXtream

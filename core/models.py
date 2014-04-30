@@ -340,15 +340,15 @@ class Acq(models.Model):
                 'expirydays': 1,
                 'downloadlimit': 7,
                 'exlibris':0,
-                'chapterfooter': 1 if do_watermark else 0,
+                'chapterfooter':  0,
                 'disclaimer':0,
                 'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id) if do_watermark else 'N/A',
                 'kf8mobi': True,
                 'epub': True,
                 }
             personalized = personalize(self.work.epubfiles()[0].file, self)
-            personalized.filename.seek(0)
-            self.watermarked = watermarker.platform(epubfile= personalized.filename, **params)
+            personalized.seek(0)
+            self.watermarked = watermarker.platform(epubfile= personalized, **params)
             self.save()
         return self.watermarked
         
