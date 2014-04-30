@@ -159,6 +159,7 @@ $j(document).ready(function() {
             </div>
         {% endif %}
         {% if acq %}
+            {% ifequal work.last_campaign.type 2 %}
             <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
             <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
@@ -167,7 +168,7 @@ $j(document).ready(function() {
                     <a href="{{ formats.mobi }}"><img src="/static/images/mobi32.png" height="32" alt="mobi" title="mobi" /></a>
                     <a href="{{ formats.mobi }}">MOBI</a> (for Kindle)
             </div>
-        
+            {% endifequal %}
         {% endif %}
     {% else %}
         <div class="border">
