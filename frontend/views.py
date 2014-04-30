@@ -290,7 +290,6 @@ def home(request, landing=False):
         request,
         'home.html', 
         {
-            'suppress_search_box': True, 
             'events': events, 
             'top_campaigns': top_campaigns, 
             'coming_soon': coming_soon,
@@ -943,6 +942,12 @@ class CampaignListView(FilterableListView):
             return models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
         elif (facet == 'soon'):
             return models.Campaign.objects.filter(status='INITIALIZED').order_by('-work__num_wishes')
+        elif (facet == 'b2u'):
+            return models.Campaign.objects.filter(status='ACTIVE', type=BUY2UNGLUE).annotate(pledges=Count('transaction')).order_by('-pledges')
+        elif (facet == 't4u'):
+            return models.Campaign.objects.filter(status='ACTIVE', type=THANKS).annotate(pledges=Count('transaction')).order_by('-pledges')
+        elif (facet == 'pledge'):
+            return models.Campaign.objects.filter(status='ACTIVE', type=REWARDS).annotate(pledges=Count('transaction')).order_by('-pledges')
         else:
             return models.Campaign.objects.all()
 
@@ -950,7 +955,16 @@ class CampaignListView(FilterableListView):
             context = super(CampaignListView, self).get_context_data(**kwargs)
             qs=self.get_queryset()
             context['ungluers'] = userlists.campaign_list_users(qs,5)
-            context['facet'] =self.kwargs['facet']
+            facet = self.kwargs['facet']
+            context['facet'] =facet
+            if facet == 'b2u':
+                context['facet_label'] = "Buy to Unglue"
+            elif facet == 't4u':
+                context['facet_label'] = "Thanks for Ungluing"
+            elif facet == 'pledge':
+                context['facet_label'] = "Pledge to Unglue"
+            else:
+                context['facet_label'] = "Active"
             return context
 
 class MergeView(FormView):
