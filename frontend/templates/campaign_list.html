@@ -28,10 +28,15 @@ location.hash = "#2";
                     <div class="js-topnews3">
                         <div class="user-block">
                             <div id="user-block1">
-                            	<div id="block-intro-text"><span class="special-user-name">Active Campaigns</span></div>
+                            	<div id="block-intro-text"><span class="special-user-name">{{ facet_label }} Campaigns</span></div>
                             </div>
-                            <div class="user-block2">With your help we're raising money to make these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books free to the world.
-                            </div>
+                            <div class="user-block2">
+                                {% ifequal facet "t4u" %}
+                                Thank the creators for making these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books free to the world.
+                                {% else %}
+                                With your help we're raising money to make these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books free to the world.
+                                {% endifequal %}
+                           </div>
                             <div class="user-block3">
                             </div>
                         </div>
@@ -72,7 +77,7 @@ location.hash = "#2";
                 </div>
                 <div id="content-block-content">
                     {% ifequal campaign_list.count 0 %}
-                    There aren't any {{ pub_lang|ez_lang_name }} ungluing campaigns active right now.  If you're an author, publisher, or other rights holder, you can <a href="/faq/rightsholders">start one</a>.
+                    There aren't any {{ facet_label }}{{ pub_lang|ez_lang_name }} ungluing campaigns right now.  If you're an author, publisher, or other rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
                     {% lazy_paginate 20 campaign_list using "campaign_list" %}
 
