@@ -498,6 +498,8 @@ def new_edition(request, work_id, edition_id, by=None):
     elif work and work.last_campaign():
         if request.user in work.last_campaign().managers.all():
             admin = True
+    elif work==None and request.user.rights_holder.count():
+        admin = True
     if edition_id:
         try:
             edition = models.Edition.objects.get(id = edition_id)

@@ -17,7 +17,9 @@
     <h2>Create New Edition</h2>
     {% endif %}
 {% else %}
+    {% if edition.pk %}
     <h2>Add Ebook Links for <a href="{% url work edition.work.id %}">{{ edition.work }}</a></h2>
+    {% endif %}
 {% endif %}
 
 {% if admin %}
