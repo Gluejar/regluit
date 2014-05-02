@@ -40,6 +40,7 @@ from regluit.core.signals import (
     unsuccessful_campaign,
     wishlist_added
 )
+
 from regluit.utils import crypto
 from regluit.utils.localdatetime import now, date_today
 
@@ -1863,12 +1864,8 @@ class UserProfile(models.Model):
         if "@example.org" in self.user.email:
             # use @example.org email addresses for testing!
             return True
-        try:
-            if not self.on_ml:
-                return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email, **kwargs)
-        except Exception, e:
-            logger.error("error subscribing to mailchimp list %s" % (e))
-            return False
+        from regluit.core.tasks import ml_subscribe_task
+        ml_subscribe_task.delay(self, **kwargs)
 
     def ml_unsubscribe(self):
         if "@example.org" in self.user.email:

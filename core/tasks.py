@@ -150,5 +150,15 @@ def refresh_acqs():
             break
         else:
             acq.refreshed = True
-        
-    
+
+from postmonkey import PostMonkey, MailChimpException
+pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+
+@task
+def ml_subscribe_task(profile, **kwargs):
+    try:
+        if not profile.on_ml:
+            return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=profile.user.email, **kwargs)
+    except Exception, e:
+        logger.error("error subscribing to mailchimp list %s" % (e))
+        return False
