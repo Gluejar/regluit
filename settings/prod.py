@@ -165,4 +165,7 @@ try:
     from regluit.settings.local import *
 except ImportError:
     pass
-    
+
+BOOXTREAM_API_KEY = '987n76Zsc4hj9jUvfctxezZQZ2vnhm'
+BOOXTREAM_API_USER = 'unglueprod'
+
