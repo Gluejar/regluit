@@ -1308,8 +1308,10 @@ class FundView(FormView):
 
         if self.transaction.campaign.type == THANKS and self.transaction.user == None:
             #anonymous user, just charge the card!
+            if self.request.user.is_authenticated():
+                self.transaction.user = self.request.user
             # if there's an email address, put it in the receipt column, so far unused.
-            self.transaction.receipt = form.cleaned_data["email"]
+            self.transaction.receipt = form.cleaned_data.get("email",None)
             t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token )
         elif self.request.user.is_anonymous():
             #somehow the user lost their login
@@ -1524,11 +1526,11 @@ class FundCompleteView(TemplateView):
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
         if transaction.user is not None and (campaign is not None) and (work is not None):
             transaction.user.wishlist.add_work(work, 'pledging', notify=True)
-        else:
-            #put info into session for download page to pick up.
-            self.request.session['amount']= transaction.amount
-            if transaction.receipt:
-                self.request.session['receipt']= transaction.receipt
+
+        #put info into session for download page to pick up.
+        self.request.session['amount']= transaction.amount
+        if transaction.receipt:
+            self.request.session['receipt']= transaction.receipt
                 
             
         context["transaction"] = transaction
@@ -2699,6 +2701,10 @@ class DownloadView(PurchaseView):
             all_acqs=request.user.acqs.filter(work=work).order_by('-created')
             for an_acq in all_acqs:
                 if not an_acq.expired:
+                    # skip for THANKS
+                    if an_acq.license == THANKED:
+                        acq = None
+                        break
                     # prepare this acq for download
                     if not an_acq.watermarked or an_acq.watermarked.expired:
                         if not an_acq.on_reserve:
@@ -2923,11 +2929,20 @@ def send_to_kindle(request, work_id, javascript='0'):
     work=safe_get_work(work_id)
     context= {'work':work}
     acq = None
-    if request.user.is_authenticated():
-        try:
-            acq = request.user.acqs.filter(work=work).order_by('-created')[0]
-        except IndexError:
-            acq = None
+    if request.user.is_authenticated(): 
+        all_acqs=request.user.acqs.filter(work=work).order_by('-created')
+        for an_acq in all_acqs:
+            if not an_acq.expired:
+                # skip for THANKS
+                if an_acq.license == THANKED:
+                    acq = None
+                    break
+                # prepare this acq for download
+                if not an_acq.watermarked or an_acq.watermarked.expired:
+                    if not an_acq.on_reserve:
+                        watermark_acq.delay(an_acq)
+                acq = an_acq
+                break
     
     if acq:
         ebook_url = acq.get_mobi_url()
