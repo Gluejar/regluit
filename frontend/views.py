@@ -1308,8 +1308,10 @@ class FundView(FormView):
 
         if self.transaction.campaign.type == THANKS and self.transaction.user == None:
             #anonymous user, just charge the card!
+            if self.request.user.is_authenticated():
+                self.transaction.user = self.request.user
             # if there's an email address, put it in the receipt column, so far unused.
-            self.transaction.receipt = form.cleaned_data["email"]
+            self.transaction.receipt = form.cleaned_data.get("email",None)
             t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token )
         elif self.request.user.is_anonymous():
             #somehow the user lost their login
