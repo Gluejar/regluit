@@ -2929,11 +2929,20 @@ def send_to_kindle(request, work_id, javascript='0'):
     work=safe_get_work(work_id)
     context= {'work':work}
     acq = None
-    if request.user.is_authenticated():
-        try:
-            acq = request.user.acqs.filter(work=work).order_by('-created')[0]
-        except IndexError:
-            acq = None
+    if request.user.is_authenticated(): 
+        all_acqs=request.user.acqs.filter(work=work).order_by('-created')
+        for an_acq in all_acqs:
+            if not an_acq.expired:
+                # skip for THANKS
+                if an_acq.license == THANKED:
+                    acq = None
+                    break
+                # prepare this acq for download
+                if not an_acq.watermarked or an_acq.watermarked.expired:
+                    if not an_acq.on_reserve:
+                        watermark_acq.delay(an_acq)
+                acq = an_acq
+                break
     
     if acq:
         ebook_url = acq.get_mobi_url()
