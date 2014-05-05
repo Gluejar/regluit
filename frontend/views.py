@@ -1524,11 +1524,11 @@ class FundCompleteView(TemplateView):
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
         if transaction.user is not None and (campaign is not None) and (work is not None):
             transaction.user.wishlist.add_work(work, 'pledging', notify=True)
-        else:
-            #put info into session for download page to pick up.
-            self.request.session['amount']= transaction.amount
-            if transaction.receipt:
-                self.request.session['receipt']= transaction.receipt
+
+        #put info into session for download page to pick up.
+        self.request.session['amount']= transaction.amount
+        if transaction.receipt:
+            self.request.session['receipt']= transaction.receipt
                 
             
         context["transaction"] = transaction
