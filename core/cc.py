@@ -33,7 +33,7 @@ class CCLicense():
     @staticmethod
     def url(license):
         if license in LICENSE_LIST_ALL:
-            return GRANTS[LICENSE_LIST_ALL.index(license)]
+            return INFO_ALL[LICENSE_LIST_ALL.index(license)][3]
         else:
             return ''
 
