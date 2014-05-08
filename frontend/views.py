@@ -71,6 +71,7 @@ from regluit.core import (
     goodreads,
     ungluify_record
 )
+import regluit.core.cc as cc
 from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
@@ -231,7 +232,7 @@ def home(request, landing=False):
     
     cc_books = models.Work.objects.filter(
                                           editions__ebooks__isnull=False,
-                                          editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                          editions__ebooks__rights__in=cc.LICENSE_LIST
                                          ).distinct().order_by('-created')[:4]
 
     """
@@ -875,17 +876,30 @@ class ByPubListView(ByPubView):
 class CCListView(FilterableListView):
     template_name = "cc_list.html"
     context_object_name = "work_list"
+    licenses = cc.LICENSE_LIST
+    facets = cc.FACET_LIST
 
     def get_queryset_all(self):
-        return models.Work.objects.filter(
+        facet = self.kwargs.get('facet','')
+        if facet in self.facets:
+            return models.Work.objects.filter(
                                           editions__ebooks__isnull=False,
-                                          editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                          editions__ebooks__rights=self.licenses[self.facets.index(facet)]
                                          ).distinct().order_by('-created')
+        else:
+            return models.Work.objects.filter( editions__ebooks__isnull=False, 
+                                                editions__ebooks__rights__in=self.licenses
+                                                ).distinct().order_by('-created')
+
     def get_context_data(self, **kwargs):
         context = super(CCListView, self).get_context_data(**kwargs)
+        facet = self.kwargs.get('facet','')
         qs=self.get_queryset()
         context['ungluers'] = userlists.work_list_users(qs,5)
         context['activetab'] = "#1"
+        context['facet'] = facet
+        context['aspect'] = 'cc'
+        context['license'] = self.licenses[self.facets.index(facet)] if facet in self.facets else ''
         return context
 
 class UngluedListView(FilterableListView):
@@ -900,7 +914,7 @@ class UngluedListView(FilterableListView):
             # assumes all ebooks have a PD or CC license. compare rights_badge property
             return models.Work.objects.filter(
                                               editions__ebooks__isnull=False,
-                                              editions__ebooks__rights__in=['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']
+                                              editions__ebooks__rights__in=cc.LICENSE_LIST
                                              ).exclude(campaigns__status="SUCCESSFUL").distinct().order_by('-num_wishes')
         elif (facet == 'pd' or facet == 'publicdomain'):
             return models.Work.objects.filter(

@@ -78,6 +78,7 @@ urlpatterns = patterns(
     url(r"^bypub/(?P<facet>\w*)/(?P<pubname>.*)$", ByPubListView.as_view(),  name='bypub_list'),
     url(r"^unglued/(?P<facet>\w*)$", UngluedListView.as_view(),  name='unglued_list'),
     url(r"^creativecommons/$", CCListView.as_view(),  name='cc_list'),
+    url(r"^creativecommons/(?P<facet>[\w\-]*)$", CCListView.as_view(),  name='cc_list_detail'),
     url(r"^goodreads/auth/$", "goodreads_auth", name="goodreads_auth"),
     url(r"^goodreads/auth_cb/$", "goodreads_cb", name="goodreads_cb"),
     url(r"^goodreads/flush/$","goodreads_flush_assoc", name="goodreads_flush_assoc"),
