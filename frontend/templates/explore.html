@@ -26,13 +26,13 @@
                                 <li class="last"><a href="{% url cc_list%}">Latest Creative Commons</a></li>
                                 {% ifequal aspect 'cc' %}
                                 <ul class="menu level3">
-                                    <li class="first"><a href="{% url cc_list_detail 'by' %}"><span>CC BY</span></a></li>
-                                    <li><a href="{% url cc_list_detail 'by-nc-nd' %}"><span>CC BY-NC-ND</span></a></li>
-                                    <li><a href="{% url cc_list_detail 'by-nc-sa' %}"><span>CC BY-NC-SA</span></a></li>
-                                    <li><a href="{% url cc_list_detail 'by-nc' %}"><span>CC BY-NC</span></a></li>
-                                    <li><a href="{% url cc_list_detail 'by-sa' %}"><span>CC BY-SA</span></a></li>
-                                    <li><a href="{% url cc_list_detail 'by-nd' %}"><span>CC BY-ND</span></a></li>
-                                    <li><a href="{% url cc_list_detail 'cc0' %}"><span>CC0</span></a></li>
+                                    <li class="first"><a href="{% url cc_list_detail 'by' %}"><span{% ifequal facet 'by' %} style="font-weight: bold;"{% endifequal %}>CC BY</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nc-nd' %}"><span{% ifequal facet 'by-nc-nd' %} style="font-weight: bold;"{% endifequal %}>CC BY-NC-ND</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nc-sa' %}"><span{% ifequal facet 'by-nc-sa' %} style="font-weight: bold;"{% endifequal %}>CC BY-NC-SA</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nc' %}"><span{% ifequal facet 'by-nc' %} style="font-weight: bold;"{% endifequal %}>CC BY-NC</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-sa' %}"><span{% ifequal facet 'by-sa' %} style="font-weight: bold;"{% endifequal %}>CC BY-SA</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nd' %}"><span{% ifequal facet 'by-nd' %} style="font-weight: bold;"{% endifequal %}>CC BY-ND</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'cc0' %}"><span{% ifequal facet 'cc0' %} style="font-weight: bold;"{% endifequal %}>CC0</span></a></li>
                                 </ul>
                                 {% endifequal %}
                             {% if pubname %}
