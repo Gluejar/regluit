@@ -882,10 +882,15 @@ class CCListView(FilterableListView):
     def get_queryset_all(self):
         facet = self.kwargs.get('facet','')
         if facet in self.facets:
-            return models.Work.objects.filter(
+            ccworks = models.Work.objects.filter(
                                           editions__ebooks__isnull=False,
                                           editions__ebooks__rights=self.licenses[self.facets.index(facet)]
-                                         ).distinct().order_by('-created')
+                                         )
+            notyet = models.Work.objects.filter(
+                                          campaigns__status="ACTIVE",
+                                          campaigns__license=self.licenses[self.facets.index(facet)]
+                                         )
+            return (notyet | ccworks).distinct().order_by('-created')
         else:
             return models.Work.objects.filter( editions__ebooks__isnull=False, 
                                                 editions__ebooks__rights__in=self.licenses
@@ -897,6 +902,7 @@ class CCListView(FilterableListView):
         qs=self.get_queryset()
         context['ungluers'] = userlists.work_list_users(qs,5)
         context['activetab'] = "#1"
+        context['tab_override'] = 'tabs-1'
         context['facet'] = facet
         context['aspect'] = 'cc'
         context['license'] = self.licenses[self.facets.index(facet)] if facet in self.facets else ''
