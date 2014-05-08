@@ -57,3 +57,44 @@ class CCLicense():
             return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
         else:
             return ''
+
+def description(license):
+        if license == 'PD-US':
+            return 'Use of this material is not restricted by copyright in the US.'
+        elif license == 'CC0':
+            return 'The copyright owner has dedicated the material to the public domain by waiving all of his or her rights to the work worldwide under copyright law, including all related and neighboring rights, to the extent allowed by law. You can copy, modify, distribute and perform the work, even for commercial purposes, all without asking permission.'
+        elif license == 'CC BY':
+            return 'You are free to: copy and redistribute the material in any medium or format; remix, transform, and build upon the material; for any purpose, even commercially. Under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.'
+        elif license == 'CC BY-NC-ND':
+            return 'You are free to: copy and redistribute the material in any medium or format; under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.; you may not use the material for commercial purposes; if you remix, transform, or build upon the material, you may not distribute the modified material.'
+        elif license == 'CC BY-NC-SA':
+            return 'You are free to: copy and redistribute the material in any medium or format; remix, transform, and build upon the material; Under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. You may not use the material for commercial purposes. If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.'
+        elif license == 'CC BY-NC':
+            return 'You are free to: copy and redistribute the material in any medium or format; remix, transform, and build upon the material; under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. You may not use the material for commercial purposes.'
+        elif license == 'CC BY-SA':
+            return 'You are free to: copy and redistribute the material in any medium or format; remix, transform, and build upon the material; for any purpose, even commercially. Under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original.'
+        elif license == 'CC BY-ND':
+            return 'You are free to: copy and redistribute the material in any medium or format; for any purpose, even commercially. Under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. If you remix, transform, or build upon the material, you may not distribute the modified material.'
+        else:
+            return ''
+
+class ccinfo():
+    def __init__(self, license):
+        self.license=license
+    
+    @property
+    def description(self):
+        return description(self.license)
+    @property
+    def badge(self):
+        return CCLicense.badge(self.license)
+    @property
+    def url(self):
+        return CCLicense.url(self.license)
+    @property
+    def title(self):
+        if license in LICENSE_LIST_ALL:
+            return INFO_ALL[LICENSE_LIST_ALL.index(license)][2]
+        else:
+            return ''
+    

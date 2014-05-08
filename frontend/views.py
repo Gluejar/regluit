@@ -900,6 +900,7 @@ class CCListView(FilterableListView):
         context['facet'] = facet
         context['aspect'] = 'cc'
         context['license'] = self.licenses[self.facets.index(facet)] if facet in self.facets else ''
+        context['cc'] = cc.ccinfo(context['license'])
         return context
 
 class UngluedListView(FilterableListView):
