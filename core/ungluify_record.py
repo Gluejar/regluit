@@ -15,6 +15,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.urlresolvers import reverse
 
+import regluit.core.cc as cc
 from regluit.core import models
 
 def makemarc(marcfile,  edition):
@@ -145,7 +146,7 @@ def makemarc(marcfile,  edition):
         if edition.unglued:
             funding_info = 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
         else:
-            if edition.ebooks.all()[0].rights in ['CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA']:
+            if edition.ebooks.all()[0].rights in cc.LICENSE_LIST:
                 funding_info = 'The book is available as a free download thanks to a Creative Commons license.'
             else:
                 funding_info = 'The book is available as a free download because it is in the Public Domain.'
@@ -163,8 +164,8 @@ def makemarc(marcfile,  edition):
             tag='540',
             indicators = [' ', ' '],
             subfields = [
-                'a', dict(settings.CHOICES)[license],
-                'u', dict(settings.GRANTS)[license], 
+                'a', dict(cc.CHOICES)[license],
+                'u', dict(cc.GRANTS)[license], 
             ]
         )
         record.add_ordered_field(field540)

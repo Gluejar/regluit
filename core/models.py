@@ -33,6 +33,7 @@ regluit imports
 '''
 import regluit
 import regluit.core.isbn
+import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub
 
 from regluit.core.signals import (
@@ -219,52 +220,6 @@ class CampaignAction(models.Model):
     type = models.CharField(max_length=15)
     comment = models.TextField(null=True, blank=True)
     campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
-
-class CCLicense():
-    CHOICES = settings.CHOICES
-    
-    @staticmethod
-    def url(license):
-        if license == 'PD-US':
-            return 'http://creativecommons.org/publicdomain/mark/1.0/'
-        elif license == 'CC0':
-            return 'http://creativecommons.org/publicdomain/zero/1.0/'
-        elif license == 'CC BY':
-            return 'http://creativecommons.org/licenses/by/3.0/'
-        elif license == 'CC BY-NC-ND':
-            return 'http://creativecommons.org/licenses/by-nc-nd/3.0/'
-        elif license == 'CC BY-NC-SA':
-            return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'
-        elif license == 'CC BY-NC':
-            return 'http://creativecommons.org/licenses/by-nc/3.0/'
-        elif license == 'CC BY-SA':
-            return 'http://creativecommons.org/licenses/by-sa/3.0/'
-        elif license == 'CC BY-ND':
-            return 'http://creativecommons.org/licenses/by-nd/3.0/'
-        else:
-            return ''
-    
-    @staticmethod
-    def badge(license):
-        if license == 'PD-US':
-            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
-        elif license == 'CC0':
-            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
-        elif license == 'CC BY':
-            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
-        elif license == 'CC BY-NC-ND':
-            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
-        elif license == 'CC BY-NC-SA':
-            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
-        elif license == 'CC BY-NC':
-            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
-        elif license == 'CC BY-SA':
-            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
-        elif license == 'CC BY-ND':
-            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
-        else:
-            return ''
-
     
 class Offer(models.Model):
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
@@ -419,7 +374,7 @@ class Hold(models.Model):
         return Hold.objects.filter(work=self.work,library=self.library,created__lt=self.created).count()
 
 class Campaign(models.Model):
-    LICENSE_CHOICES = settings.CCCHOICES
+    LICENSE_CHOICES = cc.CCCHOICES
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = RichTextField(null=True, blank=False)
@@ -879,11 +834,11 @@ class Campaign(models.Model):
     
     @property
     def license_url(self):
-        return CCLicense.url(self.license)
+        return cc.CCLicense.url(self.license)
 
     @property
     def license_badge(self):
-        return CCLicense.badge(self.license)
+        return cc.CCLicense.badge(self.license)
         
     @property
     def success_date(self):
@@ -1633,7 +1588,7 @@ class EbookFile(models.Model):
     
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
-    RIGHTS_CHOICES = settings.CCCHOICES
+    RIGHTS_CHOICES = cc.CCCHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
@@ -1652,8 +1607,8 @@ class Ebook(models.Model):
     @property
     def rights_badge(self):
         if self.rights is None :
-            return CCLicense.badge('PD-US')
-        return CCLicense.badge(self.rights)
+            return cc.CCLicense.badge('PD-US')
+        return cc.CCLicense.badge(self.rights)
     
     @staticmethod
     def infer_provider( url):
