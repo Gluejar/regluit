@@ -24,6 +24,17 @@
                                 <!--<li><a href="{% url work_list 'recommended' %}"><span>Noteworthy</span></a></li>-->
                                 <li><a href="{% url unglued_list '' %}"><span>Ready to Read</span></a></li>
                                 <li class="last"><a href="{% url cc_list%}">Latest Creative Commons</a></li>
+                                {% ifequal aspect 'cc' %}
+                                <ul class="menu level3">
+                                    <li class="first"><a href="{% url cc_list_detail 'by' %}"><span{% ifequal facet 'by' %} style="font-weight: bold;"{% endifequal %}>CC BY</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nc-nd' %}"><span{% ifequal facet 'by-nc-nd' %} style="font-weight: bold;"{% endifequal %}>CC BY-NC-ND</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nc-sa' %}"><span{% ifequal facet 'by-nc-sa' %} style="font-weight: bold;"{% endifequal %}>CC BY-NC-SA</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nc' %}"><span{% ifequal facet 'by-nc' %} style="font-weight: bold;"{% endifequal %}>CC BY-NC</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-sa' %}"><span{% ifequal facet 'by-sa' %} style="font-weight: bold;"{% endifequal %}>CC BY-SA</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'by-nd' %}"><span{% ifequal facet 'by-nd' %} style="font-weight: bold;"{% endifequal %}>CC BY-ND</span></a></li>
+                                    <li><a href="{% url cc_list_detail 'cc0' %}"><span{% ifequal facet 'cc0' %} style="font-weight: bold;"{% endifequal %}>CC0</span></a></li>
+                                </ul>
+                                {% endifequal %}
                             {% if pubname %}
                                 <li>{{ pubname }}...
                                 <ul class="menu level3">
@@ -37,7 +48,7 @@
                         {% if show_langs %}
                         <li class="parent">
                             <span class="show_langs">Languages...</span>
-                            <ul class="menu level2" id="lang_list">
+                            <ul class="menu level3" id="lang_list">
                                 <li class="first{% ifequal pub_lang '' %} active_lang{% endifequal %}"><a href="?">ALL</a></li>
                                 {% for wished_lang in WISHED_LANGS %}
                                 <li{% ifequal pub_lang wished_lang %} class="active_lang"{% endifequal %}><a href="?pub_lang={{wished_lang}}">{{wished_lang|ez_lang_name_local}}</a></li>

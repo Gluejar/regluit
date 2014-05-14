@@ -369,32 +369,6 @@ AWS_QUERYSTRING_AUTH = False
 MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
 MAILCHIMP_NEWS_ID = u'c5cce92fe1'
 
-# let's be DRY with these parameters
-# CCHOICES, CCGRANTS, and FORMATS are all used in places that expect tuples
-# CONTENT_TYPES will be easiest to manipulate in ungluify_record as a dict
-CCCHOICES = ( 
-    ('CC BY','Creative Commons Attribution 3.0 Unported (CC BY 3.0)'), 
-    ('CC BY-SA','Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)'),
-    ('CC BY-NC','Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)'),
-    ('CC BY-NC-SA','Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)'),
-    ('CC BY-NC-ND','Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)'), 
-    ('CC BY-ND','Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)'), 
-    ('CC0','No Rights Reserved (CC0)'),
-)
-CHOICES = CCCHOICES + (('PD-US', 'Public Domain, US'),)
-
-CCGRANTS = (
-    ('CC BY', 'http://creativecommons.org/licenses/by/3.0/'),
-    ('CC BY-SA', 'http://creativecommons.org/licenses/by-sa/3.0/'),
-    ('CC BY-NC', 'http://creativecommons.org/licenses/by-nc/3.0/'),
-    ('CC BY-NC-SA', 'http://creativecommons.org/licenses/by-nc-sa/3.0/'),
-    ('CC BY-NC-ND', 'http://creativecommons.org/licenses/by-nc-nd/3.0/'),
-    ('CC BY-ND', 'http://creativecommons.org/licenses/by-nd/3.0/'),        
-    ('CC0', 'http://creativecommons.org/about/cc0'),
-)
-GRANTS = CCGRANTS + (('PD-US', ''),)
-
-
 FORMATS = (
     ('pdf','PDF'),
     ('epub','EPUB'),

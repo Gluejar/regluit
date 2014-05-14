@@ -88,6 +88,10 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/marc/")
         self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/creativecommons/")
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/creativecommons/by")
+        self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
 
