@@ -410,7 +410,11 @@
                                         {% endif %}
                                         <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
                                         {% if work.first_ebook %}
-                                            <h4>Downloads</h4>
+                                            {% if not work.last_campaign %}
+                                                <h4 class="tabcontent-title">There is a {{ work.first_ebook.rights }}  free ebook for <i>{{work.title}}</i></h4>
+                                            {% else  %}
+                                                <h4>Downloads</h4>
+                                            {% endif %}
                                             <div class="pledged-info">
                                                 This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
                                             </div>
