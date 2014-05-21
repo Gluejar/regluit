@@ -104,7 +104,7 @@ $j(document).ready(function() {
                             </form>
                         </div>
                     {% else %}
-                        <div class="btn_support kindle">
+                        <div class="btn_support kindle {% if request.user.is_anonymous %}modify{% endif %}">
                             <a href="{% url kindle_config_download work.id %}">Set up Kindle </a>
                         </div>
                     {% endif %}
