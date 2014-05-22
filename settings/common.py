@@ -399,3 +399,6 @@ BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
 BOOXTREAM_API_USER = 'ungluetest'
 BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/raw/master/download/open_access_ebooks.epub'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
+
+DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
+#DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost

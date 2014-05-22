@@ -23,7 +23,7 @@ $j(document).ready(function() {
 
 		if ($j(this).attr("href").indexOf("download") !== -1) {
 		    jQuery.getScript('/static/js/download_page.js');
-            jQuery.getScript('https://platform.readmill.com/send.js');
+            jQuery.getScript('https://www.dropbox.com/static/api/2/dropins.js');
             var work_page = $j(this).attr("href").split("download")[0];
             $j.cookie('next', work_page, {path: '/'});
 		}
