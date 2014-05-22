@@ -784,7 +784,7 @@ class DownloadPageTest(TestCase):
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
         self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=10) 
-        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=4)
+        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=5)
 
 
 class LocaldatetimeTest(TestCase):
