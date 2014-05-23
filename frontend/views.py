@@ -2712,7 +2712,7 @@ class DownloadView(PurchaseView):
 
         unglued_ebooks = work.ebooks().filter(edition__unglued=True)
         other_ebooks = work.ebooks().filter(edition__unglued=False)
-        xfer_url = None
+        xfer_url = kindle_url = None
         acq=None
         formats = {}  # a dict of format name and url
         for ebook in work.ebooks().all():
