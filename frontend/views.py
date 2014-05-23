@@ -221,10 +221,10 @@ def home(request, landing=False):
     use campaigns instead of works so that we can order by amount left,
     drive interest toward most-nearly-successful
     """
-    top_campaigns = models.Campaign.objects.filter(status="ACTIVE").order_by('left')[:4]
-    coming_soon = []
-    if not top_campaigns:
-        coming_soon = models.Campaign.objects.filter(status="INITIALIZED").order_by('-work__num_wishes')[:4]
+    top_pledge = models.Campaign.objects.filter(status="ACTIVE",type=REWARDS).order_by('left')[:4]
+    top_b2u = models.Campaign.objects.filter(status="ACTIVE", type=BUY2UNGLUE).order_by('-work__num_wishes')[:4]
+    top_t4u = models.Campaign.objects.filter(status="ACTIVE",type=THANKS).order_by('-work__num_wishes')[:4]
+
     
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
@@ -292,8 +292,9 @@ def home(request, landing=False):
         'home.html', 
         {
             'events': events, 
-            'top_campaigns': top_campaigns, 
-            'coming_soon': coming_soon,
+            'top_pledge': top_pledge, 
+            'top_b2u': top_b2u, 
+            'top_t4u': top_t4u, 
             'unglued_books': unglued_books, 
             'cc_books': cc_books,
             'most_wished': most_wished,
@@ -945,7 +946,12 @@ class UngluedListView(FilterableListView):
         else:
             context['activetab'] = "#1"
         return context
-
+FACET_LABELS = {
+    'b2u': "Buy to Unglue",
+    't4u': "Thanks for Ungluing",
+    'pledge': "Pledge to Unglue",
+    'unglued': "Successful",
+}
 class CampaignListView(FilterableListView):
     template_name = "campaign_list.html"
     context_object_name = "campaign_list"
@@ -971,6 +977,8 @@ class CampaignListView(FilterableListView):
             return models.Campaign.objects.filter(status='ACTIVE', type=THANKS).annotate(pledges=Count('transaction')).order_by('-pledges')
         elif (facet == 'pledge'):
             return models.Campaign.objects.filter(status='ACTIVE', type=REWARDS).annotate(pledges=Count('transaction')).order_by('-pledges')
+        elif (facet == 'unglued'):
+            return models.Campaign.objects.filter(status='SUCCESSFUL').annotate(pledges=Count('transaction')).order_by('-pledges')
         else:
             return models.Campaign.objects.all()
 
@@ -980,14 +988,7 @@ class CampaignListView(FilterableListView):
             context['ungluers'] = userlists.campaign_list_users(qs,5)
             facet = self.kwargs['facet']
             context['facet'] =facet
-            if facet == 'b2u':
-                context['facet_label'] = "Buy to Unglue"
-            elif facet == 't4u':
-                context['facet_label'] = "Thanks for Ungluing"
-            elif facet == 'pledge':
-                context['facet_label'] = "Pledge to Unglue"
-            else:
-                context['facet_label'] = "Active"
+            context['facet_label'] = FACET_LABELS.get(facet, 'Active')
             return context
 
 class MergeView(FormView):

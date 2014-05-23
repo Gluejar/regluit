@@ -2,7 +2,7 @@
 {% load endless %}
 {% load lang_utils %}
 
-{% block title %} Active Campaigns {% endblock %}
+{% block title %} {{ facet_label }} Campaigns {% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
 <link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
@@ -31,11 +31,15 @@ location.hash = "#2";
                             	<div id="block-intro-text"><span class="special-user-name">{{ facet_label }} Campaigns</span></div>
                             </div>
                             <div class="user-block2">
-                                {% ifequal facet "t4u" %}
+                                {% ifequal facet "unglued" %}
+                                The support of ungluers like you helped make these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books free to the world.
+                                {% else %}{% ifequal facet "t4u" %}
                                 Thank the creators for making these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books free to the world.
+                                {% else %}{% ifequal facet "b2u" %}
+                                By purchasing copies of these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books, ungluers like you are helping to make them free to the world.
                                 {% else %}
                                 With your help we're raising money to make these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books free to the world.
-                                {% endifequal %}
+                                {% endifequal %}{% endifequal %}{% endifequal %}
                            </div>
                             <div class="user-block3">
                             </div>
