@@ -2712,7 +2712,7 @@ class DownloadView(PurchaseView):
 
         unglued_ebooks = work.ebooks().filter(edition__unglued=True)
         other_ebooks = work.ebooks().filter(edition__unglued=False)
-    
+        xfer_url = None
         acq=None
         formats = {}  # a dict of format name and url
         for ebook in work.ebooks().all():
@@ -2734,6 +2734,7 @@ class DownloadView(PurchaseView):
                     formats['epub']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
                     formats['mobi']= reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
                     xfer_url = settings.BASE_URL_SECURE + formats['epub']
+                    kindle_url = settings.BASE_URL_SECURE + formats['mobi']
                     can_kindle = True
                     break
             
@@ -2769,6 +2770,7 @@ class DownloadView(PurchaseView):
             'other_ebooks': other_ebooks,
             'formats': formats,
             'xfer_url': xfer_url,
+            'kindle_url': kindle_url,
             'dropbox_key': settings.DROPBOX_KEY,
             'can_kindle': can_kindle,
             'base_url': settings.BASE_URL_SECURE,
