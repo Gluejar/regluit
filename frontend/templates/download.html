@@ -169,11 +169,11 @@ $j(document).ready(function() {
             <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
                     <a href="{{ formats.epub }}">EPUB</a> (for iBooks, Nook, Kobo)
-                    <a class="dropbox-saver" href="{{ formats.epub }}" data-filename="unglueit-{{ work.id }}.epub"></a>
+                    <a class="dropbox-saver" href="{{ xfer_url }}" data-filename="unglueit-{{ work.id }}.epub"></a>
                     <br /><br />
                     <a href="{{ formats.mobi }}"><img src="/static/images/mobi32.png" height="32" alt="mobi" title="mobi" /></a>
                     <a href="{{ formats.mobi }}">MOBI</a> (for Kindle)
-                    <a class="dropbox-saver" href="{{ formats.mobi }}" data-filename="unglueit-{{ work.id }}.mobi"></a>
+                    <a class="dropbox-saver" href="{{ kindle_url }}" data-filename="unglueit-{{ work.id }}.mobi"></a>
             </div>
             {% endifequal %}
         {% endif %}
