@@ -8,7 +8,7 @@
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/embed.js"></script>
 <script type="text/javascript" src="/static/js/download_page.js"></script>
-
+<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" ></script>
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 $j(document).ready(function() {
@@ -139,7 +139,6 @@ $j(document).ready(function() {
                     <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> 
                     {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
                 
-            </p>
 
                     {% if not forloop.last %}<br /><br />{% endif %}
                 {% endfor %}		
@@ -399,7 +398,6 @@ $j(document).ready(function() {
 {% endif %}
 </div>
 </div>
-<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" ></script>
 {% endblock %}
 
 {% endwith %}
