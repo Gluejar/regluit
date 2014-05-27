@@ -7,6 +7,9 @@ $j(document).ready(function() {
 
    $j("#js-page-wrap, #footer").on("click", "a.hijax", function(event) {
         event.preventDefault();
+        var work_page = $j(this).attr("href").split("download")[0];
+        var isDownload =$j(this).attr("href").indexOf("download");
+        var vars = $j(this).attr("href").split("next=");
         
 		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
 		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
@@ -19,47 +22,46 @@ $j(document).ready(function() {
             // regardless of where on the page the user clicked to activate it
             var marginTop = window.pageYOffset;
             $j('#about_expandable').css({'margin-top': marginTop});
-		});
 
-		if ($j(this).attr("href").indexOf("download") !== -1) {
-		    $j.getScript('/static/js/download_page.js');
-            if(typeof(Dropbox) != "undefined"){
-                Dropbox._dropinsjs_loaded=false;
+            if (isDownload !== -1) {
+                $j.getScript('/static/js/download_page.js');
+                if(typeof(Dropbox) != "undefined"){
+                    Dropbox._dropinsjs_loaded=false;
+                }
+                $j.getScript('https://www.dropbox.com/static/api/2/dropins.js');
+                $j.cookie('next', work_page, {path: '/'});
             }
-            $j.getScript('https://www.dropbox.com/static/api/2/dropins.js');
-            var work_page = $j(this).attr("href").split("download")[0];
-            $j.cookie('next', work_page, {path: '/'});
-		}
-		else {		
-            //need to push next cookie for sign-in links
-            var vars = $j(this).attr("href").split("next=");
-            if (vars.length>1){
-                next=vars[1];
-                if(next!='') {
-                    next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
-                    $j.cookie('next', next, {path: '/'});
+            else {		
+                //need to push next cookie for sign-in links
+                
+                if (vars.length>1){
+                    next=vars[1];
+                    if(next!='') {
+                        next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
+                        $j.cookie('next', next, {path: '/'});
+                    }
                 }
             }
-		}
-		// fade-out rest of page elements on expand
-		$j('#feedback, #js-page-wrap, #footer').css({"opacity": "0.07"});
-		$j('#about_expandable').css({'position': 'absolute'});
-		$j('#about_expandable').fadeTo("slow", 1);
-		
-		// if we're on a supporter page, personalize our about box
-		// by writing the supporter's name in
-		if ($j(location).attr('pathname').slice(0,11) == '/supporter/') {
-		    var ungluer = $j(location).attr('pathname').slice(11, -1);
+            // fade-out rest of page elements on expand
+            $j('#feedback, #js-page-wrap, #footer').css({"opacity": "0.07"});
+            $j('#about_expandable').css({'position': 'absolute'});
+            $j('#about_expandable').fadeTo("slow", 1);
+        
+            // if we're on a supporter page, personalize our about box
+            // by writing the supporter's name in
+            if ($j(location).attr('pathname').slice(0,11) == '/supporter/') {
+                var ungluer = $j(location).attr('pathname').slice(11, -1);
 
-			if (ungluer != null) {
-				// span.ungluer doesn't exist until the ajax call so we
-				// can't bind to the DOM on document ready; need to use
-				// the ajaxComplete event
-				$j('#lightbox').ajaxComplete(function() {
-					$j('#lightbox span.ungluer').replaceWith(ungluer);
-				});
-			}
-		}
+                if (ungluer != null) {
+                    // span.ungluer doesn't exist until the ajax call so we
+                    // can't bind to the DOM on document ready; need to use
+                    // the ajaxComplete event
+                    $j('#lightbox').ajaxComplete(function() {
+                        $j('#lightbox span.ungluer').replaceWith(ungluer);
+                    });
+                }
+            }
+		});
 	});
 	
 	// fade-in normal page elements on collapse
