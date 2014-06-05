@@ -4,7 +4,7 @@ import json
 from itertools import islice
 
 import regluit
-from regluit.core import (models,tasks)
+from regluit.core import models
 from regluit.core.bookloader import add_by_isbn
 
 logger = logging.getLogger(__name__)
@@ -14,6 +14,8 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
     
     # can we find doab_id as an identifier? 
     # doab work or edition id
+    
+    from regluit.core import tasks
     
     try:
         work = models.Identifier.objects.get(type='doab',value=doab_id).work
@@ -68,8 +70,9 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
     
     return ebook
 
-def load_doab_records(fname, limit=None):
+def load_doab_records(fname, limit=None, async=True):
     
+    from regluit.core import (doab, tasks)
     success_count = 0
     
     records = json.load(open(fname))
@@ -78,7 +81,18 @@ def load_doab_records(fname, limit=None):
         d = dict(book)
         if d['format'] == 'pdf':
             try:
-                edition = load_doab_edition(**dict(book))
+                if async:
+                    task_id = tasks.load_doab_edition.delay(**dict(book))
+                    
+                    ct = models.CeleryTask()
+                    ct.task_id = task_id
+                    ct.function_name = "load_doab_edition"
+                    ct.user = None
+                    ct.description = "Loading DOAB %s " % (dict(book)['doab_id'])
+                    ct.save()
+                    
+                else:
+                    edition = load_doab_edition(**dict(book))
                 success_count += 1 
             except Exception, e:
                 logger.warning(e)
