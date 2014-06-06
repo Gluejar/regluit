@@ -984,7 +984,7 @@ class Identifier(models.Model):
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    language = models.CharField(max_length=2, default="en", null=False)
+    language = models.CharField(max_length=5, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
