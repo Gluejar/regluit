@@ -12,24 +12,41 @@ logger = logging.getLogger(__name__)
 def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, 
                       provider='Directory of Open Access Books'):
     
+    """associate a book from DOAB with an Edition"""
+    
+    # assumed data relationship:  a given DOAB id tied to 1 Work and 1 Edition (at most)
     # can we find doab_id as an identifier? 
     # doab work or edition id
     
     from regluit.core import tasks
     
+    # first step, see whether there is a Work with the doab_id.
+    
     try:
         work = models.Identifier.objects.get(type='doab',value=doab_id).work
-    except models.Identifier.DoesNotExist: # try to find an Edition with the seed_isbn and use that work to hang off of
+        
+    # if there is no such work, try to find an Edition with the seed_isbn and use that work to hang off of
+    
+    except models.Identifier.DoesNotExist: 
         sister_edition = add_by_isbn(seed_isbn)
-        if sister_edition.new:
-            # add related editions asynchronously
-            tasks.populate_edition.delay(sister_edition.isbn_13)
+        
+        if sister_edition is None:
+            raise Exception("No edition created for DOAB %s ISBN %s" % (doab_id, seed_isbn))
+        
+        # at this point, we should be able to grab the associated work
         work = sister_edition.work
-        # attach the olwk identifier to this work if it's not none.
-        if doab_id is not None:
-            work_id = models.Identifier.get_or_add(type='doab',value=doab_id, 
-                                                   work=work,
-                                                   edition=sister_edition)
+    
+        # if this is a new edition, then add related editions asynchronously
+        if getattr(sister_edition,'new', False):
+            tasks.populate_edition.delay(sister_edition.isbn_13)
+
+        # make sure the doab_id is attached to the work/sister_edition
+        doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
+                                               work=work,
+                                               edition=sister_edition)
+        
+    except models.Identifier.MultipleObjectsReturned, e:
+        raise e
 
     # Now pull out any existing DOAB editions tied to the work with the proper DOAB ID
     try:
@@ -42,21 +59,21 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
         edition.save()
         edition_id = models.Identifier.get_or_add(type='doab',value=doab_id, 
                                                   edition=edition, work=work)
+    except models.Identifier.MultipleObjectsReturned, e:
+         raise e
+        
         
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
-    
-    # format: what's the controlled vocab?  -- from Google -- alternative would be mimetype
-    
+       
     if len(ebooks):  
         ebook = ebooks[0]
     elif len(ebooks) == 0: # need to create new ebook
         ebook = models.Ebook()
 
     if len(ebooks) > 1:
-        warnings.warn("There is more than one Ebook matching url {0}".format(url))
-        
+        raise Exception("There is more than one Ebook matching url {0}".format(url))
         
     ebook.format = format
     ebook.provider = provider
