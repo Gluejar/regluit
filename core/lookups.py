@@ -11,14 +11,11 @@ class OwnerLookup(ModelLookup):
 class WorkLookup(ModelLookup):
     model = Work
     search_fields = ('title__istartswith',)
-    filters = {'language': 'en', }
     def get_item_label(self,item):
-        return "%s (%s)"%(item.title,item.id)
+        return "%s (%s, %s)"%(item.title,item.id,item.language)
         
     def get_query(self, request, term):
         results = super(WorkLookup, self).get_query(request, term)
-        language = request.GET.get('language', 'en')
-        results = results.filter(language=language)
         return results
 
 class PublisherNameLookup(ModelLookup):

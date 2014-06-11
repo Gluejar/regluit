@@ -171,9 +171,9 @@ def update_edition(edition):
 
     # check for language change
     language = d['language']
-    # don't track variants in main language (e.g., traditional vs simplified Chinese)
-    if len(language)>2:
-        language= language[0:2]
+    # allow variants in main language (e.g., 'zh-tw')
+    if len(language)>5:
+        language= language[0:5]
     
     # if the language of the edition no longer matches that of the parent work, attach edition to the    
     if edition.work.language != language:
@@ -292,8 +292,8 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     # don't add the edition to a work with a different language
     # https://www.pivotaltracker.com/story/show/17234433
     language = d['language']
-    if len(language)>2:
-        language= language[0:2]
+    if len(language)>5:
+        language= language[0:5]
     if work and work.language != language:
         logger.info("not connecting %s since it is %s instead of %s" %
                 (googlebooks_id, language, work.language))

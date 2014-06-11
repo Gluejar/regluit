@@ -575,6 +575,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.description=form.cleaned_data['description']
                     work.title=form.cleaned_data['title']
                     work.earliest_publication = None  # will reset on next access
+                    work.language = form.cleaned_data['language']
                     work.save()
                 
                 id_msg=""
