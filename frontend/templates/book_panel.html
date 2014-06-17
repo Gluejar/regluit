@@ -130,7 +130,7 @@
                             {% if in_library %}
                                 <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
                             {% else %}
-                                <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
+                                <a href="{% url purchase work_id=workid %}" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
                             {% endif %}
                         {% else %}{% ifequal work.last_campaign.type 3 %}
                             <a href="{% url thank workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
@@ -219,7 +219,7 @@
         </div>
     {% else %}{% if show_purchase %}
         <div class="listview panelfront side1 add-wishlist">
-            <span class="booklist_pledge"><a href="{% url purchase work_id=workid %}" class="fakeinput">Purchase</a></span>
+            <span class="booklist_pledge"><a href="{% url purchase work_id=workid %}" class="fakeinput" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}">Purchase</a></span>
         </div>
     {% else %}{% if request.user.is_anonymous %}
         <div class="listview panelfront side1 create-account">
@@ -273,7 +273,7 @@
                         </span>
                     {% endif %}
 		        {% else %}
-		            <div class="booklist-status-label"><b>{{ work.percent_of_goal }}%</b> of goal</div>
+		            <div class="booklist-status-label"><span class="buyit">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span> </div>
 		        {% endif %}
 		    {% endifequal %}
 		    {% ifequal work.last_campaign.type 3 %}
@@ -311,7 +311,7 @@
         {% else %}{% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
 			{% if not library or not in_library %}
 			<div class="booklist-status-img">
-				<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="book list status" alt="book list status" />
+				<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png" title="{{ work.percent_of_goal }}% of goal" alt="book list status" />
 			</div>
         	<div class="booklist-status-label panel">{{ work.percent_of_goal }}%</div>
         	{% endif %}
