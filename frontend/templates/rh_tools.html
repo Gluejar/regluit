@@ -201,7 +201,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 {% else %}
 <I>If you were a registered rights holder with Unglue.it, you'd be able to see and manage your campaigns here.  If you hold electronic rights to one or more works and you'd like to be a registered rights holder, please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</I>
 {% endif %}
-<h2>How to launch an Unglue.it campaign</h2>
+<h2>How to Make an Unglue.it Campaign</h2>
 
 <ol>
     {% if not request.user.is_authenticated %}
@@ -209,31 +209,36 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
     {% else %}
     <li class="checked">You've already set up an Unglue.it account.</li>
     {% endif %}
-	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Email <a href="mailto:rights@gluejar.com?subject=Becoming%20an%20authorized%20rights%20holder">rights@gluejar.com</a> about becoming an authorized rights holder.</li>
-	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}After we review your credentials, sign a <a href="https://www.docracy.com/1mud3ve9w8/unglue-it-non-exclusive-platform-services-agreement">Platform Services Agreement</a>. Unglue.it uses Docracy.com to manage rights holder agreements. Once you've reviewed the agreement, <a href="mailto:rights@gluejar.com?subject=signing%20document">ask us</a> to send you an agreement for signing.</li>
-	<li>Claim your work(s)...
-	<ul>
-	    <li>Find them through the search box at the top of every page.</li>
+	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Sign a <a href="https://www.docracy.com/1mud3ve9w8/unglue-it-non-exclusive-platform-services-agreement">Platform Services Agreement</a>. Unglue.it uses Docracy.com to manage rights holder agreements. If you have any questions, <a href="mailto:rights@gluejar.com?subject=agreement">ask us</a>.</li>
+	<li><i>Claim</i> your work(s) or send us metadata for books you have rights to.
+	<p><b>Claiming a work</b></p>
+	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
+	<form action="{% url search %}" method="get">
+		<div class="inputalign">
+		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
+		<input type="submit" class="button">
+		</div>
+	</form>
+	<ul class="bullets">
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
 	    <li>Agree to our <a href="{{ termsurl }}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
 	    <li>If you have any questions or you claim a work by mistake, <a href="mailto:rights@gluejar.com?subject=claiming%20works">email us</a>.</li>
 	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url regluit.frontend.views.edit_user %}">change the email address</a> for your account.</li>
-	</ul></li>
-	<li>...or send us metadata for books you have rights to.
-	<ul>
+	</ul>
+	<p><b>Entering a work</b></p>
+	<p>If your book is not in Google books, you'll need to enter the metadata yourself.</p>
+	<ul class="bullets">
 	    <li>Use <a href="{% url new_edition '' '' %}">this form</a> to enter the metadata.</li>
-	    <li>Your ebooks must have ISBNs assigned.</li>
+	    <li>Your ebooks must have ISBNs or OCLC numbers assigned.</li>
 	    <li>Your metadata should have title, authors, language, description.</li>
-	    <li><a href="mailto:support@gluejar.com?subject=loading%20metadata">Contact us</a> to load ONIX or CSV files for you.</li>
+	    <li>If you have a lot of books to enter, <a href="mailto:support@gluejar.com?subject=loading%20metadata">contact us</a> to load ONIX or CSV files for you.</li>
 	</ul></li>
-	<li>Once your claim is approved (you should get an email), you can set up a campaign for it.  All the campaigns you can manage will be listed on this page, above.</li>
+	<li>You can now set up a campaign for for your book.  All the campaigns you can manage will be listed on this page, above.</li>
 	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page, above.</li> 
 </ol>
 <h2>Campaigns </h2>
-<p> If you have already released your work under a Creative Commons license, you need to use a "Thanks for Ungluing" campaign. If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge" campaign. </p>
+<p> If you have already released your work under a Creative Commons license, you need to use a "Thanks for Ungluing" campaign. If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge-to-Unglue" campaign. </p>
 
-<p>For Pledge campaigns, you can run campaigns for books that haven't been converted to digital.  
-Any print book can be scanned to create a digital file that can then become an ePub-format unglued ebook to be released after the Pledge Campaign succeeds.</p>
 
 <h2>Thanks-for-Ungluing Campaigns</h2>
 <p>Thanks-for-Ungluing is a program designed to help rights holders promote and monetize their Creative Commons licensed books. Rights holders participating in the Thanks-for-Ungluing program can request payment for their books on a pay-what-you-want basis. They can also set suggested prices as well as metadata and descriptions for books that they claim. </p>
@@ -245,14 +250,15 @@ There are no “rewards” for a “Buy to Unglue” campaign, but you may offer
 <p>
 A Buy-to-Unglue Campaign provides long-term promotion and sales opportunities for your ebook before it becomes an Unglued Ebook.  Until the revenue goal is reached, supporters and libraries know that every book that gets purchased through Unglue.it brings the ungluing date closer to the present.
 </p>
-
-<h2>Rewards for Pledge Campaigns</h2>
-
+<h2>Pledge-to-Unglue Campaigns</h2>
+<p>For Pledge campaigns, you can run campaigns for books that haven't been converted to digital.  
+Any print book can be scanned to create a digital file that can then become an ePub-format unglued ebook to be released after the Pledge Campaign succeeds.</p>
+<p>Rewards</p>
 <p>Campaigns run for a short period (2-6 months) and can have rewards as a way to motivate and thank supporters for helping to reach your goal.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
 
 <p>What should you add as rewards?  Anything (legal) that you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
 
-<h2>Acknowledgements for Pledge Campaigns</h2>
+<p>Acknowledgements for Pledge Campaigns</p>
 <p>Here are the standard acknowledgements.  These automatically combine with your rewards.  For example, if you offer a $30 reward, ungluers who pledge $30 will receive the $25 acknowledgement as well.</p>
 <ul class="terms">
 <li><em>Any amount</em> &#8212; The unglued ebook</li>
