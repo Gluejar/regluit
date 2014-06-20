@@ -134,7 +134,7 @@ class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
-    status = models.CharField(max_length=7, choices=STATUSES, default='pending')
+    status = models.CharField(max_length=7, choices=STATUSES, default='active')
     
     @property
     def can_open_new(self):
