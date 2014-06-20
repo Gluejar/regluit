@@ -3166,4 +3166,12 @@ def marc_concatenate(request):
         outfile.write('</collection>')
 
     return outfile
+
+class OPDSNavigationView(TemplateView):
+    
+    # http://stackoverflow.com/a/6867976
+    
+    def render_to_response(self, context, **response_kwargs):
         
+        response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
+        return super(TemplateView, self).render_to_response(context, **response_kwargs)
