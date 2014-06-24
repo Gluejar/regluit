@@ -57,7 +57,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
-from django.views.generic.base import TemplateView
+from django.views.generic.base import (
+    TemplateView,
+    View
+)
 
 '''
 regluit imports
@@ -3169,9 +3172,28 @@ def marc_concatenate(request):
 
 class OPDSNavigationView(TemplateView):
     
-    # http://stackoverflow.com/a/6867976
+    # http://stackoverflow.com/a/6867976: secret to how to change content-type
     
     def render_to_response(self, context, **response_kwargs):
-        
         response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
         return super(TemplateView, self).render_to_response(context, **response_kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super(OPDSNavigationView, self).get_context_data(**kwargs)
+        context["site"] = Site.objects.get_current()
+        return context
+
+class OPDSAcquisitionView(View):
+
+    def get(self, request, *args, **kwargs):
+        
+        from regluit.core import opds
+        
+        site = Site.objects.get_current()
+        if site.domain.find("localhost") > -1:
+            protocol = "http"
+        else:
+            protocol = "https"
+            
+        return HttpResponse(opds.creativecommons(domain=site.domain, protocol=protocol),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")

@@ -40,6 +40,7 @@ from regluit.frontend.views import (
     MARCConfigView,
     DownloadView,
     OPDSNavigationView,
+    OPDSAcquisitionView
 )
 
 urlpatterns = patterns(
@@ -155,7 +156,7 @@ urlpatterns = patterns(
     url(r"^marc/concatenate/$", "marc_concatenate", name="marc_concatenate"),
     url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
     url(r"^opds/$", OPDSNavigationView.as_view(template_name="opds.xml"), name="opds"),
-    url(r"^opds/crawlable$", TemplateView.as_view(template_name="opds_crawlable.html"), name="opds_crawlable")
+    url(r"^opds/creativecommons.xml/$", OPDSAcquisitionView.as_view(), name="opds_cc")
 )
 
 if settings.DEBUG:
