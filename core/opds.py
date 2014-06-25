@@ -22,10 +22,24 @@ def text_node(tag, text):
     node.text = text
     return node
 
-def map_to_unglueit(url, domain="unglue.it", protocol="https"):
+def map_to_domain(url, domain="unglue.it", protocol="https"):
+    """
+    for the given url, substitute with the given domain and protocol
+    """
+    
     m = list(urlparse.urlparse(url))
     (m[0], m[1]) = (protocol,domain)
     return urlparse.urlunparse(m)
+
+def add_query_component(url, qc):
+    """ """
+    m = list(urlparse.urlparse(url))
+    if len(m[4]):
+        m[4] = "&".join([m[4],qc])
+    else:
+        m[4] = qc
+    return urlparse.urlunparse(m)
+
 
 def work_node(work, domain="unglue.it", protocol="https"):
     
@@ -45,7 +59,13 @@ def work_node(work, domain="unglue.it", protocol="https"):
     
     for ebook in work.ebooks():
         link_node = etree.Element("link")
-        link_node.attrib.update({"href":map_to_unglueit(ebook.download_url, domain, protocol),
+        
+        # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
+        # when computing the URL from a laptop but wanting to have the URL correspond to unglue.it,
+        # I made use of:
+        # "href":map_to_domain(ebook.download_url, domain, protocol),
+        
+        link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
                                  "type":FORMAT_TO_MIMETYPE.get(ebook.format, ""),
                                  "rel":"http://opds-spec.org/acquisition"})
         node.append(link_node)
