@@ -3195,5 +3195,16 @@ class OPDSAcquisitionView(View):
         else:
             protocol = "https"
             
-        return HttpResponse(opds.creativecommons(domain=site.domain, protocol=protocol),
+        logger.info("request.path: {0}".format(request.path))
+        logger.info("facet: {0}".format(kwargs.get('facet')))
+            
+        facet = kwargs.get('facet')
+        if facet == 'creative_commons':
+            return HttpResponse(opds.creative_commons(domain=site.domain, protocol=protocol),
                             content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+        elif facet == 'active_campaigns':
+            return HttpResponse(opds.active_campaigns(domain=site.domain, protocol=protocol),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+        else:
+            return HttpResponseNotFound("invalid facet")
+            

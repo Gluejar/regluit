@@ -32,7 +32,9 @@ def map_to_domain(url, domain="unglue.it", protocol="https"):
     return urlparse.urlunparse(m)
 
 def add_query_component(url, qc):
-    """ """
+    """
+    add component qc to the querystring of url
+    """
     m = list(urlparse.urlparse(url))
     if len(m[4]):
         m[4] = "&".join([m[4],qc])
@@ -107,7 +109,26 @@ def work_node(work, domain="unglue.it", protocol="https"):
             
     return node
 
-def creativecommons(domain="unglue.it", protocol="https"):
+def creative_commons(domain="unglue.it", protocol="https"):
+
+    licenses = cc.LICENSE_LIST
+    ccworks = models.Work.objects.filter(editions__ebooks__isnull=False, 
+                        editions__ebooks__rights__in=licenses).distinct().order_by('-created')
+    
+    return opds_feed_for_works(ccworks, "creative_commons", "Unglue.it Catalog:  Creative Commons Books",
+                               domain, protocol)
+
+def active_campaigns(domain="unglue.it", protocol="https"):
+    """
+    return opds feed for works associated with active campaigns
+    """
+    # campaigns = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
+    campaign_works = models.Work.objects.filter(campaigns__status='ACTIVE')
+    return opds_feed_for_works(campaign_works, "active_campaigns",
+                               "Unglue.it Catalog:  Books under Active Campaign",
+                               domain, protocol)
+
+def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="unglue.it", protocol="https"):
 
     feed_xml = """<feed xmlns:dcterms="http://purl.org/dc/terms/" 
       xmlns:opds="http://opds-spec.org/"
@@ -121,12 +142,13 @@ def creativecommons(domain="unglue.it", protocol="https"):
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are
     
-    feed.append(text_node('title', "Unglue.it Catalog: crawlable feed"))
+    feed.append(text_node('title', title))
     
     # id 
     
-    feed.append(text_node('id', "{protocol}://{domain}/opds/creativecommons.xml".format(protocol=protocol,
-                                                                                             domain=domain)))
+    feed.append(text_node('id', "{protocol}://{domain}/opds/{feed_path}".format(protocol=protocol,
+                                                                                domain=domain,
+                                                                                feed_path=feed_path)))
     
     # updated
     # TO DO:  fix time zone?
@@ -153,13 +175,9 @@ def creativecommons(domain="unglue.it", protocol="https"):
      "type":"application/atom+xml;profile=opds-catalog;kind=navigation",
     })
     feed.append(start_link)
+
     
-    licenses = cc.LICENSE_LIST
-    
-    ccworks = models.Work.objects.filter(editions__ebooks__isnull=False, 
-                        editions__ebooks__rights__in=licenses).distinct().order_by('-created')
-    
-    for work in islice(ccworks,None):
+    for work in islice(works,None):
         node = work_node(work, domain=domain, protocol=protocol)
         feed.append(node)
     
