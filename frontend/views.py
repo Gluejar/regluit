@@ -2796,6 +2796,19 @@ class DownloadView(PurchaseView):
         return context
 
 @login_required
+def feature(request, work_id):
+    if not request.user.is_staff:
+        return render(request, "admins_only.html")
+    else:
+        work = safe_get_work(work_id)
+        if work.first_ebook():
+            work.featured = now()
+            work.save()
+            return home(request, landing=True)
+        else:
+            return HttpResponse('can\'t feature an work without an ebook')
+
+@login_required
 def borrow(request, work_id):
     work = safe_get_work(work_id)
     library =  request.GET.get('library', '')
