@@ -231,9 +231,9 @@ def home(request, landing=False):
     unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:4]
     
     cc_books = models.Work.objects.filter(
-                                          editions__ebooks__isnull=False,
+                                          featured__isnull=False,
                                           editions__ebooks__rights__in=cc.LICENSE_LIST
-                                         ).distinct().order_by('-created')[:4]
+                                         ).distinct().order_by('-featured')[:4]
 
     """
     get various recent types of site activity
@@ -892,11 +892,11 @@ class CCListView(FilterableListView):
                                           campaigns__status="ACTIVE",
                                           campaigns__license=self.licenses[self.facets.index(facet)]
                                          )
-            return (notyet | ccworks).distinct().order_by('-created')
+            return (notyet | ccworks).distinct().order_by('-featured','-created')
         else:
             return models.Work.objects.filter( editions__ebooks__isnull=False, 
                                                 editions__ebooks__rights__in=self.licenses
-                                                ).distinct().order_by('-created')
+                                                ).distinct().order_by('-featured','-created')
 
     def get_context_data(self, **kwargs):
         context = super(CCListView, self).get_context_data(**kwargs)
