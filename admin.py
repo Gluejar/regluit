@@ -103,7 +103,7 @@ class WorkAdmin(ModelAdmin):
     ordering = ('title',)
     list_display = ('title', 'created')
     date_hierarchy = 'created'
-    fields = ('title', 'description', 'language')
+    fields = ('title', 'description', 'language', 'featured')
 
 class AuthorAdmin(ModelAdmin):
     search_fields = ('name',)
