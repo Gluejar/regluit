@@ -41,6 +41,47 @@ function put_un_in_cookie2(){
     <div class="js-main" id="content-block">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
+                <h3 class="featured_books">Today's Featured Free eBook</h3>
+                    {% with featured as work %}
+                        <div class="book-detail">
+                            <div id="book-detail-img" style="float:left;padding-right:10px">
+                            <a href="{% url work featured.id %}">
+                                {% if work.googlebooks_id %}
+                                    <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" />
+                                {% else %}
+                                    <img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                                {% endif %}
+                            </a>
+                            <div class="quicktour" style=" padding-top: 10px;padding-left: 5px;">
+                            <div class="panelview panelfront side1">
+                                <a href="{% url download work.id %}"  title="Download featured ebook" class="qtbutton qtreadittext hijax"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
+                            </div>
+                            </div>
+                            </div>
+                            <div class="book-detail-info" style="float:left;">
+                                <div  style="width: 520px;float: left;">
+                                <div  class="book-name" style="font-size:larger; margin-bottom:10px"><a href="{% url work featured.id %}">{{ work.title }}</a></div>
+                                <div>
+                                    <div class="pubinfo">
+                                        <div class="book-author">
+                                        <span>{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
+                                            and <span>{{ work.authors.1.name }}</span>
+                                        {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
+                                        {% endif %}
+                                        </div>
+                                        <div class="book-year"> 
+                                            {% if work.last_campaign.publisher %}
+                                            <span><a href="{% url bypubname_list work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
+                                            {% endif %}
+                                            <span>{{ work.publication_date_year }}</span>
+                                        </div>
+                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endwith %}
+                </div>
         	    {% if top_pledge %}
                     <h3 class="featured_books">Pledge to Make These eBooks Free</h3>
                     <div>

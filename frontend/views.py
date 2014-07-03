@@ -221,16 +221,20 @@ def home(request, landing=False):
     use campaigns instead of works so that we can order by amount left,
     drive interest toward most-nearly-successful
     """
+    try:
+        featured = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
+    except:
+        #shouldn't occur except in tests
+        featured = models.Work.objects.all()[0]
     top_pledge = models.Campaign.objects.filter(status="ACTIVE",type=REWARDS).order_by('left')[:4]
     top_b2u = models.Campaign.objects.filter(status="ACTIVE", type=BUY2UNGLUE).order_by('-work__num_wishes')[:4]
-    top_t4u = models.Campaign.objects.filter(status="ACTIVE",type=THANKS).order_by('-work__num_wishes')[:4]
+    top_t4u = models.Campaign.objects.exclude(id = featured.id).filter(status="ACTIVE",type=THANKS).order_by('-work__num_wishes')[:4]
 
-    
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
     unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:4]
     
-    cc_books = models.Work.objects.filter(
+    cc_books = models.Work.objects.exclude(id = featured.id).filter(
                                           featured__isnull=False,
                                           editions__ebooks__rights__in=cc.LICENSE_LIST
                                          ).distinct().order_by('-featured')[:4]
@@ -298,6 +302,7 @@ def home(request, landing=False):
             'unglued_books': unglued_books, 
             'cc_books': cc_books,
             'most_wished': most_wished,
+            'featured': featured,
         }
     )
 
