@@ -10,7 +10,7 @@ from regluit.core.bookloader import add_by_isbn
 logger = logging.getLogger(__name__)
 
 def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, 
-                      provider='Directory of Open Access Books'):
+                      provider='Directory of Open Access Books', **kwargs):
     
     """associate a book from DOAB with an Edition"""
     

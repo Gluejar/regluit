@@ -154,8 +154,8 @@ def refresh_acqs():
 
 @task
 def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, 
-                      provider='Directory of Open Access Books'):
-    return doab.load_doab_edition(title, doab_id, seed_isbn, url, format, rights, provider)
+                      provider='Directory of Open Access Books', **kwargs):
+    return doab.load_doab_edition(title, doab_id, seed_isbn, url, format, rights, provider, **kwargs)
     
 
 from postmonkey import PostMonkey, MailChimpException
