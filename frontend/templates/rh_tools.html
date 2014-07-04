@@ -106,11 +106,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 			<br />Date of Claim : {{ claim.created }}
 			<br />Status of Claim: {{ claim.get_status_display }}
 			{% if claim.campaign_form  %}
-			<h3>Open a blank campaign for this work</h3>
+			<h3>Open a campaign for this work</h3>
 			<div class="work_campaigns clearfix" style="padding: 5px;">
 			<form method="POST" action="#">
-				<p>{% csrf_token %}
-				Name the Campaign: {{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}</p>
+				{% csrf_token %}
+				{{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}
 				{% if claim.rights_holder.can_sell %}
 					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
 					<ol>
