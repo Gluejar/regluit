@@ -19,7 +19,21 @@
 <div class="presstoc"><div class="pressemail">
 Any questions not covered here?  Please email us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
 </div></div>
+<h2>Contents</h2>
+<ul class="bullets">
+{% if campaigns %}
+<li><a href="#managed_campaigns">Campaigns You Manage</a></li>
+{% endif %}
+{% if request.user.rights_holder.count %}
+<li><a href="#open_campaigns">Works You Have Claimed</a></li>
+{% endif %}
+{% if request.user.rights_holder.count %}
+<li><a href="#your_rhs">Rights Holders That You Administer</a></li>
+{% endif %}
+<li><a href="#how_to">How to Make an Unglue.it Campaign</a></li>
+<li><a href="#about_campaigns">About Campaigns</a></li>
 
+</ul>
 {% comment %}
 <h2>Getting started</h2>
 <p>
@@ -190,7 +204,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	</dl>
 {% endif %}
 {% if request.user.rights_holder.count %}
-<h2>Rights Holders That You Administer</h2>
+<h2 id="your_rhs">Rights Holders That You Administer</h2>
 	<dl>
 		{% for rights_holder in request.user.rights_holder.all %}
 		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
@@ -201,7 +215,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 {% else %}
 <I>If you were a registered rights holder with Unglue.it, you'd be able to see and manage your campaigns here.  If you hold electronic rights to one or more works and you'd like to be a registered rights holder, please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</I>
 {% endif %}
-<h2>How to Make an Unglue.it Campaign</h2>
+<h2 id="how_to">How to Make an Unglue.it Campaign</h2>
 
 <ol>
     {% if not request.user.is_authenticated %}
@@ -243,7 +257,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	<li>{% if claims %}<a href="#open_campaigns">Set up a campaign</a> for for your book.{% else %} Set up a campaign. All the campaigns you can manage will be listed on this page, above.{% endif %}</li>
 	{% endif %}
 </ol>
-<h2>Campaigns </h2>
+<h2 id="about_campaigns">About Campaigns </h2>
 <p> If you have already released your work under a Creative Commons license, you need to use a "Thanks for Ungluing" campaign. If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge-to-Unglue" campaign. </p>
 
 
