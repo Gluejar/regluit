@@ -42,7 +42,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 {% endcomment %}
 
 {% if campaigns %}
-<h2>Campaigns You Manage</h2>
+<h2 id="managed_campaigns">Campaigns You Manage</h2>
 	<dl>
 	{% for campaign in campaigns %}
 		<dt><a href="{% url work work_id=campaign.work.id %}">{{campaign.name }}</a></dt>
@@ -96,7 +96,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	</dl>
 {% endif %}
 {% if request.user.rights_holder.count %}
-<h2>Works You Have Claimed</h2>
+<h2 id="open_campaigns">Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
 		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
@@ -210,7 +210,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
     <li class="checked">You've already set up an Unglue.it account.</li>
     {% endif %}
 	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Sign a <a href="https://www.docracy.com/1mud3ve9w8/unglue-it-non-exclusive-platform-services-agreement">Platform Services Agreement</a>. Unglue.it uses Docracy.com to manage rights holder agreements. If you have any questions, <a href="mailto:rights@gluejar.com?subject=agreement">ask us</a>.</li>
+	{% if claims %}
+	<li class="checked"><i>You have claimed {{ claims.count }}</i> work(s). You can claim more.
+	{% else %}
 	<li><i>Claim</i> your work(s) or send us metadata for books you have rights to.
+	{% endif %}
 	<p><b>Claiming a work</b></p>
 	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
 	<form action="{% url search %}" method="get">
@@ -233,8 +237,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 	    <li>Your metadata should have title, authors, language, description.</li>
 	    <li>If you have a lot of books to enter, <a href="mailto:support@gluejar.com?subject=loading%20metadata">contact us</a> to load ONIX or CSV files for you.</li>
 	</ul></li>
-	<li>You can now set up a campaign for for your book.  All the campaigns you can manage will be listed on this page, above.</li>
-	<li>You may optionally add other Unglue.it users as campaign managers, if you'd like them to be able to edit your campaign.  That option will also appear on this page, above.</li> 
+	{% if campaigns %}
+	<li class="checked">You've set up {{ campaigns.count }} campaigns.  Manage them <a href="#managed_campaigns">above.</a></li>
+	{% else %}
+	<li>{% if claims %}<a href="#open_campaigns">Set up a campaign</a> for for your book.{% else %} Set up a campaign. All the campaigns you can manage will be listed on this page, above.{% endif %}</li>
+	{% endif %}
 </ol>
 <h2>Campaigns </h2>
 <p> If you have already released your work under a Creative Commons license, you need to use a "Thanks for Ungluing" campaign. If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge-to-Unglue" campaign. </p>
