@@ -62,7 +62,7 @@ from regluit.core.lookups import (
     EditionLookup
 )
 from regluit.utils.localdatetime import now
-from regluit.utils.fields import EpubFileField
+from regluit.utils.fields import EpubFileField, ISBNField
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 
@@ -79,14 +79,13 @@ class EditionForm(forms.ModelForm):
             allow_new=True,
         )
 
-    isbn = forms.RegexField(
+    isbn = ISBNField(
         label=_("ISBN"), 
-        max_length=13, 
-        regex=r'^(97[89]\d\d\d\d\d\d\d\d\d\d|delete)$',
+        max_length=17, 
         required = False,
         help_text = _("13 digits, no dash."),
         error_messages = {
-            'invalid': _("This value must be 13 digits, starting with 978 or 979."),
+            'invalid': _("This must be a valid ISBN-13."),
         }
     )
     goog = forms.RegexField(
