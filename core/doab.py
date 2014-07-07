@@ -9,78 +9,104 @@ from regluit.core.bookloader import add_by_isbn
 
 logger = logging.getLogger(__name__)
 
-def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, 
+def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
+                      language, isbns,
                       provider='Directory of Open Access Books', **kwargs):
     
-    """associate a book from DOAB with an Edition"""
-    
-    # assumed data relationship:  a given DOAB id tied to 1 Work and 1 Edition (at most)
-    # can we find doab_id as an identifier? 
-    # doab work or edition id
+
+    from django.db.models import (Q, F)
     
     from regluit.core import tasks
-    
-    # first step, see whether there is a Work with the doab_id.
-    
-    try:
-        work = models.Identifier.objects.get(type='doab',value=doab_id).work
-        
-    # if there is no such work, try to find an Edition with the seed_isbn and use that work to hang off of
-    
-    except models.Identifier.DoesNotExist: 
-        sister_edition = add_by_isbn(seed_isbn)
-        
-        if sister_edition is None:
-            raise Exception("No edition created for DOAB %s ISBN %s" % (doab_id, seed_isbn))
-        
-        # at this point, we should be able to grab the associated work
-        work = sister_edition.work
-    
-        # if this is a new edition, then add related editions asynchronously
-        if getattr(sister_edition,'new', False):
-            tasks.populate_edition.delay(sister_edition.isbn_13)
-
-        # make sure the doab_id is attached to the work/sister_edition
-        doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
-                                               work=work,
-                                               edition=sister_edition)
-        
-    except models.Identifier.MultipleObjectsReturned, e:
-        raise e
-
-    # Now pull out any existing DOAB editions tied to the work with the proper DOAB ID
-    try:
-        edition = models.Identifier.objects.get( type='doab', value=doab_id).edition    
-    except models.Identifier.DoesNotExist:
-        edition = models.Edition()
-        edition.title = title
-        edition.work = work
-        
-        edition.save()
-        edition_id = models.Identifier.get_or_add(type='doab',value=doab_id, 
-                                                  edition=edition, work=work)
-    except models.Identifier.MultipleObjectsReturned, e:
-         raise e
-        
-        
+    from regluit.core import (models, bookloader)
+   
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
        
-    if len(ebooks):  
-        ebook = ebooks[0]
-    elif len(ebooks) == 0: # need to create new ebook
-        ebook = models.Ebook()
+    # 1 match
+    # > 1 match
+    # 0 match
 
+    # simplest case -- if match (1 or more), we could check whether any
+    # ebook.edition.work has a doab id matching given doab_id
+    
+    # put a migration to force Ebook.url to be unique id
+    
+    # if yes, then return one of the Edition(s) whose work is doab_id
+    # if no, then 
+    
     if len(ebooks) > 1:
-        raise Exception("There is more than one Ebook matching url {0}".format(url))
-        
+        raise Exception("There is more than one Ebook matching url {0}".format(url))    
+    elif len(ebooks) == 1:  
+        ebook = ebooks[0]
+        doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
+                                               work=ebook.edition.work)
+        return ebook
+    
+    # remaining case --> need to create a new Ebook 
+    assert len(ebooks) == 0
+            
+    # make sure we have isbns to work with before creating ebook
+    if len(isbns) == 0:
+        return None
+    
+    ebook = models.Ebook()
     ebook.format = format
     ebook.provider = provider
     ebook.url =  url
     ebook.rights = rights
+
+    # we still need to find the right Edition/Work to tie Ebook to...
+    
+    # look for the Edition with which to associate ebook.
+    # loop through the isbns to see whether we get one that is not None
         
-    # is an Ebook instantiable without a corresponding Edition? (No, I think)
+    for isbn in isbns:
+        edition = bookloader.add_by_isbn(isbn)
+        if edition is not None: break        
+    
+    if edition is not None:
+        # if this is a new edition, then add related editions asynchronously
+        if getattr(edition,'new', False):
+            tasks.populate_edition.delay(edition.isbn_13)
+            
+        # QUESTION:  Is this good enough?
+        # what's going to happen to edition.work if there's merging   
+        doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
+                                work=edition.work)
+
+    # we need to create Edition(s) de novo    
+    else: 
+        # if there is a Work with doab_id already, attach any new Edition(s)
+        try:
+            work = models.Identifier.objects.get(type='doab',value=doab_id).work
+        except models.Identifier.DoesNotExist:
+            work = models.Work(language=language,title=title)
+            doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
+                                               work=work)
+            work.save()
+        
+        # create Edition(s) for each of the isbn from the input info
+        editions = []
+        for isbn in isbns:
+            edition = models.Edition(title=title, work=work)
+            edition.save()
+            
+            isbn_id = models.Identifier.get_or_add(type='isbn',value=isbn,work=work)
+            
+            editions.append(edition)
+  
+        # if work has any ebooks already, attach the ebook to the corresponding edition
+        # otherwise pick the first one
+        # pick the first edition as the one to tie ebook to 
+        editions_with_ebooks = models.Edition.objects.filter(Q(work__id=work.id) & \
+                                                      Q(ebooks__isnull=False)).distinct()
+        if editions_with_ebooks:
+            edition = editions_with_ebooks[0]
+        else:
+            edition = editions[0]
+        
+    # tie the edition to ebook
     
     ebook.edition = edition
     ebook.save()
