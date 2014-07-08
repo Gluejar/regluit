@@ -575,6 +575,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.description=form.cleaned_data['description']
                     work.title=form.cleaned_data['title']
                     work.earliest_publication = None  # will reset on next access
+                    work.language = form.cleaned_data['language']
                     work.save()
                 
                 id_msg=""
@@ -1674,7 +1675,7 @@ def claim(request):
         # make sure we're not creating a duplicate claim
         if not models.Claim.objects.filter(work=form.cleaned_data['work'], rights_holder=form.cleaned_data['rights_holder']).exclude(status='release').count():
             form.save()
-        return HttpResponseRedirect(reverse('work', kwargs={'work_id': form.cleaned_data['work'].id}))
+        return HttpResponseRedirect(reverse('rightsholders'))
     else:
         try:
             work = models.Work.objects.get(id=data['claim-work'])

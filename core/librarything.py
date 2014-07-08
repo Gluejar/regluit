@@ -154,6 +154,10 @@ class LibraryThing(object):
         next_page = True
         offset = 0
         cookies = None
+                
+        # go to the front page of LibraryThing first to pick up relevant session-like cookies
+        r = requests.get("https://www.librarything.com/")
+        cookies = r.cookies
         
         while next_page:
             url = "http://www.librarything.com/catalog_bottom.php?view=%s&viewstyle=%d&collection=%d&offset=%d" % (self.username,
@@ -179,6 +183,7 @@ class LibraryThing(object):
                 total = int(re.search(r'(\d+)$',count_text).group(1))
                 logger.info('total: %d', total)
             except Exception, e:  # assume for now that if we can't grab this text, there is no page bar and no books
+                logger.info('Exception {0}'.format(e))
                 total = 0
                 
             # to do paging we can either look for a next link or just increase the offset by the number of rows.

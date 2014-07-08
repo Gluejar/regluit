@@ -645,7 +645,7 @@
                                     {% else %}
                                     <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                         <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
-                                        <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                        <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
                                         <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
                                         </a>
                                     </li>
@@ -663,7 +663,7 @@
                                         <li class="first last">
                                         {% if request.user.profile.libraries %}
                                             <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
-                                            <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:2|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_license_display }}</span>
                                             </a>
                                         {% else %}
@@ -688,12 +688,12 @@
                                     <li class="first last" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                         {% if request.user.library %}
                                             <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
-                                            <span class="menu-item-price" itemprop="price">${{ work.last_campaign.library_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-price" itemprop="price">${{ work.last_campaign.library_offer.price|floatformat:2|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_thanks_display }}</span>
                                             </a>
                                         {% else %}
                                             <a href="{% url thank work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
-                                            <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:0|intcomma }}</span>
+                                            <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_thanks_display }}</span>
                                             </a>
                                         {% endif %}

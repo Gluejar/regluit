@@ -134,7 +134,7 @@ class Claim(models.Model):
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
     user =  models.ForeignKey(User, related_name="claim", null=False ) 
-    status = models.CharField(max_length=7, choices=STATUSES, default='pending')
+    status = models.CharField(max_length=7, choices=STATUSES, default='active')
     
     @property
     def can_open_new(self):
@@ -394,7 +394,7 @@ class Campaign(models.Model):
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
     type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
-            choices=((REWARDS,'Rewards-based fixed duration campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign'),(THANKS,'Thanks-for-ungluing campaign')))
+            choices=((REWARDS,'Pledge-to-unglue campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign'),(THANKS,'Thanks-for-ungluing campaign')))
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
@@ -984,7 +984,7 @@ class Identifier(models.Model):
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    language = models.CharField(max_length=2, default="en", null=False)
+    language = models.CharField(max_length=5, default="en", null=False)
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
