@@ -82,9 +82,10 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
             work = models.Identifier.objects.get(type='doab',value=doab_id).work
         except models.Identifier.DoesNotExist:
             work = models.Work(language=language,title=title)
+            work.save()
             doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
                                                work=work)
-            work.save()
+            
         
         # create Edition(s) for each of the isbn from the input info
         editions = []
