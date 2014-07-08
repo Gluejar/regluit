@@ -330,7 +330,7 @@ class OpenCampaignForm(forms.ModelForm):
     class Meta:
         model = Campaign
         fields = 'name', 'work',  'managers', 'type'
-        widgets = { 'work': forms.HiddenInput }
+        widgets = { 'work': forms.HiddenInput, "name": forms.HiddenInput, }
 
 def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
     class TransferCreditForm(forms.Form):
