@@ -221,19 +221,23 @@ def home(request, landing=False):
     use campaigns instead of works so that we can order by amount left,
     drive interest toward most-nearly-successful
     """
+    try:
+        featured = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
+    except:
+        #shouldn't occur except in tests
+        featured = models.Work.objects.all()[0]
     top_pledge = models.Campaign.objects.filter(status="ACTIVE",type=REWARDS).order_by('left')[:4]
     top_b2u = models.Campaign.objects.filter(status="ACTIVE", type=BUY2UNGLUE).order_by('-work__num_wishes')[:4]
-    top_t4u = models.Campaign.objects.filter(status="ACTIVE",type=THANKS).order_by('-work__num_wishes')[:4]
+    top_t4u = models.Campaign.objects.exclude(id = featured.id).filter(status="ACTIVE",type=THANKS).order_by('-work__num_wishes')[:4]
 
-    
     most_wished = models.Work.objects.order_by('-num_wishes')[:4]
     
     unglued_books = models.Work.objects.filter(campaigns__status="SUCCESSFUL").order_by('-campaigns__deadline')[:4]
     
-    cc_books = models.Work.objects.filter(
-                                          editions__ebooks__isnull=False,
+    cc_books = models.Work.objects.exclude(id = featured.id).filter(
+                                          featured__isnull=False,
                                           editions__ebooks__rights__in=cc.LICENSE_LIST
-                                         ).distinct().order_by('-created')[:4]
+                                         ).distinct().order_by('-featured')[:4]
 
     """
     get various recent types of site activity
@@ -298,6 +302,7 @@ def home(request, landing=False):
             'unglued_books': unglued_books, 
             'cc_books': cc_books,
             'most_wished': most_wished,
+            'featured': featured,
         }
     )
 
@@ -892,11 +897,11 @@ class CCListView(FilterableListView):
                                           campaigns__status="ACTIVE",
                                           campaigns__license=self.licenses[self.facets.index(facet)]
                                          )
-            return (notyet | ccworks).distinct().order_by('-created')
+            return (notyet | ccworks).distinct().order_by('-featured','-created')
         else:
             return models.Work.objects.filter( editions__ebooks__isnull=False, 
                                                 editions__ebooks__rights__in=self.licenses
-                                                ).distinct().order_by('-created')
+                                                ).distinct().order_by('-featured','-created')
 
     def get_context_data(self, **kwargs):
         context = super(CCListView, self).get_context_data(**kwargs)
@@ -2794,6 +2799,19 @@ class DownloadView(PurchaseView):
             'testmode': self.request.REQUEST.has_key('testmode'),
         })
         return context
+
+@login_required
+def feature(request, work_id):
+    if not request.user.is_staff:
+        return render(request, "admins_only.html")
+    else:
+        work = safe_get_work(work_id)
+        if work.first_ebook():
+            work.featured = now()
+            work.save()
+            return home(request, landing=True)
+        else:
+            return HttpResponse('can\'t feature an work without an ebook')
 
 @login_required
 def borrow(request, work_id):

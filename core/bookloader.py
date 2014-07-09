@@ -471,6 +471,11 @@ def merge_works(w1, w2, user=None):
     for ww in models.WasWork.objects.filter(work = w2):
         ww.work = w1
         ww.save()
+    if w2.description and not w1.description:
+        w1.description = w2.description
+    if w2.featured and not w1.featured:
+        w1.featured = w2.featured
+    w1.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)

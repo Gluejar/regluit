@@ -23,7 +23,7 @@
                                 <li><a href="{% url work_list 'new' %}"><span>Latest Favorites</span></a></li>
                                 <!--<li><a href="{% url work_list 'recommended' %}"><span>Noteworthy</span></a></li>-->
                                 <li><a href="{% url unglued_list '' %}"><span>Ready to Read</span></a></li>
-                                <li class="last"><a href="{% url cc_list%}">Latest Creative Commons</a></li>
+                                <li class="last"><a href="{% url cc_list%}">Featured Creative Commons</a></li>
                                 {% ifequal aspect 'cc' %}
                                 <ul class="menu level3">
                                     <li class="first"><a href="{% url cc_list_detail 'by' %}"><span{% ifequal facet 'by' %} style="font-weight: bold;"{% endifequal %}>CC BY</span></a></li>

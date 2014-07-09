@@ -62,6 +62,8 @@ class PageTests(TestCase):
         self.user = User.objects.create_user('test_other', 'test@example.org', 'test_other')
         self.client = Client()
         self.client.login(username='test', password='test')
+        w= Work.objects.create(title="test work",language='en')
+        
 
     def test_view_by_self(self):
         # logged in

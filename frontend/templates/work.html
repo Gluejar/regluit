@@ -418,6 +418,11 @@
                                             <div class="pledged-info">
                                                 This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
                                             </div>
+                                            {% if user.is_staff %}
+                                                <p>
+                                                <a href="{% url feature work.id %}">Feature this work today.</a>
+                                                </p>
+                                            {% endif %}
                                         {% endif %}
                                         {% if user.is_staff %}
                                             <h4>Related Works</h4>

@@ -990,6 +990,7 @@ class Work(models.Model):
     description = models.TextField(default='', null=True, blank=True)
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
     earliest_publication =  models.CharField(max_length=50, null=True)
+    featured = models.DateTimeField(null=True)
 
 
     class Meta:
