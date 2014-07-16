@@ -39,8 +39,6 @@ from regluit.frontend.views import (
     MARCUngluifyView,
     MARCConfigView,
     DownloadView,
-    OPDSNavigationView,
-    OPDSAcquisitionView
 )
 
 urlpatterns = patterns(
@@ -156,8 +154,6 @@ urlpatterns = patterns(
     url(r"^marc/ungluify/$", staff_member_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
     url(r"^marc/concatenate/$", "marc_concatenate", name="marc_concatenate"),
     url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
-    url(r"^opds/$", OPDSNavigationView.as_view(template_name="opds.xml"), name="opds"),
-    url(r"^opds/(?P<facet>[^/]+)/$", OPDSAcquisitionView.as_view(), name="opds_acqusition")
 )
 
 if settings.DEBUG:

@@ -2,12 +2,18 @@ from tastypie.models import ApiKey
 
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from django.db.models import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.views.generic.base import TemplateView
+from django.views.generic.base import View, TemplateView
+from django.http import (
+    HttpResponse,
+    HttpResponseNotFound
+)
 
 import regluit.core.isbn
+from regluit.api import opds
 
 from regluit.core import models
 
@@ -77,3 +83,27 @@ class ApiHelpView(TemplateView):
             context["campaign_isbn"] = isbn
 
         return context    
+
+class OPDSNavigationView(TemplateView):
+    
+    # http://stackoverflow.com/a/6867976: secret to how to change content-type
+    
+    def render_to_response(self, context, **response_kwargs):
+        response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
+        return super(TemplateView, self).render_to_response(context, **response_kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super(OPDSNavigationView, self).get_context_data(**kwargs)
+        context["opds"] = opds
+        return context
+
+class OPDSAcquisitionView(View):
+
+    def get(self, request, *args, **kwargs):
+        facet = kwargs.get('facet')
+        if facet in opds.facets:
+            facet_method = getattr(opds, facet)
+            return HttpResponse(facet_method(),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+        else:
+            return HttpResponseNotFound("invalid facet")

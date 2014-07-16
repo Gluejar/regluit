@@ -3,25 +3,25 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.kbcafe.com/rss/atom.xsd.xml">
   <title>Unglue.it Catalog</title>
-  <id>https://{{site.domain}}/opds</id>
+  <id>https://unglue.it/opds</id>
   <updated>2014-06-13T21:48:34Z</updated>
   <author>
     <name>unglue.it</name>
-    <uri>https://{{site.domain}}</uri>
+    <uri>https://unglue.it</uri>
   </author>
   <link rel="start" href="https://{{site.domain}}/opds" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
   <entry>
     <title>Creative Commons</title>
-    <id>https://{{site.domain}}/creativecommons/</id>
+    <id>https://unglue.it/creativecommons/</id>
     <updated>2014-06-13T00:00:00Z</updated>
-    <link href="creative_commons" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link href="creative_commons/" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <content>These Creative Commons licensed ebooks are ready to read - the people who created them want you to read and share them..</content>
   </entry>
   <entry>
     <title>Active Campaigns</title>
-    <id>https://{{site.domain}}/campaigns/ending#2</id>
+    <id>https://unglue.it/campaigns/ending#2</id>
     <updated>2014-06-13T00:00:00Z</updated>
-    <link href="active_campaigns" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
+    <link href="active_campaigns/" type="application/atom+xml;profile=opds-catalog;kind=acquisition"/>
     <content>With your help we're raising money to make these books free to the world.</content>
   </entry>
 </feed>

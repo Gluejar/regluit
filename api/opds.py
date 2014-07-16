@@ -16,6 +16,7 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'mobi':"application/x-mobipocket-ebook",
                       'html':"text/html",
                       'text':"text/html"}
+facets = ["creative_commons","active_campaigns"]
 
 def text_node(tag, text):
     node = etree.Element(tag)
