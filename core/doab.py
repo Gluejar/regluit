@@ -1,13 +1,63 @@
 import logging
-
 import json
 from itertools import islice
+
+import requests
+
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
 import regluit
 from regluit.core import models
 from regluit.core.bookloader import add_by_isbn
 
 logger = logging.getLogger(__name__)
+
+def store_doab_cover(doab_id, redo=False):
+    
+    """
+    returns tuple: 1) cover URL, 2) whether newly created (boolean)
+    """
+    
+    cover_file_name= '/doab/%s/cover' % (doab_id)
+    
+    # if we don't want to redo and the cover exists, return the URL of the cover
+    
+    if not redo and default_storage.exists(cover_file_name):
+        return (default_storage.url(cover_file_name), False)
+        
+    # download cover image to cover_file
+    url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
+    try:
+        r = requests.get(url)
+        cover_file = ContentFile(r.content)
+        cover_file.content_type = r.headers.get('content-type', '')
+
+        path = default_storage.save(cover_file_name, cover_file)    
+        return (default_storage.url(cover_file_name), True)
+    except Exception, e:
+        # if there is a problem, return None for cover URL
+        return (None, False)
+
+def update_cover_doab(doab_id, store_cover=True):
+    """
+    update the cover url for work with doab_id
+    if store_cover is True, use the cover from our own storage
+    """
+    work = models.Identifier.objects.get(type='doab', value=doab_id).work
+    edition = work.preferred_edition
+    
+    if store_cover:
+        (cover_url, new_cover) = store_doab_cover(doab_id)
+    else:
+        cover_url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
+
+    if cover_url is not None:
+        edition.cover_image = cover_url
+        edition.save()
+        return cover_url
+    else:
+        return None
 
 def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
                       language, isbns,
@@ -24,7 +74,7 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
     ebooks = models.Ebook.objects.filter(url=url)
        
     # 1 match
-    # > 1 match
+    # > 1 matches
     # 0 match
 
     # simplest case -- if match (1 or more), we could check whether any
@@ -41,6 +91,10 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
         ebook = ebooks[0]
         doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
                                                work=ebook.edition.work)
+        # update the cover id 
+        cover_url = update_cover_doab(doab_id)
+
+        
         return ebook
     
     # remaining case --> need to create a new Ebook 
@@ -107,10 +161,16 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
         else:
             edition = editions[0]
         
+    # make the edition the selected_edition of the work
+    edition.work.selected_edition = edition
+    
     # tie the edition to ebook
     
     ebook.edition = edition
     ebook.save()
+    
+    # update the cover id (could be done separately)
+    cover_url = update_cover_doab(doab_id)
     
     return ebook
 
