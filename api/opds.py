@@ -17,6 +17,9 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'html':"text/html",
                       'text':"text/html"}
 facets = ["creative_commons","active_campaigns"]
+def feeds():
+    for facet in facets:
+        yield globals()[facet]()
 
 def text_node(tag, text):
     node = etree.Element(tag)
@@ -110,24 +113,30 @@ def work_node(work, domain="unglue.it", protocol="https"):
             
     return node
 
-def creative_commons(domain="unglue.it", protocol="https"):
+class Facet:
+    title = ''
+    works = None
+    feed_path = ''
+    description = ''
+        
+    def feed(self):
+        return opds_feed_for_works(self.works, self.feed_path, title=self.title, domain="unglue.it", protocol="https")
 
-    licenses = cc.LICENSE_LIST
-    ccworks = models.Work.objects.filter(editions__ebooks__isnull=False, 
-                        editions__ebooks__rights__in=licenses).distinct().order_by('-created')
-    
-    return opds_feed_for_works(ccworks, "creative_commons", "Unglue.it Catalog:  Creative Commons Books",
-                               domain, protocol)
+class creative_commons(Facet):
+    title = "Unglue.it Catalog:  Creative Commons Books"
+    feed_path = "creative_commons"
+    works = models.Work.objects.filter(editions__ebooks__isnull=False, 
+                        editions__ebooks__rights__in=cc.LICENSE_LIST).distinct().order_by('-created')
+    description= "These Creative Commons licensed ebooks are ready to read - the people who created them want you to read and share them."
 
-def active_campaigns(domain="unglue.it", protocol="https"):
+class active_campaigns(Facet):
     """
     return opds feed for works associated with active campaigns
     """
-    # campaigns = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
-    campaign_works = models.Work.objects.filter(campaigns__status='ACTIVE')
-    return opds_feed_for_works(campaign_works, "active_campaigns",
-                               "Unglue.it Catalog:  Books under Active Campaign",
-                               domain, protocol)
+    title = "Unglue.it Catalog:  Books under Active Campaign"
+    feed_path = "active_campaigns"
+    works = models.Work.objects.filter(campaigns__status='ACTIVE')
+    description= "With your help we're raising money to make these books free to the world."
 
 def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="unglue.it", protocol="https"):
 

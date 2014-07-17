@@ -94,7 +94,7 @@ class OPDSNavigationView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super(OPDSNavigationView, self).get_context_data(**kwargs)
-        context["opds"] = opds
+        context["feeds"] = opds.feeds()
         return context
 
 class OPDSAcquisitionView(View):
@@ -102,8 +102,8 @@ class OPDSAcquisitionView(View):
     def get(self, request, *args, **kwargs):
         facet = kwargs.get('facet')
         if facet in opds.facets:
-            facet_method = getattr(opds, facet)
-            return HttpResponse(facet_method(),
+            facet_class = getattr(opds, facet)()
+            return HttpResponse(facet_class.feed(),
                             content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
         else:
             return HttpResponseNotFound("invalid facet")
