@@ -7,7 +7,7 @@
   <updated>2014-06-13T21:48:34Z</updated>
   <author>
     <name>unglue.it</name>
-    <uri>https://unglue.it</uri>
+    <uri>https://unglue.it/</uri>
   </author>
   <link rel="start" href="https://unglue.it/api/opds/" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
 {% for feed in feeds %}

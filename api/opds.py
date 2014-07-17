@@ -184,7 +184,7 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
     
     start_link = etree.Element("link")
     start_link.attrib.update({"rel":"start",
-     "href":"https://unglue.it/opds",
+     "href":"https://unglue.it/api/opds/",
      "type":"application/atom+xml;profile=opds-catalog;kind=navigation",
     })
     feed.append(start_link)
