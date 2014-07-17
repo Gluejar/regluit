@@ -13,8 +13,8 @@
 {% for feed in feeds %}
   <entry>
     <title>{{ feed.title }}</title>
-    <id>https://unglue.it/{{ feed.feed_path }}/</id>
-    <updated>2014-06-13T00:00:00Z</updated>
+    <id>https://unglue.it/api/opds/{{ feed.feed_path }}/</id>
+    <updated>{{ feed.updated }}</updated>
     <link href="{{ feed.feed_path }}/" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <content></content>
   </entry>

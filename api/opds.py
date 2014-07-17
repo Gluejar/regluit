@@ -119,6 +119,13 @@ class Facet:
     def feed(self):
         return opds_feed_for_works(self.works, self.feed_path, title=self.title)
         
+    def updated(self):
+        # return the creation date for most recently added item
+        if not self.works:
+            return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
+        else:
+            return pytz.utc.localize(self.works[0].created).isoformat()
+        
 
 class creative_commons(Facet):
     title = "Unglue.it Catalog:  Creative Commons Books"
@@ -133,7 +140,7 @@ class active_campaigns(Facet):
     """
     title = "Unglue.it Catalog:  Books under Active Campaign"
     feed_path = "active_campaigns"
-    works = models.Work.objects.filter(campaigns__status='ACTIVE')
+    works = models.Work.objects.filter(campaigns__status='ACTIVE').order_by('-created')
     description= "With your help we're raising money to make these books free to the world."
 
 def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
