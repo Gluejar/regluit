@@ -17,6 +17,8 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'html':"text/html",
                       'text':"text/html"}
 facets = ["creative_commons","active_campaigns"]
+
+UNGLUEIT_URL= 'https://unglue.it'
 def feeds():
     for facet in facets:
         yield globals()[facet]()
@@ -47,16 +49,14 @@ def add_query_component(url, qc):
     return urlparse.urlunparse(m)
 
 
-def work_node(work, domain="unglue.it", protocol="https"):
+def work_node(work):
     
     node = etree.Element("entry")
     # title
     node.append(text_node("title", work.title))
     
     # id
-    node.append(text_node('id', "{protocol}://{domain}{url}".format(url=work.get_absolute_url(),
-                                                                          protocol=protocol,
-                                                                          domain=domain)))
+    node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=work.get_absolute_url())))
     
     # updated -- using creation date
     node.append(text_node('updated', work.created.isoformat()))
@@ -67,9 +67,6 @@ def work_node(work, domain="unglue.it", protocol="https"):
         link_node = etree.Element("link")
         
         # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-        # when computing the URL from a laptop but wanting to have the URL correspond to unglue.it,
-        # I made use of:
-        # "href":map_to_domain(ebook.download_url, domain, protocol),
         
         link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
                                  "type":FORMAT_TO_MIMETYPE.get(ebook.format, ""),
@@ -120,7 +117,8 @@ class Facet:
     description = ''
         
     def feed(self):
-        return opds_feed_for_works(self.works, self.feed_path, title=self.title, domain="unglue.it", protocol="https")
+        return opds_feed_for_works(self.works, self.feed_path, title=self.title)
+        
 
 class creative_commons(Facet):
     title = "Unglue.it Catalog:  Creative Commons Books"
@@ -138,7 +136,7 @@ class active_campaigns(Facet):
     works = models.Work.objects.filter(campaigns__status='ACTIVE')
     description= "With your help we're raising money to make these books free to the world."
 
-def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="unglue.it", protocol="https"):
+def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
 
     feed_xml = """<feed xmlns:dcterms="http://purl.org/dc/terms/" 
       xmlns:opds="http://opds-spec.org/"
@@ -156,9 +154,8 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="ung
     
     # id 
     
-    feed.append(text_node('id', "{protocol}://{domain}/opds/{feed_path}".format(protocol=protocol,
-                                                                                domain=domain,
-                                                                                feed_path=feed_path)))
+    feed.append(text_node('id', "{url}/api/opds/{feed_path}".format(url=UNGLUEIT_URL,
+                                                                         feed_path=feed_path)))
     
     # updated
     # TO DO:  fix time zone?
@@ -171,8 +168,7 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="ung
     
     author_node = etree.Element("author")
     author_node.append(text_node('name', 'unglue.it'))
-    author_node.append(text_node('uri', '{protocol}://{domain}'.format(protocol=protocol,
-                                                                           domain=domain)))
+    author_node.append(text_node('uri', UNGLUEIT_URL))
     feed.append(author_node)
     
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
@@ -188,7 +184,7 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="ung
 
     
     for work in islice(works,None):
-        node = work_node(work, domain=domain, protocol=protocol)
+        node = work_node(work)
         feed.append(node)
     
     return etree.tostring(feed, pretty_print=True)
