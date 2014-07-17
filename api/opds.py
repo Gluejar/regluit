@@ -28,15 +28,6 @@ def text_node(tag, text):
     node.text = text
     return node
 
-def map_to_domain(url, domain="unglue.it", protocol="https"):
-    """
-    for the given url, substitute with the given domain and protocol
-    """
-    
-    m = list(urlparse.urlparse(url))
-    (m[0], m[1]) = (protocol,domain)
-    return urlparse.urlunparse(m)
-
 def add_query_component(url, qc):
     """
     add component qc to the querystring of url
