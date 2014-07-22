@@ -1521,45 +1521,53 @@ class FundCompleteView(TemplateView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         
-        # if there is a redirect URL calculated in get_context_data -- redirect to that URL
-        if context.get('redirect'):
-            return HttpResponseRedirect(context.get('redirect'))
-                        
-        if context['campaign'].type == THANKS:
-            return DownloadView.as_view()(request, work=context['work'])
-        else:
-            if request.user.is_authenticated:
-                return self.render_to_response(context)
+        if self.transaction:
+            if self.transaction.campaign.type == THANKS:
+                return DownloadView.as_view()(request, work=self.transaction.campaign.work)
+        
             else:
-                return redirect_to_login(request.get_full_path())
+                if request.user.is_authenticated:
+                    if self.user_is_ok():
+                        return self.render_to_response(context)
+                    else:
+                         return HttpResponseRedirect(reverse('work', kwargs={'work_id': self.transaction.campaign.work.id}))
+                else:
+                    return redirect_to_login(request.get_full_path())
+        else:
+            return HttpResponseRedirect(reverse('home'))
+    
+    def user_is_ok(self):
+        if not self.transaction:
+            return False   
+        if self.transaction.campaign.type == THANKS and self.transaction.user == None:
+            # to handle anonymous donors- leakage not an issue
+            return True
+        else: 
+            return self.request.user.id == self.transaction.user.id
         
             
 
     def get_context_data(self):
         # pick up all get and post parameters and display
         context = super(FundCompleteView, self).get_context_data()
-
+        self.transaction = None
+        
         # pull out the transaction id and try to get the corresponding Transaction
-        transaction_id = self.request.REQUEST.get("tid", "")
+        transaction_id = self.request.REQUEST.get("tid")
         
-        # be more forgiving of tid --> e.g., if there is a trailing "/"
-        
-        g = re.search("^(\d+)(\/?)$", transaction_id)
-        if g:
-            transaction_id=g.group(1)
-        else: # error -- redirect to home page
-            context['redirect'] = reverse('home')
+        if not transaction_id:
             return context
-
-        transaction = Transaction.objects.get(id=transaction_id)
-        # if there is no valid transaction, redirect home
-        if not transaction:
-            context['redirect'] = reverse('home')
+        try:
+            self.transaction = Transaction.objects.get(id=transaction_id)
+        except ValueError:
+            self.transaction = None
+            
+        if not self.transaction:
             return context
         
         # work and campaign in question
         try:
-            campaign = transaction.campaign
+            campaign = self.transaction.campaign
             work = campaign.work
         except Exception, e:
             campaign = None
@@ -1567,28 +1575,20 @@ class FundCompleteView(TemplateView):
             
         # # we need to check whether the user tied to the transaction is indeed the authenticated user.
         
-        if transaction.campaign.type == THANKS and transaction.user == None:
-            pass
-        elif self.request.user.id != transaction.user.id:
-            # let's redirect user to the work corresponding to the transaction if we can
-            if work:
-                context['redirect'] = reverse('work', kwargs={'work_id': work.id})
-            else:
-                context['redirect'] = reverse('home')
-                
+        if not self.user_is_ok():
             return context
         
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
-        if transaction.user is not None and (campaign is not None) and (work is not None):
-            transaction.user.wishlist.add_work(work, 'pledging', notify=True)
+        if self.transaction.user is not None and (campaign is not None) and (work is not None):
+            self.transaction.user.wishlist.add_work(work, 'pledging', notify=True)
 
         #put info into session for download page to pick up.
-        self.request.session['amount']= transaction.amount
-        if transaction.receipt:
-            self.request.session['receipt']= transaction.receipt
+        self.request.session['amount']= self.transaction.amount
+        if self.transaction.receipt:
+            self.request.session['receipt']= self.transaction.receipt
                 
             
-        context["transaction"] = transaction
+        context["transaction"] = self.transaction
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
