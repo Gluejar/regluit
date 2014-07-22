@@ -1520,6 +1520,11 @@ class FundCompleteView(TemplateView):
     
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+        
+        # if there is a redirect URL calculated in get_context_data -- redirect to that URL
+        if context.get('redirect'):
+            return HttpResponseRedirect(context.get('redirect'))
+                        
         if context['campaign'].type == THANKS:
             return DownloadView.as_view()(request, work=context['work'])
         else:
@@ -1535,8 +1540,22 @@ class FundCompleteView(TemplateView):
         context = super(FundCompleteView, self).get_context_data()
 
         # pull out the transaction id and try to get the corresponding Transaction
-        transaction_id = self.request.REQUEST.get("tid")
+        transaction_id = self.request.REQUEST.get("tid", "")
+        
+        # be more forgiving of tid --> e.g., if there is a trailing "/"
+        
+        g = re.search("^(\d+)(\/?)$", transaction_id)
+        if g:
+            transaction_id=g.group(1)
+        else: # error -- redirect to home page
+            context['redirect'] = reverse('home')
+            return context
+
         transaction = Transaction.objects.get(id=transaction_id)
+        # if there is no valid transaction, redirect home
+        if not transaction:
+            context['redirect'] = reverse('home')
+            return context
         
         # work and campaign in question
         try:
@@ -1545,14 +1564,19 @@ class FundCompleteView(TemplateView):
         except Exception, e:
             campaign = None
             work = None
+            
+        # # we need to check whether the user tied to the transaction is indeed the authenticated user.
         
-        # we need to check whether the user tied to the transaction is indeed the authenticated user.
         if transaction.campaign.type == THANKS and transaction.user == None:
             pass
         elif self.request.user.id != transaction.user.id:
-            # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
-            raise Http404
-            
+            # let's redirect user to the work corresponding to the transaction if we can
+            if work:
+                context['redirect'] = reverse('work', kwargs={'work_id': work.id})
+            else:
+                context['redirect'] = reverse('home')
+                
+            return context
         
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
         if transaction.user is not None and (campaign is not None) and (work is not None):
