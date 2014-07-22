@@ -57,7 +57,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
-from django.views.generic.base import TemplateView
+from django.views.generic.base import (
+    TemplateView,
+    View
+)
 
 '''
 regluit imports
@@ -1517,6 +1520,11 @@ class FundCompleteView(TemplateView):
     
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+        
+        # if there is a redirect URL calculated in get_context_data -- redirect to that URL
+        if context.get('redirect'):
+            return HttpResponseRedirect(context.get('redirect'))
+                        
         if context['campaign'].type == THANKS:
             return DownloadView.as_view()(request, work=context['work'])
         else:
@@ -1532,8 +1540,22 @@ class FundCompleteView(TemplateView):
         context = super(FundCompleteView, self).get_context_data()
 
         # pull out the transaction id and try to get the corresponding Transaction
-        transaction_id = self.request.REQUEST.get("tid")
+        transaction_id = self.request.REQUEST.get("tid", "")
+        
+        # be more forgiving of tid --> e.g., if there is a trailing "/"
+        
+        g = re.search("^(\d+)(\/?)$", transaction_id)
+        if g:
+            transaction_id=g.group(1)
+        else: # error -- redirect to home page
+            context['redirect'] = reverse('home')
+            return context
+
         transaction = Transaction.objects.get(id=transaction_id)
+        # if there is no valid transaction, redirect home
+        if not transaction:
+            context['redirect'] = reverse('home')
+            return context
         
         # work and campaign in question
         try:
@@ -1542,14 +1564,19 @@ class FundCompleteView(TemplateView):
         except Exception, e:
             campaign = None
             work = None
+            
+        # # we need to check whether the user tied to the transaction is indeed the authenticated user.
         
-        # we need to check whether the user tied to the transaction is indeed the authenticated user.
         if transaction.campaign.type == THANKS and transaction.user == None:
             pass
         elif self.request.user.id != transaction.user.id:
-            # should be 403 -- but let's try 404 for now -- 403 exception coming in Django 1.4
-            raise Http404
-            
+            # let's redirect user to the work corresponding to the transaction if we can
+            if work:
+                context['redirect'] = reverse('work', kwargs={'work_id': work.id})
+            else:
+                context['redirect'] = reverse('home')
+                
+            return context
         
         # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
         if transaction.user is not None and (campaign is not None) and (work is not None):
@@ -3184,4 +3211,42 @@ def marc_concatenate(request):
         outfile.write('</collection>')
 
     return outfile
+
+class OPDSNavigationView(TemplateView):
+    
+    # http://stackoverflow.com/a/6867976: secret to how to change content-type
+    
+    def render_to_response(self, context, **response_kwargs):
+        response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
+        return super(TemplateView, self).render_to_response(context, **response_kwargs)
+    
+    def get_context_data(self, **kwargs):
+        context = super(OPDSNavigationView, self).get_context_data(**kwargs)
+        context["site"] = Site.objects.get_current()
+        return context
+
+class OPDSAcquisitionView(View):
+
+    def get(self, request, *args, **kwargs):
         
+        from regluit.core import opds
+        
+        site = Site.objects.get_current()
+        if site.domain.find("localhost") > -1:
+            protocol = "http"
+        else:
+            protocol = "https"
+            
+        logger.info("request.path: {0}".format(request.path))
+        logger.info("facet: {0}".format(kwargs.get('facet')))
+            
+        facet = kwargs.get('facet')
+        if facet == 'creative_commons':
+            return HttpResponse(opds.creative_commons(domain=site.domain, protocol=protocol),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+        elif facet == 'active_campaigns':
+            return HttpResponse(opds.active_campaigns(domain=site.domain, protocol=protocol),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+        else:
+            return HttpResponseNotFound("invalid facet")
+            
