@@ -74,7 +74,7 @@ $j(document).ready(function() {
         <ul class="social menu">
             {% with site.domain as domain %}
             <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-            <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
+            <a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work.id|urlencode:"" %}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
             {% endwith %}
             {% if request.user.is_authenticated %}<a href="{% url emailshare 'downloaded' %}?next={% url work work.id %}"><li class="email"><span>Email</span></li></a>{% endif %}
             <a id="embed2"><li class="embed"><span>Embed</span></li></a>
