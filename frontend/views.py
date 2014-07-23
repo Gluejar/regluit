@@ -1559,7 +1559,7 @@ class FundCompleteView(TemplateView):
             return context
         try:
             self.transaction = Transaction.objects.get(id=transaction_id)
-        except ValueError:
+        except (ValueError, Transaction.DoesNotExist):
             self.transaction = None
             
         if not self.transaction:
