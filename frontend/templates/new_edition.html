@@ -65,8 +65,16 @@
 
 		<p><b>Description</b>: <br />
 		{{ form.description.errors }}{{ form.description }}<br />
-		(<I>This will appear in the Description tab on the book page.  If you create a campaign for this work, the campaign pitch will override this description</i>)</p>
-
+		(<i>{% if work.last_campaign %}
+		        {% ifequal work.last_campaign.type 3 %}
+		        This will appear in the Description tab on the book page.  
+		        {% else %}
+		        The campaign pitch will override this description.
+		        {% endifequal %}
+		    {% else %}
+		    This will appear in the Description tab on the book page. 
+		    {% endif %}
+        </i>)</p>
 		<p><b>Publication Date</b> (<I>four-digit year</I>): {{ form.publication_date.errors }}{{ form.publication_date }}</p>
 
 		{% comment %}
