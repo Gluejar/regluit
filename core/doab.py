@@ -4,11 +4,14 @@ from itertools import islice
 
 import requests
 
+from django.db.models import (Q, F)
+
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
 import regluit
 from regluit.core import models
+from regluit.core import bookloader
 from regluit.core.bookloader import add_by_isbn
 
 logger = logging.getLogger(__name__)
@@ -58,17 +61,52 @@ def update_cover_doab(doab_id, store_cover=True):
         return cover_url
     else:
         return None
+    
+def attach_more_doab_metadata(ebook, description, subjects,
+                              publication_date, publisher_name=None):
+    
+    """
+    for given ebook, attach description, subjects, publication date to
+    corresponding Edition and Work
+    """
+    # if edition doesn't have a publication date, update it
+    edition = ebook.edition
+    edition_to_save = False
+    
+    if not edition.publication_date:
+        edition.publication_date = publication_date
+        edition_to_save = True
+    
+    # TO DO: insert publisher name properly
+    # PublisherName.name is not unique at the moment (contrary to what I thought)
+    # if edition.publisher_name is empty, set it
+    #if not edition.publisher_name:
+    #    edition.publisher_name = models.PublisherName.objects.get_or_create(name=publisher_name)[0]
+    #    edition_to_save = True
+        
+    if edition_to_save:
+        edition.save()
+        
+    # attach description to work if it's not empty
+    work = edition.work
+    if not work.description:
+        work.description = description
+        work.save()
+        
+    # update subjects
+    work.subjects.add(*[models.Subject.objects.get_or_create(name=s)[0] for s in subjects])
+            
+    return ebook
 
 def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
                       language, isbns,
-                      provider='Directory of Open Access Books', **kwargs):
+                      provider, **kwargs):
     
-
-    from django.db.models import (Q, F)
-    
+    """
+    load a record from doabooks.org represented by input parameters and return an ebook
+    """
     from regluit.core import tasks
-    from regluit.core import (models, bookloader)
-   
+
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
@@ -93,7 +131,13 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
                                                work=ebook.edition.work)
         # update the cover id 
         cover_url = update_cover_doab(doab_id)
-
+        
+        # attach more metadata
+        attach_more_doab_metadata(ebook, 
+                                  description=kwargs.get('description'),
+                                  subjects=kwargs.get('subject'),
+                                  publication_date=kwargs.get('date'),
+                                  publisher_name=kwargs.get('publisher'))
         
         return ebook
     
@@ -162,17 +206,25 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
             edition = editions[0]
         
     # make the edition the selected_edition of the work
-    edition.work.selected_edition = edition
+    work = edition.work
+    work.selected_edition = edition
+    work.save()
     
     # tie the edition to ebook
-    
     ebook.edition = edition
     ebook.save()
     
     # update the cover id (could be done separately)
     cover_url = update_cover_doab(doab_id)
     
+    # attach more metadata
+    attach_more_doab_metadata(ebook, 
+                              description=kwargs.get('description'),
+                              subjects=kwargs.get('subject'),
+                              publication_date=kwargs.get('date'),
+                              publisher_name=kwargs.get('publisher'))    
     return ebook
+
 
 def load_doab_records(fname, limit=None, async=True):
     
