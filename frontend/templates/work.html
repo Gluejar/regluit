@@ -690,6 +690,7 @@
                                         <span class="menu-item-desc">You're welcome!</span>
                                     </li>
                                     {% else %}
+                                    {% if work.last_campaign.ask_money %}
                                     <li class="first last" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                         {% if request.user.library %}
                                             <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
@@ -703,6 +704,12 @@
                                             </a>
                                         {% endif %}
                                     </li>
+                                    {% else %}
+                                   <li class="first last" >
+                                            <a href="{% url download work_id %}">
+                                            <span class="menu-item-desc">Just read the book!</span>
+                                            </a>
+                                    {% endif %}
                                     {% endif %}
                                 </ul>
                             </div>

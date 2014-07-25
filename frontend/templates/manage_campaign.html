@@ -451,7 +451,7 @@ Please fix the following before launching your campaign:
     {% if not campaign.work.ebookfiles.0 %}
     <p> <b>ebook files for this work <a class="tabs1">need to be loaded</a>!</b></p>
     {% endif %}
-    <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed.</p>
+    <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed. If you enter $0 for BOTH, then no contribution form will be displayed.</p>
     <div class="jsmod-content">
     {% for offer in offers %}
     <form action="#" method="POST"><div>

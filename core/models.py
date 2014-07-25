@@ -810,6 +810,19 @@ class Campaign(models.Model):
             return None
 
     @property
+    def ask_money(self):
+    # true if there's an offer asking for money
+        if self.type is REWARDS:
+            return True
+        try:
+            Offer.objects.get(work=self.work, active=True, price__gt=0.00)
+            return True
+        except Offer.DoesNotExist:
+            return False
+        except Offer.MultipleObjectsReturned:
+            return True
+    
+    @property
     def days_per_copy(self):
         if self.individual_offer:
             return Decimal(float(self.individual_offer.price) / self.dollar_per_day )
