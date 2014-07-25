@@ -131,7 +131,8 @@ class active_campaigns(Facet):
     """
     title = "Unglue.it Catalog:  Books under Active Campaign"
     feed_path = "active_campaigns"
-    works = models.Work.objects.filter(campaigns__status='ACTIVE').order_by('-created')
+    works = models.Work.objects.filter(campaigns__status='ACTIVE',
+                               editions__ebooks__isnull=False).distinct().order_by('-created')
     description= "With your help we're raising money to make these books free to the world."
 
 def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
