@@ -16,20 +16,17 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'mobi':"application/x-mobipocket-ebook",
                       'html':"text/html",
                       'text':"text/html"}
+facets = ["creative_commons","active_campaigns"]
+
+UNGLUEIT_URL= 'https://unglue.it'
+def feeds():
+    for facet in facets:
+        yield globals()[facet]()
 
 def text_node(tag, text):
     node = etree.Element(tag)
     node.text = text
     return node
-
-def map_to_domain(url, domain="unglue.it", protocol="https"):
-    """
-    for the given url, substitute with the given domain and protocol
-    """
-    
-    m = list(urlparse.urlparse(url))
-    (m[0], m[1]) = (protocol,domain)
-    return urlparse.urlunparse(m)
 
 def add_query_component(url, qc):
     """
@@ -43,16 +40,14 @@ def add_query_component(url, qc):
     return urlparse.urlunparse(m)
 
 
-def work_node(work, domain="unglue.it", protocol="https"):
+def work_node(work):
     
     node = etree.Element("entry")
     # title
     node.append(text_node("title", work.title))
     
     # id
-    node.append(text_node('id', "{protocol}://{domain}{url}".format(url=work.get_absolute_url(),
-                                                                          protocol=protocol,
-                                                                          domain=domain)))
+    node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=work.get_absolute_url())))
     
     # updated -- using creation date
     node.append(text_node('updated', work.created.isoformat()))
@@ -63,9 +58,6 @@ def work_node(work, domain="unglue.it", protocol="https"):
         link_node = etree.Element("link")
         
         # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-        # when computing the URL from a laptop but wanting to have the URL correspond to unglue.it,
-        # I made use of:
-        # "href":map_to_domain(ebook.download_url, domain, protocol),
         
         link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
                                  "type":FORMAT_TO_MIMETYPE.get(ebook.format, ""),
@@ -109,26 +101,41 @@ def work_node(work, domain="unglue.it", protocol="https"):
             
     return node
 
-def creative_commons(domain="unglue.it", protocol="https"):
+class Facet:
+    title = ''
+    works = None
+    feed_path = ''
+    description = ''
+        
+    def feed(self):
+        return opds_feed_for_works(self.works, self.feed_path, title=self.title)
+        
+    def updated(self):
+        # return the creation date for most recently added item
+        if not self.works:
+            return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
+        else:
+            return pytz.utc.localize(self.works[0].created).isoformat()
+        
 
-    licenses = cc.LICENSE_LIST
-    ccworks = models.Work.objects.filter(editions__ebooks__isnull=False, 
-                        editions__ebooks__rights__in=licenses).distinct().order_by('-created')
-    
-    return opds_feed_for_works(ccworks, "creative_commons", "Unglue.it Catalog:  Creative Commons Books",
-                               domain, protocol)
+class creative_commons(Facet):
+    title = "Unglue.it Catalog:  Creative Commons Books"
+    feed_path = "creative_commons"
+    works = models.Work.objects.filter(editions__ebooks__isnull=False, 
+                        editions__ebooks__rights__in=cc.LICENSE_LIST).distinct().order_by('-created')
+    description= "These Creative Commons licensed ebooks are ready to read - the people who created them want you to read and share them."
 
-def active_campaigns(domain="unglue.it", protocol="https"):
+class active_campaigns(Facet):
     """
     return opds feed for works associated with active campaigns
     """
-    # campaigns = models.Campaign.objects.filter(status='ACTIVE').order_by('deadline')
-    campaign_works = models.Work.objects.filter(campaigns__status='ACTIVE')
-    return opds_feed_for_works(campaign_works, "active_campaigns",
-                               "Unglue.it Catalog:  Books under Active Campaign",
-                               domain, protocol)
+    title = "Unglue.it Catalog:  Books under Active Campaign"
+    feed_path = "active_campaigns"
+    works = models.Work.objects.filter(campaigns__status='ACTIVE',
+                               editions__ebooks__isnull=False).distinct().order_by('-created')
+    description= "With your help we're raising money to make these books free to the world."
 
-def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="unglue.it", protocol="https"):
+def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
 
     feed_xml = """<feed xmlns:dcterms="http://purl.org/dc/terms/" 
       xmlns:opds="http://opds-spec.org/"
@@ -146,9 +153,8 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="ung
     
     # id 
     
-    feed.append(text_node('id', "{protocol}://{domain}/opds/{feed_path}".format(protocol=protocol,
-                                                                                domain=domain,
-                                                                                feed_path=feed_path)))
+    feed.append(text_node('id', "{url}/api/opds/{feed_path}".format(url=UNGLUEIT_URL,
+                                                                         feed_path=feed_path)))
     
     # updated
     # TO DO:  fix time zone?
@@ -161,8 +167,7 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="ung
     
     author_node = etree.Element("author")
     author_node.append(text_node('name', 'unglue.it'))
-    author_node.append(text_node('uri', '{protocol}://{domain}'.format(protocol=protocol,
-                                                                           domain=domain)))
+    author_node.append(text_node('uri', UNGLUEIT_URL))
     feed.append(author_node)
     
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
@@ -171,14 +176,14 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", domain="ung
     
     start_link = etree.Element("link")
     start_link.attrib.update({"rel":"start",
-     "href":"https://unglue.it/opds",
+     "href":"https://unglue.it/api/opds/",
      "type":"application/atom+xml;profile=opds-catalog;kind=navigation",
     })
     feed.append(start_link)
 
     
     for work in islice(works,None):
-        node = work_node(work, domain=domain, protocol=protocol)
+        node = work_node(work)
         feed.append(node)
     
     return etree.tostring(feed, pretty_print=True)

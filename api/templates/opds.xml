@@ -1,0 +1,22 @@
+<feed xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opds="http://opds-spec.org/"
+  xmlns="http://www.w3.org/2005/Atom"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="http://www.kbcafe.com/rss/atom.xsd.xml">
+  <title>Unglue.it Catalog</title>
+  <id>https://unglue.it/api/opds/</id>
+  <updated>2014-06-13T21:48:34Z</updated>
+  <author>
+    <name>unglue.it</name>
+    <uri>https://unglue.it/</uri>
+  </author>
+  <link rel="start" href="https://unglue.it/api/opds/" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+{% for feed in feeds %}
+  <entry>
+    <title>{{ feed.title }}</title>
+    <id>https://unglue.it/api/opds/{{ feed.feed_path }}/</id>
+    <updated>{{ feed.updated }}</updated>
+    <link href="{{ feed.feed_path }}/" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <content></content>
+  </entry>
+{% endfor %}
+</feed>
