@@ -77,12 +77,9 @@ def attach_more_doab_metadata(ebook, description, subjects,
         edition.publication_date = publication_date
         edition_to_save = True
     
-    # TO DO: insert publisher name properly
-    # PublisherName.name is not unique at the moment (contrary to what I thought)
     # if edition.publisher_name is empty, set it
-    #if not edition.publisher_name:
-    #    edition.publisher_name = models.PublisherName.objects.get_or_create(name=publisher_name)[0]
-    #    edition_to_save = True
+    if not edition.publisher_name:
+        edition.set_publisher(publisher_name)
         
     if edition_to_save:
         edition.save()
