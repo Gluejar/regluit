@@ -500,9 +500,6 @@ class Campaign(models.Model):
                     self.problems.append(_('A buy-to-unglue campaign must have a target'))
                     may_launch = False
             if self.type==THANKS:
-                if self.work.offers.filter(price__gt=0,active=True).count()==0: 
-                    self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign without suggesting a contribution amount > 0' ))
-                    may_launch = False  
                 if EbookFile.objects.filter(edition__work=self.work).count()==0: 
                     self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded' ))
                     may_launch = False  
