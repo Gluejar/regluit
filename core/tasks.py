@@ -23,7 +23,8 @@ from regluit.core import (
     bookloader,
     models,
     goodreads, 
-    librarything
+    librarything,
+    doab
 )
 from regluit.core.models import Campaign, Acq
 from regluit.core.signals import deadline_impending
@@ -150,6 +151,13 @@ def refresh_acqs():
             break
         else:
             acq.refreshed = True
+
+@task
+def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, language, isbns,
+                      provider='Directory of Open Access Books', **kwargs):
+    
+    return doab.load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
+                      language, isbns, provider, **kwargs)    
 
 from postmonkey import PostMonkey, MailChimpException
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)

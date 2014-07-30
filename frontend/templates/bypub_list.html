@@ -5,7 +5,7 @@
 {% block title %} Works published by {{ pubname }} {% endblock %}
 {% block userblock1 %}
     {% if publisher %}
-    <div class="publogo"><a href="{{ publisher.url }}"><img src="{{ publisher.logo_url }}" alt="{{ pubname }} logo" /></a></div>
+    <div class="publogo"><a href="{{ publisher.url }}"><img src="{{ publisher.logo_url }}" alt="{{ pubname }} logo" width="220" /></a></div>
     {% else %}
     {{ block.super }}
     {% endif %}

@@ -459,7 +459,7 @@
                                                 {% endifnotequal %}
                                             {% endfor %}
                                         {% endif %}
-                                        <div><a href="{% url work_editions work_id  %}">All editions for this work/Add ebook links</a></div>
+                                        <div><a href="{% url work_editions work_id  %}">All editions for this work.</a></div>
                                     {% endifequal %}
                                     
                                 </div>
@@ -684,7 +684,7 @@
                         {% ifequal work.last_campaign.type 3 %}
                             <h3 class="jsmod-title"><span>Thank the Creators</span></h3>
                             <div class="jsmod-content">
-                                <ul class="support menu" itemprop=">
+                                <ul class="support menu">
                                     {% if purchased %}
                                     <li class="first no_link">
                                         <span class="menu-item-desc">You're welcome!</span>
