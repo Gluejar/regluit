@@ -86,7 +86,7 @@ class Transaction(models.Model):
     reason = models.CharField(max_length=64, null=True)
     
     # creation and last modified timestamps
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_created = models.DateTimeField(auto_now_add=True, db_index=True,)
     date_modified = models.DateTimeField(auto_now=True)
     
     # date_payment: when an attempt is made to make the primary payment
