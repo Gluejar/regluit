@@ -246,7 +246,7 @@ class Acq(models.Model):
     Short for Acquisition, this is a made-up word to describe the thing you acquire when you buy or borrow an ebook 
     """
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True,)
     expires = models.DateTimeField(null=True)
     refreshes = models.DateTimeField(auto_now_add=True, default=now())
     refreshes.editable=True
@@ -376,23 +376,23 @@ class Hold(models.Model):
 
 class Campaign(models.Model):
     LICENSE_CHOICES = cc.CCCHOICES
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True,)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = RichTextField(null=True, blank=False)
     details = RichTextField(null=True, blank=True)
     target = models.DecimalField(max_digits=14, decimal_places=2, null=True, default=0.00)
     license = models.CharField(max_length=255, choices = LICENSE_CHOICES, default='CC BY-NC-ND')
-    left = models.DecimalField(max_digits=14, decimal_places=2, null=True)
+    left = models.DecimalField(max_digits=14, decimal_places=2, null=True, db_index=True,)
     deadline = models.DateTimeField(db_index=True, null=True)
     dollar_per_day = models.FloatField(null=True)
     cc_date_initial = models.DateTimeField(null=True)
-    activated = models.DateTimeField(null=True)
+    activated = models.DateTimeField(null=True, db_index=True,)
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(User, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
-    status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED")
+    status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED", db_index=True,)
     type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
             choices=((REWARDS,'Pledge-to-unglue campaign'),(BUY2UNGLUE,'Buy-to-unglue campaign'),(THANKS,'Thanks-for-ungluing campaign')))
     edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
@@ -982,15 +982,15 @@ class Identifier(models.Model):
         return u'{0}:{1}'.format(self.type, self.value)
 
 class Work(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True,)
     title = models.CharField(max_length=1000)
-    language = models.CharField(max_length=5, default="en", null=False)
+    language = models.CharField(max_length=5, default="en", null=False, db_index=True,)
     openlibrary_lookup = models.DateTimeField(null=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
     earliest_publication =  models.CharField(max_length=50, null=True)
-    featured = models.DateTimeField(null=True)
+    featured = models.DateTimeField(null=True, db_index=True,)
 
 
     class Meta:
@@ -1440,7 +1440,7 @@ class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
     publisher_name = models.ForeignKey("PublisherName", related_name="editions", null=True)
-    publication_date = models.CharField(max_length=50, null=True, blank=True)
+    publication_date = models.CharField(max_length=50, null=True, blank=True, db_index=True,)
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(blank=True)
@@ -1592,7 +1592,7 @@ class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
     RIGHTS_CHOICES = cc.CCCHOICES
     url = models.URLField(max_length=1024)
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True,)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
@@ -1677,8 +1677,8 @@ class Wishlist(models.Model):
             return ''
             
 class Wishes(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    source = models.CharField(max_length=15, blank=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True,)
+    source = models.CharField(max_length=15, blank=True, db_index=True,)
     wishlist  = models.ForeignKey('Wishlist')
     work = models.ForeignKey('Work', related_name='wishes')
     class Meta:
@@ -1880,7 +1880,7 @@ class Press(models.Model):
     url =  models.URLField()
     title = models.CharField(max_length=140)
     source = models.CharField(max_length=140)
-    date = models.DateField()
+    date = models.DateField( db_index=True,)
     language = models.CharField(max_length=20, blank=True)
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
