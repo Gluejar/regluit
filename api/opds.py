@@ -39,6 +39,11 @@ def add_query_component(url, qc):
         m[4] = qc
     return urlparse.urlunparse(m)
 
+def isbn_node(isbn):
+    node = etree.Element("{http://purl.org/dc/terms/}identifier")
+    node.attrib.update({"{http://www.w3.org/2001/XMLSchema-instance}type":'dcterms:URI'})
+    node.text = 'urn:ISBN:'+ isbn
+    return node
 
 def work_node(work):
     
@@ -90,7 +95,12 @@ def work_node(work):
     # language
     #<dcterms:language>en</dcterms:language>
     node.append(text_node("{http://purl.org/dc/terms/}language", work.language))
-
+    
+    # identifiers
+    if work.identifiers.filter(type='isbn'):
+        for isbn in work.identifiers.filter(type='isbn')[0:9]:  #10 should be more than enough
+            node.append(isbn_node(isbn.value))
+    
     # subject tags
     # [[subject.name for subject in work.subjects.all()] for work in ccworks if work.subjects.all()]
     if work.subjects.all():
