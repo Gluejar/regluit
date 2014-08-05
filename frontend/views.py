@@ -257,7 +257,7 @@ def home(request, landing=False):
         ).order_by(
             '-date_created'
         )[:10]
-    latest_wishes = models.Wishes.objects.order_by(
+    latest_wishes = models.Wishes.objects.filter(source='user').order_by(
             '-created'
         )[:10]
 
@@ -2753,6 +2753,9 @@ class DownloadView(PurchaseView):
             formats[ebook.format] = reverse('download_ebook', args=[ebook.id] )
     
         if request.user.is_authenticated(): 
+            #add a fave
+            request.user.wishlist.add_work(work,'download')
+            
             all_acqs=request.user.acqs.filter(work=work).order_by('-created')
             for an_acq in all_acqs:
                 if not an_acq.expired:
