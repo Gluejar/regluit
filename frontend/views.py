@@ -595,7 +595,7 @@ def new_edition(request, work_id, edition_id, by=None):
                         existing= models.Identifier.objects.filter(type=id_type, value=form.cleaned_data[id_type])
                         if existing.count() and existing[0].edition != edition:
                                 return render(request, 'new_edition.html', {
-                                        'form': form,  'edition': edition, 
+                                        'form': form,  'edition': edition, 'admin': admin,
                                         'id_msg': "%s = %s already exists"%( id_type, id_val ),
                                         })
                         else:
