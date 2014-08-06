@@ -886,7 +886,7 @@ class ByPubListView(ByPubView):
 class CCListView(FilterableListView):
     template_name = "cc_list.html"
     context_object_name = "work_list"
-    licenses = cc.LICENSE_LIST
+    licenses = cc.LICENSE_LIST_ALL
     facets = cc.FACET_LIST
 
     def get_queryset_all(self):

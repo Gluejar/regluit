@@ -1583,7 +1583,7 @@ class EbookFile(models.Model):
     
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
-    RIGHTS_CHOICES = cc.CCCHOICES
+    RIGHTS_CHOICES = cc.CHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
