@@ -23,25 +23,32 @@ $j(document).ready(function() {
 <div id="lightbox_content">
 <span id="dropboxjs" data-app-key="{{ dropbox_key }}"></span>
 {% if show_beg %}
-<div class="border" style="padding: 10px; min-height: 18em">
-    <div id="askblock">
-        <div>Please help us thank the creators for making this book free. The amount is up to you.</div>
-        <form class="askform" method="POST" action="{% url thank work.id %}#">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-                <div class="contrib_amount">Amount: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
-                <div style="text-align: center;"><input name="pledge" type="submit" value="Say Thank You" id="contribsubmit" class="loader-gif" /></div>
-                <div id="anoncontribbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
-            {% if request.user.credit.available > 0 %}
-                <div > You have an available  credit of ${{ request.user.credit.available|intcomma }} which will be applied to your contribution.</div>
-            {% endif %}
-        </form> 
+    {% if work.last_campaign.ask_money %}
+    <div class="border" style="padding: 10px; min-height: 18em">
+        <div id="askblock">
+            <div>Please help us thank the creators for making this book free. The amount is up to you.</div>
+            <form class="askform" method="POST" action="{% url thank work.id %}#">
+                {% csrf_token %}
+                {{ form.non_field_errors }}
+                    <div class="contrib_amount">Amount: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
+                    <div style="text-align: center;"><input name="pledge" type="submit" value="Say Thank You" id="contribsubmit" class="loader-gif" /></div>
+                    <div id="anoncontribbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
+                {% if request.user.credit.available > 0 %}
+                    <div > You have an available  credit of ${{ request.user.credit.available|intcomma }} which will be applied to your contribution.</div>
+                {% endif %}
+            </form> 
+        </div>
+        <div class="rh_ask">
+                {{ work.last_campaign.description|safe }}
+        </div>
     </div>
-    
-    <div class="rh_ask">
-            {{ work.last_campaign.description|safe }}
+    {% else %}
+    <div class="border" style="padding: 10px">
+        <div class="rh_ask">
+                {{ work.last_campaign.description|safe }}
+        </div>
     </div>
-</div>
+    {% endif %}
 {% endif %}
 {% if user_license.thanked %}
     <div style="text-align: center; padding: 20px;">

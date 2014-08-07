@@ -88,9 +88,6 @@ Please fix the following before launching your campaign:
         		Total revenue: ${{ work.last_campaign.current_total|intcomma }} from {{ work.last_campaign.supporters_count }} Ungluers and {{ work.last_campaign.anon_count }} others
         	{% endifequal %}
         	</div>
-        	<div class="status">
-        		<img src="/static/images/images/icon-book-37by25-{{ work.percent_unglued }}.png"  title="{{ work.percent_of_goal }}% of goal" alt="book list status" />
-        	</div>
         </div>
     </div>
 
@@ -451,7 +448,7 @@ Please fix the following before launching your campaign:
     {% if not campaign.work.ebookfiles.0 %}
     <p> <b>ebook files for this work <a class="tabs1">need to be loaded</a>!</b></p>
     {% endif %}
-    <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed.</p>
+    <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed. If you enter $0 for BOTH, then no contribution form will be displayed.</p>
     <div class="jsmod-content">
     {% for offer in offers %}
     <form action="#" method="POST"><div>

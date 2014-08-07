@@ -500,9 +500,6 @@ class Campaign(models.Model):
                     self.problems.append(_('A buy-to-unglue campaign must have a target'))
                     may_launch = False
             if self.type==THANKS:
-                if self.work.offers.filter(price__gt=0,active=True).count()==0: 
-                    self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign without suggesting a contribution amount > 0' ))
-                    may_launch = False  
                 if EbookFile.objects.filter(edition__work=self.work).count()==0: 
                     self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded' ))
                     may_launch = False  
@@ -809,6 +806,19 @@ class Campaign(models.Model):
         except Offer.DoesNotExist:
             return None
 
+    @property
+    def ask_money(self):
+    # true if there's an offer asking for money
+        if self.type is REWARDS:
+            return True
+        try:
+            Offer.objects.get(work=self.work, active=True, price__gt=0.00)
+            return True
+        except Offer.DoesNotExist:
+            return False
+        except Offer.MultipleObjectsReturned:
+            return True
+    
     @property
     def days_per_copy(self):
         if self.individual_offer:
