@@ -17,7 +17,9 @@ class EpubFileField(forms.FileField):
 class ISBNField(forms.CharField):
     def to_python(self, value):
         value=super(ISBNField,self).to_python(value)
-        if value == 'delete':
+        if not value:
+            return ''
+        elif value == 'delete':
             return value
         self.isbn=ISBN(value)
         if self.isbn.error:

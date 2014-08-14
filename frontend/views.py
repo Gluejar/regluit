@@ -595,7 +595,7 @@ def new_edition(request, work_id, edition_id, by=None):
                         existing= models.Identifier.objects.filter(type=id_type, value=form.cleaned_data[id_type])
                         if existing.count() and existing[0].edition != edition:
                                 return render(request, 'new_edition.html', {
-                                        'form': form,  'edition': edition, 
+                                        'form': form,  'edition': edition, 'admin': admin,
                                         'id_msg': "%s = %s already exists"%( id_type, id_val ),
                                         })
                         else:
@@ -886,7 +886,7 @@ class ByPubListView(ByPubView):
 class CCListView(FilterableListView):
     template_name = "cc_list.html"
     context_object_name = "work_list"
-    licenses = cc.LICENSE_LIST
+    licenses = cc.LICENSE_LIST_ALL
     facets = cc.FACET_LIST
 
     def get_queryset_all(self):
