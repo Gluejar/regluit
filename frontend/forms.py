@@ -67,6 +67,7 @@ from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 
 logger = logging.getLogger(__name__)
+nulls = [False, 'delete', '']
 
 class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500, required=False)
@@ -132,7 +133,10 @@ class EditionForm(forms.ModelForm):
     coverfile = forms.ImageField(required=False)
     
     def clean(self):
-        if not self.cleaned_data.get("isbn",False) and not self.cleaned_data.get("oclc",False)  and not self.cleaned_data.get("goog",False):
+        has_isbn = self.cleaned_data.get("isbn", False) not in nulls
+        has_oclc = self.cleaned_data.get("oclc", False) not in nulls
+        has_goog = self.cleaned_data.get("goog", False) not in nulls
+        if not has_isbn and not has_oclc  and not has_goog:
             raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
         return self.cleaned_data
     

@@ -115,7 +115,11 @@
 <h2>More Edition Management</h2>
 
 <div><a href="{% url merge edition.work.id  %}">Merge other works into this one</a></div>
-<div><a href="{% url work_editions edition.work.id  %}">Remove editions from this work</a><br /><br /></div>
+<div><a href="{% url work_editions edition.work.id  %}">Remove editions from this work</a></div>
+{% if request.user.is_staff %}
+<div><a href="{% url feature edition.work.id  %}">Feature this work today</a></div>
+{% endif %}
+<br />
 {% endif %}
 
 {% else %}
