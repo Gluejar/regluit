@@ -1,8 +1,8 @@
 Django==1.4.5
 Fabric==1.4.3
 MySQL-python==1.2.3
-Pillow==1.7.7
-PyPDF2==1.20
+Pillow==2.5.3
+PyPDF2==1.23
 git+git://github.com/urschrei/pyzotero.git@v0.9.51
 South==0.7.6
 WebOb==1.2.3
@@ -13,6 +13,7 @@ billiard==2.7.3.12
 boto==2.8.0
 #git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 celery==3.0.9
+# pip installing pillow seems to delete distribute
 distribute==0.6.28
 django-celery==3.0.9
 #django-ckeditor==3.6.2.1
@@ -35,6 +36,7 @@ django-storages==1.1.6
 django-tastypie==0.9.11
 feedparser==5.1.2
 freebase==1.0.8
+html5lib==1.0b3
 httplib2==0.7.5
 kombu==2.4.5
 lxml==2.3.5
@@ -52,12 +54,15 @@ python-openid==2.2.5
 pytz==2012d
 rdflib==2.4.0
 redis==2.6.2
+reportlab==3.1.8
 requests==0.14.0
 selenium==2.40.0
-six==1.2.0
+six==1.7.3
 ssh==1.7.14
 stevedore==0.4
 stripe==1.9.1
 virtualenv==1.4.9
+# virtualenv-clone==0.2.4 not sure why I have this in my env
 virtualenvwrapper==3.6
 wsgiref==0.1.2
+xhtml2pdf==0.0.6
