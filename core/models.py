@@ -14,6 +14,7 @@ from datetime import timedelta, datetime
 from decimal import Decimal
 from notification import models as notification
 from postmonkey import PostMonkey, MailChimpException
+from tempfile import SpooledTemporaryFile
 
 '''
 django imports
@@ -35,6 +36,7 @@ import regluit
 import regluit.core.isbn
 import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub
+from regluit.core.pdf import ask_pdf, pdf_append
 
 from regluit.core.signals import (
     successful_campaign,
@@ -898,6 +900,33 @@ class Campaign(models.Model):
     def latest_ending(cls):
         return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
     
+    def add_ask_to_ebfs(self, position=0):
+        for ebf in self.work.ebookfiles().filter(asking = False):
+            if ebf.format=='pdf':
+                try:
+                    added = ask_pdf({'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
+                    new_ebf = EbookFile.objects.create(edition=self.work.preferred_edition, format='pdf', asking=True)
+                    new_file = SpooledTemporaryFile()
+                    old_file = SpooledTemporaryFile()
+                    ebf.file.open()
+                    old_file.write(ebf.file.read())
+                    if position==0:
+                        pdf_append(added, old_file, new_file)
+                    else:
+                        pdf_append(old_file, added, new_file)
+                    pdf_append(added, old_file, new_file)
+                    new_file.seek(0)
+                    new_ebf.file.save(path_for_file(ebf,None),ContentFile(new_file.read()))
+                    new_ebf.save()
+                    for old_ebf in self.work.ebookfiles().filter(asking = True).exclude(pk=new_ebf.pk):
+                        old_ebf.delete()
+                except Exception as e:
+                    logger.error("error appending pdf ask  %s" % (e))
+            
+            
+                    
+                
+        
     def make_unglued_ebf(self, format, watermarked):
         ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         r=urllib2.urlopen(watermarked.download_link(format))
@@ -1585,6 +1614,7 @@ class EbookFile(models.Model):
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     edition = models.ForeignKey('Edition', related_name='ebook_files')
     created =  models.DateTimeField(auto_now_add=True)
+    asking = models.BooleanField(default=False)
     
     def check_file(self):
         if self.format == 'epub':
