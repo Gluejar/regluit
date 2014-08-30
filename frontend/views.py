@@ -1311,7 +1311,7 @@ class FundView(FormView):
                 'title':self.transaction.campaign.work.title}
             )
         
-        kwargs['data'] = data
+        kwargs['initial'] = data
         
         return kwargs
 

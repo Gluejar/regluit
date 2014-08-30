@@ -646,7 +646,7 @@ class CampaignPledgeForm(forms.Form):
         return self.cleaned_data
 
 class PlainCCForm(forms.Form):
-    stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
+    stripe_token = forms.CharField(required=True, widget=forms.HiddenInput())
 
 class BaseCCForm(PlainCCForm):
     work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
