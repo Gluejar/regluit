@@ -128,6 +128,10 @@ def watermark_acq(acq):
     acq.get_watermarked()
     
 @task
+def add_ask_to_ebfs(campaign):
+    campaign.add_ask_to_ebfs()
+    
+@task
 def refresh_acqs():
     in_10_min = now() + timedelta(minutes=10)
     acqs = Acq.objects.filter(refreshed=False, refreshes__lt=in_10_min)

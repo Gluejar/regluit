@@ -685,6 +685,7 @@ def manage_campaign(request, id, action='manage'):
                 campaign.update_left()
                 if campaign.type is THANKS :
                     campaign.work.description = form.cleaned_data['work_description']
+                    tasks.add_ask_to_ebfs.delay(campaign)
                 campaign.work.save()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'

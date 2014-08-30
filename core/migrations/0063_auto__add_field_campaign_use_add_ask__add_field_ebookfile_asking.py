@@ -8,13 +8,20 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'Campaign.use_add_ask'
+        db.add_column('core_campaign', 'use_add_ask',
+                      self.gf('django.db.models.fields.BooleanField')(default=True),
+                      keep_default=False)
+
         # Adding field 'EbookFile.asking'
         db.add_column('core_ebookfile', 'asking',
                       self.gf('django.db.models.fields.BooleanField')(default=False),
                       keep_default=False)
 
-
     def backwards(self, orm):
+        # Deleting field 'Campaign.use_add_ask'
+        db.delete_column('core_campaign', 'use_add_ask')
+
         # Deleting field 'EbookFile.asking'
         db.delete_column('core_ebookfile', 'asking')
 
@@ -75,7 +82,7 @@ class Migration(SchemaMigration):
             'license': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'nonce': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
             'refreshed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 8, 25, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 8, 28, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['auth.User']"}),
             'watermarked': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['booxtream.Boox']", 'null': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['core.Work']"})
@@ -116,6 +123,7 @@ class Migration(SchemaMigration):
             'status': ('django.db.models.fields.CharField', [], {'default': "'INITIALIZED'", 'max_length': '15', 'null': 'True', 'db_index': 'True'}),
             'target': ('django.db.models.fields.DecimalField', [], {'default': '0.0', 'null': 'True', 'max_digits': '14', 'decimal_places': '2'}),
             'type': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
+            'use_add_ask': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
         },
         'core.campaignaction': {
@@ -129,7 +137,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 8, 25, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 8, 28, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),

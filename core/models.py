@@ -401,6 +401,7 @@ class Campaign(models.Model):
     email =  models.CharField(max_length=100, blank=True)
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
     do_watermark = models.BooleanField(default=True)
+    use_add_ask = models.BooleanField(default=True)
     
     def __init__(self, *args, **kwargs):
         self.problems=[]
