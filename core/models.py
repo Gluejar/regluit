@@ -1490,40 +1490,33 @@ class Edition(models.Model):
     def isbn_10(self):
         return regluit.core.isbn.convert_13_to_10(self.isbn_13)
     
-    @property
-    def isbn_13(self):
+    def id_for(self,type):
+        if not self.pk:
+            return ''
         try:
-            return self.identifiers.filter(type='isbn')[0].value
+            return self.identifiers.filter(type=type)[0].value
         except IndexError:
             return ''
 
     @property
+    def isbn_13(self):
+        return self.id_for('isbn')
+        
+    @property
     def googlebooks_id(self):
-        try:
-            return self.identifiers.filter(type='goog')[0].value
-        except IndexError:
-            return ''
+        return self.id_for('goog')
 
     @property
     def librarything_id(self):
-        try:
-            return self.identifiers.filter(type='thng')[0].value
-        except IndexError:
-            return ''
+        return self.id_for('thng')
 
     @property
     def oclc(self):
-        try:
-            return self.identifiers.filter(type='oclc')[0].value
-        except IndexError:
-            return ''
+        return self.id_for('oclc')
 
     @property
     def goodreads_id(self):
-        try:
-            return self.identifiers.filter(type='gdrd')[0].value
-        except IndexError:
-            return ''
+        return self.id_for('gdrd')
 
     @staticmethod
     def get_by_isbn( isbn):
@@ -1600,7 +1593,7 @@ class EbookFile(models.Model):
     
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
-    RIGHTS_CHOICES = cc.CCCHOICES
+    RIGHTS_CHOICES = cc.CHOICES
     url = models.URLField(max_length=1024)
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
