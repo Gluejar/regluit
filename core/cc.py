@@ -11,7 +11,7 @@ INFO_CC = (
     ('CC0', 'cc0', 'No Rights Reserved (CC0)', 'http://creativecommons.org/about/cc0'),
 )
 INFO_PD = (
-    ('GFDL', 'gdfl', 'GNU Free Documentaion License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html'),
+    ('GFDL', 'gdfl', 'GNU Free Documentation License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html'),
     ('PD-US', 'pd-us', 'Public Domain, US', 'http://creativecommons.org/about/pdm'),
 )
 INFO_ALL = INFO_CC + INFO_PD
