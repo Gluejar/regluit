@@ -194,7 +194,7 @@ class EbookFileForm(forms.ModelForm):
     class Meta:
         model = EbookFile
         widgets = { 'edition': forms.HiddenInput}
-        exclude = { 'created', }
+        exclude = { 'created', 'asking' }
 
 class EbookForm(forms.ModelForm):
     class Meta:

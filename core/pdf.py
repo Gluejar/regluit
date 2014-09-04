@@ -26,7 +26,7 @@ def ask_pdf(context={}):
     return resultFile
 
 def pdf_append( file1, file2, file_out ):
-    merger = PdfFileMerger()
+    merger = PdfFileMerger(strict=False)
     merger.append(file1)
     merger.append(file2)
     merger.write(file_out)

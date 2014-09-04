@@ -902,6 +902,8 @@ class Campaign(models.Model):
         return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
     
     def add_ask_to_ebfs(self, position=0):
+        if not self.use_add_ask or  self.type != THANKS :
+            return
         for ebf in self.work.ebookfiles().filter(asking = False):
             if ebf.format=='pdf':
                 try:
@@ -920,9 +922,14 @@ class Campaign(models.Model):
                     new_ebf.file.save(path_for_file(ebf,None),ContentFile(new_file.read()))
                     new_ebf.save()
                     for old_ebf in self.work.ebookfiles().filter(asking = True).exclude(pk=new_ebf.pk):
+                        obsolete = Ebook.objects.filter(url=old_ebf.file.url)
+                        for eb in obsolete:
+                            eb.deactivate()
                         old_ebf.delete()
                 except Exception as e:
                     logger.error("error appending pdf ask  %s" % (e))
+        self.work.make_ebooks_from_ebfs()
+                    
             
             
                     
@@ -947,7 +954,7 @@ class Campaign(models.Model):
                 provider="Unglue.it",
                 )
         for old_ebook in old_ebooks:
-            old_ebook.delete()
+            old_ebook.deactivate()
         return ebook.pk
                 
 
@@ -1193,31 +1200,34 @@ class Work(models.Model):
         campaign = self.last_campaign()
         return 0 if campaign is None else campaign.percent_of_goal()
 
-    def ebooks(self):
-        return Ebook.objects.filter(edition__work=self).order_by('-created')
+    def ebooks(self, all=False):
+        if all:
+            return Ebook.objects.filter(edition__work=self).order_by('-created')
+        else:
+            return Ebook.objects.filter(edition__work=self,active=True).order_by('-created')
 
     def ebookfiles(self):
         # filter out non-epub because that's what booxtream accepts 
-        return EbookFile.objects.filter(edition__work=self).order_by('-created')
+        return EbookFile.objects.filter(edition__work=self).exclude(file='').order_by('-created')
 
     def epubfiles(self):
         # filter out non-epub because that's what booxtream accepts 
-        return EbookFile.objects.filter(edition__work=self, format='epub').order_by('-created')
+        return EbookFile.objects.filter(edition__work=self, format='epub').exclude(file='').order_by('-created')
 
     def mobifiles(self):
-        return EbookFile.objects.filter(edition__work=self, format='mobi').order_by('-created')
+        return EbookFile.objects.filter(edition__work=self, format='mobi').exclude(file='').order_by('-created')
 
     def pdffiles(self):
-        return EbookFile.objects.filter(edition__work=self, format='pdf').order_by('-created')
+        return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
 
     def make_ebooks_from_ebfs(self):
         if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
             return
-        ebfs=EbookFile.objects.filter(edition__work=self).order_by('-created')
+        ebfs=EbookFile.objects.filter(edition__work=self).exclude(file='').order_by('-created')
         done_formats= []
         for ebf in ebfs:
             if ebf.format not in done_formats:
-                ebook=Ebook.objects.create(
+                ebook=Ebook.objects.get_or_create(
                         edition=ebf.edition, 
                         format=ebf.format, 
                         rights=self.last_campaign().license, 
@@ -1225,12 +1235,25 @@ class Work(models.Model):
                         url= ebf.file.url,
                         )
                 done_formats.append(ebf.format)
+            else:
+                obsolete=Ebook.objects.filter(url= ebf.file.url,)
+                for eb in obsolete:
+                    eb.deactivate()
         return 
-
+    
+    def remove_old_ebooks(self):
+        old=Ebook.objects.filter(edition__work=self).order_by('-created')
+        done_formats= []
+        for eb in old:
+            if eb.format in done_formats:
+                eb.deactivate()
+            else:
+                done_formats.append(eb.format)
+        
     @property
     def download_count(self):
         dlc=0
-        for ebook in self.ebooks():
+        for ebook in self.ebooks(all=True):
             dlc += ebook.download_count
         return dlc
             
@@ -1630,6 +1653,7 @@ class Ebook(models.Model):
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
+    active = models.BooleanField(default=True)
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
@@ -1677,6 +1701,10 @@ class Ebook(models.Model):
     
     def __unicode__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
+        
+    def deactivate(self):
+        self.active=False
+        self.save()
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)

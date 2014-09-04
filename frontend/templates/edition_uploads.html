@@ -23,7 +23,9 @@
     <h2> Ebook Files for this Edition</h2>
     <ul>
     {% for ebook_file in edition.ebook_files.all %}
-        <li><a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}} </li>
+        {% if ebook_file.file %}
+        <li><a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}} {% if ebook_file.asking %}(This file has had the campaign 'ask' added.){% endif %}</li>
+        {% endif %}
     {% endfor %}
     </ul>
 {% endif %}

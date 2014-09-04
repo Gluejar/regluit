@@ -145,7 +145,7 @@ a.nounderline{text-decoration:none}
         {% if campaign.ask_money %}
         <div id="askblock" style="float: initial; width: initial;">
             <p>You can use <a href="https://{{ site.domain }}">Unglue.it</a> to help to thank the creators for making this book free. The amount is up to you.<br /><br />
-            <a href="https://{{ site.domain }}{% url thank work.id %}?offer_id={{campaign.individual_offer.id}}&amp;from=pdf">Click here to thank the creators</a></p>
+            <a href="https://{{ site.domain }}{% url thank work.id %}?offer_id={{campaign.individual_offer.id}}&amp;source=pdf">Click here to thank the creators</a></p>
         </div>
         {% endif %}  
     </div>
