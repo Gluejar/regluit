@@ -1242,7 +1242,7 @@ class Work(models.Model):
         return 
     
     def remove_old_ebooks(self):
-        old=Ebook.objects.filter(edition__work=self).order_by('-created')
+        old=Ebook.objects.filter(edition__work=self, active=True).order_by('-created')
         done_formats= []
         for eb in old:
             if eb.format in done_formats:
