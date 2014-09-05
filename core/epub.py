@@ -16,7 +16,15 @@ def personalize(epub_file, acq):
     output.writetodisk(personalized_epub)
     #logger.info("personalized")
     return personalized_epub
-    
+
+def ask_epub(epub_file, context):
+    output = EPUB(epub_file, "a")
+    part = StringIO(unicode(render_to_string('epub/ask.xhtml', context)))
+    output.addpart(part, "ask.xhtml", "application/xhtml+xml", 1) #after title, we hope
+    asking_epub= StringIO()
+    output.writetodisk(asking_epub)
+    return asking_epub
+   
         
 def ungluify(epub_file, campaign):
     output = EPUB(epub_file, "a")

@@ -35,7 +35,7 @@ regluit imports
 import regluit
 import regluit.core.isbn
 import regluit.core.cc as cc
-from regluit.core.epub import personalize, ungluify, test_epub
+from regluit.core.epub import personalize, ungluify, test_epub, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
 
 from regluit.core.signals import (
@@ -904,11 +904,11 @@ class Campaign(models.Model):
     def add_ask_to_ebfs(self, position=0):
         if not self.use_add_ask or  self.type != THANKS :
             return
-        for ebf in self.work.ebookfiles().filter(asking = False):
-            if ebf.format=='pdf':
+        done_formats= []
+        for ebf in self.work.ebookfiles().filter(asking = False).order_by('-created'):
+            if ebf.format=='pdf' and 'pdf' not in done_formats:
                 try:
                     added = ask_pdf({'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
-                    new_ebf = EbookFile.objects.create(edition=self.work.preferred_edition, format='pdf', asking=True)
                     new_file = SpooledTemporaryFile()
                     old_file = SpooledTemporaryFile()
                     ebf.file.open()
@@ -917,17 +917,37 @@ class Campaign(models.Model):
                         pdf_append(added, old_file, new_file)
                     else:
                         pdf_append(old_file, added, new_file)
-                    pdf_append(added, old_file, new_file)
                     new_file.seek(0)
+                    new_ebf = EbookFile.objects.create(edition=ebf.edition, format='pdf', asking=True)
                     new_ebf.file.save(path_for_file(ebf,None),ContentFile(new_file.read()))
                     new_ebf.save()
-                    for old_ebf in self.work.ebookfiles().filter(asking = True).exclude(pk=new_ebf.pk):
+                    for old_ebf in self.work.ebookfiles().filter(asking = True, format='pdf').exclude(pk=new_ebf.pk):
                         obsolete = Ebook.objects.filter(url=old_ebf.file.url)
                         for eb in obsolete:
                             eb.deactivate()
                         old_ebf.delete()
+                    done_formats.append('pdf')
                 except Exception as e:
                     logger.error("error appending pdf ask  %s" % (e))
+            elif ebf.format=='epub' and 'epub' not in done_formats:
+                try:
+                    new_file = SpooledTemporaryFile()
+                    old_file = SpooledTemporaryFile()
+                    ebf.file.open()
+                    old_file.write(ebf.file.read())
+                    new_file= ask_epub(old_file, {'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
+                    new_file.seek(0)
+                    new_ebf = EbookFile.objects.create(edition=ebf.edition, format='epub', asking=True)
+                    new_ebf.file.save(path_for_file(ebf,None),ContentFile(new_file.read()))
+                    new_ebf.save()
+                    for old_ebf in self.work.ebookfiles().filter(asking = True, format='epub').exclude(pk=new_ebf.pk):
+                        obsolete = Ebook.objects.filter(url=old_ebf.file.url)
+                        for eb in obsolete:
+                            eb.deactivate()
+                        old_ebf.delete()
+                    done_formats.append('epub')
+                except Exception as e:
+                    logger.error("error making epub ask  %s" % (e))
         self.work.make_ebooks_from_ebfs()
                     
             
@@ -1207,7 +1227,6 @@ class Work(models.Model):
             return Ebook.objects.filter(edition__work=self,active=True).order_by('-created')
 
     def ebookfiles(self):
-        # filter out non-epub because that's what booxtream accepts 
         return EbookFile.objects.filter(edition__work=self).exclude(file='').order_by('-created')
 
     def epubfiles(self):
@@ -1249,6 +1268,9 @@ class Work(models.Model):
                 eb.deactivate()
             else:
                 done_formats.append(eb.format)
+        null_files=EbookFile.objects.filter(edition__work=self, file='')
+        for ebf in null_files:
+            ebf.delete()
         
     @property
     def download_count(self):
