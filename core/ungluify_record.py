@@ -177,10 +177,9 @@ def makemarc(marcfile,  edition):
     field588 = pymarc.Field(
         tag='588',
         indicators = [' ', ' '],
-        if print_lccn:
-            subfields = [
-                'a', 'Description based on print version record from the Library of Congress.',
-            ]
+        subfields = [
+            'a', 'Description based on print version record from the Library of Congress.',
+        ]
     )
     record.add_ordered_field(field588)
     
