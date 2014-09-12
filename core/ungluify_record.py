@@ -32,8 +32,11 @@ def makemarc(marcfile,  edition):
         
     record = pymarc.parse_xml_to_array(marcfile)[0]
     
-    # save this for later before deleting it
-    print_lccn = record.get_fields('010')[0].get_subfields('a')[0]
+    # save lccn for later (if there is one) before deleting it
+    print_lccn = None
+    for lccn in record.get_fields('010'):
+        for validlccn in lccn.get_subfields('a'):
+            print_lccn = validlccn
 
     fields_to_delete = []
     fields_to_delete += record.get_fields('001')
@@ -174,9 +177,10 @@ def makemarc(marcfile,  edition):
     field588 = pymarc.Field(
         tag='588',
         indicators = [' ', ' '],
-        subfields = [
-            'a', 'Description based on print version record from the Library of Congress.',
-        ]
+        if print_lccn:
+            subfields = [
+                'a', 'Description based on print version record from the Library of Congress.',
+            ]
     )
     record.add_ordered_field(field588)
     
@@ -192,7 +196,8 @@ def makemarc(marcfile,  edition):
     
     if print_isbn:
         subfields.extend(['z', print_isbn])
-    subfields.extend(['w', '(DLC) ' + print_lccn, ])
+    if print_lccn:
+        subfields.extend(['w', '(DLC) ' + print_lccn, ])
     if oclcnum:
         subfields.extend(['w', '(OCoLC) ' + oclcnum,])
 
