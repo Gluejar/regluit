@@ -1301,18 +1301,17 @@ class FundView(FormView):
 
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
+            kwargs['data'] = data
         else:
             data = {}
+            kwargs['initial'] = data
         
         data.update(
             {'preapproval_amount':self.transaction.needed_amount,
                 'username':self.request.user.username if self.request.user.is_authenticated else None,
                 'work_id':self.transaction.campaign.work.id,
                 'title':self.transaction.campaign.work.title}
-            )
-        
-        kwargs['initial'] = data
-        
+            )        
         return kwargs
 
     def get_context_data(self, **kwargs):
