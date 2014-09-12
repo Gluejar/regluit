@@ -174,14 +174,15 @@ def makemarc(marcfile,  edition):
         record.add_ordered_field(field540)
 
     # add 588 field (source of description) - credit where credit is due
-    field588 = pymarc.Field(
-        tag='588',
-        indicators = [' ', ' '],
-        subfields = [
-            'a', 'Description based on print version record from the Library of Congress.',
-        ]
-    )
-    record.add_ordered_field(field588)
+    if print_lccn:
+        field588 = pymarc.Field(
+            tag='588',
+            indicators = [' ', ' '],
+            subfields = [
+                'a', 'Description based on print version record from the Library of Congress.',
+            ]
+        )
+        record.add_ordered_field(field588)
     
     # add 776 field (related editions) - preserve pISBN, LCCN, OCLCnum
     title = record.get_fields('245')[0].get_subfields('a')[0]
