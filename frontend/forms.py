@@ -194,7 +194,7 @@ class EbookFileForm(forms.ModelForm):
     class Meta:
         model = EbookFile
         widgets = { 'edition': forms.HiddenInput}
-        exclude = { 'created', }
+        exclude = { 'created', 'asking' }
 
 class EbookForm(forms.ModelForm):
     class Meta:
@@ -478,7 +478,7 @@ def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs )
         
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial', "do_watermark"
+            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial', "do_watermark", "use_add_ask",
             widgets = { 'deadline': SelectDateWidget }
     
         def clean_target(self):

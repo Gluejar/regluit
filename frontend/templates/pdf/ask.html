@@ -1,0 +1,165 @@
+ 
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>unglue.it 
+&mdash; Thank the Creators of {{ work.title }}
+</title>
+<base href="https://{{ site.domain }}" />
+    <style type="text/css">
+    .header-text{height:36px;line-height:36px;display:block;text-decoration:none;font-weight:bold;letter-spacing:-0.05em}
+.panelborders{border-width:1px 0;border-style:solid none;border-color:#fff}
+.roundedspan{border:1px solid #d4d4d4;-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px;padding:1px;color:#fff;margin:0 8px 0 0;display:inline-block}
+.roundedspan>span{padding:7px 7px;min-width:15px;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;text-align:center;display:inline-block}
+.roundedspan>span .hovertext{display:none}
+.roundedspan>span:hover .hovertext{display:inline}
+.mediaborder{padding:5px;border:solid 5px #edf3f4}
+.actionbuttons{width:auto;height:36px;line-height:36px;background:#8dc63f;-moz-border-radius:32px;-webkit-border-radius:32px;border-radius:32px;color:white;cursor:pointer;font-size:13px;font-weight:bold;padding:0 15px;border:0;margin:5px 0}
+.header-text{height:36px;line-height:36px;display:block;text-decoration:none;font-weight:bold;letter-spacing:-0.05em}
+.download_container{width:75%;margin:auto}
+#lightbox_content a{color:#6994a3}
+#lightbox_content .signuptoday a{color:white}
+#lightbox_content h2,#lightbox_content h3,#lightbox_content h4{margin-top:15px}
+#lightbox_content h2 a{font-size:18.75px}
+#lightbox_content .ebook_download a{margin:auto 5px auto 0;font-size:15px}
+#lightbox_content .ebook_download img{vertical-align:middle}
+#lightbox_content .logo{font-size:15px}
+#lightbox_content .logo img{-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px;height:50px;width:50px;margin-right:5px}
+#lightbox_content .one_click,#lightbox_content .ebook_download_container{-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;margin-left:-0.25%;padding:.5%;padding-bottom:15px;margin-bottom:5px;width:74%}
+#lightbox_content .one_click h3,#lightbox_content .ebook_download_container h3{margin-top:5px}
+#lightbox_content .one_click{border:solid 2px #8dc63f}
+#lightbox_content .ebook_download_container{border:solid 2px #d6dde0}
+#lightbox_content a.add-wishlist .on-wishlist,#lightbox_content a.success,a.success:hover{text-decoration:none;color:#3d4e53}
+#lightbox_content a.success,a.success:hover{cursor:default}
+#lightbox_content ul{padding-left:50px}
+#lightbox_content ul li{margin-bottom:4px}
+.border{-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;border:solid 2px #d6dde0;margin:5px auto;padding-right:5px;padding-left:5px}
+.btn_support.kindle{height:40px}
+.btn_support.kindle a{width:auto;font-size:15px}
+.preview{border:solid 3px #e35351;-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px;clear:both;padding:5px 10px;font-size:13px;width:90%}
+.preview a{color:#8dc63f}
+.launch_top{border:solid 3px #e35351;-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px;clear:both;padding:5px 10px;font-size:13px;width:90%;border-color:#8dc63f;margin:10px auto 0 auto;font-size:15px;line-height:22.5px}
+.launch_top a{color:#8dc63f}
+.launch_top.pale{border-color:#d6dde0;font-size:13px}
+.launch_top.alert{border-color:#e35351;font-size:13px}
+.preview_content{border:solid 3px #e35351;-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px;clear:both;padding:5px 10px;font-size:13px;width:90%;width:80%;margin:10px auto}
+.preview_content a{color:#8dc63f}
+.utilityheaders{text-transform:uppercase;color:#3d4e53;font-size:15px;display:block}
+html,body{height:100%}
+body{padding:0 0 20px 0;margin:0;font-size:13px;line-height:16.900000000000002px;font-family:"Lucida Grande","Lucida Sans Unicode","Lucida Sans",Arial,Helvetica,sans-serif;color:#3d4e53}
+a{font-weight:bold;font-size:inherit;text-decoration:none;cursor:pointer;color:#6994a3}
+a:hover{text-decoration:underline}
+h1{font-size:22.5px}
+h2{font-size:18.75px}
+h3{font-size:17.549999999999997px}
+h4{font-size:15px}
+img{border:0}
+img.user-avatar{float:left;margin-right:10px;-moz-border-radius:7px;-webkit-border-radius:7px;border-radius:7px}
+input,textarea,a.fakeinput{border:2px solid #d6dde0;-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px}
+input:focus,textarea:focus,a.fakeinput:focus{border:2px solid #8dc63f;outline:0}
+a.fakeinput:hover{text-decoration:none}
+.js-search input{-moz-border-radius:0;-webkit-border-radius:0;border-radius:0}
+h2.content-heading{padding:15px;margin:0;font-size:19px;font-weight:normal;color:#3d4e53;float:left;width:50%}
+h2.content-heading span{font-style:italic}
+h3.jsmod-title{-moz-border-radius:8px 8px 0 0;-webkit-border-radius:8px 8px 0 0;border-radius:8px 8px 0 0;background:#a7c1ca;padding:0;margin:0;height:73px}
+h3.jsmod-title span{font-size:19px;font-style:italic;color:#3d4e53;padding:26px 40px 27px 20px;display:block}
+input[type="submit"],a.fakeinput{background:#8dc63f;color:white;font-weight:bold;padding:.5em 1em;cursor:pointer}
+.js-page-wrap{position:relative;min-height:100%}
+.js-main{width:960px;margin:0 auto;clear:both;padding:0}
+.bigger{font-size:15px}
+ul.menu{list-style:none;padding:0;margin:0}
+.p_form .errorlist{-moz-border-radius:16px;-webkit-border-radius:16px;border-radius:16px;border:0;color:#e35351;clear:none;width:100%;height:auto;line-height:16px;padding:0;font-weight:normal;text-align:left;display:inline}
+.p_form .errorlist li{display:inline}
+.clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+#locationhash{display:none}
+#block-intro-text{padding-right:10px}
+#block-intro-text span.def{font-style:italic}
+#main-container{margin:15px 0 0 0}
+#js-maincol-fr{float:right;width:725px}
+div#content-block{overflow:hidden;padding:0 0 0 7px;margin-bottom:20px}
+div#content-block.jsmodule{background:0}
+.content-block-heading a.block-link{float:right;padding:15px;font-size:13px;color:#3d4e53;text-decoration:underline;font-weight:normal}
+div#content-block-content,div#content-block-content-1{width:100%;overflow:hidden;padding-left:10px}
+div#content-block-content .cols3 .column,div#content-block-content-1 .cols3 .column{width:33.33%;float:left}
+.pagination{width:100%;text-align:center;margin-top:20px;clear:both;border-top:solid #3d4e53 thin;padding-top:7px}
+.pagination .endless_page_link{font-size:13px;border:thin #3d4e53 solid;font-weight:normal;margin:5px;padding:1px}
+.pagination .endless_page_current{font-size:13px;border:thin #3d4e53 solid;font-weight:normal;margin:5px;padding:1px;background-color:#edf3f4}
+a.nounderline{text-decoration:none}
+#lightbox_content p,#lightbox_content li{padding:9px 0;font-size:15px;line-height:20px}
+#lightbox_content p a,#lightbox_content li a{font-size:15px;line-height:20px}
+#lightbox_content p b,#lightbox_content li b{color:#8dc63f}
+#lightbox_content p.last,#lightbox_content li.last{border-bottom:solid 2px #d6dde0;margin-bottom:5px}
+#lightbox_content .right_border{border-right:solid 1px #d6dde0;float:left;padding:9px}
+#lightbox_content .signuptoday{float:right;margin-top:0;clear:none}
+#lightbox_content h2+form,#lightbox_content h3+form,#lightbox_content h4+form{margin-top:15px}
+#lightbox_content h2,#lightbox_content h3,#lightbox_content h4{margin-bottom:10px}
+.nonlightbox .about_page{-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px;border:solid 5px #d6dde0;width:75%;margin:10px auto auto auto;padding:9px}
+.central{width:480px;margin:0 auto}
+.btn_support{margin:10px;width:215px}
+.btn_support a,.btn_support form input,.btn_support>span{font-size:22px;border:4px solid #d6dde0;-moz-border-radius:10px;-webkit-border-radius:10px;border-radius:10px;display:block;text-align:center;padding-top:14.25px;padding-bottom:14.25px;background-color:#8dc63f;color:white!important}
+.btn_support a span,.btn_support form input span,.btn_support>span span{color:white!important;font-weight:bold;padding-left:0;margin-left:0!important;background:0}
+.btn_support.create-account span{padding:0;margin:0;background:0}
+.btn_support a:hover,.btn_support form input:hover{background-color:#7aae34;text-decoration:none}
+.btn_support a{width:207px}
+.btn_support form input{width:215px}
+.btn_support.modify a,.btn_support.modify form input{background-color:#a7c1ca}
+.btn_support.modify a:hover,.btn_support.modify form input:hover{background-color:#91b1bd}
+.yes_js{display:none}
+.std_form,.std_form input,.std_form select{line-height:30px;font-size:15px}
+.contrib_amount{padding:10px;font-size:19px;text-align:center}
+#id_preapproval_amount{width:50%;line-height:30px;font-size:15px}
+#askblock{float:right;min-width:260px;background:#edf3f4;padding:10px;width:30%}
+.rh_ask{font-size:15px;width:65%}
+#contribsubmit{text-align:center;font-size:19px;margin:0 0 10px;cursor:pointer}
+#anoncontribbox{padding-bottom:10px}
+.faq_tldr{font-style:italic;font-size:19px;text-align:center;line-height:24.7px;color:#6994a3;margin-left:2em}
+</style>
+</head>
+
+<body style="background:white">
+<div class="download_container">
+
+    
+    <div class="border" style="padding: 10px; min-height: 18em">
+        <div class="rh_ask" style=" width: initial;">
+                {{ work.last_campaign.description|safe }}
+
+
+        </div>
+        {% if campaign.ask_money %}
+        <div id="askblock" style="float: initial; width: initial;">
+            <p>You can use <a href="https://{{ site.domain }}">Unglue.it</a> to help to thank the creators for making <i>{{ work.title }}</i> free. The amount is up to you.<br /><br />
+            <a href="https://{{ site.domain }}{% url thank work.id %}?offer_id={{campaign.individual_offer.id}}&amp;source=pdf">Click here to thank the creators</a></p>
+        </div>
+        {% endif %}  
+    </div>
+    
+
+
+
+
+
+</div>
+
+    
+
+</body>
+</html>
+
+

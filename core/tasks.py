@@ -28,7 +28,7 @@ from regluit.core import (
 )
 from regluit.core.models import Campaign, Acq
 from regluit.core.signals import deadline_impending
-from regluit.core.parameters import RESERVE, REWARDS
+from regluit.core.parameters import RESERVE, REWARDS, THANKS
 
 from regluit.utils.localdatetime import now, date_today
 
@@ -126,6 +126,15 @@ def notify_ending_soon():
 @task
 def watermark_acq(acq):
     acq.get_watermarked()
+    
+@task
+def process_ebfs(campaign):
+    if campaign.type == THANKS:
+        if campaign.use_add_ask:
+            campaign.add_ask_to_ebfs()
+        else:
+            campaign.work.make_ebooks_from_ebfs()
+        campaign.work.remove_old_ebooks()
     
 @task
 def refresh_acqs():

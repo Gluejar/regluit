@@ -66,6 +66,7 @@ from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 from regluit.utils.localdatetime import now, date_today
 from regluit.pyepub import EPUB
 from .epub import test_epub
+from .pdf import ask_pdf, test_pdf
 
 class BookLoaderTests(TestCase):
     def setUp(self):
@@ -838,6 +839,7 @@ class MailingListTests(TestCase):
 
 @override_settings(LOCAL_TEST=True)
 class EbookFileTests(TestCase):
+        
     def test_badepub_errors(self):
         textfile = NamedTemporaryFile(delete=False)
         textfile.write("bad text file")
@@ -904,8 +906,42 @@ class EbookFileTests(TestCase):
         c.do_watermark=False
         c.save()
         url= acq.get_watermarked().download_link_epub
-
         
+    def test_ebookfile_pdf(self):
+        w = Work.objects.create(title="Work 2")
+        e = Edition.objects.create(title=w.title,work=w)
+        u = User.objects.create_user('test2', 'test@example.org', 'testpass')
+        rh = RightsHolder.objects.create(owner = u, rights_holder_name = 'rights holder name 2')
+        cl = Claim.objects.create(rights_holder = rh, work = w, user = u, status = 'active')
+        c = Campaign.objects.create(work = w, 
+                                    type = parameters.THANKS, 
+                                    license = 'CC BY-NC',
+                                    description = "Please send me money",
+                                    )
+        # download the test epub into a temp file
+        temp = NamedTemporaryFile(delete=False)
+        test_file_content = requests.get(settings.TEST_PDF_URL).content
+        
+        temp.write(test_file_content)
+        temp.close()
+        try:
+            # now we can try putting the test pdf file into Django storage
+            temp_file = open(temp.name)
+                
+            dj_file = DjangoFile(temp_file)
+            ebf = EbookFile( format='pdf', edition=e, file=dj_file)
+            ebf.save()
+                
+            temp_file.close()
+        finally:
+            # make sure we get rid of temp file
+            os.remove(temp.name)
+        #test the ask-appender
+        c.add_ask_to_ebfs()
+        asking_pdf = c.work.ebookfiles().filter(asking = True)[0].file.url
+        assert test_pdf(asking_pdf)
+        
+
 from .signals import handle_transaction_charged
 @override_settings(LOCAL_TEST=True)
 class LibTests(TestCase):

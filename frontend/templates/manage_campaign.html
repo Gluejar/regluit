@@ -157,7 +157,7 @@ Please fix the following before launching your campaign:
         <h3>Uploaded Files</h3>
     {% endif %}
     {% if campaign.work.epubfiles.0 %}
-        <p>Active EPUB file: <a href="{{campaign.work.epubfiles.0.file.url}}">{{campaign.work.epubfiles.0.file}}</a> <br />created {{campaign.work.epubfiles.0.created}} for edition <a href="#edition_{{campaign.work.epubfiles.0.edition.id}}">{{campaign.work.epubfiles.0.edition.id}}</a> </p>
+        <p>Active EPUB file: <a href="{{campaign.work.epubfiles.0.file.url}}">{{campaign.work.epubfiles.0.file}}</a> <br />created {{campaign.work.epubfiles.0.created}} for edition <a href="#edition_{{campaign.work.epubfiles.0.edition.id}}">{{campaign.work.epubfiles.0.edition.id}}</a> {% if campaign.work.epubfiles.0.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
         {% if campaign.work.test_acqs.0 %}
             <ul> 
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_epub}}">Processed epub for testing</a></li>
@@ -166,10 +166,10 @@ Please fix the following before launching your campaign:
         {% endif %}
     {% endif %}
     {% if campaign.work.mobifiles.0 %}
-        <p>Active MOBI file: <a href="{{campaign.work.mobifiles.0.file.url}}">{{campaign.work.mobifiles.0.file}}</a> <br />created {{campaign.work.mobifiles.0.created}}  for edition <a href="#edition_{{campaign.work.mobifiles.0.edition.id}}">{{campaign.work.mobifiles.0.edition.id}}</a> </p>
+        <p>Active MOBI file: <a href="{{campaign.work.mobifiles.0.file.url}}">{{campaign.work.mobifiles.0.file}}</a> <br />created {{campaign.work.mobifiles.0.created}}  for edition <a href="#edition_{{campaign.work.mobifiles.0.edition.id}}">{{campaign.work.mobifiles.0.edition.id}}</a> {% if campaign.work.mobifiles.0.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
     {% endif %}
     {% if campaign.work.pdffiles.0 %}
-        <p>Active PDF file: <a href="{{campaign.work.pdffiles.0.file.url}}">{{campaign.work.pdffiles.0.file}}</a> <br />created {{campaign.work.pdffiles.0.created}}  for edition <a href="#edition_{{campaign.work.pdffiles.0.edition.id}}">{{campaign.work.pdffiles.0.edition.id}}</a> </p>
+        <p>Active PDF file: <a href="{{campaign.work.pdffiles.0.file.url}}">{{campaign.work.pdffiles.0.file}}</a> <br />created {{campaign.work.pdffiles.0.created}}  for edition <a href="#edition_{{campaign.work.pdffiles.0.edition.id}}">{{campaign.work.pdffiles.0.edition.id}}</a> {% if campaign.work.pdffiles.0.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
     {% endif %}
 {% ifnotequal campaign_status 'ACTIVE' %}
     {% ifnotequal campaign.type 3 %}
@@ -318,6 +318,12 @@ Please fix the following before launching your campaign:
 	<div style="padding-top:2em;padding-bottom:0.5em">Next, the <b>Ask</b>. A "thank you" form will float right in this area, so don't use wide graphic elements.</div>
 	{% endifequal %}
 	{{ form.description.errors }}{{ form.description }}
+	{% ifequal campaign.type 3 %}
+	<h3>Enable "Thanks" in your ebook files</h3>
+	<p> Unglue.it can add your "Ask" along with a link to your book's "thank the creators" page into your ebook files. That way, people who download the book without making a contribution will be reminded that they can do it later.</p>
+	<div class="std_form">Add your ask to files: {{ form.use_add_ask.errors }}{{ form.use_add_ask }}</div>
+	
+	{% endifequal %}
 	<h3>Edition and Rights Details</h3>
 	<p>This will be displayed on the More... tab for your work.  It's the fine print for your campaign.  {% ifequal campaign.type 1 %}Make sure to disclose any ways the unglued edition will differ from the existing edition; for example:
 	<ul class="bullets">

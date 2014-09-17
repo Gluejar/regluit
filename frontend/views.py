@@ -475,6 +475,8 @@ def edition_uploads(request, edition_id):
                     logger.error(e)
                     context['upload_error']= e
                     form.instance.delete()
+                else:
+                    tasks.process_ebfs.delay(edition.work.last_campaign())
         else:
             context['upload_error']= form.errors
     form = EbookFileForm(initial={'edition':edition,'format':'epub'}, campaign_type=campaign_type)
@@ -685,6 +687,7 @@ def manage_campaign(request, id, action='manage'):
                 campaign.update_left()
                 if campaign.type is THANKS :
                     campaign.work.description = form.cleaned_data['work_description']
+                    tasks.process_ebfs.delay(campaign)
                 campaign.work.save()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
@@ -2827,6 +2830,8 @@ class DownloadView(PurchaseView):
             'lib_thanked': self.lib_thanked,
             'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
             'testmode': self.request.REQUEST.has_key('testmode'),
+            'source': self.request.REQUEST.get('source', ''),
+
         })
         return context
 

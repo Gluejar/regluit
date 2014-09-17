@@ -26,7 +26,7 @@ $j(document).ready(function() {
     {% if work.last_campaign.ask_money %}
     <div class="border" style="padding: 10px; min-height: 18em">
         <div id="askblock">
-            <div>Please help us thank the creators for making this book free. The amount is up to you.</div>
+            <div>Please help us thank the creators for making <a href="{% url work work.id %}">{{ work.title }}</a> free. The amount is up to you.</div>
             <form class="askform" method="POST" action="{% url thank work.id %}#">
                 {% csrf_token %}
                 {{ form.non_field_errors }}
@@ -74,6 +74,9 @@ $j(document).ready(function() {
     </div>
     </div>
 {% endif %}
+{% if source %}
+
+{% else %}
 <div class="border">
     <h2 style="width:60%">Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
     <div class="sharing ebook_download_container">
@@ -401,6 +404,7 @@ $j(document).ready(function() {
         </div>
     </div>
 {% else %}
+{% endif %}
 {% endif %}
 </div>
 </div>
