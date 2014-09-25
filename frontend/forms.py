@@ -505,8 +505,8 @@ def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs )
             new_deadline_date = self.cleaned_data['deadline']
             new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
             if self.instance:
-                if self.instance.status == 'ACTIVE' and self.instance.deadline.date() != new_deadline.date():
-                    raise forms.ValidationError(_('The closing date for an ACTIVE campaign cannot be changed.'))
+                if self.instance.status == 'ACTIVE':
+                    return self.instance.deadline.date()
             if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
                 raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
             elif new_deadline - now() < timedelta(days=0):         
