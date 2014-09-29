@@ -108,6 +108,7 @@ from regluit.frontend.forms import (
     getTransferCreditForm,
     CCForm,
     AnonCCForm,
+    AccountCCForm,
     CloneCampaignForm,
     PlainCCForm,
     WorkForm,
@@ -1285,6 +1286,8 @@ class FundView(FormView):
     def get_form_class(self):
         if self.request.user.is_anonymous():
             return AnonCCForm
+        elif self.request.user.profile.account:
+            return AccountCCForm
         else:
             return CCForm
 
@@ -1304,18 +1307,17 @@ class FundView(FormView):
 
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
+            kwargs['data'] = data
         else:
             data = {}
+            kwargs['initial'] = data
         
         data.update(
             {'preapproval_amount':self.transaction.needed_amount,
                 'username':self.request.user.username if self.request.user.is_authenticated else None,
                 'work_id':self.transaction.campaign.work.id,
                 'title':self.transaction.campaign.work.title}
-            )
-        
-        kwargs['data'] = data
-        
+            )        
         return kwargs
 
     def get_context_data(self, **kwargs):
@@ -1336,7 +1338,7 @@ class FundView(FormView):
         
     def form_valid(self, form):
         p = PaymentManager()
-        stripe_token = form.cleaned_data["stripe_token"]
+        stripe_token = form.cleaned_data.get("stripe_token", None)
         self.transaction.host = settings.PAYMENT_PROCESSOR
         return_url = "%s?tid=%s" % (reverse('pledge_complete'),self.transaction.id)
 

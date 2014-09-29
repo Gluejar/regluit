@@ -645,10 +645,10 @@ class CampaignPledgeForm(forms.Form):
             raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
         return self.cleaned_data
 
-class PlainCCForm(forms.Form):
-    stripe_token = forms.CharField(required=False, widget=forms.HiddenInput())
+class TokenCCMixin(forms.Form):
+    stripe_token = forms.CharField(required=True, widget=forms.HiddenInput())
 
-class BaseCCForm(PlainCCForm):
+class BaseCCMixin(forms.Form):
     work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     preapproval_amount= forms.DecimalField(
         required=False,
@@ -657,12 +657,23 @@ class BaseCCForm(PlainCCForm):
         decimal_places=2, 
         label="Amount",
     )
+class UserCCMixin(forms.Form):
+    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput())
+
+class PlainCCForm(TokenCCMixin, forms.Form):
+    pass
+
+class BaseCCForm(BaseCCMixin, TokenCCMixin, forms.Form):
+    pass
 
 class AnonCCForm(BaseCCForm):
     email = forms.CharField(max_length=30, required=False, widget=forms.TextInput())
 
-class CCForm(BaseCCForm):
-    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput())
+class CCForm(UserCCMixin, BaseCCForm):
+    pass
+
+class AccountCCForm( BaseCCMixin, UserCCMixin, forms.Form):
+    pass
 
 class DonateForm(forms.Form):
     preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )
