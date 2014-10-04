@@ -157,7 +157,9 @@ Please fix the following before launching your campaign:
         <h3>Uploaded Files</h3>
     {% endif %}
     {% if campaign.work.epubfiles.0 %}
-        <p>Active EPUB file: <a href="{{campaign.work.epubfiles.0.file.url}}">{{campaign.work.epubfiles.0.file}}</a> <br />created {{campaign.work.epubfiles.0.created}} for edition <a href="#edition_{{campaign.work.epubfiles.0.edition.id}}">{{campaign.work.epubfiles.0.edition.id}}</a> {% if campaign.work.epubfiles.0.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        {% for ebf in campaign.work.epubfiles %}
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        {% endfor %}
         {% if campaign.work.test_acqs.0 %}
             <ul> 
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_epub}}">Processed epub for testing</a></li>
@@ -166,10 +168,14 @@ Please fix the following before launching your campaign:
         {% endif %}
     {% endif %}
     {% if campaign.work.mobifiles.0 %}
-        <p>Active MOBI file: <a href="{{campaign.work.mobifiles.0.file.url}}">{{campaign.work.mobifiles.0.file}}</a> <br />created {{campaign.work.mobifiles.0.created}}  for edition <a href="#edition_{{campaign.work.mobifiles.0.edition.id}}">{{campaign.work.mobifiles.0.edition.id}}</a> {% if campaign.work.mobifiles.0.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        {% for ebf in campaign.work.mobifiles %}
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}MOBI file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        {% endfor %}
     {% endif %}
     {% if campaign.work.pdffiles.0 %}
-        <p>Active PDF file: <a href="{{campaign.work.pdffiles.0.file.url}}">{{campaign.work.pdffiles.0.file}}</a> <br />created {{campaign.work.pdffiles.0.created}}  for edition <a href="#edition_{{campaign.work.pdffiles.0.edition.id}}">{{campaign.work.pdffiles.0.edition.id}}</a> {% if campaign.work.pdffiles.0.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        {% for ebf in campaign.work.pdffiles %}
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}PDF file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        {% endfor %}
     {% endif %}
 {% ifnotequal campaign_status 'ACTIVE' %}
     {% ifnotequal campaign.type 3 %}
