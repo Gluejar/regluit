@@ -133,7 +133,7 @@ def process_ebfs(campaign):
         if campaign.use_add_ask:
             campaign.add_ask_to_ebfs()
         else:
-            campaign.work.make_ebooks_from_ebfs()
+            campaign.work.make_ebooks_from_ebfs(add_ask=False)
         campaign.work.remove_old_ebooks()
     
 @task

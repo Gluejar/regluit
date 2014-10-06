@@ -948,7 +948,7 @@ class Campaign(models.Model):
                     done_formats.append('epub')
                 except Exception as e:
                     logger.error("error making epub ask  %s" % (e))
-        self.work.make_ebooks_from_ebfs()
+        self.work.make_ebooks_from_ebfs(add_ask=True)
                     
             
             
@@ -1239,25 +1239,37 @@ class Work(models.Model):
     def pdffiles(self):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
 
-    def make_ebooks_from_ebfs(self):
+    def make_ebooks_from_ebfs(self, add_ask=True):
         if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
             return
         ebfs=EbookFile.objects.filter(edition__work=self).exclude(file='').order_by('-created')
         done_formats= []
         for ebf in ebfs:
+            previous_ebooks=Ebook.objects.filter(url= ebf.file.url,)
+            try:
+                previous_ebook = previous_ebooks[0]
+                for eb in previous_ebooks[1:]:  #housekeeping
+                        eb.deactivate()
+            except IndexError:
+                previous_ebook = None
+            
             if ebf.format not in done_formats:
-                ebook=Ebook.objects.get_or_create(
-                        edition=ebf.edition, 
-                        format=ebf.format, 
-                        rights=self.last_campaign().license, 
-                        provider="Unglue.it",
-                        url= ebf.file.url,
-                        )
-                done_formats.append(ebf.format)
-            else:
-                obsolete=Ebook.objects.filter(url= ebf.file.url,)
-                for eb in obsolete:
-                    eb.deactivate()
+                if ebf.asking==add_ask or ebf.format=='mobi':
+                    if previous_ebook:
+                        previous_ebook.activate()
+                    else:
+                        ebook=Ebook.objects.get_or_create(
+                                edition=ebf.edition, 
+                                format=ebf.format, 
+                                rights=self.last_campaign().license, 
+                                provider="Unglue.it",
+                                url= ebf.file.url,
+                                )
+                    done_formats.append(ebf.format)
+                elif previous_ebook:
+                    previous_ebook.deactivate()
+            elif previous_ebook:
+                previous_ebook.deactivate()
         return 
     
     def remove_old_ebooks(self):
@@ -1667,6 +1679,13 @@ class EbookFile(models.Model):
             return test_epub(self.file)
         return None
     
+    @property
+    def active(self):
+        try:
+            return Ebook.objects.filter(url=self.file.url)[0].active
+        except:
+            return False
+
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
     RIGHTS_CHOICES = cc.CHOICES
@@ -1726,6 +1745,10 @@ class Ebook(models.Model):
         
     def deactivate(self):
         self.active=False
+        self.save()
+    
+    def activate(self):
+        self.active=True
         self.save()
 
 class Wishlist(models.Model):
