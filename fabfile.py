@@ -95,7 +95,7 @@ def email_addresses():
 def selenium():
     """setting up selenium to run in the background on RY's laptop"""
     with cd('/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit'):
-        local("java -jar test/selenium-server-standalone-2.40.0.jar > selenium-rc.log 2>&1 &")
+        local("java -jar test/selenium-server-standalone-2.43.1.jar > selenium-rc.log 2>&1 &")
         
 def test():
     """run regluit tests locally"""
