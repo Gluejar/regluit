@@ -128,6 +128,15 @@ class EditionForm(forms.ModelForm):
             'invalid': _("This value must be 8 or more digits."),
         }
     )
+    http = forms.RegexField(
+        label=_("HTTP URL"), 
+        regex=r'^(https?\://[a-zA-Z0-9\-_\%\~\$\?\(\)\&\!\;\:\.\,\+\=]*|delete)$',
+        required = False,
+        help_text = _("no spaces of funny stuff."),
+        error_messages = {
+            'invalid': _("This value must be a valid http(s) URL."),
+        }
+    )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 10}))
     coverfile = forms.ImageField(required=False)
@@ -136,7 +145,8 @@ class EditionForm(forms.ModelForm):
         has_isbn = self.cleaned_data.get("isbn", False) not in nulls
         has_oclc = self.cleaned_data.get("oclc", False) not in nulls
         has_goog = self.cleaned_data.get("goog", False) not in nulls
-        if not has_isbn and not has_oclc  and not has_goog:
+        has_http = self.cleaned_data.get("http", False) not in nulls
+        if not has_isbn and not has_oclc  and not has_goog and not has_http:
             raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
         return self.cleaned_data
     

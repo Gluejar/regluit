@@ -1116,7 +1116,7 @@ class Work(models.Model):
             return self.identifiers.filter(type='olwk')[0].value
         except IndexError:
             return ''
-
+    
     @property
     def openlibrary_url(self):
         return "http://openlibrary.org" + self.openlibrary_id
@@ -1604,6 +1604,10 @@ class Edition(models.Model):
     @property
     def goodreads_id(self):
         return self.id_for('gdrd')
+
+    @property 
+    def http_id(self):
+        return self.id_for('http')
 
     @staticmethod
     def get_by_isbn( isbn):
