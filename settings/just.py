@@ -135,7 +135,7 @@ STATIC_ROOT = '/var/www/static'
 IS_PREVIEW = False
 
 # decide which of the period tasks to add to the schedule
-#CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
+CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 # doing emit_notifications in crontab right now
