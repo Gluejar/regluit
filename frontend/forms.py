@@ -2,6 +2,7 @@
 external library imports
 """
 import logging
+import re
 import zipfile
 
 from datetime import timedelta, datetime, date
@@ -129,8 +130,10 @@ class EditionForm(forms.ModelForm):
         }
     )
     http = forms.RegexField(
-        label=_("HTTP URL"), 
-        regex=r'^(https?\://[a-zA-Z0-9\-_\%\~\$\?\(\)\&\!\;\:\.\,\+\=]*|delete)$',
+        label=_("HTTP URL"),
+        # https://mathiasbynens.be/demo/url-regex
+        regex=re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#-]+\.?)+(/[^\s]*)?$",
+                         flags=re.IGNORECASE|re.S ), 
         required = False,
         help_text = _("no spaces of funny stuff."),
         error_messages = {
