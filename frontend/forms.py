@@ -130,7 +130,7 @@ class EditionForm(forms.ModelForm):
     )
     http = forms.RegexField(
         label=_("HTTP URL"), 
-        regex=r'^(https?\://[a-zA-Z0-9\-_\%\~\$\?\(\)\&\!\;\:\.\,\+\=]*|delete)$',
+        regex=r'^(https?\://[a-zA-Z0-9\-_\%\~\$\?\(\)\&\!\;\:\.\,\+\=\/]*|delete)$',
         required = False,
         help_text = _("no spaces of funny stuff."),
         error_messages = {
