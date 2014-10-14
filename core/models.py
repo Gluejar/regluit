@@ -1011,7 +1011,7 @@ class Campaign(models.Model):
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)
-    value =  models.CharField(max_length=31, null=False)
+    value =  models.CharField(max_length=250, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)
     edition = models.ForeignKey("Edition", related_name="identifiers", null=True)
     
