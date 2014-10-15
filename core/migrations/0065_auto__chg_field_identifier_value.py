@@ -9,6 +9,8 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
 
+        # change default collation
+        db.execute('ALTER TABLE core_identifier DEFAULT character set utf8 collate utf8_bin;')
         # Changing field 'Identifier.value'
         db.alter_column('core_identifier', 'value', self.gf('django.db.models.fields.CharField')(max_length=250))
 
@@ -16,6 +18,9 @@ class Migration(SchemaMigration):
 
         # Changing field 'Identifier.value'
         db.alter_column('core_identifier', 'value', self.gf('django.db.models.fields.CharField')(max_length=31))
+        
+        # remove default collation for table
+        db.execute('ALTER TABLE core_identifier DEFAULT character set utf8;')
 
     models = {
         'auth.group': {
