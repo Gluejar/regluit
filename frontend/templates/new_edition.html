@@ -62,7 +62,9 @@
 		<p><b>Google Books ID</b>: {{ form.goog.errors }}{{ form.goog }}</p>
 		<p><b>GoodReads ID</b>: {{ form.gdrd.errors }}{{ form.gdrd }}</p>
 		<p><b>LibraryThing ID</b>: {{ form.thng.errors }}{{ form.thng }}</p>
-
+		{% if request.user.is_staff %}
+		<p><b>HTTP ID</b>: {{ form.http.errors }}{{ form.http }}</p>
+        {% endif %}
 		<p><b>Description</b>: <br />
 		{{ form.description.errors }}{{ form.description }}<br />
 		(<i>{% if work.last_campaign %}
