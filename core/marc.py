@@ -96,11 +96,17 @@ def makemarc(marcfile,  edition):
         record.remove_field(field008)
         old_field_value = field008.value()
         new_field_value = old_field_value[:23] + 'o' + old_field_value[24:]
-        field008 = pymarc.Field(tag='008', data=new_field_value)
-        record.add_ordered_field(field008)
     except IndexError:
-        pass
-    
+        # fun fun fun 
+        new_field_value= now.strftime('%y%m%d')+'s'
+        if len(edition.publication_date)>3:
+            new_field_value += edition.publication_date[0:4]
+        else:
+            new_field_value += '||||'
+        new_field_value += '||||xx#|||||o|||||||||||eng||'
+    field008 = pymarc.Field(tag='008', data=new_field_value)
+    record.add_ordered_field(field008)   
+        
     # add IBSN for ebook where applicable; relegate print ISBN to $z
     isbn = ''
     try:
@@ -136,7 +142,32 @@ def makemarc(marcfile,  edition):
         record.add_ordered_field(field082_new)
     except:
         pass # if no 082 field, don't need to change indicator
-
+    
+    # author name
+    try:
+        field100 = record.get_fields('100')[0]
+    except IndexError:
+        num_auths = edition.authors.count()
+        if num_auths:
+            field100 = pymarc.Field(
+                tag='100',
+                indicators = ['1', ' '],
+                subfields = [
+                    'a', edition.authors.all()[0].last_name_first,
+                ]
+            )
+            record.add_ordered_field(field100)
+        if num_auths > 1:
+            for auth in edition.authors.all()[1:]:
+                field = pymarc.Field(
+                    tag='700',
+                    indicators = ['1', ' '],
+                    subfields = [
+                        'a', auth.last_name_first,
+                        'e', 'joint author.',
+                    ]
+                )
+                record.add_ordered_field(field)
     # add subfield to 245 indicating format
     try:
         field245 = record.get_fields('245')[0]
@@ -150,7 +181,21 @@ def makemarc(marcfile,  edition):
         )
         record.add_ordered_field(field245)
     field245.add_subfield('a', '[electronic resource]')
-
+    
+    # publisher, date
+    try:
+        field260 = record.get_fields('260')[0]
+    except IndexError:
+        field260 = pymarc.Field(
+            tag='260',
+            indicators = [' ', ' '],
+            subfields = [
+                'b', edition.publisher_name.name,
+                'c', unicode(edition.publication_date),
+            ]
+        )
+        record.add_ordered_field(field260)
+    
     # modify 300 field (physical description)
     try:
         field300 = record.get_fields('300')[0]
@@ -222,6 +267,8 @@ def makemarc(marcfile,  edition):
     
     if print_isbn:
         subfields.extend(['z', print_isbn])
+    elif isbn:
+        subfields.extend(['z', isbn])
     if print_lccn:
         subfields.extend(['w', '(DLC) ' + print_lccn, ])
     if oclcnum:
