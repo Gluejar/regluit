@@ -14,7 +14,8 @@ boto==2.8.0
 #git+ssh://git@github.com/Gluejar/boto.git@2.3.0
 celery==3.0.9
 # pip installing pillow seems to delete distribute
-distribute==0.6.28
+# but having distribute in requirements starting to cause problems
+# distribute==0.6.28
 django-celery==3.0.9
 #django-ckeditor==3.6.2.1
 git+ssh://git@github.com/Gluejar/django-ckeditor.git@3.6.2.1.post20131230
@@ -52,7 +53,7 @@ pymarc==2.8.8
 python-dateutil==2.1
 python-openid==2.2.5
 pytz==2012d
-rdflib==2.4.0
+rdflib==2.4.1
 redis==2.6.2
 reportlab==3.1.8
 requests==2.4.3
