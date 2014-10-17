@@ -3,7 +3,7 @@
 cd /opt/regluit
 sudo -u ubuntu /usr/bin/git pull origin production
 source ENV/bin/activate
-pip install -r requirements_versioned.pip
+pip install --upgrade -r requirements_versioned.pip
 django-admin.py syncdb --migrate --settings regluit.settings.prod
 django-admin.py collectstatic --noinput --settings regluit.settings.prod
 sudo /etc/init.d/apache2 restart

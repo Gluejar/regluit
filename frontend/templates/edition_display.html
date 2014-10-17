@@ -28,6 +28,9 @@
             {% if edition.oclc %}
                 OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
             {% endif %}
+            {% if edition.http_id %}
+                web: <a href="{{ edition.http_id }}">{{ edition.http_id }}</a><br />
+            {% endif %}
             {% if not managing %}
                 {% if user.is_staff %}
                     <a href="{% url new_edition work_id edition.id %}">Edit this edition/Add ebook link</a><br />

@@ -1011,7 +1011,7 @@ class Campaign(models.Model):
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
     type = models.CharField(max_length=4, null=False)
-    value =  models.CharField(max_length=31, null=False)
+    value =  models.CharField(max_length=250, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)
     edition = models.ForeignKey("Edition", related_name="identifiers", null=True)
     
@@ -1116,7 +1116,7 @@ class Work(models.Model):
             return self.identifiers.filter(type='olwk')[0].value
         except IndexError:
             return ''
-
+    
     @property
     def openlibrary_url(self):
         return "http://openlibrary.org" + self.openlibrary_id
@@ -1620,6 +1620,10 @@ class Edition(models.Model):
     @property
     def goodreads_id(self):
         return self.id_for('gdrd')
+
+    @property 
+    def http_id(self):
+        return self.id_for('http')
 
     @staticmethod
     def get_by_isbn( isbn):
