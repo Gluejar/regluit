@@ -1646,6 +1646,14 @@ class Edition(models.Model):
             self.publisher_name = pub_name
             self.save()
 
+    # for compatibility with marc outputter
+    def downloads(self):
+        return self.ebooks.all()
+
+    # for compatibility with marc outputter
+    def download_via_url(self):
+        return settings.BASE_URL_SECURE + reverse('download', args=[self.work.id])
+
 class Publisher(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.ForeignKey('PublisherName', related_name='key_publisher')
