@@ -72,7 +72,7 @@ from regluit.core import (
     librarything,
     userlists,
     goodreads,
-    ungluify_record
+    marc
 )
 import regluit.core.cc as cc
 from regluit.core.bookloader import merge_works, detach_edition
@@ -3091,7 +3091,7 @@ def send_to_kindle(request, work_id, javascript='0'):
     return local_response(request, javascript,  context, 2)
     
     
-def marc(request, userlist=None):
+def marc_admin(request, userlist=None):
     link_target = 'UNGLUE'
     libpref = {'marc_link_target': settings.MARC_CHOICES[1]}
     try:
@@ -3134,7 +3134,7 @@ class MARCUngluifyView(FormView):
         edition = form.cleaned_data['edition']
 
         try:
-            ungluify_record.makemarc(
+            marc.makemarc(
                 marcfile=self.request.FILES['file'],
                 edition=edition
             )
@@ -3204,7 +3204,15 @@ def marc_concatenate(request):
     if format == 'xml':
         outfile.write(preamble)
     for record in selected_records:
-        record_id = long(record[7:])
+        if record.startswith('edition_'):
+            record_id = long(record[8:])
+            try:
+                edition = models.Edition.objects.get(pk=record_id)
+            except:
+                continue
+            record_id = marc.makestub(edition)
+        else:
+            record_id = long(record[7:])
         if format == 'xml':
             record_url = models.MARCRecord.objects.get(
                             pk=record_id

@@ -1519,7 +1519,23 @@ class Author(models.Model):
 
     def __unicode__(self):
         return self.name
-
+    
+    @property
+    def last_name_first(self):
+        names = self.name.rsplit()
+        if len(names) == 0:
+            return ''
+        elif len(names) == 1:
+            return names[0]
+        elif len(names) == 2:
+            return names[1] + ", " + names[0]
+        else:
+            reversed_name= names[-1]+","
+            for name in names[0:-1]:
+                reversed_name+=" "
+                reversed_name+=name
+            return reversed_name
+        
 
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)

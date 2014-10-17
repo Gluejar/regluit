@@ -49,7 +49,7 @@ paramiko==1.7.7.2
 postmonkey==1.0a4
 pyasn1==0.1.4
 pycrypto==2.6
-pymarc==2.8.8
+pymarc==3.0.2
 python-dateutil==2.1
 python-openid==2.2.5
 pytz==2012d
@@ -58,7 +58,7 @@ redis==2.6.2
 reportlab==3.1.8
 requests==2.4.3
 selenium==2.43.0
-six==1.7.3
+six==1.8.0
 ssh==1.7.14
 stevedore==0.4
 stripe==1.9.1
