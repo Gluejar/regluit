@@ -103,7 +103,7 @@ def makemarc(marcfile,  edition):
             new_field_value += edition.publication_date[0:4]
         else:
             new_field_value += '||||'
-        new_field_value += '||||xx#|||||o|||||||||||eng||'
+        new_field_value += '||||xx |||||o|||||||||||eng||'
     field008 = pymarc.Field(tag='008', data=new_field_value)
     record.add_ordered_field(field008)   
         
