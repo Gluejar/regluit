@@ -108,9 +108,7 @@ class MarcTests(TestCase):
 
         mr = models.MARCRecord.objects.create(guts=a_marc_record, edition=e )
 
-        print mr.direct_record()
-        print mr.via_record()
         print mr.direct_record_xml()
         print mr.direct_record_mrc()
         print mr.via_record_xml()
-        print mr.vi_record_mrc()
+        print mr.via_record_mrc()

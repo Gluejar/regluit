@@ -20,6 +20,16 @@ class Edition:
     def download_via_url(self):
         return []
 
+def _xml(record):
+    return pymarc.record_to_xml(record)
+
+def _mrc(record):
+    mrc_file = StringIO()
+    writer = pymarc.MARCWriter(mrc_file)
+    writer.write(record)
+    mrc_file.seek(0)
+    return mrc_file.read()
+
 class MARCRecord(models.Model):
     # the record  goes here
     guts = models.TextField()
@@ -55,6 +65,12 @@ class MARCRecord(models.Model):
             the_record.add_ordered_field(field856)
         return the_record
 
+    def direct_record_xml(self):
+        return _xml(self.direct_record())
+
+    def direct_record_mrc(self):
+        return _mrc(self.direct_record())
+
     def via_record(self):
         the_record = self._record()
         field856_via = pymarc.Field(
@@ -66,3 +82,10 @@ class MARCRecord(models.Model):
         )
         the_record.add_ordered_field(field856_via)
         return the_record
+
+    def via_record_xml(self):
+        return _xml(self.via_record())
+
+    def via_record_mrc(self):
+        return _mrc(self.via_record())
+
