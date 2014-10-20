@@ -559,10 +559,10 @@ def new_edition(request, work_id, edition_id, by=None):
         elif request.POST.has_key('add_subject_submit') and admin:
             new_subject = request.POST['add_subject'].strip()
             try:
-                author= models.Subject.objects.get(name=new_subject)
+                subject= models.Subject.objects.get(name=new_subject)
             except models.Subject.DoesNotExist:
-                author=models.Subject.objects.create(name=new_subject)
-            edition.new_subjects.append(new_subject)
+                subject=models.Subject.objects.create(name=new_subject)
+            edition.new_subjects.append(subject)
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
 
@@ -605,11 +605,7 @@ def new_edition(request, work_id, edition_id, by=None):
                         else:
                             models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
                 for author_name in edition.new_author_names:
-                    try:
-                        author= models.Author.objects.get(name=author_name)
-                    except models.Author.DoesNotExist:
-                        author=models.Author.objects.create(name=author_name)
-                    author.editions.add(edition)
+                    edition.add_author(author_name)
                 for subject_name in edition.new_subjects:
                     try:
                         subject= models.Subject.objects.get(name=subject_name)

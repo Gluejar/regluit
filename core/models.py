@@ -1634,6 +1634,14 @@ class Edition(models.Model):
         except Identifier.DoesNotExist:
             return None
     
+    def add_author(self, author_name):
+        if author_name:
+            try:
+                author= Author.objects.get(name=author_name)
+            except Author.DoesNotExist:
+                author= Author.objects.create(name=author_name)
+            author.editions.add(self)
+
     def set_publisher(self,publisher_name):
         if publisher_name and publisher_name != '':
             try:

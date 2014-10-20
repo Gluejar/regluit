@@ -202,8 +202,7 @@ def update_edition(edition):
     models.Identifier.get_or_add(type='goog',value=googlebooks_id,edition=edition,work=edition.work)
 
     for a in d.get('authors', []):
-        a, created = models.Author.objects.get_or_create(name=a)
-        a.editions.add(edition)
+        edition.add_author(a)
     
     add_ebooks(item, edition)
             
