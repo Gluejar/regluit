@@ -152,7 +152,6 @@ urlpatterns = patterns(
     url(r"^send_to_kindle/(?P<work_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^marc/$", "marc_admin", name="marc"),
     url(r"^marc/ungluify/$", staff_member_required(MARCUngluifyView.as_view()), name="MARCUngluify"),
-    url(r"^marc/concatenate/$", "marc_concatenate", name="marc_concatenate"),
     url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
 )
 
