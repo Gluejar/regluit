@@ -1654,13 +1654,39 @@ class Edition(models.Model):
             self.publisher_name = pub_name
             self.save()
 
-    # for compatibility with marc outputter
+    #### following methods for compatibility with marc outputter
     def downloads(self):
         return self.ebooks.all()
 
-    # for compatibility with marc outputter
     def download_via_url(self):
         return settings.BASE_URL_SECURE + reverse('download', args=[self.work.id])
+        
+    def authnames(self):
+        return [auth.last_name_first for auth in self.authors.all()]
+    
+    @property
+    def license(self):
+        try:
+            return self.ebooks.all()[0].rights
+        except:
+            return None
+    
+    @property
+    def funding_info(self): 
+        if self.ebooks.all().count()==0:
+            return ''  
+        if self.unglued:
+            return 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
+        else:
+            if self.ebooks.all()[0].rights in cc.LICENSE_LIST:
+                return 'The book is available as a free download thanks to a Creative Commons license.'
+            else:
+                return 'The book is available as a free download because it is in the Public Domain.'
+    
+    @property
+    def description(self): 
+        return self.work.description
+
 
 class Publisher(models.Model):
     created = models.DateTimeField(auto_now_add=True)

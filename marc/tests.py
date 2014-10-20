@@ -8,7 +8,7 @@ from django.db.models import get_model
 """
 regluit imports
 """
-from . import models
+from . import models, load
 
 a_marc_record = '''<?xml version="1.0" encoding="UTF-8"?><record xmlns="http://www.loc.gov/MARC21/slim" xmlns:cinclude="http://apache.org/cocoon/include/1.0" xmlns:zs="http://www.loc.gov/zing/srw/">
   <leader>01021cam a2200301 a 4500</leader>
@@ -104,11 +104,24 @@ class MarcTests(TestCase):
     def test_records(self):
         w = get_model('core','Work').objects.create(title="Work 1")
         e = get_model('core','Edition').objects.create(title=w.title,work=w) 
-        eb = get_model('core','Ebook').objects.create(url = "http://example.org",edition = e,format = 'epub')
+        eb = get_model('core','Ebook').objects.create(url = "http://example.org",edition = e,format = 'epub', rights='CC BY')
 
         mr = models.MARCRecord.objects.create(guts=a_marc_record, edition=e )
 
-        print mr.direct_record_xml()
-        print mr.direct_record_mrc()
-        print mr.via_record_xml()
-        print mr.via_record_mrc()
+        mr.direct_record_xml()
+        mr.direct_record_mrc()
+        mr.via_record_xml()
+        mr.via_record_mrc()
+        
+        load.stub(e)
+        
+        w.description='test'
+        e.set_publisher('test pub')
+        e.publication_date = '2000'
+        e.add_author('joe writer')
+        id = get_model('core','Identifier').objects.create(work=w,edition=e, type='isbn', value='0030839939') 
+        id = get_model('core','Identifier').objects.create(work=w,edition=e, type='oclc', value='0074009772') 
+        
+        load.stub(e)
+        
+    
