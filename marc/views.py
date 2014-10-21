@@ -15,7 +15,8 @@ PREAMBLE = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
 
 Edition = get_model(*models.EDITION_MODEL.split('.'))
 
-def marc_records(request):
+
+def marc_records(request, selected_records=None):
     # TODO convert to streaming when we move to Django 1.5+
     if request.method == 'POST':
         params=request.POST
@@ -26,14 +27,15 @@ def marc_records(request):
     format = params.get('format', 'xml')
     link_target = params.get('link_target', 'via')
     
-    # extract the user-selected records from the params QueryDict
-    selected_records = list(
-        k for k in params if params[k] == u'on'
-    )
+    if selected_records==None:
+        # extract the user-selected records from the params QueryDict
+        selected_records = list(
+            k for k in params if params[k] == u'on'
+        )
     if not selected_records:
         messages.error(
             request,
-            "Please select at least one record to download."
+            "There were no records to download."
         )
         return HttpResponseRedirect(reverse('marc', args=[]))
     
@@ -64,3 +66,9 @@ def marc_records(request):
         outfile.write('</collection>')
 
     return outfile
+
+def all_marc_records(request):
+    selected_records = list(
+        'record_'+ str(record.pk) for record in models.MARCRecord.objects.all()
+    )
+    return marc_records(request, selected_records=selected_records)

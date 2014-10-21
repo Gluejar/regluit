@@ -64,30 +64,34 @@ ul.local li {
 {% endif %}
 {% if records %}
 <div class="marc">
-    <form method="POST" id="record_form" action="{% url marc_concatenate %}">
+    <form method="POST" id="record_form" action="{% url marc_all %}">
         {% csrf_token %}
         Record format:
         <select name="format">
-            <option value="xml">xml</option>
+            <option value="xml" selected>xml</option>
             <option value="mrc">mrc</option>
         </select>
+        &nbsp;&nbsp;&nbsp;856 Link type:
+        <select name="link_target">
+            <option value="via" selected>Download page link</option>
+            <option value="direct">Links to each file type</option>
+        </select>
         <br /><br />
-        {% for record in records %}
-            <input type="checkbox" name="record_{{ record.id }}" id="record_{{ record.id }}" />
-            <label for="record_{{ record.id }}">
-                Record for <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}{% if record.edition.isbn_13 %} (ISBN {{ record.edition.isbn_13 }}){% endif %}</a>
-            </label>
-            <br />
-        {% endfor %}
-        <input type="submit" name="submit" value="Download" id="submit">
+        <input type="submit" name="submit" value="Download All Records" id="submit">
         <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
     </form>
+    <br /><hr>
+    <p>The 856 link options are:</p>
+    <ul class="local">
+            <li> Download page link. MARC records link through Unglue.it download page ( library user authentication, context sensitive help for getting files onto user's device)</li>
+            <li> Links to each file type if available. MARC records link directly to files ( less help, not available for "Buy-to-unglue" titles) </li>
+    </ul>
 </div>
 {% else %}
-<p>Sorry; we don't have any records meeting your needs at this time.  </p>
+<p>Sorry; we don't have any records at this time.  </p>
 {% endif %}
 
-<hr>
+
 {% if request.user.is_authenticated %}
 <div>
     <p>Your preference for the links in the 856 field is:</p>
@@ -95,13 +99,8 @@ ul.local li {
         <li>{{ libpref.get_marc_link_target_display }}</li>
     </ul>
     
-    <p>The options are:</p>
-    <ul class="local">
-            <li> Raw link if available. MARC records link direct to provider (one click, no help, not available for "Buy-to-unglue" titles) </li>
-            <li> Unglue.it link. MARC records link through Unglue.it download page (extra click, library user authentication, context sensitive help for getting files onto user's device)</li>
-    </ul>
     
-    <p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
+    <p>You can <a href="{% url marc_config %}">change your library preferences here</a>.</p>
 </div>
 {% endif %}
 {% endblock %}
