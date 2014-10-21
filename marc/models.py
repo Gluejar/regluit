@@ -81,6 +81,13 @@ class MARCRecord(models.Model):
             self._the_record.add_ordered_field(field001)
         super(MARCRecord, self).save(*args, **kwargs)
     
+    def load_from_lc(self):
+        #parse guts
+        marcfile = StringIO(self.guts)
+        self._the_record = load.from_lc(marcfile, self.edition)
+        self.guts = pymarc.record_to_xml(self._the_record)
+        self.save()
+        
     # the record without 856 
     def _record(self):
         if self._the_record:

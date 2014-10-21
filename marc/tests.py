@@ -124,4 +124,10 @@ class MarcTests(TestCase):
         
         load.stub(e)
         
-    
+        mr2 = models.MARCRecord.objects.create(guts=a_marc_record, edition=e )
+        mr2.load_from_lc()
+
+        mr2.direct_record_xml()
+        mr2.direct_record_mrc()
+        mr2.via_record_xml()
+        mr2.via_record_mrc()
