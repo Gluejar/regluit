@@ -130,12 +130,15 @@ CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
 
-# Amazon credentials (for fps)
-AWS_ACCESS_KEY = ''
-AWS_SECRET_ACCESS_KEY = ''
+# Amazon keys to permit S3 access
+# reusing just cedentials here
 
-# choice of payment processor
-PAYMENT_PROCESSOR = 'paypal'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
+
+
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:

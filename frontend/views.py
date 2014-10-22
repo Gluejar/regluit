@@ -536,6 +536,7 @@ def new_edition(request, work_id, edition_id, by=None):
             'goog': edition.googlebooks_id,
             'gdrd': edition.goodreads_id,
             'thng': edition.librarything_id,
+            'http': edition.http_id,
             }
     if request.method == 'POST' :
         form = None
@@ -590,7 +591,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.save()
                 
                 id_msg=""
-                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd'):
+                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd', 'http'):
                     id_val = form.cleaned_data[id_type]
                     if id_val=='delete':
                         edition.identifiers.filter(type=id_type).delete()
