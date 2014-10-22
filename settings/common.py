@@ -384,7 +384,7 @@ CONTENT_TYPES = {
     'mobi': 'application/x-mobipocket-ebook'
 }
 
-# if you add more of these, make sure core/ungluify_record.py can deal
+# if you add more of these, make sure core/marc.py can deal
 MARC_CHOICES = (
     ('DIRECT', 'Raw link'),
     ('UNGLUE', 'Unglue.it link'),

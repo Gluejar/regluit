@@ -5,8 +5,8 @@ Consider it a catalogolem: http://commons.wikimedia.org/wiki/File:Arcimboldo_Lib
 Use the MARCXML file for the non-unglued edition from Library of Congress.
 """
 
-import logging
 import pymarc
+import logging
 from copy import deepcopy
 from datetime import datetime
 from StringIO import StringIO
@@ -18,6 +18,10 @@ from django.core.urlresolvers import reverse
 import regluit.core.cc as cc
 from regluit.core import models
 
+def makestub(edition):
+    return makemarc(None,  edition)
+
+
 def makemarc(marcfile,  edition):
     logger = logging.getLogger(__name__)
     
@@ -26,28 +30,34 @@ def makemarc(marcfile,  edition):
         ebf = None
     except IndexError:
         license = None
-        ebf = edition.ebook_files.all()[0]
+        try:
+            ebf = edition.ebook_files.all()[0]
+        except IndexError:
+            # no record if no ebooks
+            return None
     
     logger.info("Making MARC records for edition %s " % edition)
-        
-    record = pymarc.parse_xml_to_array(marcfile)[0]
     
     # save lccn for later (if there is one) before deleting it
     print_lccn = None
-    for lccn in record.get_fields('010'):
-        for validlccn in lccn.get_subfields('a'):
-            print_lccn = validlccn
+    if marcfile:
+        record = pymarc.parse_xml_to_array(marcfile)[0]
+        for lccn in record.get_fields('010'):
+            for validlccn in lccn.get_subfields('a'):
+                print_lccn = validlccn
+        fields_to_delete = []
+        fields_to_delete += record.get_fields('001')
+        fields_to_delete += record.get_fields('003')
+        fields_to_delete += record.get_fields('005')
+        fields_to_delete += record.get_fields('006')
+        fields_to_delete += record.get_fields('007')
+        fields_to_delete += record.get_fields('010')
+        fields_to_delete += record.get_fields('040')
+        for field in fields_to_delete:
+            record.remove_field(field)
+    else:
+        record = pymarc.Record()
 
-    fields_to_delete = []
-    fields_to_delete += record.get_fields('001')
-    fields_to_delete += record.get_fields('003')
-    fields_to_delete += record.get_fields('005')
-    fields_to_delete += record.get_fields('006')
-    fields_to_delete += record.get_fields('007')
-    fields_to_delete += record.get_fields('010')
-    fields_to_delete += record.get_fields('040')
-    for field in fields_to_delete:
-        record.remove_field(field)
         
     # create accession number and write 001 field 
     # (control field syntax is special)
@@ -81,13 +91,22 @@ def makemarc(marcfile,  edition):
     )
     record.add_ordered_field(field007)
     
-    field008 = record.get_fields('008')[0]
-    record.remove_field(field008)
-    old_field_value = field008.value()
-    new_field_value = old_field_value[:23] + 'o' + old_field_value[24:]
+    try:
+        field008 = record.get_fields('008')[0]
+        record.remove_field(field008)
+        old_field_value = field008.value()
+        new_field_value = old_field_value[:23] + 'o' + old_field_value[24:]
+    except IndexError:
+        # fun fun fun 
+        new_field_value= now.strftime('%y%m%d')+'s'
+        if len(edition.publication_date)>3:
+            new_field_value += edition.publication_date[0:4]
+        else:
+            new_field_value += '||||'
+        new_field_value += '||||xx |||||o|||||||||||eng||'
     field008 = pymarc.Field(tag='008', data=new_field_value)
-    record.add_ordered_field(field008)
-    
+    record.add_ordered_field(field008)   
+        
     # add IBSN for ebook where applicable; relegate print ISBN to $z
     isbn = ''
     try:
@@ -123,26 +142,78 @@ def makemarc(marcfile,  edition):
         record.add_ordered_field(field082_new)
     except:
         pass # if no 082 field, don't need to change indicator
-
+    
+    # author name
+    try:
+        field100 = record.get_fields('100')[0]
+    except IndexError:
+        num_auths = edition.authors.count()
+        if num_auths:
+            field100 = pymarc.Field(
+                tag='100',
+                indicators = ['1', ' '],
+                subfields = [
+                    'a', edition.authors.all()[0].last_name_first,
+                ]
+            )
+            record.add_ordered_field(field100)
+        if num_auths > 1:
+            for auth in edition.authors.all()[1:]:
+                field = pymarc.Field(
+                    tag='700',
+                    indicators = ['1', ' '],
+                    subfields = [
+                        'a', auth.last_name_first,
+                        'e', 'joint author.',
+                    ]
+                )
+                record.add_ordered_field(field)
     # add subfield to 245 indicating format
-    field245 = record.get_fields('245')[0]
-    field245.add_subfield('h', '[electronic resource]')
-
+    try:
+        field245 = record.get_fields('245')[0]
+    except IndexError:
+        field245 = pymarc.Field(
+            tag='245',
+            indicators = ['1', '0'],
+            subfields = [
+                'a', edition.title,
+            ]
+        )
+        record.add_ordered_field(field245)
+    field245.add_subfield('a', '[electronic resource]')
+    
+    # publisher, date
+    try:
+        field260 = record.get_fields('260')[0]
+    except IndexError:
+        field260 = pymarc.Field(
+            tag='260',
+            indicators = [' ', ' '],
+            subfields = [
+                'b', edition.publisher_name.name,
+                'c', unicode(edition.publication_date),
+            ]
+        )
+        record.add_ordered_field(field260)
+    
     # modify 300 field (physical description)
-    field300 = record.get_fields('300')[0]
-    subfield_a = field300.get_subfields('a')[0]
-    if (
-        subfield_a[-2:] == ' ;' or 
-        subfield_a[-2:] == ' :' or 
-        subfield_a[-2:] == ' +'
-    ):
-        subfield_a = subfield_a[:-2]
-    new300a = '1 online resource (' + subfield_a + ')'
-    if field300.get_subfields('b'):
-        new300a += ' :'
-    field300.delete_subfield('a')
-    field300.add_subfield('a', new300a)
-    field300.delete_subfield('c')
+    try:
+        field300 = record.get_fields('300')[0]
+        subfield_a = field300.get_subfields('a')[0]
+        if (
+            subfield_a[-2:] == ' ;' or 
+            subfield_a[-2:] == ' :' or 
+            subfield_a[-2:] == ' +'
+        ):
+            subfield_a = subfield_a[:-2]
+        new300a = '1 online resource (' + subfield_a + ')'
+        if field300.get_subfields('b'):
+            new300a += ' :'
+        field300.delete_subfield('a')
+        field300.add_subfield('a', new300a)
+        field300.delete_subfield('c')
+    except:
+        pass
     
     if license:
         # add 536 field (funding information)
@@ -196,6 +267,8 @@ def makemarc(marcfile,  edition):
     
     if print_isbn:
         subfields.extend(['z', print_isbn])
+    elif isbn:
+        subfields.extend(['z', isbn])
     if print_lccn:
         subfields.extend(['w', '(DLC) ' + print_lccn, ])
     if oclcnum:
@@ -290,4 +363,5 @@ def makemarc(marcfile,  edition):
     writer = pymarc.MARCWriter(mrc_file)
     writer.write(record)
     mrc_file.close()
-
+    
+    return marc_record.pk
