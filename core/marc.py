@@ -99,7 +99,7 @@ def makemarc(marcfile,  edition):
     except IndexError:
         # fun fun fun 
         new_field_value= now.strftime('%y%m%d')+'s'
-        if len(edition.publication_date)>3:
+        if edition.publication_date and len(edition.publication_date)>3:
             new_field_value += edition.publication_date[0:4]
         else:
             new_field_value += '||||'
