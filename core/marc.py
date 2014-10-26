@@ -190,7 +190,7 @@ def makemarc(marcfile,  edition):
             tag='260',
             indicators = [' ', ' '],
             subfields = [
-                'b', edition.publisher_name.name,
+                'b', edition.publisher_name.name if edition.publisher_name is not None else "",
                 'c', unicode(edition.publication_date),
             ]
         )
