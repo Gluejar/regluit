@@ -1,0 +1,62 @@
+{% extends "basedocumentation.html" %}
+
+{% block title %}Add new MARC records{% endblock %}
+
+{% block extra_extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+<link href="/static/selectable/css/dj.selectable.css" type="text/css" media="all" rel="stylesheet" />
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
+<script type="text/javascript" src="/static/selectable/js/jquery.dj.selectable.js"></script>
+{% endblock %}
+
+{% block doccontent %}
+{% if not request.user.libpref %}
+<p><i>If you want to load MARC records, you probably want to <a href="{% url marc_config %}">enable Unglue.it's librarian tools</a> first!</i></p>
+{% endif %}
+<h2>Adding MARC records to Unglue.it</h2>
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+{% if not form.initial.edition %}
+<h3>Selecting an edition</h3>
+<p>
+MARC records are associated with unglue.it edition records. Look for links in the "more" tab of any unglue.it work page that has a "Download" button on it.
+{% endif %}
+<h3>Adapting records from LoC</h3>
+<p>
+    For ebooks which have existing print editions cataloged in the Library of Congress, we can automatically convert those to Unglue.it ebook MARC records, which will then be automatically affixed to the ebook edition in our database and <a href="{% url marc %}">provided to ungluers</a>.
+</p>
+
+<p>
+    To get the XML record, search <a href="http://catalog.loc.gov/">http://catalog.loc.gov/</a>, select the print edition, and click on the permalink (will look something like <a href="http://lccn.loc.gov/63008219">http://lccn.loc.gov/63008219</a>).  This page has a MARCXML link.
+</p>
+
+<p>
+    The record loader will automatically add links to all the unglued ebook files known to the Unglue.it database.  <I>Make sure  those links are in the database before adding the record.</i>  </p>
+
+<h3>Editing stub records from LoC</h3>
+{% if form.initial.edition %}
+The current records for this edition are here. They may be auto-generated stubs: 
+    <div id="libtools">
+        <form method="POST" id="record_form" action="{% url marc_concatenate  %}">
+            {% include 'marc_form.html' %}
+            <input type="hidden" name="edition_{{form.initial.edition}}" value="on">
+            <input type="submit" name="submit" value="Download MARC" id="submit">
+        </form>
+     </div>
+{% endif %}
+
+<p>
+    Edit the record, then upload it as a "record prepared for Unglue.it". The record loader strips 001,  003, 005, 006, 007, 856 and >900 fields, and adds them back in on download.
+</p>
+<h3>Load a record</h3>
+<form action="" enctype="multipart/form-data" method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Add record" />
+</form>
+{% endblock %}

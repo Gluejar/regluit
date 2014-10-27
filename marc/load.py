@@ -117,6 +117,15 @@ def stub(edition):
     
     return record
 
+#load a with minimal change
+def raw(marcfile,  edition):
+    record = pymarc.parse_xml_to_array(marcfile)[0]
+    for field in record:
+        if field.tag in ('001', '003', '005', '006', '007', '856') or int( field.tag ) > 900:
+            record.remove_field(field)
+    add_stuff(record)
+    return record
+    
 #load a record from library of Congress
 def from_lc(marcfile,  edition):
     

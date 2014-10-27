@@ -1,9 +1,14 @@
 from datetime import datetime
-from django.core.urlresolvers import reverse
+from xml.sax import SAXParseException
+
+from django.contrib import messages
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import get_model
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
+from django.views.generic.edit import FormView
 
 from . import models
+from . import forms
 
 PREAMBLE = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
                  '<collection '
@@ -87,4 +92,41 @@ def qs_marc_records(request, qs):
         # records can be strings: 'record_xxx', 'edition_xxx', MARCRecord objs or objs with edition attributes
         selected_records.extend(obj.marc_records())
     return marc_records(request, selected_records=selected_records)
+
+class MARCUpload(FormView):
+    template_name = 'marc/upload.html'
+    form_class = forms.MARCUploadForm
+    success_url = reverse_lazy('upload_marc')
+    
+    # allow a get param to specify the edition
+    def get_initial(self):
+        if self.request.method == 'GET':
+            edition = self.request.GET.get('edition',None)
+            if Edition.objects.filter(id=edition).count():
+                edition = Edition.objects.filter(id=edition)[0]
+                if edition.ebooks.count() or edition.ebook_files.count():
+                    return {'edition':edition.id}
+        return {}
+
+    def form_valid(self, form):
+        edition = form.cleaned_data['edition']
+        source = form.cleaned_data['source']
+        try:
+            marcfile=self.request.FILES['file']
+            new_record = models.MARCRecord(
+                guts=marcfile,
+                edition=edition,
+                user= self.request.user
+            )
+            new_record.load_from_file(source)
+            messages.success(
+                self.request,
+                "You have successfully added a MARC record. Hooray! Add another?"
+            )
+        except SAXParseException:
+            messages.error(
+                self.request,
+                "Sorry, couldn't parse that file."
+            )
+        return super(MARCUpload,self).form_valid(form)
         

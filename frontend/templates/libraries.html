@@ -31,6 +31,8 @@ We’ve added "Buy-to-Unglue" campaigns to so that libraries can lend ebooks on 
 <dl>
 <dt><a href="{% url registration_register %}?next={{ request.get_full_path|urlencode }}">Sign up.</a> It's Free!</dt>
 <dd>Starting an account, for yourself or your library, is free. Use it to help us distribute unglued and ungluing ebooks.   </dd>
+<dt>Add free ebooks to your collection with our <a href="{% url marc %}">MARC records</a>!</dt>
+<dd>We're building a comprehensive database of freely licensed ebooks. We provide <a href="{% url marc %}">MARC records for these ebooks</a> wherever we can.  They can live in the catalog in your ILS; they link to an epub file in the Internet Archive.  Of course, because of unglued ebooks' Creative Commons licenses, you're free to shift that epub to other formats, host the file on your own servers, and edit the MARC record accordingly. And if you want, help us <a href="{% url marc %}">improve</a> our records.</dd>
 <dt>Become an Unglue.it participating library</dt>
 <dd><ol><li><a href="{% url library_create %}">Make your library page</a> on Unglue.it. It takes just a few minutes.  It's the first step towards becoming an Unglue.it participating library.</li>
 <li>Review our <a href="https://www.docracy.com/0_uyw26qv9c/unglue-it-library-license-agreement">LIBRARY LICENSE AGREEMENT</a>. </li>
@@ -42,10 +44,6 @@ The library license gives download access to one library member at a time for 14
 </dd>
 <dt>Stay in touch.</dt>
 <dd>You can follow us on Twitter (<a href="http://twitter.com/unglueit">@unglueit</a>), <a href="http://facebook/com/unglueit">Facebook</a>, and our <a href="http://blog.unglue.it">blog</a>, and <a href="http://eepurl.com/fKLfI">subscribe to our newsletter</a> (1-2 emails per month).</dd>
-<dt>Add unglued ebooks to your collection.</dt>
-<dd>We provide <a href="{% url marc %}">MARC records for unglued ebooks</a> wherever we can.  We also strive to have MARC records available for all unglued ebooks.  They can live in the catalog in your ILS; they link to an epub file in the Internet Archive.  Of course, because of unglued ebooks' Creative Commons licenses, you're free to shift that epub to other formats, host the file on your own servers, and edit the MARC record accordingly.</dd>
-<dt>Join our <a href="http://goo.gl/lCTLI">catalogers list</a>.</dt>
-<dd>We're able to get MARC records into OCLC and SkyRiver because of the support of catalogers like you.  Want to help?  <a href="http://goo.gl/lCTLI">Add yourself to the list.</a>  Usually all you'll need to do is modify an existing record for an earlier edition and upload the record.  We'll supply you with the link and the unglued edition.  We'll only contact you when there's an unglued book to be cataloged.</dd>
 <dt>Spread the word.</dt>
 <dd>There are social media sharing links on most pages on the site.  There are some right here!
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
@@ -59,7 +57,7 @@ The library license gives download access to one library member at a time for 14
 <dt>Educate yourself and your patrons about ebook issues and Creative Commons licenses.</dt>
 <dd>Checkout limits, publishers who won't sell ebooks to libraries, DRM, companies tracking readers' behavior, library prices far in excess of consumer costs, incompatible technologies and formats, cataloging silos...you know why it's hard for you to deliver a seamless ereading experience to your patrons.  Make sure they know, too.  And make sure everyone knows how solutions, like <a href="http://creativecommons.org">Creative Commons</a> licenses, can help libraries and readers while respecting copyright and protecting creators' rights.</dd>
 <dt>Support <a href="{% url campaign_list 'ending' %}">our active campaigns</a>.</dt>
-<dd>Ultimately ebooks can't be unglued unless authors and publishers are paid for their work.  Many of our staunchest supporters are librarians.  There are also several libraries which have supported campaigns, including Leddy Library (University of Windsor, Ontario); the University of Alberta library ; and the Z. Smith Reynolds library (Wake Forest University.</dd>
+<dd>Ultimately ebooks can't be unglued unless authors and publishers are paid for their work.  Many of our staunchest supporters are librarians.  There are also several libraries which have supported campaigns, including Leddy Library (University of Windsor, Ontario); the University of Alberta library ; and the Z. Smith Reynolds library (Wake Forest University).</dd>
 <dt>Give feedback and ask questions.</dt>
 <dd>Want to know more?  Need help?  Have ideas for how we could improve the site or make it more library-friendly?  Contact us at: <a href="mailto:libraries@gluejar.com">libraries@gluejar.com</a>.</dd>
 </dl>

@@ -5,12 +5,15 @@ from regluit.marc.models import MARCRecord
 from regluit.core.models import MARCRecord as OldRecord
 
 class Command(BaseCommand):
-    help = "migrate records from files"
-    args = ""
+    help = "migrate records (id<stoprecord) from files"
+    args = "<stoprecord>"
     
-    def handle(self,  **options):
+    def handle(self, stoprecord=None, **options):
         editions=[]
-        for old_record in OldRecord.objects.all().order_by('-id'):
+        old_records=OldRecord.objects.all().order_by('-id')
+        if stoprecord:
+            old_records = old_records.filter(id__lt=int(stoprecord))
+        for old_record in old_records:
             if old_record.edition.pk not in editions:
                 new_record, created = MARCRecord.objects.get_or_create(id=old_record.pk)
                 try:

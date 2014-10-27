@@ -43,17 +43,8 @@
                     See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a><br />
                 {% endif %} 
             {% endif %}  
-            {% if edition.MARCrecords.all %}                         	    
-            {% for record in edition.MARCrecords.all %}
-                Download {{record.link_target}} MARC record for this edition: (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=xml">XML</a>) (<a href="{% url marc_concatenate %}?record_{{ record.id }}=on&amp;format=mrc">mrc</a>)<br />
-            {% endfor %}
-            {% else %}
-                {% if edition.ebooks.all %}
-                    Download {{record.link_target}} MARC record for this edition: (<a href="{% url marc_concatenate %}?edition_{{ edition.id }}=on&amp;format=xml">XML</a>) (<a href="{% url marc_concatenate %}?edition_{{ edition.id }}=on&amp;format=mrc">mrc</a>)<br />
-                {% endif %}
-            {% endif %}
-            {% if user.is_staff %}{% if edition.ebooks.0 or edition.ebook_files.0 %}
-                <a href="{% url MARCUngluify %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
+            {% if user.libpref %}{% if edition.ebooks.all or edition.ebook_files.all %}
+                <a href="{% url upload_marc %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
             {% endif %} {% endif %}
         </div>
 

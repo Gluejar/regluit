@@ -17,7 +17,6 @@ from notification import models as notification
 from random import randint
 from re import sub
 from xml.etree import ElementTree as ET
-from xml.sax import SAXParseException
 from tastypie.models import ApiKey
 
 '''
@@ -116,7 +115,6 @@ from regluit.frontend.forms import (
     MsgForm,
     PressForm,
     KindleEmailForm,
-    MARCUngluifyForm,
     MARCFormatForm,
     DateCalculatorForm
 )
@@ -3110,39 +3108,6 @@ def work_marc(request, work_id):
     work = safe_get_work(work_id)
     return qs_marc_records(request, qs=[ work ])
 
-class MARCUngluifyView(FormView):
-    template_name = 'marcungluify.html'
-    form_class = MARCUngluifyForm
-    success_url = reverse_lazy('MARCUngluify')
-    
-    # allow a get param to specify the edition
-    def get_initial(self):
-        if self.request.method == 'GET':
-            edition = self.request.GET.get('edition',None)
-            if models.Edition.objects.filter(id=edition).count():
-                edition = models.Edition.objects.filter(id=edition)[0]
-                if edition.ebooks.count() or edition.ebook_files.count():
-                    return {'edition':edition.id}
-        return {}
-
-    def form_valid(self, form):
-        edition = form.cleaned_data['edition']
-
-        try:
-            marc.makemarc(
-                marcfile=self.request.FILES['file'],
-                edition=edition
-            )
-            messages.success(
-                self.request,
-                "You have successfully added a MARC record. Hooray! Add another?"
-            )
-        except SAXParseException:
-            messages.error(
-                self.request,
-                "Sorry, couldn't parse that file."
-            )
-        return super(MARCUngluifyView,self).form_valid(form)
         
 class MARCConfigView(FormView):
     template_name = 'marc_config.html'

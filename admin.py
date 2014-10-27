@@ -35,6 +35,7 @@ regluit imports
 """
 from regluit import payment
 from regluit.core import models
+from regluit.marc.models import MARCRecord
 from regluit.core.lookups import (
     PublisherNameLookup,
     WorkLookup,
@@ -207,12 +208,17 @@ class MARCRecordAdminForm(forms.ModelForm):
             widget=AutoCompleteSelectWidget(EditionLookup),
             required=True,
     )
-
+    user = AutoCompleteSelectField(
+            OwnerLookup,
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+        )
     class Meta(object):
-        model = models.MARCRecord
+        model = MARCRecord
 
 class MARCRecordAdmin(ModelAdmin):
-    list_display = ('edition',)
+    list_display = ('edition', 'user')
+    date_hierarchy = 'created'
     form = MARCRecordAdminForm
 
 admin_site = RegluitAdmin("Admin")
@@ -238,7 +244,7 @@ admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
 admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Press, PressAdmin)
-admin_site.register(models.MARCRecord, MARCRecordAdmin)
+admin_site.register(MARCRecord, MARCRecordAdmin)
 
 # payments
 

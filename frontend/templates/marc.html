@@ -44,8 +44,8 @@ ul.local li {
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
-{% if request.user.is_staff %}
-    <p>Hi, {{ request.user.username }}.  Unglue.it staffers can also <a href="{% url MARCUngluify %}">add new records</a>.</p>
+{% if request.user.libpref %}
+    <p>Hi, {{ request.user.username }}.  Librarians can also <a href="{% url upload_marc %}">add new records</a>.</p>
 {% endif %}
 
 {% if messages %}

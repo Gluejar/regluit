@@ -4,6 +4,7 @@ from datetime import datetime
 from StringIO import StringIO
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
 
 from . import load
@@ -53,6 +54,10 @@ class MARCRecord(models.Model):
     
     # note capitalization of related_name
     edition = models.ForeignKey(EDITION_MODEL, related_name="MARCRecords", null=True)
+    
+    user =  models.ForeignKey(User, related_name="MARCRecords", null=True ) 
+    created =  models.DateTimeField(auto_now_add=True)  
+
 
     def __init__(self, *args,  **kwargs):
         super(MARCRecord, self).__init__( *args, **kwargs)
@@ -81,12 +86,19 @@ class MARCRecord(models.Model):
             self._the_record.add_ordered_field(field001)
         super(MARCRecord, self).save(*args, **kwargs)
     
-    def load_from_lc(self):
+    def load_from_file(self, source='raw'):
         #parse guts
-        marcfile = StringIO(self.guts)
-        self._the_record = load.from_lc(marcfile, self.edition)
+        if isinstance(self.guts, str) or isinstance(self.guts, unicode):
+            marcfile = StringIO(self.guts)
+        else:
+            marcfile = self.guts
+        if source == 'loc':
+            self._the_record = load.from_lc(marcfile, self.edition)
+        else:
+            self._the_record = load.raw(marcfile, self.edition)
         self.guts = pymarc.record_to_xml(self._the_record)
         self.save()
+
         
     # the record without 856 
     def _record(self):
