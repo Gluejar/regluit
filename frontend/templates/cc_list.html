@@ -93,7 +93,16 @@
                         {% endifequal %}
                     </div>
                 </div>
-            </div>    
+            </div> 
+            {% if request.user.libpref %}
+            <div id="libtools">
+                <p>for libraries...</p>
+                <form method="GET" action="{% url cc_list_marc facet %}">
+                    {% include 'marc_form.html' %}
+                    <input type="submit" name="submit" value="download MARC" id="submit">
+                </form>
+            </div> 
+            {% endif %}  
         </div>
         </div>
     </div>

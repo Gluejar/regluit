@@ -37,7 +37,7 @@ import regluit.core.isbn
 import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
-
+from regluit.marc.models import MARCRecord as NewMARC
 from regluit.core.signals import (
     successful_campaign,
     unsuccessful_campaign,
@@ -1007,6 +1007,10 @@ class Campaign(models.Model):
     @property   
     def user_to_pay(self):
         return self.rh.owner
+    
+    ### for compatibility with MARC output
+    def marc_records(self):
+        return self.work.marc_records()
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -1511,7 +1515,21 @@ class Work(models.Model):
         else:
             # assume it's several users
             return self.user_license(self.acqs.filter(user__in=user))
+
+    ### for compatibility with MARC output
+    def marc_records(self):
+        record_list = []
+        record_list.extend(NewMARC.objects.filter(edition__work=self))
+        for obj in record_list:
+            break
+        else:
+            for ebook in self.ebooks():
+                record_list.append(ebook.edition)
+                break
+        return record_list
             
+        
+                
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)

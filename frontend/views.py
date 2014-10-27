@@ -145,6 +145,7 @@ from regluit.booxtream.exceptions import BooXtreamError
 from regluit.pyepub import InvalidEpub
 from regluit.libraryauth.views import Authenticator
 from regluit.libraryauth.models import Library
+from regluit.marc.views import qs_marc_records
 
 logger = logging.getLogger(__name__)
 
@@ -779,6 +780,7 @@ def subjects(request):
     return render(request, 'subjects.html', {'subjects': subjects})
 
 class FilterableListView(ListView):
+    send_marc = False
     def get_queryset(self):
         if self.request.GET.has_key('pub_lang'):
             if self.model is models.Campaign:
@@ -797,7 +799,13 @@ class FilterableListView(ListView):
         context['show_langs']=True
         context['WISHED_LANGS']=settings.WISHED_LANGS
         return context
-
+    
+    def render_to_response(self, context, **response_kwargs):
+        if self.send_marc:
+            return qs_marc_records(self.request, qs=self.object_list)
+        else:
+            return super(FilterableListView,self).render_to_response(context, **response_kwargs)
+        
 recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_USERNAME)
 
 class WorkListView(FilterableListView):
@@ -877,6 +885,8 @@ class ByPubView(WorkListView):
             context = super(ByPubView, self).get_context_data(**kwargs)
             context['pubname'] = self.publisher_name
             context['publisher'] = self.publisher
+            context['facet'] = self.kwargs.get('facet','all')
+
             return context
 
 class ByPubListView(ByPubView):
@@ -909,7 +919,7 @@ class CCListView(FilterableListView):
 
     def get_context_data(self, **kwargs):
         context = super(CCListView, self).get_context_data(**kwargs)
-        facet = self.kwargs.get('facet','')
+        facet = self.kwargs.get('facet','all')
         qs=self.get_queryset()
         context['ungluers'] = userlists.work_list_users(qs,5)
         context['activetab'] = "#1"
@@ -3087,29 +3097,18 @@ def send_to_kindle(request, work_id, javascript='0'):
     return local_response(request, javascript,  context, 2)
     
     
-def marc_admin(request, userlist=None):
-    link_target = 'UNGLUE'
-    libpref = {'marc_link_target': settings.MARC_CHOICES[1]}
-    try:
-        libpref = request.user.libpref
-        link_target = libpref.marc_link_target
-    except:
-        if not request.user.is_anonymous():
-            libpref = models.Libpref(user=request.user)
-    unwanted = 'UNGLUE' if link_target == 'DIRECT' else 'DIRECT'
+def userlist_marc(request, userlist=None):
     if userlist:
-        records = []
         user = get_object_or_404(User,username=userlist)
-        for work in user.wishlist.works.all():
-            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target=link_target))
-            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target='B2U'))
+        return qs_marc_records(request, qs=user.wishlist.works.all())
     else:
-        records = models.MARCRecord.objects.exclude(link_target=unwanted)
-    return render(
-        request,
-        'marc.html',
-        {'records': records,  'libpref' : libpref , 'userlist' : userlist}
-    )
+        return qs_marc_records(request, qs=request.user.wishlist.works.all())
+
+    return render( request,'marc.html',{'userlist' : [] })
+
+def work_marc(request, work_id):
+    work = safe_get_work(work_id)
+    return qs_marc_records(request, qs=[ work ])
 
 class MARCUngluifyView(FormView):
     template_name = 'marcungluify.html'
@@ -3151,17 +3150,20 @@ class MARCConfigView(FormView):
     success_url = reverse_lazy('marc')
     
     def form_valid(self, form):
-        marc_link_target = form.cleaned_data['marc_link_target']
-        try:
-            libpref = self.request.user.libpref
-        except:
-            libpref = models.Libpref(user=self.request.user)
-        libpref.marc_link_target = marc_link_target
-        libpref.save()
-        messages.success(
-            self.request,
-            "Your preferences have been changed."
-        )
+        enable= form.data.has_key('enable')
+        if enable:
+            try:
+                libpref = self.request.user.libpref
+            except:
+                libpref = models.Libpref(user=self.request.user)
+            libpref.save()
+            messages.success(self.request,"Tools are enabled.")
+        else:
+            try:
+                self.request.user.libpref.delete()
+            except:
+                pass
+            messages.success(self.request,"Tools are disabled." )
         if reverse('marc_config', args=[]) in self.request.META['HTTP_REFERER']:
             return HttpResponseRedirect(reverse('marc_config', args=[]))
         else:

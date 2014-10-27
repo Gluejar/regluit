@@ -10,7 +10,7 @@
 </style>
 {% endblock %}
 
-{% block title %}Change your MARC record preferences{% endblock %}
+{% block title %}Change your librarian preferences{% endblock %}
 
 {% block ce_content %}
 {% if messages %}
@@ -20,14 +20,33 @@
     {% endfor %}
 </ul>
 {% endif %}
-Back to <a href="{% url marc %}">record download page</a><br /><br />
+<h3>Librarian Tools</h3>
+If you enable Librarian tools, you'll find links to download MARC record(s) at the bottom of many Unglue.it pages.
+<ul>
+<li> work pages</li>
+<li> lists of works</li>
+<li> supporter pages </li>
+</ul>
 
-Your current MARC record link target preference is:<br />
-{{ libpref.get_marc_link_target_display }}
+{% if request.user.is_authenticated %}
 <form method="post" action="{% url marc_config %}">
     {% csrf_token %}
-    {{ form }}
-    <br />
-    <input type="submit" value="Change" />
+<div>
+    {% if request.user.libpref %}
+        <p>You have enabled librarian tools. </p>
+        {{ form }}
+        <input type="submit" value="Disable Librarian Tools" name="disable" />
+    {% else %}
+        <p>You have not enabled librarian tools. 
+        {{ form }}
+        <br />
+        <input type="submit" value="Enable Librarian Tools"  name="enable" />
+    
+    {% endif %}
+</div>
 </form>
+<p>
+Back to <a href="{% url marc %}">record download page</a>
+</p>
+{% endif %}
 {% endblock %}

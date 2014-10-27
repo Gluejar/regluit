@@ -783,4 +783,4 @@ class MARCUngluifyForm(forms.Form):
 class MARCFormatForm(forms.ModelForm):
     class Meta:
         model = Libpref
-        fields = ('marc_link_target',)
+        fields = ()

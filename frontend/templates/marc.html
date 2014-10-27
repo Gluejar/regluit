@@ -55,52 +55,38 @@ ul.local li {
         {% endfor %}
     </ul>
 {% endif %}
-{% if userlist %}
-<h2>Records for  <a href="{% url supporter userlist %}">{{ userlist }}</a></h2>
-{% else %}
-{% if request.user.is_authenticated %}
-<p> To restrict this list to works on your list <a href="{% url user_marc request.user.username %}">click here</a> </p>
-{% endif %}
-{% endif %}
-{% if records %}
 <div class="marc">
     <form method="POST" id="record_form" action="{% url marc_all %}">
-        {% csrf_token %}
-        Record format:
-        <select name="format">
-            <option value="xml" selected>xml</option>
-            <option value="mrc">mrc</option>
-        </select>
-        &nbsp;&nbsp;&nbsp;856 Link type:
-        <select name="link_target">
-            <option value="via" selected>Download page link</option>
-            <option value="direct">Links to each file type</option>
-        </select>
-        <br /><br />
+        {% include 'marc_form.html' %}
         <input type="submit" name="submit" value="Download All Records" id="submit">
         <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
     </form>
+    <br />
+{% if request.user.is_authenticated %}
+    <p>...or</p>
+<div class="marc">
+    <form method="POST" id="record_form" action="{% url user_marc request.user.username %}">
+        {% include 'marc_form.html' %}
+        <input type="submit" name="submit" value="Download {{request.user.username}}'s Records" id="submit">
+        <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
+    </form>
     <br /><hr>
+{% endif %}
     <p>The 856 link options are:</p>
     <ul class="local">
             <li> Download page link. MARC records link through Unglue.it download page ( library user authentication, context sensitive help for getting files onto user's device)</li>
             <li> Links to each file type if available. MARC records link directly to files ( less help, not available for "Buy-to-unglue" titles) </li>
     </ul>
 </div>
-{% else %}
-<p>Sorry; we don't have any records at this time.  </p>
-{% endif %}
 
 
 {% if request.user.is_authenticated %}
 <div>
-    <p>Your preference for the links in the 856 field is:</p>
-    <ul class="local">
-        <li>{{ libpref.get_marc_link_target_display }}</li>
-    </ul>
-    
-    
-    <p>You can <a href="{% url marc_config %}">change your library preferences here</a>.</p>
+    {% if request.user.libpref %}
+    <p>You have enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
+    {% else %}
+    <p>You have not enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

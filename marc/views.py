@@ -46,7 +46,13 @@ def marc_records(request, selected_records=None):
         outfile.write(PREAMBLE)
 
     for record_name in selected_records:
-        if record_name.startswith('edition_'):
+        if isinstance(record_name, models.MARCRecord):
+            record = record_name
+        elif isinstance(record_name, Edition):
+            record = models.MARCRecord(edition=record_name)
+        elif hasattr(record_name, 'edition'):
+            record = models.MARCRecord(edition=record_name.edition)
+        elif record_name.startswith('edition_'):
             record_id = long(record_name[8:])
             try:
                 edition = Edition.objects.get(pk=record_id)
@@ -72,3 +78,13 @@ def all_marc_records(request):
         'record_'+ str(record.pk) for record in models.MARCRecord.objects.all()
     )
     return marc_records(request, selected_records=selected_records)
+
+def qs_marc_records(request, qs):
+    # translate a queryset into a record list.
+    selected_records = []
+    for obj in qs:
+        # each object must have a marc_records() attribute which returns a record list. 
+        # records can be strings: 'record_xxx', 'edition_xxx', MARCRecord objs or objs with edition attributes
+        selected_records.extend(obj.marc_records())
+    return marc_records(request, selected_records=selected_records)
+        
