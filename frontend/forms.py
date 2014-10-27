@@ -771,7 +771,7 @@ class KindleEmailForm(forms.Form):
     kindle_email = forms.EmailField()
     
         
-class MARCFormatForm(forms.ModelForm):
+class LibModeForm(forms.ModelForm):
     class Meta:
         model = Libpref
         fields = ()

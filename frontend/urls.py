@@ -36,7 +36,7 @@ from regluit.frontend.views import (
     ByPubView,
     kindle_config,
     send_to_kindle,
-    MARCConfigView,
+    LibModeView,
     DownloadView,
 )
 
@@ -156,7 +156,7 @@ urlpatterns = patterns(
     url(r"^accounts/edit/kindle_config/(?P<work_id>\d+)/$", "kindle_config",  name="kindle_config_download"),
     url(r"^send_to_kindle/(?P<work_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^marc/$", direct_to_template, {'template': 'marc.html'}, name="marc"),
-    url(r"^accounts/edit/marc_config/$", login_required(MARCConfigView.as_view()),  name="marc_config"),
+    url(r"^accounts/edit/marc_config/$", login_required(LibModeView.as_view()),  name="marc_config"),
 )
 
 if settings.DEBUG:

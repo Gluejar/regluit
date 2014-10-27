@@ -115,7 +115,7 @@ from regluit.frontend.forms import (
     MsgForm,
     PressForm,
     KindleEmailForm,
-    MARCFormatForm,
+    LibModeForm,
     DateCalculatorForm
 )
 
@@ -3109,9 +3109,9 @@ def work_marc(request, work_id):
     return qs_marc_records(request, qs=[ work ])
 
         
-class MARCConfigView(FormView):
+class LibModeView(FormView):
     template_name = 'marc_config.html'
-    form_class = MARCFormatForm
+    form_class = LibModeForm
     success_url = reverse_lazy('marc')
     
     def form_valid(self, form):
@@ -3132,7 +3132,7 @@ class MARCConfigView(FormView):
         if reverse('marc_config', args=[]) in self.request.META['HTTP_REFERER']:
             return HttpResponseRedirect(reverse('marc_config', args=[]))
         else:
-            return super(MARCConfigView, self).form_valid(form)
+            return super(LibModeView, self).form_valid(form)
             
 
             
