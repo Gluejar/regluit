@@ -71,7 +71,6 @@ from regluit.core import (
     librarything,
     userlists,
     goodreads,
-    marc
 )
 import regluit.core.cc as cc
 from regluit.core.bookloader import merge_works, detach_edition
