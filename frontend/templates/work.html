@@ -210,14 +210,8 @@
                                             <a rel="nofollow" id="find-oclc" href="http://www.worldcat.org/oclc/{{ work.first_oclc }}"><img src="/static/images/supporter_icons/worldcat_square.png" title="Find on Worldcat" alt="Find on Worldcat" /></a>
                                         {% endif %}
                                         <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work_id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
-                                        {% if not request.user.is_anonymous %}
-                                            {% if request.user.profile.goodreads_user_link %}
-                                                <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
-                                            {% endif %}
-                                            {% if request.user.profile.librarything_id %}
-                                                <a rel="nofollow" class="find-librarything" href="{% url work_librarything work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
-                                            {% endif %}
-                                        {% endif %}
+                                        <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
+                                        <a rel="nofollow" class="find-librarything" href="{% url work_librarything work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                                     </div>
                                 </div>                            
                                 <div class="btn_wishlist" id="wishlist_actions">
