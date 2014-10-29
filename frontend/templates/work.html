@@ -71,7 +71,7 @@
                 <div class="js-maincol-inner">
                     <div id="content-block">
                         <div class="book-detail">
-                            {% if work.googlebooks_id %}
+                            {% if work.uses_google_cover %}
                                 <div id="book-detail-img">
                                     <a href="{{ work.googlebooks_url }}">
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
