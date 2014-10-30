@@ -257,7 +257,7 @@ PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
 
 # How many days we will try to collect on failed transactions until they are written off
-RECHARGE_WINDOW = 7
+RECHARGE_WINDOW = 14
 
 GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""

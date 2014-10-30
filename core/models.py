@@ -1124,7 +1124,13 @@ class Work(models.Model):
     @property
     def openlibrary_url(self):
         return "http://openlibrary.org" + self.openlibrary_id
-
+    
+    def uses_google_cover(self):
+        if self.preferred_edition and self.preferred_edition.cover_image:
+            return False
+        else: 
+            return self.googlebooks_id
+    
     def cover_image_small(self):
         if self.preferred_edition and self.preferred_edition.cover_image_small():
             return self.preferred_edition.cover_image_small()
