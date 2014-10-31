@@ -155,7 +155,7 @@ function highlightTarget(targetdiv) {
                             </div>
                         </div>
                         {% ifequal supporter request.user %}
-                        <div id="user-block-hide">
+                        <div id="user-block-hide" class="user-block-hide">
                         <form method="POST" action="#">
                             {% csrf_token %}
                             <div class="block block1">
@@ -228,6 +228,8 @@ function highlightTarget(targetdiv) {
                                 {% else %}
                                 <div id="loadlt" onclick="highlightTarget('#connectlt'); return false;"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
                                 {% endif %}
+                                <h3 class="title">More</h3>
+                                <a href="{% url marc_config %}">Librarian Settings</a>
                             </div>
                         </div>
                       {% endifequal %}
