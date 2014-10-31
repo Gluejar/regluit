@@ -37,7 +37,7 @@ import regluit.core.isbn
 import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
-
+from regluit.marc.models import MARCRecord as NewMARC
 from regluit.core.signals import (
     successful_campaign,
     unsuccessful_campaign,
@@ -1007,6 +1007,10 @@ class Campaign(models.Model):
     @property   
     def user_to_pay(self):
         return self.rh.owner
+    
+    ### for compatibility with MARC output
+    def marc_records(self):
+        return self.work.marc_records()
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
@@ -1517,7 +1521,21 @@ class Work(models.Model):
         else:
             # assume it's several users
             return self.user_license(self.acqs.filter(user__in=user))
+
+    ### for compatibility with MARC output
+    def marc_records(self):
+        record_list = []
+        record_list.extend(NewMARC.objects.filter(edition__work=self))
+        for obj in record_list:
+            break
+        else:
+            for ebook in self.ebooks():
+                record_list.append(ebook.edition)
+                break
+        return record_list
             
+        
+                
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=500)
@@ -1640,6 +1658,14 @@ class Edition(models.Model):
         except Identifier.DoesNotExist:
             return None
     
+    def add_author(self, author_name):
+        if author_name:
+            try:
+                author= Author.objects.get(name=author_name)
+            except Author.DoesNotExist:
+                author= Author.objects.create(name=author_name)
+            author.editions.add(self)
+
     def set_publisher(self,publisher_name):
         if publisher_name and publisher_name != '':
             try:
@@ -1651,6 +1677,40 @@ class Edition(models.Model):
                 pub_name.save()
             self.publisher_name = pub_name
             self.save()
+
+    #### following methods for compatibility with marc outputter
+    def downloads(self):
+        return self.ebooks.all()
+
+    def download_via_url(self):
+        return settings.BASE_URL_SECURE + reverse('download', args=[self.work.id])
+        
+    def authnames(self):
+        return [auth.last_name_first for auth in self.authors.all()]
+    
+    @property
+    def license(self):
+        try:
+            return self.ebooks.all()[0].rights
+        except:
+            return None
+    
+    @property
+    def funding_info(self): 
+        if self.ebooks.all().count()==0:
+            return ''  
+        if self.unglued:
+            return 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
+        else:
+            if self.ebooks.all()[0].rights in cc.LICENSE_LIST:
+                return 'The book is available as a free download thanks to a Creative Commons license.'
+            else:
+                return 'The book is available as a free download because it is in the Public Domain.'
+    
+    @property
+    def description(self): 
+        return self.work.description
+
 
 class Publisher(models.Model):
     created = models.DateTimeField(auto_now_add=True)

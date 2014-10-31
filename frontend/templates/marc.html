@@ -44,8 +44,8 @@ ul.local li {
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
-{% if request.user.is_staff %}
-    <p>Hi, {{ request.user.username }}.  Unglue.it staffers can also <a href="{% url MARCUngluify %}">add new records</a>.</p>
+{% if request.user.libpref %}
+    <p>Hi, {{ request.user.username }}.  Librarians can also <a href="{% url upload_marc %}">add new records</a>.</p>
 {% endif %}
 
 {% if messages %}
@@ -55,53 +55,38 @@ ul.local li {
         {% endfor %}
     </ul>
 {% endif %}
-{% if userlist %}
-<h2>Records for  <a href="{% url supporter userlist %}">{{ userlist }}</a></h2>
-{% else %}
-{% if request.user.is_authenticated %}
-<p> To restrict this list to works on your list <a href="{% url user_marc request.user.username %}">click here</a> </p>
-{% endif %}
-{% endif %}
-{% if records %}
 <div class="marc">
-    <form method="POST" id="record_form" action="{% url marc_concatenate %}">
-        {% csrf_token %}
-        Record format:
-        <select name="format">
-            <option value="xml">xml</option>
-            <option value="mrc">mrc</option>
-        </select>
-        <br /><br />
-        {% for record in records %}
-            <input type="checkbox" name="record_{{ record.id }}" id="record_{{ record.id }}" />
-            <label for="record_{{ record.id }}">
-                Record for <a href="{% url work record.edition.work.id %}" class="title clearfix">{{ record.edition.work.title }}{% if record.edition.isbn_13 %} (ISBN {{ record.edition.isbn_13 }}){% endif %}</a>
-            </label>
-            <br />
-        {% endfor %}
-        <input type="submit" name="submit" value="Download" id="submit">
+    <form method="POST" id="record_form" action="{% url marc_all %}">
+        {% include 'marc_form.html' %}
+        <input type="submit" name="submit" value="Download All Records" id="submit">
         <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
     </form>
-</div>
-{% else %}
-<p>Sorry; we don't have any records meeting your needs at this time.  </p>
+    <br />
+{% if request.user.is_authenticated %}
+    <p>...or</p>
+<div class="marc">
+    <form method="POST" id="record_form" action="{% url user_marc request.user.username %}">
+        {% include 'marc_form.html' %}
+        <input type="submit" name="submit" value="Download {{request.user.username}}'s Records" id="submit">
+        <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
+    </form>
+    <br /><hr>
 {% endif %}
+    <p>The 856 link options are:</p>
+    <ul class="local">
+            <li> Download page link. MARC records link through Unglue.it download page ( library user authentication, context sensitive help for getting files onto user's device)</li>
+            <li> Links to each file type if available. MARC records link directly to files ( less help, not available for "Buy-to-unglue" titles) </li>
+    </ul>
+</div>
 
-<hr>
+
 {% if request.user.is_authenticated %}
 <div>
-    <p>Your preference for the links in the 856 field is:</p>
-    <ul class="local">
-        <li>{{ libpref.get_marc_link_target_display }}</li>
-    </ul>
-    
-    <p>The options are:</p>
-    <ul class="local">
-            <li> Raw link if available. MARC records link direct to provider (one click, no help, not available for "Buy-to-unglue" titles) </li>
-            <li> Unglue.it link. MARC records link through Unglue.it download page (extra click, library user authentication, context sensitive help for getting files onto user's device)</li>
-    </ul>
-    
-    <p>You can <a href="{% url marc_config %}">change your preferences here</a>.</p>
+    {% if request.user.libpref %}
+    <p>You have enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
+    {% else %}
+    <p>You have not enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
+    {% endif %}
 </div>
 {% endif %}
 {% endblock %}

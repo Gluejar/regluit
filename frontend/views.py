@@ -17,7 +17,6 @@ from notification import models as notification
 from random import randint
 from re import sub
 from xml.etree import ElementTree as ET
-from xml.sax import SAXParseException
 from tastypie.models import ApiKey
 
 '''
@@ -72,7 +71,6 @@ from regluit.core import (
     librarything,
     userlists,
     goodreads,
-    marc
 )
 import regluit.core.cc as cc
 from regluit.core.bookloader import merge_works, detach_edition
@@ -116,8 +114,7 @@ from regluit.frontend.forms import (
     MsgForm,
     PressForm,
     KindleEmailForm,
-    MARCUngluifyForm,
-    MARCFormatForm,
+    LibModeForm,
     DateCalculatorForm
 )
 
@@ -145,6 +142,7 @@ from regluit.booxtream.exceptions import BooXtreamError
 from regluit.pyepub import InvalidEpub
 from regluit.libraryauth.views import Authenticator
 from regluit.libraryauth.models import Library
+from regluit.marc.views import qs_marc_records
 
 logger = logging.getLogger(__name__)
 
@@ -559,10 +557,10 @@ def new_edition(request, work_id, edition_id, by=None):
         elif request.POST.has_key('add_subject_submit') and admin:
             new_subject = request.POST['add_subject'].strip()
             try:
-                author= models.Subject.objects.get(name=new_subject)
+                subject= models.Subject.objects.get(name=new_subject)
             except models.Subject.DoesNotExist:
-                author=models.Subject.objects.create(name=new_subject)
-            edition.new_subjects.append(new_subject)
+                subject=models.Subject.objects.create(name=new_subject)
+            edition.new_subjects.append(subject)
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
 
@@ -605,11 +603,7 @@ def new_edition(request, work_id, edition_id, by=None):
                         else:
                             models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
                 for author_name in edition.new_author_names:
-                    try:
-                        author= models.Author.objects.get(name=author_name)
-                    except models.Author.DoesNotExist:
-                        author=models.Author.objects.create(name=author_name)
-                    author.editions.add(edition)
+                    edition.add_author(author_name)
                 for subject_name in edition.new_subjects:
                     try:
                         subject= models.Subject.objects.get(name=subject_name)
@@ -783,6 +777,7 @@ def subjects(request):
     return render(request, 'subjects.html', {'subjects': subjects})
 
 class FilterableListView(ListView):
+    send_marc = False
     def get_queryset(self):
         if self.request.GET.has_key('pub_lang'):
             if self.model is models.Campaign:
@@ -801,7 +796,13 @@ class FilterableListView(ListView):
         context['show_langs']=True
         context['WISHED_LANGS']=settings.WISHED_LANGS
         return context
-
+    
+    def render_to_response(self, context, **response_kwargs):
+        if self.send_marc:
+            return qs_marc_records(self.request, qs=self.object_list)
+        else:
+            return super(FilterableListView,self).render_to_response(context, **response_kwargs)
+        
 recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_USERNAME)
 
 class WorkListView(FilterableListView):
@@ -881,6 +882,8 @@ class ByPubView(WorkListView):
             context = super(ByPubView, self).get_context_data(**kwargs)
             context['pubname'] = self.publisher_name
             context['publisher'] = self.publisher
+            context['facet'] = self.kwargs.get('facet','all')
+
             return context
 
 class ByPubListView(ByPubView):
@@ -913,7 +916,7 @@ class CCListView(FilterableListView):
 
     def get_context_data(self, **kwargs):
         context = super(CCListView, self).get_context_data(**kwargs)
-        facet = self.kwargs.get('facet','')
+        facet = self.kwargs.get('facet','all')
         qs=self.get_queryset()
         context['ungluers'] = userlists.work_list_users(qs,5)
         context['activetab'] = "#1"
@@ -3091,144 +3094,44 @@ def send_to_kindle(request, work_id, javascript='0'):
     return local_response(request, javascript,  context, 2)
     
     
-def marc_admin(request, userlist=None):
-    link_target = 'UNGLUE'
-    libpref = {'marc_link_target': settings.MARC_CHOICES[1]}
-    try:
-        libpref = request.user.libpref
-        link_target = libpref.marc_link_target
-    except:
-        if not request.user.is_anonymous():
-            libpref = models.Libpref(user=request.user)
-    unwanted = 'UNGLUE' if link_target == 'DIRECT' else 'DIRECT'
+def userlist_marc(request, userlist=None):
     if userlist:
-        records = []
         user = get_object_or_404(User,username=userlist)
-        for work in user.wishlist.works.all():
-            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target=link_target))
-            records.extend(models.MARCRecord.objects.filter(edition__work=work,link_target='B2U'))
+        return qs_marc_records(request, qs=user.wishlist.works.all())
     else:
-        records = models.MARCRecord.objects.exclude(link_target=unwanted)
-    return render(
-        request,
-        'marc.html',
-        {'records': records,  'libpref' : libpref , 'userlist' : userlist}
-    )
+        return qs_marc_records(request, qs=request.user.wishlist.works.all())
 
-class MARCUngluifyView(FormView):
-    template_name = 'marcungluify.html'
-    form_class = MARCUngluifyForm
-    success_url = reverse_lazy('MARCUngluify')
-    
-    # allow a get param to specify the edition
-    def get_initial(self):
-        if self.request.method == 'GET':
-            edition = self.request.GET.get('edition',None)
-            if models.Edition.objects.filter(id=edition).count():
-                edition = models.Edition.objects.filter(id=edition)[0]
-                if edition.ebooks.count() or edition.ebook_files.count():
-                    return {'edition':edition.id}
-        return {}
+    return render( request,'marc.html',{'userlist' : [] })
 
-    def form_valid(self, form):
-        edition = form.cleaned_data['edition']
+def work_marc(request, work_id):
+    work = safe_get_work(work_id)
+    return qs_marc_records(request, qs=[ work ])
 
-        try:
-            marc.makemarc(
-                marcfile=self.request.FILES['file'],
-                edition=edition
-            )
-            messages.success(
-                self.request,
-                "You have successfully added a MARC record. Hooray! Add another?"
-            )
-        except SAXParseException:
-            messages.error(
-                self.request,
-                "Sorry, couldn't parse that file."
-            )
-        return super(MARCUngluifyView,self).form_valid(form)
         
-class MARCConfigView(FormView):
+class LibModeView(FormView):
     template_name = 'marc_config.html'
-    form_class = MARCFormatForm
+    form_class = LibModeForm
     success_url = reverse_lazy('marc')
     
     def form_valid(self, form):
-        marc_link_target = form.cleaned_data['marc_link_target']
-        try:
-            libpref = self.request.user.libpref
-        except:
-            libpref = models.Libpref(user=self.request.user)
-        libpref.marc_link_target = marc_link_target
-        libpref.save()
-        messages.success(
-            self.request,
-            "Your preferences have been changed."
-        )
+        enable= form.data.has_key('enable')
+        if enable:
+            try:
+                libpref = self.request.user.libpref
+            except:
+                libpref = models.Libpref(user=self.request.user)
+            libpref.save()
+            messages.success(self.request,"Tools are enabled.")
+        else:
+            try:
+                self.request.user.libpref.delete()
+            except:
+                pass
+            messages.success(self.request,"Tools are disabled." )
         if reverse('marc_config', args=[]) in self.request.META['HTTP_REFERER']:
             return HttpResponseRedirect(reverse('marc_config', args=[]))
         else:
-            return super(MARCConfigView, self).form_valid(form)
+            return super(LibModeView, self).form_valid(form)
             
-def marc_concatenate(request):
-    if request.method == 'POST':
-        params=request.POST
-    elif request.method == 'GET':
-        params=request.GET
-    else:
-        return HttpResponseNotFound
-    format = params['format']
-    
-    # extract the user-selected records from the params QueryDict
-    selected_records = list(
-        k for k in params if params[k] == u'on'
-    )
-    if not selected_records:
-        messages.error(
-            request,
-            "Please select at least one record to download."
-        )
-        return HttpResponseRedirect(reverse('marc', args=[]))
-    
-    preamble = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-                     '<collection '
-                     'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-                     'xmlns="http://www.loc.gov/MARC21/slim" '
-                     'xsi:schemaLocation="http://www.loc.gov/MARC21/slim '
-                     'http://www.loc.gov/standards/marcxml/schema/'
-                     'MARC21slim.xsd">')
-    outfile = HttpResponse('', content_type='application/marc')
-    outfile['Content-Disposition'] = 'attachment; filename='+ now().strftime('%Y%m%d%H%M%S') + '.' +  format
-
-    if format == 'xml':
-        outfile.write(preamble)
-    for record in selected_records:
-        if record.startswith('edition_'):
-            record_id = long(record[8:])
-            try:
-                edition = models.Edition.objects.get(pk=record_id)
-            except:
-                continue
-            record_id = marc.makestub(edition)
-        else:
-            record_id = long(record[7:])
-        if format == 'xml':
-            record_url = models.MARCRecord.objects.get(
-                            pk=record_id
-                         ).xml_record
-        elif format == 'mrc':
-            record_url = models.MARCRecord.objects.get(
-                            pk=record_id
-                         ).mrc_record
-        try:
-            record_file = default_storage.open(record_url).read()
-            outfile.write(record_file)
-        except IOError:
-            logger.warning('MARC record with id number %s has a problem with its URL' % record_id)
-    if format == 'xml':
-        outfile.write('</collection>')
-
-    return outfile
 
             

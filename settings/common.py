@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     'regluit.frontend',
     'regluit.api',
     'regluit.core',
+    'regluit.marc',
     'regluit.payment',
     'regluit.utils',
     'registration',

@@ -389,6 +389,17 @@ function highlightTarget(targetdiv) {
                     {% endifequal %}
                 </div>
             </div>    
+            {% if request.user.libpref %}
+            <div id="libtools">
+                <p>for libraries...</p>
+                {% block marcform %}
+                <form method="GET" action="{% url user_marc supporter.username %}">
+                    {% include 'marc_form.html' %}
+                    <input type="submit" name="submit" value="download MARC for {{supporter.username}} " id="submit">
+                </form>
+                {% endblock %}
+            </div> 
+            {% endif %}  
         </div>
         </div>
     </div>
