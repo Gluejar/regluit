@@ -17,7 +17,7 @@ import regluit.core.cc as cc
 
 def stub(edition):
     
-    record = pymarc.Record()
+    record = pymarc.Record(force_utf8=True)
 
     now = datetime.now()
     
