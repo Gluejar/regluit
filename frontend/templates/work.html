@@ -717,7 +717,8 @@
                     <p>for libraries...</p>
                     <form method="POST" id="record_form" action="{% url work_marc work.id %}">
                         {% include 'marc_form.html' %}
-                        <input type="submit" name="submit" value="Download MARC" id="submit">
+                        <input type="submit" name="submit" value="Download {% if not work.has_marc %}stub {% endif %}MARC" id="submit">
+                        
                     </form>
                  </div>
                  {% endif %}

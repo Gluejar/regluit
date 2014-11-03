@@ -1521,7 +1521,13 @@ class Work(models.Model):
         else:
             # assume it's several users
             return self.user_license(self.acqs.filter(user__in=user))
-
+    
+    @property
+    def has_marc(self):
+        for record in  NewMARC.objects.filter(edition__work=self):
+            return True
+        return False
+        
     ### for compatibility with MARC output
     def marc_records(self):
         record_list = []
