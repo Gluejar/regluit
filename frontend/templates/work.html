@@ -711,7 +711,8 @@
                         </div>
                     {% endif %}
                 </div>
-                {% if request.user.libpref and work.first_ebook %}
+                {% if request.user.libpref %}
+                {% if work.first_ebook or work.ebookfiles %}
                 <div id="libtools">
                     <p>for libraries...</p>
                     <form method="POST" id="record_form" action="{% url work_marc work.id %}">
@@ -719,6 +720,7 @@
                         <input type="submit" name="submit" value="Download MARC" id="submit">
                     </form>
                  </div>
+                 {% endif %}
                 {% endif %}
             </div>
         </div>
