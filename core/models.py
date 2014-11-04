@@ -1125,6 +1125,20 @@ class Work(models.Model):
     def openlibrary_url(self):
         return "http://openlibrary.org" + self.openlibrary_id
     
+    def cover_filetype(self):
+        if self.uses_google_cover():
+            return 'jpeg'
+        else:
+            url = self.cover_image_small().lower()
+            if url.endswith('.png'):
+                return 'png'
+            elif url.endswith('.gif'):
+                return 'gif'
+            elif url.endswith('.jpg') or url.endswith('.jpeg'):
+                return 'jpeg'
+            else:
+                return 'image'
+    
     def uses_google_cover(self):
         if self.preferred_edition and self.preferred_edition.cover_image:
             return False

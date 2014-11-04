@@ -74,9 +74,15 @@ def work_node(work):
     
     cover_node = etree.Element("link")
     cover_node.attrib.update({"href":work.cover_image_small(),
-                              "type":"image/jpeg",
+                              "type":"image/"+work.cover_filetype(),
                               "rel":"http://opds-spec.org/image/thumbnail"})
     node.append(cover_node)
+    cover_node = etree.Element("link")
+    cover_node.attrib.update({"href":work.cover_image_thumbnail(),
+                              "type":"image/"+work.cover_filetype(),
+                              "rel":"http://opds-spec.org/image"})
+    node.append(cover_node)
+    
     
     # <dcterms:issued>2012</dcterms:issued>
     node.append(text_node("{http://purl.org/dc/terms/}issued", work.publication_date_year))
