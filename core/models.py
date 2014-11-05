@@ -1521,7 +1521,13 @@ class Work(models.Model):
         else:
             # assume it's several users
             return self.user_license(self.acqs.filter(user__in=user))
-
+    
+    @property
+    def has_marc(self):
+        for record in  NewMARC.objects.filter(edition__work=self):
+            return True
+        return False
+        
     ### for compatibility with MARC output
     def marc_records(self):
         record_list = []
@@ -2078,33 +2084,6 @@ class Press(models.Model):
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
     
-class MARCRecord(models.Model):
-    edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
-    # this is where the download link points to, direct link or via Unglue.it.
-    link_target = models.CharField(max_length=6,choices = settings.MARC_CHOICES, default='DIRECT')
-    
-    @property
-    def accession(self):
-        zeroes = 9 - len(str(self.id))
-        return 'ung' + zeroes*'0' + str(self.id)
-        
-    @property
-    def xml_record(self):
-        return self._record('xml')
-        
-    @property
-    def mrc_record(self):
-        return self._record('mrc')
-        
-    def _record(self, filetype):
-        test = '' if '/unglue.it' in settings.BASE_URL else '_test'
-        if self.link_target == 'DIRECT':
-            fn = '_unglued.'
-        elif self.link_target == 'UNGLUE':
-            fn = '_via_unglueit.'  
-        else:
-            fn = '_ungluing.'
-        return 'marc' + test + '/' + self.accession + fn + filetype
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
