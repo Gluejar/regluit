@@ -79,9 +79,9 @@ class MARCRecord(models.Model):
             self.guts = ''
             super(MARCRecord, self).save(*args, **kwargs) 
             self.guts = stash_guts
-            field001 = self._the_record.get_fields('001')
+            field001 = self._the_record.get_fields('001')[0]
             if field001:
-                self._the_record.remove_field(field)
+                self._the_record.remove_field(field001)
             field001 = pymarc.Field(tag='001', data=self.accession)
             self._the_record.add_ordered_field(field001)
         super(MARCRecord, self).save(*args, **kwargs)
