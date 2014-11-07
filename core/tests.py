@@ -700,6 +700,8 @@ class ISBNTest(TestCase):
         # do conversion -- first the outside methods
         self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
         self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),isbn.strip(python_10))
+        self.assertEqual(isbn.convert_13_to_10('xxxxxxxxxxxxx'),None)
+        self.assertEqual(isbn.convert_10_to_13('xxxxxxxxxx'),None)
         
         # check formatting
         self.assertEqual(isbn.ISBN(python_13).to_string(type='13'), '9780672329784')
