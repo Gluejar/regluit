@@ -41,23 +41,23 @@ class CCLicense():
     @staticmethod
     def badge(license):
         if license == 'PD-US':
-            return 'https://i.creativecommons.org/p/mark/1.0/88x31.png'
+            return '/static/images/pdmark.png'
         elif license == 'CC0':
-            return 'https://i.creativecommons.org/p/zero/1.0/88x31.png'
+            return '/static/images/cc0.png'
         elif license == 'CC BY':
-            return 'https://i.creativecommons.org/l/by/3.0/88x31.png'
+            return '/static/images/ccby.png'
         elif license == 'CC BY-NC-ND':
-            return 'https://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png'
+            return '/static/images/ccbyncnd.png'
         elif license == 'CC BY-NC-SA':
-            return 'https://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png'
+            return '/static/images/ccbyncsa.png'
         elif license == 'CC BY-NC':
-            return 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png'
+            return '/static/images/ccbync.png'
         elif license == 'CC BY-SA':
-            return 'https://i.creativecommons.org/l/by-sa/3.0/88x31.png'
+            return '/static/images/ccbysa.png'
         elif license == 'CC BY-ND':
-            return 'https://i.creativecommons.org/l/by-nd/3.0/88x31.png'
+            return '/static/images/ccbynd.png'
         elif license == 'GFDL':
-            return 'https://www.gnu.org/graphics/gfdl-logo-tiny.png'
+            return '/static/images/gdfl.png'
         else:
             return ''
 
