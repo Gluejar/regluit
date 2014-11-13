@@ -132,7 +132,7 @@ class EditionForm(forms.ModelForm):
     http = forms.RegexField(
         label=_("HTTP URL"),
         # https://mathiasbynens.be/demo/url-regex
-        regex=re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#-]+\.?)+(/[^\s]*)?$",
+        regex=re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#]+\.?)+(/[^\s]*)?$",
                          flags=re.IGNORECASE|re.S ), 
         required = False,
         help_text = _("no spaces of funny stuff."),
