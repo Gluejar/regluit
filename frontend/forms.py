@@ -52,7 +52,8 @@ from regluit.core.models import (
     Libpref,
     TWITTER,
     FACEBOOK,
-    GRAVATAR
+    GRAVATAR,
+    UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS
@@ -304,9 +305,9 @@ class ProfileForm(forms.ModelForm):
     def clean(self):
         # check that if a social net is cleared, we're not using it a avatar source
         if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None)==FACEBOOK:
-            self.cleaned_data["avatar_source"]==GRAVATAR
+            self.cleaned_data["avatar_source"]==UNGLUEITAR
         if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None)==TWITTER:
-            self.cleaned_data["avatar_source"]==GRAVATAR
+            self.cleaned_data["avatar_source"]==UNGLUEITAR
         return self.cleaned_data
  
 class UserData(forms.Form):

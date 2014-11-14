@@ -17,6 +17,9 @@ $j(document).ready(function() {
 </script>
 {% endblock %}
 
+{% block avatar %}
+        <img class="user-avatar" src="/static/images/header/avatar.png" height=36 width="36" alt="private" title="private" />
+{% endblock %}
 {% block content %}
 
 <div class="download_container">
@@ -400,7 +403,7 @@ $j(document).ready(function() {
         <p>Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
         
         <div>
-            <a href="http://www.defectivebydesign.org/drm-free"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
+            <a href="http://www.defectivebydesign.org/drm-free"><img src="/static/images/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
         </div>
     </div>
 {% else %}
@@ -408,7 +411,11 @@ $j(document).ready(function() {
 {% endif %}
 </div>
 </div>
-<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" ></script>
+<script type="text/javascript" src="/static/js/dropins.js" ></script>
+{% endblock %}
+
+{% block counter %}
 {% endblock %}
 
 {% endwith %}
+

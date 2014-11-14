@@ -486,7 +486,7 @@ class CampaignTests(TestCase):
         c.license = 'CC BY-NC'
         c.save()
         self.assertEqual(c.license_url, 'http://creativecommons.org/licenses/by-nc/3.0/')
-        self.assertEqual(c.license_badge, 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png')
+        self.assertEqual(c.license_badge, '/static/images/ccbync.png')
         
     def test_campaign_status(self):
         

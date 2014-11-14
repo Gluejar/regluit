@@ -1920,7 +1920,7 @@ def pledger2():
 pledger2.instance=None
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = (0, 1, 2, 3, 4)
 
 class Libpref(models.Model):
     user = models.OneToOneField(User, related_name='libpref')
@@ -1950,8 +1950,8 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
-            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
+    avatar_source = models.PositiveSmallIntegerField(null = True, default = UNGLUEITAR,
+            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook'),(UNGLUEITAR,'Unglueitar')))
     
     def __unicode__(self):
         return self.user.username
@@ -2055,6 +2055,12 @@ class UserProfile(models.Model):
         gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
         
+    def unglueitar(self):
+        # construct the url
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.username + '@unglue.it').hexdigest() + "?"
+        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        return gravatar_url
+        
 
     @property
     def avatar_url(self):
@@ -2063,6 +2069,8 @@ class UserProfile(models.Model):
                 return self.pic_url
             else:
                 return ANONYMOUS_AVATAR
+        elif self.avatar_source == UNGLUEITAR:
+            return self.unglueitar()
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id != None:
