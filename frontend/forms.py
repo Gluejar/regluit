@@ -223,7 +223,7 @@ class EbookForm(forms.ModelForm):
     def clean_provider(self):
         new_provider= Ebook.infer_provider(self.data[self.prefix + '-url'])
         if not new_provider:
-            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books."))
+            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books."))
         return new_provider
         
     def clean_url(self):
