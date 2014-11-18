@@ -1061,7 +1061,7 @@ class Work(models.Model):
     description = models.TextField(default='', null=True, blank=True)
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
     earliest_publication =  models.CharField(max_length=50, null=True)
-    featured = models.DateTimeField(null=True, db_index=True,)
+    featured = models.DateTimeField(null=True, blank=True, db_index=True,)
 
 
     class Meta:
@@ -1124,6 +1124,20 @@ class Work(models.Model):
     @property
     def openlibrary_url(self):
         return "http://openlibrary.org" + self.openlibrary_id
+    
+    def cover_filetype(self):
+        if self.uses_google_cover():
+            return 'jpeg'
+        else:
+            url = self.cover_image_small().lower()
+            if url.endswith('.png'):
+                return 'png'
+            elif url.endswith('.gif'):
+                return 'gif'
+            elif url.endswith('.jpg') or url.endswith('.jpeg'):
+                return 'jpeg'
+            else:
+                return 'image'
     
     def uses_google_cover(self):
         if self.preferred_edition and self.preferred_edition.cover_image:
@@ -1521,7 +1535,13 @@ class Work(models.Model):
         else:
             # assume it's several users
             return self.user_license(self.acqs.filter(user__in=user))
-
+    
+    @property
+    def has_marc(self):
+        for record in  NewMARC.objects.filter(edition__work=self):
+            return True
+        return False
+        
     ### for compatibility with MARC output
     def marc_records(self):
         record_list = []
@@ -1802,7 +1822,7 @@ class Ebook(models.Model):
         if not url:
             return None
         # provider derived from url. returns provider value. remember to call save() afterward
-        if url.startswith('http://books.google.com/'):
+        if url.startswith('https?://books.google.com/'):
             provider='Google Books'
         elif url.startswith('http://www.gutenberg.org/'):
             provider='Project Gutenberg'
@@ -1810,8 +1830,12 @@ class Ebook(models.Model):
             provider='Internet Archive'
         elif url.startswith('http://hdl.handle.net/2027/') or url.startswith('http://babel.hathitrust.org/'):
             provider='Hathitrust'
-        elif re.match('http://\w\w\.wikisource\.org/', url):
+        elif re.match('https?://\w\w\.wikisource\.org/', url):
             provider='Wikisource'
+        elif re.match('https?://\w\w\.wikibooks\.org/', url):
+            provider='Wikibooks'
+        elif re.match('https://github\.com/\w+/\w+/raw/\w+', url):
+            provider='Github'
         else:
             provider=None
         return provider
@@ -1900,7 +1924,7 @@ def pledger2():
 pledger2.instance=None
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK) = (0, 1, 2, 3)
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = (0, 1, 2, 3, 4)
 
 class Libpref(models.Model):
     user = models.OneToOneField(User, related_name='libpref')
@@ -1930,8 +1954,8 @@ class UserProfile(models.Model):
     goodreads_auth_secret = models.TextField(null=True, blank=True)
     goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)  
     
-    avatar_source = models.PositiveSmallIntegerField(null = True, default = GRAVATAR,
-            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook')))
+    avatar_source = models.PositiveSmallIntegerField(null = True, default = UNGLUEITAR,
+            choices=((NO_AVATAR,'No Avatar, Please'),(GRAVATAR,'Gravatar'),(TWITTER,'Twitter'),(FACEBOOK,'Facebook'),(UNGLUEITAR,'Unglueitar')))
     
     def __unicode__(self):
         return self.user.username
@@ -2035,6 +2059,12 @@ class UserProfile(models.Model):
         gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
         
+    def unglueitar(self):
+        # construct the url
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.username + '@unglue.it').hexdigest() + "?"
+        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        return gravatar_url
+        
 
     @property
     def avatar_url(self):
@@ -2043,6 +2073,8 @@ class UserProfile(models.Model):
                 return self.pic_url
             else:
                 return ANONYMOUS_AVATAR
+        elif self.avatar_source == UNGLUEITAR:
+            return self.unglueitar()
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id != None:
@@ -2078,33 +2110,6 @@ class Press(models.Model):
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
     
-class MARCRecord(models.Model):
-    edition = models.ForeignKey("Edition", related_name="MARCrecords", null=True)
-    # this is where the download link points to, direct link or via Unglue.it.
-    link_target = models.CharField(max_length=6,choices = settings.MARC_CHOICES, default='DIRECT')
-    
-    @property
-    def accession(self):
-        zeroes = 9 - len(str(self.id))
-        return 'ung' + zeroes*'0' + str(self.id)
-        
-    @property
-    def xml_record(self):
-        return self._record('xml')
-        
-    @property
-    def mrc_record(self):
-        return self._record('mrc')
-        
-    def _record(self, filetype):
-        test = '' if '/unglue.it' in settings.BASE_URL else '_test'
-        if self.link_target == 'DIRECT':
-            fn = '_unglued.'
-        elif self.link_target == 'UNGLUE':
-            fn = '_via_unglueit.'  
-        else:
-            fn = '_ungluing.'
-        return 'marc' + test + '/' + self.accession + fn + filetype
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line

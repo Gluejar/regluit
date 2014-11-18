@@ -13,7 +13,7 @@
 
                 <h2>Add an eBook for this Edition:</h2>
             
-                <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books.</span>
+                <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books.</span>
             
                 <form method="POST" action="#add_ebook">
                     {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}

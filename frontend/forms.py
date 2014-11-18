@@ -52,7 +52,8 @@ from regluit.core.models import (
     Libpref,
     TWITTER,
     FACEBOOK,
-    GRAVATAR
+    GRAVATAR,
+    UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS
@@ -132,7 +133,7 @@ class EditionForm(forms.ModelForm):
     http = forms.RegexField(
         label=_("HTTP URL"),
         # https://mathiasbynens.be/demo/url-regex
-        regex=re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#-]+\.?)+(/[^\s]*)?$",
+        regex=re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#]+\.?)+(/[^\s]*)?$",
                          flags=re.IGNORECASE|re.S ), 
         required = False,
         help_text = _("no spaces of funny stuff."),
@@ -222,7 +223,7 @@ class EbookForm(forms.ModelForm):
     def clean_provider(self):
         new_provider= Ebook.infer_provider(self.data[self.prefix + '-url'])
         if not new_provider:
-            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Hathitrust, Project Gutenberg, or Google Books."))
+            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books."))
         return new_provider
         
     def clean_url(self):
@@ -304,9 +305,9 @@ class ProfileForm(forms.ModelForm):
     def clean(self):
         # check that if a social net is cleared, we're not using it a avatar source
         if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None)==FACEBOOK:
-            self.cleaned_data["avatar_source"]==GRAVATAR
+            self.cleaned_data["avatar_source"]==UNGLUEITAR
         if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None)==TWITTER:
-            self.cleaned_data["avatar_source"]==GRAVATAR
+            self.cleaned_data["avatar_source"]==UNGLUEITAR
         return self.cleaned_data
  
 class UserData(forms.Form):

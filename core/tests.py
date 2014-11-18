@@ -486,7 +486,7 @@ class CampaignTests(TestCase):
         c.license = 'CC BY-NC'
         c.save()
         self.assertEqual(c.license_url, 'http://creativecommons.org/licenses/by-nc/3.0/')
-        self.assertEqual(c.license_badge, 'https://i.creativecommons.org/l/by-nc/3.0/88x31.png')
+        self.assertEqual(c.license_badge, '/static/images/ccbync.png')
         
     def test_campaign_status(self):
         
@@ -700,6 +700,8 @@ class ISBNTest(TestCase):
         # do conversion -- first the outside methods
         self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
         self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),isbn.strip(python_10))
+        self.assertEqual(isbn.convert_13_to_10('xxxxxxxxxxxxx'),None)
+        self.assertEqual(isbn.convert_10_to_13('xxxxxxxxxx'),None)
         
         # check formatting
         self.assertEqual(isbn.ISBN(python_13).to_string(type='13'), '9780672329784')

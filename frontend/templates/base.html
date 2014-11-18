@@ -78,8 +78,8 @@
                         <li>
                             <a href="#"><span id="welcome">Hi, {{ user.username }}</span></a>
                         </li>
-                        <li>
-                            <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
+                        <li>{% block avatar %}
+                            <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />{% endblock %}
                             {% if unseen_count %}
                                 <a href="/notification"><span id="i_haz_notifications_badge">{{ unseen_count }}</span></a>
                             {% endif %}

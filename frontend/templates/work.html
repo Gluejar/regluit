@@ -19,7 +19,7 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/tabs4.js"></script>
-<script type="text/javascript" src="//platform.twitter.com/widgets.js"></script>
+<script type="text/javascript" src="/static/js/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
 
@@ -711,14 +711,17 @@
                         </div>
                     {% endif %}
                 </div>
-                {% if request.user.libpref and work.first_ebook %}
+                {% if request.user.libpref %}
+                {% if work.first_ebook or work.ebookfiles %}
                 <div id="libtools">
                     <p>for libraries...</p>
                     <form method="POST" id="record_form" action="{% url work_marc work.id %}">
                         {% include 'marc_form.html' %}
-                        <input type="submit" name="submit" value="Download MARC" id="submit">
+                        <input type="submit" name="submit" value="Download {% if not work.has_marc %}stub {% endif %}MARC" id="submit">
+                        
                     </form>
                  </div>
+                 {% endif %}
                 {% endif %}
             </div>
         </div>

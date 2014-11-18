@@ -19,6 +19,7 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
 facets = ["creative_commons","active_campaigns"]
 
 UNGLUEIT_URL= 'https://unglue.it'
+NAVIGATION = "application/atom+xml;profile=opds-catalog;kind=navigation"
 def feeds():
     for facet in facets:
         yield globals()[facet]()
@@ -73,9 +74,15 @@ def work_node(work):
     
     cover_node = etree.Element("link")
     cover_node.attrib.update({"href":work.cover_image_small(),
-                              "type":"image/jpeg",
+                              "type":"image/"+work.cover_filetype(),
                               "rel":"http://opds-spec.org/image/thumbnail"})
     node.append(cover_node)
+    cover_node = etree.Element("link")
+    cover_node.attrib.update({"href":work.cover_image_thumbnail(),
+                              "type":"image/"+work.cover_filetype(),
+                              "rel":"http://opds-spec.org/image"})
+    node.append(cover_node)
+    
     
     # <dcterms:issued>2012</dcterms:issued>
     node.append(text_node("{http://purl.org/dc/terms/}issued", work.publication_date_year))
@@ -117,8 +124,8 @@ class Facet:
     feed_path = ''
     description = ''
         
-    def feed(self):
-        return opds_feed_for_works(self.works, self.feed_path, title=self.title)
+    def feed(self, page=None):
+        return opds_feed_for_works(self.works, self.feed_path, title=self.title, page=page)
         
     def updated(self):
         # return the creation date for most recently added item
@@ -145,7 +152,7 @@ class active_campaigns(Facet):
                                editions__ebooks__isnull=False).distinct().order_by('-created')
     description= "With your help we're raising money to make these books free to the world."
 
-def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
+def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", page=None):
 
     feed_xml = """<feed xmlns:dcterms="http://purl.org/dc/terms/" 
       xmlns:opds="http://opds-spec.org/"
@@ -183,17 +190,37 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog"):
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
     
     # start link
+    append_navlink(feed, 'start', feed_path, None )
     
-    start_link = etree.Element("link")
-    start_link.attrib.update({"rel":"start",
-     "href":"https://unglue.it/api/opds/",
-     "type":"application/atom+xml;profile=opds-catalog;kind=navigation",
-    })
-    feed.append(start_link)
-
+    # next link
     
-    for work in islice(works,None):
+    if not page:
+        page =0
+    else:
+        try:
+            page=int(page)
+        except TypeError:
+            page=0
+    
+    try:
+        works[10 * page + 10]
+        append_navlink(feed, 'next', feed_path, page+1 )
+    except IndexError:
+        pass
+                
+    works = islice(works,  10 * page, 10 * page + 10)
+    if page > 0:
+        append_navlink(feed, 'previous', feed_path, page-1)
+    for work in works:
         node = work_node(work)
         feed.append(node)
     
     return etree.tostring(feed, pretty_print=True)
+
+def append_navlink(feed, rel, path, page):
+    link = etree.Element("link")
+    link.attrib.update({"rel":rel,
+             "href": UNGLUEIT_URL + "/api/opds/" + path + ('/?page=' + unicode(page) if page!=None else '/'),
+             "type": NAVIGATION,
+            })
+    feed.append(link)

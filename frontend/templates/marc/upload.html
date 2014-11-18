@@ -25,7 +25,7 @@
 {% if not form.initial.edition %}
 <h3>Selecting an edition</h3>
 <p>
-MARC records are associated with unglue.it edition records. Look for links in the "more" tab of any unglue.it work page that has a "Download" button on it.
+MARC records are associated with unglue.it edition records. Look for links in the "More" tab of any unglue.it work page that has a "Download" button on it.
 {% endif %}
 <h3>Adapting records from LoC</h3>
 <p>
@@ -37,9 +37,12 @@ MARC records are associated with unglue.it edition records. Look for links in th
 </p>
 
 <p>
-    The record loader will automatically add links to all the unglued ebook files known to the Unglue.it database.  <I>Make sure  those links are in the database before adding the record.</i>  </p>
+    The record loader will automatically add 856 fields to all the unglued ebook files known to the Unglue.it database.  <I>Make sure  those links are in the database before adding the record.</i>  </p>
 
-<h3>Editing stub records from LoC</h3>
+<h3>Editing stub records from Unglue.it</h3>
+<p>
+For ebooks which do NOT have existing print editions catalogued by the Library of Congress, you can help us by improving stub records created with information from the Unglue.it database. After you download a stub record (look for the button on any work page), edit the record and upload it as a "record prepared for Unglue.it". 
+</p>
 {% if form.initial.edition %}
 The current records for this edition are here. They may be auto-generated stubs: 
     <div id="libtools">

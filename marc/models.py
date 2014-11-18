@@ -11,6 +11,7 @@ from . import load
 
 # weak coupling
 EDITION_MODEL = "core.Edition"
+logger = logging.getLogger(__name__)
 
 class AbstractEdition:
     # define the methods and attributes an edition should have
@@ -34,7 +35,12 @@ class AbstractEdition:
     # these should be last name first
     def authnames(self):
         return []
-        
+    
+    # gets the right edition
+    @staticmethod   
+    def get_by_isbn(isbn):
+        return None
+                
 def _xml(record):
     return pymarc.record_to_xml(record)
 
@@ -60,6 +66,7 @@ class MARCRecord(models.Model):
 
 
     def __init__(self, *args,  **kwargs):
+        _the_record = kwargs.pop('the_record', None)
         super(MARCRecord, self).__init__( *args, **kwargs)
         edition = kwargs.pop('edition', None)
         guts = kwargs.pop('guts', None)
@@ -75,13 +82,12 @@ class MARCRecord(models.Model):
     def save(self, *args, **kwargs):
         if self.id == None and self._the_record:
             # get the id first, add assession number
-            stash_guts = self.guts
             self.guts = ''
             super(MARCRecord, self).save(*args, **kwargs) 
-            self.guts = stash_guts
-            field001 = self._the_record.get_fields('001')
+            self.guts = _xml(self._the_record)
+            field001 = self._the_record.get_fields('001')[0]
             if field001:
-                self._the_record.remove_field(field)
+                self._the_record.remove_field(field001)
             field001 = pymarc.Field(tag='001', data=self.accession)
             self._the_record.add_ordered_field(field001)
         super(MARCRecord, self).save(*args, **kwargs)
@@ -96,7 +102,6 @@ class MARCRecord(models.Model):
             self._the_record = load.from_lc(marcfile, self.edition)
         else:
             self._the_record = load.raw(marcfile, self.edition)
-        self.guts = pymarc.record_to_xml(self._the_record)
         self.save()
 
         
@@ -161,3 +166,31 @@ class MARCRecord(models.Model):
                 return self.via_record_mrc()
             elif link_target == 'direct':
                 return self.direct_record_mrc()
+
+#load a many records minimal change
+def import_records(marcfile):
+
+    class RecordLoader(pymarc.XmlHandler):
+        Edition = models.get_model(*EDITION_MODEL.split('.'))
+        num_loaded=0
+        def process_record(self, record):
+            try:
+                field020 = record.get_fields('020')[0]
+                isbn =  field020.get_subfields('a')[0]
+                edition = self.Edition.get_by_isbn(isbn)
+                if edition:
+                    try:
+                        mr = MARCRecord.objects.get(edition=edition)
+                        logger.info('already have a record for %s' % isbn)
+                    except MARCRecord.DoesNotExist:
+                        mr = MARCRecord(edition=edition, the_record=record)
+                        mr.save()
+                        self.num_loaded+=1
+                else:
+                    logger.info('no edition for %s' % isbn)
+            except IndexError:
+                logger.info('020 absent')
+     
+    handler = RecordLoader()
+    pymarc.parse_xml(marcfile, handler) 
+    return handler.num_loaded

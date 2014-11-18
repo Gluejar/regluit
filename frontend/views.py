@@ -1998,11 +1998,11 @@ def supporter(request, supporter_username, template_name, extra_context={}):
                     if profile_form.cleaned_data['clear_facebook']:
                         profile_obj.facebook_id=0
                         if profile_obj.avatar_source == models.FACEBOOK:
-                            profile_obj.avatar_source = models.GRAVATAR
+                            profile_obj.avatar_source = models.UNGLUEITAR
                     if profile_form.cleaned_data['clear_twitter']:
                         profile_obj.twitter_id=""
                         if profile_obj.avatar_source == models.TWITTER:
-                            profile_obj.avatar_source = models.GRAVATAR
+                            profile_obj.avatar_source = models.UNGLUEITAR
                     if profile_form.cleaned_data['clear_goodreads']:
                         profile_obj.goodreads_user_id = None
                         profile_obj.goodreads_user_name = None

@@ -44,10 +44,6 @@ ul.local li {
 
 <p>Go ahead: add unglued ebooks to your library catalog!</p>
 
-{% if request.user.libpref %}
-    <p>Hi, {{ request.user.username }}.  Librarians can also <a href="{% url upload_marc %}">add new records</a>.</p>
-{% endif %}
-
 {% if messages %}
     <ul class="errors">
         {% for message in messages %}
@@ -55,6 +51,7 @@ ul.local li {
         {% endfor %}
     </ul>
 {% endif %}
+<p>You can download all our full records:</p>
 <div class="marc">
     <form method="POST" id="record_form" action="{% url marc_all %}">
         {% include 'marc_form.html' %}
@@ -63,7 +60,7 @@ ul.local li {
     </form>
     <br />
 {% if request.user.is_authenticated %}
-    <p>...or</p>
+    <p>...or you can get records (both stub and full) for ebooks on your fave list.</p>
 <div class="marc">
     <form method="POST" id="record_form" action="{% url user_marc request.user.username %}">
         {% include 'marc_form.html' %}
@@ -77,6 +74,7 @@ ul.local li {
             <li> Download page link. MARC records link through Unglue.it download page ( library user authentication, context sensitive help for getting files onto user's device)</li>
             <li> Links to each file type if available. MARC records link directly to files ( less help, not available for "Buy-to-unglue" titles) </li>
     </ul>
+    <p>"Stub" records are automatically generated using information in our database.</p>
 </div>
 
 
@@ -87,6 +85,7 @@ ul.local li {
     {% else %}
     <p>You have not enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
     {% endif %}
+    <p>If you enable librarian tools, you can also <a href="{% url upload_marc %}">add new records</a>.</p>
 </div>
 {% endif %}
 {% endblock %}
