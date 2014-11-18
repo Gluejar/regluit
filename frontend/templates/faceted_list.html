@@ -70,6 +70,12 @@
                             </a>
                         </li>
                     </ul>
+                    <ul class="book-list-view">
+                        <li>Sort by:</li>
+                        <li class="view-list"><a {% if sort_by = 'popular' %}class=active {% endif %}href="{% url faceted_list path %}?sort_by=popular">popular</a></li>
+                        <li class="view-list"><a {% if sort_by = 'newest' %}class=active {% endif %}href="{% url faceted_list path %}?sort_by=newest">newest</a></li>
+                        <li class="view-list"><a {% if sort_by = 'title' %}class=active {% endif %}href="{% url faceted_list path %}?sort_by=title">title</a></li>
+                    </ul>
                 </div>
                 <div id="content-block-content">
                     <div id="books-go-here">

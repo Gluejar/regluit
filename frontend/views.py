@@ -79,7 +79,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
 from regluit.core.parameters import *
-from regluit.core.facets import get_facet
+from regluit.core.facets import get_facet, get_order_by
 
 from regluit.frontend.forms import (
     UserData,
@@ -856,7 +856,9 @@ class FacetedView(FilterableListView):
         self.vertex = None
         for facet in facets:
             self.vertex = get_facet(facet)(self.vertex)
-        return self.vertex.get_query_set().distinct()
+        
+        order_by = self.request.GET.get('order_by', 'newest')
+        return self.vertex.get_query_set().distinct().order_by(*get_order_by(order_by))
 
     def get_context_data(self, **kwargs):
         context = super(FacetedView, self).get_context_data(**kwargs)

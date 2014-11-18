@@ -70,4 +70,15 @@ def get_facet(facet_name):
         if facet_group.has_facet(facet_name):
             return facet_group.get_facet_class(facet_name)
     return BaseFacet
-              
+
+order_by_keys = {
+    'newest':['-created'],
+    'oldest':['created'],
+    'featured':['-featured', '-num_wishes'],
+    'popular':['-num_wishes'],
+    'title':['title'],
+}   
+           
+def get_order_by(order_by_key):
+    # return the args to use as arguments for order_by
+    return order_by_keys.get(order_by_key,'')
