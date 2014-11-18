@@ -1822,9 +1822,9 @@ class Ebook(models.Model):
         if not url:
             return None
         # provider derived from url. returns provider value. remember to call save() afterward
-        if url.startswith('https?://books.google.com/'):
+        if re.match('https?://books.google.com/', url):
             provider='Google Books'
-        elif url.startswith('http://www.gutenberg.org/'):
+        elif re.match('https?://www.gutenberg.org/', url):
             provider='Project Gutenberg'
         elif re.match('https?://(www\.|)archive.org/', url): 
             provider='Internet Archive'
