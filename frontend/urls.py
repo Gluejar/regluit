@@ -38,6 +38,7 @@ from regluit.frontend.views import (
     send_to_kindle,
     LibModeView,
     DownloadView,
+    FacetedView,
 )
 
 urlpatterns = patterns(
@@ -73,6 +74,9 @@ urlpatterns = patterns(
     url(r"^campaigns/(?P<facet>\w*)/marc/$", CampaignListView.as_view(send_marc=True), name='campaign_list_marc'),
     url(r"^lists/(?P<facet>\w*)$", WorkListView.as_view(),  name='work_list'),
     url(r"^lists/(?P<facet>\w*)/marc/$", WorkListView.as_view(send_marc=True),  name='work_list_marc'),
+    url(r"^free/(?P<path>[^\s]*)/marc/$", FacetedView.as_view(send_marc=True),  name='faceted_list_marc'),
+    url(r"^free/(?P<path>[^\s]*)/$", FacetedView.as_view(),  name='faceted_list'),
+    url(r"^free/$", FacetedView.as_view(),  name='free'),
     url(r"^pid/all/(?P<pubname>\d+)$", ByPubView.as_view(),  name='bypubname_list'),
     url(r"^pid/(?P<facet>\w*)/(?P<pubname>\d+)$", ByPubView.as_view(),  name='bypubname_list'),
     url(r"^pid/(?P<facet>\w*)/(?P<pubname>\d+)/marc/$", ByPubView.as_view(send_marc=True),  name='bypubname_list_marc'),
@@ -157,6 +161,7 @@ urlpatterns = patterns(
     url(r"^send_to_kindle/(?P<work_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
     url(r"^marc/$", direct_to_template, {'template': 'marc.html'}, name="marc"),
     url(r"^accounts/edit/marc_config/$", login_required(LibModeView.as_view()),  name="marc_config"),
+    
 )
 
 if settings.DEBUG:

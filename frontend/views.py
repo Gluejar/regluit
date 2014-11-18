@@ -79,6 +79,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
 from regluit.core.parameters import *
+from regluit.core.facets import get_facet
 
 from regluit.frontend.forms import (
     UserData,
@@ -802,7 +803,7 @@ class FilterableListView(ListView):
             return qs_marc_records(self.request, qs=self.object_list)
         else:
             return super(FilterableListView,self).render_to_response(context, **response_kwargs)
-        
+
 recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_USERNAME)
 
 class WorkListView(FilterableListView):
@@ -811,7 +812,7 @@ class WorkListView(FilterableListView):
     max_works=100000
     
     def get_queryset_all(self):
-        facet = self.kwargs['facet']
+        facet = self.kwargs.get('facet', None)
         if (facet == 'popular'):
             return models.Work.objects.exclude(num_wishes=0).order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
@@ -847,6 +848,26 @@ class WorkListView(FilterableListView):
             
             return context
 
+class FacetedView(FilterableListView):
+    template_name = "faceted_list.html"
+    def get_queryset_all(self):
+        facet_path = self.kwargs.get('path', '')
+        facets = facet_path.strip('/').split('/')
+        self.vertex = None
+        for facet in facets:
+            self.vertex = get_facet(facet)(self.vertex)
+        return self.vertex.get_query_set().distinct()
+
+    def get_context_data(self, **kwargs):
+        context = super(FacetedView, self).get_context_data(**kwargs)
+        facet = self.kwargs.get('facet','all')
+        qs=self.get_queryset()
+        context['activetab'] = "#1"
+        context['tab_override'] = 'tabs-1'
+        context['path'] = self.vertex.get_facet_path()
+        return context
+            
+        
 class ByPubView(WorkListView):
     template_name = "bypub_list.html"
     context_object_name = "work_list"
