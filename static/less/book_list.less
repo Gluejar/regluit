@@ -214,6 +214,21 @@ ul.book-list-view {
         display:block;
         vertical-align:middle;
         line-height:22px;
+        &:hover {
+            color: @medium-blue;
+        }
+        &.view-list a {
+            .opacity(30);
+            &:hover{
+                .opacity(100);
+            }
+        }
+        &.view-list a.chosen{
+            .opacity(100);
+            &:hover{
+                text-decoration: none;
+            }
+        }
     }
 }
 
@@ -316,14 +331,6 @@ div#content-block-content {
     display: none;
 }
 
-/* Starting state of toggle icons; will be overwritten by js in page */
-#toggle-list {
-    .opacity(100);
-}
-
-#toggle-panel {
-    .opacity(20);
-}
 
 .nobold {
 	font-weight: normal;

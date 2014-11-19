@@ -60,7 +60,7 @@
                     <ul class="book-list-view">
                         <li>View As:</li>
                         <li class="view-list">
-                            <a href="#" id="toggle-list">
+                            <a href="#" id="toggle-list" class="chosen" >
                             <img src="/static/images/booklist/view-list.png" alt="view list" title="view list" height="21" width="24" />
                             </a>
                         </li>
@@ -72,9 +72,9 @@
                     </ul>
                     <ul class="book-list-view">
                         <li>Sort by:</li>
-                        <li class="view-list"><a {% if sort_by = 'popular' %}class=active {% endif %}href="{% url faceted_list path %}?sort_by=popular">popular</a></li>
-                        <li class="view-list"><a {% if sort_by = 'newest' %}class=active {% endif %}href="{% url faceted_list path %}?sort_by=newest">newest</a></li>
-                        <li class="view-list"><a {% if sort_by = 'title' %}class=active {% endif %}href="{% url faceted_list path %}?sort_by=title">title</a></li>
+                        <li class="view-list"><a {% if order_by = 'popular' %}class="chosen" {% endif %}href="{% url faceted_list path %}?order_by=popular">popular</a></li>
+                        <li class="view-list"><a {% if order_by = 'newest' %}class="chosen" {% endif %}href="{% url faceted_list path %}?order_by=newest">newest</a></li>
+                        <li class="view-list"><a {% if order_by = 'title' %}class="chosen" {% endif %}href="{% url faceted_list path %}?order_by=title">title</a></li>
                     </ul>
                 </div>
                 <div id="content-block-content">

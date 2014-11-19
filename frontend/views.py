@@ -867,6 +867,7 @@ class FacetedView(FilterableListView):
         context['activetab'] = "#1"
         context['tab_override'] = 'tabs-1'
         context['path'] = self.vertex.get_facet_path()
+        context['order_by'] = self.request.GET.get('order_by', 'newest')
         return context
             
         
