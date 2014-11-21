@@ -377,7 +377,7 @@ class Hold(models.Model):
         return Hold.objects.filter(work=self.work,library=self.library,created__lt=self.created).count()
 
 class Campaign(models.Model):
-    LICENSE_CHOICES = cc.CCCHOICES
+    LICENSE_CHOICES = cc.FREECHOICES
     created = models.DateTimeField(auto_now_add=True,)
     name = models.CharField(max_length=500, null=True, blank=False)
     description = RichTextField(null=True, blank=False)
