@@ -38,7 +38,7 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum, get_model
 from django.forms import Select
 from django.forms.models import modelformset_factory, inlineformset_factory
 from django.http import (
@@ -2160,6 +2160,7 @@ class InfoPageView(TemplateView):
         users.lt = users.exclude(profile__librarything_id = '')
         users.fb = users.filter(profile__facebook_id__isnull = False)
         users.tw = users.exclude(profile__twitter_id = '')
+        users.libtools = users.filter(libpref__isnull = False)
         works = models.Work.objects
         works.today = works.filter(created__range = (date_today(), now()))
         works.days7 = works.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -2178,6 +2179,10 @@ class InfoPageView(TemplateView):
         ebooks.year = ebooks.filter(created__year = date_today().year)
         ebooks.month = ebooks.year.filter(created__month = date_today().month)
         ebooks.yesterday = ebooks.filter(created__range = (date_today()-timedelta(days=1), date_today()))
+        ebooks.downloads = ebooks.aggregate(total=Sum('download_count'))['total']
+        ebooks.pdfdownloads = ebooks.filter(format='pdf').aggregate(total=Sum('download_count'))['total']
+        ebooks.epubdownloads = ebooks.filter(format='epub').aggregate(total=Sum('download_count'))['total']
+        ebooks.mobidownloads = ebooks.filter(format='mobi').aggregate(total=Sum('download_count'))['total']
         ebookfiles = models.EbookFile.objects
         ebookfiles.today = ebookfiles.filter(created__range = (date_today(), now()))
         ebookfiles.days7 = ebookfiles.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -2206,7 +2211,12 @@ class InfoPageView(TemplateView):
         transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
         transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
         transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
-        
+        marc = get_model('marc','MARCRecord').objects
+        marc.today = marc.filter(created__range = (date_today(), now()))
+        marc.days7 = marc.filter(created__range = (date_today()-timedelta(days=7), now()))
+        marc.year = marc.filter(created__year = date_today().year)
+        marc.month = marc.year.filter(created__month = date_today().month)
+        marc.yesterday = marc.filter(created__range = (date_today()-timedelta(days=1),date_today()))
         return {
             'users': users, 
             'works': works,
@@ -2214,6 +2224,7 @@ class InfoPageView(TemplateView):
             'ebookfiles': ebookfiles,
             'wishlists': wishlists,
             'transactions': transactions,
+            'marc': marc,
         }
 
 class InfoLangView(TemplateView):
