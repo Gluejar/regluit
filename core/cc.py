@@ -10,8 +10,8 @@ INFO_CC = (
     ('CC BY', 'by', 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)', 'http://creativecommons.org/licenses/by/3.0/'), 
     ('CC0', 'cc0', 'No Rights Reserved (CC0)', 'http://creativecommons.org/about/cc0'),
 )
+INFO_FREE = INFO_CC + (('GFDL', 'gdfl', 'GNU Free Documentation License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html'),)
 INFO_PD = (
-    ('GFDL', 'gdfl', 'GNU Free Documentation License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html'),
     ('PD-US', 'pd-us', 'Public Domain, US', 'http://creativecommons.org/about/pdm'),
 )
 INFO_ALL = INFO_CC + INFO_PD
@@ -19,6 +19,7 @@ INFO_ALL = INFO_CC + INFO_PD
 # CONTENT_TYPES will be easiest to manipulate in ungluify_record as a dict
 
 CCCHOICES = tuple([(item[0],item[2]) for item in INFO_CC])
+FREECHOICES = tuple([(item[0],item[2]) for item in INFO_FREE])
     
 CHOICES = tuple([(item[0],item[2]) for item in INFO_ALL])
 
