@@ -19,30 +19,6 @@
 {% endblock %}
 {% block topsection %}
 <div id="locationhash">#1</div>
-<div id="js-topsection">
-    <div class="js-main">
-        <div class="js-topnews">
-            <div class="js-topnews1">
-                <div class="js-topnews2">
-                    <div class="js-topnews3">
-                        <div class="user-block">
-                            <div id="user-block1">
-                            	<div id="block-intro-text"><br /><span class="special-user-name">Ready to Read</span></div>
-                            </div>
-                            <div class="user-block24"><p style="font-size: larger;"><span class="user-short-info">These {% if pub_lang %}{{ pub_lang|ez_lang_name }} language {% endif %}{% if cc.is_cc %}<a href="http://creativecommons.org/">Creative Commons</a>{% endif %} {% if license %}<a href="{{cc.url}}">{{ license }}</a>{% endif %} {%if cc.is_pd %}ebooks are ready to read -  they belong to all of us!{% else %}licensed ebooks are ready to read - the people who created them want you to read and share them.{% endif %}</span></p>
-                            {% if license %}<p style="font-size: smaller;"><a href="{{cc.url}}"><img src="{{cc.badge}}" alt="badge for {{license}}" style="float:left;padding:0.5em" /></a> {{cc.description}}
-                            </p>{% endif %}
-                            </div>
-                            <div class="user-block3">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-       
-    </div>
-</div>
 
 {% endblock %}
 
@@ -50,11 +26,17 @@
 <div id="main-container">
     <div class="js-main">
         <div id="js-leftcol">
+            {% include "refine.html" %}
             {% include "explore.html" %}
         </div>
 
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
+            <div id="facet_block">
+                {% for facet in vertex.facets %}
+                    {% include facet.template %}
+                {% endfor %}
+            </div>
             <div id="content-block">
                 <div class="content-block-heading unglued" id="tabs">
                     <ul class="book-list-view">

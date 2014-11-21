@@ -110,9 +110,7 @@ class ccinfo():
         return self.license == 'PD-US'
 
 def licence_value(facet):
-    print facet
     if facet in FACET_LIST:
-        print LICENSE_LIST_ALL[FACET_LIST.index(facet)]
         return LICENSE_LIST_ALL[FACET_LIST.index(facet)]
     else:
         return ''

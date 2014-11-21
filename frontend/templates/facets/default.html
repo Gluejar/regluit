@@ -1,0 +1,8 @@
+<dl>
+    <dt>
+        {% if facet.context.title %}{{ facet.context.title }}{% else %}{{ facet }}{% endif %}
+    </dt>
+    <dd>
+        {% if facet.context.define %}{{ facet.context.define }}{% endif %}
+    </dd>
+</dl>

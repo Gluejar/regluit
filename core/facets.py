@@ -1,7 +1,7 @@
 from django.db.models import get_model
 from regluit.core import cc
 
-    
+  
 class BaseFacet(object):
     facet_name = 'all'
     outer_facet = None
@@ -16,7 +16,10 @@ class BaseFacet(object):
             return self.outer_facet.get_query_set()
         else:
             return self.model.objects.filter(editions__ebooks__isnull=False)
-           
+    
+    def __unicode__(self):
+        return unicode(self.facet_name)
+    
     def get_query_set(self):
         return self._get_query_set()
 
@@ -25,15 +28,27 @@ class BaseFacet(object):
             return self.outer_facet.get_facet_path() + self.facet_name + '/'
         else:
             return self.facet_name + '/'
+            
+    def facets(self):
+        facets=[self]
+        if self.outer_facet:
+            facets.extend(self.outer_facet.facets())
+        return facets
 
-
+    def context(self):
+        return {}
+    
+    def template(self):
+        return 'facets/default.html'
+        
 class FacetGroup(object):
     pass
     
 class NamedFacet(BaseFacet):
+    # set_name() must be defined in classes implementing NamedFacet
     def __init__(self, outer_facet):
         super(NamedFacet, self).__init__( outer_facet )
-        self.set_name()
+        self.set_name() 
     
 class FormatFacetGroup(FacetGroup):
     facets = ['pdf', 'epub', 'mobi']
@@ -46,6 +61,8 @@ class FormatFacetGroup(FacetGroup):
                 self.facet_name=facet_name
             def get_query_set(self):
                 return self._get_query_set().filter(editions__ebooks__format=self.facet_name)
+            def template(self):
+                return 'facets/format.html'
         return FormatFacet
         
         

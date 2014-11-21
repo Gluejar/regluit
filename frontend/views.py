@@ -851,11 +851,12 @@ class WorkListView(FilterableListView):
 class FacetedView(FilterableListView):
     template_name = "faceted_list.html"
     def get_queryset_all(self):
-        facet_path = self.kwargs.get('path', '')
-        facets = facet_path.strip('/').split('/')
-        self.vertex = None
-        for facet in facets:
-            self.vertex = get_facet(facet)(self.vertex)
+        if not hasattr(self,'vertex'):
+            facet_path = self.kwargs.get('path', '')
+            facets = facet_path.strip('/').split('/')
+            self.vertex = None
+            for facet in facets:
+                self.vertex = get_facet(facet)(self.vertex)
         
         order_by = self.request.GET.get('order_by', 'newest')
         return self.vertex.get_query_set().distinct().order_by(*get_order_by(order_by))
@@ -867,6 +868,7 @@ class FacetedView(FilterableListView):
         context['activetab'] = "#1"
         context['tab_override'] = 'tabs-1'
         context['path'] = self.vertex.get_facet_path()
+        context['vertex'] = self.vertex
         context['order_by'] = self.request.GET.get('order_by', 'newest')
         return context
             
