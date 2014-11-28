@@ -332,7 +332,7 @@ def work(request, work_id, action='display'):
         return acks( request, work)
     elif action == "editions":
         EditionFormSet = inlineformset_factory(models.Work, models.Edition, fields=(), extra=0 )    
-        if request.method == "POST" and (request.user.is_staff or user in work.last_campaign().managers.all()):
+        if request.method == "POST" and (request.user.is_staff or (work.last_campaign() and request.user in work.last_campaign().managers.all())):
             formset = EditionFormSet(data=request.POST, instance=work)
             if formset.is_valid():
                 for form in formset.deleted_forms:
