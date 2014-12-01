@@ -1,3 +1,4 @@
+# coding=utf-8
 # mostly constants related to Creative Commons
 # let's be DRY with these parameters
 
@@ -10,15 +11,19 @@ INFO_CC = (
     ('CC BY', 'by', 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)', 'http://creativecommons.org/licenses/by/3.0/'), 
     ('CC0', 'cc0', 'No Rights Reserved (CC0)', 'http://creativecommons.org/about/cc0'),
 )
-INFO_PD = (
+INFO_FREE = INFO_CC + (
     ('GFDL', 'gdfl', 'GNU Free Documentation License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html'),
+    ('LAL', 'lal', 'Licence Art Libre', 'http://artlibre.org/licence/lal/'),
+)
+INFO_PD = (
     ('PD-US', 'pd-us', 'Public Domain, US', 'http://creativecommons.org/about/pdm'),
 )
-INFO_ALL = INFO_CC + INFO_PD
+INFO_ALL = INFO_FREE + INFO_PD
 # CCHOICES, CCGRANTS, and FORMATS are all used in places that expect tuples
 # CONTENT_TYPES will be easiest to manipulate in ungluify_record as a dict
 
 CCCHOICES = tuple([(item[0],item[2]) for item in INFO_CC])
+FREECHOICES = tuple([(item[0],item[2]) for item in INFO_FREE])
     
 CHOICES = tuple([(item[0],item[2]) for item in INFO_ALL])
 
@@ -58,6 +63,8 @@ class CCLicense():
             return '/static/images/ccbynd.png'
         elif license == 'GFDL':
             return '/static/images/gdfl.png'
+        elif license == 'LAL':
+            return '/static/images/lal.png'
         else:
             return ''
 
@@ -80,6 +87,8 @@ def description(license):
             return 'You are free to: copy and redistribute the material in any medium or format; for any purpose, even commercially. Under the following terms: You must give appropriate credit, provide a link to the license, and indicate if changes were made. You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use. If you remix, transform, or build upon the material, you may not distribute the modified material.'
         elif license == 'GFDL':
             return 'The purpose of this License is to make a manual, textbook, or other functional and useful document "free" in the sense of freedom: to assure everyone the effective freedom to copy and redistribute it, with or without modifying it, either commercially or noncommercially. Secondarily, this License preserves for the author and publisher a way to get credit for their work, while not being considered responsible for modifications made by others.'
+        elif license == 'LAL':
+            return 'Avec la Licence Art Libre, l\'autorisation est donnée de copier, de diffuser et de transformer librement les œuvres dans le respect des droits de l\'auteur.'
         else:
             return ''
 

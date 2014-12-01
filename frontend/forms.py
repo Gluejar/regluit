@@ -546,6 +546,8 @@ def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs )
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
                     elif self.instance.license == 'CC0' :
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
+                    elif self.instance.license in ['GDFL' , 'LAL']:
+                        raise forms.ValidationError(_('Once you start a campaign with GDFL or LAL, you can\'t use any other license.'))
             return new_license
     return ManageCampaignForm(instance = instance, data=data, initial=initial)
 

@@ -1,14 +1,20 @@
+{% if user.is_staff or user in work.last_campaign.managers.all  %}
 <form method="POST" action="#">
     {% csrf_token %}
     {{ formset.management_form }}
     {% for form in formset %}
-        {% if request.user.is_staff %}
-            <div style="float:right;text-align:right">{{ form.id }}Split: {{form.DELETE.0}}<br /><br />
-            Select: <input type="radio" value="{{ form.instance.id }}" name="select_edition" /></div>
-        {% endif %}
+        <div style="float:right;text-align:right">{{ form.id }}Split: {{form.DELETE.0}}<br /><br />
+        Select: <input type="radio" value="{{ form.instance.id }}" name="select_edition" /></div>
         {% with form.instance as edition %}
             {% include 'edition_display.html' %}
         {% endwith %}
     {% endfor %}
-    {% if request.user.is_staff %}<input type="submit" value="Split/Select Editions" name="submit" />{% endif %}
+    <input type="submit" value="Split/Select Editions" name="submit" />
 </form>
+{% else %}
+    {% for form in formset %}
+        {% with form.instance as edition %}
+            {% include 'edition_display.html' %}
+        {% endwith %}
+    {% endfor %}
+{% endif %}
