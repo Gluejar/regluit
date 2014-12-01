@@ -85,7 +85,8 @@ def description(license):
 
 class ccinfo():
     def __init__(self, license):
-        self.license=license
+        value=licence_value(license)
+        self.license=value if value else license
     
     @property
     def description(self):
@@ -99,15 +100,18 @@ class ccinfo():
     @property
     def title(self):
         if license in LICENSE_LIST_ALL:
-            return INFO_ALL[LICENSE_LIST_ALL.index(license)][2]
+            return INFO_ALL[LICENSE_LIST_ALL.index(self.license)][2]
         else:
-            return ''
+            return self.license
     @property
     def is_cc(self):
         return self.license in LICENSE_LIST
     @property
     def is_pd(self):
         return self.license == 'PD-US'
+        
+    def __str__(self):
+        return self.title
 
 def licence_value(facet):
     if facet in FACET_LIST:

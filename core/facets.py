@@ -76,8 +76,15 @@ class LicenseFacetGroup(FacetGroup):
         class LicenseFacet(NamedFacet):
             def set_name(self):
                 self.facet_name=facet_name
+                self.license = cc.ccinfo(facet_name)
             def get_query_set(self):
                 return self._get_query_set().filter(editions__ebooks__rights=cc.licence_value(self.facet_name))
+            def template(self):
+                return 'facets/license.html'
+            def context(self):
+                return   {
+                    'license': self.license,
+                    }
         return LicenseFacet
     
 facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() ]
