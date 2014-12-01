@@ -62,7 +62,7 @@ class CCLicense():
         elif license == 'CC BY-ND':
             return '/static/images/ccbynd.png'
         elif license == 'GFDL':
-            return '/static/images/gdfl.png'
+            return '/static/images/gfdl.png'
         elif license == 'LAL':
             return '/static/images/lal.png'
         else:
