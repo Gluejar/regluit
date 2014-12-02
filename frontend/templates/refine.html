@@ -1,3 +1,4 @@
+{% if vertex.get_other_groups %}
 <div class="jsmodule">
     <h3 class="jsmod-title"><span>Refine</span></h3>
     <div class="jsmod-content">
@@ -5,11 +6,17 @@
 
             <li class="first parent">
                 <span>Show me only...</span>
+                {% for group in vertex.get_other_groups %}
                 <ul class="menu level2">
-                    <li class="first"><a href="{% url faceted_list path %}cc-by/"><span>CC-BY</span></a></li>
+                    <li class="first"><span>{{ group.title }} is ...</span></li>
+                    {% for facet in group.get_facets %}
+                        <li><a href="{% url faceted_list path %}{{facet.facet_name}}/"><span>{{ facet.title }}</span></a></li>
+                    {% endfor %}
                 </ul>
+                {% endfor %}
             </li>
         </ul>
     </div>
 </div>
 <br />
+{% endif %}

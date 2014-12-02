@@ -20,6 +20,10 @@ class BaseFacet(object):
     def __unicode__(self):
         return unicode(self.facet_name)
     
+    @property    
+    def title(self):
+        return self.__unicode__()
+    
     def get_query_set(self):
         return self._get_query_set()
 
@@ -32,7 +36,7 @@ class BaseFacet(object):
     def facets(self):
         facets=[self]
         if self.outer_facet:
-            facets.extend(self.outer_facet.facets())
+            facets= self.outer_facet.facets() + facets
         return facets
 
     def context(self):
@@ -40,9 +44,31 @@ class BaseFacet(object):
     
     def template(self):
         return 'facets/default.html'
+    
+    _stash_others = None
+    def get_other_groups(self):
+        if self._stash_others != None:
+            return self._stash_others
+        others = []
+        used = self.facets()
+        for group in facet_groups:
+            in_use = False
+            for facet in used:
+                if group.has_facet(facet.facet_name) :
+                    in_use = True
+                    break
+            if not in_use:
+                others.append(group)
+        self._stash_others=others
+        return others
         
 class FacetGroup(object):
-    pass
+    # a FacetGroup should implement title, facets, has_facet(self, facet_name) and get_facet_class(self, facet_name)
+    def has_facet(self, facet_name):
+        return facet_name in self.facets
+    def get_facets(self):
+        for facet_name in self.facets:
+            yield self.get_facet_class(facet_name)(None)
     
 class NamedFacet(BaseFacet):
     # set_name() must be defined in classes implementing NamedFacet
@@ -51,10 +77,9 @@ class NamedFacet(BaseFacet):
         self.set_name() 
     
 class FormatFacetGroup(FacetGroup):
+    title = 'Format'
     facets = ['pdf', 'epub', 'mobi']
-    def has_facet(self, facet_name):
-        return facet_name in self.facets
-        
+    
     def get_facet_class(self, facet_name):
         class FormatFacet(NamedFacet):
             def set_name(self):
@@ -63,14 +88,13 @@ class FormatFacetGroup(FacetGroup):
                 return self._get_query_set().filter(editions__ebooks__format=self.facet_name)
             def template(self):
                 return 'facets/format.html'
-        return FormatFacet
+        return FormatFacet    
         
         
 class LicenseFacetGroup(FacetGroup):
+    title = 'License'
     licenses = cc.LICENSE_LIST_ALL
     facets = cc.FACET_LIST    
-    def has_facet(self, facet_name):
-        return facet_name in self.facets
         
     def get_facet_class(self, facet_name):
         class LicenseFacet(NamedFacet):
@@ -85,6 +109,8 @@ class LicenseFacetGroup(FacetGroup):
                 return   {
                     'license': self.license,
                     }
+            def title(self):
+                return self.license.title
         return LicenseFacet
     
 facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() ]
