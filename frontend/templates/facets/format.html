@@ -1,8 +1,6 @@
-<dl>
-    <dt>
-        {% if facet.context.title %}{{ facet.context.title }}{% else %}{{ facet }}{% endif %}
-    </dt>
-    <dd>
+<div>
+        <p style="">
+        <img src="/static/images/{{ facet.facet_name }}32.png" height="32" alt="{{ facet.facet_name }}" title="{{ facet.facet_name }}" />
         {% if facet.facet_name == 'epub' %}
             These books are available in EPUB format - good for iBooks, Nook, Kobo.
         {% endif %}
@@ -10,7 +8,7 @@
             These books are available in MOBI format - good for Kindle.
         {% endif %}
         {% if facet.facet_name == 'pdf' %}
-            These books are available in PDF format - good for desktops, printing.
+           These books are available in PDF format - good for desktops, printing.
         {% endif %}
-    </dd>
-</dl>
+        </p>
+</div>

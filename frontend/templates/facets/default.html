@@ -1,8 +1,9 @@
-<dl>
-    <dt>
-        {% if facet.context.title %}{{ facet.context.title }}{% else %}{{ facet }}{% endif %}
-    </dt>
-    <dd>
-        {% if facet.context.define %}{{ facet.context.define }}{% endif %}
-    </dd>
-</dl>
+<div>
+        <p>
+        {% if facet.facet_name == 'all' %}
+        All these books are free to read: either they're distributed with a free license, or they're in the public domain.
+        {% else %}
+        {{ facet }}
+        {% endif %}
+        </p>
+</div>
