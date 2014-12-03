@@ -25,7 +25,7 @@ INFO_ALL = INFO_FREE + INFO_PD
 CCCHOICES = tuple([(item[0],item[2]) for item in INFO_CC])
 FREECHOICES = tuple([(item[0],item[2]) for item in INFO_FREE])
     
-CHOICES = tuple([(item[0],item[2]) for item in INFO_ALL])
+CHOICES = tuple([(item[0],item[4]) for item in INFO_ALL])
 
 CCGRANTS = tuple([(item[0],item[3]) for item in INFO_CC])
 
