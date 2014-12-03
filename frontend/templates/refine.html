@@ -10,7 +10,7 @@
                 <ul class="menu level2">
                     <li class="first"><span>{{ group.title }} is ...</span></li>
                     {% for facet in group.get_facets %}
-                        <li><a href="{% url faceted_list path %}{{facet.facet_name}}/"><span>{{ facet.title }}</span></a></li>
+                        <li><a href="{% url faceted_list path %}{{facet.facet_name}}/" title="{{  facet.title  }}"><span>{{ facet.label }}</span></a></li>
                     {% endfor %}
                 </ul>
                 {% endfor %}

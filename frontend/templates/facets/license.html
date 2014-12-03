@@ -1,6 +1,6 @@
 {% with license=facet.context.license %}
 <div>
-        <p><a href="{{license.url}}"><img src="{{license.badge}}" alt="badge for {{license}}" /></a> <span class="user-short-info">These {% if license.is_cc %}<a href="http://creativecommons.org/">Creative Commons</a>{% endif %} {% if license %}<a href="{{cc.url}}">{{ license }}</a>{% endif %} {%if license.is_pd %}ebooks are free to read -  they belong to all of us!{% else %}licensed ebooks are free to read - the people who created them want you to read and share them.{% endif %}</span></p>
+        <p><a href="{{license.url}}"><img src="{{license.badge}}" alt="badge for {{license}}" /></a> <span class="user-short-info">These {% if license %}<a href="{{license.url}}">{{ license.title }}</a>{% endif %} {%if license.is_pd %}ebooks are free to read -  they belong to all of us!{% else %}licensed ebooks are free to read - the people who created them want you to read and share them.{% endif %}</span></p>
         <p>{{license.description}}</p>
 
 </div>

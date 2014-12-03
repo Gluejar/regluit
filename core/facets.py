@@ -24,6 +24,10 @@ class BaseFacet(object):
     def title(self):
         return self.__unicode__()
     
+    @property    
+    def label(self):
+        return self.__unicode__()
+    
     def get_query_set(self):
         return self._get_query_set()
 
@@ -102,13 +106,15 @@ class LicenseFacetGroup(FacetGroup):
                 self.facet_name=facet_name
                 self.license = cc.ccinfo(facet_name)
             def get_query_set(self):
-                return self._get_query_set().filter(editions__ebooks__rights=cc.licence_value(self.facet_name))
+                return self._get_query_set().filter(editions__ebooks__rights=self.license.license)
             def template(self):
                 return 'facets/license.html'
             def context(self):
                 return   {
                     'license': self.license,
                     }
+            def label(self):
+                return self.license.__str__()
             def title(self):
                 return self.license.title
         return LicenseFacet
