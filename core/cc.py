@@ -94,7 +94,7 @@ def description(license):
 
 class ccinfo():
     def __init__(self, license):
-        value=licence_value(license)
+        value=license_value(license)
         self.license=value if value else license
     
     @property
@@ -122,7 +122,7 @@ class ccinfo():
     def __str__(self):
         return self.title
 
-def licence_value(facet):
+def license_value(facet):
     if facet in FACET_LIST:
         return LICENSE_LIST_ALL[FACET_LIST.index(facet)]
     else:
