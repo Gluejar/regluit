@@ -917,41 +917,6 @@ class ByPubListView(ByPubView):
         self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
         self.set_publisher()
 
-class CCListView(FilterableListView):
-    template_name = "cc_list.html"
-    context_object_name = "work_list"
-    licenses = cc.LICENSE_LIST_ALL
-    facets = cc.FACET_LIST
-
-    def get_queryset_all(self):
-        facet = self.kwargs.get('facet','')
-        if facet in self.facets:
-            ccworks = models.Work.objects.filter(
-                                          editions__ebooks__isnull=False,
-                                          editions__ebooks__rights=self.licenses[self.facets.index(facet)]
-                                         )
-            notyet = models.Work.objects.filter(
-                                          campaigns__status="ACTIVE",
-                                          campaigns__license=self.licenses[self.facets.index(facet)]
-                                         )
-            return (notyet | ccworks).distinct().order_by('-featured','-created')
-        else:
-            return models.Work.objects.filter( editions__ebooks__isnull=False, 
-                                                editions__ebooks__rights__in=self.licenses
-                                                ).distinct().order_by('-featured','-created')
-
-    def get_context_data(self, **kwargs):
-        context = super(CCListView, self).get_context_data(**kwargs)
-        facet = self.kwargs.get('facet','all')
-        qs=self.get_queryset()
-        context['ungluers'] = userlists.work_list_users(qs,5)
-        context['activetab'] = "#1"
-        context['tab_override'] = 'tabs-1'
-        context['facet'] = facet
-        context['aspect'] = 'cc'
-        context['license'] = self.licenses[self.facets.index(facet)] if facet in self.facets else ''
-        context['cc'] = cc.ccinfo(context['license'])
-        return context
 
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"

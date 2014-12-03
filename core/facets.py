@@ -122,7 +122,7 @@ def get_facet(facet_name):
     return BaseFacet
 
 order_by_keys = {
-    'newest':['-created'],
+    'newest':['-featured', '-created'],
     'oldest':['created'],
     'featured':['-featured', '-num_wishes'],
     'popular':['-num_wishes'],
