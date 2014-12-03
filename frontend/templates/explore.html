@@ -9,7 +9,7 @@
                             <span>Show me...</span>
                             <ul class="menu level2">
                             {% if not request.user.is_anonymous %}
-                                <li class="first"><a href="/"><span>My Faves</span></a></li>
+                                <li><a href="/"><span>My Faves</span></a></li>
                                 {% for library in request.user.profile.libraries %}
                                     <li><a href="{% url library library.user %}"><span>{{ library }}</span></a></li>
                                 {% endfor %}

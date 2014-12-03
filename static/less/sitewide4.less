@@ -187,16 +187,16 @@ h2 {
 h3 {
     &.jsmod-title {
     	.border-radius(8px, 8px, 0, 0);
-    	background: @medium-blue-grey;
+    	background: @pale-blue;
         padding:0;
         margin:0;
-        height:73px;
+        height:2.3em;
         
         span {
             font-size: @font-size-header;
             font-style: italic;
             color:@text-blue;
-            padding:26px 40px 27px 20px;
+            padding:0.7em 2em 0.5em 2em;
             display:block;
         }
     }
@@ -606,11 +606,10 @@ a#readon {
             border-top:1px solid @pale-blue; 
             .utilityheaders;
             padding:10px;
-            
         }
 
         &.level2 li {
-            .utilitylinks(5px, 10px);
+            .utilitylinks(5px, 20px);
             
             img {
             	vertical-align: middle;
@@ -620,6 +619,11 @@ a#readon {
             .ungluer-name {
 				.height(30px);
 			}
+            &.first {
+                font-size: @font-size-larger;
+                color:@text-blue;
+                padding-left:10px;
+            }
         }
         &.level3 li {
             .utilitylinks(0px, 20px);
