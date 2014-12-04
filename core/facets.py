@@ -3,11 +3,12 @@ from regluit.core import cc
 
   
 class BaseFacet(object):
-    facet_name = 'all'
-    outer_facet = None
-    model = get_model('core', 'Work')
     
     def __init__(self, outer_facet):
+        self.facet_name = 'all'
+        self.outer_facet = None
+        self.model = get_model('core', 'Work')
+        
         if outer_facet:
             self.outer_facet = outer_facet
     
@@ -81,8 +82,12 @@ class NamedFacet(BaseFacet):
         self.set_name() 
     
 class FormatFacetGroup(FacetGroup):
-    title = 'Format'
-    facets = ['pdf', 'epub', 'mobi']
+    
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Format'
+        self.facets = ['pdf', 'epub', 'mobi']
+        
     
     def get_facet_class(self, facet_name):
         class FormatFacet(NamedFacet):
@@ -96,9 +101,13 @@ class FormatFacetGroup(FacetGroup):
         
         
 class LicenseFacetGroup(FacetGroup):
-    title = 'License'
-    licenses = cc.LICENSE_LIST_ALL
-    facets = cc.FACET_LIST    
+
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'License'
+        self.licenses = cc.LICENSE_LIST_ALL
+        self.facets = cc.FACET_LIST
+        
         
     def get_facet_class(self, facet_name):
         class LicenseFacet(NamedFacet):
