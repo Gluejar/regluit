@@ -3,14 +3,11 @@ from regluit.core import cc
 
   
 class BaseFacet(object):
+    facet_name = 'all'
     
     def __init__(self, outer_facet):
-        self.facet_name = 'all'
-        self.outer_facet = None
+        self.outer_facet = outer_facet if outer_facet else None
         self.model = get_model('core', 'Work')
-        
-        if outer_facet:
-            self.outer_facet = outer_facet
     
     def _get_query_set(self):
         if self.outer_facet:
