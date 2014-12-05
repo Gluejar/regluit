@@ -127,6 +127,13 @@ def get_facet(facet_name):
             return facet_group.get_facet_class(facet_name)
     return BaseFacet
 
+def get_facet_object(facet_path):
+    facets = facet_path.replace('//','/').strip('/').split('/')
+    facet_object = None
+    for facet in facets:
+        facet_object = get_facet(facet)(facet_object)
+    return facet_object
+
 order_by_keys = {
     'newest':['-featured', '-created'],
     'oldest':['created'],

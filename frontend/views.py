@@ -79,7 +79,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
 from regluit.core.parameters import *
-from regluit.core.facets import get_facet, get_order_by
+from regluit.core.facets import get_facet_object, get_order_by
 
 from regluit.frontend.forms import (
     UserData,
@@ -853,10 +853,7 @@ class FacetedView(FilterableListView):
     def get_queryset_all(self):
         if not hasattr(self,'vertex'):
             facet_path = self.kwargs.get('path', '')
-            facets = facet_path.replace('//','/').strip('/').split('/')
-            self.vertex = None
-            for facet in facets:
-                self.vertex = get_facet(facet)(self.vertex)
+            self.vertex = get_facet_object(facet_path)
         
         order_by = self.request.GET.get('order_by', 'newest')
         return self.vertex.get_query_set().distinct().order_by(*get_order_by(order_by))
