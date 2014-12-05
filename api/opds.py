@@ -6,7 +6,7 @@ import urlparse
 
 import pytz
 
-from regluit.core import models
+from regluit.core import models, facets
 import regluit.core.cc as cc
 
 licenses = cc.LICENSE_LIST
@@ -16,14 +16,26 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'mobi':"application/x-mobipocket-ebook",
                       'html':"text/html",
                       'text':"text/html"}
-facets = ["creative_commons","active_campaigns"]
 
 UNGLUEIT_URL= 'https://unglue.it'
 NAVIGATION = "application/atom+xml;profile=opds-catalog;kind=navigation"
-def feeds():
-    for facet in facets:
-        yield globals()[facet]()
 
+old_facets= ["creative_commons","active_campaigns"] 
+
+
+def feeds():
+    for facet in old_facets:
+        yield globals()[facet]
+    for facet_path in facets.get_all_facets():
+        yield get_facet_facet(facet_path)
+
+def get_facet_class(name):
+    if name in old_facets:
+        return globals()[name]
+    else:
+        return get_facet_facet(name)
+        
+        
 def text_node(tag, text):
     node = etree.Element(tag)
     node.text = text
@@ -132,7 +144,18 @@ class Facet:
             return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
         else:
             return pytz.utc.localize(self.works[0].created).isoformat()
-        
+
+def get_facet_facet(facet_path):
+    class Facet_Facet(Facet):
+    
+        def __init__(self, facet_path=facet_path):
+            self.feed_path = facet_path
+            self.facet_object = facets.get_facet_object(facet_path)
+            self.title = "Unglue.it"
+            for facet in self.facet_object.facets():
+                self.title = self.title + " " + facet.title
+            self.works = self.facet_object.get_query_set().distinct()
+    return Facet_Facet
 
 class creative_commons(Facet):
     title = "Unglue.it Catalog:  Creative Commons Books"

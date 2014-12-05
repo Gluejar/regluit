@@ -65,7 +65,7 @@ class BaseFacet(object):
                 others.append(group)
         self._stash_others=others
         return others
-        
+
 class FacetGroup(object):
     # a FacetGroup should implement title, facets, has_facet(self, facet_name) and get_facet_class(self, facet_name)
     def has_facet(self, facet_name):
@@ -92,6 +92,9 @@ class FormatFacetGroup(FacetGroup):
                 return self._get_query_set().filter(editions__ebooks__format=self.facet_name)
             def template(self):
                 return 'facets/format.html'
+            @property
+            def title(self):
+                return "format: " + self.facet_name
         return FormatFacet    
         
         
@@ -115,8 +118,9 @@ class LicenseFacetGroup(FacetGroup):
                     }
             def label(self):
                 return self.license.__str__()
+            @property
             def title(self):
-                return self.license.title
+                return "license: " + self.license.title
         return LicenseFacet
     
 facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() ]
@@ -126,6 +130,12 @@ def get_facet(facet_name):
         if facet_group.has_facet(facet_name):
             return facet_group.get_facet_class(facet_name)
     return BaseFacet
+
+def get_all_facets():
+    facets=[]
+    for facet_group in facet_groups:
+        facets = facets + facet_group.facets
+    return facets
 
 def get_facet_object(facet_path):
     facets = facet_path.replace('//','/').strip('/').split('/')

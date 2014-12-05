@@ -106,9 +106,6 @@ class OPDSAcquisitionView(View):
             page = int(page)
         except:
             page = None
-        if facet in opds.facets:
-            facet_class = getattr(opds, facet)()
-            return HttpResponse(facet_class.feed(page),
+        facet_class = opds.get_facet_class(facet)()
+        return HttpResponse(facet_class.feed(page),
                             content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
-        else:
-            return HttpResponseNotFound("invalid facet")
