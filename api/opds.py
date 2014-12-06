@@ -24,9 +24,10 @@ old_facets= ["creative_commons","active_campaigns"]
 
 
 def feeds():
+    yield get_facet_facet('all')
     for facet in old_facets:
         yield globals()[facet]
-    for facet_path in facets.get_all_facets():
+    for facet_path in facets.get_all_facets('Format'):
         yield get_facet_facet(facet_path)
 
 def get_facet_class(name):

@@ -18,6 +18,8 @@ class BaseFacet(object):
             return self.model.objects.filter(editions__ebooks__isnull=False)
     
     def __unicode__(self):
+        if self.facet_name == 'all':
+            return 'Free eBooks'
         return unicode(self.facet_name)
     
     @property    
@@ -131,10 +133,11 @@ def get_facet(facet_name):
             return facet_group.get_facet_class(facet_name)
     return BaseFacet
 
-def get_all_facets():
+def get_all_facets(group='all'):
     facets=[]
     for facet_group in facet_groups:
-        facets = facets + facet_group.facets
+        if group == 'all' or facet_group.title == group:
+            facets = facets + facet_group.facets
     return facets
 
 def get_facet_object(facet_path):

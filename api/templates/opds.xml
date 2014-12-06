@@ -16,7 +16,7 @@
     <id>https://unglue.it/api/opds/{{ feed.feed_path }}/</id>
     <updated>{{ feed.updated }}</updated>
     <link href="{{ feed.feed_path }}/" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
-    <content></content>
+    <content type="text">{{ feed.description }}</content>
   </entry>
 {% endfor %}
 </feed>
