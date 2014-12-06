@@ -19,12 +19,12 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
 
 UNGLUEIT_URL= 'https://unglue.it'
 NAVIGATION = "application/atom+xml;profile=opds-catalog;kind=navigation"
+FACET_RELATION = "http://opds-spec.org/facet"
 
 old_facets= ["creative_commons","active_campaigns"] 
 
 
 def feeds():
-    yield get_facet_facet('all')
     for facet in old_facets:
         yield globals()[facet]
     for facet_path in facets.get_all_facets('Format'):
@@ -137,8 +137,9 @@ class Facet:
     feed_path = ''
     description = ''
     
-    def feed(self, page=None):
-        return opds_feed_for_works(self.works, self.feed_path, title=self.title, page=page)
+    def feed(self, page=None, order_by='newest'):
+        self.works = self.works.order_by(*facets.get_order_by(order_by))
+        return opds_feed_for_works(self, page=page, order_by=order_by)
         
     def updated(self):
         # return the creation date for most recently added item
@@ -164,7 +165,7 @@ class creative_commons(Facet):
     title = "Unglue.it Catalog:  Creative Commons Books"
     feed_path = "creative_commons"
     works = models.Work.objects.filter(editions__ebooks__isnull=False, 
-                        editions__ebooks__rights__in=cc.LICENSE_LIST).distinct().order_by('-created')
+                        editions__ebooks__rights__in=cc.LICENSE_LIST).distinct()
     description= "These Creative Commons licensed ebooks are free to read - the people who created them want you to read and share them."
     
 class active_campaigns(Facet):
@@ -174,11 +175,13 @@ class active_campaigns(Facet):
     title = "Unglue.it Catalog:  Books under Active Campaign"
     feed_path = "active_campaigns"
     works = models.Work.objects.filter(campaigns__status='ACTIVE',
-                               editions__ebooks__isnull=False).distinct().order_by('-created')
+                               editions__ebooks__isnull=False).distinct()
     description= "With your help we're raising money to make these books free to the world."
 
-def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", page=None):
-
+def opds_feed_for_works(the_facet, page=None, order_by='newest'):
+    works = the_facet.works
+    feed_path = the_facet.feed_path
+    title = the_facet.title
     feed_xml = """<feed xmlns:dcterms="http://purl.org/dc/terms/" 
       xmlns:opds="http://opds-spec.org/"
       xmlns="http://www.w3.org/2005/Atom"
@@ -191,12 +194,12 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", page=None):
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are
     
-    feed.append(text_node('title', title))
+    feed.append(text_node('title', title + ' - sorted by ' + order_by))
     
     # id 
     
-    feed.append(text_node('id', "{url}/api/opds/{feed_path}".format(url=UNGLUEIT_URL,
-                                                                         feed_path=feed_path)))
+    feed.append(text_node('id', "{url}/api/opds/{feed_path}/?order_by={order_by}".format(url=UNGLUEIT_URL,
+                                                                         feed_path=feed_path, order_by=order_by)))
     
     # updated
     # TO DO:  fix time zone?
@@ -215,7 +218,7 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", page=None):
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
     
     # start link
-    append_navlink(feed, 'start', feed_path, None )
+    append_navlink(feed, 'start', feed_path, None , order_by, title="First 10")
     
     # next link
     
@@ -229,23 +232,39 @@ def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", page=None):
     
     try:
         works[10 * page + 10]
-        append_navlink(feed, 'next', feed_path, page+1 )
+        append_navlink(feed, 'next', feed_path, page+1 , order_by, title="Next 10")
     except IndexError:
         pass
-                
+    
+    # sort facets
+    append_navlink(feed, FACET_RELATION, feed_path, None, 'popular', group="Order", active = order_by=='popular', title="Sorted by popularity")
+    append_navlink(feed, FACET_RELATION, feed_path, None, 'newest', group="Order", active = order_by=='newest', title="Sorted by newest")
+    
+    #other facets
+    if feed_path not in old_facets:
+        for other_group in the_facet.facet_object.get_other_groups():
+            for facet_object in other_group.get_facets():
+                append_navlink(feed, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
+    
     works = islice(works,  10 * page, 10 * page + 10)
     if page > 0:
-        append_navlink(feed, 'previous', feed_path, page-1)
+        append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous 10")
     for work in works:
         node = work_node(work)
         feed.append(node)
     
     return etree.tostring(feed, pretty_print=True)
 
-def append_navlink(feed, rel, path, page):
+def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     link = etree.Element("link")
     link.attrib.update({"rel":rel,
-             "href": UNGLUEIT_URL + "/api/opds/" + path + ('/?page=' + unicode(page) if page!=None else '/'),
+             "href": UNGLUEIT_URL + "/api/opds/" + path + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
              "type": NAVIGATION,
+             "title": title,
             })
+    if rel == FACET_RELATION:
+        if group:
+            link.attrib['{http://opds-spec.org/}facetGroup'] = group
+            if active:
+                link.attrib['{http://opds-spec.org/}activeFacet'] = 'true'
     feed.append(link)
