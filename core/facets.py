@@ -68,6 +68,10 @@ class BaseFacet(object):
         self._stash_others=others
         return others
 
+    @property
+    def description(self):
+        return self.__unicode__()
+        
 class FacetGroup(object):
     # a FacetGroup should implement title, facets, has_facet(self, facet_name) and get_facet_class(self, facet_name)
     def has_facet(self, facet_name):
@@ -96,7 +100,10 @@ class FormatFacetGroup(FacetGroup):
                 return 'facets/format.html'
             @property
             def title(self):
-                return "format: " + self.facet_name
+                return "eBooks available in format: " + self.facet_name
+            @property
+            def description(self):
+                return  "These eBooks available in %s format." % self.facet_name
         return FormatFacet    
         
         
@@ -123,6 +130,9 @@ class LicenseFacetGroup(FacetGroup):
             @property
             def title(self):
                 return "license: " + self.license.title
+            @property
+            def description(self):
+                return  "These eBooks are available under the %s license." % self.facet_name
         return LicenseFacet
     
 facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() ]

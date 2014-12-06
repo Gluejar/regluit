@@ -135,7 +135,8 @@ class Facet:
     title = ''
     works = None
     feed_path = ''
-        
+    description = ''
+    
     def feed(self, page=None):
         return opds_feed_for_works(self.works, self.feed_path, title=self.title, page=page)
         
@@ -156,6 +157,7 @@ def get_facet_facet(facet_path):
             for facet in self.facet_object.facets():
                 self.title = self.title + " " + facet.title
             self.works = self.facet_object.get_query_set().distinct()
+            self.description = self.facet_object.description
     return Facet_Facet
 
 class creative_commons(Facet):
@@ -163,7 +165,8 @@ class creative_commons(Facet):
     feed_path = "creative_commons"
     works = models.Work.objects.filter(editions__ebooks__isnull=False, 
                         editions__ebooks__rights__in=cc.LICENSE_LIST).distinct().order_by('-created')
-
+    description= "These Creative Commons licensed ebooks are free to read - the people who created them want you to read and share them."
+    
 class active_campaigns(Facet):
     """
     return opds feed for works associated with active campaigns
@@ -172,6 +175,7 @@ class active_campaigns(Facet):
     feed_path = "active_campaigns"
     works = models.Work.objects.filter(campaigns__status='ACTIVE',
                                editions__ebooks__isnull=False).distinct().order_by('-created')
+    description= "With your help we're raising money to make these books free to the world."
 
 def opds_feed_for_works(works, feed_path, title="Unglue.it Catalog", page=None):
 
