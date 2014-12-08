@@ -79,6 +79,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
 from regluit.core.parameters import *
+from regluit.core.facets import get_facet, get_order_by
 
 from regluit.frontend.forms import (
     UserData,
@@ -802,7 +803,7 @@ class FilterableListView(ListView):
             return qs_marc_records(self.request, qs=self.object_list)
         else:
             return super(FilterableListView,self).render_to_response(context, **response_kwargs)
-        
+
 recommended_user = User.objects.filter( username=settings.UNGLUEIT_RECOMMENDED_USERNAME)
 
 class WorkListView(FilterableListView):
@@ -811,7 +812,7 @@ class WorkListView(FilterableListView):
     max_works=100000
     
     def get_queryset_all(self):
-        facet = self.kwargs['facet']
+        facet = self.kwargs.get('facet', None)
         if (facet == 'popular'):
             return models.Work.objects.exclude(num_wishes=0).order_by('-num_wishes', 'id')
         elif (facet == 'recommended'):
@@ -847,6 +848,31 @@ class WorkListView(FilterableListView):
             
             return context
 
+class FacetedView(FilterableListView):
+    template_name = "faceted_list.html"
+    def get_queryset_all(self):
+        if not hasattr(self,'vertex'):
+            facet_path = self.kwargs.get('path', '')
+            facets = facet_path.replace('//','/').strip('/').split('/')
+            self.vertex = None
+            for facet in facets:
+                self.vertex = get_facet(facet)(self.vertex)
+        
+        order_by = self.request.GET.get('order_by', 'newest')
+        return self.vertex.get_query_set().distinct().order_by(*get_order_by(order_by))
+
+    def get_context_data(self, **kwargs):
+        context = super(FacetedView, self).get_context_data(**kwargs)
+        facet = self.kwargs.get('facet','all')
+        qs=self.get_queryset()
+        context['activetab'] = "#1"
+        context['tab_override'] = 'tabs-1'
+        context['path'] = self.vertex.get_facet_path().replace('//','/').strip('/')
+        context['vertex'] = self.vertex
+        context['order_by'] = self.request.GET.get('order_by', 'newest')
+        return context
+            
+        
 class ByPubView(WorkListView):
     template_name = "bypub_list.html"
     context_object_name = "work_list"
@@ -891,41 +917,6 @@ class ByPubListView(ByPubView):
         self.publisher_name = get_object_or_404(models.PublisherName, name=self.kwargs['pubname'])
         self.set_publisher()
 
-class CCListView(FilterableListView):
-    template_name = "cc_list.html"
-    context_object_name = "work_list"
-    licenses = cc.LICENSE_LIST_ALL
-    facets = cc.FACET_LIST
-
-    def get_queryset_all(self):
-        facet = self.kwargs.get('facet','')
-        if facet in self.facets:
-            ccworks = models.Work.objects.filter(
-                                          editions__ebooks__isnull=False,
-                                          editions__ebooks__rights=self.licenses[self.facets.index(facet)]
-                                         )
-            notyet = models.Work.objects.filter(
-                                          campaigns__status="ACTIVE",
-                                          campaigns__license=self.licenses[self.facets.index(facet)]
-                                         )
-            return (notyet | ccworks).distinct().order_by('-featured','-created')
-        else:
-            return models.Work.objects.filter( editions__ebooks__isnull=False, 
-                                                editions__ebooks__rights__in=self.licenses
-                                                ).distinct().order_by('-featured','-created')
-
-    def get_context_data(self, **kwargs):
-        context = super(CCListView, self).get_context_data(**kwargs)
-        facet = self.kwargs.get('facet','all')
-        qs=self.get_queryset()
-        context['ungluers'] = userlists.work_list_users(qs,5)
-        context['activetab'] = "#1"
-        context['tab_override'] = 'tabs-1'
-        context['facet'] = facet
-        context['aspect'] = 'cc'
-        context['license'] = self.licenses[self.facets.index(facet)] if facet in self.facets else ''
-        context['cc'] = cc.ccinfo(context['license'])
-        return context
 
 class UngluedListView(FilterableListView):
     template_name = "unglued_list.html"

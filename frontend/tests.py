@@ -90,9 +90,13 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/marc/")
         self.assertEqual(r.status_code, 200)
-        r = anon_client.get("/creativecommons/")
+        r = anon_client.get("/creativecommons/?order_by=popular")
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/creativecommons/by")
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/free/by-nc/?order_by=title")
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/free/epub/gfdl/")
         self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
