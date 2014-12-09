@@ -10,13 +10,33 @@
     <uri>https://unglue.it/</uri>
   </author>
   <link rel="start" href="https://unglue.it/api/opds/" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+  <entry>
+    <title>{{ feed.title }} - Popular</title>
+    <id>https://unglue.it/api/opds/{{ feed.feed_path }}/?order_by=popular</id>
+    <updated>{{ feed.updated }}</updated>
+    <link href="{{ feed.feed_path }}/?order_by=popular" 
+        rel="http://opds-spec.org/sort/popular"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <content type="text">{{ feed.description }} - ordered by popularity</content>
+  </entry>
+  <entry>
+    <title>{{ feed.title }} - New</title>
+    <id>https://unglue.it/api/opds/{{ feed.feed_path }}/?order_by=newest</id>
+    <updated>{{ feed.updated }}</updated>
+    <link href="{{ feed.feed_path }}/?order_by=popular" 
+        rel="http://opds-spec.org/sort/new"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <content type="text">{{ feed.description }} - ordered by newest</content>
+  </entry>
 {% for feed in feeds %}
   <entry>
     <title>{{ feed.title }}</title>
     <id>https://unglue.it/api/opds/{{ feed.feed_path }}/</id>
     <updated>{{ feed.updated }}</updated>
-    <link href="{{ feed.feed_path }}/" type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
-    <content></content>
+    <link href="{{ feed.feed_path }}/" 
+        ref="subsection"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <content type="text">{{ feed.description }}</content>
   </entry>
 {% endfor %}
 </feed>
