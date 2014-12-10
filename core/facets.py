@@ -124,8 +124,35 @@ class LicenseFacetGroup(FacetGroup):
             def title(self):
                 return self.license.title
         return LicenseFacet
+
+class KeywordFacetGroup(FacetGroup):
     
-facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() ]
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Keyword'
+        self.facets = []
+        
+    def has_facet(self, facet_name):
+        return facet_name.startswith('kw.')
+
+    def get_facet_class(self, facet_name):
+        class KeywordFacet(NamedFacet):
+            def set_name(self):
+                self.facet_name=facet_name
+                self.keyword=self.facet_name[3:]
+            def get_query_set(self):
+                return self._get_query_set().filter(subjects__name=self.keyword)
+            def template(self):
+                return 'facets/keyword.html'
+            @property    
+            def title(self):
+                return self.keyword
+            @property    
+            def label(self):
+                return self.keyword
+        return KeywordFacet    
+    
+facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() , KeywordFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
