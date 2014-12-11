@@ -141,6 +141,7 @@ class KeywordFacetGroup(FacetGroup):
         class KeywordFacet(NamedFacet):
             def set_name(self):
                 self.facet_name=facet_name
+                # facet_names of the form 'kw.SUBJECT' and SUBJECT is therefore the 4th character on
                 self.keyword=self.facet_name[3:]
             def get_query_set(self):
                 return self._get_query_set().filter(subjects__name=self.keyword)
