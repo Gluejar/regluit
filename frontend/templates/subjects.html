@@ -18,7 +18,7 @@
         <ul>
         {% for subject in subjects %}
         
-            <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> ({{ subject.works__count }})</li>
+            <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> ({{ subject.works__count }}). {% if request.user.is_staff %} <a href="{% url free %}?setkw={{ subject.name }}">set keywords</a>{% endif %}</li>
         {% endfor %}
         </ul>
         </p>
