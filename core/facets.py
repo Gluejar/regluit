@@ -133,6 +133,8 @@ class KeywordFacetGroup(FacetGroup):
         self.facets = []
         
     def has_facet(self, facet_name):
+    
+        # recognize any facet_name that starts with "kw." as a valid facet name
         return facet_name.startswith('kw.')
 
     def get_facet_class(self, facet_name):
