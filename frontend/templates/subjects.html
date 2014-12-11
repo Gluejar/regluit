@@ -17,7 +17,8 @@
         <p>
         <ul>
         {% for subject in subjects %}
-            <li>{{ subject.name }} ({{ subject.works__count }})</li>
+        
+            <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> ({{ subject.works__count }})</li>
         {% endfor %}
         </ul>
         </p>
