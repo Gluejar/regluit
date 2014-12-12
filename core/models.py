@@ -1062,6 +1062,7 @@ class Work(models.Model):
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
     earliest_publication =  models.CharField(max_length=50, null=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
+    is_free = models.BooleanField(default=False)
 
 
     class Meta:
