@@ -34,7 +34,7 @@
     <id>https://unglue.it/api/opds/{{ feed.feed_path }}/</id>
     <updated>{{ feed.updated }}</updated>
     <link href="{{ feed.feed_path }}/" 
-        ref="subsection"
+        rel="subsection"
         type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <content type="text">{{ feed.description }}</content>
   </entry>
