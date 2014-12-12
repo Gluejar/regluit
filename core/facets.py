@@ -16,6 +16,8 @@ class BaseFacet(object):
             return self.model.objects.filter(editions__ebooks__isnull=False)
     
     def __unicode__(self):
+        if self.facet_name == 'all':
+            return 'Free eBooks'
         return unicode(self.facet_name)
     
     @property    
@@ -63,6 +65,10 @@ class BaseFacet(object):
                 others.append(group)
         self._stash_others=others
         return others
+
+    @property
+    def description(self):
+        return self.__unicode__()
         
 class FacetGroup(object):
     # a FacetGroup should implement title, facets, has_facet(self, facet_name) and get_facet_class(self, facet_name)
@@ -94,6 +100,12 @@ class FormatFacetGroup(FacetGroup):
                 return self._get_query_set().filter(editions__ebooks__format=self.facet_name)
             def template(self):
                 return 'facets/format.html'
+            @property
+            def title(self):
+                return "eBooks available in format: " + self.facet_name
+            @property
+            def description(self):
+                return  "These eBooks available in %s format." % self.facet_name
         return FormatFacet    
         
         
@@ -121,8 +133,12 @@ class LicenseFacetGroup(FacetGroup):
                     }
             def label(self):
                 return self.license.__str__()
+            @property
             def title(self):
-                return self.license.title
+                return "license: " + self.license.title
+            @property
+            def description(self):
+                return  "These eBooks are available under the %s license." % self.facet_name
         return LicenseFacet
 
 class KeywordFacetGroup(FacetGroup):
@@ -162,6 +178,20 @@ def get_facet(facet_name):
         if facet_group.has_facet(facet_name):
             return facet_group.get_facet_class(facet_name)
     return BaseFacet
+
+def get_all_facets(group='all'):
+    facets=[]
+    for facet_group in facet_groups:
+        if group == 'all' or facet_group.title == group:
+            facets = facets + facet_group.facets
+    return facets
+
+def get_facet_object(facet_path):
+    facets = facet_path.replace('//','/').strip('/').split('/')
+    facet_object = None
+    for facet in facets:
+        facet_object = get_facet(facet)(facet_object)
+    return facet_object
 
 order_by_keys = {
     'newest':['-featured', '-created'],
