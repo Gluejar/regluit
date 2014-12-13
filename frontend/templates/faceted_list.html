@@ -16,6 +16,10 @@
 <script type="text/javascript" src="/static/js/toggle.js"></script>
 <script type="text/javascript" src="/static/js/hijax_unglued.js"></script>
 <script type="text/javascript" src="/static/js/tabs.js"></script>
+<link rel="related"   
+      href="/api/opds/{{ path }}/?order_by={{ order_by }}" 
+      type="application/atom+xml;profile=opds-catalog"  
+      title="OPDS Catalog for Unglue.it Free Books" /> 
 {% endblock %}
 {% block topsection %}
 <div id="locationhash">#1</div>
@@ -54,9 +58,9 @@
                     </ul>
                     <ul class="book-list-view">
                         <li>Sort by:</li>
-                        <li class="view-list"><a {% if order_by = 'popular' %}class="chosen" {% endif %}href="{% url faceted_list path %}?order_by=popular">popular</a></li>
-                        <li class="view-list"><a {% if order_by = 'newest' %}class="chosen" {% endif %}href="{% url faceted_list path %}?order_by=newest">newest</a></li>
-                        <li class="view-list"><a {% if order_by = 'title' %}class="chosen" {% endif %}href="{% url faceted_list path %}?order_by=title">title</a></li>
+                        <li class="view-list"><a {% if order_by = 'popular' %}class="chosen" {% endif %}href="{% url faceted_list path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=popular">popular</a></li>
+                        <li class="view-list"><a {% if order_by = 'newest' %}class="chosen" {% endif %}href="{% url faceted_list path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=newest">newest</a></li>
+                        <li class="view-list"><a {% if order_by = 'title' %}class="chosen" {% endif %}href="{% url faceted_list path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=title">title</a></li>
                     </ul>
                 </div>
                 <div id="content-block-content">

@@ -213,7 +213,17 @@
     </div>
     
     {% comment %}same logic as above{% endcomment %}
-    {% if show_pledge %}
+    {% if setkw %}
+        {% if setkw in work.subjects.all %}
+            <div class="listview panelfront side1 remove-wishlist">
+                <span class="kw_id" id="l{{ workid }}" data-kw="{{setkw}}">Unset <i>{{setkw}}</i></span>
+            </div>
+        {% else %}
+            <div class="listview panelfront side1 add-wishlist">
+                <span class="kw_id" id="l{{ workid }}" data-kw="{{setkw}}">Set <i>{{setkw}}</i></span>
+            </div>
+        {% endif %}
+    {% else %}{% if show_pledge %}
         <div class="listview panelfront side1 add-wishlist">
             <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
         </div>
@@ -252,7 +262,7 @@
             <span class="work_id" id="l{{ workid }}">Fave</span>
             {% endif %}
         </div>
-    {% endif %}{% endif %}{% endif %}{% endif %}
+    {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
     
     <div class="listview panelfront side1 booklist-status">
 		{% ifequal status "ACTIVE" %}
