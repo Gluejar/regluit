@@ -768,12 +768,19 @@ def googlebooks(request, googlebooks_id):
 def subjects(request):
     order = request.GET.get('order')
     subjects = models.Subject.objects.all()
-    subjects = subjects.annotate(Count('works'))
-
-    if request.GET.get('order') == 'count':
-        subjects = subjects.order_by('-works__count')
+    subjects = subjects
+    if request.GET.get('subset') == 'free':
+        subjects = models.Subject.objects.filter(works__is_free = True).annotate(Count('works__is_free'))
+        if request.GET.get('order') == 'count':
+            subjects = subjects.order_by('-works__is_free__count')
+        else:
+            subjects = subjects.order_by('name')
     else:
-        subjects = subjects.order_by('name')
+        subjects = models.Subject.objects.all().annotate(Count('works'))
+        if request.GET.get('order') == 'count':
+            subjects = subjects.order_by('-works__count')
+        else:
+            subjects = subjects.order_by('name')
 
     return render(request, 'subjects.html', {'subjects': subjects})
 

@@ -8,17 +8,23 @@
         <p>
         Below is a list of subjects for books that users have added to 
         wishlists. It is here primarily to show what subjects are present 
-        in the database to guide further development. You can order by the 
-        <a href="{% url subjects %}">subject name</a> or by the 
-        <a href="{% url subjects %}?order=count">number</a> of works 
-        with that subject.
+        in the database to guide further development. 
         </p>
+        <ul> 
+        <li> ordered by <a href="{% url subjects %}">subject name</a> </li>
+        <li> ordered by <a href="{% url subjects %}?order=count">number</a> of works with the subject.</li>
+        <li> ordered by <a href="{% url subjects %}?subset=free">subject name</a> (free works only)</li> 
+        <li> ordered by <a href="{% url subjects %}?order=count&amp;subset=free">number</a> of free works with the subject.</li>
+        </ul>
 
         <p>
         <ul>
         {% for subject in subjects %}
         
-            <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> ({{ subject.works__count }}). {% if request.user.is_staff %} <a href="{% url free %}?setkw={{ subject.name }}">set keywords</a>{% endif %}</li>
+            <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> 
+            ({% if subject.works__is_free__count %}{{ subject.works__is_free__count }} free out of {{ subject.works.all.count }}{% else %}{{ subject.works__count }}{% endif %} total works). 
+            {% if request.user.is_staff %} <a href="{% url free %}?setkw={{ subject.name }}">set keywords</a>{% endif %}
+            </li>
         {% endfor %}
         </ul>
         </p>
