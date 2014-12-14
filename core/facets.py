@@ -13,7 +13,7 @@ class BaseFacet(object):
         if self.outer_facet:
             return self.outer_facet.get_query_set()
         else:
-            return self.model.objects.filter(editions__ebooks__isnull=False)
+            return self.model.objects.filter(is_free=True)
     
     def __unicode__(self):
         if self.facet_name == 'all':

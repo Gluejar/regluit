@@ -26,7 +26,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q, get_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
 
 '''
@@ -1062,6 +1062,7 @@ class Work(models.Model):
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
     earliest_publication =  models.CharField(max_length=50, null=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
+    is_free = models.BooleanField(default=False)
 
 
     class Meta:
@@ -1860,6 +1861,21 @@ class Ebook(models.Model):
     def activate(self):
         self.active=True
         self.save()
+
+def set_free_flag(sender, instance, created,  **kwargs):
+    if created:
+        if not instance.edition.work.is_free:
+            instance.edition.work.is_free = True
+            instance.edition.work.save()
+
+post_save.connect(set_free_flag,sender=Ebook)
+
+def reset_free_flag(sender, instance, **kwargs):
+    if instance.edition.work.ebooks().count()==1:
+        instance.edition.work.is_free = False
+        instance.edition.work.save()
+
+pre_delete.connect(reset_free_flag,sender=Ebook)
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
