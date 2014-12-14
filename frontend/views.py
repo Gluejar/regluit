@@ -828,10 +828,10 @@ class WorkListView(FilterableListView):
             qs=self.get_queryset()
             context['ungluers'] = userlists.work_list_users(qs,5)
             context['facet'] = self.kwargs.get('facet','')
-            works_unglued = qs.exclude(editions__ebooks__isnull=True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
+            works_unglued = qs.filter(is_free = True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
             context['works_unglued'] = works_unglued[:self.max_works]
             context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
-            context['works_wished'] = qs.exclude(editions__ebooks__isnull=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
+            context['works_wished'] = qs.filter(is_free=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
                         
             counts={}
             counts['unglued'] = context['works_unglued'].count()
@@ -928,16 +928,16 @@ class UngluedListView(FilterableListView):
     def get_queryset_all(self):
         facet = self.kwargs['facet']
         if (facet == 'popular'):
-            return models.Work.objects.filter(editions__ebooks__isnull=False).distinct().order_by('-num_wishes')
+            return models.Work.objects.filter(is_free = True).distinct().order_by('-num_wishes')
         elif (facet == 'cc' or facet == 'creativecommons'):
             # assumes all ebooks have a PD or CC license. compare rights_badge property
             return models.Work.objects.filter(
-                                              editions__ebooks__isnull=False,
+                                              is_free = True,
                                               editions__ebooks__rights__in=cc.LICENSE_LIST
                                              ).exclude(campaigns__status="SUCCESSFUL").distinct().order_by('-num_wishes')
         elif (facet == 'pd' or facet == 'publicdomain'):
             return models.Work.objects.filter(
-                                              editions__ebooks__isnull=False,
+                                              is_free = True,
                                               editions__ebooks__rights__in=['PD-US', 'CC0', '']
                                              ).distinct().order_by('-num_wishes')
         else :
@@ -1927,7 +1927,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         # unglued tab is anything with an existing ebook or successful campaign
         ## .order_by() may clash with .distinct() and this should be fixed
         unglueit_works = works_on_wishlist.filter(campaigns__status="SUCCESSFUL").distinct()
-        works_otherwise_available = works_on_wishlist.filter(editions__ebooks__isnull=False).distinct()
+        works_otherwise_available = works_on_wishlist.filter(is_free = True).distinct()
         works_unglued = unglueit_works | works_otherwise_available
         works_unglued = works_unglued.order_by('-campaigns__status', 'campaigns__deadline', '-num_wishes')
 
