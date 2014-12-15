@@ -1871,6 +1871,8 @@ def set_free_flag(sender, instance, created,  **kwargs):
 post_save.connect(set_free_flag,sender=Ebook)
 
 def reset_free_flag(sender, instance, **kwargs):
+    # if the Work associated with the instance Ebook currenly has only 1 Ebook, then it's no longer a free Work 
+    # once the instance Ebook is deleted.  
     if instance.edition.work.ebooks().count()==1:
         instance.edition.work.is_free = False
         instance.edition.work.save()
