@@ -651,6 +651,17 @@
                                     {% endif %}
                                 </ul>
                             </div>
+                            <h3 class="jsmod-title"><span>Buy as a Gift</span></h3>
+                            <div class="jsmod-content">
+                                <ul class="support menu">
+                                    <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                                        <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.individual_offer.id}}&amp;give=True">
+                                        <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                             {% if borrowed %}
                                 <h3 class="jsmod-title">
                                     <span class="on-wishlist">Borrowed!</span>

@@ -1227,6 +1227,7 @@ class PurchaseView(PledgeView):
                 'cover_width': cover_width(self.work),
                 'offer_id':self.offer_id,
                 'user_license': self.work.get_user_license(self.request.user),
+                'give': self.give
            })
             
         return context
@@ -1256,7 +1257,7 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
-        
+        self.give = self.request.REQUEST.get('give', False)
         self.offer_id = self.request.REQUEST.get('offer_id', None)
         if not self.offer_id and self.work.last_campaign() and self.work.last_campaign().individual_offer:
             self.offer_id = self.work.last_campaign().individual_offer.id

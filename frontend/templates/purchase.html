@@ -100,11 +100,11 @@
 			{{ form.non_field_errors }}
         	
         	{% if work.offers.all|length > 1 %}
-                <div class="pledge_amount premium_level">Purchase Options: Individual or Library?</div>
+                <div class="pledge_amount premium_level">Purchase Options: Individual, Gift or Library?</div>
                 
                 <div style="height:10px;"></div>
     
-                <ul class="support menu" id="premiums_list">
+                <ul class="support menu" id="offers_list">
                     {% with work.last_campaign.individual_offer as offer  %}
                     <li class="first">
                         {% if user_license.purchased %}
@@ -121,6 +121,23 @@
                                 </span>
                             </label>
                         {% endif %}
+                    </li>
+                    <li id="give_offer">
+                        <label for="give_{{offer.id}}">
+                            <input type="hidden" name="copies" value="1" />
+                            <input type="radio" name="offer_id" id="give_{{offer.id}}" value="give{{offer.id}}" {% if give %}checked="checked"{% endif %} />
+                            <span class="menu-item-price">
+                                ${{ offer.price|floatformat:2|intcomma }}
+                            </span>
+                            <span class="menu-item-desc">
+                                Give this ebook as a gift.
+                            </span>
+                            <div class="menu-item-desc {% if give %}on{% else %}off{% endif %}" id="give_form">
+                                <span class="give_label">Recipient email: </span><input type="text" name="giveto" value="" size="30" />
+                                <span class="give_label">Gift Message:</span>
+                                <textarea id="give_message" rows="3" name="giftmessage" maxlength="256">I'm giving you '{{ work.title }}' at unglue.it. I hope you like it. - {{ request.user.username }} </textarea>
+                            </div>
+                        </label>
                     </li>
                     {% endwith %}
                     {% with work.last_campaign.library_offer as offer  %}

@@ -2125,7 +2125,15 @@ class Press(models.Model):
     language = models.CharField(max_length=20, blank=True)
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
-    
+
+class Gift(models.Model):
+    # the acq will contain the recipient, and the work
+    acq = models.ForeignKey('Work', related_name='gifts')
+    # anyone entering this code will be able to acquire the  gifted account
+    token = models.CharField(max_length=16)
+    message = models.CharField(max_length=512, default='')
+    used = models.BooleanField(default=False)
+        
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
