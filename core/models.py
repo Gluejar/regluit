@@ -2128,12 +2128,19 @@ class Press(models.Model):
 
 class Gift(models.Model):
     # the acq will contain the recipient, and the work
-    acq = models.ForeignKey('Work', related_name='gifts')
+    acq = models.ForeignKey('Acq', related_name='gifts')
     # anyone entering this code will be able to acquire the  gifted account
-    token = models.CharField(max_length=16)
+    giver = models.ForeignKey(User, related_name='gifts')
     message = models.CharField(max_length=512, default='')
-    used = models.BooleanField(default=False)
-        
+    used = models.DateTimeField(null=True)
+
+    @staticmethod
+    def giftee(email, t_id):
+        # return a user (create a user if necessary)
+        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id})
+        giftee.new_user = new_user
+        return giftee
+       
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line

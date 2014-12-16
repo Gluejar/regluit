@@ -1250,6 +1250,9 @@ class PurchaseView(PledgeView):
             }
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
+            self.data['give'] = self.give
+            if self.give:
+                self.data['offer_id'] = self.offer_id
             if not self.request.POST.has_key('anonymous'):
                 del self.data['anonymous']
             return {'data':self.data}
@@ -1257,8 +1260,10 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
-        self.give = self.request.REQUEST.get('give', False)
         self.offer_id = self.request.REQUEST.get('offer_id', None)
+        self.give = self.offer_id.startswith('give')
+        if self.give:
+            self.offer_id = self.offer_id[4:]
         if not self.offer_id and self.work.last_campaign() and self.work.last_campaign().individual_offer:
             self.offer_id = self.work.last_campaign().individual_offer.id
         preapproval_amount = None

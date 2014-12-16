@@ -558,6 +558,8 @@ class CampaignPurchaseForm(forms.Form):
     library_id = forms.IntegerField(required=False)
     library = None
     copies = forms.IntegerField(required=False,min_value=1)
+    give_to = forms.EmailField(required = False)
+    give_message = forms.CharField(required = False, max_length=512,  )
     
     def clean_offer_id(self):
         offer_id = self.cleaned_data['offer_id']
@@ -573,11 +575,21 @@ class CampaignPurchaseForm(forms.Form):
                 self.library = Library.objects.get(id=library_id)
             except  Library.DoesNotExist:
                 raise forms.ValidationError(_("Sorry, that Library is not valid."))
- 
+    
+    def clean_copies(self):
+        copies = self.cleaned_data.get('copies',1)
+        return copies if copies else 1
+        
     def clean(self):
         if self.offer.license == LIBRARY:
             if not self.library:
                 raise forms.ValidationError(_("No library specified." ))
+        if self.data.get('give', False):
+            if not self.cleaned_data.get('give_to',None):
+                raise forms.ValidationError(_("Gift recipient email is needed." ))
+        else:
+            if 'give_to' in self._errors:
+                del self._errors['give_to']
         return self.cleaned_data
 
     def amount(self):
@@ -591,6 +603,9 @@ class CampaignPurchaseForm(forms.Form):
         if self.library:
             pe.extra['library_id']=self.library.id
         pe.extra['copies']=self.cleaned_data.get('copies',1)
+        if self.data.get('give', False):
+            pe.extra['give_to']=self.cleaned_data['give_to']
+            pe.extra['give_message']=self.cleaned_data['give_message']
         return pe
 
 class CampaignThanksForm(forms.Form):

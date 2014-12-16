@@ -101,6 +101,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("library_borrow", _("Library eBook Borrowed."), _("You've borrowed an ebook through a Library participating in Unglue.it"))
     notification.create_notice_type("library_reserve", _("Library eBook Reserved."), _("An ebook you've reserved is available."))
     notification.create_notice_type("library_join", _("New Library User."), _("A library participating in Unglue.it has added a user"))
+    notification.create_notice_type("purchase_gift", _("You have a gift."), _("An ungluer has given you an ebook."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -180,7 +181,15 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
                 Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
                 copies -= 1
         else:
-            new_acq = Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
+            if transaction.extra.get('give_to', False):
+                # it's a gift!
+                Gift = get_model('core', 'Gift')
+                giftee = Gift.giftee(transaction.extra['give_to'], str(transaction.id))
+                new_acq = Acq.objects.create(user=giftee, work=transaction.campaign.work, license= transaction.offer.license)
+                gift = Gift.objects.create(acq=new_acq, message=transaction.extra.get('give_message',''), giver=transaction.user )
+                notification.send([giftee], "purchase_gift", {'gift':gift}, True)
+            else:
+                new_acq = Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
         transaction.campaign.update_left()
         notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
         from regluit.core.tasks import watermark_acq
