@@ -79,7 +79,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
 from regluit.core.parameters import *
-from regluit.core.facets import get_facet, get_order_by
+from regluit.core.facets import get_facet_object, get_order_by
 
 from regluit.frontend.forms import (
     UserData,
@@ -853,10 +853,7 @@ class FacetedView(FilterableListView):
     def get_queryset_all(self):
         if not hasattr(self,'vertex'):
             facet_path = self.kwargs.get('path', '')
-            facets = facet_path.replace('//','/').strip('/').split('/')
-            self.vertex = None
-            for facet in facets:
-                self.vertex = get_facet(facet)(self.vertex)
+            self.vertex = get_facet_object(facet_path)
         
         order_by = self.request.GET.get('order_by', 'newest')
         return self.vertex.get_query_set().distinct().order_by(*get_order_by(order_by))
@@ -865,6 +862,12 @@ class FacetedView(FilterableListView):
         context = super(FacetedView, self).get_context_data(**kwargs)
         facet = self.kwargs.get('facet','all')
         qs=self.get_queryset()
+        if self.request.GET.has_key('setkw') and self.request.user.is_staff:
+            setkw = self.request.GET['setkw']
+            try:
+                context['setkw'] =  models.Subject.objects.get(name=setkw)
+            except models.Subject.DoesNotExist:
+                pass
         context['activetab'] = "#1"
         context['tab_override'] = 'tabs-1'
         context['path'] = self.vertex.get_facet_path().replace('//','/').strip('/')
@@ -2106,7 +2109,21 @@ def wishlist(request):
     googlebooks_id = request.POST.get('googlebooks_id', None)
     remove_work_id = request.POST.get('remove_work_id', None)
     add_work_id = request.POST.get('add_work_id', None)
-
+    setkw = request.POST.get('setkw', None)
+    if setkw and request.user.is_staff:
+        try:
+            subject = models.Subject.objects.get(name=setkw)
+        except models.Subject.DoesNotExist:
+            return HttpResponse('invalid subject')
+        if remove_work_id:
+            work = safe_get_work(int(remove_work_id))
+            work.subjects.remove(subject)
+            return HttpResponse('removed work from '+setkw)
+        elif add_work_id:
+            work =safe_get_work(add_work_id)
+            work.subjects.add(subject)
+            return HttpResponse('added work to '+setkw)
+    
     if googlebooks_id:
         try:
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
