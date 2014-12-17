@@ -6,20 +6,20 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			{% ifequal transaction.campaign.type 1 %}The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?{% else %}Our attempt to charge a purchase of ${{ transaction.amount|intcomma }} to your credit card failed ({{transaction.error}}).{% endifequal %}
+			{% ifequal transaction.campaign.type 1 %}The campaign for <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?{% else %}Our attempt to charge a purchase of ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).{% endifequal %}
 {% endblock %}
 
 {% block comments_textual %}
 		<p>Your attention needed!</p>
 		
 		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
-        However, our attempt to charge your credit card for ${{ transaction.amount|intcomma }} failed.</p>
+        However, our attempt to charge your credit card for ${{ transaction.amount|floatformat:2|intcomma }} failed.</p>
         {% ifequal transaction.campaign.type 1 %}
         <p>Don't worry - normally this just means the card we have on file for you is expired.  Once you've updated your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at
         <a href="{% url manage_account %}">your account management page</a> by {{ recharge_deadline }} so that you can fulfill your pledge.  Thank you!</p>
 		
 		<p><b>Pledge Summary</b><br />
-		Amount pledged: {{ transaction.amount|intcomma }}<br />
+		Amount pledged: {{ transaction.amount|floatformat:2|intcomma }}<br />
 		Premium: {{ transaction.premium.description }} <br />
 		</p>
 		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the campaign manager, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
@@ -29,7 +29,7 @@
         <a href="{% url manage_account %}">your account management page</a>.  Thank you!</p>
 		
 		<p><b>Transaction Summary</b><br />
-		Amount of purchase: {{ transaction.amount|intcomma }}<br />
+		Amount of purchase: {{ transaction.amount|floatformat:2|intcomma }}<br />
 		</p>
 		{% endifequal %}
 		<p>For more information, visit the <a href="{% url work transaction.campaign.work.id %}">campaign page</a>.

@@ -16,7 +16,7 @@
          rest has been deducted from your unglue.it credit balance. 
         You have ${{transaction.user.credit.available|intcomma}} of credit left.
     {% else %}
-        Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|intcomma }}.
+        Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
     {% endif %}
 {% endifequal %}
 {% ifequal transaction.offer.license 1 %}

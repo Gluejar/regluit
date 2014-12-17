@@ -1,6 +1,6 @@
 {% load humanize %}
 {% ifequal transaction.campaign.type 1 %}
-Amount pledged: ${{ transaction.amount|intcomma }}
+Amount pledged: ${{ transaction.amount|floatformat:2|intcomma }}
 Premium: {{ transaction.premium.description }}
 
 You will also be acknowledged as follows:
@@ -12,6 +12,6 @@ You will also be acknowledged as follows:
     {{ transaction.extra.ack_dedication }}{% else %}
 - You were eligible to include a dedication in the unglued ebook, but did not choose to do so.  If you like, you can change this at https://{{ current_site.domain }}{% url pledge_modify work_id=transaction.campaign.work.id %}.
 {% endif %}{% endifequal %}{% else %}
-Amount charged: ${{ transaction.amount|intcomma }}
+Amount charged: ${{ transaction.amount|floatformat:2|intcomma }}
 
 {% endifequal %}

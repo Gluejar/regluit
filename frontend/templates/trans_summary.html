@@ -2,7 +2,7 @@
 {% load libraryauthtags %}
 <div class="trans_summary">
 {% ifequal transaction.campaign.type 1 %}
-    Your pledge: ${{transaction.amount|intcomma}}.<br />
+    Your pledge: ${{transaction.amount|floatformat:2|intcomma}}.<br />
     Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
     {% if transaction.anonymous %}You asked to pledge anonymously, so you will be counted but not named on the list of supporters.<br />{% endif %}<br />
     Acknowledgements: <ul>

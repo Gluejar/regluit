@@ -13,9 +13,9 @@
    {{error}}
 {% else %}
 {% if transaction %}
-    <div>Thank you for pledging ${{ transaction.amount|intcomma}} to the campaign for <a href="{% url work work.id %}">{{ work.title }}</a>.
+    <div>Thank you for pledging ${{ transaction.amount|floatformat:2|intcomma}} to the campaign for <a href="{% url work work.id %}">{{ work.title }}</a>.
     The attempt to collect your payment was unsucessful.<br> <br>
-    Please authorize another attempt to collect your pledge of ${{ transaction.amount|intcomma }}
+    Please authorize another attempt to collect your pledge of ${{ transaction.amount|floatformat:2|intcomma }}
     by clicking on the following link:
     <a href="{{recharge_url|safe}}">Authorize recharge via {{payment_processor}} payments</a>.</div>
     
