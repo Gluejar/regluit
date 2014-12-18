@@ -321,6 +321,7 @@ class UserData(forms.Form):
         }
     )
     oldusername = None
+    allow_same = False
 
 
     def clean_username(self):
@@ -330,7 +331,22 @@ class UserData(forms.Form):
             for user in users:
                 raise forms.ValidationError(_("Another user with that username already exists."))
             return username
-        raise forms.ValidationError(_("Your username is already "+username))
+        if not self.allow_same:
+            raise forms.ValidationError(_("Your username is already "+username))
+
+class UserNamePass(UserData):
+    password1 = forms.CharField(label=_("Password"),
+        widget=forms.PasswordInput)
+    password2 = forms.CharField(label=_("Password confirmation"),
+        widget=forms.PasswordInput,
+        help_text = _("Enter the same password as above, for verification."))
+    allow_same = True
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1", "")
+        password2 = self.cleaned_data["password2"]
+        if password1 != password2:
+            raise forms.ValidationError(_("The two passwords don't match."))
+        return password2
 
 class CloneCampaignForm(forms.Form):
     campaign_id = forms.IntegerField(required = True, widget = forms.HiddenInput)

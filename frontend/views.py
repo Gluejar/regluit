@@ -116,7 +116,8 @@ from regluit.frontend.forms import (
     PressForm,
     KindleEmailForm,
     LibModeForm,
-    DateCalculatorForm
+    DateCalculatorForm,
+    UserNamePass,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -1594,21 +1595,22 @@ class FundCompleteView(TemplateView):
         if not self.user_is_ok():
             return context
         
-        # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
-        if self.transaction.user is not None and (campaign is not None) and (work is not None):
-            self.transaction.user.wishlist.add_work(work, 'pledging', notify=True)
+        gift = transaction.extra.has_key('give_to')
+        if not gift:
+            # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
+            if self.transaction.user is not None and (campaign is not None) and (work is not None):
+                self.transaction.user.wishlist.add_work(work, 'pledging', notify=True)
 
         #put info into session for download page to pick up.
-        self.request.session['amount']= self.transaction.amount
-        if self.transaction.receipt:
-            self.request.session['receipt']= self.transaction.receipt
+            self.request.session['amount']= self.transaction.amount
+            if self.transaction.receipt:
+                self.request.session['receipt']= self.transaction.receipt
                 
             
         context["transaction"] = self.transaction
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
-        context["slidelist"] = slideshow()
         context["site"] = Site.objects.get_current()
         
         return context        
@@ -2977,6 +2979,8 @@ def receive_gift(request, nonce):
     context = {'gift': gift }
     work = gift.acq.work
     context['work'] = work
+    # put nonce in session so we know that a user has redeemed a Gift
+    request.session['gift_nonce'] = nonce
     if gift.used:
         return render(request, 'gift_error.html', context )
     if request.user.is_authenticated() and not gift.used:
@@ -3001,7 +3005,7 @@ def receive_gift(request, nonce):
         gift.use()
         gift.acq.user.wishlist.add_work(gift.acq.work, 'gift')
         login_user(request, gift.acq.user)
-        form.oldusername = request.user.username
+        
         return HttpResponseRedirect( reverse('display_gift', args=[gift.id] ))
 
 @login_required 
@@ -3012,9 +3016,25 @@ def display_gift(request, gift_id):
         return render(request, 'gift_error.html', )
     if request.user.id != gift.acq.user.id :
         return HttpResponse("this is not your gift")
-    form = UserData()
-    context = {'gift': gift, 'form': form, 'work': gift.acq.work  }
-    return render(request, 'gift_welcome.html', context)
+    redeemed_gift =  request.session.get('gift_nonce', None) == gift.acq.nonce
+    context = {'gift': gift, 'work': gift.acq.work  }
+    if request.method == 'POST' and redeemed_gift:
+        form=UserNamePass(data=request.POST)
+        form.oldusername = request.user.username
+        context['form'] = form
+        if form.is_valid():
+            request.user.username = form.cleaned_data['username']
+            request.user.set_password(form.cleaned_data['password1'])
+            request.user.save()
+            context.pop('form')
+            context['passmessage'] = "changed userpass"
+        return render(request, 'gift_welcome.html', context)
+    else:
+        if redeemed_gift:
+            form = UserNamePass(initial={'username':request.user.username})  
+            form.oldusername = request.user.username
+            context['form'] = form
+        return render(request, 'gift_welcome.html', context)
     
 @login_required  
 @csrf_exempt    

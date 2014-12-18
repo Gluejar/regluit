@@ -19,7 +19,7 @@
         Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
     {% endif %}
 {% endifequal %}
-{% ifequal transaction.offer.license 1 %}{% if gift %}An email has been sent to {{ gift.acq.user.email }} with this message:
+{% ifequal transaction.offer.license 1 %}{% if gift %}An email has been sent to <a href="mailto:{{ gift.acq.user.email }}">{{ gift.acq.user.email }}</a> with this message:
 <pre>
 {{ gift.message }}
 </pre>

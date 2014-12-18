@@ -35,10 +35,10 @@
 	    <p class="pledge_complete">You've just paid ${{ transaction.amount|floatformat:2|intcomma }} to give a copy of <I><a href="{% url work work.id %}">{{ work.title }}</a></I> to {{ transaction.extra.give_to }}.  Its ungluing date is now <i>{{ campaign.cc_date }}</i>. Thanks for helping to make that day come sooner!</p>
 	    
 	    <p class="pledge_complete">An email has been sent to {{ transaction.extra.give_to }} with this message:</p>
-<pre>
+<p style="margin:2em">
 {{ transaction.extra.give_message }}
-</pre>
-<p class="pledge_complete">along with instructions for obtaining the ebook.  </p>
+</p>
+<p class="pledge_complete">along with instructions for obtaining the ebook. You'll also be sent a url that the recipient can use to get the ebook, in case the email doesn't get through. </p>
 
 
          {% else %}
