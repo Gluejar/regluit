@@ -314,7 +314,7 @@ class Acq(models.Model):
         return hashlib.md5('%s:%s:%s:%s'%(settings.TWITTER_CONSUMER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
-        self.expires = now() + delta
+        self.expires = (now() + delta) if delta else now()
         self.save()
         if self.lib_acq:
             self.lib_acq.refreshes = now() + delta

@@ -118,6 +118,7 @@ from regluit.frontend.forms import (
     LibModeForm,
     DateCalculatorForm,
     UserNamePass,
+    RegiftForm,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -1595,7 +1596,7 @@ class FundCompleteView(TemplateView):
         if not self.user_is_ok():
             return context
         
-        gift = transaction.extra.has_key('give_to')
+        gift = self.transaction.extra.has_key('give_to')
         if not gift:
             # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
             if self.transaction.user is not None and (campaign is not None) and (work is not None):
@@ -2986,7 +2987,18 @@ def receive_gift(request, nonce):
     if request.user.is_authenticated() and not gift.used:
         user_license = work.get_user_license(request.user)
         if user_license and user_license.purchased:
-            ##### add regifting form to context 
+            if request.method == 'POST':
+                form=RegiftForm( data=request.POST)
+                if form.is_valid():
+                    giftee = models.Gift.giftee(form.cleaned_data['give_to'], request.user.username)
+                    new_acq = models.Acq.objects.create(user=giftee, work=gift.acq.work, license= gift.acq.license)
+                    new_gift = models.Gift.objects.create(acq=new_acq, message=form.cleaned_data['give_message'], giver=request.user )
+                    context['gift'] = new_gift
+                    gift.acq.expire_in(0)
+                    gift.use()
+                    notification.send([giftee], "purchase_gift", context, True)
+                    return render(request, 'gift_duplicate.html', context)
+            context['form']= RegiftForm() 
             return render(request, 'gift_duplicate.html', context)
         else:
             # we'll just leave the old user inactive.

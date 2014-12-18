@@ -815,3 +815,7 @@ class LibModeForm(forms.ModelForm):
     class Meta:
         model = Libpref
         fields = ()
+
+class RegiftForm(forms.Form):
+    give_to = forms.EmailField(label="email address of recipient")
+    give_message = forms.CharField( max_length=512, label="your gift message", initial="Here's an ebook from unglue.it, I hope you like it! - me")
