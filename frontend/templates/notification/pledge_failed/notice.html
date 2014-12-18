@@ -12,7 +12,7 @@
 {% block comments_textual %}
 		<p>Your attention needed!</p>
 		
-		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition.
+		<p>}We tried to process your transaction for  "{{ transaction.campaign.work.title }}". 
         However, our attempt to charge your credit card for ${{ transaction.amount|floatformat:2|intcomma }} failed.</p>
         {% ifequal transaction.campaign.type 1 %}
         <p>Don't worry - normally this just means the card we have on file for you is expired.  Once you've updated your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at
