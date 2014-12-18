@@ -2977,7 +2977,7 @@ def receive_gift(request, nonce):
         gift = models.Gift.objects.get(acq__nonce=nonce)
     except models.Gift.DoesNotExist:
         return render(request, 'gift_error.html', )
-    context = {'gift': gift }
+    context = {'gift': gift, "site": Site.objects.get_current() }
     work = gift.acq.work
     context['work'] = work
     # put nonce in session so we know that a user has redeemed a Gift
