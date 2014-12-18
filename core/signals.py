@@ -165,8 +165,9 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
     if transaction==None:
         return
     transaction._current_total = None
+    context = {'transaction':transaction,'current_site':Site.objects.get_current()}
     if transaction.campaign.type is REWARDS:
-        notification.send([transaction.user], "pledge_charged", {'transaction':transaction}, True)
+        notification.send([transaction.user], "pledge_charged", context, True)
     elif transaction.campaign.type is BUY2UNGLUE:
         # provision the book
         Acq = get_model('core', 'Acq')
@@ -187,11 +188,12 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
                 giftee = Gift.giftee(transaction.extra['give_to'], str(transaction.id))
                 new_acq = Acq.objects.create(user=giftee, work=transaction.campaign.work, license= transaction.offer.license)
                 gift = Gift.objects.create(acq=new_acq, message=transaction.extra.get('give_message',''), giver=transaction.user )
-                notification.send([giftee], "purchase_gift", {'gift':gift}, True)
+                context['gift'] = gift
+                notification.send([giftee], "purchase_gift", context, True)
             else:
                 new_acq = Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
         transaction.campaign.update_left()
-        notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
+        notification.send([transaction.user], "purchase_complete", context, True)
         from regluit.core.tasks import watermark_acq
         watermark_acq.delay(new_acq)
         if transaction.campaign.cc_date < date_today() :
@@ -200,10 +202,10 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         if transaction.user:
             Acq = get_model('core', 'Acq')
             new_acq = Acq.objects.create(user=transaction.user, work=transaction.campaign.work, license=THANKED)
-            notification.send([transaction.user], "purchase_complete", {'transaction':transaction}, True)
+            notification.send([transaction.user], "purchase_complete", context, True)
         elif transaction.receipt:
             from regluit.core.tasks import send_mail_task
-            message = render_to_string("notification/purchase_complete/full.txt",{'transaction':transaction,'current_site':Site.objects.get_current()})
+            message = render_to_string("notification/purchase_complete/full.txt", context )
             send_mail_task.delay('unglue.it transaction confirmation', message, 'notices@gluejar.com', [transaction.receipt])
     if transaction.user:
         from regluit.core.tasks import emit_notifications

@@ -579,6 +579,12 @@ class CampaignPurchaseForm(forms.Form):
     def clean_copies(self):
         copies = self.cleaned_data.get('copies',1)
         return copies if copies else 1
+    
+    def clean_anonymous(self):
+        if self.data.get('give', False):
+            return True
+        else:
+            return self.cleaned_data['anonymous']
         
     def clean(self):
         if self.offer.license == LIBRARY:

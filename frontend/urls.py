@@ -115,6 +115,8 @@ urlpatterns = patterns(
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     url(r"^download_ebook/(?P<ebook_id>\w+)/$", "download_ebook", name="download_ebook"),
     url(r"^download_ebook/acq/(?P<format>\w+)/(?P<nonce>\w+)/$", "download_acq", name="download_acq"),
+    url(r"^receive_gift/(?P<nonce>\w+)/$", "receive_gift", name="receive_gift"),
+    url(r"^display_gift/(?P<gift_id>\d+)/$", "display_gift", name="display_gift"),
     url(r"^gift/$", login_required(GiftView.as_view()), name="gift"),
     url(r"^gift/credit/(?P<token>.+)/$", login_required(GiftCredit.as_view()), name="gift_credit"),
     url(r"^pledge/(?P<work_id>\d+)/$", login_required(PledgeView.as_view(),login_url='/accounts/login/pledge/'), name="pledge"),

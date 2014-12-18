@@ -1,0 +1,16 @@
+{% extends "registration/registration_base.html" %}
+{% block title %}Duplicate Gift Code{% endblock %}
+{% block doccontent %}
+<div><h2>Duplicate Gift Code</h2>
+    <div>
+    <p> {{ gift.giver }} has sent you "<a href="{% url work work.id %}">{{ work.title }}</a>" as a gift, however, it seems that you've already purchased this work at unglue.it.  Not to worry, you can re-gift it!</p>
+    <p>
+    #### regifting form here ####
+    </p>
+    
+    </div>
+</div>
+
+{% endblock %}
+
+

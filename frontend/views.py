@@ -141,7 +141,7 @@ from regluit.payment.parameters import (
 from regluit.utils.localdatetime import now, date_today
 from regluit.booxtream.exceptions import BooXtreamError
 from regluit.pyepub import InvalidEpub
-from regluit.libraryauth.views import Authenticator
+from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
 
@@ -1261,7 +1261,7 @@ class PurchaseView(PledgeView):
 
     def get_preapproval_amount(self):
         self.offer_id = self.request.REQUEST.get('offer_id', None)
-        self.give = self.offer_id.startswith('give')
+        self.give = self.offer_id.startswith('give') if self.offer_id else False
         if self.give:
             self.offer_id = self.offer_id[4:]
         if not self.offer_id and self.work.last_campaign() and self.work.last_campaign().individual_offer:
@@ -2041,7 +2041,7 @@ def library(request,library_name):
                 
     
 
-def edit_user(request):
+def edit_user(request, redirect_to=None):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('superlogin'))    
     form=UserData()
@@ -2052,7 +2052,11 @@ def edit_user(request):
             if form.is_valid(): # All validation rules pass, go and change the username
                 request.user.username=form.cleaned_data['username']
                 request.user.save()
-                return HttpResponseRedirect(reverse('home')) # Redirect after POST
+                if 'set_password'  in request.POST.keys() and form.cleaned_data.has_key('set_password'):
+                    if not request.user.has_usable_password():
+                        request.user.set_password(form.cleaned_data['set_password'])
+                request.user.save()
+                return HttpResponseRedirect(redirect_to if redirect_to else reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form})  
 
 class ManageAccount(FormView):
@@ -2965,6 +2969,53 @@ def about(request, facet):
     except TemplateDoesNotExist:
         return render(request, "about.html")
 
+def receive_gift(request, nonce):
+    try:
+        gift = models.Gift.objects.get(acq__nonce=nonce)
+    except models.Gift.DoesNotExist:
+        return render(request, 'gift_error.html', )
+    context = {'gift': gift }
+    work = gift.acq.work
+    context['work'] = work
+    if gift.used:
+        return render(request, 'gift_error.html', context )
+    if request.user.is_authenticated() and not gift.used:
+        user_license = work.get_user_license(request.user)
+        if user_license and user_license.purchased:
+            ##### add regifting form to context 
+            return render(request, 'gift_duplicate.html', context)
+        else:
+            # we'll just leave the old user inactive.
+            gift.acq.user = request.user
+            gift.acq.save()
+            gift.use() 
+            request.user.wishlist.add_work(gift.acq.work, 'gift')
+            return HttpResponseRedirect( reverse('download', args=[work.id] ))
+    if gift.acq.user.is_active or gift.used:
+        # giftee is established user (or gift has been used), ask them to log in
+        return superlogin(request, extra_context=context, template_name='gift_login.html')
+    else:
+        # giftee is a new user, activate their account and log them in
+        gift.acq.user.is_active = True
+        gift.acq.user.save()
+        gift.use()
+        gift.acq.user.wishlist.add_work(gift.acq.work, 'gift')
+        login_user(request, gift.acq.user)
+        form.oldusername = request.user.username
+        return HttpResponseRedirect( reverse('display_gift', args=[gift.id] ))
+
+@login_required 
+def display_gift(request, gift_id):    
+    try:
+        gift = models.Gift.objects.get(id=gift_id)
+    except models.Gift.DoesNotExist:
+        return render(request, 'gift_error.html', )
+    if request.user.id != gift.acq.user.id :
+        return HttpResponse("this is not your gift")
+    form = UserData()
+    context = {'gift': gift, 'form': form, 'work': gift.acq.work  }
+    return render(request, 'gift_welcome.html', context)
+    
 @login_required  
 @csrf_exempt    
 def ml_status(request):

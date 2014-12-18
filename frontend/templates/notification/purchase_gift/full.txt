@@ -1,20 +1,24 @@
-{% load humanize %}{{ gift.message }}
+{% load humanize %}From "{{ gift.giver }}":
 
-Thanks to {{ gift.giver }} and other ungluers, {{ gift.acq.work.title }} will be eventually be released to the world in an unglued ebook edition. 
+{{ gift.message }}
 
-To get your ebook please click on this link (or copy and past it into your web browser):
 
-The ebook is licensed to you personally, and your personal license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.
+
+From Unglue.it:
+Unglue.it is a website whose purpose is to help ebooks become free. Thanks to "{{ gift.giver }}" and other "ungluers", "{{ gift.acq.work.title }}" will be eventually be released in an "unglued" ebook edition, i.e. free to everyone. Purchases of "{{ gift.acq.work.title }}" are helping to make that free edition financially possible.
+
+To get the ebook {{ gift.giver }} has given you, please click on this link (or copy and paste it into your web browser):
+https://{{ current_site.domain }}{% url receive_gift gift.acq.nonce %}
+
+Choose a password if you want to access your ebooks in the future.
+
+The ebook will be licensed to you personally, and the license will be embedded in the ebook file. You may download it as many times as you need to, but you can't make copies for the use of others until the ungluing date, when it becomes free to everyone. You can make that date come sooner by encouraging your friends to buy a copy.
 
 
 For more information about the book, visit the book's unglue.it page at 
 https://{{ current_site.domain }}{% url work gift.acq.work.id %}
 
-We hope enjoy your new ebook!
+We hope enjoy your new ebook, and we hope you like Unglue.it!
 
-{{ gift.giver.username }} and the Unglue.it team
+"{{ gift.giver.username }}" and the Unglue.it team
 
-{{ gift.message }}
-{{ gift.giver }}
-{{ gift.acq.user }}
-{{ gift.acq.work }}

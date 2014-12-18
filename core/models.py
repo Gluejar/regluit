@@ -2010,7 +2010,7 @@ class UserProfile(models.Model):
     
     @property
     def pledges(self):
-        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE)
+        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE, campaign__type=1)
 
     @property
     def last_transaction(self):
@@ -2129,7 +2129,6 @@ class Press(models.Model):
 class Gift(models.Model):
     # the acq will contain the recipient, and the work
     acq = models.ForeignKey('Acq', related_name='gifts')
-    # anyone entering this code will be able to acquire the  gifted account
     giver = models.ForeignKey(User, related_name='gifts')
     message = models.CharField(max_length=512, default='')
     used = models.DateTimeField(null=True)
@@ -2137,10 +2136,14 @@ class Gift(models.Model):
     @staticmethod
     def giftee(email, t_id):
         # return a user (create a user if necessary)
-        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id})
+        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id, 'is_active': False})
         giftee.new_user = new_user
         return giftee
-       
+        
+    def use(self):
+        self.used = now()
+        self.save()
+           
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line
