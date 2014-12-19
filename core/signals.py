@@ -102,6 +102,7 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("library_reserve", _("Library eBook Reserved."), _("An ebook you've reserved is available."))
     notification.create_notice_type("library_join", _("New Library User."), _("A library participating in Unglue.it has added a user"))
     notification.create_notice_type("purchase_gift", _("You have a gift."), _("An ungluer has given you an ebook."))
+    notification.create_notice_type("purchase_got_gift", _("Your gift was received."), _("The ebook you sent as a gift has been redeemed."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -187,7 +188,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
                 Gift = get_model('core', 'Gift')
                 giftee = Gift.giftee(transaction.extra['give_to'], str(transaction.id))
                 new_acq = Acq.objects.create(user=giftee, work=transaction.campaign.work, license= transaction.offer.license)
-                gift = Gift.objects.create(acq=new_acq, message=transaction.extra.get('give_message',''), giver=transaction.user )
+                gift = Gift.objects.create(acq=new_acq, message=transaction.extra.get('give_message',''), giver=transaction.user , to = transaction.extra['give_to'])
                 context['gift'] = gift
                 notification.send([giftee], "purchase_gift", context, True)
             else:

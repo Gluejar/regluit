@@ -2992,7 +2992,7 @@ def receive_gift(request, nonce):
                 if form.is_valid():
                     giftee = models.Gift.giftee(form.cleaned_data['give_to'], request.user.username)
                     new_acq = models.Acq.objects.create(user=giftee, work=gift.acq.work, license= gift.acq.license)
-                    new_gift = models.Gift.objects.create(acq=new_acq, message=form.cleaned_data['give_message'], giver=request.user )
+                    new_gift = models.Gift.objects.create(acq=new_acq, message=form.cleaned_data['give_message'], giver=request.user , to = form.cleaned_data['give_to'])
                     context['gift'] = new_gift
                     gift.acq.expire_in(0)
                     gift.use()

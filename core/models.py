@@ -2129,6 +2129,7 @@ class Press(models.Model):
 class Gift(models.Model):
     # the acq will contain the recipient, and the work
     acq = models.ForeignKey('Acq', related_name='gifts')
+    to = models.TextField(max_length = 75, blank = True) # store the email address originally sent to, not necessarily the email of the recipient
     giver = models.ForeignKey(User, related_name='gifts')
     message = models.CharField(max_length=512, default='')
     used = models.DateTimeField(null=True)
@@ -2143,6 +2144,7 @@ class Gift(models.Model):
     def use(self):
         self.used = now()
         self.save()
+        notification.send([self.giver], "purchase_got_gift", {'gift': self }, True)
            
 
 # this was causing a circular import problem and we do not seem to be using
