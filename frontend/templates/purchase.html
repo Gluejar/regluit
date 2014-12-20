@@ -108,7 +108,7 @@
                     {% with work.last_campaign.individual_offer as offer  %}
                     <li class="first">
                         {% if user_license.purchased %}
-                            <span class="menu-item-desc">Individual license already purchased!</span>
+                            <span class="menu-item-desc">Individual license already {% if user_license.purchased.gifts.all.count %}a gift to you!{% else %}purchased!{% endif %}</span>
                         {% else %}
                             <label for="offer_{{offer.id}}">
                                 <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% if not give %}{% ifequal offer_id offer.id|stringformat:"s" %}checked="checked"{% endifequal %}{% endif %} />

@@ -5,7 +5,7 @@
     <div>
 
 {% if form %}
-    <p> <a href="{% url supporter gift.giver %}">{{ gift.giver }}</a> has sent you "<a href="{% url work work.id %}">{{ work.title }}</a>" as a gift, however, it seems that you've already purchased this work at unglue.it.  Not to worry, you can Re-Gift it!</p>
+    <p> <a href="{% url supporter gift.giver %}">{{ gift.giver }}</a> has sent you "<a href="{% url work work.id %}">{{ work.title }}</a>" as a gift, however, it seems that you already own this work at unglue.it.  Not to worry, you can Re-Gift it!</p>
 
 <div>
 <form method="POST" action="#">

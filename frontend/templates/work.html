@@ -639,7 +639,7 @@
                                 <ul class="support menu">
                                     {% if purchased %}
                                     <li class="first no_link">
-                                        <span class="menu-item-desc">Purchased!</span>
+                                        <span class="menu-item-desc">{% if purchased.gifts.all.count %}A gift to you!{% else %}Purchased!{% endif %}</span>
                                     </li>
                                     {% else %}
                                     <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
