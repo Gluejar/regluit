@@ -1483,7 +1483,7 @@ class Work(models.Model):
                 
         @property
         def purchased(self):
-            purchases =  self.acqs.filter(license=INDIVIDUAL)
+            purchases =  self.acqs.filter(license=INDIVIDUAL, expires__isnull = True)
             if purchases.count()==0:
                 return None
             else:
@@ -1524,6 +1524,12 @@ class Work(models.Model):
                 return acq
             else:
                 return None
+        
+        @property       
+        def is_duplicate():
+            # does user have two individual licenses?
+            return acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > 1
+        
     
     def get_user_license(self, user):
         """ This is all the acqs, wrapped in user_license object for the work, user(s) """

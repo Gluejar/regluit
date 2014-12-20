@@ -2987,19 +2987,27 @@ def receive_gift(request, nonce):
     if request.user.is_authenticated() and not gift.used:
         user_license = work.get_user_license(request.user)
         if user_license and user_license.purchased:
-            if request.method == 'POST':
-                form=RegiftForm( data=request.POST)
-                if form.is_valid():
-                    giftee = models.Gift.giftee(form.cleaned_data['give_to'], request.user.username)
-                    new_acq = models.Acq.objects.create(user=giftee, work=gift.acq.work, license= gift.acq.license)
-                    new_gift = models.Gift.objects.create(acq=new_acq, message=form.cleaned_data['give_message'], giver=request.user , to = form.cleaned_data['give_to'])
-                    context['gift'] = new_gift
-                    gift.acq.expire_in(0)
-                    gift.use()
-                    notification.send([giftee], "purchase_gift", context, True)
-                    return render(request, 'gift_duplicate.html', context)
-            context['form']= RegiftForm() 
-            return render(request, 'gift_duplicate.html', context)
+            # check if previously purchased- there would be two user licenses if so.
+            if user_license.is_duplicate:
+                # regift
+                if request.method == 'POST':
+                    form=RegiftForm( data=request.POST)
+                    if form.is_valid():
+                        giftee = models.Gift.giftee(form.cleaned_data['give_to'], request.user.username)
+                        new_acq = models.Acq.objects.create(user=giftee, work=gift.acq.work, license= gift.acq.license)
+                        new_gift = models.Gift.objects.create(acq=new_acq, message=form.cleaned_data['give_message'], giver=request.user , to = form.cleaned_data['give_to'])
+                        context['gift'] = new_gift
+                        gift.acq.expire_in(0)
+                        gift.use()
+                        notification.send([giftee], "purchase_gift", context, True)
+                        return render(request, 'gift_duplicate.html', context)
+                context['form']= RegiftForm() 
+                return render(request, 'gift_duplicate.html', context)
+            else:
+                # new book!
+                gift.use() 
+                request.user.wishlist.add_work(gift.acq.work, 'gift')
+                return HttpResponseRedirect( reverse('display_gift', args=[gift.id,'existing'] ))
         else:
             # we'll just leave the old user inactive.
             gift.acq.user = request.user
@@ -3018,10 +3026,10 @@ def receive_gift(request, nonce):
         gift.acq.user.wishlist.add_work(gift.acq.work, 'gift')
         login_user(request, gift.acq.user)
         
-        return HttpResponseRedirect( reverse('display_gift', args=[gift.id] ))
+        return HttpResponseRedirect( reverse('display_gift', args=[gift.id, 'newuser'] ))
 
 @login_required 
-def display_gift(request, gift_id):    
+def display_gift(request, gift_id, message):    
     try:
         gift = models.Gift.objects.get(id=gift_id)
     except models.Gift.DoesNotExist:
@@ -3029,7 +3037,7 @@ def display_gift(request, gift_id):
     if request.user.id != gift.acq.user.id :
         return HttpResponse("this is not your gift")
     redeemed_gift =  request.session.get('gift_nonce', None) == gift.acq.nonce
-    context = {'gift': gift, 'work': gift.acq.work  }
+    context = {'gift': gift, 'work': gift.acq.work , 'message':message }
     if request.method == 'POST' and redeemed_gift:
         form=UserNamePass(data=request.POST)
         form.oldusername = request.user.username
