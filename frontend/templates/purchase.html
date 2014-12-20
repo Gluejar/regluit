@@ -3,7 +3,7 @@
 {% load lib_acqs %}
 {% load purchased %}
 
-{% block title %}Pledge{% endblock %}
+{% block title %}Purchase{% endblock %}
 
 {% block extra_extra_head %}
 <script type="text/javascript" src="/static/js/reconcile_pledge.js"></script>
@@ -100,19 +100,18 @@
 			{{ form.non_field_errors }}
         	
         	{% if work.offers.all|length > 1 %}
-                <div class="pledge_amount premium_level">Purchase Options: Individual or Library?</div>
+                <div class="pledge_amount premium_level">Purchase Options: Individual, Gift or Library?</div>
                 
                 <div style="height:10px;"></div>
     
-                <ul class="support menu" id="premiums_list">
+                <ul class="support menu" id="offers_list">
                     {% with work.last_campaign.individual_offer as offer  %}
                     <li class="first">
                         {% if user_license.purchased %}
-                            <span class="menu-item-desc">Individual license already purchased!</span>
+                            <span class="menu-item-desc">Individual license already {% if user_license.purchased.gifts.all.count %}a gift to you!{% else %}purchased!{% endif %}</span>
                         {% else %}
                             <label for="offer_{{offer.id}}">
-                                <input type="hidden" name="copies" value="1" />
-                                <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% endifequal %}{% endifequal %} />
+                                <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% if not give %}{% ifequal offer_id offer.id|stringformat:"s" %}checked="checked"{% endifequal %}{% endif %} />
                                 <span class="menu-item-price">
                                     ${{ offer.price|floatformat:2|intcomma }}
                                 </span>
@@ -122,12 +121,29 @@
                             </label>
                         {% endif %}
                     </li>
+                    <li id="give_offer">
+                        <label for="give_{{offer.id}}">
+                            <input type="radio" name="offer_id" id="give_{{offer.id}}" value="give{{offer.id}}" {% if give %}checked="checked"{% endif %} />
+                            <span class="menu-item-price">
+                                ${{ offer.price|floatformat:2|intcomma }}
+                            </span>
+                            <span class="menu-item-desc">
+                                Give this ebook as a gift.
+                            </span>
+                            <div class="menu-item-desc {% if give %}on{% else %}off{% endif %}" id="give_form">
+                                {{ form.give_to.errors }}
+                                <span class="give_label">Recipient email: </span>{{ form.give_to }}
+                                <span class="give_label">Gift Message:</span>
+                                <textarea id="give_message" rows="3" name="give_message" maxlength="512">I'm giving you '{{ work.title }}' at unglue.it. I hope you like it. - {{ request.user.username }} </textarea>
+                            </div>
+                        </label>
+                    </li>
                     {% endwith %}
                     {% with work.last_campaign.library_offer as offer  %}
                     <li class="last">
                     {% if request.user.profile.libraries %}
                         <label for="offer_{{offer.id}}">
-                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal request.REQUEST.offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% ifequal offer_id offer.id %}checked="checked"{% else %} {% if user.library %}checked="checked"{% endif %}{% endifequal %}{% endifequal %} />
+                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% if user.library %}checked="checked"{% endif %}{% endifequal %} />
                             <span class="menu-item-price">
                                 ${{ offer.price|floatformat:2|intcomma }}
                             </span>
@@ -156,7 +172,7 @@
          	{% endif %}
 
 			
-			<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
+			<div id="anonbox" {% if give %}class="off"{% endif %}><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
 			<input name="pledge" type="submit" value="Buy Now" id="pledgesubmit" class="loader-gif" />
 			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
     	{% if request.user.credit.available > 0 %}

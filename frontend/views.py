@@ -116,7 +116,9 @@ from regluit.frontend.forms import (
     PressForm,
     KindleEmailForm,
     LibModeForm,
-    DateCalculatorForm
+    DateCalculatorForm,
+    UserNamePass,
+    RegiftForm,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -141,7 +143,7 @@ from regluit.payment.parameters import (
 from regluit.utils.localdatetime import now, date_today
 from regluit.booxtream.exceptions import BooXtreamError
 from regluit.pyepub import InvalidEpub
-from regluit.libraryauth.views import Authenticator
+from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
 
@@ -1227,6 +1229,7 @@ class PurchaseView(PledgeView):
                 'cover_width': cover_width(self.work),
                 'offer_id':self.offer_id,
                 'user_license': self.work.get_user_license(self.request.user),
+                'give': self.give
            })
             
         return context
@@ -1249,6 +1252,9 @@ class PurchaseView(PledgeView):
             }
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
+            self.data['give'] = self.give
+            if self.give:
+                self.data['offer_id'] = self.offer_id
             if not self.request.POST.has_key('anonymous'):
                 del self.data['anonymous']
             return {'data':self.data}
@@ -1256,8 +1262,10 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
-        
         self.offer_id = self.request.REQUEST.get('offer_id', None)
+        self.give = self.offer_id.startswith('give') if self.offer_id else False
+        if self.give:
+            self.offer_id = self.offer_id[4:]
         if not self.offer_id and self.work.last_campaign() and self.work.last_campaign().individual_offer:
             self.offer_id = self.work.last_campaign().individual_offer.id
         preapproval_amount = None
@@ -1588,21 +1596,22 @@ class FundCompleteView(TemplateView):
         if not self.user_is_ok():
             return context
         
-        # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
-        if self.transaction.user is not None and (campaign is not None) and (work is not None):
-            self.transaction.user.wishlist.add_work(work, 'pledging', notify=True)
+        gift = self.transaction.extra.has_key('give_to')
+        if not gift:
+            # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
+            if self.transaction.user is not None and (campaign is not None) and (work is not None):
+                self.transaction.user.wishlist.add_work(work, 'pledging', notify=True)
 
         #put info into session for download page to pick up.
-        self.request.session['amount']= self.transaction.amount
-        if self.transaction.receipt:
-            self.request.session['receipt']= self.transaction.receipt
+            self.request.session['amount']= self.transaction.amount
+            if self.transaction.receipt:
+                self.request.session['receipt']= self.transaction.receipt
                 
             
         context["transaction"] = self.transaction
         context["work"] = work
         context["campaign"] = campaign
         context["faqmenu"] = "complete"
-        context["slidelist"] = slideshow()
         context["site"] = Site.objects.get_current()
         
         return context        
@@ -2035,7 +2044,7 @@ def library(request,library_name):
                 
     
 
-def edit_user(request):
+def edit_user(request, redirect_to=None):
     if not request.user.is_authenticated():
         return HttpResponseRedirect(reverse('superlogin'))    
     form=UserData()
@@ -2046,7 +2055,11 @@ def edit_user(request):
             if form.is_valid(): # All validation rules pass, go and change the username
                 request.user.username=form.cleaned_data['username']
                 request.user.save()
-                return HttpResponseRedirect(reverse('home')) # Redirect after POST
+                if 'set_password'  in request.POST.keys() and form.cleaned_data.has_key('set_password'):
+                    if not request.user.has_usable_password():
+                        request.user.set_password(form.cleaned_data['set_password'])
+                request.user.save()
+                return HttpResponseRedirect(redirect_to if redirect_to else reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form})  
 
 class ManageAccount(FormView):
@@ -2959,6 +2972,90 @@ def about(request, facet):
     except TemplateDoesNotExist:
         return render(request, "about.html")
 
+def receive_gift(request, nonce):
+    try:
+        gift = models.Gift.objects.get(acq__nonce=nonce)
+    except models.Gift.DoesNotExist:
+        return render(request, 'gift_error.html', )
+    context = {'gift': gift, "site": Site.objects.get_current() }
+    work = gift.acq.work
+    context['work'] = work
+    # put nonce in session so we know that a user has redeemed a Gift
+    request.session['gift_nonce'] = nonce
+    if gift.used:
+        return render(request, 'gift_error.html', context )
+    if request.user.is_authenticated() and not gift.used:
+        user_license = work.get_user_license(request.user)
+        if user_license and user_license.purchased:
+            # check if previously purchased- there would be two user licenses if so.
+            if user_license.is_duplicate:
+                # regift
+                if request.method == 'POST':
+                    form=RegiftForm( data=request.POST)
+                    if form.is_valid():
+                        giftee = models.Gift.giftee(form.cleaned_data['give_to'], request.user.username)
+                        new_acq = models.Acq.objects.create(user=giftee, work=gift.acq.work, license= gift.acq.license)
+                        new_gift = models.Gift.objects.create(acq=new_acq, message=form.cleaned_data['give_message'], giver=request.user , to = form.cleaned_data['give_to'])
+                        context['gift'] = new_gift
+                        gift.acq.expire_in(0)
+                        gift.use()
+                        notification.send([giftee], "purchase_gift", context, True)
+                        return render(request, 'gift_duplicate.html', context)
+                context['form']= RegiftForm() 
+                return render(request, 'gift_duplicate.html', context)
+            else:
+                # new book!
+                gift.use() 
+                request.user.wishlist.add_work(gift.acq.work, 'gift')
+                return HttpResponseRedirect( reverse('display_gift', args=[gift.id,'existing'] ))
+        else:
+            # we'll just leave the old user inactive.
+            gift.acq.user = request.user
+            gift.acq.save()
+            gift.use() 
+            request.user.wishlist.add_work(gift.acq.work, 'gift')
+            return HttpResponseRedirect( reverse('download', args=[work.id] ))
+    if gift.acq.user.is_active or gift.used:
+        # giftee is established user (or gift has been used), ask them to log in
+        return superlogin(request, extra_context=context, template_name='gift_login.html')
+    else:
+        # giftee is a new user, activate their account and log them in
+        gift.acq.user.is_active = True
+        gift.acq.user.save()
+        gift.use()
+        gift.acq.user.wishlist.add_work(gift.acq.work, 'gift')
+        login_user(request, gift.acq.user)
+        
+        return HttpResponseRedirect( reverse('display_gift', args=[gift.id, 'newuser'] ))
+
+@login_required 
+def display_gift(request, gift_id, message):    
+    try:
+        gift = models.Gift.objects.get(id=gift_id)
+    except models.Gift.DoesNotExist:
+        return render(request, 'gift_error.html', )
+    if request.user.id != gift.acq.user.id :
+        return HttpResponse("this is not your gift")
+    redeemed_gift =  request.session.get('gift_nonce', None) == gift.acq.nonce
+    context = {'gift': gift, 'work': gift.acq.work , 'message':message }
+    if request.method == 'POST' and redeemed_gift:
+        form=UserNamePass(data=request.POST)
+        form.oldusername = request.user.username
+        context['form'] = form
+        if form.is_valid():
+            request.user.username = form.cleaned_data['username']
+            request.user.set_password(form.cleaned_data['password1'])
+            request.user.save()
+            context.pop('form')
+            context['passmessage'] = "changed userpass"
+        return render(request, 'gift_welcome.html', context)
+    else:
+        if redeemed_gift:
+            form = UserNamePass(initial={'username':request.user.username})  
+            form.oldusername = request.user.username
+            context['form'] = form
+        return render(request, 'gift_welcome.html', context)
+    
 @login_required  
 @csrf_exempt    
 def ml_status(request):

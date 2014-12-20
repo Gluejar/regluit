@@ -314,7 +314,7 @@ class Acq(models.Model):
         return hashlib.md5('%s:%s:%s:%s'%(settings.TWITTER_CONSUMER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
-        self.expires = now() + delta
+        self.expires = (now() + delta) if delta else now()
         self.save()
         if self.lib_acq:
             self.lib_acq.refreshes = now() + delta
@@ -1483,7 +1483,7 @@ class Work(models.Model):
                 
         @property
         def purchased(self):
-            purchases =  self.acqs.filter(license=INDIVIDUAL)
+            purchases =  self.acqs.filter(license=INDIVIDUAL, expires__isnull = True)
             if purchases.count()==0:
                 return None
             else:
@@ -1524,6 +1524,12 @@ class Work(models.Model):
                 return acq
             else:
                 return None
+        
+        @property       
+        def is_duplicate(self):
+            # does user have two individual licenses?
+            return self.acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > 1
+        
     
     def get_user_license(self, user):
         """ This is all the acqs, wrapped in user_license object for the work, user(s) """
@@ -2012,7 +2018,7 @@ class UserProfile(models.Model):
     
     @property
     def pledges(self):
-        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE)
+        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE, campaign__type=1)
 
     @property
     def last_transaction(self):
@@ -2127,7 +2133,27 @@ class Press(models.Model):
     language = models.CharField(max_length=20, blank=True)
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
-    
+
+class Gift(models.Model):
+    # the acq will contain the recipient, and the work
+    acq = models.ForeignKey('Acq', related_name='gifts')
+    to = models.TextField(max_length = 75, blank = True) # store the email address originally sent to, not necessarily the email of the recipient
+    giver = models.ForeignKey(User, related_name='gifts')
+    message = models.CharField(max_length=512, default='')
+    used = models.DateTimeField(null=True)
+
+    @staticmethod
+    def giftee(email, t_id):
+        # return a user (create a user if necessary)
+        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id, 'is_active': False})
+        giftee.new_user = new_user
+        return giftee
+        
+    def use(self):
+        self.used = now()
+        self.save()
+        notification.send([self.giver], "purchase_got_gift", {'gift': self }, True)
+           
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line

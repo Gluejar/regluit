@@ -321,6 +321,7 @@ class UserData(forms.Form):
         }
     )
     oldusername = None
+    allow_same = False
 
 
     def clean_username(self):
@@ -330,7 +331,22 @@ class UserData(forms.Form):
             for user in users:
                 raise forms.ValidationError(_("Another user with that username already exists."))
             return username
-        raise forms.ValidationError(_("Your username is already "+username))
+        if not self.allow_same:
+            raise forms.ValidationError(_("Your username is already "+username))
+
+class UserNamePass(UserData):
+    password1 = forms.CharField(label=_("Password"),
+        widget=forms.PasswordInput)
+    password2 = forms.CharField(label=_("Password confirmation"),
+        widget=forms.PasswordInput,
+        help_text = _("Enter the same password as above, for verification."))
+    allow_same = True
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1", "")
+        password2 = self.cleaned_data["password2"]
+        if password1 != password2:
+            raise forms.ValidationError(_("The two passwords don't match."))
+        return password2
 
 class CloneCampaignForm(forms.Form):
     campaign_id = forms.IntegerField(required = True, widget = forms.HiddenInput)
@@ -558,6 +574,8 @@ class CampaignPurchaseForm(forms.Form):
     library_id = forms.IntegerField(required=False)
     library = None
     copies = forms.IntegerField(required=False,min_value=1)
+    give_to = forms.EmailField(required = False)
+    give_message = forms.CharField(required = False, max_length=512,  )
     
     def clean_offer_id(self):
         offer_id = self.cleaned_data['offer_id']
@@ -573,11 +591,27 @@ class CampaignPurchaseForm(forms.Form):
                 self.library = Library.objects.get(id=library_id)
             except  Library.DoesNotExist:
                 raise forms.ValidationError(_("Sorry, that Library is not valid."))
- 
+    
+    def clean_copies(self):
+        copies = self.cleaned_data.get('copies',1)
+        return copies if copies else 1
+    
+    def clean_anonymous(self):
+        if self.data.get('give', False):
+            return True
+        else:
+            return self.cleaned_data['anonymous']
+        
     def clean(self):
         if self.offer.license == LIBRARY:
             if not self.library:
                 raise forms.ValidationError(_("No library specified." ))
+        if self.data.get('give', False):
+            if not self.cleaned_data.get('give_to',None):
+                raise forms.ValidationError(_("Gift recipient email is needed." ))
+        else:
+            if 'give_to' in self._errors:
+                del self._errors['give_to']
         return self.cleaned_data
 
     def amount(self):
@@ -591,6 +625,9 @@ class CampaignPurchaseForm(forms.Form):
         if self.library:
             pe.extra['library_id']=self.library.id
         pe.extra['copies']=self.cleaned_data.get('copies',1)
+        if self.data.get('give', False):
+            pe.extra['give_to']=self.cleaned_data['give_to']
+            pe.extra['give_message']=self.cleaned_data['give_message']
         return pe
 
 class CampaignThanksForm(forms.Form):
@@ -778,3 +815,7 @@ class LibModeForm(forms.ModelForm):
     class Meta:
         model = Libpref
         fields = ()
+
+class RegiftForm(forms.Form):
+    give_to = forms.EmailField(label="email address of recipient")
+    give_message = forms.CharField( max_length=512, label="your gift message", initial="Here's an ebook from unglue.it, I hope you like it! - me")
