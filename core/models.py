@@ -1526,9 +1526,9 @@ class Work(models.Model):
                 return None
         
         @property       
-        def is_duplicate():
+        def is_duplicate(self):
             # does user have two individual licenses?
-            return acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > 1
+            return self.acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > 1
         
     
     def get_user_license(self, user):
