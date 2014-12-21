@@ -1528,7 +1528,8 @@ class Work(models.Model):
         @property       
         def is_duplicate(self):
             # does user have two individual licenses?
-            return self.acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > 1
+            pending = self.acqs.filter(license=models.INDIVIDUAL, expires__isnull = True, gifts__used__isnull = True).count()
+            return self.acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > pending
         
     
     def get_user_license(self, user):
