@@ -3014,7 +3014,7 @@ def receive_gift(request, nonce):
             gift.acq.save()
             gift.use() 
             request.user.wishlist.add_work(gift.acq.work, 'gift')
-            return HttpResponseRedirect( reverse('download', args=[work.id] ))
+            return HttpResponseRedirect( reverse('display_gift', args=[gift.id,'existing'] ))
     if gift.acq.user.is_active or gift.used:
         # giftee is established user (or gift has been used), ask them to log in
         return superlogin(request, extra_context=context, template_name='gift_login.html')
