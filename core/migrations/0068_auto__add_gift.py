@@ -12,8 +12,9 @@ class Migration(SchemaMigration):
         db.create_table('core_gift', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('acq', self.gf('django.db.models.fields.related.ForeignKey')(related_name='gifts', to=orm['core.Acq'])),
+            ('to', self.gf('django.db.models.fields.CharField')(max_length=75, blank=True)),
             ('giver', self.gf('django.db.models.fields.related.ForeignKey')(related_name='gifts', to=orm['auth.User'])),
-            ('message', self.gf('django.db.models.fields.CharField')(default='', max_length=512)),
+            ('message', self.gf('django.db.models.fields.TextField')(default='', max_length=512)),
             ('used', self.gf('django.db.models.fields.DateTimeField')(null=True)),
         ))
         db.send_create_signal('core', ['Gift'])
@@ -80,7 +81,7 @@ class Migration(SchemaMigration):
             'license': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'nonce': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
             'refreshed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 12, 15, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 12, 22, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['auth.User']"}),
             'watermarked': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['booxtream.Boox']", 'null': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['core.Work']"})
@@ -135,7 +136,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 12, 15, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2014, 12, 22, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
@@ -190,7 +191,8 @@ class Migration(SchemaMigration):
             'acq': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'gifts'", 'to': "orm['core.Acq']"}),
             'giver': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'gifts'", 'to': "orm['auth.User']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'message': ('django.db.models.fields.CharField', [], {'default': "''", 'max_length': '512'}),
+            'message': ('django.db.models.fields.TextField', [], {'default': "''", 'max_length': '512'}),
+            'to': ('django.db.models.fields.CharField', [], {'max_length': '75', 'blank': 'True'}),
             'used': ('django.db.models.fields.DateTimeField', [], {'null': 'True'})
         },
         'core.hold': {
