@@ -6,6 +6,10 @@
 </head>
 <body>
 <div class="booksection">
+{% if acq.gifts.all.0 %}
+<p> This ebook is a gift from {{ acq.gifts.all.0.giver }}.</p>
+<p style="margin:2em">{{ acq.gifts.all.0.message }}</p>
+{% endif %}
 <p class="copyk">
 {% ifequal acq.license 1 %}
 RESTRICTED NON-TRANSFERABLE DIGITAL LICENSE FOR PERSONAL USE ONLY: This copyrighted work is licensed to you, {{ acq.user.username }}, on {{ acq.created }} through https://unglue.it under an individual, restricted, non-transferrable license for your personal use only.  You are not authorized to copy, transfer, distribute, display or otherwise transmit this work to third parties without the express written permission of the copyright holder. The license has been embedded into the digital file, along with your identity, that of the licensor, and the details of the restricted terms of this license. You can use this file to prove your license status. This embedded license must not be altered, removed or tampered with for any reason and any effort to do so will result in the immediate revocation of this license. Unauthorized distribution of this work is a copyright violation and may be enforced by the rights holder accordingly to the fullest extent available under the law. 
