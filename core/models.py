@@ -2144,7 +2144,7 @@ class Gift(models.Model):
     @staticmethod
     def giftee(email, t_id):
         # return a user (create a user if necessary)
-        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id, 'is_active': False})
+        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id})
         giftee.new_user = new_user
         return giftee
         
