@@ -175,7 +175,12 @@ class UserProfileAdmin(ModelAdmin):
     search_fields = ('user__username',)
     date_hierarchy = 'created'
     exclude = ('user',)
-    
+
+class GiftAdmin(ModelAdmin):
+    list_display = ('giver', 'acq', 'to')
+    search_fields = ('giver__username', 'to')
+    exclude = ('giver', 'acq',) 
+
 class CeleryTaskAdmin(ModelAdmin):
     pass
 
@@ -244,6 +249,7 @@ admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
 admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Press, PressAdmin)
+admin_site.register(models.Gift, GiftAdmin)
 admin_site.register(MARCRecord, MARCRecordAdmin)
 
 # payments
