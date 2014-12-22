@@ -2988,7 +2988,7 @@ def receive_gift(request, nonce):
         user_license = work.get_user_license(request.user)
         if user_license and user_license.purchased:
             # check if previously purchased- there would be two user licenses if so.
-            if user_license.is_duplicate:
+            if user_license.is_duplicate or request.user.id == gift.giver.id:
                 # regift
                 if request.method == 'POST':
                     form=RegiftForm( data=request.POST)
