@@ -3015,13 +3015,11 @@ def receive_gift(request, nonce):
             gift.use() 
             request.user.wishlist.add_work(gift.acq.work, 'gift')
             return HttpResponseRedirect( reverse('display_gift', args=[gift.id,'existing'] ))
-    if gift.acq.user.is_active or gift.used:
+    if (gift.acq.created - gift.acq.user.date_joined) > timedelta(minutes=1) or gift.used:
         # giftee is established user (or gift has been used), ask them to log in
         return superlogin(request, extra_context=context, template_name='gift_login.html')
     else:
-        # giftee is a new user, activate their account and log them in
-        gift.acq.user.is_active = True
-        gift.acq.user.save()
+        # giftee is a new user, log them in
         gift.use()
         gift.acq.user.wishlist.add_work(gift.acq.work, 'gift')
         login_user(request, gift.acq.user)
