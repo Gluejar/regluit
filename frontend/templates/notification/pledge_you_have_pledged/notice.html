@@ -6,12 +6,12 @@
 {% endblock %}
 
 {% block comments_graphical %}
-	You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a>.
+	You've just pledged ${{ transaction.amount|floatformat:2|intcomma }} to <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a>.
 {% endblock %}
 
 {% block comments_textual %}
 	<p>Thank you, {{ transaction.user.username }}!</p>
-	<p>You've just pledged ${{ transaction.amount|intcomma }} to <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a>.  If it reaches its goal of ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+	<p>You've just pledged ${{ transaction.amount|floatformat:2|intcomma }} to <a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a>.  If it reaches its goal of ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
 	<p>You can help even more by sharing this campaign with your friends!</p>
 	
 	{% url work transaction.campaign.work.id as work_url %}

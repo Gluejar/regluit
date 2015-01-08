@@ -183,6 +183,9 @@ class BookLoaderTests(TestCase):
         e2 = Edition(work=w2)
         e2.save()
         
+        eb1 = Ebook(edition = e2)
+        eb1.save()
+        
         e2a = Edition(work=w2)
         e2a.save()
         
@@ -192,7 +195,10 @@ class BookLoaderTests(TestCase):
         self.assertTrue(e1.work)
         self.assertTrue(e2.work)
         self.assertEqual(models.Work.objects.count(), 2)
- 
+        
+        self.assertTrue(w2.is_free)
+        self.assertFalse(w1.is_free)
+        
         w1_id = w1.id
         w2_id = w2.id
         
@@ -206,6 +212,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.WasWork.objects.count(),1)
         self.assertEqual(w1.subjects.count(),2)
        
+        self.assertTrue(w1.is_free)
+
         # getting proper view?
         anon_client = Client()
         r = anon_client.get("/work/%s/" % w1_id)
@@ -788,6 +796,11 @@ class DownloadPageTest(TestCase):
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
         self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=10) 
         self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=5)
+        self.assertTrue(eb1.edition.work.is_free)
+        eb1.delete()
+        self.assertTrue(eb2.edition.work.is_free)
+        eb2.delete()
+        self.assertFalse(eb2.edition.work.is_free)
 
 
 class LocaldatetimeTest(TestCase):

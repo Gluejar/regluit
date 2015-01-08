@@ -78,6 +78,31 @@ span.menu-item-price {
 	float: none !important;
 }
 
+ul#offers_list li {
+    
+    div.on {
+        display: block;
+	    background: @pale-blue;
+	    margin-top: 1em;
+        .give_label {
+            padding: 4px;
+            color: black;
+        }
+    }
+	div.off {
+	    display: none;
+	}
+	input[type=text], textarea {
+		width: 95%;
+		font-size: @font-size-larger;
+		color: @text-blue;
+		margin: 0 10px 5px 5px;
+	}
+	input[type=text]{
+		.height(@font-size-larger*1.3);
+	}
+
+}
 #mandatory_premiums {
 	font-size: @font-size-larger;
 
@@ -294,4 +319,8 @@ span.level2.menu.answer {
     float: left;
     width: 48%;
     padding: 1%;
+    &.off {
+        display: none;
+    }
+
 }
