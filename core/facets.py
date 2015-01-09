@@ -141,12 +141,16 @@ class LicenseFacetGroup(FacetGroup):
                 return  "These eBooks are available under the %s license." % self.facet_name
         return LicenseFacet
 
+TOPKW = ["Fiction", "Nonfiction", "Literature",  "History", "Classic Literature", 
+    "Children's literature, English", "History and criticism", "Science", "Juvenile fiction", 
+    "Sociology", "Software", "Science Fiction"]
+
 class KeywordFacetGroup(FacetGroup):
     
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'Keyword'
-        self.facets = []
+        self.facets = [('kw.%s' % kw) for kw in TOPKW]
         
     def has_facet(self, facet_name):
     
@@ -171,7 +175,7 @@ class KeywordFacetGroup(FacetGroup):
                 return self.keyword
         return KeywordFacet    
     
-facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() , KeywordFacetGroup()]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), ]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:

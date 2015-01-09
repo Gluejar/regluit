@@ -1588,18 +1588,25 @@ class Author(models.Model):
                 reversed_name+=name
             return reversed_name
         
-
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200, unique=True)
     works = models.ManyToManyField("Work", related_name="subjects")
+    is_visible = models.BooleanField(default = True)
 
     class Meta:
         ordering = ['name']
 
     def __unicode__(self):
         return self.name
-
+    
+    
+    @property 
+    def kw(self):
+        return 'kw.%s' % self.name
+        
+    def free_works(self):
+        return self.works.filter( is_free = True )
 
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
