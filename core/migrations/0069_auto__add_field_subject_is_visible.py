@@ -13,9 +13,12 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.BooleanField')(default=True),
                       keep_default=False)
         for kw in INVISIBLE:
-            sub = orm.Subject.objects.get(name=kw)
-            sub.is_visible = False
-            sub.save()
+            try:
+                sub = orm.Subject.objects.get(name=kw)
+                sub.is_visible = False
+                sub.save()
+            except:
+                pass
 
 
     def backwards(self, orm):
