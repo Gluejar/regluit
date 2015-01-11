@@ -150,6 +150,7 @@ class KeywordFacetGroup(FacetGroup):
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'Keyword'
+        # make facets in TOPKW available for display
         self.facets = [('kw.%s' % kw) for kw in TOPKW]
         
     def has_facet(self, facet_name):
@@ -175,6 +176,7 @@ class KeywordFacetGroup(FacetGroup):
                 return self.keyword
         return KeywordFacet    
     
+# order of groups in facet_groups determines order of display on /free/    
 facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), ]
 
 def get_facet(facet_name):
