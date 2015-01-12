@@ -174,6 +174,9 @@ class KeywordFacetGroup(FacetGroup):
             @property    
             def label(self):
                 return self.keyword
+            @property
+            def description(self):
+                return  "%s eBooks" % self.keyword
         return KeywordFacet    
     
 # order of groups in facet_groups determines order of display on /free/    

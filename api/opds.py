@@ -3,6 +3,7 @@ from itertools import islice
 from lxml import etree
 import datetime
 import urlparse
+import urllib
 
 import pytz
 
@@ -28,6 +29,8 @@ def feeds():
     for facet in old_facets:
         yield globals()[facet]
     for facet_path in facets.get_all_facets('Format'):
+        yield get_facet_facet(facet_path)
+    for facet_path in facets.get_all_facets('Keyword'):
         yield get_facet_facet(facet_path)
 
 def get_facet_class(name):
@@ -123,8 +126,8 @@ def work_node(work):
     
     # subject tags
     # [[subject.name for subject in work.subjects.all()] for work in ccworks if work.subjects.all()]
-    if work.subjects.all():
-        for subject in work.subjects.all():
+    for subject in work.subjects.all():
+        if subject.is_visible:
             category_node = etree.Element("category")
             category_node.attrib["term"] = subject.name 
             node.append(category_node)
@@ -257,7 +260,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     link = etree.Element("link")
     link.attrib.update({"rel":rel,
-             "href": UNGLUEIT_URL + "/api/opds/" + path + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
+             "href": UNGLUEIT_URL + "/api/opds/" + urllib.quote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
              "type": NAVIGATION,
              "title": title,
             })
