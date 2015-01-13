@@ -427,7 +427,11 @@
                                             <h4>Subjects</h4>
                                             <ul>
                                             {% for subject in work.subjects.all %}
-                                                <li itemprop="keywords">{{ subject.name }}</li>
+                                                <li itemprop="keywords">{{ subject.name }} 
+                                                {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                                    <span class="deletebutton" data="{{ subject.name }}">x</span>
+                                                {% endif %}
+                                                </li>
                                             {% endfor %}
                                             </ul>
                                         {% endif %}

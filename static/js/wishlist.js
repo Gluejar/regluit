@@ -1,4 +1,5 @@
 var $j = jQuery.noConflict();
+var csrftoken = $j.cookie('csrftoken');
 
 $j().ready(function() {
 	// only do the lookup once, then cache it
@@ -86,6 +87,16 @@ $j().ready(function() {
             newDiv.fadeIn('slow');
         });
     });
+    
+    contentblock.on("click", "span.deletebutton", function () {
+        var kw = $j(this).attr('data');
+        var li = $j(this).parent();
+        // perform action
+        jQuery.post($j(location).attr('pathname') + 'kw/', {'remove_kw': kw, 'csrfmiddlewaretoken': csrftoken}, function(data) {
+        	li.html('kw removed');
+        });
+    });
+    
 });
 
 var $k = jQuery.noConflict();

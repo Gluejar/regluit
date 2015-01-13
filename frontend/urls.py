@@ -104,6 +104,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/marc/$", "work_marc", name="work_marc"),
     url(r"^work/(?P<work_id>\d+)/reserve/$", "reserve", name="reserve"),
     url(r"^work/(?P<work_id>\d+)/feature/$", "feature", name="feature"),
+    url(r"^work/(?P<work_id>\d+)/kw/$", "kw_edit", name="kw_edit"),
     url(r"^work/(?P<work_id>\d+)/merge/$", login_required(MergeView.as_view()), name="merge"),
     url(r"^work/(?P<work_id>\d+)/editions/$", "work",{'action': 'editions'}, name="work_editions"),
     url(r"^work/\d+/acks/images/(?P<file_name>[\w\.]*)$", "static_redirect_view",{'dir': 'images'}), 
