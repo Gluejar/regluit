@@ -13,6 +13,10 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+{% if user.is_staff or user in work.last_campaign.managers.all %}
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+    {{ kwform.media.css }}
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -22,6 +26,9 @@
 <script type="text/javascript" src="/static/js/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+{% if user.is_staff or user in work.last_campaign.managers.all %}
+    {{ kwform.media.js }}
+{% endif %}
 
 <!-- needed for DeGruyter seed description hack
      makes template vars accessible in JS
@@ -424,7 +431,7 @@
                                         
                                         {% endif %}
                                         {% if work.subjects.all.count > 0 %}
-                                            <h4>Subjects</h4>
+                                            <h4>Keywords</h4>
                                             <ul>
                                             {% for subject in work.subjects.all %}
                                                 <li itemprop="keywords">{{ subject.name }} 
@@ -434,6 +441,10 @@
                                                 </li>
                                             {% endfor %}
                                             </ul>
+                                            {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                                <form method="POST" action="{% url kw_edit work.id %}" id="kw_add_form">{% csrf_token %}
+                                                {{ kwform.add_kw }}<input type="submit" name="kw_add" value="add keyword" />
+                                            {% endif %}
                                         {% endif %}
                                     {% endifequal %}
                                     <h4>Editions</h4>

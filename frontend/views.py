@@ -119,6 +119,7 @@ from regluit.frontend.forms import (
     DateCalculatorForm,
     UserNamePass,
     RegiftForm,
+    SubjectSelectForm
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -434,6 +435,7 @@ def work(request, work_id, action='display'):
         'cover_width': cover_width_number,
         'action': action,
         'formset': formset,
+        'kwform': SubjectSelectForm()
     })    
 
 def edition_uploads(request, edition_id):
@@ -2174,7 +2176,7 @@ def wishlist(request):
 def kw_edit(request, work_id):
     work = safe_get_work(work_id)
     remove_kw = request.POST.get('remove_kw', None)
-    add_kw = request.POST.get('add_kw', None)
+    add_form = request.POST.get('kw_add', False) # signal to process form
     if request.user.is_staff or request.user in work.last_campaign().managers.all():
         if remove_kw:
             try:
@@ -2183,14 +2185,21 @@ def kw_edit(request, work_id):
                 return HttpResponse('invalid subject')
             work.subjects.remove(subject)
             return HttpResponse('removed ' + remove_kw )
-        elif add_kw:
-            try:
-                subject = models.Subject.objects.get(name=add_kw)
-            except models.Subject.DoesNotExist:
-                return HttpResponse('invalid subject')
-            work.subjects.add(subject)
-            return HttpResponse('added ' + add_kw )
-    return HttpResponse("nothing")
+        elif add_form:
+            form= SubjectSelectForm(data=request.POST)
+            if form.is_valid():
+                add_kw = form.cleaned_data['add_kw']
+                try:
+                    subject = models.Subject.objects.get(name=add_kw)
+                except models.Subject.DoesNotExist:
+                    return HttpResponse('invalid subject')
+                work.subjects.add(subject)
+                return HttpResponse('added ' + add_kw.name )
+            else:
+                return HttpResponse('bad form ' )
+        else:
+            return HttpResponse(str(add_form))
+    return HttpResponse(str(add_form))
 
   
 class InfoPageView(TemplateView):

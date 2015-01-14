@@ -114,3 +114,5 @@ $k(document).on("click", ".add-wishlist-workpage span", function() {
 		newSpan.removeAttr("id");
 	});
 });
+
+//handle kw adding

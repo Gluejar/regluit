@@ -2,7 +2,7 @@ from selectable.base import ModelLookup
 from selectable.registry import registry
 
 from django.contrib.auth.models import User
-from regluit.core.models import Work, PublisherName, Edition
+from regluit.core.models import Work, PublisherName, Edition, Subject
 
 class OwnerLookup(ModelLookup):
     model = User
@@ -43,7 +43,12 @@ class EditionLookup(ModelLookup):
                 item = None
         return item
 
+class SubjectLookup(ModelLookup):
+    model = Subject
+    search_fields = ('name__icontains',)
+
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
 registry.register(PublisherNameLookup)
 registry.register(EditionLookup)
+registry.register(SubjectLookup)

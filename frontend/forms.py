@@ -61,7 +61,8 @@ from regluit.core.lookups import (
     OwnerLookup,
     WorkLookup,
     PublisherNameLookup,
-    EditionLookup
+    EditionLookup,
+    SubjectLookup,
 )
 from regluit.utils.localdatetime import now
 from regluit.utils.fields import EpubFileField, ISBNField
@@ -819,3 +820,10 @@ class LibModeForm(forms.ModelForm):
 class RegiftForm(forms.Form):
     give_to = forms.EmailField(label="email address of recipient")
     give_message = forms.CharField( max_length=512, label="your gift message", initial="Here's an ebook from unglue.it, I hope you like it! - me")
+
+class SubjectSelectForm(forms.Form):
+    add_kw = AutoCompleteSelectField(
+            SubjectLookup,
+            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
+            label='Keyword',
+        )
