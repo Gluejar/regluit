@@ -10,6 +10,12 @@
     <uri>https://unglue.it/</uri>
   </author>
   <link rel="start" href="https://unglue.it{% url opds %}" type="application/atom+xml;profile=opds-catalog;kind=navigation" />
+    <link href="{{ feed.feed_path }}/?order_by=popular" 
+        rel="http://opds-spec.org/featured"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
+    <link href="{{ feed.feed_path }}/?order_by=popular" 
+        rel="http://opds-spec.org/featured"
+        type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
   <entry>
     <title>{{ feed.title }} - Popular</title>
     <id>https://unglue.it{% url opds_acqusition feed.feed_path %}?order_by=popular</id>
