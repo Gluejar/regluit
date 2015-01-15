@@ -8,6 +8,7 @@ import re
 import random
 import urllib
 import urllib2
+from urlparse import urlparse
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -1130,7 +1131,9 @@ class Work(models.Model):
         if self.uses_google_cover():
             return 'jpeg'
         else:
-            url = self.cover_image_small().lower()
+            # consider the path only and not the params, query, or fragment
+            url = urlparse(self.cover_image_small().lower()).path
+
             if url.endswith('.png'):
                 return 'png'
             elif url.endswith('.gif'):
