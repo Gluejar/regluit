@@ -3,7 +3,7 @@ from itertools import islice
 from lxml import etree
 import datetime
 import urlparse
-import urllib
+from django.utils.http import urlquote
 
 import pytz
 
@@ -19,7 +19,7 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'text':"text/html"}
 
 UNGLUEIT_URL= 'https://unglue.it'
-NAVIGATION = "application/atom+xml;profile=opds-catalog;kind=navigation"
+ACQUISITION = "application/atom+xml;profile=opds-catalog;kind=acquisition"
 FACET_RELATION = "http://opds-spec.org/facet"
 
 old_facets= ["creative_commons","active_campaigns"] 
@@ -45,6 +45,11 @@ def text_node(tag, text):
     node.text = text
     return node
 
+def html_node(tag, html):
+    node = text_node(tag, html)
+    node.attrib.update({"{http://www.w3.org/2005/Atom}type":'html'})
+    return node
+    
 def add_query_component(url, qc):
     """
     add component qc to the querystring of url
@@ -119,6 +124,9 @@ def work_node(work):
     #<dcterms:language>en</dcterms:language>
     node.append(text_node("{http://purl.org/dc/terms/}language", work.language))
     
+    # description
+    node.append(html_node("{http://www.w3.org/2005/Atom}content", work.description))
+    
     # identifiers
     if work.identifiers.filter(type='isbn'):
         for isbn in work.identifiers.filter(type='isbn')[0:9]:  #10 should be more than enough
@@ -131,6 +139,7 @@ def work_node(work):
             category_node = etree.Element("category")
             category_node.attrib["term"] = subject.name 
             node.append(category_node)
+            append_navlink(node, 'related', 'kw.'+ subject.name , 0, 'popular', title=subject.name)
             
     return node
 
@@ -260,8 +269,8 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     link = etree.Element("link")
     link.attrib.update({"rel":rel,
-             "href": UNGLUEIT_URL + "/api/opds/" + urllib.quote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
-             "type": NAVIGATION,
+             "href": UNGLUEIT_URL + "/api/opds/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
+             "type": ACQUISITION,
              "title": title,
             })
     if rel == FACET_RELATION:
