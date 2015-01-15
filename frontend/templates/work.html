@@ -42,6 +42,7 @@
     var isSupporter = false;
     {% endif %}
 </script>
+
 {% endblock %}
 
 {% block topsection %}
@@ -432,7 +433,7 @@
                                         {% endif %}
                                         {% if work.subjects.all.count > 0 %}
                                             <h4>Keywords</h4>
-                                            <ul>
+                                            <ul id="kw_list">
                                             {% for subject in work.subjects.all %}
                                                 <li itemprop="keywords">{{ subject.name }} 
                                                 {% if user.is_staff or user in work.last_campaign.managers.all %}
@@ -442,8 +443,9 @@
                                             {% endfor %}
                                             </ul>
                                             {% if user.is_staff or user in work.last_campaign.managers.all %}
-                                                <form method="POST" action="{% url kw_edit work.id %}" id="kw_add_form">{% csrf_token %}
-                                                {{ kwform.add_kw }}<input type="submit" name="kw_add" value="add keyword" />
+                                                <form method="POST"  id="kw_add_form">{% csrf_token %}
+                                                {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
+                                                </form>
                                             {% endif %}
                                         {% endif %}
                                     {% endifequal %}

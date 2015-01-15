@@ -2194,9 +2194,9 @@ def kw_edit(request, work_id):
                 except models.Subject.DoesNotExist:
                     return HttpResponse('invalid subject')
                 work.subjects.add(subject)
-                return HttpResponse('added ' + add_kw.name )
+                return HttpResponse( add_kw.name )
             else:
-                return HttpResponse('bad form ' )
+                return HttpResponse('xxbadform' )
         else:
             return HttpResponse(str(add_form))
     return HttpResponse(str(add_form))

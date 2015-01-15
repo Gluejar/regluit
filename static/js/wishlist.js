@@ -96,6 +96,25 @@ $j().ready(function() {
         	li.html('kw removed');
         });
     });
+// this is the id of the submit button
+
+$j('#kw_add_form_submit').click(function() {
+    var url = 'kw/'; 
+    $j.ajax({
+           type: 'POST',
+           url: url,
+           data: $j('#kw_add_form').serialize(), 
+           success: function(data)
+           {
+               if (data == 'xxbadform'){alert("bad keyword");} else {
+                    $j('#kw_list').append('<li>' + data + '<span class="deletebutton" data="' + data +'">x</span></li>')
+               }; // data will be the added kw.
+           }
+         });
+
+    return false; // avoid to execute the actual submit of the form.
+});
+
     
 });
 
