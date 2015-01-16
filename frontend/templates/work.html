@@ -431,8 +431,8 @@
                                             <div><a href="{% url merge work_id  %}">Merge other works into this one</a></div>
                                         
                                         {% endif %}
+                                        <h4>Keywords</h4>
                                         {% if work.subjects.all.count > 0 %}
-                                            <h4>Keywords</h4>
                                             <ul id="kw_list">
                                             {% for subject in work.subjects.all %}
                                                 <li itemprop="keywords">{{ subject.name }} 
@@ -442,11 +442,15 @@
                                                 </li>
                                             {% endfor %}
                                             </ul>
-                                            {% if user.is_staff or user in work.last_campaign.managers.all %}
-                                                <form method="POST"  id="kw_add_form">{% csrf_token %}
-                                                {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
-                                                </form>
-                                            {% endif %}
+                                        {% else %}
+                                            No keywords yet.
+                                           <ul id="kw_list"></ul>
+
+                                        {% endif %}
+                                        {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                            <form method="POST"  id="kw_add_form">{% csrf_token %}
+                                            {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
+                                            </form>
                                         {% endif %}
                                     {% endifequal %}
                                     <h4>Editions</h4>
