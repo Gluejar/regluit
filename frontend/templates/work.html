@@ -13,6 +13,10 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+{% if user.is_staff or user in work.last_campaign.managers.all %}
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+    {{ kwform.media.css }}
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -22,6 +26,9 @@
 <script type="text/javascript" src="/static/js/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+{% if user.is_staff or user in work.last_campaign.managers.all %}
+    {{ kwform.media.js }}
+{% endif %}
 
 <!-- needed for DeGruyter seed description hack
      makes template vars accessible in JS
@@ -35,6 +42,7 @@
     var isSupporter = false;
     {% endif %}
 </script>
+
 {% endblock %}
 
 {% block topsection %}
@@ -423,13 +431,26 @@
                                             <div><a href="{% url merge work_id  %}">Merge other works into this one</a></div>
                                         
                                         {% endif %}
+                                        <h4>Keywords</h4>
                                         {% if work.subjects.all.count > 0 %}
-                                            <h4>Subjects</h4>
-                                            <ul>
+                                            <ul id="kw_list">
                                             {% for subject in work.subjects.all %}
-                                                <li itemprop="keywords">{{ subject.name }}</li>
+                                                <li itemprop="keywords">{{ subject.name }} 
+                                                {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                                    <span class="deletebutton" data="{{ subject.name }}">x</span>
+                                                {% endif %}
+                                                </li>
                                             {% endfor %}
                                             </ul>
+                                        {% else %}
+                                            No keywords yet.
+                                           <ul id="kw_list"></ul>
+
+                                        {% endif %}
+                                        {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                            <form method="POST"  id="kw_add_form">{% csrf_token %}
+                                            {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
+                                            </form>
                                         {% endif %}
                                     {% endifequal %}
                                     <h4>Editions</h4>
