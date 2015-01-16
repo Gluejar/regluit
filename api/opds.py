@@ -210,7 +210,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     # id 
     
     feed.append(text_node('id', "{url}/api/opds/{feed_path}/?order_by={order_by}".format(url=UNGLUEIT_URL,
-                                                                         feed_path=feed_path, order_by=order_by)))
+                                                                         feed_path=urlquote(feed_path), order_by=order_by)))
     
     # updated
     # TO DO:  fix time zone?
