@@ -274,7 +274,11 @@
                                             {{ work.description|safe }}
                                         {% endif %}
                                     {% else %}
-                                        {{ work.description|safe }}
+                                        {% if  work.description %}
+                                            {{ work.description|safe }}
+                                        {% else %} 
+                                            {{ work.last_campaign.description|safe }}
+                                        {% endif %}
                                     {% endif %}
                                     </div>
                                 </div>
