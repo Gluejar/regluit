@@ -274,7 +274,11 @@
                                             {{ work.description|safe }}
                                         {% endif %}
                                     {% else %}
-                                        {{ work.description|safe }}
+                                        {% if  work.description %}
+                                            {{ work.description|safe }}
+                                        {% else %} 
+                                            {{ work.last_campaign.description|safe }}
+                                        {% endif %}
                                     {% endif %}
                                     </div>
                                 </div>
@@ -405,20 +409,22 @@
                                                                 {{ claimform.rights_holder }}
                                                                 <input type="submit" name="submit" value="Claim" />
                                                              </form><br />
+                                                        {% else %}
+                                                            Are you the author or publisher of this work? If so, you can claim it as yours by <a href="{% url rightsholders %}">registering as an Unglue.it rights holder</a>.
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endif %}
                                             {% endif %}
                                         {% endif %}
-                                        <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
                                         {% if work.first_ebook %}
-                                            {% if not work.last_campaign %}
-                                                <h4 class="tabcontent-title">There is a {{ work.first_ebook.rights }}  free ebook for <i>{{work.title}}</i></h4>
-                                            {% else  %}
-                                                <h4>Downloads</h4>
-                                            {% endif %}
+                                            <h4>Downloads</h4>
                                             <div class="pledged-info">
                                                 This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
+                                                <ol>
+                                                {% for ebook in work.ebooks.all %}
+                                                <li>{{ ebook.download_count }} -  {{ ebook.format }} ({{ ebook.rights }}) at {{ ebook.provider }}</li>
+                                                {% endfor %}
+                                                </ol>
                                             </div>
                                             {% if user.is_staff %}
                                                 <p>
