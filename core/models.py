@@ -1852,7 +1852,7 @@ class Ebook(models.Model):
             provider='Wikisource'
         elif re.match('https?://\w\w\.wikibooks\.org/', url):
             provider='Wikibooks'
-        elif re.match('https://github\.com/\w+/\w+/raw/\w+', url):
+        elif re.match('https://github\.com/[^/ ]+/[^/ ]+/raw/[^ ]+', url):
             provider='Github'
         else:
             provider=None
