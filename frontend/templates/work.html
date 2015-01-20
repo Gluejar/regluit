@@ -13,6 +13,10 @@
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+{% if user.is_staff or user in work.last_campaign.managers.all %}
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+    {{ kwform.media.css }}
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
@@ -22,6 +26,9 @@
 <script type="text/javascript" src="/static/js/widgets.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+{% if user.is_staff or user in work.last_campaign.managers.all %}
+    {{ kwform.media.js }}
+{% endif %}
 
 <!-- needed for DeGruyter seed description hack
      makes template vars accessible in JS
@@ -35,6 +42,7 @@
     var isSupporter = false;
     {% endif %}
 </script>
+
 {% endblock %}
 
 {% block topsection %}
@@ -266,7 +274,11 @@
                                             {{ work.description|safe }}
                                         {% endif %}
                                     {% else %}
-                                        {{ work.description|safe }}
+                                        {% if  work.description %}
+                                            {{ work.description|safe }}
+                                        {% else %} 
+                                            {{ work.last_campaign.description|safe }}
+                                        {% endif %}
                                     {% endif %}
                                     </div>
                                 </div>
@@ -397,20 +409,22 @@
                                                                 {{ claimform.rights_holder }}
                                                                 <input type="submit" name="submit" value="Claim" />
                                                              </form><br />
+                                                        {% else %}
+                                                            Are you the author or publisher of this work? If so, you can claim it as yours by <a href="{% url rightsholders %}">registering as an Unglue.it rights holder</a>.
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endif %}
                                             {% endif %}
                                         {% endif %}
-                                        <p>If you'd like to contact us regarding rights for this work, please email <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</p>
                                         {% if work.first_ebook %}
-                                            {% if not work.last_campaign %}
-                                                <h4 class="tabcontent-title">There is a {{ work.first_ebook.rights }}  free ebook for <i>{{work.title}}</i></h4>
-                                            {% else  %}
-                                                <h4>Downloads</h4>
-                                            {% endif %}
+                                            <h4>Downloads</h4>
                                             <div class="pledged-info">
                                                 This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
+                                                <ol>
+                                                {% for ebook in work.ebooks.all %}
+                                                <li>{{ ebook.download_count }} -  {{ ebook.format }} ({{ ebook.rights }}) at {{ ebook.provider }}</li>
+                                                {% endfor %}
+                                                </ol>
                                             </div>
                                             {% if user.is_staff %}
                                                 <p>
@@ -423,13 +437,26 @@
                                             <div><a href="{% url merge work_id  %}">Merge other works into this one</a></div>
                                         
                                         {% endif %}
+                                        <h4>Keywords</h4>
                                         {% if work.subjects.all.count > 0 %}
-                                            <h4>Subjects</h4>
-                                            <ul>
+                                            <ul id="kw_list">
                                             {% for subject in work.subjects.all %}
-                                                <li itemprop="keywords">{{ subject.name }}</li>
+                                                <li itemprop="keywords">{{ subject.name }} 
+                                                {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                                    <span class="deletebutton" data="{{ subject.name }}">x</span>
+                                                {% endif %}
+                                                </li>
                                             {% endfor %}
                                             </ul>
+                                        {% else %}
+                                            No keywords yet.
+                                           <ul id="kw_list"></ul>
+
+                                        {% endif %}
+                                        {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                            <form method="POST"  id="kw_add_form">{% csrf_token %}
+                                            {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
+                                            </form>
                                         {% endif %}
                                     {% endifequal %}
                                     <h4>Editions</h4>
@@ -639,7 +666,7 @@
                                 <ul class="support menu">
                                     {% if purchased %}
                                     <li class="first no_link">
-                                        <span class="menu-item-desc">Purchased!</span>
+                                        <span class="menu-item-desc">{% if purchased.gifts.all.count %}A gift to you!{% else %}Purchased!{% endif %}</span>
                                     </li>
                                     {% else %}
                                     <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
@@ -649,6 +676,17 @@
                                         </a>
                                     </li>
                                     {% endif %}
+                                </ul>
+                            </div>
+                            <h3 class="jsmod-title"><span>Buy as a Gift</span></h3>
+                            <div class="jsmod-content">
+                                <ul class="support menu">
+                                    <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
+                                        <a href="{% url purchase work_id %}?offer_id=give{{work.last_campaign.individual_offer.id}}">
+                                        <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
+                                        <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                             {% if borrowed %}

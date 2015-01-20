@@ -21,8 +21,9 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 </div></div>
 <h2>Contents</h2>
 <ul class="bullets">
+<li><a href="#getting_started">Getting Started</a></li>
 {% if campaigns %}
-<li><a href="#managed_campaigns">Campaigns You Manage</a></li>
+<li><a href="#managed_campaigns">Books/Campaigns You Manage</a></li>
 {% endif %}
 {% if request.user.rights_holder.count %}
 <li><a href="#open_campaigns">Works You Have Claimed</a></li>
@@ -30,30 +31,19 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 {% if request.user.rights_holder.count %}
 <li><a href="#your_rhs">Rights Holders That You Administer</a></li>
 {% endif %}
-<li><a href="#how_to">How to Make an Unglue.it Campaign</a></li>
+<li><a href="#how_to">Registering your Rights</a></li>
 <li><a href="#about_campaigns">About Campaigns</a></li>
 
 </ul>
-{% comment %}
-<h2>Getting started</h2>
+<h2 id="getting_started">Getting Started</h2>
 <p>
-    <a href="/static/images/How_to_claim_your_work.mp4">How to claim your work</a> (screencast)
+If you're an author, publisher, or other rights holder, you can participate more fully in Unglue.it by registering as a rights holder. Registered rights holders can:
+<ul class="bullets">
+<li> Add books to the unglue.it database.</li>
+<li> Set metadata and descriptions for their books.</li>
+<li> Create campaigns for their books. </li>
+</ul>
 </p>
-<p>
-    <a href="/static/images/How_to_set_up_your_campaign.mp4">How to set up your campaign</a> (screencast)
-</p>
-<p>
-    <a href="/static/images/How_to_embed_a_widget.mp4">How to embed a widget for your book</a> in your blog, web site, etc. (screencast)
-</p>
-
-<p>
-    <a href="/static/images/How_to_embed_a_PDF.mp4">How to embed a PDF</a> in your campaign page (screencast)
-</p>
-
-<p>
-    <a href="/static/images/How_to_embed_a_video.mp4">How to embed a video</a> in your campaign page (screencast)
-</p>
-{% endcomment %}
 
 {% if campaigns %}
 <h2 id="managed_campaigns">Campaigns You Manage</h2>
@@ -205,6 +195,7 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 {% endif %}
 {% if request.user.rights_holder.count %}
 <h2 id="your_rhs">Rights Holders That You Administer</h2>
+
 	<dl>
 		{% for rights_holder in request.user.rights_holder.all %}
 		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
@@ -213,9 +204,11 @@ Any questions not covered here?  Please email us at <a href="mailto:rights@gluej
 		{% endfor %}
 	</dl>
 {% else %}
-<I>If you were a registered rights holder with Unglue.it, you'd be able to see and manage your campaigns here.  If you hold electronic rights to one or more works and you'd like to be a registered rights holder, please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</I>
+<h2 id="your_rhs">Your Books/Campaigns</h2>
+
+<I>If you were a registered rights holder with Unglue.it, you'd be able to see and manage your campaigns here.  </I>
 {% endif %}
-<h2 id="how_to">How to Make an Unglue.it Campaign</h2>
+<h2 id="how_to">Registering Your Rights</h2>
 
 <ol>
     {% if not request.user.is_authenticated %}

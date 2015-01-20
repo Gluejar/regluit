@@ -8,6 +8,7 @@ import re
 import random
 import urllib
 import urllib2
+from urlparse import urlparse
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -26,7 +27,7 @@ from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q, get_model
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
 
 '''
@@ -314,7 +315,7 @@ class Acq(models.Model):
         return hashlib.md5('%s:%s:%s:%s'%(settings.TWITTER_CONSUMER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
-        self.expires = now() + delta
+        self.expires = (now() + delta) if delta else now()
         self.save()
         if self.lib_acq:
             self.lib_acq.refreshes = now() + delta
@@ -1062,6 +1063,7 @@ class Work(models.Model):
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
     earliest_publication =  models.CharField(max_length=50, null=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
+    is_free = models.BooleanField(default=False)
 
 
     class Meta:
@@ -1129,7 +1131,9 @@ class Work(models.Model):
         if self.uses_google_cover():
             return 'jpeg'
         else:
-            url = self.cover_image_small().lower()
+            # consider the path only and not the params, query, or fragment
+            url = urlparse(self.cover_image_small().lower()).path
+
             if url.endswith('.png'):
                 return 'png'
             elif url.endswith('.gif'):
@@ -1482,7 +1486,7 @@ class Work(models.Model):
                 
         @property
         def purchased(self):
-            purchases =  self.acqs.filter(license=INDIVIDUAL)
+            purchases =  self.acqs.filter(license=INDIVIDUAL, expires__isnull = True)
             if purchases.count()==0:
                 return None
             else:
@@ -1523,6 +1527,13 @@ class Work(models.Model):
                 return acq
             else:
                 return None
+        
+        @property       
+        def is_duplicate(self):
+            # does user have two individual licenses?
+            pending = self.acqs.filter(license=INDIVIDUAL, expires__isnull = True, gifts__used__isnull = True).count()
+            return self.acqs.filter(license=INDIVIDUAL, expires__isnull = True).count() > pending
+        
     
     def get_user_license(self, user):
         """ This is all the acqs, wrapped in user_license object for the work, user(s) """
@@ -1580,18 +1591,25 @@ class Author(models.Model):
                 reversed_name+=name
             return reversed_name
         
-
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200, unique=True)
     works = models.ManyToManyField("Work", related_name="subjects")
+    is_visible = models.BooleanField(default = True)
 
     class Meta:
         ordering = ['name']
 
     def __unicode__(self):
         return self.name
-
+    
+    
+    @property 
+    def kw(self):
+        return 'kw.%s' % self.name
+        
+    def free_works(self):
+        return self.works.filter( is_free = True )
 
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -1834,7 +1852,7 @@ class Ebook(models.Model):
             provider='Wikisource'
         elif re.match('https?://\w\w\.wikibooks\.org/', url):
             provider='Wikibooks'
-        elif re.match('https://github\.com/\w+/\w+/raw/\w+', url):
+        elif re.match('https://github\.com/[^/ ]+/[^/ ]+/raw/[^ ]+', url):
             provider='Github'
         else:
             provider=None
@@ -1860,6 +1878,23 @@ class Ebook(models.Model):
     def activate(self):
         self.active=True
         self.save()
+
+def set_free_flag(sender, instance, created,  **kwargs):
+    if created:
+        if not instance.edition.work.is_free:
+            instance.edition.work.is_free = True
+            instance.edition.work.save()
+
+post_save.connect(set_free_flag,sender=Ebook)
+
+def reset_free_flag(sender, instance, **kwargs):
+    # if the Work associated with the instance Ebook currenly has only 1 Ebook, then it's no longer a free Work 
+    # once the instance Ebook is deleted.  
+    if instance.edition.work.ebooks().count()==1:
+        instance.edition.work.is_free = False
+        instance.edition.work.save()
+
+pre_delete.connect(reset_free_flag,sender=Ebook)
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -1994,7 +2029,7 @@ class UserProfile(models.Model):
     
     @property
     def pledges(self):
-        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE)
+        return self.user.transaction_set.filter(status=TRANSACTION_STATUS_ACTIVE, campaign__type=1)
 
     @property
     def last_transaction(self):
@@ -2109,7 +2144,27 @@ class Press(models.Model):
     language = models.CharField(max_length=20, blank=True)
     highlight = models.BooleanField(default=False)
     note = models.CharField(max_length=140, blank=True)
-    
+
+class Gift(models.Model):
+    # the acq will contain the recipient, and the work
+    acq = models.ForeignKey('Acq', related_name='gifts')
+    to = models.CharField(max_length = 75, blank = True) # store the email address originally sent to, not necessarily the email of the recipient
+    giver = models.ForeignKey(User, related_name='gifts')
+    message = models.TextField(max_length=512, default='')
+    used = models.DateTimeField(null=True)
+
+    @staticmethod
+    def giftee(email, t_id):
+        # return a user (create a user if necessary)
+        (giftee, new_user) = User.objects.get_or_create(email=email,defaults={'username':'giftee%s' % t_id})
+        giftee.new_user = new_user
+        return giftee
+        
+    def use(self):
+        self.used = now()
+        self.save()
+        notification.send([self.giver], "purchase_got_gift", {'gift': self }, True)
+           
 
 # this was causing a circular import problem and we do not seem to be using
 # anything from regluit.core.signals after this line

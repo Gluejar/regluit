@@ -3,7 +3,8 @@ external library imports
 """
 import datetime 
 import uuid
-import urllib
+
+from django.utils.http import urlquote
 import logging
 
 from decimal import Decimal
@@ -139,7 +140,7 @@ class Transaction(models.Model):
             
     @property
     def ack_link(self):
-        return 'https://unglue.it/supporter/%s' % urllib.quote(self.user.username) if not self.anonymous else ''
+        return 'https://unglue.it/supporter/%s' % urlquote(self.user.username) if not self.anonymous else ''
         
     def save(self, *args, **kwargs):
         if not self.secret:

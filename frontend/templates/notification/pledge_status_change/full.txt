@@ -1,7 +1,7 @@
 {% load humanize %}{% if up_or_down == 'canceled' %}You have canceled a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
 
 Your canceled pledge
-Amount: ${{ transaction.amount|intcomma }}
+Amount: ${{ transaction.amount|floatformat:2|intcomma }}
 Premium: {{ transaction.premium.description }}
 You will not be acknowledged in the unglued ebook.
 {% else %}You have modified a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.

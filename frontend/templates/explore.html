@@ -15,7 +15,17 @@
                                 {% endfor %}
                                 <li>
                             {% endif %}
-                                <li><a href="{% url free %}"><span>Free eBooks!</span></a></li>
+                                <li><a href="{% url free %}"><span>Free eBooks!</span></a>
+                                {% if work %}
+                                <ul class="menu level3">
+                                    {% for subject in work.subjects.all %}
+                                    {% if subject.is_visible and subject.free_works.1 %}
+                                    <li><a href="{% url faceted_list subject.kw %}"><span>{{ subject }}</span></a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                                </li>
                                 <li><a href="{% url campaign_list 'ending' %}"><span>Active Campaigns</span></a></li>
                                 <li><a href="{% url comment %}"><span>Latest Comments</span></a></li>
                                 <li><a href="{% url work_list 'popular' %}"><span>Site Favorites</span></a></li>

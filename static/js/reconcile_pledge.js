@@ -14,6 +14,8 @@ $j().ready(function() {
 	var supporterName = $j('#pass_supporter_name').html();
 	var ackName = $j('#id_ack_name').val();
 	var ackDedication = $j('#id_ack_dedication').val();
+	var giveForm = $j('#give_form');
+	var activeOffer = $j('li:has(#offers_list input[type=radio]:checked)');
 	if(ackDedication == 'None') {
 		ackDedication = '';
 	}
@@ -139,6 +141,7 @@ $j().ready(function() {
 	// when user clicks a premium, ensure it is compatible with the pledge box amount
 	// if pledge box was empty, assume they wanted value of premium
 	$j('#premiums_list input').on("click", function() {
+		
 		amount = canonicalize($j(this));
 		current = inputbox.val();
 		if (current == "" && !isNaN(amount)) {
@@ -149,6 +152,23 @@ $j().ready(function() {
 		} else if (submitbutton.attr('disabled')) {
 			allclear();
 		}
+	});
+	
+	// when user clicks an offer
+	$j('#offers_list li').on("click", function() {
+		if ( $j(this).attr('id') == 'give_offer'){
+		    $j('#anonbox').addClass('off');
+		    giveForm.removeClass('off').addClass('on');
+		    $j(this).find('input[type=radio]').attr('checked', 'checked');
+		} else {
+		    var radio = $j(this).find('input[type=radio]');
+		    if (radio.length ) {
+		        giveForm.removeClass('on').addClass('off');
+		        $j('#anonbox').removeClass('off');
+		        radio.attr('checked', 'checked');
+		    };
+		};
+		
 	});
 	
 	// when user changes the pledge box contents, ensure they are compatible

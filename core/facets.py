@@ -13,7 +13,7 @@ class BaseFacet(object):
         if self.outer_facet:
             return self.outer_facet.get_query_set()
         else:
-            return self.model.objects.filter(editions__ebooks__isnull=False)
+            return self.model.objects.filter(is_free=True)
     
     def __unicode__(self):
         if self.facet_name == 'all':
@@ -141,12 +141,17 @@ class LicenseFacetGroup(FacetGroup):
                 return  "These eBooks are available under the %s license." % self.facet_name
         return LicenseFacet
 
+TOPKW = ["Fiction", "Nonfiction", "Literature",  "History", "Classic Literature", 
+    "Children's literature, English", "History and criticism", "Science", "Juvenile fiction", 
+    "Sociology", "Software", "Science Fiction"]
+
 class KeywordFacetGroup(FacetGroup):
     
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'Keyword'
-        self.facets = []
+        # make facets in TOPKW available for display
+        self.facets = [('kw.%s' % kw) for kw in TOPKW]
         
     def has_facet(self, facet_name):
     
@@ -169,9 +174,13 @@ class KeywordFacetGroup(FacetGroup):
             @property    
             def label(self):
                 return self.keyword
+            @property
+            def description(self):
+                return  "%s eBooks" % self.keyword
         return KeywordFacet    
     
-facet_groups = [ FormatFacetGroup() , LicenseFacetGroup() , KeywordFacetGroup()]
+# order of groups in facet_groups determines order of display on /free/    
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), ]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:

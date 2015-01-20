@@ -12,11 +12,11 @@
 {% block comments_textual %}
 	{% if up_or_down == 'canceled' %}
 			Your canceled pledge was as follows:<br />
-			Amount: ${{ transaction.amount|intcomma }}<br />
+			Amount: ${{ transaction.amount|floatformat:2|intcomma }}<br />
 			Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br />
 	{% else %}
 			Your new pledge is as follows:<br />
-			Amount: ${{ transaction.amount|intcomma }}<br />
+			Amount: ${{ transaction.amount|floatformat:2|intcomma }}<br />
 			Premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}None requested{% endif %}<br /><br />
 			
 		Acknowledgements: <ul>

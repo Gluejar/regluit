@@ -85,7 +85,7 @@ class RightsHolderAdmin(ModelAdmin):
     form = RightsHolderAdminForm
 
 class AcqAdmin(ModelAdmin):
-    fields = ("expires", "refreshes", )
+    readonly_fields = ('work', 'user', 'lib_acq', 'watermarked')
     search_fields = ['user__username']
     date_hierarchy = 'created'
 
@@ -175,7 +175,15 @@ class UserProfileAdmin(ModelAdmin):
     search_fields = ('user__username',)
     date_hierarchy = 'created'
     exclude = ('user',)
-    
+
+class GiftAdmin(ModelAdmin):
+    list_display = ('to', 'acq_admin_link', 'giver', )
+    search_fields = ('giver__username', 'to')
+    readonly_fields = ('giver', 'acq',) 
+    def acq_admin_link(self, gift):
+        return "<a href='/admin/core/acq/%s/'>%s</a>" % (gift.acq.id, gift.acq)
+    acq_admin_link.allow_tags = True
+
 class CeleryTaskAdmin(ModelAdmin):
     pass
 
@@ -244,6 +252,7 @@ admin_site.register(models.Wishlist, WishlistAdmin)
 admin_site.register(models.UserProfile, UserProfileAdmin)
 admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Press, PressAdmin)
+admin_site.register(models.Gift, GiftAdmin)
 admin_site.register(MARCRecord, MARCRecordAdmin)
 
 # payments
