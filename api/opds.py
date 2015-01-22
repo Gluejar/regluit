@@ -145,9 +145,10 @@ def work_node(work):
                 node.append(category_node)
                 try:
                     subject.works.filter(is_free=True)[1]
-                except:
                     # only show feed if there's another work in it
                     append_navlink(node, 'related', 'kw.'+ subject.name , 0, 'popular', title=subject.name)
+                except:
+                    pass
             except ValueError:
                 # caused by control chars in subject.name
                 logger.warning('Deleting subject: %s' % subject.name)
