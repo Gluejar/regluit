@@ -7,6 +7,9 @@ from django.utils.http import urlquote
 
 import pytz
 
+import logging
+logger = logging.getLogger(__name__)
+
 from regluit.core import models, facets
 import regluit.core.cc as cc
 
@@ -137,9 +140,21 @@ def work_node(work):
     for subject in work.subjects.all():
         if subject.is_visible:
             category_node = etree.Element("category")
-            category_node.attrib["term"] = subject.name 
-            node.append(category_node)
-            append_navlink(node, 'related', 'kw.'+ subject.name , 0, 'popular', title=subject.name)
+            try:
+                category_node.attrib["term"] =  subject.name 
+                node.append(category_node)
+                try:
+                    subject.works.filter(is_free=True)[1]
+                    # only show feed if there's another work in it
+                    append_navlink(node, 'related', 'kw.'+ subject.name , 0, 'popular', title=subject.name)
+                except:
+                    pass
+            except ValueError:
+                # caused by control chars in subject.name
+                logger.warning('Deleting subject: %s' % subject.name)
+                subject.delete()
+                
+                
             
     return node
 
