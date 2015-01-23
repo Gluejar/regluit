@@ -5,14 +5,14 @@
 
 
 From Unglue.it:
-Unglue.it is a website whose purpose is to help ebooks become free. Thanks to "{{ gift.giver }}" and other "ungluers", "{{ gift.acq.work.title }}" will be eventually be released in an "unglued" ebook edition, i.e. free to everyone. Purchases of "{{ gift.acq.work.title }}" are helping to make that free edition financially possible.
-
-To get the ebook {{ gift.giver }} has given you, please click on this link (or copy and paste it into your web browser):
+To pick up "{{ gift.acq.work.title }}", the ebook {{ gift.giver }} has bought for you, please click on this link (or copy and paste it into your web browser):
 https://{{ current_site.domain }}{% url receive_gift gift.acq.nonce %}
 
 Choose a password if you want to access your ebooks in the future.
 
 The ebook will be licensed to you personally, and the license will be embedded in the ebook file. You may download it as many times as you need to, but you can't make copies for the use of others until the ungluing date, when it becomes free to everyone. You can make that date come sooner by encouraging your friends to buy a copy.
+
+Unglue.it is a website whose purpose is to help ebooks become free. Thanks to "{{ gift.giver }}" and other "ungluers", "{{ gift.acq.work.title }}" will be eventually be released in an "unglued" ebook edition, i.e. free to everyone. Purchases of "{{ gift.acq.work.title }}" are helping to make that free edition financially possible.
 
 
 For more information about the book, visit the book's unglue.it page at 
