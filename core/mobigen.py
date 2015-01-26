@@ -11,7 +11,7 @@ import uuid
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile, File
 
-from regluit.core.models import Campaign
+from regluit.core.models import (Campaign, Ebook)
 
 
 def convert_to_mobi(input_url, input_format="application/epub+zip"):
