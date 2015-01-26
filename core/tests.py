@@ -957,6 +957,16 @@ class EbookFileTests(TestCase):
         assert test_pdf(asking_pdf)
         
 
+class MobigenTests(TestCase):
+    def test_convert_to_mobi(self):
+        """
+        check the size of the mobi output of a Moby Dick epub 
+        """
+        from regluit.core.mobigen import convert_to_mobi
+
+        output = convert_to_mobi("https://archive.org/download/mobydickorthewha02701gut/pg2701.epub")
+        self.assertTrue(len(output)==2207877)
+
 from .signals import handle_transaction_charged
 @override_settings(LOCAL_TEST=True)
 class LibTests(TestCase):
