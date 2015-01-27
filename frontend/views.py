@@ -867,6 +867,9 @@ class FacetedView(FilterableListView):
             self.vertex = get_facet_object(facet_path)
         
         order_by = self.request.GET.get('order_by', 'newest')
+        #special cases
+        if order_by == 'subjects':
+            return self.vertex.get_query_set().annotate(kws=Count('subjects')).order_by('kws')
         return self.vertex.get_query_set().distinct().order_by(*get_order_by(order_by))
 
     def get_context_data(self, **kwargs):
