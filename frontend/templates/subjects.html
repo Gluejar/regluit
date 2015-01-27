@@ -15,6 +15,7 @@
         <li> ordered by <a href="{% url subjects %}?order=count">number</a> of works with the subject.</li>
         <li> ordered by <a href="{% url subjects %}?subset=free">subject name</a> (free works only)</li> 
         <li> ordered by <a href="{% url subjects %}?order=count&amp;subset=free">number</a> of free works with the subject.</li>
+        <li> <a href="{% url free %}?order_by=subjects">free works needing subjects</a>
         </ul>
 
         <p>
@@ -23,7 +24,8 @@
         
             <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> 
             ({% if subject.works__is_free__count %}{{ subject.works__is_free__count }} free out of {{ subject.works.all.count }}{% else %}{{ subject.works__count }}{% endif %} total works). 
-            {% if request.user.is_staff %} <a href="{% url free %}?setkw={{ subject.name }}">set keywords</a>{% endif %}
+            {% if request.user.is_staff %} <a href="{% url free %}?setkw={{ subject.name }}">set</a> keywords. 
+             <a href="{% url admin:core_subject_change subject.id %}">edit</a>{% endif %} keyword.
             </li>
         {% endfor %}
         </ul>
