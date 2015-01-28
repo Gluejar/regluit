@@ -335,6 +335,12 @@ NOTIFY_EXPIRING_ACCOUNTS = {
     "args": ()    
 }
 
+NOTIFY_UNCLAIMED_GIFTS = {
+    "task": "regluit.core.tasks.notify_unclaimed_gifts",
+    "schedule": crontab( hour=2, minute=15),
+    "args": ()    
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # set notification queueing on
