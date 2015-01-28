@@ -6,21 +6,21 @@
 {% endblock %}
 
 {% block comments_graphical %}
-After more than 7 days,  gift you sent to {{ gift.to }} has not yet been redeemed.
+After more than 7 days, the gift you sent to {{ gift.to }} has not yet been redeemed.
 
 {% endblock %}
 
 {% block comments_textual %}
 <p>
-After more than 7 days,  gift you sent to {{ gift.to }} has not yet been redeemed.
+After more than 7 days, the gift you sent to {{ gift.to }} has not yet been redeemed.
 </p>
 <p>
 There are several possible reasons for this. 
 </p>
 <ul>
-<li>  The email address ({{ gift.acq.user.email }}) may have been incorrect
+<li>  The email address ({{ gift.acq.user.email }}) may have been incorrect.
 <li>  The recipient may have ignored the email with the information about the ebook.
-<li>  The email may have been filtered
+<li>  The email may have been filtered.
 <li> The recipient might be on vacation. We'll check again in another week.
 </li>
 
@@ -37,7 +37,7 @@ You can also "regift" the ebook to a different email address. Click on
 <a href="{% url receive_gift gift.acq.nonce %}">this link</a> to do so.
 </p>
 <p>
-If you have any problems or questions don't hesitate to contact <a href="{% url feedback %}?page={{request.build_absolute_uri|urlencode:""}}">Unglue.it support</a>.</p>
+If you have any problems or questions, don't hesitate to contact <a href="{% url feedback %}?page={{request.build_absolute_uri|urlencode:""}}">Unglue.it support</a>.</p>
 <p>
 the Unglue.it team
 </p>
