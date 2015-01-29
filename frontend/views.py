@@ -2926,7 +2926,7 @@ def feature(request, work_id):
         if work.first_ebook():
             work.featured = now()
             work.save()
-            return home(request, landing=True)
+            return HttpResponseRedirect(reverse('landing', args=[] ))
         else:
             return HttpResponse('can\'t feature an work without an ebook')
 
