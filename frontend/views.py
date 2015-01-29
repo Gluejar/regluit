@@ -346,6 +346,7 @@ def work(request, work_id, action='display'):
                 selected_id=request.POST['select_edition']
                 try:
                     work.selected_edition= work.editions.get(id=selected_id)
+                    work.title=work.selected_edition.title
                     work.save()
                     alert = alert + 'edition selected'
                 except models.Edition.DoesNotExist:
