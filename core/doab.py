@@ -91,7 +91,9 @@ def attach_more_doab_metadata(ebook, description, subjects,
         work.save()
         
     # update subjects
-    work.subjects.add(*[models.Subject.objects.get_or_create(name=s)[0] for s in subjects])
+    for s in subjects:
+        if bookloader.valid_subject(s):
+            work.subjects.add(models.Subject.objects.get_or_create(name=s)[0])
             
     return ebook
 
