@@ -12,6 +12,7 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile, File
 
 from regluit.core.models import (Campaign, Ebook)
+from regluit.core import parameters
 
 
 def convert_to_mobi(input_url, input_format="application/epub+zip"):
@@ -89,7 +90,8 @@ def write_file_to_storage(file_object, content_type, path):
 
 def editions_to_convert():
     for campaign in Campaign.objects.filter(edition__ebooks__isnull=False).distinct():
-        if edition_mobi_status(campaign.edition) == 0: # possible to generate mobi
+        # need to make sure campaign type is not B2U because kindlegen is for books we give awy free of charge
+        if (edition_mobi_status(campaign.edition) == 0) and (campaign.type != parameters.BUY2UNGLUE): # possible to generate mobi
             yield campaign.edition
             
 
