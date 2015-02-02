@@ -628,7 +628,7 @@ def valid_subject( subject_name ):
         if not valid_xml_char_ordinal(c):
             return False
         if c == ',':
-            num_commas=num_commas+1
+            num_commas += 1
             if num_commas > 2:
                 return False
     return True
