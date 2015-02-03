@@ -73,6 +73,11 @@ class BookLoaderTests(TestCase):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
         self.client.login(username='core_test', password='core_test')
+        
+    def test_valid_subject(self):
+        self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
+        self.assertFalse(bookloader.valid_subject('A, valid, suj\xc3t, '))
+        self.assertFalse(bookloader.valid_subject('A valid suj\xc3t \x01'))
 
     def test_add_by_isbn(self):
         # edition

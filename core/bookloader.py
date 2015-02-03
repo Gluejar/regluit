@@ -605,14 +605,35 @@ def add_openlibrary(work, hard_refresh = False):
 
     # add the subjects to the Work
     for s in subjects:
-        logger.info("adding subject %s to work %s", s, work.id)
-        subject, created = models.Subject.objects.get_or_create(name=s)
-        work.subjects.add(subject)
+        if valid_subject(subject):
+            logger.info("adding subject %s to work %s", s, work.id)
+            subject, created = models.Subject.objects.get_or_create(name=s)
+            work.subjects.add(subject)
     
     work.save()
 
-    # TODO: add authors here once they are moved from Edition to Work
+def valid_xml_char_ordinal(c):
+    codepoint = ord(c)
+    # conditions ordered by presumed frequency
+    return (
+        0x20 <= codepoint <= 0xD7FF or
+        codepoint in (0x9, 0xA, 0xD) or
+        0xE000 <= codepoint <= 0xFFFD or
+        0x10000 <= codepoint <= 0x10FFFF
+        )
 
+def valid_subject( subject_name ):
+    num_commas = 0
+    for c in subject_name:
+        if not valid_xml_char_ordinal(c):
+            return False
+        if c == ',':
+            num_commas += 1
+            if num_commas > 2:
+                return False
+    return True
+    
+    
 
 def _get_json(url, params={}, type='gb'):
     # TODO: should X-Forwarded-For change based on the request from client?
