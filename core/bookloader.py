@@ -605,7 +605,7 @@ def add_openlibrary(work, hard_refresh = False):
 
     # add the subjects to the Work
     for s in subjects:
-        if valid_subject(subject):
+        if valid_subject(s):
             logger.info("adding subject %s to work %s", s, work.id)
             subject, created = models.Subject.objects.get_or_create(name=s)
             work.subjects.add(subject)
