@@ -71,6 +71,8 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get("/search/?q=sverige")
         self.assertEqual(r.status_code, 200)
+        r = self.client.get("/search/?q=sverige&page=2")
+        self.assertEqual(r.status_code, 200)
 
     def test_view_by_other(self):
         # someone else's supporter page
@@ -85,6 +87,8 @@ class PageTests(TestCase):
         r = anon_client.get("/")
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/search/?q=sverige")
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/search/?q=sverige&page=2")
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/info/metrics.html")
         self.assertEqual(r.status_code, 200)
