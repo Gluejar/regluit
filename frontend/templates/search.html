@@ -50,7 +50,7 @@ $j(document).ready(function() {
             <div id="content-block">
               {% if campaign_works %}
                 <div class="content-block-heading">
-                    <h2 class="content-heading">Unglue.it Campaigns</span></h2>
+                    <h2 class="content-heading">These books are Free, or want to be!</span></h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -105,16 +105,6 @@ $j(document).ready(function() {
                     {% endwith %}{% endwith %}
                     </div>
                     {% endif %}
-                    {% empty %}
-                    <h2>Sorry, couldn't find that!</h2>
-                    <div class="js-search">
-                        <div class="js-search-inner">
-                            <form action="{% url search %}" method="get"> 
-			                    <input type="text" id="watermarkempty" size="25" onfocus="imgfocusempty()" onblur="imgblurempty(15)" class="inputbox" name="q" value="{{ q }}">
-                                <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
-                            </form>
-                        </div>
-                    </div>
                     {% endfor %}
                 </div></div>
                 <div id="results-bottom"></div>
