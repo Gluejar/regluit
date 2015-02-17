@@ -2923,7 +2923,7 @@ def feature(request, work_id):
         return render(request, "admins_only.html")
     else:
         work = safe_get_work(work_id)
-        if work.first_ebook():
+        if work.is_free:
             work.featured = now()
             work.save()
             return HttpResponseRedirect(reverse('landing', args=[] ))
