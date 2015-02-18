@@ -202,12 +202,9 @@ def safe_get_work(work_id):
     use this rather than querying the db directly for a work by id
     """
     try:
-        work = models.Work.objects.get(id = work_id)
+        work = models.safe_get_work(work_id)
     except models.Work.DoesNotExist:
-        try:
-            work = models.WasWork.objects.get(was = work_id).work
-        except models.WasWork.DoesNotExist:
-            raise Http404
+        raise Http404
     return work
     
 def cover_width(work):

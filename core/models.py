@@ -1783,6 +1783,19 @@ class WasWork(models.Model):
     moved = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, null=True)
 
+def safe_get_work(work_id):
+    """
+    use this rather than querying the db directly for a work by id
+    """
+    try:
+        work = Work.objects.get(id = work_id)
+    except Work.DoesNotExist:
+        try:
+            work = WasWork.objects.get(was = work_id).work
+        except WasWork.DoesNotExist:
+            raise Work.DoesNotExist()
+    return work
+
 FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
 
 def path_for_file(instance, filename):
