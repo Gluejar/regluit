@@ -552,7 +552,7 @@
                                 <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
                             </ul>
                             <div id="widgetcode">
-                                Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
+                                Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.id}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
                             </div>
                     </div>
                     {% if status == 'ACTIVE' %}

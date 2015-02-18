@@ -122,4 +122,6 @@ class ApiTests(TestCase):
     def test_widget(self):
         r = self.client.get('/api/widget/0441007465/')
         self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/widget/%s/'%self.work_id)
+        self.assertEqual(r.status_code, 200)
 
