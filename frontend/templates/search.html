@@ -79,6 +79,7 @@ $j(document).ready(function() {
               {% endif %}
                 <div class="content-block-heading">
                     <h2 class="content-heading"><a href="https://www.google.com/search?q={{q }}&amp;tbm=bks">Google Books</a> search results</span></h2>
+                    
                       {% if not campaign_works %}
                         <ul class="book-list-view">
                             <li>View As:</li>
@@ -96,6 +97,7 @@ $j(document).ready(function() {
                       {% endif %}
                 </div>
                 <div id="content-block-content"><div id="results">
+                <div style=" text-indent: 12em; margin-bottom: 1em;">(scroll down to see Google Books results)</div>
                     {% for work in results %}
                     {% if not work.last_campaign %}
                     <div class="{% cycle 'row1' 'row2' %} book">
