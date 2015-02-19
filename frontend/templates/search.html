@@ -3,6 +3,10 @@
 <link rel="stylesheet" href="/static/css/book_list.css">
 <link rel="stylesheet" href="/static/css/book_panel2.css">
 <link rel="stylesheet" href="/static/css/search.css">
+<style type="text/css">
+#scrolldown:last-child{ display:block}
+#scrolldown{ display:none}
+</style>
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
@@ -65,7 +69,7 @@ $j(document).ready(function() {
                             </li>
                         </ul>
                 </div>
-                <div id="content-block-content-1"><div id="unglueit-results">
+                <div id="content-block-content-1"><div id="unglueit-results" style="margin-bottom: 3em;">
                     {% for work in campaign_works %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
@@ -97,7 +101,7 @@ $j(document).ready(function() {
                       {% endif %}
                 </div>
                 <div id="content-block-content"><div id="results">
-                <div style=" text-indent: 12em; margin-bottom: 1em;">(scroll down to see Google Books results)</div>
+                <div id="scrolldown" style=" text-indent: 12em; margin-bottom: 1em;">(scroll down to see Google Books results)</div>
                     {% for work in results %}
                     {% if not work.last_campaign %}
                     <div class="{% cycle 'row1' 'row2' %} book">
