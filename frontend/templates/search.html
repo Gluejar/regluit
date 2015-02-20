@@ -3,6 +3,10 @@
 <link rel="stylesheet" href="/static/css/book_list.css">
 <link rel="stylesheet" href="/static/css/book_panel2.css">
 <link rel="stylesheet" href="/static/css/search.css">
+<style type="text/css">
+#scrolldown:last-child{ display:block}
+#scrolldown{ display:none}
+</style>
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
@@ -50,7 +54,7 @@ $j(document).ready(function() {
             <div id="content-block">
               {% if campaign_works %}
                 <div class="content-block-heading">
-                    <h2 class="content-heading">Unglue.it Campaigns</span></h2>
+                    <h2 class="content-heading">These books are Free, or want to be!</span></h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
@@ -65,7 +69,7 @@ $j(document).ready(function() {
                             </li>
                         </ul>
                 </div>
-                <div id="content-block-content-1"><div id="unglueit-results">
+                <div id="content-block-content-1"><div id="unglueit-results" style="margin-bottom: 3em;">
                     {% for work in campaign_works %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
@@ -79,6 +83,7 @@ $j(document).ready(function() {
               {% endif %}
                 <div class="content-block-heading">
                     <h2 class="content-heading"><a href="https://www.google.com/search?q={{q }}&amp;tbm=bks">Google Books</a> search results</span></h2>
+                    
                       {% if not campaign_works %}
                         <ul class="book-list-view">
                             <li>View As:</li>
@@ -96,6 +101,7 @@ $j(document).ready(function() {
                       {% endif %}
                 </div>
                 <div id="content-block-content"><div id="results">
+                <div id="scrolldown" style=" text-indent: 12em; margin-bottom: 1em;">(scroll down to see Google Books results)</div>
                     {% for work in results %}
                     {% if not work.last_campaign %}
                     <div class="{% cycle 'row1' 'row2' %} book">
@@ -105,16 +111,6 @@ $j(document).ready(function() {
                     {% endwith %}{% endwith %}
                     </div>
                     {% endif %}
-                    {% empty %}
-                    <h2>Sorry, couldn't find that!</h2>
-                    <div class="js-search">
-                        <div class="js-search-inner">
-                            <form action="{% url search %}" method="get"> 
-			                    <input type="text" id="watermarkempty" size="25" onfocus="imgfocusempty()" onblur="imgblurempty(15)" class="inputbox" name="q" value="{{ q }}">
-                                <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
-                            </form>
-                        </div>
-                    </div>
                     {% endfor %}
                 </div></div>
                 <div id="results-bottom"></div>

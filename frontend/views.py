@@ -2098,12 +2098,14 @@ def search(request):
     q = request.GET.get('q', '')
     request.session['q']=q
     page = int(request.GET.get('page', 1))
-    results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
     
+    our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False )
     if q != '' and page==1:
         work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
-        campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
+        campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
+        results = models.Work.objects.none()
     else:
+        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
         campaign_works = None
 
     # flag search result as on wishlist as appropriate

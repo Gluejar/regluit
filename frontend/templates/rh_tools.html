@@ -226,7 +226,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
 	<form action="{% url search %}" method="get">
 		<div class="inputalign">
-		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
+		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"><input type="hidden" name="page" value="2">
 		<input type="submit" class="button">
 		</div>
 	</form>
