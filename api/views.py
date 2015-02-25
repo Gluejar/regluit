@@ -39,23 +39,25 @@ def editions(request):
 
 def widget(request,isbn):
     """
-    supply info for book panel 
+    supply info for book panel. parameter is named isbn for historical reasons. can be isbn or work_id
     """
    
         
     if len(isbn)==10:
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
-    try:
-        identifier = models.Identifier.objects.get( Q( type = 'isbn', value = isbn ))
-        work = identifier.work
-        edition = identifier.edition
-    except models.Identifier.DoesNotExist:
-        return render_to_response('widget.html', 
-             {'isbn':isbn,'edition':None, 'work':None, 'campaign':None,}, 
-             context_instance=RequestContext(request)
-            )
+    if len(isbn)==13:
+        try:
+            identifier = models.Identifier.objects.get( Q( type = 'isbn', value = isbn ))
+            work = identifier.work
+        except models.Identifier.DoesNotExist:
+            return render_to_response('widget.html', 
+                 { 'work':None,}, 
+                 context_instance=RequestContext(request)
+                )
+    else:
+        work= models.safe_get_work(isbn)
     return render_to_response('widget.html', 
-         {'isbn':isbn,'edition':edition, 'work':work, 'campaign':work.last_campaign(), }, 
+         {'work':work, }, 
          context_instance=RequestContext(request)
      )
 
