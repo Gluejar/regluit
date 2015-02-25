@@ -1247,7 +1247,10 @@ class Work(models.Model):
     def percent_of_goal(self):
         campaign = self.last_campaign()
         return 0 if campaign is None else campaign.percent_of_goal()
-
+    
+    def ebooks_all(self):
+        return self.ebooks(all=True)
+        
     def ebooks(self, all=False):
         if all:
             return Ebook.objects.filter(edition__work=self).order_by('-created')
