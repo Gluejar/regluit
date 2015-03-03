@@ -9,6 +9,7 @@ import random
 import urllib
 import urllib2
 from urlparse import urlparse
+import unicodedata
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -1186,6 +1187,21 @@ class Work(models.Model):
         elif self.authors().count()>2:
             return "%s et al." % self.authors()[0].name
         return ''
+    
+    def kindle_safe_title(self):
+        safe = u''
+        nkfd_form = unicodedata.normalize('NFKD', self.title) #unaccent accented letters
+        for c in nkfd_form:
+            ccat = unicodedata.category(c)
+            #print ccat
+            if ccat.startswith('L') or  ccat.startswith('N'): # only letters and numbers
+                if ord(c) > 127:
+                    safe = safe + '#' #a non latin script letter or number
+                else:
+                    safe = safe + c
+            elif not unicodedata.combining(c): #not accents (combining forms)
+                safe = safe + '_' #punctuation
+        return safe
 
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
