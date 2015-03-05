@@ -3150,7 +3150,11 @@ def kindle_config(request, work_id=None):
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
-    return render(request, template, {'form': form, 'work': work})
+    return render(request, template, {
+            'form': form, 
+            'work': work, 
+            'ok_email': request.user.profile.kindle_email and ('kindle' in request.user.profile.kindle_email),
+        })
 
 @require_POST
 @csrf_exempt
