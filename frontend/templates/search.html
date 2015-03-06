@@ -180,7 +180,7 @@ $j(document).ready(function() {
                       {% endif %}
                 </div>
                 <div id="content-block-content"><div id="results">
-                <div id="scrolldown" style=" text-indent: 12em; margin-bottom: 1em;">(scroll down to see Google Books results)</div>
+                <div id="scrolldown" style=" text-indent: 12em; margin-bottom: 1em;">(scroll down or <a href="javascript:$j(document).scroll()">click</a> to see Google Books results)</div>
                     {% for work in results %}
                     {% if not work.last_campaign %}
                     <div class="{% cycle 'row1' 'row2' %} book">
