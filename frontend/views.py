@@ -2106,11 +2106,6 @@ def search(request):
         campaign_works = None
 
     # flag search result as on wishlist as appropriate
-    if not request.user.is_anonymous():
-        ungluers = userlists.other_users(request.user, 5)
-    else:
-        ungluers = userlists.other_users(None, 5)
-
     works=[]
     for result in results:
         try:
@@ -2121,7 +2116,6 @@ def search(request):
     context = {
         "q": q,
         "results": works,
-        "ungluers": ungluers,
         "campaign_works": campaign_works
     }
     return render(request, 'search.html', context)
