@@ -2900,7 +2900,7 @@ class DownloadView(PurchaseView):
             'iphone': 'iPhone' in agent,
             'android': android,
             'desktop': desktop,
-            'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent,
+            'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent or 'Mac OS X 10.10' in agent or 'Mac OS X 10_10' in agent,
             'acq':acq,
             'show_beg': self.show_beg,
             'preapproval_amount': self.get_preapproval_amount(),
