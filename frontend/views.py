@@ -3185,7 +3185,7 @@ def send_to_kindle(request, work_id, javascript='0'):
     if acq:
         ebook_url = acq.get_mobi_url()
         ebook_format = 'mobi'
-        title = acq.work.title
+        title = acq.work.kindle_safe_title()
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
@@ -3201,8 +3201,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         ebook_url = ebook.url
         ebook_format = ebook.format
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
-        title = ebook.edition.title
-    title = title.replace(' ', '_')
+        title = ebook.edition.work.kindle_safe_title()
     context['ebook_url']=ebook_url
     context['ebook_format']=ebook_format
 
