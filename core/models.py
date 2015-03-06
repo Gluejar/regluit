@@ -1189,6 +1189,9 @@ class Work(models.Model):
         return ''
     
     def kindle_safe_title(self):
+        """
+        Removes accents, keeps letters and numbers, replaces non-Latin characters with "#", and replaces punctuation with "_"
+        """
         safe = u''
         nkfd_form = unicodedata.normalize('NFKD', self.title) #unaccent accented letters
         for c in nkfd_form:
