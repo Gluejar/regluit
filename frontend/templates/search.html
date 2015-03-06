@@ -111,9 +111,7 @@ $j(document).ready(function() {
                 var view = $j(".listview").length > 0 ? "list" : "panel";
                 var results = $j(html).find(".book");
                 $j("#results").append(results);
-                if (view === "list") toggleList();
-                else togglePanel();
-                setupWishlistControls();
+                if($j.cookie('view')=='panel') {togglePanel();}
             });
         }
     });
