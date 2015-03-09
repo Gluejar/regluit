@@ -3150,7 +3150,11 @@ def kindle_config(request, work_id=None):
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
-    return render(request, template, {'form': form, 'work': work})
+    return render(request, template, {
+            'form': form, 
+            'work': work, 
+            'ok_email': request.user.profile.kindle_email and ('kindle' in request.user.profile.kindle_email),
+        })
 
 @require_POST
 @csrf_exempt
@@ -3186,8 +3190,9 @@ def send_to_kindle(request, work_id, javascript='0'):
         ebook_url = acq.get_mobi_url()
         ebook_format = 'mobi'
         filesize = None
-        title = acq.work.title
+        title = acq.work.kindle_safe_title()
         ebook=None
+
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
@@ -3204,8 +3209,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         ebook_format = ebook.format
         filesize = ebook.filesize
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
-        title = ebook.edition.title
-    title = title.replace(' ', '_')
+        title = ebook.edition.work.kindle_safe_title()
     context['ebook_url']=ebook_url
     context['ebook_format']=ebook_format
 
