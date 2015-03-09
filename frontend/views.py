@@ -2867,12 +2867,12 @@ class DownloadView(PurchaseView):
             #send to kindle 
         
             try:
-                non_google_ebooks.filter(format='mobi')[0]
-                can_kindle = True
+                kindle_ebook = non_google_ebooks.filter(format='mobi')[0]
+                can_kindle = kindle_ebook.kindle_sendable()
             except IndexError:
                 try:
-                    non_google_ebooks.filter(format='pdf')[0]
-                    can_kindle = True
+                    kindle_ebook = non_google_ebooks.filter(format='pdf')[0]
+                    can_kindle = kindle_ebook.kindle_sendable()
                 except IndexError:
                     can_kindle = False
             # configure the xfer url
@@ -2900,7 +2900,7 @@ class DownloadView(PurchaseView):
             'iphone': 'iPhone' in agent,
             'android': android,
             'desktop': desktop,
-            'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent,
+            'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent or 'Mac OS X 10.10' in agent or 'Mac OS X 10_10' in agent,
             'acq':acq,
             'show_beg': self.show_beg,
             'preapproval_amount': self.get_preapproval_amount(),
@@ -3189,7 +3189,10 @@ def send_to_kindle(request, work_id, javascript='0'):
     if acq:
         ebook_url = acq.get_mobi_url()
         ebook_format = 'mobi'
+        filesize = None
         title = acq.work.kindle_safe_title()
+        ebook=None
+
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
@@ -3204,6 +3207,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         ebook.increment()
         ebook_url = ebook.url
         ebook_format = ebook.format
+        filesize = ebook.filesize
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.work.kindle_safe_title()
     context['ebook_url']=ebook_url
@@ -3222,7 +3226,6 @@ def send_to_kindle(request, work_id, javascript='0'):
 
     
     """
-    TO FIX rigorously:
     Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
     to determine whether the file will meet this limit, we probably need to compare the
     size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
@@ -3235,8 +3238,13 @@ def send_to_kindle(request, work_id, javascript='0'):
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
     filehandle = urllib.urlopen(ebook_url)
-    filesize = int(filehandle.info().getheaders("Content-Length")[0])
-    if filesize > 7492232:
+    if not filesize:
+        filesize = int(filehandle.info().getheaders("Content-Length")[0])
+        if ebook:
+            ebook.filesize =  filesize if filesize < 2147483647 else 2147483647  # largest safe positive integer
+            ebook.save()
+    
+    if filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)
         

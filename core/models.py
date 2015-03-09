@@ -1845,6 +1845,8 @@ class EbookFile(models.Model):
         except:
             return False
 
+send_to_kindle_limit=7492232
+
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
     RIGHTS_CHOICES = cc.CHOICES
@@ -1854,12 +1856,19 @@ class Ebook(models.Model):
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
+    filesize = models.PositiveIntegerField(null=True)
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
     user = models.ForeignKey(User, null=True)
 
+    def kindle_sendable(self):
+        if not self.filesize or self.filesize < send_to_kindle_limit:
+            return True
+        else:
+            return False
+            
     def set_provider(self):
         self.provider=Ebook.infer_provider(self.url)
         return self.provider
