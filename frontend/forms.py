@@ -214,7 +214,7 @@ class EbookFileForm(forms.ModelForm):
 class EbookForm(forms.ModelForm):
     class Meta:
         model = Ebook
-        exclude =( 'created', 'download_count', 'active')
+        exclude =( 'created', 'download_count', 'active', 'filesize')
         widgets = { 
                 'edition': forms.HiddenInput, 
                 'user': forms.HiddenInput, 
