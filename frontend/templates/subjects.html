@@ -3,19 +3,22 @@
 {% block content %}
 <div id="js-topsection">
     <div class="js-main">
-        <h1>Subjects</h1>
+        <h1>Keywords</h1>
 
         <p>
-        Below is a list of subjects for books that users have added to 
-        wishlists. It is here primarily to show what subjects are present 
+        Below is a list of keywords for books that users have added to 
+        wishlists. It is here primarily to show what keywords are present 
         in the database to guide further development. 
         </p>
         <ul> 
-        <li> ordered by <a href="{% url subjects %}">subject name</a> </li>
-        <li> ordered by <a href="{% url subjects %}?order=count">number</a> of works with the subject.</li>
-        <li> ordered by <a href="{% url subjects %}?subset=free">subject name</a> (free works only)</li> 
-        <li> ordered by <a href="{% url subjects %}?order=count&amp;subset=free">number</a> of free works with the subject.</li>
-        <li> <a href="{% url free %}?order_by=subjects">free works needing subjects</a>
+        <li> ordered by <a href="{% url subjects %}">keyword name</a> </li>
+        <li> ordered by <a href="{% url subjects %}?order=count">number</a> of works with the keyword.</li>
+        <li> ordered by <a href="{% url subjects %}?subset=free">keyword name</a> (free works only)</li> 
+        <li> ordered by <a href="{% url subjects %}?order=count&amp;subset=free">number</a> of free works with the keyword.</li>
+        <li> <a href="{% url free %}?order_by=subjects">free works needing keywords</a></li>
+        {% if request.user.is_staff %}
+        <li> <a href="{% url map_subject %}">keyword mapping form</a></li>
+        {% endif %}
         </ul>
 
         <p>

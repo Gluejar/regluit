@@ -50,6 +50,7 @@ from regluit.core.models import (
     Work,
     Press,
     Libpref,
+    Subject,
     TWITTER,
     FACEBOOK,
     GRAVATAR,
@@ -827,3 +828,15 @@ class SubjectSelectForm(forms.Form):
             widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
             label='Keyword',
         )
+class MapSubjectForm(forms.Form):
+    subject = AutoCompleteSelectField(
+            SubjectLookup,
+            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
+            label='Source Subject',
+        )
+    onto_subject = AutoCompleteSelectField(
+            SubjectLookup,
+            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
+            label='Target Subject',
+        )
+    

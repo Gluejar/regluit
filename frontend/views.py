@@ -119,7 +119,8 @@ from regluit.frontend.forms import (
     DateCalculatorForm,
     UserNamePass,
     RegiftForm,
-    SubjectSelectForm
+    SubjectSelectForm,
+    MapSubjectForm,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -785,6 +786,32 @@ def subjects(request):
             subjects = subjects.order_by('name')
 
     return render(request, 'subjects.html', {'subjects': subjects})
+
+class MapSubjectView(FormView):
+    template_name="map_subject.html"
+    form_class = MapSubjectForm
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return render(request, "admins_only.html")
+        else:
+            return super(MapSubjectView, self).dispatch(request, *args, **kwargs)
+                                
+    def form_valid(self, form):
+        context=self.get_context_data()
+        context['subject']=form.cleaned_data['subject']
+        context['onto_subject']=form.cleaned_data['onto_subject']
+        if self.request.POST.has_key('confirm_map_subject'):
+            initial_count = context['onto_subject'].works.all().count()
+            initial_free_count = context['onto_subject'].works.filter(is_free=True).count()
+            context['onto_subject'].works.add(*list(context['subject'].works.all()))
+            context['map_complete']=True
+            context['form'] = MapSubjectForm(initial=form.cleaned_data)
+            context['added'] = context['onto_subject'].works.all().count() - initial_count
+            context['added_free'] = context['onto_subject'].works.filter(is_free=True).count() - initial_free_count
+        else:
+            context['form']=MapSubjectForm(initial=form.cleaned_data)
+        return render(self.request, self.template_name, context)
 
 class FilterableListView(ListView):
     send_marc = False
