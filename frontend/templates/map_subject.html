@@ -21,7 +21,7 @@
 <div id="js-topsection">
     <div class="js-main">
         {% if map_complete %}
-            <h1 class="yikes">Mapping successful</h1>
+            <h1>Mapping successful</h1>
             <p> {{ added }} works, {{ added_free }} of them free, added to <b>{{ onto_subject.name }}</b></p>
             <div class="half">
             <h3>Added this keyword...</h3>
@@ -34,7 +34,7 @@
             {% include 'subjectbox.html' %}
             </div>
             <h1>Map more keywords</h1>
-            <form action="#" method="POST">
+            <form class="p_form"  action="#" method="POST">
             {% csrf_token %}
             <div class="half">
             <h3>Add this keyword...</h3>
@@ -48,7 +48,7 @@
             </form>
         {% else %}
             <h1>Keyword mapping</h1>
-            <form action="#" method="POST">
+            <form class="p_form" action="#" method="POST">
             {% csrf_token %}
             <div class="half">
             <h3>Add this keyword...</h3>
@@ -73,6 +73,11 @@
             <br clear="left" />
             {% if subject and onto_subject %}
                 <p>This can't be undone, so be sure you want to do this!</p>
+                {% if subject.works.all.count > onto_subject.works.all.count %}
+                <p class="errorlist">Do you really want all of {{subject.name}} to also have {{onto_subject.name}}???</p>
+                <br clear="left" />
+                <a class="actionbuttons" href="{% url map_subject %}">Not Really</a>
+                {% endif %}
                 <input type="submit" name="confirm_map_subject" value="Confirm Keyword Mapping" id="submit" />
             {% else %}
                 <input type="submit" name="merge_works" value="Preview Keyword Mapping" id="submit" />
