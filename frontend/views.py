@@ -3019,8 +3019,12 @@ def receive_gift(request, nonce):
     # put nonce in session so we know that a user has redeemed a Gift
     request.session['gift_nonce'] = nonce
     if gift.used:
+        if request.user.is_authenticated():
+            #check that user hasn't redeemed the gift themselves
+            if (gift.acq.user.id == request.user.id) and not gift.acq.expired:
+                return HttpResponseRedirect( reverse('display_gift', args=[gift.id,'existing'] ))
         return render(request, 'gift_error.html', context )
-    if request.user.is_authenticated() and not gift.used:
+    if request.user.is_authenticated():
         user_license = work.get_user_license(request.user)
         if user_license and user_license.purchased:
             # check if previously purchased- there would be two user licenses if so.
