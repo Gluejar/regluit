@@ -9,6 +9,7 @@ import random
 import urllib
 import urllib2
 from urlparse import urlparse
+import unicodedata
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -1186,6 +1187,24 @@ class Work(models.Model):
         elif self.authors().count()>2:
             return "%s et al." % self.authors()[0].name
         return ''
+    
+    def kindle_safe_title(self):
+        """
+        Removes accents, keeps letters and numbers, replaces non-Latin characters with "#", and replaces punctuation with "_"
+        """
+        safe = u''
+        nkfd_form = unicodedata.normalize('NFKD', self.title) #unaccent accented letters
+        for c in nkfd_form:
+            ccat = unicodedata.category(c)
+            #print ccat
+            if ccat.startswith('L') or  ccat.startswith('N'): # only letters and numbers
+                if ord(c) > 127:
+                    safe = safe + '#' #a non latin script letter or number
+                else:
+                    safe = safe + c
+            elif not unicodedata.combining(c): #not accents (combining forms)
+                safe = safe + '_' #punctuation
+        return safe
 
     def last_campaign(self):
         # stash away the last campaign to prevent repeated lookups
@@ -1826,6 +1845,8 @@ class EbookFile(models.Model):
         except:
             return False
 
+send_to_kindle_limit=7492232
+
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
     RIGHTS_CHOICES = cc.CHOICES
@@ -1835,12 +1856,19 @@ class Ebook(models.Model):
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
+    filesize = models.PositiveIntegerField(null=True)
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
     user = models.ForeignKey(User, null=True)
 
+    def kindle_sendable(self):
+        if not self.filesize or self.filesize < send_to_kindle_limit:
+            return True
+        else:
+            return False
+            
     def set_provider(self):
         self.provider=Ebook.infer_provider(self.url)
         return self.provider
