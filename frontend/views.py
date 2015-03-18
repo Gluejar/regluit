@@ -2102,7 +2102,7 @@ def search(request):
         campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
         results = models.Work.objects.none()
     else:
-        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
+        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page-1)
         campaign_works = None
 
     # flag search result as on wishlist as appropriate
