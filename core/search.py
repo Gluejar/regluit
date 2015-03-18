@@ -42,7 +42,7 @@ def gluejar_search(q, user_ip='69.243.24.29', page=1):
             # cover image
             if v.has_key('imageLinks'):
                 url = v['imageLinks'].get('thumbnail', "")
-                url = re.sub(r'http://bks[0-9]+\.books\.google\.com', 'https://encrypted.google.com', url)
+                url = re.sub(r'http://(bks[0-9]+\.)?books\.google\.com', 'https://encrypted.google.com', url)
                 r['cover_image_thumbnail'] = url
             else:
                 r['cover_image_thumbnail'] = "/static/images/generic_cover_larger.png"
@@ -69,4 +69,5 @@ def googlebooks_search(q, user_ip, page):
         
     r = requests.get('https://www.googleapis.com/books/v1/volumes', 
             params=params, headers=headers)
+    # urls like https://www.googleapis.com/books/v1/volumes?q=invisible+engines&startIndex=0&maxResults=10&key=AIzaSyDqJaqdOSXVaNXfzZJyRZIFWtfTMxb29SU
     return json.loads(r.content)
