@@ -788,6 +788,10 @@ def subjects(request):
     return render(request, 'subjects.html', {'subjects': subjects})
 
 class MapSubjectView(FormView):
+    """
+    Allows a staffer to add given subject to all works with given the onto_subject keyword.
+    e.g., subject = "Language" onto_subject="English language"
+    """
     template_name="map_subject.html"
     form_class = MapSubjectForm
     
