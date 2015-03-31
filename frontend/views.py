@@ -2262,6 +2262,7 @@ class InfoPageView(TemplateView):
         works.wishedby50 = works.filter(num_wishes__gte = 50)
         works.wishedby10 = works.filter(num_wishes__gte = 10)
         works.wishedby100 = works.filter(num_wishes__gte = 100)
+        works.free = works.filter(is_free = True)
         ebooks = models.Ebook.objects
         ebooks.today = ebooks.filter(created__range = (date_today(), now()))
         ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -2296,7 +2297,7 @@ class InfoPageView(TemplateView):
         transactions.days7.sum = transactions.days7.aggregate(Sum('amount'))['amount__sum']
         transactions.year = transactions.filter(date_created__year = date_today().year)
         transactions.year.sum = transactions.year.aggregate(Sum('amount'))['amount__sum']
-        transactions.month = transactions.filter(date_created__month = date_today().month)
+        transactions.month = transactions.year.filter(date_created__month = date_today().month)
         transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
         transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
         transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
