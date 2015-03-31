@@ -2262,6 +2262,7 @@ class InfoPageView(TemplateView):
         works.wishedby50 = works.filter(num_wishes__gte = 50)
         works.wishedby10 = works.filter(num_wishes__gte = 10)
         works.wishedby100 = works.filter(num_wishes__gte = 100)
+        works.free = works.filter(is_free = True)
         ebooks = models.Ebook.objects
         ebooks.today = ebooks.filter(created__range = (date_today(), now()))
         ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
