@@ -2297,7 +2297,7 @@ class InfoPageView(TemplateView):
         transactions.days7.sum = transactions.days7.aggregate(Sum('amount'))['amount__sum']
         transactions.year = transactions.filter(date_created__year = date_today().year)
         transactions.year.sum = transactions.year.aggregate(Sum('amount'))['amount__sum']
-        transactions.month = transactions.filter(date_created__month = date_today().month)
+        transactions.month = transactions.year.filter(date_created__month = date_today().month)
         transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
         transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
         transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
