@@ -24,7 +24,8 @@ from regluit.core import (
     models,
     goodreads, 
     librarything,
-    doab
+    doab,
+    mobigen
 )
 from regluit.core.models import Campaign, Acq, Gift
 from regluit.core.signals import deadline_impending
@@ -166,7 +167,15 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, language, 
                       provider='Directory of Open Access Books', **kwargs):
     
     return doab.load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
-                      language, isbns, provider, **kwargs)    
+                      language, isbns, provider, **kwargs)
+
+@task
+def convert_to_mobi(input_url, input_format="application/epub+zip"):
+    return mobigen.convert_to_mobi(input_url, input_format)
+
+@task
+def generate_mobi_ebook_for_edition(edition):
+    return mobigen.generate_mobi_ebook_for_edition(edition)
 
 from postmonkey import PostMonkey, MailChimpException
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
