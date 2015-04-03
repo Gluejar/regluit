@@ -162,11 +162,11 @@ class PublisherNameAdmin(ModelAdmin):
     search_fields = ['name']
     
 class EbookAdmin(ModelAdmin):
-    search_fields = ('edition__title',)
+    search_fields = ('edition__title','^url')  # search by provider using leading url
     list_display = ('__unicode__','created', 'user','edition')
     date_hierarchy = 'created'
     ordering = ('edition__title',)
-    exclude = ('edition','user')
+    exclude = ('edition','user', 'filesize')
 
 class WishlistAdmin(ModelAdmin):
     date_hierarchy = 'created'

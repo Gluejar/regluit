@@ -50,6 +50,7 @@ from regluit.core.models import (
     Work,
     Press,
     Libpref,
+    Subject,
     TWITTER,
     FACEBOOK,
     GRAVATAR,
@@ -214,7 +215,7 @@ class EbookFileForm(forms.ModelForm):
 class EbookForm(forms.ModelForm):
     class Meta:
         model = Ebook
-        exclude =( 'created', 'download_count', 'active')
+        exclude =( 'created', 'download_count', 'active', 'filesize')
         widgets = { 
                 'edition': forms.HiddenInput, 
                 'user': forms.HiddenInput, 
@@ -827,3 +828,15 @@ class SubjectSelectForm(forms.Form):
             widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
             label='Keyword',
         )
+class MapSubjectForm(forms.Form):
+    subject = AutoCompleteSelectField(
+            SubjectLookup,
+            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
+            label='Source Subject',
+        )
+    onto_subject = AutoCompleteSelectField(
+            SubjectLookup,
+            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
+            label='Target Subject',
+        )
+    

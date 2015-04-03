@@ -103,6 +103,8 @@ def create_notice_types(app, created_models, verbosity, **kwargs):
     notification.create_notice_type("library_join", _("New Library User."), _("A library participating in Unglue.it has added a user"))
     notification.create_notice_type("purchase_gift", _("You have a gift."), _("An ungluer has given you an ebook."))
     notification.create_notice_type("purchase_got_gift", _("Your gift was received."), _("The ebook you sent as a gift has been redeemed."))
+    notification.create_notice_type("purchase_gift_waiting", _("Your gift is waiting."), _("Please claim your ebook."))
+    notification.create_notice_type("purchase_notgot_gift", _("Your gift wasn't received."), _("The ebook you sent as a gift has not yet been redeemed."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 

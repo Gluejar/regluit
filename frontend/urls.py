@@ -38,6 +38,7 @@ from regluit.frontend.views import (
     LibModeView,
     DownloadView,
     FacetedView,
+    MapSubjectView,
 )
 
 urlpatterns = patterns(
@@ -131,6 +132,7 @@ urlpatterns = patterns(
     url(r"^purchase/(?P<work_id>\d+)/download/$", "download_purchased", name="download_purchased"),
     url(r"^donate_to_campaign/$", csrf_exempt(NonprofitCampaign.as_view()), name="nonprofit"),
     url(r"^subjects/$", "subjects", name="subjects"),
+    url(r"^subjects/map/$", login_required(MapSubjectView.as_view()), name="map_subject"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
     url('^404testing/$', direct_to_template, {'template': '404.html'}),

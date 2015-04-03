@@ -5,7 +5,7 @@
 <p> Your new book, "<a href="{% url work work.id %}">{{ work.title }}</a>" from <a href="{% url supporter gift.giver %}">{{ gift.giver.username }}</a>, is waiting for you. <a href="{% url download work.id %}">Download it here</a>.</p>
 
     <div><p>From {{ gift.giver.username }}:</p>
-    <p style="margin:1em">{{ gift.message }}</p>
+    <p style="margin:1em">{{ gift.message|linebreaksbr }}</p>
     </div>
 {% ifequal message 'newuser' %}
     {% if passmessage %}

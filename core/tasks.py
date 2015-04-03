@@ -27,7 +27,7 @@ from regluit.core import (
     doab,
     mobigen
 )
-from regluit.core.models import Campaign, Acq
+from regluit.core.models import Campaign, Acq, Gift
 from regluit.core.signals import deadline_impending
 from regluit.core.parameters import RESERVE, REWARDS, THANKS
 
@@ -188,3 +188,15 @@ def ml_subscribe_task(profile, **kwargs):
     except Exception, e:
         logger.error("error subscribing to mailchimp list %s" % (e))
         return False
+
+@task
+def notify_unclaimed_gifts():
+    unclaimed = Gift.objects.filter(used=None)
+    for gift in unclaimed:
+        """
+        send notice every 7 days
+        """
+        unclaimed_duration = (now() - gift.acq.created ).days
+        if unclaimed_duration > 0 and unclaimed_duration % 7 == 0 : # first notice in 7 days
+            notification.send_now([gift.acq.user], "purchase_gift_waiting", {'gift':gift}, True)
+            notification.send_now([gift.giver], "purchase_notgot_gift", {'gift':gift}, True)

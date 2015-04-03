@@ -119,7 +119,8 @@ from regluit.frontend.forms import (
     DateCalculatorForm,
     UserNamePass,
     RegiftForm,
-    SubjectSelectForm
+    SubjectSelectForm,
+    MapSubjectForm,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -202,12 +203,9 @@ def safe_get_work(work_id):
     use this rather than querying the db directly for a work by id
     """
     try:
-        work = models.Work.objects.get(id = work_id)
+        work = models.safe_get_work(work_id)
     except models.Work.DoesNotExist:
-        try:
-            work = models.WasWork.objects.get(was = work_id).work
-        except models.WasWork.DoesNotExist:
-            raise Http404
+        raise Http404
     return work
     
 def cover_width(work):
@@ -346,6 +344,7 @@ def work(request, work_id, action='display'):
                 selected_id=request.POST['select_edition']
                 try:
                     work.selected_edition= work.editions.get(id=selected_id)
+                    work.title=work.selected_edition.title
                     work.save()
                     alert = alert + 'edition selected'
                 except models.Edition.DoesNotExist:
@@ -787,6 +786,36 @@ def subjects(request):
             subjects = subjects.order_by('name')
 
     return render(request, 'subjects.html', {'subjects': subjects})
+
+class MapSubjectView(FormView):
+    """
+    Allows a staffer to add given subject to all works with given the onto_subject keyword.
+    e.g., subject = "Language" onto_subject="English language"
+    """
+    template_name="map_subject.html"
+    form_class = MapSubjectForm
+    
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return render(request, "admins_only.html")
+        else:
+            return super(MapSubjectView, self).dispatch(request, *args, **kwargs)
+                                
+    def form_valid(self, form):
+        context=self.get_context_data()
+        context['subject']=form.cleaned_data['subject']
+        context['onto_subject']=form.cleaned_data['onto_subject']
+        if self.request.POST.has_key('confirm_map_subject'):
+            initial_count = context['onto_subject'].works.all().count()
+            initial_free_count = context['onto_subject'].works.filter(is_free=True).count()
+            context['onto_subject'].works.add(*list(context['subject'].works.all()))
+            context['map_complete']=True
+            context['form'] = MapSubjectForm(initial=form.cleaned_data)
+            context['added'] = context['onto_subject'].works.all().count() - initial_count
+            context['added_free'] = context['onto_subject'].works.filter(is_free=True).count() - initial_free_count
+        else:
+            context['form']=MapSubjectForm(initial=form.cleaned_data)
+        return render(self.request, self.template_name, context)
 
 class FilterableListView(ListView):
     send_marc = False
@@ -2097,20 +2126,17 @@ def search(request):
     q = request.GET.get('q', '')
     request.session['q']=q
     page = int(request.GET.get('page', 1))
-    results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
     
+    our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False )
     if q != '' and page==1:
         work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
-        campaign_works = models.Work.objects.exclude(campaigns = None).filter(work_query).distinct()
+        campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
+        results = models.Work.objects.none()
     else:
+        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page-1)
         campaign_works = None
 
     # flag search result as on wishlist as appropriate
-    if not request.user.is_anonymous():
-        ungluers = userlists.other_users(request.user, 5)
-    else:
-        ungluers = userlists.other_users(None, 5)
-
     works=[]
     for result in results:
         try:
@@ -2121,7 +2147,6 @@ def search(request):
     context = {
         "q": q,
         "results": works,
-        "ungluers": ungluers,
         "campaign_works": campaign_works
     }
     return render(request, 'search.html', context)
@@ -2237,6 +2262,7 @@ class InfoPageView(TemplateView):
         works.wishedby50 = works.filter(num_wishes__gte = 50)
         works.wishedby10 = works.filter(num_wishes__gte = 10)
         works.wishedby100 = works.filter(num_wishes__gte = 100)
+        works.free = works.filter(is_free = True)
         ebooks = models.Ebook.objects
         ebooks.today = ebooks.filter(created__range = (date_today(), now()))
         ebooks.days7 = ebooks.filter(created__range = (date_today()-timedelta(days=7), now()))
@@ -2271,7 +2297,7 @@ class InfoPageView(TemplateView):
         transactions.days7.sum = transactions.days7.aggregate(Sum('amount'))['amount__sum']
         transactions.year = transactions.filter(date_created__year = date_today().year)
         transactions.year.sum = transactions.year.aggregate(Sum('amount'))['amount__sum']
-        transactions.month = transactions.filter(date_created__month = date_today().month)
+        transactions.month = transactions.year.filter(date_created__month = date_today().month)
         transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
         transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
         transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
@@ -2867,12 +2893,12 @@ class DownloadView(PurchaseView):
             #send to kindle 
         
             try:
-                non_google_ebooks.filter(format='mobi')[0]
-                can_kindle = True
+                kindle_ebook = non_google_ebooks.filter(format='mobi')[0]
+                can_kindle = kindle_ebook.kindle_sendable()
             except IndexError:
                 try:
-                    non_google_ebooks.filter(format='pdf')[0]
-                    can_kindle = True
+                    kindle_ebook = non_google_ebooks.filter(format='pdf')[0]
+                    can_kindle = kindle_ebook.kindle_sendable()
                 except IndexError:
                     can_kindle = False
             # configure the xfer url
@@ -2900,7 +2926,7 @@ class DownloadView(PurchaseView):
             'iphone': 'iPhone' in agent,
             'android': android,
             'desktop': desktop,
-            'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent,
+            'mac_ibooks': 'Mac OS X 10.9' in agent or 'Mac OS X 10_9' in agent or 'Mac OS X 10.10' in agent or 'Mac OS X 10_10' in agent,
             'acq':acq,
             'show_beg': self.show_beg,
             'preapproval_amount': self.get_preapproval_amount(),
@@ -2922,10 +2948,10 @@ def feature(request, work_id):
         return render(request, "admins_only.html")
     else:
         work = safe_get_work(work_id)
-        if work.first_ebook():
+        if work.is_free:
             work.featured = now()
             work.save()
-            return home(request, landing=True)
+            return HttpResponseRedirect(reverse('landing', args=[] ))
         else:
             return HttpResponse('can\'t feature an work without an ebook')
 
@@ -3019,8 +3045,12 @@ def receive_gift(request, nonce):
     # put nonce in session so we know that a user has redeemed a Gift
     request.session['gift_nonce'] = nonce
     if gift.used:
+        if request.user.is_authenticated():
+            #check that user hasn't redeemed the gift themselves
+            if (gift.acq.user.id == request.user.id) and not gift.acq.expired:
+                return HttpResponseRedirect( reverse('display_gift', args=[gift.id,'existing'] ))
         return render(request, 'gift_error.html', context )
-    if request.user.is_authenticated() and not gift.used:
+    if request.user.is_authenticated():
         user_license = work.get_user_license(request.user)
         if user_license and user_license.purchased:
             # check if previously purchased- there would be two user licenses if so.
@@ -3150,7 +3180,11 @@ def kindle_config(request, work_id=None):
             template = "kindle_change_successful.html"
     else:
         form = KindleEmailForm()    
-    return render(request, template, {'form': form, 'work': work})
+    return render(request, template, {
+            'form': form, 
+            'work': work, 
+            'ok_email': request.user.profile.kindle_email and ('kindle' in request.user.profile.kindle_email),
+        })
 
 @require_POST
 @csrf_exempt
@@ -3185,7 +3219,10 @@ def send_to_kindle(request, work_id, javascript='0'):
     if acq:
         ebook_url = acq.get_mobi_url()
         ebook_format = 'mobi'
-        title = acq.work.title
+        filesize = None
+        title = acq.work.kindle_safe_title()
+        ebook=None
+
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
@@ -3200,9 +3237,9 @@ def send_to_kindle(request, work_id, javascript='0'):
         ebook.increment()
         ebook_url = ebook.url
         ebook_format = ebook.format
+        filesize = ebook.filesize
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
-        title = ebook.edition.title
-    title = title.replace(' ', '_')
+        title = ebook.edition.work.kindle_safe_title()
     context['ebook_url']=ebook_url
     context['ebook_format']=ebook_format
 
@@ -3219,7 +3256,6 @@ def send_to_kindle(request, work_id, javascript='0'):
 
     
     """
-    TO FIX rigorously:
     Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
     to determine whether the file will meet this limit, we probably need to compare the
     size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
@@ -3232,8 +3268,13 @@ def send_to_kindle(request, work_id, javascript='0'):
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
     filehandle = urllib.urlopen(ebook_url)
-    filesize = int(filehandle.info().getheaders("Content-Length")[0])
-    if filesize > 7492232:
+    if not filesize:
+        filesize = int(filehandle.info().getheaders("Content-Length")[0])
+        if ebook:
+            ebook.filesize =  filesize if filesize < 2147483647 else 2147483647  # largest safe positive integer
+            ebook.save()
+    
+    if filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)
         
