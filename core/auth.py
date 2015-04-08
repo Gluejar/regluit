@@ -1,10 +1,10 @@
 import logging
 
-from social_auth.backends.pipeline.social import (
-    social_auth_user,
+from social.pipeline.social_auth import (
+    social_user,
     load_extra_data
 )
-from social_auth.models import UserSocialAuth
+from social.apps.django_app.default.models import UserSocialAuth
 
 from regluit.core.models import TWITTER, FACEBOOK
 
@@ -14,11 +14,12 @@ logger = logging.getLogger(__name__)
 def selectively_associate(backend, uid, user=None, *args, **kwargs):
     """Not using Facebook or Twitter to authenticate a user.
     """
-    social_user = UserSocialAuth.get_social_auth(backend.name, uid)
+    logger.info('selectively_associate')
+    social_auth = UserSocialAuth.get_social_auth(backend.name, uid)
     if backend.name  in ('twitter', 'facebook'):
         # not for authentication
-        return {'social_user': social_user}
-    return social_auth_user(backend, uid, user=None, *args, **kwargs)
+        return {'social_user': social_auth}
+    return social_user(backend, uid, user=None, *args, **kwargs)
 
 def facebook_extra_values( user,  extra_data):
     try:
@@ -49,6 +50,7 @@ def twitter_extra_values( user, extra_data):
         
 def deliver_extra_data(backend, details, response, uid, user, social_user=None,
                     *args, **kwargs):
+    logger.info('deliver_extra_data')
     pipeline_data = load_extra_data(backend, details, response, uid, user, social_user=None,
                     *args, **kwargs)
 

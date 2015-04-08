@@ -1,7 +1,9 @@
 {% extends "registration/registration_base.html" %}
+{% load url from future %}
 {% block title %}Log in to Unglue.it{% endblock %}
 {% block doccontent %}
 <div id="lightbox_content">
+
 {% if form.errors %}
 {% for error in form.non_field_errors %}
 <p class="errorlist">{{ error }}</p>
@@ -26,19 +28,21 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <br />
 
 
-<a href="{% url auth_password_reset %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+<a href="{% url 'auth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
 <br /><br />
-<div  class="google_signup">
-<div {% if socials.google %}class="errorlist"{% endif %}>
-	<div><a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a></div>
-	<div>Or: <a href="/socialauth/login/google?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign in with Google</a></div>
-</div>
-</div>
+
+
+<form id="google-oath2" method="post" action="{% url 'social:begin' "google-oauth2" %}">
+    {% csrf_token %}
+    <input  type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" />
+    <input type="submit" name="submit" value="Log in with Google" />
+</form>
+
 {% else %}
 <div>
-You are already logged in as <a href="{% url supporter user %}">{{ user.username }}</a>.
+You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.
 </div>
 {% endif %}
 </div>

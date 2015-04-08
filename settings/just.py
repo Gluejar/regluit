@@ -60,10 +60,10 @@ TWITTER_CONSUMER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 FACEBOOK_APP_ID = '242881179080779'
 FACEBOOK_API_SECRET = '5eae483a0e92113d884c427b578ef23a'
 
-# google auth
-GOOGLE_OAUTH2_CLIENT_ID = '989608723367.apps.googleusercontent.com'
-GOOGLE_OAUTH2_CLIENT_SECRET = '3UqalKyNynnaaarumUIWh8vS'
-GOOGLE_DISPLAY_NAME = 'unglue it!'
+# get these (as oauth2 client ID and Secret from 
+# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-kq3vm5imdap4hapj1r8lvmcg05kfi6ii.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'IYmgelotf77H8OPWX8oXf4Cq'
 
 # credentials from a sandbox account that Raymond set up.
 PAYPAL_USERNAME = 'glueja_1317336101_biz_api1.gluejar.com'

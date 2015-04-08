@@ -50,12 +50,11 @@ TWITTER_CONSUMER_SECRET = ''
 FACEBOOK_APP_ID = ''
 FACEBOOK_API_SECRET = ''
 
-# google auth
-# you'll need to create a new Google application to fill in these blanks
-# https://code.google.com/apis/console/
-GOOGLE_OAUTH2_CLIENT_ID = ''
-GOOGLE_OAUTH2_CLIENT_SECRET = ''
-GOOGLE_DISPLAY_NAME = 'unglue it!'
+
+# get these (as oauth2 client ID and Secret from 
+# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-rjija9842834nqa1vi639nac17j1n6cl@developer.gserviceaccount.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'RWPnUkNieUToUtBFaXZjibsU'
 
 # you'll need to register a GoogleBooks API key
 # registered to rdhye@gluejar.com on 2013.12.10

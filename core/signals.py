@@ -23,8 +23,6 @@ from django.utils.translation import ugettext_noop as _
 from django.template.loader import render_to_string
 
 from notification import models as notification
-from social_auth.signals import pre_update
-from social_auth.backends.facebook import FacebookBackend
 
 """
 regluit imports
@@ -36,13 +34,6 @@ from regluit.libraryauth.models import Library, LibraryUser
 
 logger = logging.getLogger(__name__)
 
-# get email from Facebook registration
-def facebook_extra_values(sender, user, response, details, **kwargs):
-    if response.get('email') is not None:
-        user.email = response.get('email')
-    return True
-
-pre_update.connect(facebook_extra_values, sender=FacebookBackend)
 
 # create Wishlist and UserProfile to associate with User
 def create_user_objects(sender, created, instance, **kwargs):

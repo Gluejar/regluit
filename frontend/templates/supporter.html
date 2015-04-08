@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% load endless %}
 {% load truncatechars %}
+{% load url from future %}
 {% block title %} &#8212; {{ supporter.username }}{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
@@ -73,7 +74,7 @@ function highlightTarget(targetdiv) {
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
 {% if supporter.library %}
-    <div class="launch_top pale">{{ supporter.library }} is a Library participating in Unglue.it. <a href="{% url join_library supporter.library.id %}">Click here</a> to use {{ supporter.library }}'s books.
+    <div class="launch_top pale">{{ supporter.library }} is a Library participating in Unglue.it. <a href="{% url 'join_library' supporter.library.id %}">Click here</a> to use {{ supporter.library }}'s books.
     </div>
 {% endif %}
 
@@ -181,23 +182,23 @@ function highlightTarget(targetdiv) {
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.twitter_id %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
+                                    <a href="{% url 'social:begin' backend='twitter' %}">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
                                     {% else %}
-                                    <a href="{% url socialauth_associate_begin backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
+                                    <a href="{% url 'social:begin' backend='twitter' %}">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.facebook_id %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
+                                    <a href="{% url 'social:begin' backend='facebook' %}">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
                                     {% else %}
-                                    <a href="{% url socialauth_associate_begin backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
+                                    <a href="{% url 'social:begin' backend='facebook' %}">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
                                 <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}
-                                    <a href="{% url goodreads_auth %}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
+                                    <a href="{% url 'goodreads_auth' %}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
                                     {% else %}
-                                    <a href="{% url goodreads_auth %}">Connect your GoodReads account</a> to Unglue.it                                   
+                                    <a href="{% url 'goodreads_auth' %}">Connect your GoodReads account</a> to Unglue.it                                   
                                     {% endif %} 
                                 </div>
                                 <div class="check-list" id="connectlt">
@@ -229,7 +230,7 @@ function highlightTarget(targetdiv) {
                                 <div id="loadlt" onclick="highlightTarget('#connectlt'); return false;"><div>Add your LibraryThing ID to import from LibraryThing.</div></div>
                                 {% endif %}
                                 <h3 class="title">More</h3>
-                                <a href="{% url marc_config %}">Librarian Settings</a>
+                                <a href="{% url 'marc_config' %}">Librarian Settings</a>
                             </div>
                         </div>
                       {% endifequal %}
@@ -302,7 +303,7 @@ function highlightTarget(targetdiv) {
 		                    <div id="js-maincontainer-bot-block">
         		                <div id="js-search">
                 		        	<label>What book would you give to the world? </label>
-				        		        <form action="{% url search %}" method="get">
+				        		        <form action="{% url 'search' %}" method="get">
                 						    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
                 						    <input type="submit" class="greenbutton" value="Search">
                							</form>
@@ -393,7 +394,7 @@ function highlightTarget(targetdiv) {
             <div id="libtools">
                 <p>for libraries...</p>
                 {% block marcform %}
-                <form method="GET" action="{% url user_marc supporter.username %}">
+                <form method="GET" action="{% url 'user_marc' supporter.username %}">
                     {% include 'marc_form.html' %}
                     <input type="submit" name="submit" value="download MARC for {{supporter.username}} " id="submit">
                 </form>
