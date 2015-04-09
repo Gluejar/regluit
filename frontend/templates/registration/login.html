@@ -33,13 +33,7 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 
 <br /><br />
 
-
-<form id="google-oath2" method="post" action="{% url 'social:begin' "google-oauth2" %}">
-    {% csrf_token %}
-    <input  type="hidden" name="next" value="{% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" />
-    <input type="submit" name="submit" value="Log in with Google" />
-</form>
-
+   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
 {% else %}
 <div>
 You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.

@@ -64,13 +64,8 @@
 		margin-bottom:10px; 
 		padding: 0 10px 10px 10px;
 		
-		&.last { 
-			border-bottom:none; 
-			padding-bottom:10px;
-		}
 		
 		input {
-			.one-border-radius(32px);
 			border: none;
 			.height(36px);
 			width:90%;
@@ -79,20 +74,15 @@
 		}
 		
 		input.signup { 
-			background: url("@{image-base}landingpage/button.png") no-repeat 0 0;
-			//the following are part of what we need to move this from graphics to css
-			// which we will need if we institute a call-to-action color separately from green
-			//.border-radius(32px, 0, 0, 32px);
-			//background-color: @call-to-action;
 		    border: medium none;
 		    color: #FFF;
 		    cursor: pointer;
 		    display: inline-block;
-		    font-weight: bold;
 			font-size: @font-size-default;
     		overflow: hidden;
     		padding: 0 31px 0 11px;
     		width: 111px;
+    		margin-bottom: 10px;
 		}
 		
 		div {
@@ -102,7 +92,8 @@
 	}
 	
 	div.button { 
-		padding-top:10px;		
+		padding-top:10px;	
+		text-align: center;	
 	}
 	
 	label { 
@@ -113,9 +104,6 @@
 	}
 }
 
-.google_signup {
-    .google_signup_div(24px);
-}
 
 .js-rightcol-padd { 
     margin:0px;

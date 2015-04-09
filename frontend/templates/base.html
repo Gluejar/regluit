@@ -107,13 +107,10 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a href="{% url superlogin %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" class="hijax"><span>Sign In</span></a></li>
+                        <li><a class="notbutton" href="{% url superlogin %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" class="hijax"><span>Sign In</span></a></li>
                        {% if not suppress_search_box %}
                             {% ifnotequal request.get_full_path "/accounts/register/" %}
-                                {% comment %}
-                                don't display this on landing page where it's superseded by big signup box in splash area
-                                {% endcomment %}
-                                <li id="expander" class="last"><a href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign Up</span></a></li>
+                                <li  class="last"><a class="btn btn-signup" href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
                             {% endifnotequal %}
                         {% endif %}
                     </ul>

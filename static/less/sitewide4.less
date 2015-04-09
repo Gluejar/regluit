@@ -1,7 +1,11 @@
 /* For sitewide elements of unglue.it. */
 
 @import "variables.less";
+@import "mixins.less";
 @import "download.less";
+@import "buttons.less";
+@import "bootstrap-social.less";
+@import "font-awesome.min.css";
 
 /* remove before beta */
 .preview {
@@ -366,8 +370,12 @@ ul.menu{
             position: relative;
             z-index: 50;
             
-            a {
+            .notbutton{
                 color:@text-blue; 
+                line-height: 36px;
+            }
+                
+            a {
                 .header-text;
             }
             
@@ -395,7 +403,6 @@ ul.menu{
                 padding-left: 20px;
                 
                 a {
-                    background: url(@background-header) right top no-repeat;
                     
                     span {
                         .border-radius(32px, 0, 0, 32px);
@@ -431,6 +438,9 @@ ul.menu{
             }
         }
     }
+}
+.btn-signup {
+  .button-variant(#fff; @call-to-action; @btn-default-border);
 }
 
 #i_haz_notifications_badge {
@@ -489,8 +499,8 @@ form.login, #login form {
     }
 }
 
-#lightbox_content .google_signup {
-    .google_signup_div(36px);
+#lightbox_content a.btn {
+    color: #FFF;
 }
 
 .js-search {
@@ -847,7 +857,6 @@ a.nounderline {
 
 .signuptoday {
     a {
-        background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
         padding-right: 17px;
     	color: white;
         
@@ -856,8 +865,6 @@ a.nounderline {
         }
     }
                     
-	.one-border-radius(32px);
-    background-color: @call-to-action;
     padding:0 15px;
     .height(36px);
     float: left;

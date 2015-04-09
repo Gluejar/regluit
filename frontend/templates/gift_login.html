@@ -1,4 +1,5 @@
 {% extends "registration/registration_base.html" %}
+{% load url from future %}
 {% block title %}Log in to Unglue.it{% endblock %}
 {% block doccontent %}
 <div id="lightbox_content">
@@ -11,7 +12,7 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 {% if not user.is_authenticated %}
     <div class="launch_top pale">
         <p>
-            We've added your gift, "<a href="{% url work work.id %}">{{ work.title }}</a>" to the account with username: {{ gift.acq.user.username }}.  Happy reading!
+            We've added your gift, "<a href="{% url 'work' work.id %}">{{ work.title }}</a>" to the account with username: {{ gift.acq.user.username }}.  Happy reading!
         </p>
         
     </div>
@@ -21,19 +22,18 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <br />
 
 
-<a href="{% url auth_password_reset %}?next={% url receive_gift gift.acq.nonce %}">Forgot</a> your password?  <a href="{% url registration_register %}?next={% url receive_gift gift.acq.nonce %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+<a href="{% url 'auth_password_reset' %}?next={% url 'receive_gift' gift.acq.nonce %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% url 'receive_gift' gift.acq.nonce %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
 <br /><br />
-<div  class="google_signup">
-<div {% if socials.google %}class="errorlist"{% endif %}>
-	<div><a href="/socialauth/login/google?next={% url receive_gift gift.acq.nonce %}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a></div>
-	<div>Or: <a href="/socialauth/login/google?next={% url receive_gift gift.acq.nonce %}">Sign in with Google</a></div>
+<div class="google_signup">
+   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% url 'receive_gift' gift.acq.nonce %}" ><i class="fa fa-google"></i>Sign in with Google</a>
 </div>
+
 </div>
 {% else %}
 <div>
-You are already logged in as <a href="{% url supporter user %}">{{ user.username }}</a>.
+You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.
 </div>
 {% endif %}
 </div>
