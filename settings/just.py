@@ -65,13 +65,6 @@ SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-kq3vm5imdap4hapj1r8lvmcg05kfi6ii.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'IYmgelotf77H8OPWX8oXf4Cq'
 
-# in live system, replace with the real Gluejar paypal email and that for our non-profit partner
-PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
-PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
-
-# for test purposes have a single RH paypal email
-PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
-
 # Goodreads API
 GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
 GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
