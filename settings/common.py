@@ -252,7 +252,7 @@ SOCIAL_AUTH_PIPELINE = (
     # Disabled by default.
     # 'social.pipeline.mail.mail_validation',
 
-    #'regluit.core.auth.selectively_associate',
+    'regluit.core.auth.selectively_associate',
     # Associates the current social details with another user account with
     # a similar email address. Disabled by default.
     'social.pipeline.social_auth.associate_by_email',
@@ -262,7 +262,7 @@ SOCIAL_AUTH_PIPELINE = (
 
     # Create the record that associated the social account with this user.
     'social.pipeline.social_auth.associate_user',
-    #'regluit.core.auth.deliver_extra_data',
+    'regluit.core.auth.deliver_extra_data',
 
     # Populate the extra_data field in the social record with the values
     # specified by settings (and the default ones like access_token, etc).
@@ -271,13 +271,8 @@ SOCIAL_AUTH_PIPELINE = (
     # Update the user record with any changed info from the auth service.
     'social.pipeline.user.user_details'
 )
-# define in server-specific files
-# get these (as oauth2 client ID and Secret from 
-# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
-#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '...'
-#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '...'
 
-TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url_https'),('screen_name','screen_name')]
+SOCIAL_AUTH_TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url_https'),('screen_name','screen_name')]
 
 LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"

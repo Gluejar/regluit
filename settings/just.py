@@ -53,32 +53,17 @@ DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 GOOGLE_BOOKS_API_KEY = 'AIzaSyBPZS7D3QvypGN_Tqc3blAXV1iJJJuu4mk'
 
 # twitter auth
-TWITTER_CONSUMER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
-TWITTER_CONSUMER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
+SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
+SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
 # facebook auth
-FACEBOOK_APP_ID = '242881179080779'
-FACEBOOK_API_SECRET = '5eae483a0e92113d884c427b578ef23a'
+SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
+SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-kq3vm5imdap4hapj1r8lvmcg05kfi6ii.apps.googleusercontent.com'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'IYmgelotf77H8OPWX8oXf4Cq'
-
-# credentials from a sandbox account that Raymond set up.
-PAYPAL_USERNAME = 'glueja_1317336101_biz_api1.gluejar.com'
-PAYPAL_PASSWORD =  '1317336137'
-PAYPAL_SIGNATURE = 'AHVb0D1mzGD6zdX4XtKZbH.Kd6OhALVyiJVbNReOZEfyz79AoEnQJWTR'
-PAYPAL_APPID = 'APP-80W284485P519543T'  # sandbox app id -- will have to replace with production id
-
-PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
-PAYPAL_PAYMENT_HOST = 'https://www.sandbox.paypal.com' # sandbox
-
-PAYPAL_SANDBOX_LOGIN = ''
-PAYPAL_SANDBOX_PASSWORD = ''
-
-PAYPAL_BUYER_LOGIN =''
-PAYPAL_BUYER_PASSWORD = ''
 
 # in live system, replace with the real Gluejar paypal email and that for our non-profit partner
 PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
