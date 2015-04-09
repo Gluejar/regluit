@@ -313,7 +313,7 @@ class Acq(models.Model):
         return self.watermarked
         
     def _hash(self):
-        return hashlib.md5('%s:%s:%s:%s'%(settings.TWITTER_CONSUMER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
+        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET,self.user.id,self.work.id,self.created)).hexdigest() 
         
     def expire_in(self, delta):
         self.expires = (now() + delta) if delta else now()
@@ -1822,7 +1822,7 @@ FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT
 
 def path_for_file(instance, filename):
     version = EbookFile.objects.filter(edition = instance.edition, format = instance.format).count()
-    hash = hashlib.md5('%s.%s.%d'%(settings.TWITTER_CONSUMER_SECRET, instance.edition.pk, version)).hexdigest()
+    hash = hashlib.md5('%s.%s.%d'%(settings.SOCIAL_AUTH_TWITTER_SECRET, instance.edition.pk, version)).hexdigest()
     fn = "ebf/%s.%s"%(hash,instance.format)
     return fn
     
