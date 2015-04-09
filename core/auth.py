@@ -14,7 +14,6 @@ logger = logging.getLogger(__name__)
 def selectively_associate(backend, uid, user=None, *args, **kwargs):
     """Not using Facebook or Twitter to authenticate a user.
     """
-    logger.info('selectively_associate')
     social_auth = UserSocialAuth.get_social_auth(backend.name, uid)
     if backend.name  in ('twitter', 'facebook'):
         # not for authentication
@@ -50,7 +49,6 @@ def twitter_extra_values( user, extra_data):
         
 def deliver_extra_data(backend, details, response, uid, user, social_user=None,
                     *args, **kwargs):
-    logger.info('deliver_extra_data')
     pipeline_data = load_extra_data(backend, details, response, uid, user, social_user=None,
                     *args, **kwargs)
 
@@ -58,4 +56,7 @@ def deliver_extra_data(backend, details, response, uid, user, social_user=None,
         twitter_extra_values( user, social_user.extra_data)
     if backend.name is 'facebook':
         facebook_extra_values( user, social_user.extra_data)
-        
+
+# following is needed because of length limitations in a unique constrain for MySQLdef chop_username(username, *args, **kwargs):
+    if username and len(username)>222:
+        return {'username':username[0:222]}

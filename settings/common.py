@@ -218,9 +218,6 @@ SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 FACEBOOK_SOCIAL_AUTH_BACKEND_ERROR_URL = '/'
 SOCIAL_AUTH_SLUGIFY_USERNAMES = True
-# following is needed because of length limitations in a unique constrain for MySQL
-# see https://github.com/omab/django-social-auth/issues/539
-# SOCIAL_AUTH_UID_LENGTH = 222 deprecated in PSA
 SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
 SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 135
 SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 125
@@ -247,12 +244,17 @@ SOCIAL_AUTH_PIPELINE = (
     # Make up a username for this person, appends a random string at the end if
     # there's any collision.
     'social.pipeline.user.get_username',
-
+    
+    # make username < 222 in length
+    'regluit.core.auth.chop_username',
+    
     # Send a validation email to the user to verify its email address.
     # Disabled by default.
     # 'social.pipeline.mail.mail_validation',
-
+    
+    # don't use twitter or facebook to log in
     'regluit.core.auth.selectively_associate',
+
     # Associates the current social details with another user account with
     # a similar email address. Disabled by default.
     'social.pipeline.social_auth.associate_by_email',
@@ -262,11 +264,13 @@ SOCIAL_AUTH_PIPELINE = (
 
     # Create the record that associated the social account with this user.
     'social.pipeline.social_auth.associate_user',
-    'regluit.core.auth.deliver_extra_data',
-
+    
     # Populate the extra_data field in the social record with the values
     # specified by settings (and the default ones like access_token, etc).
     'social.pipeline.social_auth.load_extra_data',
+
+    # add extra data to user profile
+    'regluit.core.auth.deliver_extra_data',
 
     # Update the user record with any changed info from the auth service.
     'social.pipeline.user.user_details'
