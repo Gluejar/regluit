@@ -318,10 +318,6 @@ ul.menu{
         position: relative;
     }
     
-    &#authenticated.highlight span#welcome {
-        background-image: url("/static/images/menu_bar_up_arrow_textblue.png");
-    }
-    
     ul {
         &#user_menu {
             white-space:nowrap;
@@ -382,16 +378,6 @@ ul.menu{
             span#welcome {
                 .header-text;
                 padding: 0 10px;
-                margin-right: 5px;
-                padding-right: 22px;
-                
-                img {
-                    vertical-align: middle;
-                }
-                
-                background-image: url("/static/images/menu_bar_down_arrow_textblue.png");
-                background-repeat: no-repeat;
-                background-position: right;
             }
             
             img {
@@ -440,7 +426,10 @@ ul.menu{
     }
 }
 .btn-signup {
-  .button-variant(#fff; @call-to-action; @btn-default-border);
+  .button-variant(#fff; @call-to-action;  @btn-default-border);
+}
+.btn-readon {
+  .button-variant(#fff; @bright-blue; @btn-default-border);
 }
 
 #i_haz_notifications_badge {
@@ -561,7 +550,6 @@ form.login, #login form {
 }
 
 a#readon {
-    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
     color:#fff;
     text-transform:capitalize;
     display:block;
@@ -570,18 +558,6 @@ a#readon {
 
     font-weight:bold;
     
-    &.down {
-	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
-    }
-
-    span {
-        .border-radius(32px, 0, 0, 32px);
-        background-color: @bright-blue;
-        margin-right:34px;
-        padding:0 5px 0 20px;
-        .height(36px);
-        display:block;        
-    }
 }
 
 .spread_the_word {

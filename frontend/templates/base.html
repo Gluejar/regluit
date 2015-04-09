@@ -76,7 +76,7 @@
                 <div class="js-topmenu" id="authenticated">
                     <ul class="menu">
                         <li>
-                            <a href="#"><span id="welcome">Hi, {{ user.username }}</span></a>
+                            <a class="notbutton" href="#"><span id="welcome">Hi, {{ user.username }} <i class="fa fa-chevron-down"> </span></i></a>
                         </li>
                         <li>{% block avatar %}
                             <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />{% endblock %}
@@ -86,9 +86,9 @@
                         </li>
                     </ul>
                         <ul id="user_menu">
-                            <li><a href="{% url supporter user %}">My Faves</a></li>
+                            <li><a class="notbutton" href="{% url supporter user %}">My Faves</a></li>
                             <li>
-                                <a href="/notification"><span>Notices</span>
+                                <a  class="notbutton" href="/notification"><span>Notices</span>
                                     {% if unseen_count %}
                                         <span id="i_haz_notifications" class="unseen_count">{{ unseen_count }}</span>
                                     {% else %}
@@ -96,12 +96,12 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a href="{% url supporter user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
-                            <li><a href="{% url manage_account %}"><span>Account &amp; Pledges</span></a></li>
+                            <li><a class="notbutton" href="{% url supporter user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
+                            <li><a class="notbutton" href="{% url manage_account %}"><span>Account &amp; Pledges</span></a></li>
                             {% if user.rights_holder.all %}
-                            <li><a href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
+                            <li><a class="notbutton" href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
                             {% endif %}
-                            <li><a href="{% url auth_logout %}"><span>Sign Out</span></a></li>
+                            <li><a class="notbutton" href="{% url auth_logout %}"><span>Sign Out</span></a></li>
                         </ul>
                 </div>
             {% else %}
