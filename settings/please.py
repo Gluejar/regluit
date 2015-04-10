@@ -40,39 +40,17 @@ DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
 
 # twitter auth
-TWITTER_CONSUMER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
-TWITTER_CONSUMER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
+SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
+SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
 # facebook auth
-FACEBOOK_APP_ID = '242881179080779'
-FACEBOOK_API_SECRET = '5eae483a0e92113d884c427b578ef23a'
+SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
+SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
 
-# google auth
-GOOGLE_OAUTH2_CLIENT_ID = '989608723367.apps.googleusercontent.com'
-GOOGLE_OAUTH2_CLIENT_SECRET = '3UqalKyNynnaaarumUIWh8vS'
-GOOGLE_DISPLAY_NAME = 'unglue it!'
-
-# credentials from a sandbox account that Raymond set up.
-PAYPAL_USERNAME = 'glueja_1317336101_biz_api1.gluejar.com'
-PAYPAL_PASSWORD =  '1317336137'
-PAYPAL_SIGNATURE = 'AHVb0D1mzGD6zdX4XtKZbH.Kd6OhALVyiJVbNReOZEfyz79AoEnQJWTR'
-PAYPAL_APPID = 'APP-80W284485P519543T'  # sandbox app id -- will have to replace with production id
-
-PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
-PAYPAL_PAYMENT_HOST = 'https://www.sandbox.paypal.com' # sandbox
-
-PAYPAL_SANDBOX_LOGIN = ''
-PAYPAL_SANDBOX_PASSWORD = ''
-
-PAYPAL_BUYER_LOGIN =''
-PAYPAL_BUYER_PASSWORD = ''
-
-# in live system, replace with the real Gluejar paypal email and that for our non-profit partner
-PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
-PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
-
-# for test purposes have a single RH paypal email
-PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
+# get these (as oauth2 client ID and Secret from 
+# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-8rnhtn7pvbragmcj0l3slsmgfs86t69i.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
 
 # Goodreads API
 GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"

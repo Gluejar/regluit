@@ -6,7 +6,8 @@
 			function() {
 				$j(this).toggleClass("active");
 				$j("#user-block-hide").slideToggle(300);
-				$j("#readon").toggleClass("down");
+				$j("#readon i").toggleClass("fa-chevron-down");
+				$j("#readon i").toggleClass("fa-chevron-up");
 			}
 		);
 	});

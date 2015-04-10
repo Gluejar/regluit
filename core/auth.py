@@ -1,10 +1,10 @@
 import logging
 
-from social_auth.backends.pipeline.social import (
-    social_auth_user,
+from social.pipeline.social_auth import (
+    social_user,
     load_extra_data
 )
-from social_auth.models import UserSocialAuth
+from social.apps.django_app.default.models import UserSocialAuth
 
 from regluit.core.models import TWITTER, FACEBOOK
 
@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 def selectively_associate(backend, uid, user=None, *args, **kwargs):
     """Not using Facebook or Twitter to authenticate a user.
     """
-    social_user = UserSocialAuth.get_social_auth(backend.name, uid)
+    social_auth = UserSocialAuth.get_social_auth(backend.name, uid)
     if backend.name  in ('twitter', 'facebook'):
         # not for authentication
-        return {'social_user': social_user}
-    return social_auth_user(backend, uid, user=None, *args, **kwargs)
+        return {'social_user': social_auth}
+    return social_user(backend, uid, user=None, *args, **kwargs)
 
 def facebook_extra_values( user,  extra_data):
     try:
@@ -56,4 +56,8 @@ def deliver_extra_data(backend, details, response, uid, user, social_user=None,
         twitter_extra_values( user, social_user.extra_data)
     if backend.name is 'facebook':
         facebook_extra_values( user, social_user.extra_data)
-        
+
+# following is needed because of length limitations in a unique constrain for MySQL
+def chop_username(username, *args, **kwargs):
+    if username and len(username)>222:
+        return {'username':username[0:222]}

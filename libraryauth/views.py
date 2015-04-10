@@ -40,7 +40,7 @@ def join_library(request, library_id):
             reverse('bad_library',args=[library.id]), 
         )
 
-def superlogin(request, extra_context=None, **kwargs):
+def superlogin(request, extra_context={}, **kwargs):
     if request.method == 'POST' and request.user.is_anonymous():
         username=request.POST.get("username", "")
         try:

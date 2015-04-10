@@ -1,7 +1,11 @@
 /* For sitewide elements of unglue.it. */
 
 @import "variables.less";
+@import "mixins.less";
 @import "download.less";
+@import "buttons.less";
+@import "bootstrap-social.less";
+@import "font-awesome.min.css";
 
 /* remove before beta */
 .preview {
@@ -314,10 +318,6 @@ ul.menu{
         position: relative;
     }
     
-    &#authenticated.highlight span#welcome {
-        background-image: url("/static/images/menu_bar_up_arrow_textblue.png");
-    }
-    
     ul {
         &#user_menu {
             white-space:nowrap;
@@ -366,24 +366,18 @@ ul.menu{
             position: relative;
             z-index: 50;
             
-            a {
+            .notbutton{
                 color:@text-blue; 
+                line-height: 36px;
+            }
+                
+            a {
                 .header-text;
             }
             
             span#welcome {
                 .header-text;
                 padding: 0 10px;
-                margin-right: 5px;
-                padding-right: 22px;
-                
-                img {
-                    vertical-align: middle;
-                }
-                
-                background-image: url("/static/images/menu_bar_down_arrow_textblue.png");
-                background-repeat: no-repeat;
-                background-position: right;
             }
             
             img {
@@ -395,7 +389,6 @@ ul.menu{
                 padding-left: 20px;
                 
                 a {
-                    background: url(@background-header) right top no-repeat;
                     
                     span {
                         .border-radius(32px, 0, 0, 32px);
@@ -431,6 +424,12 @@ ul.menu{
             }
         }
     }
+}
+.btn-signup {
+  .button-variant(#fff; @call-to-action;  @btn-default-border);
+}
+.btn-readon {
+  .button-variant(#fff; @bright-blue; @btn-default-border);
 }
 
 #i_haz_notifications_badge {
@@ -489,8 +488,8 @@ form.login, #login form {
     }
 }
 
-#lightbox_content .google_signup {
-    .google_signup_div(36px);
+#lightbox_content a.btn {
+    color: #FFF;
 }
 
 .js-search {
@@ -551,7 +550,6 @@ form.login, #login form {
 }
 
 a#readon {
-    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
     color:#fff;
     text-transform:capitalize;
     display:block;
@@ -560,18 +558,6 @@ a#readon {
 
     font-weight:bold;
     
-    &.down {
-	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
-    }
-
-    span {
-        .border-radius(32px, 0, 0, 32px);
-        background-color: @bright-blue;
-        margin-right:34px;
-        padding:0 5px 0 20px;
-        .height(36px);
-        display:block;        
-    }
 }
 
 .spread_the_word {
@@ -847,7 +833,6 @@ a.nounderline {
 
 .signuptoday {
     a {
-        background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
         padding-right: 17px;
     	color: white;
         
@@ -856,8 +841,6 @@ a.nounderline {
         }
     }
                     
-	.one-border-radius(32px);
-    background-color: @call-to-action;
     padding:0 15px;
     .height(36px);
     float: left;

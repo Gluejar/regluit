@@ -45,54 +45,33 @@ DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 # you'll need to create a new Twitter application to fill in these blanks
 # https://dev.twitter.com/apps/new
 
-TWITTER_CONSUMER_KEY = ''
-TWITTER_CONSUMER_SECRET = ''
+SOCIAL_AUTH_TWITTER_KEY = ''
+SOCIAL_AUTH_TWITTER_SECRET = ''
 
 # facebook auth
 # you'll need to create a new Facebook application to fill in these blanks
 # https://developers.facebook.com/apps/
 
-FACEBOOK_APP_ID = ''
-FACEBOOK_API_SECRET = ''
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
 
-# google auth
-# you'll need to create a new Google application to fill in these blanks
-# https://code.google.com/apis/console/
-GOOGLE_OAUTH2_CLIENT_ID = ''
-GOOGLE_OAUTH2_CLIENT_SECRET = ''
-GOOGLE_DISPLAY_NAME = 'unglue it!'
+# get these (as oauth2 client ID and Secret from 
+# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+
 
 # you'll need to register a GoogleBooks API key
 # https://code.google.com/apis/console
 GOOGLE_BOOKS_API_KEY = ''
 
 # Payment processor switch
-PAYMENT_PROCESSOR = 'amazon'
+PAYMENT_PROCESSOR = 'stripelib'
 
 # set -- sandbox or production Amazon FPS?
 AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 #AMAZON_FPS_HOST = "fps.amazonaws.com"
 
-PAYPAL_USERNAME = ''
-PAYPAL_PASSWORD =  ''
-PAYPAL_SIGNATURE = ''
-PAYPAL_APPID = ''
-
-PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
-PAYPAL_PAYMENT_HOST = 'http://www.sandbox.paypal.com' # sandbox
-
-PAYPAL_SANDBOX_LOGIN = ''
-PAYPAL_SANDBOX_PASSWORD = ''
-
-PAYPAL_BUYER_LOGIN =''
-PAYPAL_BUYER_PASSWORD = ''
-
-# in live system, replace with the real Gluejar paypal email and that for our non-profit partner
-PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
-PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
-
-# for test purposes have a single RH paypal email
-PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
 
 BASE_URL = 'http://0.0.0.0'
 BASE_URL_SECURE = 'https://0.0.0.0' 

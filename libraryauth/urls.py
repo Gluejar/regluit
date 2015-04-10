@@ -42,7 +42,7 @@ urlpatterns = patterns(
             'template': 'registration/welcome.html',
             'extra_context': {'suppress_search_box': True,} 
         }), 
-    url(r'^socialauth/', include('social_auth.urls')),
+    url(r'^socialauth/', include('social.apps.django_app.urls', namespace='social')),
     url('accounts/', include('email_change.urls')),
     url(r'^accounts/', include('registration.backends.default.urls')),
 )
