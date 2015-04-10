@@ -57,6 +57,7 @@ def deliver_extra_data(backend, details, response, uid, user, social_user=None,
     if backend.name is 'facebook':
         facebook_extra_values( user, social_user.extra_data)
 
-# following is needed because of length limitations in a unique constrain for MySQLdef chop_username(username, *args, **kwargs):
+# following is needed because of length limitations in a unique constrain for MySQL
+def chop_username(username, *args, **kwargs):
     if username and len(username)>222:
         return {'username':username[0:222]}
