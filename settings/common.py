@@ -239,7 +239,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.auth_allowed',
 
     # Checks if the current social-account is already associated in the site.
-    'social.pipeline.social_auth.social_user',
+    'regluit.core.auth.selective_social_user',
 
     # Make up a username for this person, appends a random string at the end if
     # there's any collision.
@@ -252,12 +252,9 @@ SOCIAL_AUTH_PIPELINE = (
     # Disabled by default.
     # 'social.pipeline.mail.mail_validation',
     
-    # don't use twitter or facebook to log in
-    'regluit.core.auth.selectively_associate',
-
     # Associates the current social details with another user account with
-    # a similar email address. Disabled by default.
-    'social.pipeline.social_auth.associate_by_email',
+    # a similar email address. don't use twitter or facebook to log in
+    'regluit.core.auth.selectively_associate_by_email',
 
     # Create a user account if we haven't found one yet.
     'social.pipeline.user.create_user',
