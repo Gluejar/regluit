@@ -2,6 +2,7 @@ Django==1.4.19
 Fabric==1.4.3
 MySQL-python==1.2.3
 Pillow==2.5.3
+PyJWT==1.1.0
 PyPDF2==1.23
 git+git://github.com/urschrei/pyzotero.git@v0.9.51
 South==0.7.6
@@ -52,15 +53,15 @@ pycrypto==2.6
 pymarc==3.0.2
 python-dateutil==2.1
 python-openid==2.2.5
-python-social-auth==0.2.3
+python-social-auth==0.2.6
 pytz==2012d
 rdflib==2.4.1
 redis==2.6.2
 reportlab==3.1.8
-requests==2.4.3
+requests==2.6.0
 requests-oauthlib==0.4.2
 selenium==2.43.0
-six==1.8.0
+six==1.9.0
 ssh==1.7.14
 stevedore==0.4
 stripe==1.9.1
