@@ -56,10 +56,11 @@ GOOGLE_BOOKS_API_KEY = 'AIzaSyBPZS7D3QvypGN_Tqc3blAXV1iJJJuu4mk'
 SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
 SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
-# facebook auth
+# facebook auth (for just)
 # created by Raymond Yee
-SOCIAL_AUTH_FACEBOOK_KEY = '356734227865880'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'c7c9b683e0de294e807ddee6286560ea'
+# https://developers.facebook.com/apps/236518556394209/settings/
+SOCIAL_AUTH_FACEBOOK_KEY = '236518556394209'
+SOCIAL_AUTH_FACEBOOK_SECRET = '88fec4d1dfc1ef4438cb87efa171db28'
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
