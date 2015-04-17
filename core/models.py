@@ -2157,7 +2157,7 @@ class UserProfile(models.Model):
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
         elif self.avatar_source == FACEBOOK and self.facebook_id != None:
-            return 'https://graph.facebook.com/' + str(self.facebook_id) + '/picture'
+            return 'https://graph.facebook.com/v2.3/' + str(self.facebook_id) + '/picture?redirect=true'
         else:
             return ANONYMOUS_AVATAR
         
