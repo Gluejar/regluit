@@ -916,6 +916,7 @@ class FacetedView(FilterableListView):
         context['path'] = self.vertex.get_facet_path().replace('//','/').strip('/')
         context['vertex'] = self.vertex
         context['order_by'] = self.request.GET.get('order_by', 'newest')
+        context['view_as'] = self.request.GET.get('view_as', None)
         return context
             
         
