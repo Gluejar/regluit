@@ -1283,12 +1283,11 @@ class PurchaseView(PledgeView):
         self.data = {
             'preapproval_amount':self.get_preapproval_amount(),
             'anonymous':self.request.user.profile.anon_pref,
+            'offer_id': self.offer_id,
             }
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
             self.data['give'] = self.give
-            if self.give:
-                self.data['offer_id'] = self.offer_id
             if not self.request.POST.has_key('anonymous'):
                 del self.data['anonymous']
             return {'data':self.data}
