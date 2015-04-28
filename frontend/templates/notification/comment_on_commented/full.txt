@@ -1,0 +1,7 @@
+{% load url from future %}{{ comment.user.username }} has commented on a book you also commented on, {{ comment.content_object.title }}, as follows.
+          
+{{ comment.comment }}
+
+You can see all comments on this book at https://{{ current_site.domain }}{% url 'work' comment.content_object.id %}?tab=2 .
+
+The Unglue.it team
