@@ -1,4 +1,5 @@
-{% extends "notification/base.html" %}
+{% extends 'notification/base.html' %}
+{% load url from future %}
 
 {% load i18n %}
 
@@ -12,7 +13,7 @@
 
 <h2>Notices</h2>
         
-<a href="{% url notification_notice_settings %}">
+<a href="{% url 'notification_notice_settings' %}">
 <div class="notices_menu">
     {% trans "Change Settings" %}
 </div>
@@ -20,7 +21,7 @@
 
 {% if unseen_count > 0 %}
     <div class="notices_menu">
-	    <a href="{% url notification_mark_all_seen %}">{% trans "Mark all notices seen" %}</a>
+	    <a href="{% url 'notification_mark_all_seen' %}">{% trans "Mark all notices seen" %}</a>
 	</div>
 {% endif %}
 <div class="comments"></div>        

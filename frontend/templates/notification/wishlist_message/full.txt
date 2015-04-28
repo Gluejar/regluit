@@ -1,8 +1,8 @@
-Message from {{ sender.username }} {% if sender.is_staff %} (Unglue.it staff) {% endif %} about {{ work.title }}, on your Unglue.it book list.
+{% load url from future %}Message from {{ sender.username }} {% if sender.is_staff %} (Unglue.it staff) {% endif %} about {{ work.title }}, on your Unglue.it book list.
 
 {{ msg }}
 
-Find out about {{ work.title }} at https://{{ current_site.domain }}{% url work work.id %}
-{{ sender.username }}'s Unglue.it user page is at https://{{ current_site.domain }}{% url supporter sender %}
+Find out about {{ work.title }} at https://{{ current_site.domain }}{% url 'work' work.id %}
+{{ sender.username }}'s Unglue.it user page is at https://{{ current_site.domain }}{% url 'supporter' sender %}
 
 Give ebooks to the world; give income to authors and publishers.  Unglue.it.

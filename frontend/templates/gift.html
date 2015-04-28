@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% load humanize %}
 
 {% block title %}Gifts{% endblock %}
@@ -23,7 +24,7 @@ You have {{ user.credit.available }} gift credits available to pledge or transfe
 {% if transfer_message %}
 <p>{{ transfer_message }}
 {% if transfer_amount %}
-<br /> Recipient: <a href="{% url supporter recipient %}">{{ recipient }}</a>
+<br /> Recipient: <a href="{% url 'supporter' recipient %}">{{ recipient }}</a>
 <br /> Amount: {{ transfer_amount }} gift credits
 {% endif %}
 </p>

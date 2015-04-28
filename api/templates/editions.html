@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% load url from future %}<!DOCTYPE html>
 <html>
 <head>
     <title>editions</title>
@@ -12,8 +12,8 @@
         <ul>
         {% for edition in editions %}
             <li> <img src="http://covers.openlibrary.org/b/isbn/{{edition.isbn_10}}-S.jpg" /> {{edition.id}} | {{edition.title}} |
-            <a href="{% url isbn isbn=edition.isbn_10 %}">{{edition.isbn_10}}</a> |
-            <a href="{% url isbn isbn=edition.isbn_13 %}">{{edition.isbn_13}}</a>
+            <a href="{% url 'isbn' isbn=edition.isbn_10 %}">{{edition.isbn_10}}</a> |
+            <a href="{% url 'isbn' isbn=edition.isbn_13 %}">{{edition.isbn_13}}</a>
         {% endfor %}
         </ul>
     {% else %}

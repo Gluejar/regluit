@@ -1,8 +1,9 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block doccontent %}
 <div class="work_campaigns"> 
-    <b>Title</b>: <a href="{% url work edition.work.id %}">{{ edition.title}}</a><br />
+    <b>Title</b>: <a href="{% url 'work' edition.work.id %}">{{ edition.title}}</a><br />
     <b>Publisher</b> : {{ edition.publisher_name }}<br />
     <b>Authors</b>:
     <ul>
@@ -71,9 +72,9 @@ For ePUB files, use the <a href=https://code.google.com/p/epubcheck/">epubcheck<
 {% if edition.work %}
 <h2>More Edition Management</h2>
 
-<div><a href="{% url new_edition edition.work.id edition.id %}">Edit this edition</a></div>
+<div><a href="{% url 'new_edition' edition.work.id edition.id %}">Edit this edition</a></div>
 {% if edition.work.last_campaign %}
-<div><a href="{% url manage_campaign edition.work.last_campaign.id %}">Manage this campaign</a></div>
+<div><a href="{% url 'manage_campaign' edition.work.last_campaign.id %}">Manage this campaign</a></div>
 {% endif %}
 {% endif %}
 {% endblock %}

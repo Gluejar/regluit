@@ -1,9 +1,9 @@
-{% if work.is_free %}"{{ work.title }}" is a free ebook on Unglue.it: 
-https://{{site}}{% url work work.id %} 
+{% load url from future %}{% if work.is_free %}"{{ work.title }}" is a free ebook on Unglue.it: 
+https://{{site}}{% url 'work' work.id %} 
 
 You can download it and read it on your favorite device.
 
 {% else %}Help me unglue one of my favorite books, "{{ work.title }}" on Unglue.it: 
-https://{{site}}{% url work work.id %} 
+https://{{site}}{% url 'work' work.id %} 
 
 If enough of us fave this book, Unglue.it may start a campaign to pay the creator and make the ebook free to everyone on earth.{% endif %}

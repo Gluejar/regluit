@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block extra_extra_head %}
 {{ block.super }}
@@ -12,7 +13,7 @@
 <h2>{{ work.title }}</h2>
 
 {% if merge_complete %}
-    <h2>Merge {{ old_work_id }} into <a href="{% url work work.id %}">{{ work.id }}</a> Complete</h2>
+    <h2>Merge {{ old_work_id }} into <a href="{% url 'work' work.id %}">{{ work.id }}</a> Complete</h2>
       {% include 'workbox.html' %}
       <div><a href="?again">Merge more</a><br /><br /></div>
 {% else %}
@@ -37,7 +38,7 @@
 {% endif %}
 
 <h2>More Edition Management</h2>
-<div><a href="{% url work_editions work.id  %}">Remove editions from this work</a><br /><br /></div>
-<div><a href="{% url new_edition work.id '' %}">Create a new edition for this work</a><br /><br /></div>
+<div><a href="{% url 'work_editions' work.id  %}">Remove editions from this work</a><br /><br /></div>
+<div><a href="{% url 'new_edition' work.id '' %}">Create a new edition for this work</a><br /><br /></div>
 
 {% endblock %}

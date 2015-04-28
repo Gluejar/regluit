@@ -1,8 +1,9 @@
-{% extends "notification/notice_template.html" %}
+{% extends 'notification/notice_template.html' %}
+{% load url from future %}
 {% load humanize %}
 
 {% block comments_book %}
-			<a href="{% url work gift.acq.work.id %}"><img src="{{ gift.acq.work.cover_image_small }}" alt="cover image for {{ gift.acq.work.title }}" /></a>
+			<a href="{% url 'work' gift.acq.work.id %}"><img src="{{ gift.acq.work.cover_image_small }}" alt="cover image for {{ gift.acq.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -27,17 +28,17 @@ There are several possible reasons for this.
 <p>
 Here's the URL that the recipient (and ONLY the recipient) should use to collect the book:
  </p>
-<pre>https://{{ current_site.domain }}{% url receive_gift gift.acq.nonce %}</pre>
+<pre>https://{{ current_site.domain }}{% url 'receive_gift' gift.acq.nonce %}</pre>
 
 <p>
 You can send the link yourself if to make sure that it gets to the right place.
 </p>
 <p>
 You can also "regift" the ebook to a different email address. Click on  
-<a href="{% url receive_gift gift.acq.nonce %}">this link</a> to do so.
+<a href="{% url 'receive_gift' gift.acq.nonce %}">this link</a> to do so.
 </p>
 <p>
-If you have any problems or questions, don't hesitate to contact <a href="{% url feedback %}?page={{request.build_absolute_uri|urlencode:""}}">Unglue.it support</a>.</p>
+If you have any problems or questions, don't hesitate to contact <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Unglue.it support</a>.</p>
 <p>
 the Unglue.it team
 </p>

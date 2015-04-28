@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% block title %}Your Unglue.it Account{% endblock %}
 {% block extra_extra_head %}
 {{ block.super }}
@@ -18,7 +19,7 @@ $j(document).ready(function(){
 {% if user.profile.last_transaction %}
 {% if user.profile.last_transaction.status == 'Error' or user.profile.last_transaction.status == 'Failed' or not user.profile.last_transaction.status %}
 <h2 id="your_payment_info">Incomplete Transaction</h2>
-You can complete your last transaction by <a href="{% url fund user.profile.last_transaction.id %}">clicking here</a>.
+You can complete your last transaction by <a href="{% url 'fund' user.profile.last_transaction.id %}">clicking here</a>.
 {% endif %}
 {% endif %}
 <h2 id="your_payment_info">Your Payment Info</h2>
@@ -91,8 +92,8 @@ You can complete your last transaction by <a href="{% url fund user.profile.last
 <h2 style="margin-top:8em">Your Pledges</h2>
 <dl>
 {% for transaction in request.user.profile.pledges %}
-    <dt><i><a href="{% url work transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a></i> 
-    (<a href="{% url pledge_modify transaction.campaign.work.id %}">modify pledge</a>)</dt>
+    <dt><i><a href="{% url 'work' transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a></i> 
+    (<a href="{% url 'pledge_modify' transaction.campaign.work.id %}">modify pledge</a>)</dt>
     <dd><div class="modify_notification">
 	{% include "trans_summary.html" %}
     </div></dd>
@@ -103,12 +104,12 @@ You can complete your last transaction by <a href="{% url fund user.profile.last
 
 <h2> Other Account Management Tools </h2>
 <ul>
-<li>Want to <a href="{% url auth_password_change %}">change your password</a>?</li>
-<li>... or <a href="{% url notification_notice_settings %}">manage your contact preferences</a>?</li>
-<li>... or <a href="{% url email_change %}">change your email address</a>?</li>
-<li>... or <a href="{% url regluit.frontend.views.edit_user %}">change your username</a>?</li>
-<li>... or <a href="{% url marc_config %}">change your MARC record preferences</a>?</li>
-<li>... or <a href="{% url kindle_config %}">add or change a Send-to-Kindle email</a>?</li>
+<li>Want to <a href="{% url 'auth_password_change' %}">change your password</a>?</li>
+<li>... or <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>?</li>
+<li>... or <a href="{% url 'email_change' %}">change your email address</a>?</li>
+<li>... or <a href="{% url 'regluit'.frontend.views.edit_user %}">change your username</a>?</li>
+<li>... or <a href="{% url 'marc_config' %}">change your MARC record preferences</a>?</li>
+<li>... or <a href="{% url 'kindle_config' %}">add or change a Send-to-Kindle email</a>?</li>
 </ul>
 {% endblock %}
 

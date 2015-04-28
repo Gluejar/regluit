@@ -1,4 +1,4 @@
-{% load humanize %}{% if up_or_down == 'canceled' %}You have canceled a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
+{% load url from future %}{% load humanize %}{% if up_or_down == 'canceled' %}You have canceled a pledge that you had previously made to the campaign to unglue {{ transaction.campaign.work.title }}.
 
 Your canceled pledge
 Amount: ${{ transaction.amount|floatformat:2|intcomma }}
@@ -11,7 +11,7 @@ Your new pledge summary
 {% endif %}
 
 If you'd like to visit the campaign page or make changes, click here: 
-https://{{current_site.domain}}{% url work transaction.campaign.work.id %}
+https://{{current_site.domain}}{% url 'work' transaction.campaign.work.id %}
 
 Thank you again for your support.
 

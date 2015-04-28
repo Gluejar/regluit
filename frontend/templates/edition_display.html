@@ -1,4 +1,4 @@
-<div class="clearfix">
+{% load url from future %}<div class="clearfix">
     <div class="editions">
             {% if edition.googlebooks_id %}
                 <div class="image">
@@ -17,7 +17,7 @@
                 <br />
             {% endif %}
             {% if edition.publisher %}
-                Publisher: <a href="{% url bypubname_list edition.publisher_name.id %}">{{edition.publisher}}</a><br />
+                Publisher: <a href="{% url 'bypubname_list' edition.publisher_name.id %}">{{edition.publisher}}</a><br />
             {% endif %}
             {% if edition.publication_date %}
                 Published: {{ edition.publication_date }}<br />
@@ -33,18 +33,18 @@
             {% endif %}
             {% if not managing %}
                 {% if user.is_staff %}
-                    <a href="{% url new_edition work_id edition.id %}">Edit this edition/Add ebook link</a><br />
+                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition/Add ebook link</a><br />
                 {% else %}{% if user in work.last_campaign.managers.all %}
-                    <a href="{% url new_edition work_id edition.id %}">Edit this edition/Add ebook link</a><br />
+                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition/Add ebook link</a><br />
                 {% else %}{% if user.is_authenticated %}
-                    <a href="{% url new_edition work_id edition.id %}">Add ebook link</a><br />
+                    <a href="{% url 'new_edition' work_id edition.id %}">Add ebook link</a><br />
                 {% endif %}{% endif %}{% endif %}
                 {% if edition.googlebooks_id %}
                     See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a><br />
                 {% endif %} 
             {% endif %}  
             {% if user.libpref %}{% if edition.ebooks.all or edition.ebook_files.all %}
-                <a href="{% url upload_marc %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
+                <a href="{% url 'upload_marc' %}?edition={{ edition.id }}">Upload</a> a MARC record for this edition. <br />
             {% endif %} {% endif %}
         </div>
 

@@ -1,4 +1,4 @@
-{% if comment.user.is_staff %}
+{% load url from future %}{% if comment.user.is_staff %}
 Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.content_object.title }} (a book on your Unglue.it book list):
 {% else %}
 {{ comment.user.username }}, the author or publisher of {{ comment.content_object.title }} (a book on your Unglue.it book list), has made a comment:
@@ -6,6 +6,6 @@ Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.c
           
 {{ comment.comment }}
 
-You can see all comments on this book at https://{{ domain }}{% url work comment.content_object.id %}?tab=2 .
+You can see all comments on this book at https://{{ domain }}{% url 'work' comment.content_object.id %}?tab=2 .
 
 The Unglue.it team

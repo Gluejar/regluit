@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 
 {% block extra_head %}
 <script type="application/x-javascript">
@@ -43,13 +44,13 @@
     $('#test_click').click(update_number_of_books);
 
     $('#clear_wishlist_form').submit(function (){
-        post_and_alert('{% url clear_wishlist %}')(true,{});
+        post_and_alert('{% url 'clear_wishlist' %}')(true,{});
         update_number_of_books();
         return false;
     });
                                      
     $('#load_shelf_form').submit(function(){
-        post_and_alert('{% url goodreads_load_shelf%}')(false,$('#load_shelf_form').serialize());
+        post_and_alert('{% url 'goodreads_load_shelf'%}')(false,$('#load_shelf_form').serialize());
         return false;
     });                     
     
@@ -71,7 +72,7 @@
 
     {% if user.profile.goodreads_user_id %}
         <p>Welcome, Goodreads user id# {{user.profile.goodreads_user_id}}. Your GR username is {{user.profile.goodreads_user_name}} and here is <a href="{{user.profile.goodreads_user_link}}">your Goodreads profile</a>.</p>
-        <form id="clear_goodreads_id" method="post" action="{% url goodreads_flush_assoc %}">
+        <form id="clear_goodreads_id" method="post" action="{% url 'goodreads_flush_assoc' %}">
             <p><input type="submit" value="Unlink your Goodreads account from Unglue.it" /></p>
         </form>
         <p>You can also revoke access for Unglue.it at <a href="http://www.goodreads.com/user/edit?tab=apps">Goodreads user apps panel</a>.</p>
@@ -115,7 +116,7 @@
         <li>{{task.task_id}} | {{task.description}} | {{task.state}}</li>
     {% endfor %}    
     </ul>
-    <form id="clear_celery_tasks" method="post" action="{% url clear_celery_tasks %}">
+    <form id="clear_celery_tasks" method="post" action="{% url 'clear_celery_tasks' %}">
             {% csrf_token %}
             <input type="submit" value="Clear Celery Tasks" />
     </form>

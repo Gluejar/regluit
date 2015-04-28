@@ -1,4 +1,4 @@
-{% comment %}
+{% load url from future %}{% comment %}
     status of book vis-a-vis user's wishlist.
     Non-logged-in users should see login to add option.
     Logged-in users, book on wishlist:
@@ -10,11 +10,11 @@
 {% endcomment %}
 			{% if request.user.is_anonymous %}
 				<div class="moreinfo create-account">
-				<span title="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Fave</span>
+				<span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
 				</div>
 			{% else %}{% if request.user.id in supporters %}
 				<div class="moreinfo on-wishlist">
-					<a href="{% url work workid %}">Pledged!</a>
+					<a href="{% url 'work' workid %}">Pledged!</a>
 				</div>
 			{% else %}{% ifequal supporter request.user %}
 				{% if wishlist %}

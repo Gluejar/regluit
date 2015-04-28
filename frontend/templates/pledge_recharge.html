@@ -1,4 +1,5 @@
-{% extends "basepledge.html" %}
+{% extends 'basepledge.html' %}
+{% load url from future %}
 {% load humanize %}
 
 {% block title %}Pledge Recharge{% endblock %}
@@ -13,7 +14,7 @@
    {{error}}
 {% else %}
 {% if transaction %}
-    <div>Thank you for pledging ${{ transaction.amount|floatformat:2|intcomma}} to the campaign for <a href="{% url work work.id %}">{{ work.title }}</a>.
+    <div>Thank you for pledging ${{ transaction.amount|floatformat:2|intcomma}} to the campaign for <a href="{% url 'work' work.id %}">{{ work.title }}</a>.
     The attempt to collect your payment was unsucessful.<br> <br>
     Please authorize another attempt to collect your pledge of ${{ transaction.amount|floatformat:2|intcomma }}
     by clicking on the following link:
@@ -21,7 +22,7 @@
     
 
 {% else %}
-    <div>You do not currently need to authorize another payment for the successful campaign for <a href="{% url work work.id %}">{{ work.title }}</a>.  </div>
+    <div>You do not currently need to authorize another payment for the successful campaign for <a href="{% url 'work' work.id %}">{{ work.title }}</a>.  </div>
 {% endif %}
 {% endif %}
 

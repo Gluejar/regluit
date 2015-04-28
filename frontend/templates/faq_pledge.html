@@ -1,4 +1,4 @@
-            <div class="jsmodule">
+{% load url from future %}            <div class="jsmodule">
                 <h3 class="jsmod-title"><span>Pledging FAQs</span></h3>
                 <div class="jsmod-content">
                     <ul class="menu level1">
@@ -34,7 +34,7 @@
                         <li class="parent">
                             <span class="faq">What if I want to change my pledge?</span>
                             <span class="menu level2 answer">
-                            You can change or cancel your pledge at any time before the campaign ends.  This will be the campaign's deadline ({{ campaign.deadline }}) or midnight (Eastern US time) on the day the campaign succeeds, whichever comes first.  You can change the credit card you unglue with, too.  Go to your <a href="{% url manage_account %}">Account &amp; Pledges page</a> (always accessible under "Hi, {{ request.user.username }}!" in the upper right corner of the site).
+                            You can change or cancel your pledge at any time before the campaign ends.  This will be the campaign's deadline ({{ campaign.deadline }}) or midnight (Eastern US time) on the day the campaign succeeds, whichever comes first.  You can change the credit card you unglue with, too.  Go to your <a href="{% url 'manage_account' %}">Account &amp; Pledges page</a> (always accessible under "Hi, {{ request.user.username }}!" in the upper right corner of the site).
                             </span>
                         </li>
                         

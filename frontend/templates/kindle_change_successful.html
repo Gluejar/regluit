@@ -1,4 +1,5 @@
-{% extends "email_change/base.html" %}
+{% extends 'email_change/base.html' %}
+{% load url from future %}
 {% with request.user.profile.kindle_email as kindle_email %}
 
 {% block title %}Kindle email change successful{% endblock %}
@@ -25,15 +26,15 @@
     <div id="content-main">
     
         <p>{% if ok_email %}Hooray!  We can now send most unglued ebooks to you at {{ request.user.profile.kindle_email }}. Some ebooks are too big for us to send, though.
-        {% else %}<span class="yikes">{{ request.user.profile.kindle_email }} is probably not the right email for your Kindle; most Kindles use an @kindle.com email address. You can <a href="{% url kindle_config %}">change it</a>, but we'll try sending it anyway.</span> {% endif %}</p>
+        {% else %}<span class="yikes">{{ request.user.profile.kindle_email }} is probably not the right email for your Kindle; most Kindles use an @kindle.com email address. You can <a href="{% url 'kindle_config' %}">change it</a>, but we'll try sending it anyway.</span> {% endif %}</p>
         {% if work %}
             <p>
-                We're now emailing you the ebook you wanted, <i><a href="{% url work work.id %}">{{ work.title }}</a></i>...
+                We're now emailing you the ebook you wanted, <i><a href="{% url 'work' work.id %}">{{ work.title }}</a></i>...
             </p>
             <span id="replace_me"><img src="{{ STATIC_URL }}images/loading.gif"></span>
         {% else %}
             <p>
-                Why not <a href="{% url unglued_list '' %}">start downloading free books</a>?
+                Why not <a href="{% url 'unglued_list' '' %}">start downloading free books</a>?
             </p>
         {% endif %}
     </div>

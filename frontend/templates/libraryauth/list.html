@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% load libraryauthtags %}
 {% block title %} Libraries {% endblock %}
 {% block extra_css %}
@@ -20,7 +21,7 @@
                             <div id="user-block1">
                             	<div id="block-intro-text"><span class="special-user-name">Unglue.it Libraries</span></div>
                             </div>
-                            <div class="user-block24"><span class="user-short-info">These libraries are participating in Unglue.it. If one of these is your library, you should be able to join, borrow and donate books. If your library is not on this list, contact your librarian and have them check out our <a href="{% url libraries %}">libraries FAQ</a>.</span>
+                            <div class="user-block24"><span class="user-short-info">These libraries are participating in Unglue.it. If one of these is your library, you should be able to join, borrow and donate books. If your library is not on this list, contact your librarian and have them check out our <a href="{% url 'libraries' %}">libraries FAQ</a>.</span>
                             </div>
                         </div>
                     </div>
@@ -49,12 +50,12 @@
                         {% for library in libraries %}
                             <div class="items {% cycle 'row1' 'row2' %}{% if library.group in request.user.groups.all %} joined{% endif %}">
                                <div class="avatar">
-                                  <a href="{% url library library.user %}">
+                                  <a href="{% url 'library' library.user %}">
                                     <img class="user-avatar" src="{{ library.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ library }}" title="{{ library }}" />
                                   </a>
                                </div>
                               <div class="nonavatar">
-                                  <div class="libname"><a href="{% url library library.user %}">{{ library }}</a> {{ library.user.tagline }}</div>
+                                  <div class="libname"><a href="{% url 'library' library.user %}">{{ library }}</a> {{ library.user.tagline }}</div>
                                   <div class="libstat">{% if library.group in request.user.groups.all %}<em>joined</em>{% else %}&nbsp;{% endif %}</div>
                                   <div class="libstat">{{ library.library_users.count }} Unglue.it users</div>
                                   <div class="libstat">{{ library.user.acqs.count }} Unglue.it holdings</div>

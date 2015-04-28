@@ -1,4 +1,5 @@
-{% extends "basepledge.html" %}
+{% extends 'basepledge.html' %}
+{% load url from future %}
 {% load humanize %}
 {% load lib_acqs %}
 {% load purchased %}
@@ -17,12 +18,12 @@
 <div style="height:15px"></div>
 <div class="book-detail">
 	<div id="book-detail-img">
-		<a href="{% url work work.id %}"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+		<a href="{% url 'work' work.id %}"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
     </div>
     
     <div class="book-detail-info">
 		<div class="layout">
-			<h2 class="book-name"><a href="{% url work work.id %}">{{ work.title }}</a></h2>
+			<h2 class="book-name"><a href="{% url 'work' work.id %}">{{ work.title }}</a></h2>
 			<div>
 				<div class="pubinfo">
 					<h3 class="book-author">{{ work.authors_short }}</h3>
@@ -75,7 +76,7 @@
     	<form class="pledgeform" method="POST" action="#">
     	    {% if borrowable %}
     	         <div class="pledge_amount">This ebook can be borrowed from your library.</div>
-    	         <div><a href="{% url borrow work.id %}" class="fakeinput">Borrow Now</a> </div>
+    	         <div><a href="{% url 'borrow' work.id %}" class="fakeinput">Borrow Now</a> </div>
     	         <div style="height:75px;"></div>
     	    {% else %}
             {% if next_acq %}
@@ -90,7 +91,7 @@
                         {% if next_acq.holds.count == 1 %}There is {{ next_acq.holds.count }} person waiting.{% endif %}
                         {% if next_acq.holds.count >  1 %}There are {{ next_acq.holds.count }} people waiting.{% endif %}
                     </div>
-                    <div><a href="{% url reserve work.id %}?library={{ next_acq.user }}" class="fakeinput">Reserve Now</a> </div>
+                    <div><a href="{% url 'reserve' work.id %}?library={{ next_acq.user }}" class="fakeinput">Reserve Now</a> </div>
                 {% endif %}
                 <div style="height:30px;"></div>
                 <div class="bigger" style="height:30px;clear:both;margin:20px">If you'd rather not wait, consider one of the purchase options.</div>
@@ -159,7 +160,7 @@
                         </label>
                     {% else %}
                         <span class="menu-item-desc">
-                            If you <a href="{% url library_list %}">join a Library</a>, you can share and borrow unglue.it ebooks!
+                            If you <a href="{% url 'library_list' %}">join a Library</a>, you can share and borrow unglue.it ebooks!
                         </span>
                     {% endif %}
                     </li>

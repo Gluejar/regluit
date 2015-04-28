@@ -1,4 +1,4 @@
-<div class="clearfix">
+{% load url from future %}<div class="clearfix">
     {% if edition.ebook_form %}
         {% if show_ebook_form %}
             <div id="add_ebook">
@@ -7,7 +7,7 @@
                     <h2>eBooks for this Edition</h2>
             
                     {% for ebook in edition.ebooks.all %}
-                        <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. Downloaded {{ ebook.download_count }} times.<br />
+                        <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. Downloaded {{ ebook.download_count }} times.<br />
                     {% endfor %}
                 {% endif %}
 

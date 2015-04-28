@@ -1,6 +1,6 @@
     <div id="js-topsection">
     	<div class="js-main">
-        	<div class="js-topnews">
+{% load url from future %}        	<div class="js-topnews">
                     <div class="user-block">
                         <div id="user-block1">
                             <div class="block-inner">
@@ -56,7 +56,7 @@
                         </div>
                         <div class="quicktour last">
                             <div class="programlink">
-                                <a href="{% url faq_sublocation 'campaigns' 't4u' %}">"Thanks for Ungluing"</a>
+                                <a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}">"Thanks for Ungluing"</a>
                             </div>
                         </div>
                         <div class="learnmore_row"></div>
@@ -96,7 +96,7 @@
                         </div>
                         <div class="quicktour last">
                             <div class="programlink">
-                                <a href="{% url faq_sublocation 'campaigns' 'b2u' %}">"Buy to Unglue"</a>
+                                <a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}">"Buy to Unglue"</a>
                             </div>
                         </div>
                         <div class="learnmore_row"></div>
@@ -137,7 +137,7 @@
                         </div>
                         <div class="quicktour last">
                             <div class="programlink">
-                                <a href="{% url faq_sublocation 'campaigns' 'supporting' %}">"Pledge to Unglue"</a>
+                                <a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}">"Pledge to Unglue"</a>
                             </div>
                         </div>
                     </div>

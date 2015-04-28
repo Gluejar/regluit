@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% block title %} for Smashwords Authors{% endblock %}
 {% block doccontent %}
 <h1>Smashwords + Unglue.it</h1>
@@ -24,5 +25,5 @@
 <p>Yes.  You have that permission, courtesy of an agreement between Smashwords and Unglue.it.</p>
 
 <p><I>Where can I learn more about Unglue.it's terms?</I></p>
-<p>Please see our <a href="{% url terms %}">Terms of Service</a> and our <a href="{% url faq %}">FAQ</a>.</p>
+<p>Please see our <a href="{% url 'terms' %}">Terms of Service</a> and our <a href="{% url 'faq' %}">FAQ</a>.</p>
 {% endblock %}

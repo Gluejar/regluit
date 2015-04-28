@@ -1,4 +1,5 @@
-{% extends "email_change/base.html" %}
+{% extends 'email_change/base.html' %}
+{% load url from future %}
 
 {% block extra_extra_head %}
 {{ block.super }}
@@ -29,7 +30,7 @@ If you enable Librarian tools, you'll find links to download MARC record(s) at t
 </ul>
 
 {% if request.user.is_authenticated %}
-<form method="post" action="{% url marc_config %}">
+<form method="post" action="{% url 'marc_config' %}">
     {% csrf_token %}
 <div>
     {% if request.user.libpref %}
@@ -46,7 +47,7 @@ If you enable Librarian tools, you'll find links to download MARC record(s) at t
 </div>
 </form>
 <p>
-Back to <a href="{% url marc %}">record download page</a>
+Back to <a href="{% url 'marc' %}">record download page</a>
 </p>
 {% endif %}
 {% endblock %}

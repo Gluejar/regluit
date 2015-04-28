@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% load endless %}
 {% load truncatechars %}
 {% block title %} &#8212; {{ library }}{% endblock %}
@@ -104,7 +105,7 @@ function highlightTarget(targetdiv) {
                             {% endif %}
                             {% else %}
                                 <div class="user-block24">
-                                    <p> To join a library or borrow books, you'll need to <a href="{% url superlogin %}?next={% url library library.user %}">sign in</a> or <a href="{% url registration_register %}?next={% url library library.user %}">create an account</a>. </p>
+                                    <p> To join a library or borrow books, you'll need to <a href="{% url 'superlogin' %}?next={% url 'library' library.user %}">sign in</a> or <a href="{% url 'registration_register' %}?next={% url 'library' library.user %}">create an account</a>. </p>
                                 </div>
                             {% endif %}
 

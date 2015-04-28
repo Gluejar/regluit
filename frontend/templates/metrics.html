@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% load humanize %}
 {% block title %} Metrics {% endblock %}
 {% block doccontent %}
@@ -10,13 +11,13 @@
     <ul class="terms">
         <li>{{ users.today.count }} have registered today. {% if users.today.count %}They are 
             <ul class="terms">{% for user in users.today %}
-                <li><a href="{% url supporter user.username %}"> {{user.username}}</a> {% if user.is_active %} ( {{ user.wishlist.works.count }} wishes) {% if user.library %}{{user.library}}{% endif %}{% endif %}</li>
+                <li><a href="{% url 'supporter' user.username %}"> {{user.username}}</a> {% if user.is_active %} ( {{ user.wishlist.works.count }} wishes) {% if user.library %}{{user.library}}{% endif %}{% endif %}</li>
             {% endfor %}</ul>{% endif %}
           <br />{{ wishlists.today.count }} of them have 1 or more items on a wishlist. 
         </li>
         <li>{{ users.yesterday.count }} registered yesterday.{% if users.today.count %}They are 
             <ul class="terms">{% for user in users.yesterday %}
-                <li><a href="{% url supporter user.username %}"> {{user.username}}</a> {% if user.is_active %} ( {{ user.wishlist.works.count }} wishes) {% if user.library %}{{user.library}}{% endif %}{% endif %}</li>
+                <li><a href="{% url 'supporter' user.username %}"> {{user.username}}</a> {% if user.is_active %} ( {{ user.wishlist.works.count }} wishes) {% if user.library %}{{user.library}}{% endif %}{% endif %}</li>
             {% endfor %}</ul>{% endif %}
 
             <br />{{ wishlists.yesterday.count }} of them have 1 or more items on a wishlist. 
@@ -47,7 +48,7 @@
     <ul class="terms">
         <li>{{ works.today.count }} have been added today. {% if works.today.count %}They are 
             <ul class="terms">{% for work in works.today %}
-                <li><a href="{% url work work.id %}">{{work.title}}</a></li>
+                <li><a href="{% url 'work' work.id %}">{{work.title}}</a></li>
             {% endfor %}</ul>{% endif %}
         </li>
         <li>{{ works.yesterday.count }} were added yesterday.
@@ -87,7 +88,7 @@
     <ul class="terms">
         <li>{{ ebooks.today.count }} have been added today. {% if ebooks.today.count %}They are 
             <ul class="terms">{% for ebook in ebooks.today %}
-                <li><a href="{% url work ebook.edition.work.id %}">{{ebook.edition.work.title}}</a></li>
+                <li><a href="{% url 'work' ebook.edition.work.id %}">{{ebook.edition.work.title}}</a></li>
             {% endfor %}</ul>{% endif %}
         </li>
         <li>{{ ebooks.yesterday.count }} were added yesterday.
