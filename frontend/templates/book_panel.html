@@ -1,3 +1,4 @@
+{% load url from future %}
 {% load humanize %}
 {% load purchased %}
 {% load lib_acqs %}
@@ -24,12 +25,12 @@
                 <div class="greenpanel_top">
                     {% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
                         <p>{{ author }}</p>
                     </div>
                     {% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
-                            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                     </div>
                     {% if purchased %}
                     <div class="unglued_white">
@@ -63,27 +64,27 @@
                 </div>		
                 <div class="white_text bottom_button" >
                 {% if purchased %}
-                    <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                    <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}{% if borrowed %}
-                    <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                    <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}{% if borrowable %}
-                    <a href="{% url borrow workid %}?library={{library}}" class="hijax"><span class="read_itbutton button_text"><span>Borrow It</span></span></a>
+                    <a href="{% url 'borrow' workid %}?library={{library}}" class="hijax"><span class="read_itbutton button_text"><span>Borrow It</span></span></a>
                 {% else %}{% if first_ebook %}
-                    <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                    <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}
-                    <a href="{% url work workid %}"><span class="read_itbutton button_text"><span>Coming Soon</span></span></a>
+                    <a href="{% url 'work' workid %}"><span class="read_itbutton button_text"><span>Coming Soon</span></span></a>
                 {% endif %}{% endif %}{% endif %}{% endif %}
                 </div>
             {% else %}{% if status == 'ACTIVE' %}
                 <div class="greenpanel_top">
                     {% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
                         <p>{{ author }}</p>
                     </div>
                     {% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
-                            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                     </div>
 
                     <div class="unglued_white">
@@ -125,15 +126,15 @@
                     </div>		
                     <div class="white_text bottom_button" >
                         {% ifequal work.last_campaign.type 1 %}
-                            <a href="{% url pledge work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
+                            <a href="{% url 'pledge' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
                         {% else %}{% ifequal work.last_campaign.type 2 %}
                             {% if in_library %}
-                                <a href="{% url purchase work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
+                                <a href="{% url 'purchase' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
                             {% else %}
-                                <a href="{% url purchase work_id=workid %}" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
+                                <a href="{% url 'purchase' work_id=workid %}" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
                             {% endif %}
                         {% else %}{% ifequal work.last_campaign.type 3 %}
-                            <a href="{% url thank workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                            <a href="{% url 'thank' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                         {% endifequal %}{% endifequal %}{% endifequal %}
                     </div>
                {% endif %}
@@ -142,12 +143,12 @@
                 <div class="greenpanel_top">
                     {% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
                         <p>{{ author }}</p>
                     </div>
                     {% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
-                            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                     </div>
                     <div class="unglued_white">
                         {% if status == 'INITIALIZED' %}
@@ -171,12 +172,12 @@
 			<div class="greenpanel_top">
                 {% comment %}bibliographic data{% endcomment %}
                 <div class="white_text"> 
-                    <p><a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a></p>
+                    <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
                     <p>{{ author }}</p>
                 </div>
                 {% comment %}link to work page{% endcomment %}
                 <div class="moreinfo">
-                        <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top">More Info</a> 
+                        <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                 </div>
 				<div class="unglued_white">
                 {% if first_ebook %}
@@ -191,7 +192,7 @@
 			</div>
             <div class="white_text bottom_button">
                 {% if first_ebook %}
-                    <a href="{% url download workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                    <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}
                     {% include "num_wishes.html" %}	
                 {% endif %}                        
@@ -203,11 +204,11 @@
 		</div>
     </div>
     <div class="listview panelfront side1 book-thumb">
-         <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}" target="_top"><img src="{% if thumbnail %}{{ thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
+         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top"><img src="{% if thumbnail %}{{ thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
-            <a href="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">{{ title }}</a>
+            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a>
         </div>
         <div class="listview author">{{ author }}</div>
     </div>
@@ -225,15 +226,15 @@
         {% endif %}
     {% else %}{% if show_pledge %}
         <div class="listview panelfront side1 add-wishlist">
-            <span class="booklist_pledge"><a href="{% url pledge work_id=workid %}" class="fakeinput">Pledge</a></span>
+            <span class="booklist_pledge"><a href="{% url 'pledge' work_id=workid %}" class="fakeinput">Pledge</a></span>
         </div>
     {% else %}{% if show_purchase %}
         <div class="listview panelfront side1 add-wishlist">
-            <span class="booklist_pledge"><a href="{% url purchase work_id=workid %}" class="fakeinput" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}">Purchase</a></span>
+            <span class="booklist_pledge"><a href="{% url 'purchase' work_id=workid %}" class="fakeinput" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}">Purchase</a></span>
         </div>
     {% else %}{% if request.user.is_anonymous %}
         <div class="listview panelfront side1 create-account">
-            <span title="{% if workid %}{% url work workid %}{% else %}{% url googlebooks googlebooks_id %}{% endif %}">Login to Fave</span>
+            <span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
         </div>
     {% else %}{% if work in wishlist %}
         {% ifequal supporter request.user %}
@@ -313,11 +314,11 @@
     			Otherwise: number of wishes
     	{% endcomment %}
         {% if purchased or borrowed or first_ebook %}
-            <a href="{% url download workid %}" class="hijax" title="Download this work"><div class="read_itbutton"><span>Read it Now</span></div></a>
+            <a href="{% url 'download' workid %}" class="hijax" title="Download this work"><div class="read_itbutton"><span>Read it Now</span></div></a>
         {% else %}{% if borrowable %}
-            <a href="{% url borrow workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
+            <a href="{% url 'borrow' workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
         {% else %}{% if in_library %}
-            <a href="{% url purchase work_id=workid %}" title="Reserve or buy this work"><div class="read_itbutton"><span>Reserve It</span></div></a>
+            <a href="{% url 'purchase' work_id=workid %}" title="Reserve or buy this work"><div class="read_itbutton"><span>Reserve It</span></div></a>
         {% else %}{% if status == 'ACTIVE' or status == 'SUCCESSFUL' %}
 			{% if not library or not in_library %}
 			<div class="booklist-status-img">

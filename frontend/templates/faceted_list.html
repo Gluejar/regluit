@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% load endless %}
 {% load lang_utils %}
 
@@ -58,9 +59,9 @@
                     </ul>
                     <ul class="book-list-view">
                         <li>Sort by:</li>
-                        <li class="view-list"><a {% if order_by = 'popular' %}class="chosen" {% endif %}href="{% url faceted_list path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=popular">popular</a></li>
-                        <li class="view-list"><a {% if order_by = 'newest' %}class="chosen" {% endif %}href="{% url faceted_list path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=newest">newest</a></li>
-                        <li class="view-list"><a {% if order_by = 'title' %}class="chosen" {% endif %}href="{% url faceted_list path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=title">title</a></li>
+                        <li class="view-list"><a {% if order_by = 'popular' %}class="chosen" {% endif %}href="{% url 'faceted_list' path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=popular">popular</a></li>
+                        <li class="view-list"><a {% if order_by = 'newest' %}class="chosen" {% endif %}href="{% url 'faceted_list' path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=newest">newest</a></li>
+                        <li class="view-list"><a {% if order_by = 'title' %}class="chosen" {% endif %}href="{% url 'faceted_list' path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=title">title</a></li>
                     </ul>
                 </div>
                 <div id="content-block-content">
@@ -93,7 +94,7 @@
             {% if request.user.libpref %}
             <div id="libtools">
                 <p>for libraries...</p>
-                <form method="GET" action="{% url faceted_list_marc path %}">
+                <form method="GET" action="{% url 'faceted_list_marc' path %}">
                     {% include 'marc_form.html' %}
                     <input type="submit" name="submit" value="download MARC" id="submit">
                 </form>

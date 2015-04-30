@@ -1,4 +1,5 @@
-{% extends "basepledge.html" %}
+{% extends 'basepledge.html' %}
+{% load url from future %}
 {% load humanize %}
 
 {% block title %}Pledge{% endblock %}
@@ -15,12 +16,12 @@
 <div style="height:15px"></div>
 <div class="book-detail">
 	<div id="book-detail-img">
-		<a href="{% url work work.id %}"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
+		<a href="{% url 'work' work.id %}"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
     </div>
     
     <div class="book-detail-info">
 		<div class="layout">
-			<h2 class="book-name"><a href="{% url work work.id %}">{{ work.title }}</a></h2>
+			<h2 class="book-name"><a href="{% url 'work' work.id %}">{{ work.title }}</a></h2>
 			<div>
 				<div class="pubinfo">
 					<h3 class="book-author">{{ work.authors_short }}</h3>
@@ -79,7 +80,7 @@
     	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
     	{% endcomment %}	
 	
-    	<form class="pledgeform" method="POST" action="{% if faqmenu == 'modify' %}{% url pledge_modify work_id=work.id %}{% else %}{% url pledge work_id=work.id %}{% endif %}">
+    	<form class="pledgeform" method="POST" action="{% if faqmenu == 'modify' %}{% url 'pledge_modify' work_id=work.id %}{% else %}{% url 'pledge' work_id=work.id %}{% endif %}">
         	{% csrf_token %}
 			{{ form.non_field_errors }}
         	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
@@ -136,7 +137,7 @@
     </div>
 </div>
 <div class="cancel_notice">
-{% if faqmenu == 'modify' %}We hope you won't, but of course you're also free to <a href="{% url pledge_cancel campaign_id=work.last_campaign.id %}">cancel your pledge</a>.{% endif %}</div>
+{% if faqmenu == 'modify' %}We hope you won't, but of course you're also free to <a href="{% url 'pledge_cancel' campaign_id=work.last_campaign.id %}">cancel your pledge</a>.{% endif %}</div>
 <div id="pass_supporter_name" style="display: none;">{{ request.user.username }}</div>
 
 {% endblock %}

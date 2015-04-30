@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block title %} MARC records{% endblock %}
 
@@ -53,7 +54,7 @@ ul.local li {
 {% endif %}
 <p>You can download all our full records:</p>
 <div class="marc">
-    <form method="POST" id="record_form" action="{% url marc_all %}">
+    <form method="POST" id="record_form" action="{% url 'marc_all' %}">
         {% include 'marc_form.html' %}
         <input type="submit" name="submit" value="Download All Records" id="submit">
         <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
@@ -62,7 +63,7 @@ ul.local li {
 {% if request.user.is_authenticated %}
     <p>...or you can get records (both stub and full) for ebooks on your fave list.</p>
 <div class="marc">
-    <form method="POST" id="record_form" action="{% url user_marc request.user.username %}">
+    <form method="POST" id="record_form" action="{% url 'user_marc' request.user.username %}">
         {% include 'marc_form.html' %}
         <input type="submit" name="submit" value="Download {{request.user.username}}'s Records" id="submit">
         <span id="unsubmit"><img src="/static/images/loading.gif" alt="spinning wheel" /> Fetching record(s)...</span>
@@ -81,11 +82,11 @@ ul.local li {
 {% if request.user.is_authenticated %}
 <div>
     {% if request.user.libpref %}
-    <p>You have enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
+    <p>You have enabled librarian tools. You can <a href="{% url 'marc_config' %}">change your librarian status here</a>.</p>
     {% else %}
-    <p>You have not enabled librarian tools. You can <a href="{% url marc_config %}">change your librarian status here</a>.</p>
+    <p>You have not enabled librarian tools. You can <a href="{% url 'marc_config' %}">change your librarian status here</a>.</p>
     {% endif %}
-    <p>If you enable librarian tools, you can also <a href="{% url upload_marc %}">add new records</a>.</p>
+    <p>If you enable librarian tools, you can also <a href="{% url 'upload_marc' %}">add new records</a>.</p>
 </div>
 {% endif %}
 {% endblock %}

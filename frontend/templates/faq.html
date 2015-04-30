@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% block title %} FAQ {% endblock %}
 {% block topsection %}
 {% endblock %}
@@ -27,9 +28,9 @@
 
 <dd>We have three types of Ungluing Campaigns: Pledge Campaigns, Buy-to-Unglue Campaigns and Thanks-for-Ungluing campaigns.
 <ul class="bullets">
-<li> In a <i><a href="{% url faq_sublocation 'campaigns' 'supporting' %}">Pledge Campaign</a></i>, book lovers pledge their support for ungluing a book. If enough support is found to reach the goal (and only then), the supporter's credit cards are charged, and an unglued ebook is released.</li>
-<li> In a <i><a href="{% url faq_sublocation 'campaigns' 'b2u' %}">Buy-to-Unglue Campaign</a></i>, every ebook copy sold moves the book's ungluing date closer to the present. And you can donate ebooks to your local library- that's something you can't do in the Kindle or Apple Stores!</li>
-<li> In a <i><a href="{% url faq_sublocation 'campaigns' 't4u' %}">Thanks-for-Ungluing Campaign</a></i>, the ebook is already released with a Creative Commons license. Supporters can express their thanks by paying what they wish for the license and the ebook.</li>
+<li> In a <i><a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}">Pledge Campaign</a></i>, book lovers pledge their support for ungluing a book. If enough support is found to reach the goal (and only then), the supporter's credit cards are charged, and an unglued ebook is released.</li>
+<li> In a <i><a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}">Buy-to-Unglue Campaign</a></i>, every ebook copy sold moves the book's ungluing date closer to the present. And you can donate ebooks to your local library- that's something you can't do in the Kindle or Apple Stores!</li>
+<li> In a <i><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}">Thanks-for-Ungluing Campaign</a></i>, the ebook is already released with a Creative Commons license. Supporters can express their thanks by paying what they wish for the license and the ebook.</li>
 </ul>
 </dd>
 
@@ -117,7 +118,7 @@ If you believe you are a rights holder and would like to your works to be unglue
 <dl>
 <dt>I forgot my password. What do I do?</dt> 
 <dd>
-Click on this <a href="{% url django.contrib.auth.views.password_reset %}">forgot your password</a> link (you can also find it at the bottom of the <a href="{% url superlogin %}">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
+Click on this <a href="{% url 'django.contrib.auth.views.password_reset' %}">forgot your password</a> link (you can also find it at the bottom of the <a href="{% url 'superlogin' %}">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
 </dd>
 <dt>I never received an activation email after I signed up, or my activation email isn't working. What do I do?</dt>
 
@@ -137,7 +138,7 @@ Click on this <a href="{% url django.contrib.auth.views.password_reset %}">forgo
 
 <dt>How can I change my profile name or password, or the email address associated with my account?</dt>
 
-<dd>At the bottom of every page there's a link to an <a href="{% url regluit.frontend.views.edit_user %}">account editing page</a> where you can change your profile name, password, and email.</dd>
+<dd>At the bottom of every page there's a link to an <a href="{% url 'regluit.frontend.views.edit_user' %}">account editing page</a> where you can change your profile name, password, and email.</dd>
 
 <dt>How do I subscribe to, or unsubscribe from, emails I receive from Unglue.it?</dt>
 
@@ -160,7 +161,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 
 <dt>Who is Unglue.it?</dt>
 
-<dd>We are a small group that believes strongly that ebooks can make the world richer in new and diverse ways, and that we all benefit from the hard work of their creators. We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about">about page</a> or our Unglue.it supporter profiles: <a href="{% url supporter 'eric' %}">Eric Hellman</a>, <a href="{% url supporter 'AmandaM' %}">Amanda Mecke</a> and <a href="{% url supporter 'rdhyee' %}">Raymond Yee</a>. Our alumni include  <a href="{% url supporter 'luclewitanski' %}">Luc Lewitanski</a> and <a href="{% url supporter 'andromeda' %}">Andromeda Yelton</a>.</dd>
+<dd>We are a small group that believes strongly that ebooks can make the world richer in new and diverse ways, and that we all benefit from the hard work of their creators. We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about">about page</a> or our Unglue.it supporter profiles: <a href="{% url 'supporter' 'eric' %}">Eric Hellman</a>, <a href="{% url 'supporter' 'AmandaM' %}">Amanda Mecke</a> and <a href="{% url 'supporter' 'rdhyee' %}">Raymond Yee</a>. Our alumni include  <a href="{% url 'supporter' 'luclewitanski' %}">Luc Lewitanski</a> and <a href="{% url 'supporter' 'andromeda' %}">Andromeda Yelton</a>.</dd>
 
 <dt>Are you a non-profit company?</dt>
 
@@ -188,7 +189,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 {% include 'faq_t4u.html' %}
 {% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
-<a class="more_featured_books short" href="{% url campaign_list 'pledge' %}" title="Pledge to Unglue list"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+<a class="more_featured_books short" href="{% url 'campaign_list' 'pledge' %}" title="Pledge to Unglue list"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
 <h4>Pledge Campaigns</h4>
 <div class="faq_tldr">
 Support the books you've loved and make them free to everyone.
@@ -200,7 +201,7 @@ Support the books you've loved and make them free to everyone.
 
 <dt>What the book I love doesn't have a campaign?</dt>
 
-<dd>To show the creators of a book that there are people willing to support it, just "Fave" the book. If enough people show their support in this way, the creators will take notice. They may even offer "<a href="{% url faq_sublocation 'campaigns' 'premiums' %}">premiums</a>" to encourage you to pledge!</dd>
+<dd>To show the creators of a book that there are people willing to support it, just "Fave" the book. If enough people show their support in this way, the creators will take notice. They may even offer "<a href="{% url 'faq_sublocation' 'campaigns' 'premiums' %}">premiums</a>" to encourage you to pledge!</dd>
 
 <dt>How do I pledge?</dt>
 

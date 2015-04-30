@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block extra_extra_head %}
 {{ block.super }}
@@ -12,14 +13,14 @@
 <h2>Admin Links</h2>
 <ul>
 <li><a href="/admin/">Admin</a></li>
-<li><a href="{% url new_libraries %}">Libraries Needing Approval</a></li>
-<li><a href="{% url press_submitterator %}">Press Coverage</a></li>
-<li><a href="{% url subjects %}">Subjects</a> (set keywords)</li>
+<li><a href="{% url 'new_libraries' %}">Libraries Needing Approval</a></li>
+<li><a href="{% url 'press_submitterator' %}">Press Coverage</a></li>
+<li><a href="{% url 'subjects' %}">Subjects</a> (set keywords)</li>
 {% if facet = 'top' %}
-<li><a href="{% url accepted %}">Accepted Rights Holders</a></li>
-<li><a href="{% url claims %}">Active Claims</a></li>
+<li><a href="{% url 'accepted' %}">Accepted Rights Holders</a></li>
+<li><a href="{% url 'claims' %}">Active Claims</a></li>
 {% else %}
-<li><a href="{% url rh_admin %}">Unglue.it Admin</a></li>
+<li><a href="{% url 'rh_admin' %}">Unglue.it Admin</a></li>
 {% endif %}
 </ul>
 {% if facet = 'top' %}
@@ -39,7 +40,7 @@
 	<dt>{{ rights_holder.rights_holder_name }}</dt>
 	<dd>PSA #: {{ rights_holder.id }}
 	<br />email: {{ rights_holder.email }}
-	<br />owner: <a href="{% url supporter rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
+	<br />owner: <a href="{% url 'supporter' rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
 {% empty %}
 <p>No rights holders have been accepted yet</p>
 {% endfor %}
@@ -53,7 +54,7 @@
     {% csrf_token %}
 <dl>
 {% for claim, claim_form in pending %}
-	<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+	<dt>Title: <a href="{% url 'work' work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
 	<dd>Author: {{claim.work.authors_short }}</dd>
 	<dd>By: {{ claim.user.username }}</dd>
 	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
@@ -71,7 +72,7 @@
 <h3> Active Claims: {{ active_data.count }} </h3>
 <dl>
 {% for claim in active_data %}
-	<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+	<dt>Title: <a href="{% url 'work' work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
 	<dd>Author: {{claim.work.authors_short }}</dd>
 	<dd>By: {{ claim.user.username }}</dd>
 	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>

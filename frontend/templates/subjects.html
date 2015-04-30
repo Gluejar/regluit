@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 
 {% block content %}
 <div id="js-topsection">
@@ -11,13 +12,13 @@
         in the database to guide further development. 
         </p>
         <ul> 
-        <li> ordered by <a href="{% url subjects %}">keyword name</a> </li>
-        <li> ordered by <a href="{% url subjects %}?order=count">number</a> of works with the keyword.</li>
-        <li> ordered by <a href="{% url subjects %}?subset=free">keyword name</a> (free works only)</li> 
-        <li> ordered by <a href="{% url subjects %}?order=count&amp;subset=free">number</a> of free works with the keyword.</li>
-        <li> <a href="{% url free %}?order_by=subjects">free works needing keywords</a></li>
+        <li> ordered by <a href="{% url 'subjects' %}">keyword name</a> </li>
+        <li> ordered by <a href="{% url 'subjects' %}?order=count">number</a> of works with the keyword.</li>
+        <li> ordered by <a href="{% url 'subjects' %}?subset=free">keyword name</a> (free works only)</li> 
+        <li> ordered by <a href="{% url 'subjects' %}?order=count&amp;subset=free">number</a> of free works with the keyword.</li>
+        <li> <a href="{% url 'free' %}?order_by=subjects">free works needing keywords</a></li>
         {% if request.user.is_staff %}
-        <li> <a href="{% url map_subject %}">keyword mapping form</a></li>
+        <li> <a href="{% url 'map_subject' %}">keyword mapping form</a></li>
         {% endif %}
         </ul>
 
@@ -25,10 +26,10 @@
         <ul>
         {% for subject in subjects %}
         
-            <li><a href="{% url free %}kw.{{ subject.name }}/">{{ subject.name }}</a> 
+            <li><a href="{% url 'free' %}kw.{{ subject.name }}/">{{ subject.name }}</a> 
             ({% if subject.works__is_free__count %}{{ subject.works__is_free__count }} free out of {{ subject.works.all.count }}{% else %}{{ subject.works__count }}{% endif %} total works). 
-            {% if request.user.is_staff %} <a href="{% url free %}?setkw={{ subject.name }}">set</a> keywords. 
-             <a href="{% url admin:core_subject_change subject.id %}">edit</a>{% endif %} keyword.
+            {% if request.user.is_staff %} <a href="{% url 'free' %}?setkw={{ subject.name }}">set</a> keywords. 
+             <a href="{% url 'admin':core_subject_change subject.id %}">edit</a>{% endif %} keyword.
             </li>
         {% endfor %}
         </ul>

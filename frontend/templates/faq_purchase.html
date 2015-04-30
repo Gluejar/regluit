@@ -1,4 +1,4 @@
-            <div class="jsmodule">
+{% load url from future %}            <div class="jsmodule">
                 <h3 class="jsmod-title"><span>Buying FAQs</span></h3>
                 <div class="jsmod-content">
                     <ul class="menu level1">
@@ -20,7 +20,7 @@
                         <li class="parent">
                             <span class="faq">How and when will I get my eBook?</span>
                             <span class="menu level2 answer">
-                            Your purchased books will be always available for download from your <a href="{% url supporter request.user %}"> personal unglue.it page</a>. You can read the ebooks on any laptop, ebook reader or tablet.
+                            Your purchased books will be always available for download from your <a href="{% url 'supporter' request.user %}"> personal unglue.it page</a>. You can read the ebooks on any laptop, ebook reader or tablet.
                             </span>
                         </li>
                                                                         
@@ -61,7 +61,7 @@
                         <li class="parent">
                             <span class="faq">Can I buy a Library License?</span>
                             <span class="menu level2 answer">
-                            You need to join a library participating in Unglue.it. If your library is not on <a href="{% url library_list %}">this list</a>, contact your librarian and have them check out our <a href="{% url libraries %}">libraries FAQ</a>.
+                            You need to join a library participating in Unglue.it. If your library is not on <a href="{% url 'library_list' %}">this list</a>, contact your librarian and have them check out our <a href="{% url 'libraries' %}">libraries FAQ</a>.
                             </span>
                         </li>
                         <li class="last parent">

@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block title %}API Help{% endblock %}
 
@@ -10,7 +11,7 @@
     {% if user.is_authenticated %}
        <p> Welcome {{user.username}}. Your API key is <span style="font-weight:bold">{{api_key}}</span>.</p>
     {% else %}
-       <p> Please <a href="{% url superlogin %}?next={% firstof request.get_full_path|urlencode '/' %}"><span>sign in</span></a> first.</p>
+       <p> Please <a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}"><span>sign in</span></a> first.</p>
     {% endif %}
     
     <h3>Basic API info</h3>
@@ -38,13 +39,13 @@
     <h3>Campaign Widgets</h3>
     <p>You don't need a key to embed campaign (HTML) widgets. </p>
     {% if campaign %}
-       Here's a sample widget for the book <span style="font-style: italic">{{campaign.name}}</span> with ISBN {{campaign_isbn}}: <a href="{% url widget campaign_isbn %}">{{base_url}}{% url widget campaign_isbn %}</a>
+       Here's a sample widget for the book <span style="font-style: italic">{{campaign.name}}</span> with ISBN {{campaign_isbn}}: <a href="{% url 'widget' campaign_isbn %}">{{base_url}}{% url 'widget' campaign_isbn %}</a>
     {% else %}
        <p>Since there are currently no campaigns, there are no corresponding widgets.</p>
     {% endif %}
 
     <h3>OPDS Catalog Feeds</h3>
-    <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <a href="{% url opds %}">{% url opds %}</a></p>
+    <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <a href="{% url 'opds' %}">{% url 'opds' %}</a></p>
    
 
 {% endblock %}

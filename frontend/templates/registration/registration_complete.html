@@ -1,4 +1,5 @@
-{% extends "registration/registration_base.html" %}
+{% extends 'registration/registration_base.html' %}
+{% load url from future %}
 {% load urldecode %}
 {% block title %}Activation email sent{% endblock %}
 {% block doccontent %}
@@ -15,7 +16,7 @@ An account activation email has been sent.  Please check your email and click on
     {% endif %}
 {% else %}
 <div>
-You are logged in as <a href="{% url supporter request.user %}">{{ request.user.username }}</a>.
+You are logged in as <a href="{% url 'supporter' request.user %}">{{ request.user.username }}</a>.
 </div>
 {% endif %}
 

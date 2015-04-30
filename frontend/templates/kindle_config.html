@@ -1,4 +1,5 @@
-{% extends "email_change/base.html" %}
+{% extends 'email_change/base.html' %}
+{% load url from future %}
 
 {% block title %}Add or change your Kindle email{% endblock %}
 
@@ -26,7 +27,7 @@
         {% if kindle_email %}
             {% if work %}
                 <p>
-                    Welcome back, {{ user.username }}! We're sending <I><a href="{% url work work.id %}">{{ work.title }}</a></I> to {{ kindle_email }}.
+                    Welcome back, {{ user.username }}! We're sending <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I> to {{ kindle_email }}.
                 </p>
                 <span id="replace_me"><img src="{{ STATIC_URL }}images/loading.gif"></span>
                 <p>
@@ -47,12 +48,12 @@
             <p>Then, enter your Kindle email address below (most Kindles use an @kindle.com email address.):</p>
         {% endif %}
         {% if work %}
-            <form method="post" action="{% url kindle_config_download work.id %}">{% csrf_token %}
+            <form method="post" action="{% url 'kindle_config_download' work.id %}">{% csrf_token %}
                 {{ form.as_p }}
                 <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
             </form>
         {% else %}
-            <form method="post" action="{% url kindle_config %}">{% csrf_token %}
+            <form method="post" action="{% url 'kindle_config' %}">{% csrf_token %}
                 {{ form.as_p }}
                 <input type="submit" value="{% if kindle_email %}Change{% else %}Add{% endif %}" />
             </form>

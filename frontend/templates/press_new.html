@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% block title %} Press Information{% endblock %}
 {% block doccontent %}
 <h1>Press</h1>
@@ -25,7 +26,7 @@
 	<div class="spacer"></div>
 	{% if request.user.is_staff %}
 	    <div class="pressemail">
-	        Hi, {{ request.user.username }}.  Since you're a staff member, you can <a href="{% url press_submitterator %}">add new press items</a>.
+	        Hi, {{ request.user.username }}.  Since you're a staff member, you can <a href="{% url 'press_submitterator' %}">add new press items</a>.
 	    </div>
     	<div class="spacer"></div>
     {% endif %}

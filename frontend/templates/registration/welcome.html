@@ -1,18 +1,19 @@
-{% extends "registration/registration_base.html" %}
+{% extends 'registration/registration_base.html' %}
+{% load url from future %}
 
 {% block title %}Welcome to Unglue.It{% endblock %}
 {% block doccontent %}
 <div id="welcomesearch">
 <p>Welcome, {{user.username}}!</p><p id="link-to-next"></p>
                         	<label>What book would you give to the world? </label>
-				                <form action="{% url search %}" method="get">
+				                <form action="{% url 'search' %}" method="get">
                 				    <input type="text" id="watermark" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
                 				    <input type="submit" class="greenbutton" value="Search">
                					</form>
 </div>
 <br />
 <div class="welcomealternatives">
-Or you can <a href="{% url regluit.frontend.views.edit_user %}">change your username</a> &#151; <a href="{% url work_list 'popular' %}">see the site's favorite books</a>   &#151; <a href="/feedback/">send us feedback</a> &#151; <a href="{% url notification_notice_settings %}">manage your contact preferences</a>
+Or you can <a href="{% url 'regluit.frontend.views.edit_user' %}">change your username</a> &#151; <a href="{% url 'work_list' 'popular' %}">see the site's favorite books</a>   &#151; <a href="/feedback/">send us feedback</a> &#151; <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>
 </div>
 {% endblock %}
 

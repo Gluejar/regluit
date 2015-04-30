@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% load endless %}
 {% load lang_utils %}
 
@@ -106,7 +107,7 @@ location.hash = "#2";
             <div id="libtools">
                 <p>for libraries...</p>
                 {% block marcform %}
-                <form method="GET" action="{% url campaign_list_marc facet %}">
+                <form method="GET" action="{% url 'campaign_list_marc' facet %}">
                     {% include 'marc_form.html' %}
                     <input type="submit" name="submit" value="download MARC" id="submit">
                 </form>

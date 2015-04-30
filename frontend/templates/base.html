@@ -1,17 +1,17 @@
-<!DOCTYPE html>
+{% load url from future %}<!DOCTYPE html>
 {# raw url references raise test errors in tests for django registration; this is a workaround #}
-{% url privacy as privacyurl %}
-{% url terms as termsurl %}
-{% url manage_account as editurl %}
-{% url rightsholders as rhtoolsurl %}
-{% url faq as faqurl %}
-{% url about as abouturl %}
-{% url press as pressurl %}
-{% url rh_admin as adminurl %}
-{% url landing as landingurl %}
-{% url new_edition '' '' as editionurl %}
-{% url libraries as librariesurl %}
-{% url about_specific 'main' as aboutmainurl %}
+{% url 'privacy' as privacyurl %}
+{% url 'terms' as termsurl %}
+{% url 'manage_account' as editurl %}
+{% url 'rightsholders' as rhtoolsurl %}
+{% url 'faq' as faqurl %}
+{% url 'about' as abouturl %}
+{% url 'press' as pressurl %}
+{% url 'rh_admin' as adminurl %}
+{% url 'landing' as landingurl %}
+{% url 'new_edition' '' '' as editionurl %}
+{% url 'libraries' as librariesurl %}
+{% url 'about_specific' 'main' as aboutmainurl %}
 {% load truncatechars %}
 
 <html>
@@ -63,7 +63,7 @@
             {% if not suppress_search_box %}
             <div class="js-search">
             <div class="js-search-inner">
-                <form action="{% url search %}" method="get">
+                <form action="{% url 'search' %}" method="get">
                 	<div class="inputalign">
                     <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
                     <input type="submit" class="button">
@@ -86,7 +86,7 @@
                         </li>
                     </ul>
                         <ul id="user_menu">
-                            <li><a class="notbutton" href="{% url supporter user %}">My Faves</a></li>
+                            <li><a class="notbutton" href="{% url 'supporter' user %}">My Faves</a></li>
                             <li>
                                 <a  class="notbutton" href="/notification"><span>Notices</span>
                                     {% if unseen_count %}
@@ -96,21 +96,21 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a class="notbutton" href="{% url supporter user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
-                            <li><a class="notbutton" href="{% url manage_account %}"><span>Account &amp; Pledges</span></a></li>
+                            <li><a class="notbutton" href="{% url 'supporter' user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
+                            <li><a class="notbutton" href="{% url 'manage_account' %}"><span>Account &amp; Pledges</span></a></li>
                             {% if user.rights_holder.all %}
                             <li><a class="notbutton" href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
                             {% endif %}
-                            <li><a class="notbutton" href="{% url auth_logout %}"><span>Sign Out</span></a></li>
+                            <li><a class="notbutton" href="{% url 'auth_logout' %}"><span>Sign Out</span></a></li>
                         </ul>
                 </div>
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a class="notbutton" href="{% url superlogin %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" class="hijax"><span>Sign In</span></a></li>
+                        <li><a class="notbutton" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" class="hijax"><span>Sign In</span></a></li>
                        {% if not suppress_search_box %}
                             {% ifnotequal request.get_full_path "/accounts/register/" %}
-                                <li  class="last"><a class="btn btn-signup" href="{% url registration_register %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
+                                <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
                             {% endifnotequal %}
                         {% endif %}
                     </ul>
@@ -123,7 +123,7 @@
 {% if not suppress_search_box %}
 {% comment %}
 <div class="launch_top">
-        Happy <a href="https://twitter.com/ebookday">#ebookday</a>! We're celebrating with a list of <a href="{% url cc_list%}">Creative Commons eBooks</a>
+        Happy <a href="https://twitter.com/ebookday">#ebookday</a>! We're celebrating with a list of <a href="{% url 'cc_list'%}">Creative Commons eBooks</a>
 </div>
 {% endcomment %}
 {% endif %}
@@ -155,7 +155,7 @@
             <li><a href="{{ privacyurl }}">Privacy</a></li>
             <li><a href="{{ termsurl }}">Terms of Use</a></li>
             {% for library in user.libraries.all %}
-                <li><a href="{% url library_admin library.id %}">{{ library }} Administration</a></li>
+                <li><a href="{% url 'library_admin' library.id %}">{{ library }} Administration</a></li>
             {% endfor %}
             {% if user.is_staff %}
                 <li><a href="{{ adminurl }}">Unglue.it Administration</a></li>
@@ -167,8 +167,8 @@
         <span>Help</span>
         <ul>
             <li><a href="{{ faqurl }}">General FAQ</a></li>
-            <li><a href="{% url faq_location 'rightsholders' %}">Author/Publisher FAQ</a></li>
-            <li><a href="{% url api_help %}">API</a></li>
+            <li><a href="{% url 'faq_location' 'rightsholders' %}">Author/Publisher FAQ</a></li>
+            <li><a href="{% url 'api_help' %}">API</a></li>
             <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
             <li><a href="{{ librariesurl }}">Unglue.it &hearts; Libraries</a>
         </ul>

@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block title %}Add new MARC records{% endblock %}
 
@@ -12,7 +13,7 @@
 
 {% block doccontent %}
 {% if not request.user.libpref %}
-<p><i>If you want to load MARC records, you probably want to <a href="{% url marc_config %}">enable Unglue.it's librarian tools</a> first!</i></p>
+<p><i>If you want to load MARC records, you probably want to <a href="{% url 'marc_config' %}">enable Unglue.it's librarian tools</a> first!</i></p>
 {% endif %}
 <h2>Adding MARC records to Unglue.it</h2>
 {% if messages %}
@@ -29,7 +30,7 @@ MARC records are associated with unglue.it edition records. Look for links in th
 {% endif %}
 <h3>Adapting records from LoC</h3>
 <p>
-    For ebooks which have existing print editions cataloged in the Library of Congress, we can automatically convert those to Unglue.it ebook MARC records, which will then be automatically affixed to the ebook edition in our database and <a href="{% url marc %}">provided to ungluers</a>.
+    For ebooks which have existing print editions cataloged in the Library of Congress, we can automatically convert those to Unglue.it ebook MARC records, which will then be automatically affixed to the ebook edition in our database and <a href="{% url 'marc' %}">provided to ungluers</a>.
 </p>
 
 <p>
@@ -46,7 +47,7 @@ For ebooks which do NOT have existing print editions catalogued by the Library o
 {% if form.initial.edition %}
 The current records for this edition are here. They may be auto-generated stubs: 
     <div id="libtools">
-        <form method="POST" id="record_form" action="{% url marc_concatenate  %}">
+        <form method="POST" id="record_form" action="{% url 'marc_concatenate'  %}">
             {% include 'marc_form.html' %}
             <input type="hidden" name="edition_{{form.initial.edition}}" value="on">
             <input type="submit" name="submit" value="Download MARC" id="submit">

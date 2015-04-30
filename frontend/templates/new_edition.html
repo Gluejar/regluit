@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 
 {% block extra_extra_head %}
 {{ block.super }}
@@ -12,13 +13,13 @@
 {% block doccontent %}
 {% if admin %}
     {% if edition.pk %}
-    <h2>Edit Edition / Add Ebook Links for <a href="{% url work edition.work.id %}">{{ edition.work }}</a></h2>
+    <h2>Edit Edition / Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work }}</a></h2>
     {% else %}
     <h2>Create New Edition</h2>
     {% endif %}
 {% else %}
     {% if edition.pk %}
-    <h2>Add Ebook Links for <a href="{% url work edition.work.id %}">{{ edition.work }}</a></h2>
+    <h2>Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work }}</a></h2>
     {% endif %}
 {% endif %}
 
@@ -116,10 +117,10 @@
 
 <h2>More Edition Management</h2>
 
-<div><a href="{% url merge edition.work.id  %}">Merge other works into this one</a></div>
-<div><a href="{% url work_editions edition.work.id  %}">Remove editions from this work</a></div>
+<div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
+<div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
 {% if request.user.is_staff %}
-<div><a href="{% url feature edition.work.id  %}">Feature this work today</a></div>
+<div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
 {% endif %}
 <br />
 {% endif %}

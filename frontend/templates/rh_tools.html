@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% block title %}Tools for Rightsholders {% endblock %}
 {% block extra_extra_head %}
 {{ block.super }}
@@ -49,7 +50,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 <h2 id="managed_campaigns">Campaigns You Manage</h2>
 	<dl>
 	{% for campaign in campaigns %}
-		<dt><a href="{% url work work_id=campaign.work.id %}">{{campaign.name }}</a></dt>
+		<dt><a href="{% url 'work' work_id=campaign.work.id %}">{{campaign.name }}</a></dt>
 		<dd>
 			<div class="work_campaigns clearfix">
 			<div class="campaign_info">
@@ -65,8 +66,8 @@ If you're an author, publisher, or other rights holder, you can participate more
 				Created: {{ campaign.created }}<br />
 				${{ campaign.current_total }} sold. ${{ campaign.target }} to go. Ungluing Date: {{ campaign.cc_date }}<br />
 				{% with campaign.work.preferred_edition as edition %}
-					<a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
-					You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.<br />
+					<a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
 				{% endwith %}
 			{% endifequal %}
 			{% ifequal campaign.type 3 %}
@@ -75,14 +76,14 @@ If you're an author, publisher, or other rights holder, you can participate more
 				Created: {{ campaign.created }}<br />
 				${{ campaign.current_total }} raised from {{ campaign.supporters_count }} ungluers, {{ campaign.anon_count }} others.
 				{% with campaign.work.preferred_edition as edition %}
-					<a href="{% url new_edition edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
-					You can also <a href="{% url edition_uploads edition.id %}"> Load a file</a> for this edition.<br />
+					<a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
 				{% endwith %}
 			{% endifequal %}
 			</div>
 			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
 				<div>
-					<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+					<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
 				</div>
 			{% endif %}
 			{% if campaign.clone_form %}
@@ -103,7 +104,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 <h2 id="open_campaigns">Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
-		<dt>Title: <a href="{% url work work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
+		<dt>Title: <a href="{% url 'work' work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
 		<dd>Author: {{claim.work.authors_short }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
@@ -145,7 +146,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 					<div class="campaign_info">
 						Your {{ campaign.get_type_display }}, "{{ campaign.name }}", is {{ campaign.status }}<br />
 						Created: {{ campaign.created }}<br />
-						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
 							<form method="POST" action="#">{% csrf_token %}
 								<div style="width:220px; padding-left:20px" >
 								Add/Remove Managers: 
@@ -156,21 +157,21 @@ If you're an author, publisher, or other rights holder, you can participate more
 					</div>
 					{% if request.user in campaign.managers.all %}
 						<div>
-							<a href="{% url manage_campaign campaign.id %}" class="manage">Manage This Campaign</a>
+							<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
 						</div>
 					{% endif %}
 				{% else %}
 					<div class="campaign_info">
 						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
 						Created: {{ campaign.created }}<br />
-						Manager(s): {% for user in campaign.managers.all %} <a href="{% url supporter user.username %}">{{ user.username }} </a> {% endfor %}
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
 						<br />
 						{% ifequal campaign.type 1 %}
 						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 						{% else %}
 						${{ campaign.current_total }} sold. ${{ campaign.target }} to go, Ungluing Date: {{ campaign.cc_date }}
 						{% endifequal %}
-						<br /> <a href="{% url campaign_results campaign.id %}">Transaction Details</a>
+						<br /> <a href="{% url 'campaign_results' campaign.id %}">Transaction Details</a>
 					</div>
 				{% endif %}
 			</div>
@@ -213,7 +214,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 
 <ol>
     {% if not request.user.is_authenticated %}
-    <li>Set up an Unglue.it account. (<a href="{% url registration_register %}?next={% url rightsholders %}">Click here</a> or use the Sign Up button at the top of the page).</li>
+    <li>Set up an Unglue.it account. (<a href="{% url 'registration_register' %}?next={% url 'rightsholders' %}">Click here</a> or use the Sign Up button at the top of the page).</li>
     {% else %}
     <li class="checked">You've already set up an Unglue.it account.</li>
     {% endif %}
@@ -225,7 +226,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 	{% endif %}
 	<p><b>Claiming a work</b></p>
 	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
-	<form action="{% url search %}" method="get">
+	<form action="{% url 'search' %}" method="get">
 		<div class="inputalign">
 		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"><input type="hidden" name="page" value="2">
 		<input type="submit" class="button">
@@ -235,12 +236,12 @@ If you're an author, publisher, or other rights holder, you can participate more
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
 	    <li>Agree to our <a href="{{ termsurl }}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
 	    <li>If you have any questions or you claim a work by mistake, <a href="mailto:rights@gluejar.com?subject=claiming%20works">email us</a>.</li>
-	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url regluit.frontend.views.edit_user %}">change the email address</a> for your account.</li>
+	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url 'regluit.frontend.views.edit_user' %}">change the email address</a> for your account.</li>
 	</ul>
 	<p><b>Entering a work</b></p>
 	<p>If your book is not in Google books, you'll need to enter the metadata yourself.</p>
 	<ul class="bullets">
-	    <li>Use <a href="{% url new_edition '' '' %}">this form</a> to enter the metadata.</li>
+	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
 	    <li>Your ebooks must have ISBNs or OCLC numbers assigned.</li>
 	    <li>Your metadata should have title, authors, language, description.</li>
 	    <li>If you have a lot of books to enter, <a href="mailto:support@gluejar.com?subject=loading%20metadata">contact us</a> to load ONIX or CSV files for you.</li>

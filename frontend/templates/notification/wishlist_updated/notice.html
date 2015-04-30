@@ -1,9 +1,10 @@
-{% extends "notification/notice_template.html" %}
+{% extends 'notification/notice_template.html' %}
+{% load url from future %}
 
 {% block comments_book %}
-			<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ cmapaign.work.title }}" /></a>
+			<a href="{% url 'work' campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ cmapaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-			The rights holder, {{ campaign.rightsholder }}, has updated the campaign to unglue {{ campaign.work.title }}.  For details, see the <a href="{% url work campaign.work.id %}">campaign page</a>.
+			The rights holder, {{ campaign.rightsholder }}, has updated the campaign to unglue {{ campaign.work.title }}.  For details, see the <a href="{% url 'work' campaign.work.id %}">campaign page</a>.
 {% endblock %}

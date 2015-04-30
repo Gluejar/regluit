@@ -1,23 +1,23 @@
-{% load humanize %}{% ifequal campaign.type 1 %}You wished for it, and now there is an active Campaign for {{ campaign.work.title }} to be unglued.  If ungluers like you pledge ${{ campaign.target|intcomma }} by {{ campaign.deadline }}, this book will be released under a Creative Commons license for everyone to enjoy.
+{% load url from future %}{% load humanize %}{% ifequal campaign.type 1 %}You wished for it, and now there is an active Campaign for {{ campaign.work.title }} to be unglued.  If ungluers like you pledge ${{ campaign.target|intcomma }} by {{ campaign.deadline }}, this book will be released under a Creative Commons license for everyone to enjoy.
 
 You can help!
 
-Pledge toward ungluing. https://{{ current_site.domain }}{% url pledge work_id=campaign.work.id %}
+Pledge toward ungluing. https://{{ current_site.domain }}{% url 'pledge' work_id=campaign.work.id %}
 {% endifequal %}{% ifequal campaign.type 2 %}Great, you wished for it, and now there is a campaign for {{ campaign.work.title }} to be unglued.  Someday, the book will be released under a Creative Commons license for everyone to enjoy. Every copy purchased until then brings that day {{ campaign.day_per_copy|floatformat }} days sooner.
 
 You can help!
 
-Buy a copy to help unglue the book. https://{{ current_site.domain }}{% url purchase work_id=campaign.work.id %}
+Buy a copy to help unglue the book. https://{{ current_site.domain }}{% url 'purchase' work_id=campaign.work.id %}
 
 {% endifequal %}{% ifequal campaign.type 3 %}There is a new "Thanks for Ungluing" campaign for {{ campaign.work.title }} one of your Creative Commons license favorites.
 
-Join us in thanking the creators! Download a copy and leave a contribution. https://{{ current_site.domain }}{% url download work_id=campaign.work.id %}
+Join us in thanking the creators! Download a copy and leave a contribution. https://{{ current_site.domain }}{% url 'download' work_id=campaign.work.id %}
 
 {% endifequal %}
 
-Tell your friends -- there are handy share options on the campaign page.  There's even a widget you can put on your blog or home page. https://{{ current_site.domain }}{% url work campaign.work.id %}
+Tell your friends -- there are handy share options on the campaign page.  There's even a widget you can put on your blog or home page. https://{{ current_site.domain }}{% url 'work' campaign.work.id %}
 
-Join the discussion: share why you love {{ campaign.work.title }} and the world will too. https://{{ current_site.domain }}{% url work campaign.work.id %}?tab=2
+Join the discussion: share why you love {{ campaign.work.title }} and the world will too. https://{{ current_site.domain }}{% url 'work' campaign.work.id %}?tab=2
 
 Thank you!
 

@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+{% load url from future %}
 {% block title %}Claim Form{% endblock %}
 {% block doccontent %}
 
@@ -7,16 +8,16 @@
 {{ rights_holder.rights_holder_name }}
 <h3> Work being claimed  </h3>
 <ul>
-<li>Title: <a href="{% url work work.id %}">{{ work.title }}</a></li>
+<li>Title: <a href="{% url 'work' work.id %}">{{ work.title }}</a></li>
 <li>Author: {{ work.authors_short }}</li>
 </ul>
 {% if active_claims.count %}
 
     {% for otherclaim in active_claims %}
         {% ifequal rights_holder.id otherclaim.rights_holder.id %} 
-        <p><a href="{% url work work.id %}">This work</a> has already been claimed by {{ rights_holder.rights_holder_name }}</p>
+        <p><a href="{% url 'work' work.id %}">This work</a> has already been claimed by {{ rights_holder.rights_holder_name }}</p>
         {% else %}
-        <p><a href="{% url work work.id %}">This work</a> has previously been claimed by {{ otherclaim.rights_holder.rights_holder_name }}.
+        <p><a href="{% url 'work' work.id %}">This work</a> has previously been claimed by {{ otherclaim.rights_holder.rights_holder_name }}.
         Please take careful note of the "interfering claims" section below.
         </p>
         <form method="POST" action="#">

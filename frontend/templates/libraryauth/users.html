@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% block title %} Users of {{ library }} {% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
@@ -19,7 +20,7 @@
                             <div id="user-block1">
                             	<div id="block-intro-text"><span class="special-user-name">{{ library }} </span> </div>
                             </div>
-                            <div class="user-block24"><span class="user-short-info">These ungluers are are using <a href="{% url library library.user %}">{{ library }}</a>. </span>
+                            <div class="user-block24"><span class="user-short-info">These ungluers are are using <a href="{% url 'library' library.user %}">{{ library }}</a>. </span>
                             </div>
                         </div>
                     </div>
@@ -48,12 +49,12 @@
                             {% for libuser in library.library_users.all %}
                                 <div class="items {% cycle 'row1' 'row2' %}">
                                    <div class="avatar">
-                                      <a href="{% url supporter libuser.user.username %}">
+                                      <a href="{% url 'supporter' libuser.user.username %}">
                                         <img class="user-avatar" src="{{ libuser.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ libuser.user.username }}" title="{{ libuser.user }}" />
                                       </a>
                                    </div>
                                   <div class="nonavatar">
-                                      <div class="libname"><a href="{% url supporter libuser.user.username %}">{{ libuser.user.username }}</a> {{ libuser.user.profile.tagline }}</div>
+                                      <div class="libname"><a href="{% url 'supporter' libuser.user.username %}">{{ libuser.user.username }}</a> {{ libuser.user.profile.tagline }}</div>
                                       <div class="libstat">{{ libuser.user.wishlist.works.count }} books on list</div>
                                       {% if is_admin %}
                                           <div class="libstat">authorized {{ libuser.date_modified|date:"M j, Y" }}</div>
@@ -67,7 +68,7 @@
                                 No users yet.
                             {% endfor %}
                         {% else %}
-                        You need to be a member of {{ library }} to see all its members. They can borrow and donate books. Perhaps you'd like to <a href="{% url join_library library.id %}">join them</a>?
+                        You need to be a member of {{ library }} to see all its members. They can borrow and donate books. Perhaps you'd like to <a href="{% url 'join_library' library.id %}">join them</a>?
                         {% endif %}
                     </div>
                 </div>    

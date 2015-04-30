@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% block extra_css %}
     <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
     {{ form.media.css }}
@@ -76,7 +77,7 @@
                 {% if subject.works.all.count > onto_subject.works.all.count %}
                 <p class="errorlist">Do you really want all of {{subject.name}} to also have {{onto_subject.name}}???</p>
                 <br clear="left" />
-                <a class="actionbuttons" href="{% url map_subject %}">Not Really</a>
+                <a class="actionbuttons" href="{% url 'map_subject' %}">Not Really</a>
                 {% endif %}
                 <input type="submit" name="confirm_map_subject" value="Confirm Keyword Mapping" id="submit" />
             {% else %}

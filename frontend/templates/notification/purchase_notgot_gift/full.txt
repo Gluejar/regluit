@@ -1,4 +1,4 @@
-After more than 7 days, the gift you sent to {{ gift.to }} has not yet been redeemed.
+{% load url from future %}After more than 7 days, the gift you sent to {{ gift.to }} has not yet been redeemed.
 
 There are several possible reasons for this. 
 -  The email address ({{ gift.acq.user.email }}) may have been incorrect.
@@ -7,12 +7,12 @@ There are several possible reasons for this.
 -  The recipient might be on vacation. We'll check again in another week.
 
 Here's the URL that the recipient (and ONLY the recipient) should use to collect the book: 
-https://{{ current_site.domain }}{% url receive_gift gift.acq.nonce %}
+https://{{ current_site.domain }}{% url 'receive_gift' gift.acq.nonce %}
 
 You can send the link yourself to make sure that it gets to the right place.
 
 You can also "regift" the ebook to a different email address. To do so, FIRST log in to the {{ gift.giver }} account on Unglue.it, and then click on 
-https://{{ current_site.domain }}{% url receive_gift gift.acq.nonce %}
+https://{{ current_site.domain }}{% url 'receive_gift' gift.acq.nonce %}
 
 If you have any problems or questions, don't hesitate to contact Unglue.it support at support@gluejar.com
 

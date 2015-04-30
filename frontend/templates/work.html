@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+{% load url from future %}
 {% load comments %}
 {% load humanize %}
 {% load purchased %}
@@ -48,17 +49,17 @@
 {% block topsection %}
 {% if work.last_campaign.status == 'ACTIVE' %}
     {% if request.user in work.last_campaign.managers.all %}
-        <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a manager for this campaign, you can <a href="{% url manage_campaign id=work.last_campaign.id %}">edit this campaign</a>.</div>
+        <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a manager for this campaign, you can <a href="{% url 'manage_campaign' id=work.last_campaign.id %}">edit this campaign</a>.</div>
     {% endif %}
 {% else %}
     {% if not work.user_with_rights %}
         {% if request.user.rights_holder.all %}
-            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  Check out the <a href="{% url rightsholders %}">rights holder tools page</a>.</div>            
+            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  Check out the <a href="{% url 'rightsholders' %}">rights holder tools page</a>.</div>            
         {% endif %}
     {% else %}
         {% if request.user == work.user_with_rights %}
             {% ifnotequal work.last_campaign.status 'SUCCESSFUL' %}
-                <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a rights holder for this work, you can <a href="{% url rightsholders %}">launch a campaign</a>.</div>
+                <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a rights holder for this work, you can <a href="{% url 'rightsholders' %}">launch a campaign</a>.</div>
             {% endifnotequal %}
         {% endif %}
     {% endif %}
@@ -102,7 +103,7 @@
                                             </h3>
                                             <h3 class="book-year"> 
                                                 {% if work.last_campaign.publisher %}
-                                                <span itemprop="publisher"><a href="{% url bypubname_list work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
+                                                <span itemprop="publisher"><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                                 {% endif %}
                                                 <span itemprop="datePublished">{{ work.publication_date_year }}</span>
                                             </h3>
@@ -217,15 +218,15 @@
                                         {% if work.first_oclc %}
                                             <a rel="nofollow" id="find-oclc" href="http://www.worldcat.org/oclc/{{ work.first_oclc }}"><img src="/static/images/supporter_icons/worldcat_square.png" title="Find on Worldcat" alt="Find on Worldcat" /></a>
                                         {% endif %}
-                                        <a rel="nofollow" class="find-openlibrary" href="{% url work_openlibrary work_id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
-                                        <a rel="nofollow" class="find-goodreads" href="{% url work_goodreads work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
-                                        <a rel="nofollow" class="find-librarything" href="{% url work_librarything work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
+                                        <a rel="nofollow" class="find-openlibrary" href="{% url 'work_openlibrary' work_id %}"><img src="/static/images/supporter_icons/openlibrary_square.png" title="Find on OpenLibrary" alt="Find on OpenLibrary" /></a>
+                                        <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
+                                        <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                                     </div>
                                 </div>                            
                                 <div class="btn_wishlist" id="wishlist_actions">
                                     {% if request.user.is_anonymous %}
                                         <div class="create-account">
-                                            <span title="{% url work work_id %}">Login to Fave</span>
+                                            <span title="{% url 'work' work_id %}">Login to Fave</span>
                                         </div>
                                     {% else %}{% if request.user.id in work.last_campaign.supporters %}
                                         <div class="add-wishlist">
@@ -247,9 +248,9 @@
                         {% ifequal action 'editions' %}
                         <div class="content-block-heading" id="tabs">
                             <ul class="tabs">
-                                <li class="tabs1"><a href="{% url work work.id %}?tab=1">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                                <li class="tabs2"><a href="{% url work work.id %}?tab=2">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
-                                <li class="tabs3" id="supporters"><a href="{% url work work.id %}?tab=3">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
+                                <li class="tabs1"><a href="{% url 'work' work.id %}?tab=1">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
+                                <li class="tabs2"><a href="{% url 'work' work.id %}?tab=2">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
+                                <li class="tabs3" id="supporters"><a href="{% url 'work' work.id %}?tab=3">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
                                 <li class="tabs4 active"><a href="#">Editions</a></li>
                             </ul>
                         </div>
@@ -290,7 +291,7 @@
                                    {% if user.is_authenticated %}
                                        {% render_comment_form for work %}
                                    {% else %}
-                                   <p>You must be <a href="{% url superlogin %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
+                                   <p>You must be <a href="{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
                                    {% endif %}
                                 </div>
                             </div>
@@ -303,7 +304,7 @@
                                         {% for wish in work.wishes.all reversed %}
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_wide">
-                                                <a href="{% url supporter supporter %}">
+                                                <a href="{% url 'supporter' supporter %}">
                                                     <span class="work_supporter_avatar">
                                                         <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="{{ supporter }}" />
                                                     </span>
@@ -327,7 +328,7 @@
                                         {% for wish in work.wishes.all reversed %}
                                         {% with wish.wishlist.user as supporter %}
                                             <div class="work_supporter_nocomment" itemscope itemtype="http://schema.org/Person">
-                                                <a itemprop="url" href="{% url supporter supporter %}">
+                                                <a itemprop="url" href="{% url 'supporter' supporter %}">
                                                     <span class="work_supporter_avatar">
                                                         <img class="user-avatar" src="{{ supporter.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ supporter }}" title="{{ supporter }}" />
                                                     </span>
@@ -402,7 +403,7 @@
                                                         {% if request.user.rights_holder.all.count %}
                                                             Is this work yours?  Claim it: <br /><br />
                                         
-                                                            <form method="GET" action="{% url claim %}">
+                                                            <form method="GET" action="{% url 'claim' %}">
                                                                 {% csrf_token %}
                                                                 {{ claimform.user }}
                                                                 {{ claimform.work }}
@@ -410,7 +411,7 @@
                                                                 <input type="submit" name="submit" value="Claim" />
                                                              </form><br />
                                                         {% else %}
-                                                            Are you the author or publisher of this work? If so, you can claim it as yours by <a href="{% url rightsholders %}">registering as an Unglue.it rights holder</a>.
+                                                            Are you the author or publisher of this work? If so, you can claim it as yours by <a href="{% url 'rightsholders' %}">registering as an Unglue.it rights holder</a>.
                                                         {% endif %}
                                                     {% endif %}
                                                 {% endif %}
@@ -428,13 +429,13 @@
                                             </div>
                                             {% if user.is_staff %}
                                                 <p>
-                                                <a href="{% url feature work.id %}">Feature this work today.</a>
+                                                <a href="{% url 'feature' work.id %}">Feature this work today.</a>
                                                 </p>
                                             {% endif %}
                                         {% endif %}
                                         {% if user.is_staff %}
                                             <h4>Related Works</h4>
-                                            <div><a href="{% url merge work_id  %}">Merge other works into this one</a></div>
+                                            <div><a href="{% url 'merge' work_id  %}">Merge other works into this one</a></div>
                                         
                                         {% endif %}
                                         <h4>Keywords</h4>
@@ -464,7 +465,7 @@
                                         <div class="yikes"><br />{{ alert }}</div>
                                     {% endif %}
                                     {% if user.is_staff or user in work.last_campaign.managers.all %}
-                                        <div><a href="{% url new_edition work_id edition.id %}">Create a new edition for this work</a><br /><br /></div>
+                                        <div><a href="{% url 'new_edition' work_id edition.id %}">Create a new edition for this work</a><br /><br /></div>
                                     {% endif %}
                                     
                                     {% ifequal action 'editions' %}
@@ -480,7 +481,7 @@
                                                 {% endifnotequal %}
                                             {% endfor %}
                                         {% endif %}
-                                        <div><a href="{% url work_editions work_id  %}">All editions for this work.</a></div>
+                                        <div><a href="{% url 'work_editions' work_id  %}">All editions for this work.</a></div>
                                     {% endifequal %}
                                     
                                 </div>
@@ -494,30 +495,30 @@
                     {% if status == 'ACTIVE' %}
                       {% if work.last_campaign.type == 1 %}
                         {% if pledged %}
-                            <div class="btn_support modify"><form action="{% url pledge_modify work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
+                            <div class="btn_support modify"><form action="{% url 'pledge_modify' work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
                         {% else %}
-                            <div class="btn_support"><form action="{% url pledge work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
+                            <div class="btn_support"><form action="{% url 'pledge' work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                         {% endif %}
                       {% else %}{% if work.last_campaign.type == 3 %}
                         <div class="btn_support">
-                            <a href="{% url download work_id %}{% if action == 'preview' %}?testmode=1{% endif %}" class="hijax"><span>Download</span></a>
+                            <a href="{% url 'download' work_id %}{% if action == 'preview' %}?testmode=1{% endif %}" class="hijax"><span>Download</span></a>
                         </div>
                         <div style="text-align: center;">... and thank the creators!</div>
                       {% else %}
                         {% if license_is_active %}
                             <div class="btn_support">
-                                <a href="{% url download_purchased work_id %}" class="hijax"><span>Download</span></a>
+                                <a href="{% url 'download_purchased' work_id %}" class="hijax"><span>Download</span></a>
                             </div>
                         {% else %}{% if borrowable %}
-                            <div class="btn_support"><form action="{% url borrow work_id %}" method="get"><input type="submit" value="Borrow" /></form></div>
+                            <div class="btn_support"><form action="{% url 'borrow' work_id %}" method="get"><input type="submit" value="Borrow" /></form></div>
                         {% else %}
-                            <div class="btn_support"><form action="{% url purchase work_id %}" method="get"><input type="submit" value="{% if next_acq %}{% if on_hold %}On Hold{% else %}Reserve{% endif %}{% else %}Purchase{% endif %}" /></form></div>
+                            <div class="btn_support"><form action="{% url 'purchase' work_id %}" method="get"><input type="submit" value="{% if next_acq %}{% if on_hold %}On Hold{% else %}Reserve{% endif %}{% else %}Purchase{% endif %}" /></form></div>
                         {% endif %}{% endif %}
                       {% endif %}{% endif %}
                     {% else %}
                         {% if work.is_free %}
                             <div class="btn_support">
-                                <a href="{% url download work_id %}" class="hijax"><span>Download</span></a>
+                                <a href="{% url 'download' work_id %}" class="hijax"><span>Download</span></a>
                             </div>
                         {% endif %}
                     {% endif %}
@@ -529,7 +530,7 @@
                         <h3 class="jsmod-title"><span>Ask Questions</span></h3>
                         <div class="jsmod-content">
                             <ul class="social menu">
-                                <a href="{% url ask_rh work.last_campaign.id %}"><li class="email"><span>Email the Rights Holder</span></li></a>
+                                <a href="{% url 'ask_rh' work.last_campaign.id %}"><li class="email"><span>Email the Rights Holder</span></li></a>
                             </ul>
                         </div>
                     </div>
@@ -548,7 +549,7 @@
                                         <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"><li class="twitter"><span>Twitter</span></li></a>
                                     {% endifequal %}
                                 {% endif %}
-                                {% if request.user.is_authenticated %}<a href="{% url emailshare '' %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
+                                {% if request.user.is_authenticated %}<a href="{% url 'emailshare' '' %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                                 <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
                             </ul>
                             <div id="widgetcode">
@@ -558,14 +559,14 @@
                     {% if status == 'ACTIVE' %}
                         <div class="jsmodule">
                         {% if premiums %}
-                                <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
+                                <a href="{% url 'pledge' work_id %}"><h3 class="jsmod-title"><span>Premiums</span></h3></a>
                                 <div class="jsmod-content">
                                     <ul class="support menu">
                                         {% if pledged %}
                                             {% for premium in premiums %}
                                                 {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
                                                     <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                                                    <a href="{% url pledge_modify work_id %}?premium_id={{premium.id}}">
+                                                    <a href="{% url 'pledge_modify' work_id %}?premium_id={{premium.id}}">
                                                     <span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Yours!</div>{% endif %}
                                                     <span class="menu-item-desc">{{ premium.description }}</span>
                                                     {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
@@ -576,7 +577,7 @@
                                             {% for premium in premiums %}
                                                 {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
                                                     <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
-                                                    <a href="{% url pledge work_id %}?premium_id={{premium.id}}">
+                                                    <a href="{% url 'pledge' work_id %}?premium_id={{premium.id}}">
                                                     <span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>
                                                     <span class="menu-item-desc">{{ premium.description }}</span>
                                                     {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
@@ -588,32 +589,32 @@
                                 </div>
                         {% endif %}
                         {% ifequal work.last_campaign.type 1 %}
-                            <a href="{% url pledge work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
+                            <a href="{% url 'pledge' work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
                             <div class="jsmod-content">
                                 In addition to any premiums you're eligible for, you'll automatically be acknowledged in the unglued ebook as follows:
                                 <ul class="support menu">
                                     {% if pledged %}
                                         {% with pledged.0.amount as amount %}
                                             <li class="first">
-                                                <a href="{% url pledge_modify work_id %}?preapproval_amount=1">
+                                                <a href="{% url 'pledge_modify' work_id %}?preapproval_amount=1">
                                                 <span class="menu-item-price">Any amount</span>{% if amount < 25 %}<div class="you_pledged">Yours!</div>{% endif %}
                                                 <span class="menu-item-desc">The unglued ebook, free for you to read and share.</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="{% url pledge_modify work_id %}?preapproval_amount=25">
+                                                <a href="{% url 'pledge_modify' work_id %}?preapproval_amount=25">
                                                 <span class="menu-item-price">$25 and up</span>{% if amount >= 25 and amount < 50 %}<div class="you_pledged">Yours!</div>{% endif %}
                                                 <span class="menu-item-desc">Your name in the acknowledgements section of the unglued ebook under "Supporters".</span>
                                                 </a>
                                             </li>
                                             <li>
-                                                <a href="{% url pledge_modify work_id %}?preapproval_amount=50">
+                                                <a href="{% url 'pledge_modify' work_id %}?preapproval_amount=50">
                                                 <span class="menu-item-price">$50 and up</span>{% if amount >= 50 and amount < 100 %}<div class="you_pledged">Yours!</div>{% endif %}
                                                 <span class="menu-item-desc">Your name &amp; profile link in the acknowledgements section of the unglued ebook under "Benefactors".</span>
                                                 </a>
                                             </li>
                                             <li class="last">
-                                                <a href="{% url pledge_modify work_id %}?preapproval_amount=100">
+                                                <a href="{% url 'pledge_modify' work_id %}?preapproval_amount=100">
                                                 <span class="menu-item-price">$100 and up</span>{% if amount >= 100 %}<div class="you_pledged">Yours!</div>{% endif %}
                                                 <span class="menu-item-desc">Your name, profile link, &amp; a dedication of your choice in the acknowledgements section of the unglued ebook under "Bibliophiles".</span>
                                                 </a>
@@ -621,25 +622,25 @@
                                         {% endwith %}
                                     {% else %}
                                         <li class="first">
-                                            <a href="{% url pledge work_id %}?preapproval_amount=1">
+                                            <a href="{% url 'pledge' work_id %}?preapproval_amount=1">
                                             <span class="menu-item-price">Any amount</span>
                                             <span class="menu-item-desc">The unglued ebook, free for you to read and share.</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{% url pledge work_id %}?preapproval_amount=25">
+                                            <a href="{% url 'pledge' work_id %}?preapproval_amount=25">
                                             <span class="menu-item-price">$25 and up</span>
                                             <span class="menu-item-desc">Your name in the acknowledgements section of the unglued ebook under "Supporters".</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="{% url pledge work_id %}?preapproval_amount=50">
+                                            <a href="{% url 'pledge' work_id %}?preapproval_amount=50">
                                             <span class="menu-item-price">$50 and up</span>
                                             <span class="menu-item-desc">Your name &amp; profile link in the acknowledgements section of the unglued ebook under "Benefactors".</span>
                                             </a>
                                         </li>
                                         <li class="last">
-                                            <a href="{% url pledge work_id %}?preapproval_amount=100">
+                                            <a href="{% url 'pledge' work_id %}?preapproval_amount=100">
                                             <span class="menu-item-price">$100 and up</span>
                                             <span class="menu-item-desc">Your name, profile link, &amp; a dedication of your choice in the acknowledgements section of the unglued ebook under "Bibliophiles".</span>
                                             </a>
@@ -670,7 +671,7 @@
                                     </li>
                                     {% else %}
                                     <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-                                        <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
+                                        <a href="{% url 'purchase' work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
                                         <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
                                         <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
                                         </a>
@@ -682,7 +683,7 @@
                             <div class="jsmod-content">
                                 <ul class="support menu">
                                     <li class="first" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
-                                        <a href="{% url purchase work_id %}?offer_id=give{{work.last_campaign.individual_offer.id}}">
+                                        <a href="{% url 'purchase' work_id %}?offer_id=give{{work.last_campaign.individual_offer.id}}">
                                         <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
                                         <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_license_display }}</span>
                                         </a>
@@ -699,12 +700,12 @@
                                     <ul class="support menu">
                                         <li class="first last">
                                         {% if request.user.profile.libraries %}
-                                            <a href="{% url purchase work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
+                                            <a href="{% url 'purchase' work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
                                             <span class="menu-item-price">${{ work.last_campaign.library_offer.price|floatformat:2|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_license_display }}</span>
                                             </a>
                                         {% else %}
-                                            <a href="{% url library_list %}"><span class="menu-item-desc">
+                                            <a href="{% url 'library_list' %}"><span class="menu-item-desc">
                                             Join a Library to share and borrow unglue.it ebooks
                                             </span></a>
                                         {% endif %}
@@ -725,12 +726,12 @@
                                     {% if work.last_campaign.ask_money %}
                                     <li class="first last" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
                                         {% if request.user.library %}
-                                            <a href="{% url thank work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
+                                            <a href="{% url 'thank' work_id %}?offer_id={{work.last_campaign.library_offer.id}}">
                                             <span class="menu-item-price" itemprop="price">${{ work.last_campaign.library_offer.price|floatformat:2|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.library_offer.get_thanks_display }}</span>
                                             </a>
                                         {% else %}
-                                            <a href="{% url thank work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
+                                            <a href="{% url 'thank' work_id %}?offer_id={{work.last_campaign.individual_offer.id}}">
                                             <span class="menu-item-price" itemprop="price">${{ work.last_campaign.individual_offer.price|floatformat:2|intcomma }}</span>
                                             <span class="menu-item-desc">{{ work.last_campaign.individual_offer.get_thanks_display }}</span>
                                             </a>
@@ -738,7 +739,7 @@
                                     </li>
                                     {% else %}
                                    <li class="first last" >
-                                            <a href="{% url download work_id %}">
+                                            <a href="{% url 'download' work_id %}">
                                             <span class="menu-item-desc">Just read the book!</span>
                                             </a>
                                     {% endif %}
@@ -753,7 +754,7 @@
                 {% if work.is_free or work.ebookfiles %}
                 <div id="libtools">
                     <p>for libraries...</p>
-                    <form method="POST" id="record_form" action="{% url work_marc work.id %}">
+                    <form method="POST" id="record_form" action="{% url 'work_marc' work.id %}">
                         {% include 'marc_form.html' %}
                         <input type="submit" name="submit" value="Download {% if not work.has_marc %}stub {% endif %}MARC" id="submit">
                         
