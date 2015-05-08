@@ -1,0 +1,7 @@
+- name: Hello Ansible
+  hosts: unglueit
+  sudo: no
+
+  tasks:
+    - name: Hello server
+      shell: date > now.txt
