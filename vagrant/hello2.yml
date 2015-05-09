@@ -1,0 +1,21 @@
+- name: Hello Ansible
+  hosts: unglueit
+  vars:
+    user: "{{ ansible_ssh_user }}"
+  sudo: yes
+
+  tasks:
+    - name: Hello server
+      shell: date > now.txt
+            
+    - name: copy deploy/celeryd_please.conf
+      command: cp /opt/regluit/deploy/celeryd_please.conf /etc/default/celeryd
+      
+    - name: set mode on /etc/default/celeryd
+      file: path=/etc/default/celeryd mode=0644
+      
+    - name: copy deploy/celerybeat_please.conf
+      command: cp /opt/regluit/deploy/celerybeat_please.conf /etc/default/celerybeat
+      
+    - name: set mode on /etc/default/celerybeat
+      file: path=/etc/default/celerybeat mode=0755
