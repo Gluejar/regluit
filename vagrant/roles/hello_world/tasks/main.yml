@@ -1,0 +1,2 @@
+- name: Hello server
+  shell: date > now.txt
