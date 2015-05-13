@@ -5,66 +5,69 @@
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  # All Vagrant configuration is done here. The most common configuration
-  # options are documented and commented below. For a complete reference,
-  # please see the online documentation at vagrantup.com.
 
-  # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "precise64"
-
-  # config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "private_network", ip: "192.168.33.10"
-  config.ssh.forward_agent = true
-  #config.vm.network "private_network", type: "dhcp"
-
-  #config.vm.synced_folder "data", "vagrant_data"
-
-  #you can replace box001 with another name
-
-  config.vm.define 'unglueit' do |node|
+  config.vm.define "please" do |node|
+    
+    # Every Vagrant virtual environment requires a box to build off of.
+    node.vm.box = "precise64"
+  
+    # node.vm.network "forwarded_port", guest: 80, host: 8080
+    node.vm.network "private_network", ip: "192.168.33.10"
+    node.ssh.forward_agent = true
+    #node.vm.network "private_network", type: "dhcp"
+  
+    #node.vm.synced_folder "data", "vagrant_data"
+  
     node.vm.provision 'ansible' do |ansible|
-      # http://bertvv.github.io/vagrant-presentation/#/vagrant-configuration
-      # "define directive is important to make automatic inventory work"
-      # I wish I could comment out the following line to allow for
-      #  .vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
-      # to be calculated w/o running any ansible playbook -- but no luck
       ansible.playbook = 'hello.yml'
     end
+
+  
+   # 512MB not enough for compiling lxml: http://stackoverflow.com/a/25916353/7782
+   # http://stackoverflow.com/a/26468913/7782 --> for how to get to this setting
+    node.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+    end
+  
+    node.vm.provider :aws do |aws, override|
+      aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
+      aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
+
+      aws.keypair_name = "ry-laptop"
+  
+      # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
+      # alestic 2015.05.05
+      
+      aws.instance_type="t1.micro"
+      
+      aws.region = "us-east-1"
+      aws.availability_zone = "us-east-1c"
+      aws.ami = "ami-d8132bb0"
+      
+      aws.tags = {
+      'Name' => 'please_vagrant'
+      }
+   
+      override.vm.box = "dummy"
+      override.ssh.username = "ubuntu"
+      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+    end
+
   end
-
- # 512MB not enough for compiling lxml: http://stackoverflow.com/a/25916353/7782
- # http://stackoverflow.com/a/26468913/7782 --> for how to get to this setting
-  config.vm.provider "virtualbox" do |v|
-      v.memory = 1024
-      v.cpus = 2
-  end
-
-  config.vm.provider :aws do |aws, override|
-    aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
-    aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
-    
-    #aws.region = "us-east-1"
-    #aws.region_config "us-east-1", :ami => "ami-7747d01e"
-    
-    #aws.session_token = ""
-    aws.keypair_name = "ry-laptop"
-
-    # Ubuntu 12.04 LTS Precise
-    # PV EBS-SSD boot
-    # alestic 2015.05.05
-    
-    aws.instance_type="t1.micro"
-    
-    aws.region = "us-east-1"
-    aws.availability_zone = "us-east-1c"
-    aws.ami = "ami-d8132bb0"
-    
+  
+  config.vm.define "just" do |node|
  
-    override.vm.box = "dummy"
-    override.ssh.username = "ubuntu"
-    override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+    node.vm.box = "ubuntu/trusty64"
+    node.vm.network "private_network", type: "dhcp"
+    #node.vm.network "private_network", ip: "192.168.33.10"
+    
+    node.ssh.forward_agent = true
+    
+    node.vm.provision 'ansible' do |ansible|
+      ansible.playbook = 'hello.yml'
+    end
+ 
   end
-
-
 
 end

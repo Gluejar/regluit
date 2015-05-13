@@ -1,5 +1,5 @@
 - name: Hello Ansible
-  hosts: unglueit
+  hosts: all
   sudo: no
 
   tasks:
