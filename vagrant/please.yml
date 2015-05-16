@@ -1,0 +1,367 @@
+- name: unglueit setup
+  hosts: please 
+  vars:
+    user: "{{ ansible_ssh_user }}"
+  sudo: yes
+
+  pre_tasks:
+    - name: check apt last update
+      stat: path=/var/cache/apt
+      register: apt_cache_stat
+    - name: update apt if needed
+      apt: update_cache=yes
+      when: ansible_date_time.epoch|float - apt_cache_stat.stat.mtime > 60*60*12
+
+  tasks:
+    
+    - name: set DNS record for please.unglue.it
+      route53:
+        command: create
+        zone: unglue.it
+        record: please.unglue.it
+        type: A
+        ttl: 60
+        value: "{{ansible_ssh_host}}"
+        overwrite: yes         
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+        
+    # sudo add repo to get latest version of python 2.7
+    - name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
+      apt_repository: repo='ppa:fkrull/deadsnakes-python2.7' state=present update_cache=true
+
+    - name: do apt-get update --fix-missing
+      command: apt-get update --fix-missing
+      
+    - name: installing dependencies
+      apt: pkg={{ item }} update_cache=yes state=present
+      with_items:
+        - python2.7
+        - git-core
+        - apache2
+        - libapache2-mod-wsgi
+        - mysql-client
+        - python-virtualenv
+        - python-mysqldb
+        - redis-server
+        - python-lxml
+        - python-dev
+        - libmysqlclient-dev
+        - libxml2-dev
+        - libxslt1-dev
+        - python-setuptools
+        - python-dev
+        - postfix
+      tags: install
+      
+    - name: make {{user}} group
+      group: name={{user}}
+      
+    - name: make {{user}} user 
+      user: name={{user}} shell=/bin/bash group={{user}} generate_ssh_key=yes
+      
+    - name: install some python modules to use
+      #pip: name={{item}} virtualenv=/home/{{user}}/venv
+      pip: name={{item}}
+      with_items:
+        - PyGithub
+      
+    - name: create /opt/regluit
+      file: path=/opt/regluit state=directory owner={{user}} group={{user}} mode=0745
+    
+    - name: git config
+      command: "{{item}}"
+      with_items:
+        - git config --global user.name "Raymond Yee"
+        - git config --global user.email "rdhyee@gluejar.com"
+ 
+    - name: ssh-keygen
+      #command: pwd
+      command: ssh-keygen -b 2048 -t rsa -f /home/{{user}}/.ssh/id_rsa -P ""
+      sudo: no
+      args:
+        creates: /home/{{user}}/.ssh/id_rsa
+ 
+    - name: create deploy key for repo
+      action: github_deploy_key
+      sudo: no
+      args:
+        github_auth_key: "{{github_auth_key}}"
+        repo_name: Gluejar/regluit
+        key_name: vagrant_ansible_test
+        key_path: /home/{{user}}/.ssh/id_rsa.pub
+ 
+    - name: postfix install
+      raw: DEBIAN_FRONTEND='noninteractive' apt-get install -y -q --force-yes postfix
+      
+    - name: clone the regluit git repo into /opt/regluit
+      sudo: no
+      git: repo=ssh://git@github.com/Gluejar/regluit.git dest=/opt/regluit accept_hostkey=True force=yes version=sysadmin
+    
+    
+    # installing mysql
+    # https://github.com/bennojoy/mysql --> probably the right way
+    # how do you make use of other people's playbooks in the right way?
+    # http://stackoverflow.com/a/7740571/7782
+    
+    - name: mysql setup
+      raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password {{mysql_root_pw}}'
+    - raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password {{mysql_root_pw}}'
+    - raw: apt-get -y install mysql-server
+    
+    - name: Create regluit database
+      mysql_db: db=regluit state=present encoding=utf8 collation=utf8_bin login_user=root login_password={{mysql_root_pw}}
+      
+      # GRANT ALL PRIVILEGES ON regluit.* TO 'regluit'@'localhost' WITH GRANT OPTION; (covered?)
+    - name: Create database user
+      mysql_user: >
+          user=regluit
+          password={{mysql_regluit_pw}}
+          host=localhost
+          priv=*.*:ALL
+          state=present
+          login_user=root
+          login_password={{mysql_root_pw}}
+
+ 
+    # running stuff within a virtualenv
+    # http://stackoverflow.com/a/20572360
+    # http://stackoverflow.com/questions/20575084/best-way-to-always-run-ansible-inside-a-virtualenv-on-remote-machines?rq=1
+
+
+    ## hard coding of please
+    #sudo("ln -s /opt/regluit/deploy/please.conf /etc/apache2/sites-available/please")
+
+    - name: link please.conf into sites-available
+      file: src=/opt/regluit/deploy/please.conf  dest=/etc/apache2/sites-available/please state=link
+
+    #run('pip install -r requirements_versioned.pip')
+
+    - name: pip install requests (to see whether in right place)
+      pip: >
+           executable=/opt/regluit/ENV/bin/pip
+           name={{item}}
+           virtualenv=/opt/regluit/ENV
+           virtualenv_command=virtualenv
+      with_items:
+        - requests
+        - census
+      sudo: no
+           
+    
+    - name: pip requirments
+      pip: >
+           executable=/opt/regluit/ENV/bin/pip 
+           requirements=/opt/regluit/requirements_versioned.pip
+           virtualenv=/opt/regluit/ENV
+           virtualenv_command=virtualenv
+           virtualenv_site_packages=yes
+      sudo: no
+           
+           
+    #run('echo "/opt/regluit/" > ENV/lib/python2.7/site-packages/regluit.pth')
+    #run('echo "/opt/" > ENV/lib/python2.7/site-packages/opt.pth')
+
+    - name: establish regluit.pth
+      lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/regluit/"
+      
+    - name: establish opt.pth
+      lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/"
+ 
+    #sudo('mkdir /var/www/static')
+    #sudo('chown ubuntu:ubuntu /var/www/static')
+
+    - name: create /var/www/static
+      file: path=/var/www/static state=directory owner={{user}} group={{user}} mode=0755
+      
+    #
+    #run('django-admin.py syncdb --migrate --noinput --settings regluit.settings.please')
+
+    #Run syncdb on the application
+
+    - name: django syncdb
+      django_manage: >
+          command=syncdb
+          app_path=/opt/regluit/
+          settings="regluit.settings.please"
+          virtualenv=/opt/regluit/ENV
+      notify:
+        - restart apache2
+
+
+    - name: django migrations
+      django_manage: >
+          command=migrate
+          app_path=/opt/regluit/
+          settings="regluit.settings.please"
+          virtualenv=/opt/regluit/ENV
+      notify:
+        - restart apache2
+      
+    #run('django-admin.py collectstatic  --noinput --settings regluit.settings.please')
+
+    - name: django collectstatic
+      django_manage: >
+          command=collectstatic
+          app_path=/opt/regluit/
+          settings="regluit.settings.please"
+          virtualenv=/opt/regluit/ENV
+      notify:
+        - restart apache2
+          
+    - name: copy STAR_unglue_it.crt 
+      copy: > 
+        src=/Volumes/ryvault1/gluejar/other_keys/unglue_it/STAR_unglue_it.crt 
+        dest=/etc/ssl/certs/server.crt 
+        owner={{user}} 
+        group={{user}} 
+        mode=0644
+      notify:
+        - restart apache2
+
+    - name: copy server.key
+      copy: > 
+        src=/Volumes/ryvault1/gluejar/other_keys/unglue_it/server.key 
+        dest=/etc/ssl/private/server.key
+        owner={{user}} 
+        group={{user}} 
+        mode=0600
+      notify:
+        - restart apache2
+
+    - name: copy STAR_unglue_it.ca-bundle
+      copy: > 
+        src=/Volumes/ryvault1/gluejar/other_keys/unglue_it/STAR_unglue_it.ca-bundle 
+        dest=/etc/ssl/certs/STAR_unglue_it.ca-bundle
+        owner={{user}} 
+        group={{user}} 
+        mode=0600
+      notify:
+        - restart apache2
+
+    - name: a2dissite default
+      command: a2dissite default
+      notify:
+        - restart apache2
+
+    - name: a2ensite please
+      command: a2ensite please
+      notify:
+        - restart apache2
+     
+    - name: a2enmod ssl rewrite headers
+      command: a2enmod ssl rewrite headers
+      notify:
+        - restart apache2
+
+    #
+    #sudo ("/etc/init.d/apache2 restart")
+    #
+    
+    - name: turn on ports 22, 80, 443
+      ufw: rule=allow port={{ item }} proto=tcp
+      with_items:
+      - 22
+      - 80
+      - 443    
+
+    - name: enable ufw
+      ufw: state=enabled
+      
+    #with cd("/opt/regluit"):
+    #
+    #    sudo ("yes | adduser --no-create-home celery --disabled-password --disabled-login")
+    
+    - name: make celery group
+      group: name=celery
+      
+    - name: create celery user
+      user: >
+         name=celery
+         createhome=no
+         group=celery
+         generate_ssh_key=no
+
+    #    sudo ("cp deploy/celeryd /etc/init.d/celeryd")
+    #    sudo ("chmod 755 /etc/init.d/celeryd")         
+    
+    - name: copy deploy/celeryd
+      command: cp /opt/regluit/deploy/celeryd /etc/init.d/celeryd
+    
+    - name: set mode on /etc/init.d/celeryd
+      file: path=/etc/init.d/celeryd mode=0755
+    
+    #    sudo ("cp deploy/celeryd.conf /etc/default/celeryd")
+    
+    - name: copy deploy/celeryd_please.conf
+      command: cp /opt/regluit/deploy/celeryd_please.conf /etc/default/celeryd
+    
+    - name: set mode on /etc/default/celeryd
+      file: path=/etc/default/celeryd mode=0644    
+    
+    #    sudo ("mkdir /var/log/celery")
+    - name: make /var/log/celery
+      file: path=/var/log/celery state=directory owner=celery group=celery mode=0755
+      
+    #    sudo ("mkdir /var/run/celery")
+    #    sudo ("chown celery:celery /var/log/celery /var/run/celery")
+    
+    - name: make /var/run/celery
+      file: path=/var/run/celery state=directory owner=celery group=celery mode=0755
+    
+    #    sudo ("/etc/init.d/celeryd start")
+    
+    - name: start celeryd
+      command: /etc/init.d/celeryd start
+    
+    #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
+    #    sudo ("chmod 755 /etc/init.d/celerybeat")
+    # https://stackoverflow.com/questions/24162996/how-to-move-rename-a-file-using-an-ansible-task-on-a-remote-system
+
+    - name: copy deploy/celerybeat
+      command: cp /opt/regluit/deploy/celerybeat /etc/init.d/celerybeat
+    
+    - name: set mode on /etc/init.d/celerybeat
+      file: path=/etc/init.d/celerybeat mode=0755
+    
+    #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
+    
+    - name: copy deploy/celerybeat_please.conf
+      command: cp /opt/regluit/deploy/celerybeat_please.conf /etc/default/celerybeat
+    
+    - name: set mode on /etc/default/celerybeat
+      file: path=/etc/default/celerybeat mode=0755
+    
+    #    sudo ("mkdir /var/log/celerybeat")
+    #    sudo ("chown celery:celery /var/log/celerybeat")
+
+    - name: make /var/log/celerybeat
+      file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0755
+    
+    #    sudo ("/etc/init.d/celerybeat start")
+    - name: start celerybeat
+      command: /etc/init.d/celerybeat start
+      
+    # run data loading script
+    - name: run data loading script
+      script: load_data_please.sh
+      
+    # set up crontab
+    - name: crontab for please
+      command: crontab /opt/regluit/deploy/crontab_please.txt
+      
+    - name: add ssh keys from public_key directory
+      authorized_key: user={{user}} key={{item}} state=present
+      with_fileglob:
+        - /opt/regluit/deploy/public_keys/*
+      
+    - name: add public key from jenkins
+      authorized_key: >
+        user={{user}}
+        key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYSiXESHXEdugNLGxFABXpVSawDCU/BK05Ef2qUa7oxxhU7fXNqWaSTqowevVruF7kfzMQ7epIxN5XFFjbXf/tsSn1995H9BEhmHLXLuEB5VaPU2HTLqu0DscyPtRbk/WjqPj3jWXs2yHgKcJIXwd5EfSwJuCe1Ut6pMe9E/NUq9QztnydRTt0sGywXpkIpKeBkiQl4SWlPTHcoU6PDbEuMVii8GzRAQlpEQTJwzWJTToR1SZ7o1uusDSxIDfJSvAa5IiuII8CdKbqa/JSx1+4LqlT0yf+2yb67MR5q6+XFM4TeCf5z+4SW+IT/wd2tpbd0DjAdXJlAgBULwhd1L7r"
+        state=present
+
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted

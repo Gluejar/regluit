@@ -44,6 +44,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
       aws.ami = "ami-d8132bb0"
+      # put into just security group
+      aws.security_groups = ["sg-d7f442bf"]
       
       aws.tags = {
       'Name' => 'please_vagrant'
@@ -68,6 +70,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       ansible.playbook = 'just.yml'
     end
  
+    node.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+    end
  
     node.vm.provider :aws do |aws, override|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
@@ -83,6 +89,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
       aws.ami = "ami-d8132bb0"
+      aws.security_groups = ["just"]
       
       aws.tags = {
       'Name' => 'just_vagrant'
