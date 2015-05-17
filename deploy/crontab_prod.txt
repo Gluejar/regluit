@@ -21,3 +21,5 @@
 # 
 # m h  dom mon dow   command
 * * * * * /opt/regluit/deploy/emit_notices.sh
+@reboot sudo mkdir /var/run/celery; sudo chown celery:celery /var/log/celery /var/run/celery; sudo /etc/init.d/celeryd restart; sudo /etc/init.d/celerybeat restart;
+

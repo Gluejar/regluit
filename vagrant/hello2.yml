@@ -1,21 +1,23 @@
 - name: Hello Ansible
-  hosts: unglueit
+  hosts: all
   vars:
     user: "{{ ansible_ssh_user }}"
-  sudo: yes
+  sudo: no
+    
+  roles:
+    - hello_world
 
+- name: user keys for please
+  hosts: please
+  vars:
+    user: "{{ ansible_ssh_user }}"
+  sudo: no
   tasks:
-    - name: Hello server
-      shell: date > now.txt
-            
-    - name: copy deploy/celeryd_please.conf
-      command: cp /opt/regluit/deploy/celeryd_please.conf /etc/default/celeryd
+    - name: add RY ssh key
+      authorized_key: user={{user}} key="{{ lookup('file', '/Users/raymondyee/.ssh/id_rsa.pub') }}" state=present
       
-    - name: set mode on /etc/default/celeryd
-      file: path=/etc/default/celeryd mode=0644
-      
-    - name: copy deploy/celerybeat_please.conf
-      command: cp /opt/regluit/deploy/celerybeat_please.conf /etc/default/celerybeat
-      
-    - name: set mode on /etc/default/celerybeat
-      file: path=/etc/default/celerybeat mode=0755
+    - name: add public key from jenkins
+      authorized_key: >
+        user={{user}}
+        key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYSiXESHXEdugNLGxFABXpVSawDCU/BK05Ef2qUa7oxxhU7fXNqWaSTqowevVruF7kfzMQ7epIxN5XFFjbXf/tsSn1995H9BEhmHLXLuEB5VaPU2HTLqu0DscyPtRbk/WjqPj3jWXs2yHgKcJIXwd5EfSwJuCe1Ut6pMe9E/NUq9QztnydRTt0sGywXpkIpKeBkiQl4SWlPTHcoU6PDbEuMVii8GzRAQlpEQTJwzWJTToR1SZ7o1uusDSxIDfJSvAa5IiuII8CdKbqa/JSx1+4LqlT0yf+2yb67MR5q6+XFM4TeCf5z+4SW+IT/wd2tpbd0DjAdXJlAgBULwhd1L7r"
+        state=present
