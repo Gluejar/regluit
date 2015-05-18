@@ -32,7 +32,7 @@ else:
 params = ["=".join(p) for p in (
             ("--private-key", private_key), 
             ("--user", user),
-            ("--inventory-file",".vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory")
+            ("--inventory-file",".vagrant/provisioners/ansible/inventory")
          )] + unknown + [args.playbook_path]
 
 

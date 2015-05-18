@@ -1,4 +1,4 @@
-- name: unglueit setup
+- name: just setup
   hosts: just
   vars:
     user: "{{ ansible_ssh_user }}"
@@ -148,7 +148,7 @@
       sudo: no
            
     
-    - name: pip requirments
+    - name: pip requirements
       pip: >
            executable=/opt/regluit/ENV/bin/pip 
            requirements=/opt/regluit/requirements_versioned.pip
@@ -376,8 +376,30 @@
         key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYSiXESHXEdugNLGxFABXpVSawDCU/BK05Ef2qUa7oxxhU7fXNqWaSTqowevVruF7kfzMQ7epIxN5XFFjbXf/tsSn1995H9BEhmHLXLuEB5VaPU2HTLqu0DscyPtRbk/WjqPj3jWXs2yHgKcJIXwd5EfSwJuCe1Ut6pMe9E/NUq9QztnydRTt0sGywXpkIpKeBkiQl4SWlPTHcoU6PDbEuMVii8GzRAQlpEQTJwzWJTToR1SZ7o1uusDSxIDfJSvAa5IiuII8CdKbqa/JSx1+4LqlT0yf+2yb67MR5q6+XFM4TeCf5z+4SW+IT/wd2tpbd0DjAdXJlAgBULwhd1L7r"
         state=present
       sudo: no
-
+      
 
   handlers:
     - name: restart apache2
-      service: name=apache2 state=restarted
+      service: name=apache2 state=restarted    
+          
+- name: fix known_hosts on jenkins to match new just
+  hosts: jenkins
+  sudo: yes
+  sudo_user: jenkins
+
+# to run the part of the playbook for jenkins
+# PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s' ansible-playbook --private-key=/Users/raymondyee/.ssh/id_rsa  --user=ubuntu --connection=ssh --inventory-file=/Users/raymondyee/C/src/Gluejar/regluit/vagrant/.vagrant/provisioners/ansible/inventory --limit='jenkins'  just.yml
+
+  tasks:
+
+    #equivalent to
+    #
+    #ssh -tt jenkins << EOF
+    #  sudo -i -u jenkins
+    #  ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
+    # exit
+    #exit
+    #EOF
+
+    - name: make new known_hosts
+      raw: ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
