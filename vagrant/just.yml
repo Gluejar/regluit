@@ -401,5 +401,10 @@
     #exit
     #EOF
 
-    - name: make new known_hosts
+    - name: make new known_hosts with key from just.unglue.it
       raw: ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
+
+    - name: add key from github
+      raw: ssh-keyscan -t rsa github.com >> /var/lib/jenkins/.ssh/known_hosts
+            
+       
