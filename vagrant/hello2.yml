@@ -1,5 +1,5 @@
 - name: Hello Ansible
-  hosts: local
+  hosts: localvm
   vars:
     user: "{{ ansible_ssh_user }}"
   sudo: yes
