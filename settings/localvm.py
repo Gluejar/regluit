@@ -50,9 +50,11 @@ SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
 SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
 
 # get these (as oauth2 client ID and Secret from 
-# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-8rnhtn7pvbragmcj0l3slsmgfs86t69i.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
+# https://console.developers.google.com/project/grand-analyzer-95823/apiui/credential?clientType&authuser=0#
+# rdhyee@gluejar.com account
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '559408900801-vrucvpqr73i1svmo5g8lu9e0apuv2i43.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'pTErzrpTrn55Yj39APWlMd-L'
 
 # Goodreads API
 GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
