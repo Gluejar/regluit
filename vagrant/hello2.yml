@@ -1,20 +1,20 @@
 - name: Hello Ansible
-  hosts: just
+  hosts: local
   vars:
     user: "{{ ansible_ssh_user }}"
-  sudo: no
-    
-    
-- name: fix known_hosts on jenkins to match new just
-  hosts: jenkins
   sudo: yes
-  sudo_user: jenkins
+    
+    
   tasks:
-    - name: pwd
-      command: pwd
+    - name: Hello server
+      shell: date > now.txt
       
-    - name: make new known_hosts
-      raw: ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
-
-    #local_action: command sudo -i jenkins ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
-
+    - name: create self-signed SSL cert
+      command: openssl req -new -nodes -x509 -subj "/C=US/ST=NJ/L=Montclair/O=Gluejar Inc./CN=localhost" -days 365 -keyout /etc/ssl/private/server.key -out /etc/ssl/certs/server.crt creates=/etc/ssl/certs/server.crt
+      sudo: yes
+      
+    - name: set mode on /etc/ssl/certs/server.crt 
+      file: path=/etc/ssl/certs/server.crt  mode=0644
+      
+    - name: set mode on /etc/ssl/private/server.key
+      file: path=/etc/ssl/private/server.key mode=0600  
