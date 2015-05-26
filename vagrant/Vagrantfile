@@ -19,7 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #node.vm.synced_folder "data", "vagrant_data"
   
     node.vm.provision 'ansible' do |ansible|
-      ansible.playbook = 'hello.yml'
+      ansible.playbook = 'please.yml'
     end
 
   
@@ -45,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.availability_zone = "us-east-1c"
       aws.ami = "ami-d8132bb0"
       # put into just security group
-      aws.security_groups = ["sg-d7f442bf"]
+      aws.security_groups = ["just"]
       
       aws.tags = {
       'Name' => 'please_vagrant'
