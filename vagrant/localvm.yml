@@ -75,7 +75,7 @@
       args:
         github_auth_key: "{{github_auth_key}}"
         repo_name: Gluejar/regluit
-        key_name: vagrant_ansible_test
+        key_name: localvm
         key_path: /home/{{user}}/.ssh/id_rsa.pub
  
     - name: postfix install
@@ -166,7 +166,7 @@
 
     #Run syncdb on the application
 
-    - name: django syncdb
+    - name: django_syncdb
       django_manage: >
           command=syncdb
           app_path=/opt/regluit/
@@ -220,8 +220,8 @@
       notify:
         - restart apache2
 
-    - name: a2ensite local
-      command: a2ensite local
+    - name: a2ensite localvm
+      command: a2ensite localvm
       notify:
         - restart apache2
      

@@ -105,7 +105,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "localvm" do |node|
  
-    node.vm.box = "ubuntu/trusty64"
+    node.vm.box = "precise64"
     node.vm.network "private_network", type: "dhcp"
     #node.vm.network "private_network", ip: "192.168.33.10"
     
