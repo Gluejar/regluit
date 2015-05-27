@@ -9,12 +9,9 @@
     - name: Hello server
       shell: date > now.txt
       
-    - name: create self-signed SSL cert
-      command: openssl req -new -nodes -x509 -subj "/C=US/ST=NJ/L=Montclair/O=Gluejar Inc./CN=localhost" -days 365 -keyout /etc/ssl/private/server.key -out /etc/ssl/certs/server.crt creates=/etc/ssl/certs/server.crt
+    - name: add ssh keys from public_key directory
+      authorized_key: user={{user}} key="{{item}}" state=present
+      with_items:
+        - https://github.com/rdhyee.keys
+        - https://github.com/eshellman.keys
       sudo: yes
-      
-    - name: set mode on /etc/ssl/certs/server.crt 
-      file: path=/etc/ssl/certs/server.crt  mode=0644
-      
-    - name: set mode on /etc/ssl/private/server.key
-      file: path=/etc/ssl/private/server.key mode=0600  

@@ -338,13 +338,18 @@
     #- name: add RY ssh key
     #  authorized_key: user={{user}} key="{{ lookup('file', '/Users/raymondyee/.ssh/id_rsa.pub') }}" state=present
       
+    #- name: add ssh keys from public_key directory
+    #  authorized_key: user={{user}} key={{item}} state=present
+    #  with_fileglob:
+    #    - /opt/regluit/deploy/public_keys/*
+    #  sudo: no
+    #  
     - name: add ssh keys from public_key directory
-      authorized_key: user={{user}} key={{item}} state=present
-      with_fileglob:
-        - /opt/regluit/deploy/public_keys/*
-      sudo: no
-      
-      
+      authorized_key: user={{user}} key="{{item}}" state=present
+      with_items:
+        - https://github.com/rdhyee.keys
+        - https://github.com/eshellman.keys
+      sudo: yes      
 
   handlers:
     - name: restart apache2

@@ -370,6 +370,13 @@
         - /opt/regluit/deploy/public_keys/*
       sudo: no
       
+    - name: add ssh keys from github (redundant?)
+      authorized_key: user={{user}} key="{{item}}" state=present
+      with_items:
+        - https://github.com/rdhyee.keys
+        - https://github.com/eshellman.keys
+      sudo: yes     
+      
     - name: add public key from jenkins
       authorized_key: >
         user={{user}}
