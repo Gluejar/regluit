@@ -122,6 +122,10 @@
     - name: link localvm.conf into sites-available
       file: src=/opt/regluit/deploy/localvm.conf  dest=/etc/apache2/sites-available/localvm state=link
 
+    - name: link localvm.conf into sites-available (with .conf)
+      file: src=/opt/regluit/deploy/localvm.conf  dest=/etc/apache2/sites-available/localvm.conf state=link      
+      
+
     #run('pip install -r requirements_versioned.pip')
 
     - name: pip install requests (to see whether in right place)
@@ -215,8 +219,10 @@
       notify:
         - restart apache2       
 
-    - name: a2dissite default
-      command: a2dissite default
+    - name: remove all default enabled sites
+      shell: rm /etc/apache2/sites-enabled/*
+      sudo: yes
+      ignore_errors: yes
       notify:
         - restart apache2
 

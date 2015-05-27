@@ -105,7 +105,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "localvm" do |node|
  
-    node.vm.box = "precise64"
+    node.vm.box = "ubuntu/trusty64"
     #node.vm.network "private_network", type: "dhcp"
     node.vm.network "private_network", ip: "192.168.33.10"
     
@@ -119,7 +119,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # but this doesn't work
         override.vm.provision "ansible" do |ansible|
           ansible.playbook = 'localvm.yml'
-          #ansible.start_at_task = 'add setup_django.sh script to root dir'
+          #ansible.start_at_task = 'remove all default enabled sites'
         end        
         
       
