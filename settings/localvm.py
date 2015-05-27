@@ -1,6 +1,6 @@
 from regluit.settings.common import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 SITE_ID = 2
@@ -45,9 +45,10 @@ GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
 SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
 SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
-# facebook auth
-SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
-SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
+# facebook auth (for localvm)
+# https://developers.facebook.com/apps/401501793375379/settings/
+SOCIAL_AUTH_FACEBOOK_KEY = '401501793375379'
+SOCIAL_AUTH_FACEBOOK_SECRET = '7b63412aa28f408e6349eb0eceb1fcc3'
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/grand-analyzer-95823/apiui/credential?clientType&authuser=0#
