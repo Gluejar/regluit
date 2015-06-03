@@ -3269,11 +3269,15 @@ def send_to_kindle(request, work_id, javascript='0'):
     """
     filehandle = urllib.urlopen(ebook_url)
     if not filesize:
-        filesize = int(filehandle.info().getheaders("Content-Length")[0])
-        if ebook:
-            ebook.filesize =  filesize if filesize < 2147483647 else 2147483647  # largest safe positive integer
-            ebook.save()
-    
+        try:
+            filesize = int(filehandle.info().getheaders("Content-Length")[0])
+            if ebook:
+                ebook.filesize =  filesize if filesize < 2147483647 else 2147483647  # largest safe positive integer
+                ebook.save()
+        except IndexError:
+            # response has no Content-Length header probably a bad link
+            logger.error('Bad link error: %s', ebook_url)
+            return local_response(request, javascript,  context, 4)
     if filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)
@@ -3284,7 +3288,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         email.attach(title + '.' + ebook_format, filehandle.read())
         email.send()
     except:
-        logger.warning('Unexpected error: %s', sys.exc_info())
+        logger.error('Unexpected error: %s', sys.exc_info())
         return local_response(request, javascript,  context, 1)
 
     if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
