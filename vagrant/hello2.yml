@@ -3,15 +3,12 @@
   vars:
     user: "{{ ansible_ssh_user }}"
   sudo: yes
-    
-    
-  tasks:
+        
+  pre_tasks:
     - name: Hello server
       shell: date > now.txt
-      
-    - name: add ssh keys from public_key directory
-      authorized_key: user={{user}} key="{{item}}" state=present
-      with_items:
-        - https://github.com/rdhyee.keys
-        - https://github.com/eshellman.keys
-      sudo: yes
+  
+  roles:
+    - role: mysql
+      #mysql_root_pw: "{{mysql_root_pw}}"
+      #mysql_regluit_pw: "{{mysql_regluit_pw}}"

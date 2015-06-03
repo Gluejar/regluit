@@ -118,7 +118,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # trying to mimic https://github.com/mozilla/fxa-dev/blob/b9b6f347c786428b347b82d38fb67e2c2fd1b827/vagrant/Vagrantfile
         # but this doesn't work
         override.vm.provision "ansible" do |ansible|
-          ansible.playbook = 'localvm.yml'
+          ansible.playbook = 'hello2.yml'
           #ansible.start_at_task = 'remove all default enabled sites'
         end        
         
