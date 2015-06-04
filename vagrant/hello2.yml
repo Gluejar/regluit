@@ -10,5 +10,4 @@
   
   roles:
     - role: mysql
-      #mysql_root_pw: "{{mysql_root_pw}}"
-      #mysql_regluit_pw: "{{mysql_regluit_pw}}"
+

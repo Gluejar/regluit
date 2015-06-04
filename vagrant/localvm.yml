@@ -2,6 +2,7 @@
   hosts: localvm
   vars:
     user: "{{ ansible_ssh_user }}"
+    config_name: localvm
   sudo: yes
 
   pre_tasks:
@@ -16,6 +17,7 @@
         
     # base setup
     - role: common
+    - role: mysql
     
     # installing mysql
     # https://github.com/bennojoy/mysql --> probably the right way
@@ -23,39 +25,20 @@
     # http://stackoverflow.com/a/7740571/7782
     
   post_tasks:
-    - name: mysql setup
-      raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password {{mysql_root_pw}}'
-    - raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password {{mysql_root_pw}}'
-    - raw: apt-get -y install mysql-server
-    
-    - name: Create regluit database
-      mysql_db: db=regluit state=present encoding=utf8 collation=utf8_bin login_user=root login_password={{mysql_root_pw}}
-      
-      # GRANT ALL PRIVILEGES ON regluit.* TO 'regluit'@'localhost' WITH GRANT OPTION; (covered?)
-    - name: Create database user
-      mysql_user: >
-          user=regluit
-          password={{mysql_regluit_pw}}
-          host=localhost
-          priv=*.*:ALL
-          state=present
-          login_user=root
-          login_password={{mysql_root_pw}}
-
  
     # running stuff within a virtualenv
     # http://stackoverflow.com/a/20572360
     # http://stackoverflow.com/questions/20575084/best-way-to-always-run-ansible-inside-a-virtualenv-on-remote-machines?rq=1
 
 
-    ## hard coding of localvm
-    #sudo("ln -s /opt/regluit/deploy/localvm.conf /etc/apache2/sites-available/localvm")
+    ## hard coding of {{config_name}}
+    #sudo("ln -s /opt/regluit/deploy/{{config_name}}.conf /etc/apache2/sites-available/{{config_name}}")
 
-    - name: link localvm.conf into sites-available
-      file: src=/opt/regluit/deploy/localvm.conf  dest=/etc/apache2/sites-available/localvm state=link
+    - name: link {{config_name}}.conf into sites-available
+      file: src=/opt/regluit/deploy/{{config_name}}.conf  dest=/etc/apache2/sites-available/{{config_name}} state=link
 
-    - name: link localvm.conf into sites-available (with .conf)
-      file: src=/opt/regluit/deploy/localvm.conf  dest=/etc/apache2/sites-available/localvm.conf state=link      
+    - name: link {{config_name}}.conf into sites-available (with .conf)
+      file: src=/opt/regluit/deploy/{{config_name}}.conf  dest=/etc/apache2/sites-available/{{config_name}}.conf state=link      
       
 
     #run('pip install -r requirements_versioned.pip')
@@ -106,7 +89,7 @@
       django_manage: >
           command=syncdb
           app_path=/opt/regluit/
-          settings="regluit.settings.localvm"
+          settings="regluit.settings.{{config_name}}"
           virtualenv=/opt/regluit/ENV
       sudo: no
       notify:
@@ -117,19 +100,19 @@
       django_manage: >
           command=migrate
           app_path=/opt/regluit/
-          settings="regluit.settings.localvm"
+          settings="regluit.settings.{{config_name}}"
           virtualenv=/opt/regluit/ENV
       sudo: no
       notify:
         - restart apache2
       
-    #run('django-admin.py collectstatic  --noinput --settings regluit.settings.localvm')
+    #run('django-admin.py collectstatic  --noinput --settings regluit.settings.{{config_name}}')
 
     - name: django collectstatic
       django_manage: >
           command=collectstatic
           app_path=/opt/regluit/
-          settings="regluit.settings.localvm"
+          settings="regluit.settings.{{config_name}}"
           virtualenv=/opt/regluit/ENV
       sudo: no
       notify:
@@ -158,8 +141,8 @@
       notify:
         - restart apache2
 
-    - name: a2ensite localvm
-      command: a2ensite localvm
+    - name: a2ensite {{config_name}}
+      command: a2ensite {{config_name}}
       notify:
         - restart apache2
      
@@ -207,8 +190,8 @@
     
     #    sudo ("cp deploy/celeryd.conf /etc/default/celeryd")
     
-    - name: copy deploy/celeryd_localvm.conf
-      command: cp /opt/regluit/deploy/celeryd_localvm.conf /etc/default/celeryd
+    - name: copy deploy/celeryd_{{config_name}}.conf
+      command: cp /opt/regluit/deploy/celeryd_{{config_name}}.conf /etc/default/celeryd
     
     - name: set mode on /etc/default/celeryd
       file: path=/etc/default/celeryd mode=0644    
@@ -240,8 +223,8 @@
     
     #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
     
-    - name: copy deploy/celerybeat_localvm.conf
-      command: cp /opt/regluit/deploy/celerybeat_localvm.conf /etc/default/celerybeat
+    - name: copy deploy/celerybeat_{{config_name}}.conf
+      command: cp /opt/regluit/deploy/celerybeat_{{config_name}}.conf /etc/default/celerybeat
     
     - name: set mode on /etc/default/celerybeat
       file: path=/etc/default/celerybeat mode=0755
@@ -258,17 +241,17 @@
       
     # run data loading script 
     - name: run data loading script
-      script: load_data_localvm.sh
+      script: load_data_{{config_name}}.sh
       
     # add setup_django.sh script to root dir
     
     - name: add setup_django.sh script to root dir
-      command: cp /opt/regluit/vagrant/setup_django_localvm.sh  /home/{{user}}/setup_django.sh
+      command: cp /opt/regluit/vagrant/setup_django_{{config_name}}.sh  /home/{{user}}/setup_django.sh
       sudo: no
         
     # set up crontab
-    - name: crontab for localvm
-      command: crontab /opt/regluit/deploy/crontab_localvm.txt
+    - name: crontab for {{config_name}}
+      command: crontab /opt/regluit/deploy/crontab_{{config_name}}.txt
       sudo: no
       
     # deal with SSH keys
