@@ -2126,14 +2126,21 @@ def search(request):
     q = request.GET.get('q', '')
     request.session['q']=q
     page = int(request.GET.get('page', 1))
-    
+    gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False )
-    if q != '' and page==1:
+    if q != '' and page==1 and not gbo=='y':
         work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
         campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
-        results = models.Work.objects.none()
+        for work in campaign_works:
+            results = models.Work.objects.none()
+            break
+        else:
+            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
+            gbo = 'y'
     else:
-        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page-1)
+        if gbo == 'n':
+            page=page-1 # because page=1 is the unglue.it results
+        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
         campaign_works = None
 
     # flag search result as on wishlist as appropriate
@@ -2146,6 +2153,7 @@ def search(request):
             works.append(result)
     context = {
         "q": q,
+        "gbo": gbo,
         "results": works,
         "campaign_works": campaign_works
     }
