@@ -1,8 +1,14 @@
 import logging
 
+from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.utils.http import urlquote
+
 from social.pipeline.social_auth import associate_by_email
 from social.apps.django_app.default.models import UserSocialAuth
-from social.exceptions import AuthAlreadyAssociated
+from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
+from social.exceptions import (AuthAlreadyAssociated,SocialAuthBaseException)
+from social.utils import social_logger
 
 from regluit.core.models import TWITTER, FACEBOOK, UNGLUEITAR
 
@@ -75,3 +81,26 @@ def selective_social_user(backend, uid, user=None, *args, **kwargs):
             'user': user,
             'is_new': user is None,
             'new_association': False}
+
+# http://stackoverflow.com/a/19361220
+# adapting https://github.com/omab/python-social-auth/blob/v0.2.10/social/apps/django_app/middleware.py#L25
+
+class SocialAuthExceptionMiddlewareWithoutMessages(SocialAuthExceptionMiddleware):
+    """
+    a modification of SocialAuthExceptionMiddleware to pass backend and message without
+    attempting django.messages
+    """ 
+    def process_exception(self, request, exception):
+    
+        if isinstance(exception, SocialAuthBaseException):
+            backend = getattr(request, 'backend', None)
+            backend_name = getattr(backend, 'name', 'unknown-backend')
+
+            message = self.get_message(request, exception)
+            social_logger.error(message)
+
+            url = self.get_redirect_uri(request, exception)
+            url += ('?' in url and '&' or '?') + \
+                   'message={0}&backend={1}'.format(urlquote(message),
+                                                    backend_name)
+            return redirect(url)

@@ -104,7 +104,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
-    'social.apps.django_app.middleware.SocialAuthExceptionMiddleware'
+    'regluit.core.auth.SocialAuthExceptionMiddlewareWithoutMessages',
 )
 
 ROOT_URLCONF = 'regluit.urls'
