@@ -3217,11 +3217,15 @@ def send_to_kindle(request, work_id, javascript='0'):
                 break
     
     if acq:
-        ebook_url = acq.get_mobi_url()
-        ebook_format = 'mobi'
-        filesize = None
+        class ebook:
+            # mock ebook class 
+            # TODO save a filesize so that send to kindle is more graceful
+            url = acq.get_mobi_url()
+            format = 'mobi'
+            def save(self):
+                return true
+            filesize = 0
         title = acq.work.kindle_safe_title()
-        ebook=None
 
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
@@ -3235,13 +3239,9 @@ def send_to_kindle(request, work_id, javascript='0'):
 
         # don't forget to increment the download counter!
         ebook.increment()
-        ebook_url = ebook.url
-        ebook_format = ebook.format
-        filesize = ebook.filesize
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.work.kindle_safe_title()
-    context['ebook_url']=ebook_url
-    context['ebook_format']=ebook_format
+    context['ebook'] = ebook
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']
@@ -3268,24 +3268,24 @@ def send_to_kindle(request, work_id, javascript='0'):
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
     filehandle = urllib.urlopen(ebook_url)
-    if not filesize:
+    if not ebook.filesize:
         try:
-            filesize = int(filehandle.info().getheaders("Content-Length")[0])
-            if ebook:
-                ebook.filesize =  filesize if filesize < 2147483647 else 2147483647  # largest safe positive integer
+            ebook.filesize = int(filehandle.info().getheaders("Content-Length")[0])
+            if ebook.save:
+                ebook.filesize =  ebook.filesize if ebook.filesize < 2147483647 else 2147483647  # largest safe positive integer
                 ebook.save()
         except IndexError:
             # response has no Content-Length header probably a bad link
-            logger.error('Bad link error: %s', ebook_url)
+            logger.error('Bad link error: %s', ebook.url)
             return local_response(request, javascript,  context, 4)
-    if filesize > models.send_to_kindle_limit:
+    if ebook.filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)
         
     try:
         email = EmailMessage(from_email='notices@gluejar.com',
                 to=[kindle_email])
-        email.attach(title + '.' + ebook_format, filehandle.read())
+        email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
     except:
         logger.error('Unexpected error: %s', sys.exc_info())
