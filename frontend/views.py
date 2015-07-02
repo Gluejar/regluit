@@ -3267,7 +3267,12 @@ def send_to_kindle(request, work_id, javascript='0'):
     * mime encoding will add 33% to filesize
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
-    filehandle = urllib.urlopen(ebook_url)
+    try:
+        filehandle = urllib.urlopen(ebook.url)
+    except IOError:
+        # problems connection to the ebook source
+        logger.error("couldn't connect error: %s", ebook.url)
+        return local_response(request, javascript,  context, 5)
     if not ebook.filesize:
         try:
             ebook.filesize = int(filehandle.info().getheaders("Content-Length")[0])
