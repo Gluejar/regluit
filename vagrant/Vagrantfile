@@ -19,7 +19,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #node.vm.synced_folder "data", "vagrant_data"
   
     node.vm.provision 'ansible' do |ansible|
-      ansible.playbook = 'hello.yml'
+      ansible.playbook = 'please.yml'
     end
 
   
@@ -45,7 +45,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.availability_zone = "us-east-1c"
       aws.ami = "ami-d8132bb0"
       # put into just security group
-      aws.security_groups = ["sg-d7f442bf"]
+      aws.security_groups = ["just"]
       
       aws.tags = {
       'Name' => 'please_vagrant'
@@ -102,4 +102,31 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   end
 
+
+  config.vm.define "localvm" do |node|
+ 
+    node.vm.box = "precise64"
+    #node.vm.network "private_network", type: "dhcp"
+    node.vm.network "private_network", ip: "192.168.33.10"
+    
+    node.ssh.forward_agent = true
+ 
+    node.vm.provider "virtualbox" do |v, override|
+        v.memory = 1024
+        v.cpus = 2
+
+        # trying to mimic https://github.com/mozilla/fxa-dev/blob/b9b6f347c786428b347b82d38fb67e2c2fd1b827/vagrant/Vagrantfile
+        # but this doesn't work
+        override.vm.provision "ansible" do |ansible|
+          ansible.playbook = 'hello2.yml'
+          #ansible.start_at_task = 'remove all default enabled sites'
+        end        
+        
+      
+    end
+
+  end
+  
 end
+
+

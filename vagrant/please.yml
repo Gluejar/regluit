@@ -23,8 +23,9 @@
         ttl: 60
         value: "{{ansible_ssh_host}}"
         overwrite: yes         
-        aws_access_key: "{{aws_access_key}}"
-        aws_secret_key: "{{aws_secret_key}}"
+        aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+        aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+ 
         
     # sudo add repo to get latest version of python 2.7
     - name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
@@ -350,10 +351,18 @@
     - name: crontab for please
       command: crontab /opt/regluit/deploy/crontab_please.txt
       
+    #- name: add ssh keys from public_key directory
+    #  authorized_key: user={{user}} key={{item}} state=present
+    #  with_fileglob:
+    #    - /opt/regluit/deploy/public_keys/*
+    #  sudo: no
+    
     - name: add ssh keys from public_key directory
-      authorized_key: user={{user}} key={{item}} state=present
-      with_fileglob:
-        - /opt/regluit/deploy/public_keys/*
+      authorized_key: user={{user}} key="{{item}}" state=present
+      with_items:
+        - https://github.com/rdhyee.keys
+        - https://github.com/eshellman.keys
+      sudo: yes     
       
     - name: add public key from jenkins
       authorized_key: >

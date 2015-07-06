@@ -1,20 +1,13 @@
 - name: Hello Ansible
-  hosts: just
+  hosts: localvm
   vars:
     user: "{{ ansible_ssh_user }}"
-  sudo: no
-    
-    
-- name: fix known_hosts on jenkins to match new just
-  hosts: jenkins
   sudo: yes
-  sudo_user: jenkins
-  tasks:
-    - name: pwd
-      command: pwd
-      
-    - name: make new known_hosts
-      raw: ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
-
-    #local_action: command sudo -i jenkins ssh-keyscan -t rsa just.unglue.it > /var/lib/jenkins/.ssh/known_hosts
+        
+  pre_tasks:
+    - name: Hello server
+      shell: date > now.txt
+  
+  roles:
+    - role: mysql
 
