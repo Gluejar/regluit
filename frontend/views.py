@@ -3217,14 +3217,15 @@ def send_to_kindle(request, work_id, javascript='0'):
                 break
     
     if acq:
-        class ebook:
-            # mock ebook class 
-            # TODO save a filesize so that send to kindle is more graceful
-            url = acq.get_mobi_url()
-            format = 'mobi'
+        class ebook_mock(object):
+            def __init__(self):
+                self.url = acq.get_mobi_url()
+                self.format = 'mobi'
+                self.filesize = 0
             def save(self):
-                return true
-            filesize = 0
+                return True
+        
+        ebook = ebook_mock()
         title = acq.work.kindle_safe_title()
 
     else:
