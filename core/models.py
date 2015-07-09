@@ -265,12 +265,24 @@ class Acq(models.Model):
     # when the acq is a loan, this points at the library's acq it's derived from 
     lib_acq = models.ForeignKey("self", related_name="loans", null=True)
     
+    class mock_ebook(object):
+            def __init__(self, acq):
+                self.url = acq.get_mobi_url()
+                self.format = 'mobi'
+                self.filesize = 0
+            def save(self):
+                # TODO how to handle filesize?
+                return True
+
+    def ebook(self):
+        return self.mock_ebook(self)
+        
     def __unicode__(self):
         if self.lib_acq:
             return "%s, %s: %s for %s" % (self.work, self.get_license_display(), self.lib_acq.user, self.user)
         else:
             return "%s, %s for %s" % (self.work, self.get_license_display(), self.user,)
-        
+       
     @property
     def expired(self):
         if self.expires is None:
