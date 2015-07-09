@@ -218,6 +218,10 @@ def cover_width(work):
 
 def home(request, landing=False):
     if request.user.is_authenticated() and landing == False:
+        next=request.GET.get('next', False)
+        if next:
+            # should happen only for new users
+            return HttpResponseRedirect(next)
         return HttpResponseRedirect(reverse('supporter',
             args=[request.user.username]))
             
