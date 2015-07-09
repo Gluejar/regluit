@@ -3217,17 +3217,8 @@ def send_to_kindle(request, work_id, javascript='0'):
                 break
     
     if acq:
-        class ebook_mock(object):
-            def __init__(self):
-                self.url = acq.get_mobi_url()
-                self.format = 'mobi'
-                self.filesize = 0
-            def save(self):
-                return True
-        
-        ebook = ebook_mock()
+        ebook = acq.ebook()
         title = acq.work.kindle_safe_title()
-
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
