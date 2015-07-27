@@ -1624,12 +1624,24 @@ class Author(models.Model):
                 reversed_name+=" "
                 reversed_name+=name
             return reversed_name
+
+class Relation(models.Model):
+    code = models.CharField(max_length=3, blank=False, db_index=True, unique=True)
+    name = models.CharField(max_length=30, blank=True,)
+    
+class Relator(models.Model):
+    relation =  models.ForeignKey('Relation', default=1) #first relation should have code='aut'
+    author  = models.ForeignKey('Author')
+    edition = models.ForeignKey('Edition', related_name='author')
+    class Meta:
+        db_table = 'core_author_editions'
         
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200, unique=True)
     works = models.ManyToManyField("Work", related_name="subjects")
     is_visible = models.BooleanField(default = True)
+    authority = models.CharField(max_length=10, blank=False, default="")
 
     class Meta:
         ordering = ['name']

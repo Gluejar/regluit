@@ -13,6 +13,36 @@ from . import load
 EDITION_MODEL = "core.Edition"
 logger = logging.getLogger(__name__)
 
+marc_rels = {
+    'aut': 'author',
+    "adp": "adapter",
+    "aft": "author_of_afterword",
+    "ann": "annotator",
+    "arr": "arranger",
+    "art": "artist",
+    "aui": "author_of_introduction",
+    "clb": "collaborator",
+    "cmm": "commentator",
+    "cmp": "composer",
+    "cnd": "conductor",
+    "com": "compiler",
+    "ctb": "contributor",
+    "dub": "dubious_author",
+    "edt": "creator/editor",
+    "egr": "engineer",
+    "ill": "illustrator",
+    "lbt": "librettist",
+    "oth": "other_contributor",
+    "pbl": "publisher_contributor",
+    "pht": "photographer",
+    "prf": "performer",
+    "prt": "printer",
+    "res": "researcher", 
+    "trc": "transcriber",
+    "trl": "translator",
+    "unk": "unknown_contributor",
+    }
+
 class AbstractEdition:
     # define the methods and attributes an edition should have
     isbn_13 = ''
