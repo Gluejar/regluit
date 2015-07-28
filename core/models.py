@@ -1183,21 +1183,38 @@ class Work(models.Model):
             if edition.authors.all().count()>0:
                 return edition.authors.all()
         return Author.objects.none()
+
+    def relators(self):
+        # assumes that they come out in the same order they go in!
+        if self.preferred_edition and self.preferred_edition.relators.all().count()>0:
+            return  self.preferred_edition.relators.all()
+        for edition in self.editions.all():
+            if edition.relators.all().count()>0:
+                return edition.relators.all()
+        return Relator.objects.none()
         
     def author(self):
         # assumes that they come out in the same order they go in!
-        if self.authors().count()>0:
-            return self.authors()[0].name
+        if self.relators().count()>0:
+            return self.relators()[0].name
         return ''
         
     def authors_short(self):
         # assumes that they come out in the same order they go in!
-        if self.authors().count()==1:
-            return self.authors()[0].name
-        elif self.authors().count()==2:
-            return "%s and %s" % (self.authors()[0].name, self.authors()[1].name)
-        elif self.authors().count()>2:
-            return "%s et al." % self.authors()[0].name
+        if self.relators().count()==1:
+            return self.relators()[0].name 
+        elif self.relators().count()==2:
+            if self.relators()[0].relation == self.relators()[1].relation:
+                if self.relators()[0].relation.code == 'aut':
+                    return "%s and %s" % (self.relators()[0].author.name, self.relators()[1].author.name)
+                else:
+                    return "%s and %s, %ss" % (self.relators()[0].author.name, self.relators()[1].author.name, self.relators()[0].relation.name)
+        elif self.relators().count()>2:
+            auths = self.relators().order_by("relation__code")
+            if auths[0].relation.code == 'aut':
+                return "%s et al." % auths[0].author.name
+            else:
+                return "%s et al., (%ss)" % (auths[0].author.name , auths[0].relation.name )
         return ''
     
     def kindle_safe_title(self):
@@ -1632,9 +1649,16 @@ class Relation(models.Model):
 class Relator(models.Model):
     relation =  models.ForeignKey('Relation', default=1) #first relation should have code='aut'
     author  = models.ForeignKey('Author')
-    edition = models.ForeignKey('Edition', related_name='author')
+    edition = models.ForeignKey('Edition', related_name='relators')
     class Meta:
         db_table = 'core_author_editions'
+        
+    @property
+    def name(self):
+        if self.relation.code == 'aut':
+            return self.author.name
+        else:
+            return "%s, (%s)" % (self.author.name, self.relation.name)
         
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
