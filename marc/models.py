@@ -28,7 +28,7 @@ marc_rels = {
     "com": "compiler",
     "ctb": "contributor",
     "dub": "dubious_author",
-    "edt": "creator/editor",
+    "edt": "editor",
     "egr": "engineer",
     "ill": "illustrator",
     "lbt": "librettist",

@@ -1214,7 +1214,7 @@ class Work(models.Model):
             if auths[0].relation.code == 'aut':
                 return "%s et al." % auths[0].author.name
             else:
-                return "%s et al., (%ss)" % (auths[0].author.name , auths[0].relation.name )
+                return "%s et al. (%ss)" % (auths[0].author.name , auths[0].relation.name )
         return ''
     
     def kindle_safe_title(self):
@@ -1658,7 +1658,7 @@ class Relator(models.Model):
         if self.relation.code == 'aut':
             return self.author.name
         else:
-            return "%s, (%s)" % (self.author.name, self.relation.name)
+            return "%s (%s)" % (self.author.name, self.relation.name)
         
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
