@@ -1742,13 +1742,14 @@ class Edition(models.Model):
         except Identifier.DoesNotExist:
             return None
     
-    def add_author(self, author_name):
+    def add_author(self, author_name, relation='aut'):
         if author_name:
-            try:
-                author= Author.objects.get(name=author_name)
-            except Author.DoesNotExist:
-                author= Author.objects.create(name=author_name)
-            author.editions.add(self)
+            author = Author.objects.get_or_create(name=author_name)
+            relation = Relation.objects.get_or_create(code=relation)
+            new_relator = Relator.objects.get_or_create(author=author, edition=self)
+            if new_relator.relation != relation:
+                new_relator.relation = relation
+                new_relator.save()
 
     def set_publisher(self,publisher_name):
         if publisher_name and publisher_name != '':
