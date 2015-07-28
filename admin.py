@@ -160,6 +160,10 @@ class PublisherNameAdmin(ModelAdmin):
     list_display = ('name', 'publisher')
     ordering = ('name',)
     search_fields = ['name']
+
+class RelationAdmin(ModelAdmin):
+    list_display = ('code', 'name')
+    search_fields = ['name']
     
 class EbookAdmin(ModelAdmin):
     search_fields = ('edition__title','^url')  # search by provider using leading url
@@ -254,6 +258,7 @@ admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Press, PressAdmin)
 admin_site.register(models.Gift, GiftAdmin)
 admin_site.register(MARCRecord, MARCRecordAdmin)
+admin_site.register(models.Relation, RelationAdmin)
 
 # payments
 

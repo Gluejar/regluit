@@ -42,11 +42,8 @@
 					<li>{{ relator.name }}<input type="submit" name="delete_author_{{ relator.author.id }}" value="x"  class="deletebutton" title="delete author"></li>
 				{% endfor %}
 			{% endif %}
-			{% for author in edition.new_author_names %}
-				<li>{{ author }}<input type="hidden" name="new_author" value="{{ author }}" /></li>
-			{% endfor %}
-			{% for relation in edition.new_author_relations %}
-				<input type="hidden" name="new_author_relation" value="{{ relation }}" /></li>
+			{% for author in edition.new_authors %}
+				<li>{{ author.0 }}<input type="hidden" name="new_author" value="{{ author.0 }}" /> ({{ author.1 }})<input type="hidden" name="new_author_relation" value="{{ author.1 }}" /></li>
 			{% endfor %}
 		</ul>
         {% else %}

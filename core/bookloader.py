@@ -346,7 +346,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
 
     for a in d.get('authors', []):
         a, created = models.Author.objects.get_or_create(name=a)
-        a.editions.add(e)
+        e.add_author(a)
 
     add_ebooks(item, e)
             
