@@ -1768,9 +1768,9 @@ class Edition(models.Model):
     
     def add_author(self, author_name, relation='aut'):
         if author_name:
-            author = Author.objects.get_or_create(name=author_name)
-            relation = Relation.objects.get_or_create(code=relation)
-            new_relator = Relator.objects.get_or_create(author=author, edition=self)
+            (author, created) = Author.objects.get_or_create(name=author_name)
+            (relation,created) = Relation.objects.get_or_create(code=relation)
+            (new_relator,created) = Relator.objects.get_or_create(author=author, edition=self)
             if new_relator.relation != relation:
                 new_relator.relation = relation
                 new_relator.save()
