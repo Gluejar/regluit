@@ -1775,6 +1775,14 @@ class Edition(models.Model):
                 new_relator.relation = relation
                 new_relator.save()
 
+    def remove_author(self, author):
+        if author:
+            try:
+                relator = Relator.objects.get(author=author, edition=self)
+                relator.delete()
+            except Relator.DoesNotExist:
+                pass
+
     def set_publisher(self,publisher_name):
         if publisher_name and publisher_name != '':
             try:

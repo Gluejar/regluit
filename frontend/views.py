@@ -551,7 +551,7 @@ def new_edition(request, work_id, edition_id, by=None):
         if edition.id and admin:
             for author in edition.authors.all():
                 if request.POST.has_key('delete_author_%s' % author.id):
-                    edition.authors.remove(author)
+                    edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
         if request.POST.has_key('add_author_submit') and admin:
