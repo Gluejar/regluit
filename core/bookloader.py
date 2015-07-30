@@ -859,6 +859,7 @@ def load_from_yaml(yaml_url):
         except IntegrityError:
             #duplicate url
             pass
+    return work.id
         
 def git_download_from_yaml_url(yaml_url, version, edition_name='book'):        
     # go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
