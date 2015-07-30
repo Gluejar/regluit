@@ -5,6 +5,7 @@ Pillow==2.5.3
 PyJWT==1.1.0
 PyPDF2==1.23
 PyGithub==1.15.0
+PyYAML==3.11
 git+git://github.com/urschrei/pyzotero.git@v0.9.51
 South==0.7.6
 WebOb==1.2.3
@@ -38,6 +39,7 @@ django-storages==1.1.6
 django-tastypie==0.9.11
 feedparser==5.1.2
 freebase==1.0.8
+gitenberg.metadata==0.1.6
 html5lib==1.0b3
 httplib2==0.7.5
 kombu==2.4.5

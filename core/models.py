@@ -1907,13 +1907,14 @@ send_to_kindle_limit=7492232
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
     RIGHTS_CHOICES = cc.CHOICES
-    url = models.URLField(max_length=1024)
+    url = models.URLField(max_length=1024) #change to unique?
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     filesize = models.PositiveIntegerField(null=True)
+    version = None #placeholder
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)

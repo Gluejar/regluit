@@ -8,6 +8,7 @@ import requests
 from datetime import timedelta
 from itertools import izip, islice
 from xml.etree import ElementTree
+from urlparse import urljoin
 
 """
 django imports
@@ -17,6 +18,9 @@ from django.contrib.comments.models import Comment
 from django.db import IntegrityError
 from django.db.models import Q
 
+from .pandata import Pandata
+from ..marc.models import inverse_marc_rels
+
 """
 regluit imports
 """
@@ -25,6 +29,7 @@ import regluit.core.isbn
 
 from regluit.core import models
 from regluit.utils.localdatetime import now
+import regluit.core.cc as cc
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -783,3 +788,83 @@ def add_missing_isbn_to_editions(max_num=None, confirm=False):
 class LookupFailure(Exception):
     pass
 
+IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gute'),('isbn','isbn'),('oclc','oclc'), ]
+
+def load_from_yaml(yaml_url):
+    metadata = Pandata(yaml_url)
+    #find an work to associate
+    work = edition = None
+    new_ids = []
+    for (identifier, id_code) in IDTABLE:
+        value = metadata.identifiers.get(identifier,None)
+        if value:
+            value =  value[0] if isinstance(value, list) else value
+            try:
+                id = models.Identifier.objects.get(type=id_code, value=value)
+                work = id.work
+                if id.edition and not edition:
+                    edition = id.edition
+            except models.Identifier.DoesNotExist:
+                new_ids.append((identifier, id_code, value))
+    if not work:
+        work = models.Work.objects.create(title=metadata.title, language=metadata.language)
+    if not edition:
+        edition =  models.Edition.objects.create(title=metadata.title, work=work)
+    for (identifier, id_code, value) in new_ids:
+        models.Identifier.set(type=id_code, value=value, edition=edition if id_code in ('isbn', 'oclc') else None, work=work)
+    if metadata.publisher: #always believe yaml
+        edition.set_publisher(metadata.publisher)
+    if metadata.publication_date: #always believe yaml
+        edition.publication_date = metadata.publication_date
+    if metadata.description and len(metadata.description)>len(work.description): #be careful about overwriting the work description
+        work.description = metadata.description
+    if metadata.creator: #always believe yaml
+        edition.authors.clear()
+        for key in metadata.creator.keys():
+            creators=metadata.creator[key]
+            rel_code=inverse_marc_rels.get(key,'aut')
+            creators = creators if isinstance(creators,list) else [creators]
+            for creator in creators:
+                edition.add_author(creator.get('agent_name',''),relation=rel_code)
+    for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
+        if isinstance(yaml_subject, tuple):
+            (authority, heading)  = yaml_subject
+        elif isinstance(yaml_subject, str):
+            (authority, heading)  = ( '', yaml_subject)
+        else:
+            continue
+        (subject, created) = models.Subject.objects.get_or_create(name=heading)
+        if not subject.authority and authority:
+            subject.authority = authority
+            subject.save()
+        subject.works.add(work)
+    # the default edition uses the first cover in covers.
+    for cover in metadata.covers:
+        if cover.get('image_path', False):
+            edition.cover_image=urljoin(yaml_url,cover['image_path'])
+            break
+    edition.save()
+    # if there is a version, assume there is an ebook. if not, not.
+    if metadata._version:
+        #there's and ebook to link to!
+        try:
+            ebook= models.Ebook.objects.create(
+                url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition ),
+                provider='Github',
+                rights = metadata.rights if metadata.rights in cc.CHOICES else None,
+                format = 'epub',
+                edition = edition,
+                # version = metadata._version
+                )
+        except IntegrityError:
+            #duplicate url
+            pass
+        
+def git_download_from_yaml_url(yaml_url, version, edition_name='book'):        
+    # go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+    # to https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/releases/download/v0.0.3/Adventures-of-Huckleberry-Finn.epub
+    if yaml_url.endswith('raw/master/metadata.yaml'):
+        repo_url = yaml_url[0:-24]
+        print (repo_url,version,edition_name)
+        ebook_url = repo_url + 'releases/download/v' + version + '/' + edition_name + '.epub'
+        return ebook_url
