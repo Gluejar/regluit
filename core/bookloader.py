@@ -794,7 +794,10 @@ def load_from_yaml(yaml_url):
     metadata = Pandata(yaml_url)
     #find an work to associate
     work = edition = None
-    new_ids = []
+    if metadata.url:
+        new_ids = [('http','http', metadata.url)]
+    else:
+        new_ids = []
     for (identifier, id_code) in IDTABLE:
         value = metadata.identifiers.get(identifier,None)
         if value:
