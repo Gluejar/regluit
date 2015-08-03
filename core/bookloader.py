@@ -18,7 +18,7 @@ from django.contrib.comments.models import Comment
 from django.db import IntegrityError
 from django.db.models import Q
 
-from .pandata import Pandata
+from gitenberg.metadata.pandata import Pandata
 from ..marc.models import inverse_marc_rels
 
 """
@@ -869,6 +869,6 @@ def git_download_from_yaml_url(yaml_url, version, edition_name='book'):
     # to https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/releases/download/v0.0.3/Adventures-of-Huckleberry-Finn.epub
     if yaml_url.endswith('raw/master/metadata.yaml'):
         repo_url = yaml_url[0:-24]
-        print (repo_url,version,edition_name)
+        #print (repo_url,version,edition_name)
         ebook_url = repo_url + 'releases/download/v' + version + '/' + edition_name + '.epub'
         return ebook_url
