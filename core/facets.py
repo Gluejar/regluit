@@ -198,8 +198,50 @@ class KeywordFacetGroup(FacetGroup):
                 return  "%s eBooks" % self.keyword
         return KeywordFacet    
     
+class PublisherFacetGroup(FacetGroup):
+    
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Publisher'
+        # don't display facets
+        self.facets = []
+        
+    def has_facet(self, facet_name):
+    
+        # recognize any facet_name that starts with "pub." as a valid facet name
+        return facet_name.startswith('pub.')
+
+    def get_facet_class(self, facet_name):
+        class PublisherFacet(NamedFacet):
+            def set_name(self):
+                self.facet_name=facet_name
+                # facet_names of the form 'pub.PUB_ID' and PUB_ID is therefore the 5th character on
+                self.pub_id=self.facet_name[4:]
+                pubmodel = get_model('core', 'Publisher')
+                try:
+                    self.publisher =  pubmodel.objects.get(id=self.pub_id)
+                except pubmodel.DoesNotExist:
+                    self.publisher =  None
+            def pub_filter(query_set):
+                return query_set.filter(edition__publisher_name__publisher__id=facet_name[4:])
+            model_filters = {"Ebook": pub_filter}
+            def get_query_set(self):
+                return self._get_query_set().filter(editions__publisher_name__publisher=self.publisher)
+            def template(self):
+                return 'facets/publisher.html'
+            @property    
+            def title(self):
+                return self.publisher.name.name if self.publisher else ""
+            @property    
+            def label(self):
+                return self.publisher.name.name if self.publisher else ""
+            @property
+            def description(self):
+                return  "eBooks published by %s" % self.title
+        return PublisherFacet    
+
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), ]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
