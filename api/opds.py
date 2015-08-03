@@ -80,7 +80,7 @@ def work_node(work, facet=None):
     node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=work.get_absolute_url())))
     
     # updated -- using creation date
-    node.append(text_node('updated', work.created.isoformat()))
+    node.append(text_node('updated', work.first_ebook().created.isoformat()))
     
     # links for all ebooks
     ebooks=facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
@@ -122,7 +122,7 @@ def work_node(work, facet=None):
     #<dcterms:publisher>Open Book Publishers</dcterms:publisher>
     if len(work.publishers()):
         for publisher in work.publishers():
-            node.append(text_node("{http://purl.org/dc/terms/}issued", publisher.name.name))
+            node.append(text_node("{http://purl.org/dc/terms/}publisher", publisher.name.name))
             
     # language
     #<dcterms:language>en</dcterms:language>
