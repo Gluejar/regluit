@@ -3,6 +3,7 @@ from itertools import islice
 from lxml import etree
 import datetime
 import urlparse
+from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
 import pytz
@@ -77,7 +78,7 @@ def work_node(work, facet=None):
     node.append(text_node("title", work.title))
     
     # id
-    node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=work.get_absolute_url())))
+    node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=reverse('work_identifier',kwargs={'work_id':work.id}))))
     
     # updated -- using creation date
     node.append(text_node('updated', work.first_ebook().created.isoformat()))
@@ -205,6 +206,19 @@ class active_campaigns(Facet):
     works = models.Work.objects.filter(campaigns__status='ACTIVE', is_free = True)
     description= "With your help we're raising money to make these books free to the world."
 
+def opds_feed_for_work(work_id):
+    class single_work_facet:
+        def __init__(self, work_id):
+            try:
+                works=models.Work.objects.filter(id=work_id)
+            except models.Work.DoesNotExist:
+                works=models.Work.objects.none()
+            self.works=works
+            self.title='Unglue.it work #%s' % work_id
+            self.feed_path=''
+            self.facet_object= facets.BaseFacet(None)
+    return opds_feed_for_works( single_work_facet(work_id) )
+
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     works = the_facet.works
     feed_path = the_facet.feed_path
@@ -274,7 +288,6 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
                 append_navlink(feed, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
     
     works = islice(works,  10 * page, 10 * page + 10)
-    print the_facet.facet_object
     if page > 0:
         append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous 10")
     for work in works:
