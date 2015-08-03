@@ -70,7 +70,7 @@ def isbn_node(isbn):
     node.text = 'urn:ISBN:'+ isbn
     return node
 
-def work_node(work):
+def work_node(work, facet=None):
     
     node = etree.Element("entry")
     # title
@@ -83,8 +83,8 @@ def work_node(work):
     node.append(text_node('updated', work.created.isoformat()))
     
     # links for all ebooks
-    
-    for ebook in work.ebooks():
+    ebooks=facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
+    for ebook in ebooks:
         link_node = etree.Element("link")
         
         # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
@@ -273,10 +273,11 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
                 append_navlink(feed, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
     
     works = islice(works,  10 * page, 10 * page + 10)
+    print the_facet.facet_object
     if page > 0:
         append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous 10")
     for work in works:
-        node = work_node(work)
+        node = work_node(work, facet=the_facet.facet_object)
         feed.append(node)
     
     return etree.tostring(feed, pretty_print=True)
