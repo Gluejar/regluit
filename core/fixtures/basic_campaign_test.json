@@ -256,9 +256,6 @@
     "pk": 1, 
     "model": "core.author", 
     "fields": {
-      "editions": [
-        1
-      ], 
       "name": "Raymond Yee", 
       "created": "2012-10-12T23:27:53"
     }
@@ -267,9 +264,6 @@
     "pk": 2, 
     "model": "core.author", 
     "fields": {
-      "editions": [
-        2
-      ], 
       "name": "Herman Melville", 
       "created": "2012-10-14T09:54:17"
     }
@@ -278,9 +272,6 @@
     "pk": 3, 
     "model": "core.author", 
     "fields": {
-      "editions": [
-        3
-      ], 
       "name": "Johann Sebastian Bach", 
       "created": "2012-10-14T10:01:54"
     }
@@ -290,6 +281,33 @@
     "model": "core.publishername", 
     "fields": {
       "name": "Apress" 
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "core.relator", 
+    "fields": {
+      "relation": 1,
+      "author": 1,
+      "edition": 1 
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "core.relator", 
+    "fields": {
+      "relation": 1,
+      "author": 2,
+      "edition": 2 
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "core.relator", 
+    "fields": {
+      "relation": 1,
+      "author": 3,
+      "edition": 3 
     }
   }, 
   {

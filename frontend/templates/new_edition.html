@@ -35,15 +35,15 @@
 		
 		<p>
 		<b>Authors</b>:
-		{% if edition.pk and edition.authors or edition.new_author_names %}
+		{% if edition.pk and edition.relators or edition.new_author_names %}
 		<ul>
 			{% if edition.pk and edition.authors %}
-				{% for author in edition.authors.all %}
-					<li>{{ author.name }}<input type="submit" name="delete_author_{{ author.id }}" value="x"  class="deletebutton" title="delete author"></li>
+				{% for relator in edition.relators.all %}
+					<li>{{ relator.name }}<input type="submit" name="delete_author_{{ relator.author.id }}" value="x"  class="deletebutton" title="delete author"></li>
 				{% endfor %}
 			{% endif %}
-			{% for author in edition.new_author_names %}
-				<li>{{ author }}<input type="hidden" name="new_author" value="{{ author }}" /></li>
+			{% for author in edition.new_authors %}
+				<li>{{ author.0 }}<input type="hidden" name="new_author" value="{{ author.0 }}" /> ({{ author.1 }})<input type="hidden" name="new_author_relation" value="{{ author.1 }}" /></li>
 			{% endfor %}
 		</ul>
         {% else %}
@@ -51,7 +51,7 @@
 		{% endif %}
 		</p>
 		
-		<p><b>Add an Author</b> (<I>Firstname Lastname</I>): {{ form.add_author.errors }}{{ form.add_author }}
+		<p><b>Add a Creator</b> (<I>Firstname Lastname</I>): {{ form.add_author.errors }}{{ form.add_author }}{{ form.add_author_relation.errors }}{{ form.add_author_relation }}
 		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
 
 		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
