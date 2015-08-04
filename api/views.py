@@ -17,6 +17,7 @@ from django.http import (
 import regluit.core.isbn
 from regluit.core.bookloader import load_from_yaml
 from regluit.api import opds
+from regluit.api.models import repo_allowed
 
 from regluit.core import models
 
@@ -70,6 +71,9 @@ def load_yaml(request):
     repo_url = request.POST.get('repo_url', None)
     if not repo_url:
         return HttpResponse('needs repo_url')
+    (allowed,reason) =repo_allowed(repo_url)
+    if not allowed:
+        return HttpResponse('repo_url not allowed: '+reason)
     try:
         work_id = load_from_yaml(repo_url)
         return HttpResponseRedirect(reverse('work', args=[work_id]))
