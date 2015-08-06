@@ -4,6 +4,7 @@ from regluit.core import cc
   
 class BaseFacet(object):
     facet_name = 'all'
+    model_filters ={}
     
     def __init__(self, outer_facet):
         self.outer_facet = outer_facet if outer_facet else None
@@ -14,6 +15,12 @@ class BaseFacet(object):
             return self.outer_facet.get_query_set()
         else:
             return self.model.objects.filter(is_free=True)
+
+    def _filter_model(self, model, query_set):
+        if self.outer_facet:
+            return self.outer_facet.filter_model(model, query_set)
+        else:
+            return query_set
     
     def __unicode__(self):
         if self.facet_name == 'all':
@@ -30,6 +37,13 @@ class BaseFacet(object):
     
     def get_query_set(self):
         return self._get_query_set()
+
+    def filter_model(self, model, query_set):
+        model_filter =  self.model_filters.get(model,None) 
+        if model_filter:
+            return model_filter( self._filter_model(model, query_set))
+        else:
+            return self._filter_model( model, query_set)
 
     def get_facet_path(self):
         if self.outer_facet:
@@ -96,6 +110,9 @@ class FormatFacetGroup(FacetGroup):
         class FormatFacet(NamedFacet):
             def set_name(self):
                 self.facet_name=facet_name
+            def format_filter(query_set):
+                return query_set.filter(format=facet_name)
+            model_filters = {"Ebook": format_filter}
             def get_query_set(self):
                 return self._get_query_set().filter(editions__ebooks__format=self.facet_name)
             def template(self):
@@ -110,7 +127,6 @@ class FormatFacetGroup(FacetGroup):
         
         
 class LicenseFacetGroup(FacetGroup):
-
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'License'
@@ -119,10 +135,13 @@ class LicenseFacetGroup(FacetGroup):
         
         
     def get_facet_class(self, facet_name):
-        class LicenseFacet(NamedFacet):
+        class LicenseFacet(NamedFacet):            
             def set_name(self):
                 self.facet_name=facet_name
                 self.license = cc.ccinfo(facet_name)
+            def license_filter(query_set):
+                return query_set.filter(rights=cc.ccinfo(facet_name))
+            model_filters = {"Ebook": license_filter}
             def get_query_set(self):
                 return self._get_query_set().filter(editions__ebooks__rights=self.license.license)
             def template(self):
@@ -179,8 +198,50 @@ class KeywordFacetGroup(FacetGroup):
                 return  "%s eBooks" % self.keyword
         return KeywordFacet    
     
+class PublisherFacetGroup(FacetGroup):
+    
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Publisher'
+        # don't display facets
+        self.facets = []
+        
+    def has_facet(self, facet_name):
+    
+        # recognize any facet_name that starts with "pub." as a valid facet name
+        return facet_name.startswith('pub.')
+
+    def get_facet_class(self, facet_name):
+        class PublisherFacet(NamedFacet):
+            def set_name(self):
+                self.facet_name=facet_name
+                # facet_names of the form 'pub.PUB_ID' and PUB_ID is therefore the 5th character on
+                self.pub_id=self.facet_name[4:]
+                pubmodel = get_model('core', 'Publisher')
+                try:
+                    self.publisher =  pubmodel.objects.get(id=self.pub_id)
+                except pubmodel.DoesNotExist:
+                    self.publisher =  None
+            def pub_filter(query_set):
+                return query_set.filter(edition__publisher_name__publisher__id=facet_name[4:])
+            model_filters = {"Ebook": pub_filter}
+            def get_query_set(self):
+                return self._get_query_set().filter(editions__publisher_name__publisher=self.publisher)
+            def template(self):
+                return 'facets/publisher.html'
+            @property    
+            def title(self):
+                return self.publisher.name.name if self.publisher else ""
+            @property    
+            def label(self):
+                return self.publisher.name.name if self.publisher else ""
+            @property
+            def description(self):
+                return  "eBooks published by %s" % self.title
+        return PublisherFacet    
+
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), ]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:

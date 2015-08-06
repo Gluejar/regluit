@@ -41,6 +41,12 @@ def editions(request):
         context_instance=RequestContext(request)
     )    
 
+def negotiate_content(request,work_id):
+    if request.META.get('HTTP_ACCEPT', None):
+        if "opds-catalog" in request.META['HTTP_ACCEPT']:
+            return HttpResponseRedirect(reverse('opds_acqusition',args=['all'])+'?work='+work_id)
+    return HttpResponseRedirect(reverse('work', kwargs={'work_id': work_id}))
+
 def widget(request,isbn):
     """
     supply info for book panel. parameter is named isbn for historical reasons. can be isbn or work_id
@@ -122,6 +128,10 @@ class OPDSNavigationView(TemplateView):
 class OPDSAcquisitionView(View):
 
     def get(self, request, *args, **kwargs):
+        work = request.GET.get('work', None)
+        if work:
+            return HttpResponse(opds.opds_feed_for_work(work),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
         facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')
