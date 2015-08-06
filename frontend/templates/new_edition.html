@@ -35,7 +35,7 @@
 		
 		<p>
 		<b>Authors</b>:
-		{% if edition.pk and edition.relators or edition.new_author_names %}
+		{% if edition.pk and edition.relators or edition.new_authors %}
 		<ul>
 			{% if edition.pk and edition.authors %}
 				{% for relator in edition.relators.all %}
