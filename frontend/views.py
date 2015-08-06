@@ -546,21 +546,22 @@ def new_edition(request, work_id, edition_id, by=None):
             }
     if request.method == 'POST' :
         form = None
-        edition.new_author_names=request.POST.getlist('new_author')
+        edition.new_authors=zip(request.POST.getlist('new_author'),request.POST.getlist('new_author_relation'))
         edition.new_subjects=request.POST.getlist('new_subject')
         if edition.id and admin:
             for author in edition.authors.all():
                 if request.POST.has_key('delete_author_%s' % author.id):
-                    edition.authors.remove(author)
+                    edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
         if request.POST.has_key('add_author_submit') and admin:
             new_author_name = request.POST['add_author'].strip()
+            new_author_relation =  request.POST['add_author_relation']
             try:
                 author= models.Author.objects.get(name=new_author_name)
             except models.Author.DoesNotExist:
                 author=models.Author.objects.create(name=new_author_name)
-            edition.new_author_names.append(new_author_name)
+            edition.new_authors.append((new_author_name,new_author_relation))
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         elif request.POST.has_key('add_subject_submit') and admin:
             new_subject = request.POST['add_subject'].strip()
@@ -610,8 +611,8 @@ def new_edition(request, work_id, edition_id, by=None):
                                         })
                         else:
                             models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
-                for author_name in edition.new_author_names:
-                    edition.add_author(author_name)
+                for (author_name, author_relation) in edition.new_authors:
+                    edition.add_author(author_name,author_relation)
                 for subject_name in edition.new_subjects:
                     try:
                         subject= models.Subject.objects.get(name=subject_name)

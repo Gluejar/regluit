@@ -4,7 +4,7 @@
     Editions: <ol>
     {% for edition in work.editions.all %}
         <li>
-            <div class="editionbox">{{ edition.title }},  published by {{edition.publisher}} in {{ edition.publication_date }} with authors 
+            <div class="editionbox">{{ edition.title }},  published by {{edition.publisher}} in {{ edition.publication_date }} with creators 
             {% for author in edition.authors.all %}
                 {{author}}, 
             {% endfor %}

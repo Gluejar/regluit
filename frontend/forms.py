@@ -72,9 +72,15 @@ from regluit.pyepub import EPUB
 
 logger = logging.getLogger(__name__)
 nulls = [False, 'delete', '']
-
+CREATOR_RELATIONS = (
+    ('aut', 'Author'),
+    ('edt', 'Editor'),
+    ('trl', 'Translator'),
+    ('ill', 'Illustrator'),
+)
 class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500, required=False)
+    add_author_relation = forms.ChoiceField(choices=CREATOR_RELATIONS, initial=('aut', 'Author'))
     add_subject = forms.CharField(max_length=200, required=False)
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,

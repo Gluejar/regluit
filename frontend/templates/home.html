@@ -64,9 +64,9 @@ function put_un_in_cookie2(){
                                 <div>
                                     <div class="pubinfo">
                                         <div class="book-author">
-                                        <span>{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
-                                            and <span>{{ work.authors.1.name }}</span>
-                                        {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
+                                        <span>{{ work.relators.0.name }}</span>{% ifequal work.relators.count 2 %}
+                                            and <span>{{ work.relators.1.name }}</span>
+                                        {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
                                         {% endif %}
                                         </div>
                                         <div class="book-year"> 

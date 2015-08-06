@@ -41,6 +41,14 @@
   },    
   {
     "pk": 1, 
+    "model": "core.relation", 
+    "fields": {
+      "code": "aut", 
+      "name": "Author" 
+    }
+  }, 
+  {
+    "pk": 1, 
     "model": "core.premium", 
     "fields": {
       "campaign": null, 
