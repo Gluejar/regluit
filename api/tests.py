@@ -18,6 +18,7 @@ import regluit.core.isbn
 
 from regluit.core import bookloader, models
 from regluit.utils.localdatetime import now
+from regluit.api import models as apimodels
 
 class ApiTests(TestCase):
     work_id=None
@@ -124,4 +125,22 @@ class ApiTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/api/widget/%s/'%self.work_id)
         self.assertEqual(r.status_code, 200)
+
+class AllowedRepoTests(TestCase):
+    def setUp(self):
+        apimodels.AllowedRepo.objects.create(org='test',repo_name='test')
+        apimodels.AllowedRepo.objects.create(org='star',repo_name='*')
+
+    def test_urls(self):
+        #good
+        self.assertTrue(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.yaml')[0])
+        self.assertTrue(apimodels.repo_allowed('https://github.com/star/test/raw/master/metadata.yaml')[0])
+        # bad urls
+        self.assertFalse(apimodels.repo_allowed('auhf8peargp8ge')[0])
+        self.assertFalse(apimodels.repo_allowed('')[0])
+        self.assertFalse(apimodels.repo_allowed('http://github.com/test/test/raw/master/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/samples/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/branch/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/master/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
 

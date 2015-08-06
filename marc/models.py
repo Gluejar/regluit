@@ -42,6 +42,7 @@ marc_rels = {
     "trl": "translator",
     "unk": "unknown_contributor",
     }
+inverse_marc_rels = {v:k for k,v in  marc_rels.items()}
 
 class AbstractEdition:
     # define the methods and attributes an edition should have
