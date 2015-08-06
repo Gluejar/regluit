@@ -1209,6 +1209,8 @@ class Work(models.Model):
                     return "%s and %s" % (self.relators()[0].author.name, self.relators()[1].author.name)
                 else:
                     return "%s and %s, %ss" % (self.relators()[0].author.name, self.relators()[1].author.name, self.relators()[0].relation.name)
+            else:
+                return "%s (%s) and %s (%s)" % (self.relators()[0].author.name, self.relators()[0].relation.name, self.relators()[1].author.name, self.relators()[1].relation.name)
         elif self.relators().count()>2:
             auths = self.relators().order_by("relation__code")
             if auths[0].relation.code == 'aut':
