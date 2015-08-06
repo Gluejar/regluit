@@ -60,6 +60,7 @@ python-openid==2.2.5
 python-social-auth==0.2.6
 pytz==2012d
 rdflib==2.4.1
+rdflib-jsonld==0.3
 redis==2.6.2
 reportlab==3.1.8
 requests==2.6.0
