@@ -75,8 +75,11 @@ class BookLoaderTests(TestCase):
         self.client.login(username='core_test', password='core_test')
     
     def test_add_by_yaml(self):  
-        bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')
-        bookloader.load_from_yaml('https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml')
+        space_id = bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')
+        huck_id = bookloader.load_from_yaml('https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml')
+        space = models.Work.objects.get(id=space_id)
+        huck = models.Work.objects.get(id=huck_id)
+        self.assertEqual( huck.first_ebook().rights, "CC BY-NC")
         
     def test_valid_subject(self):
         self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))

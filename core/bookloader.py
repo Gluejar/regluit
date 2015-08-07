@@ -854,7 +854,7 @@ def load_from_yaml(yaml_url):
             ebook= models.Ebook.objects.create(
                 url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition ),
                 provider='Github',
-                rights = metadata.rights if metadata.rights in cc.CHOICES else None,
+                rights = metadata.rights if metadata.rights in cc.LICENSE_LIST_ALL else None,
                 format = 'epub',
                 edition = edition,
                 # version = metadata._version
