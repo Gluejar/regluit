@@ -1,4 +1,5 @@
 {% extends "basedocumentation.html" %}
+{% load url from future %}
 
 {% block title %}Privacy{% endblock %}
 
@@ -6,7 +7,7 @@
 
 <h2>Unglue.it Privacy Statement</h2>
 
-Date of last revision: May 8, 2015
+Date of last revision: August 18, 2015
 <ul class="bullets">
     <li><a href="#intro">Introduction</a></li>
     <li><a href="#howwespy">How we spy on you.</a></li>
@@ -48,7 +49,11 @@ We support <a href="https://en.wikipedia.org/wiki/Pseudonymity">pseudonymity</a>
 </li>
 
 <li>
-We self-host static resources. Many sites load sitewide scripts, images and fonts from third parties. for example: JQuery, FontAwesome, Bootstrap, <a href="http://go-to-hellman.blogspot.com/2014/12/stop-making-web-surveillance-bugs-by.html">Creative Commons buttons</a>. Our web pages get to you a bit slower, but we don't leak so much usage data.
+We self-host static resources. Many sites load sitewide scripts, images and fonts from third parties. for example: JQuery, FontAwesome, Bootstrap, <a href="http://go-to-hellman.blogspot.com/2014/12/stop-making-web-surveillance-bugs-by.html">Creative Commons buttons</a>. Our web pages get to you a bit slower, but we leak less usage data.
+</li>
+
+<li>
+We use <a href=" http://w3c.github.io/webappsec/specs/referrer-policy">referrer meta tags</a> to instruct your browser <a href="http://go-to-hellman.blogspot.com/2015/06/protect-reader-privacy-with-referrer.html">not to leak your usage trails</a> to the many websites we link to. 
 </li>
 </ul>
 
@@ -81,7 +86,7 @@ We use <a href="https://stripe.com/">Stripe</a> to collect payments. As a result
 </li>
 
 <li>
-We use avatar images from <a href="https://twitter.com/">Twitter</a>, <a href="https://facebook.com/">Facebook</a>, and <a href="https://gravatar.com/">Automattic's Gravatar service</a>. If you see an avatar on a page at unglue.it, one or more of these companies can tell what page on our site you're looking at. As you're probably aware, facebook <a href="https://www.facebook.com/policy.php">doesn't put much stock</a> in privacy. You can judge privacy policies at <a href="https://twitter.com/privacy?lang=en">Twitter</a> and <a href="http://automattic.com/privacy/">Automattic</a> for yourself.
+We use avatar images from <a href="https://twitter.com/">Twitter</a>, <a href="https://facebook.com/">Facebook</a>, and <a href="https://gravatar.com/">Automattic's Gravatar service</a>. If you see an avatar on a page at unglue.it and you use an older web browser that doesn't use Referrer meta tags, one or more of these companies can tell what page on our site you're looking at. As you're probably aware, facebook <a href="https://www.facebook.com/policy.php">doesn't put much stock</a> in privacy. You can judge privacy policies at <a href="https://twitter.com/privacy?lang=en">Twitter</a> and <a href="http://automattic.com/privacy/">Automattic</a> for yourself.
 </li>
 
 <li>
@@ -121,7 +126,7 @@ Some of your actions on the site are visible to others. Supporting free books is
 
 
 <p>
-If there are things you think we should be doing differently with respect to privacy, <a href="http://127.0.0.1:8000/feedback/?page=Privacy">please let us know!</a>
+If there are things you think we should be doing differently with respect to privacy, <a href="{% url 'feedback' %}?page=Privacy">please let us know!</a>
 </p>
 
 <h3 id="nokids">Unglue.it is not intended for Children</h3>
