@@ -12,7 +12,7 @@
 <dl>
 <dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
 
-<dd>Please email us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
+<dd><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Let us know!</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
 </dl>
 {% endif %}
 {% if location == 'basics' or location == 'faq' %}
@@ -122,7 +122,7 @@ Click on this <a href="{% url 'django.contrib.auth.views.password_reset' %}">for
 </dd>
 <dt>I never received an activation email after I signed up, or my activation email isn't working. What do I do?</dt>
 
-<dd>Check your spam folder for mail from notices@gluejar.com.  If that doesn't work, contact us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</dd>
+<dd>Check your spam folder for mail from notices@gluejar.com.  If that doesn't work,  <a href="{% url 'feedback' %}?page=no+activation+email">Let us know!</a></dd>
 
 <dt>How do I connect my Twitter, Facebook, GoodReads, and/or LibraryThing accounts?  How can I link to my personal web site?</dt>
 
@@ -157,7 +157,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 <dl>
 <dt>How can I contact Unglue.it?</dt>
 
-<dd>For support requests, <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  For general inquiries, use our Ask Questions Frequently account, <a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a>.  For rights inquiries, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.  Media requests, <a href="mailto:press@gluejar.com">press@gluejar.com</a></dd>
+<dd>For support requests, <a href="{% url 'feedback' %}?page=need+support">use our feedback form</a>.  For general inquiries, use our Ask Questions Frequently account, <a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a>.  For rights inquiries, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.  Media requests, <a href="mailto:press@gluejar.com">press@gluejar.com</a></dd>
 
 <dt>Who is Unglue.it?</dt>
 

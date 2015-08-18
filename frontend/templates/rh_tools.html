@@ -244,7 +244,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
 	    <li>Your ebooks must have ISBNs or OCLC numbers assigned.</li>
 	    <li>Your metadata should have title, authors, language, description.</li>
-	    <li>If you have a lot of books to enter, <a href="mailto:support@gluejar.com?subject=loading%20metadata">contact us</a> to load ONIX or CSV files for you.</li>
+	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
 	</ul></li>
 	{% if campaigns %}
 	<li class="checked">You've set up {{ campaigns.count }} campaign(s).  Manage them <a href="#managed_campaigns">above.</a></li>
@@ -284,5 +284,5 @@ Any print book can be scanned to create a digital file that can then become an e
 </ul>
 
 <h2>More Questions</h2>
-<p> Check the FAQ to the left, or <a href="/feedback">send us feedback.</a>
+<p> Check the FAQ to the left, or <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">send us feedback.</a>
 {% endblock %}
