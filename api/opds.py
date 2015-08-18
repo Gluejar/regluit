@@ -191,20 +191,24 @@ def get_facet_facet(facet_path):
     return Facet_Facet
 
 class creative_commons(Facet):
-    title = "Unglue.it Catalog:  Creative Commons Books"
-    feed_path = "creative_commons"
-    works = models.Work.objects.filter(editions__ebooks__isnull=False, 
+    def __init__(self):
+        self.title = "Unglue.it Catalog:  Creative Commons Books"
+        self.feed_path = "creative_commons"
+        self.works = models.Work.objects.filter(editions__ebooks__isnull=False, 
                         editions__ebooks__rights__in=cc.LICENSE_LIST).distinct()
-    description= "These Creative Commons licensed ebooks are free to read - the people who created them want you to read and share them."
+        self.description= "These Creative Commons licensed ebooks are free to read - the people who created them want you to read and share them."
+        self.facet_object = facets.get_facet_object(self.feed_path)
     
 class active_campaigns(Facet):
     """
     return opds feed for works associated with active campaigns
     """
-    title = "Unglue.it Catalog:  Books under Active Campaign"
-    feed_path = "active_campaigns"
-    works = models.Work.objects.filter(campaigns__status='ACTIVE', is_free = True)
-    description= "With your help we're raising money to make these books free to the world."
+    def __init__(self):
+        self.title = "Unglue.it Catalog:  Books under Active Campaign"
+        self.feed_path = "active_campaigns"
+        self.works = models.Work.objects.filter(campaigns__status='ACTIVE', is_free = True)
+        self.description= "With your help we're raising money to make these books free to the world."
+        self.facet_object = facets.get_facet_object(self.feed_path)
 
 def opds_feed_for_work(work_id):
     class single_work_facet:
