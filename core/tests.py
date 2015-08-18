@@ -68,12 +68,20 @@ from regluit.pyepub import EPUB
 from .epub import test_epub
 from .pdf import ask_pdf, test_pdf
 
+YAML_VERSIONFILE = os.path.join(os.path.dirname(__file__), '../test/versiontest.yaml')
+
 class BookLoaderTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
         self.client.login(username='core_test', password='core_test')
     
+    def test_add_by_local_yaml(self):  
+    
+        noebook_id = bookloader.load_from_yaml(YAML_VERSIONFILE)
+        noebook = models.Work.objects.get(id=noebook_id)
+        self.assertEqual( noebook.first_ebook(), None)
+        
     def test_add_by_yaml(self):  
         space_id = bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')
         huck_id = bookloader.load_from_yaml('https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml')

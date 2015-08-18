@@ -848,8 +848,8 @@ def load_from_yaml(yaml_url):
             break
     edition.save()
     # if there is a version, assume there is an ebook. if not, not.
-    if metadata._version:
-        #there's and ebook to link to!
+    if metadata._version and not metadata._version.startswith('0.0.'):
+        #there should be an ebook to link to!
         try:
             ebook= models.Ebook.objects.create(
                 url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition ),
@@ -860,7 +860,7 @@ def load_from_yaml(yaml_url):
                 # version = metadata._version
                 )
         except IntegrityError:
-            #duplicate url
+            #duplicate url or url isn't a master
             pass
     return work.id
         
@@ -870,5 +870,5 @@ def git_download_from_yaml_url(yaml_url, version, edition_name='book'):
     if yaml_url.endswith('raw/master/metadata.yaml'):
         repo_url = yaml_url[0:-24]
         #print (repo_url,version,edition_name)
-        ebook_url = repo_url + 'releases/download/v' + version + '/' + edition_name + '.epub'
+        ebook_url = repo_url + 'releases/download/' + version + '/' + edition_name + '.epub'
         return ebook_url
