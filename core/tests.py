@@ -69,6 +69,7 @@ from .epub import test_epub
 from .pdf import ask_pdf, test_pdf
 
 YAML_VERSIONFILE = os.path.join(os.path.dirname(__file__), '../test/versiontest.yaml')
+YAML_HUCKFILE = os.path.join(os.path.dirname(__file__), '../test/raw/master/metadata.yaml')
 
 class BookLoaderTests(TestCase):
     def setUp(self):
@@ -81,13 +82,15 @@ class BookLoaderTests(TestCase):
         noebook_id = bookloader.load_from_yaml(YAML_VERSIONFILE)
         noebook = models.Work.objects.get(id=noebook_id)
         self.assertEqual( noebook.first_ebook(), None)
+        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE)
+        huck = models.Work.objects.get(id=huck_id)
+        self.assertEqual( huck.first_ebook().rights, "CC BY-NC")
         
     def test_add_by_yaml(self):  
         space_id = bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')
         huck_id = bookloader.load_from_yaml('https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml')
         space = models.Work.objects.get(id=space_id)
         huck = models.Work.objects.get(id=huck_id)
-        self.assertEqual( huck.first_ebook().rights, "CC BY-NC")
         
     def test_valid_subject(self):
         self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
