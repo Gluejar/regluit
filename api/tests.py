@@ -126,6 +126,18 @@ class ApiTests(TestCase):
         r = self.client.get('/api/widget/%s/'%self.work_id)
         self.assertEqual(r.status_code, 200)
 
+class OPDSTests(TestCase):
+
+    def test_opds(self):
+        r = self.client.get('/api/opds/creative_commons/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/epub/?order_by=featured')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/by/pdf/?order_by=popular')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/active_campaigns/?order_by=title')
+        self.assertEqual(r.status_code, 200)
+
 class AllowedRepoTests(TestCase):
     def setUp(self):
         apimodels.AllowedRepo.objects.create(org='test',repo_name='test')
