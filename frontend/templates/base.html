@@ -45,7 +45,7 @@
 
 <body>
 <div id="feedback">
-<p><a href="/feedback/?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
+<p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
 </div>
 
 <div id="about_expandable">
@@ -170,7 +170,7 @@
             <li><a href="{{ faqurl }}">General FAQ</a></li>
             <li><a href="{% url 'faq_location' 'rightsholders' %}">Author/Publisher FAQ</a></li>
             <li><a href="{% url 'api_help' %}">API</a></li>
-            <li><a href="mailto:support@gluejar.com">support@gluejar.com</a>
+            <li><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Support</a>
             <li><a href="{{ librariesurl }}">Unglue.it &hearts; Libraries</a>
         </ul>
     </div>
