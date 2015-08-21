@@ -1164,13 +1164,13 @@ class Work(models.Model):
             return self.googlebooks_id
     
     def cover_image_small(self):
-        if self.preferred_edition and self.preferred_edition.cover_image_small():
+        if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_small()
         return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-            if self.preferred_edition and self.preferred_edition.cover_image_thumbnail():
+            if self.preferred_edition and self.preferred_edition.has_cover_image():
                 return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             pass
@@ -1730,6 +1730,15 @@ class Edition(models.Model):
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
+    
+    def has_cover_image(self):
+        if self.cover_image:        
+            return self.cover_image      
+        elif self.googlebooks_id:
+            return True
+        else:
+            return False
+    
     @property
     def publisher(self):
         if self.publisher_name:
