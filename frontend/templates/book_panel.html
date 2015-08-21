@@ -204,7 +204,7 @@
 		</div>
     </div>
     <div class="listview panelfront side1 book-thumb">
-         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top"><img src="{% if thumbnail %}{{ thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="Book cover" title="book cover" /></a>
+         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top"><img src="{{ thumbnail }}" alt="Book cover" title="book cover" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">

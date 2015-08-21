@@ -16,6 +16,7 @@ from datetime import timedelta, datetime
 from decimal import Decimal
 from notification import models as notification
 from postmonkey import PostMonkey, MailChimpException
+from sorl.thumbnail import get_thumbnail
 from tempfile import SpooledTemporaryFile
 
 '''
@@ -1711,16 +1712,20 @@ class Edition(models.Model):
             return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
     def cover_image_small(self):
-        if self.cover_image:        
-            return self.cover_image
+        #80 pixel high image
+        if self.cover_image: 
+            im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)       
+            return im.url
         elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
+        #128 pixel wide image
         if self.cover_image:        
-            return self.cover_image
+            im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95) 
+            return im.url      
         elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
