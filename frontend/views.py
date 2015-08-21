@@ -611,6 +611,10 @@ def new_edition(request, work_id, edition_id, by=None):
                                         })
                         else:
                             models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
+                for relator in edition.relators.all():
+                    if request.POST.has_key('change_relator_%s' % relator.id):
+                        new_relation = request.POST['change_relator_%s' % relator.id]
+                        relator.set(new_relation)
                 for (author_name, author_relation) in edition.new_authors:
                     edition.add_author(author_name,author_relation)
                 for subject_name in edition.new_subjects:

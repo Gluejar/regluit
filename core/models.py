@@ -1661,6 +1661,14 @@ class Relator(models.Model):
             return self.author.name
         else:
             return "%s (%s)" % (self.author.name, self.relation.name)
+            
+    def set (self, relation_code):
+        if self.relation.code != relation_code:
+            try:
+                self.relation = Relation.objects.get(code = relation_code)
+                self.save()
+            except Relation.DoesNotExist:
+                logger.warning("relation not found: code = %s" % relation_code)
         
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
