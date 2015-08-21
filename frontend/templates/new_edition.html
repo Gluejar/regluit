@@ -37,11 +37,9 @@
 		<b>Authors</b>:
 		{% if edition.pk and edition.relators or edition.new_authors %}
 		<ul>
-			{% if edition.pk and edition.authors %}
-				{% for relator in edition.relators.all %}
-					<li>{{ relator.name }}<input type="submit" name="delete_author_{{ relator.author.id }}" value="x"  class="deletebutton" title="delete author"></li>
-				{% endfor %}
-			{% endif %}
+            {% for relator in form.relators %}
+                <li>{{ relator.relator.name }} {{ relator.select }} <input type="submit" name="delete_author_{{ relator.relator.author.id }}" value="x"  class="deletebutton" title="delete author"></li>
+            {% endfor %}
 			{% for author in edition.new_authors %}
 				<li>{{ author.0 }}<input type="hidden" name="new_author" value="{{ author.0 }}" /> ({{ author.1 }})<input type="hidden" name="new_author_relation" value="{{ author.1 }}" /></li>
 			{% endfor %}

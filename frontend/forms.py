@@ -153,6 +153,14 @@ class EditionForm(forms.ModelForm):
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 10}))
     coverfile = forms.ImageField(required=False)
     
+    def __init__(self,  *args, **kwargs):
+        super(EditionForm, self).__init__(*args, **kwargs)
+        self.relators = []
+        if self.instance:
+            for relator in self.instance.relators.all():
+                select = forms.Select(choices=CREATOR_RELATIONS).render('change_relator_%s' % relator.id , relator.relation.code )
+                self.relators.append({'relator':relator,'select':select})
+    
     def clean(self):
         has_isbn = self.cleaned_data.get("isbn", False) not in nulls
         has_oclc = self.cleaned_data.get("oclc", False) not in nulls
