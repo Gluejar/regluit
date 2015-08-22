@@ -1261,8 +1261,13 @@ class Work(models.Model):
             self.save()
             return self.selected_edition 
         except IndexError:
-            #should only happen if there are no editions for the work
-            return None
+            #should only happen if there are no editions for the work, 
+            #which can happen when works are being merged
+            try:
+                return WasWork.objects.get(was=self.id).work.preferred_edition
+            except WasWork.DoesNotExist:
+                #should not happen
+                return None
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
