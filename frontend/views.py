@@ -217,14 +217,15 @@ def cover_width(work):
     return cover_width
 
 def home(request, landing=False):
-    if request.user.is_authenticated() and landing == False:
+    faves = None
+    if request.user.is_authenticated() :
         next=request.GET.get('next', False)
         if next:
             # should happen only for new users
             return HttpResponseRedirect(next)
-        return HttpResponseRedirect(reverse('supporter',
-            args=[request.user.username]))
-            
+        else:
+            wishes = request.user.wishlist.wishes_set.all().order_by('-created')[:4]
+            faves = [wish.work for wish in wishes]
     """
     use campaigns instead of works so that we can order by amount left,
     drive interest toward most-nearly-successful
@@ -244,7 +245,6 @@ def home(request, landing=False):
     
     cc_books = models.Work.objects.exclude(id = featured.id).filter(
                                           featured__isnull=False,
-                                          editions__ebooks__rights__in=cc.LICENSE_LIST
                                          ).distinct().order_by('-featured')[:4]
 
     """
@@ -311,6 +311,7 @@ def home(request, landing=False):
             'cc_books': cc_books,
             'most_wished': most_wished,
             'featured': featured,
+            'faves': faves,
         }
     )
 
