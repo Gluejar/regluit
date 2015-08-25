@@ -788,7 +788,7 @@ def add_missing_isbn_to_editions(max_num=None, confirm=False):
 class LookupFailure(Exception):
     pass
 
-IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gute'),('isbn','isbn'),('oclc','oclc'), ]
+IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'), ]
 
 def load_from_yaml(yaml_url):
     metadata = Pandata(yaml_url)

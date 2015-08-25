@@ -87,7 +87,7 @@
                                 </div>
                             {% else %}
                                 <div id="book-detail-img">
-                                    <img itemprop="image" src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                                    <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 </div>
                             {% endif %}
                             <div class="book-detail-info">

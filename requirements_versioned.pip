@@ -70,6 +70,7 @@ requests==2.6.0
 requests-oauthlib==0.4.2
 selenium==2.46.0
 six==1.9.0
+sorl-thumbnail==12.3
 ssh==1.7.14
 stevedore==0.4
 stripe==1.9.1

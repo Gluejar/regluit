@@ -24,7 +24,7 @@
 {% endif %}
 
 {% if admin %}
-<p>Title and ISBN 13 are required; the rest is optional, though a cover image link is strongly recommended.</p>
+<p>Title and ISBN 13 are required; the rest is optional, though a cover image is strongly recommended.</p>
 <form  enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
 	{{ form.work }}
@@ -106,7 +106,7 @@
 		OR...<br />
 		
 		{{ form.coverfile.errors }}{{ form.coverfile }}{{ form.coverfile.help_text }}
-		(<i>upload a cover image file, ideally 120px wide. </i>)<br />
+		(<i>upload a cover image file (we'll automatically size if for you). </i>)<br />
 		</p>
 	</div>    
 	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">

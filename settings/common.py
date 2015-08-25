@@ -146,7 +146,8 @@ INSTALLED_APPS = (
     'notification',
     'email_change',
     'ckeditor',
-    'storages',    
+    'storages', 
+    'sorl.thumbnail',   
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
