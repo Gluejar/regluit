@@ -6,6 +6,7 @@ import os
 import re
 import time
 import unittest
+from urlparse import (urlparse, urlunparse)
 
 from selenium import selenium, webdriver
 from selenium.common.exceptions import NoSuchElementException
@@ -204,8 +205,13 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     # click on biggest campaign list
     # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
     # http://stackoverflow.com/a/6141678/7782
-    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
-    biggest_campaign_link.click()
+    #biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
+    #biggest_campaign_link.click()
+    #time.sleep(1)
+    
+    # jump to /campaigns/ending#2
+    p = list(urlparse(UNGLUE_IT_URL)); p[2] = '/campaigns/ending#2'
+    sel.get(urlunparse(p))
     time.sleep(1)
     
     # pull up one of the campaigns to pledge to
