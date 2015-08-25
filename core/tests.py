@@ -788,6 +788,20 @@ class SafeGetWorkTest(TestCase):
         work = safe_get_work(w2_id)
         self.assertEqual(work, w1)
         self.assertRaises(Http404, safe_get_work, 3)
+
+class WorkTests(TestCase):    
+    def test_preferred_edition(self):
+        w1 = models.Work.objects.create()
+        w2 = models.Work.objects.create()
+        ww = models.WasWork.objects.create(work=w1, was= w2.id)
+        e1 = models.Edition.objects.create(work=w1)
+        self.assertEqual(e1, w1.preferred_edition)
+        e2 = models.Edition.objects.create(work=w1)
+        w1.selected_edition=e2
+        w1.save()
+        self.assertEqual(e2, w1.preferred_edition)
+        self.assertEqual(e2, w2.preferred_edition)
+
         
 class DownloadPageTest(TestCase):
     def test_download_page(self):
