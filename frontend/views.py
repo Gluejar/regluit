@@ -143,7 +143,6 @@ from regluit.payment.parameters import (
 )
 
 from regluit.utils.localdatetime import now, date_today
-from regluit.booxtream.exceptions import BooXtreamError
 from regluit.pyepub import InvalidEpub
 from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
