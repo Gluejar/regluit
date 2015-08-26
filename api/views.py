@@ -3,17 +3,21 @@ from tastypie.models import ApiKey
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.generic.base import View, TemplateView
 from django.http import (
     HttpResponse,
-    HttpResponseNotFound
+    HttpResponseNotFound,
+    HttpResponseRedirect,
 )
 
 import regluit.core.isbn
+from regluit.core.bookloader import load_from_yaml
 from regluit.api import opds
+from regluit.api.models import repo_allowed
 
 from regluit.core import models
 
@@ -36,6 +40,12 @@ def editions(request):
         {'editions':editions},
         context_instance=RequestContext(request)
     )    
+
+def negotiate_content(request,work_id):
+    if request.META.get('HTTP_ACCEPT', None):
+        if "opds-catalog" in request.META['HTTP_ACCEPT']:
+            return HttpResponseRedirect(reverse('opds_acqusition',args=['all'])+'?work='+work_id)
+    return HttpResponseRedirect(reverse('work', kwargs={'work_id': work_id}))
 
 def widget(request,isbn):
     """
@@ -61,6 +71,21 @@ def widget(request,isbn):
          context_instance=RequestContext(request)
      )
 
+def load_yaml(request):
+    if request.method == "GET":
+        return render_to_response('load_yaml.html', { }, context_instance=RequestContext(request))
+    repo_url = request.POST.get('repo_url', None)
+    if not repo_url:
+        return HttpResponse('needs repo_url')
+    (allowed,reason) =repo_allowed(repo_url)
+    if not allowed:
+        return HttpResponse('repo_url not allowed: '+reason)
+    try:
+        work_id = load_from_yaml(repo_url)
+        return HttpResponseRedirect(reverse('work', args=[work_id]))
+    except:    
+        return HttpResponse('unsuccessful')
+        
 class ApiHelpView(TemplateView):
     template_name = "api_help.html"
     def get_context_data(self, **kwargs):
@@ -103,6 +128,10 @@ class OPDSNavigationView(TemplateView):
 class OPDSAcquisitionView(View):
 
     def get(self, request, *args, **kwargs):
+        work = request.GET.get('work', None)
+        if work:
+            return HttpResponse(opds.opds_feed_for_work(work),
+                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
         facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')

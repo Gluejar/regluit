@@ -217,10 +217,15 @@ def cover_width(work):
     return cover_width
 
 def home(request, landing=False):
-    if request.user.is_authenticated() and landing == False:
-        return HttpResponseRedirect(reverse('supporter',
-            args=[request.user.username]))
-            
+    faves = None
+    if request.user.is_authenticated() :
+        next=request.GET.get('next', False)
+        if next:
+            # should happen only for new users
+            return HttpResponseRedirect(next)
+        else:
+            wishes = request.user.wishlist.wishes_set.all().order_by('-created')[:4]
+            faves = [wish.work for wish in wishes]
     """
     use campaigns instead of works so that we can order by amount left,
     drive interest toward most-nearly-successful
@@ -240,7 +245,6 @@ def home(request, landing=False):
     
     cc_books = models.Work.objects.exclude(id = featured.id).filter(
                                           featured__isnull=False,
-                                          editions__ebooks__rights__in=cc.LICENSE_LIST
                                          ).distinct().order_by('-featured')[:4]
 
     """
@@ -307,6 +311,7 @@ def home(request, landing=False):
             'cc_books': cc_books,
             'most_wished': most_wished,
             'featured': featured,
+            'faves': faves,
         }
     )
 
@@ -542,21 +547,22 @@ def new_edition(request, work_id, edition_id, by=None):
             }
     if request.method == 'POST' :
         form = None
-        edition.new_author_names=request.POST.getlist('new_author')
+        edition.new_authors=zip(request.POST.getlist('new_author'),request.POST.getlist('new_author_relation'))
         edition.new_subjects=request.POST.getlist('new_subject')
         if edition.id and admin:
             for author in edition.authors.all():
                 if request.POST.has_key('delete_author_%s' % author.id):
-                    edition.authors.remove(author)
+                    edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
         if request.POST.has_key('add_author_submit') and admin:
             new_author_name = request.POST['add_author'].strip()
+            new_author_relation =  request.POST['add_author_relation']
             try:
                 author= models.Author.objects.get(name=new_author_name)
             except models.Author.DoesNotExist:
                 author=models.Author.objects.create(name=new_author_name)
-            edition.new_author_names.append(new_author_name)
+            edition.new_authors.append((new_author_name,new_author_relation))
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         elif request.POST.has_key('add_subject_submit') and admin:
             new_subject = request.POST['add_subject'].strip()
@@ -606,8 +612,12 @@ def new_edition(request, work_id, edition_id, by=None):
                                         })
                         else:
                             models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
-                for author_name in edition.new_author_names:
-                    edition.add_author(author_name)
+                for relator in edition.relators.all():
+                    if request.POST.has_key('change_relator_%s' % relator.id):
+                        new_relation = request.POST['change_relator_%s' % relator.id]
+                        relator.set(new_relation)
+                for (author_name, author_relation) in edition.new_authors:
+                    edition.add_author(author_name,author_relation)
                 for subject_name in edition.new_subjects:
                     try:
                         subject= models.Subject.objects.get(name=subject_name)
@@ -3225,12 +3235,8 @@ def send_to_kindle(request, work_id, javascript='0'):
                 break
     
     if acq:
-        ebook_url = acq.get_mobi_url()
-        ebook_format = 'mobi'
-        filesize = None
+        ebook = acq.ebook()
         title = acq.work.kindle_safe_title()
-        ebook=None
-
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
@@ -3243,13 +3249,9 @@ def send_to_kindle(request, work_id, javascript='0'):
 
         # don't forget to increment the download counter!
         ebook.increment()
-        ebook_url = ebook.url
-        ebook_format = ebook.format
-        filesize = ebook.filesize
         logger.info('ebook: {0}, user_ip: {1}'.format(work_id, request.META['REMOTE_ADDR']))
         title = ebook.edition.work.kindle_safe_title()
-    context['ebook_url']=ebook_url
-    context['ebook_format']=ebook_format
+    context['ebook'] = ebook
 
     if request.POST.has_key('kindle_email'):
         kindle_email = request.POST['kindle_email']
@@ -3275,25 +3277,30 @@ def send_to_kindle(request, work_id, javascript='0'):
     * mime encoding will add 33% to filesize
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
-    filehandle = urllib.urlopen(ebook_url)
-    if not filesize:
+    try:
+        filehandle = urllib.urlopen(ebook.url)
+    except IOError:
+        # problems connection to the ebook source
+        logger.error("couldn't connect error: %s", ebook.url)
+        return local_response(request, javascript,  context, 5)
+    if not ebook.filesize:
         try:
-            filesize = int(filehandle.info().getheaders("Content-Length")[0])
-            if ebook:
-                ebook.filesize =  filesize if filesize < 2147483647 else 2147483647  # largest safe positive integer
+            ebook.filesize = int(filehandle.info().getheaders("Content-Length")[0])
+            if ebook.save:
+                ebook.filesize =  ebook.filesize if ebook.filesize < 2147483647 else 2147483647  # largest safe positive integer
                 ebook.save()
         except IndexError:
             # response has no Content-Length header probably a bad link
-            logger.error('Bad link error: %s', ebook_url)
+            logger.error('Bad link error: %s', ebook.url)
             return local_response(request, javascript,  context, 4)
-    if filesize > models.send_to_kindle_limit:
+    if ebook.filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)
         
     try:
         email = EmailMessage(from_email='notices@gluejar.com',
                 to=[kindle_email])
-        email.attach(title + '.' + ebook_format, filehandle.read())
+        email.attach(title + '.' + ebook.format, filehandle.read())
         email.send()
     except:
         logger.error('Unexpected error: %s', sys.exc_info())

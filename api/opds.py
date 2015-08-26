@@ -3,6 +3,7 @@ from itertools import islice
 from lxml import etree
 import datetime
 import urlparse
+from django.core.urlresolvers import reverse
 from django.utils.http import urlquote
 
 import pytz
@@ -70,28 +71,29 @@ def isbn_node(isbn):
     node.text = 'urn:ISBN:'+ isbn
     return node
 
-def work_node(work):
+def work_node(work, facet=None):
     
     node = etree.Element("entry")
     # title
     node.append(text_node("title", work.title))
     
     # id
-    node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=work.get_absolute_url())))
+    node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=reverse('work_identifier',kwargs={'work_id':work.id}))))
     
     # updated -- using creation date
-    node.append(text_node('updated', work.created.isoformat()))
+    node.append(text_node('updated', work.first_ebook().created.isoformat()))
     
     # links for all ebooks
-    
-    for ebook in work.ebooks():
+    ebooks=facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
+    for ebook in ebooks:
         link_node = etree.Element("link")
         
         # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
         
         link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
                                  "type":FORMAT_TO_MIMETYPE.get(ebook.format, ""),
-                                 "rel":"http://opds-spec.org/acquisition"})
+                                 "rel":"http://opds-spec.org/acquisition",
+                                 "{http://purl.org/dc/terms/}rights": str(ebook.rights)})
         node.append(link_node)
         
     # get the cover -- assume jpg?
@@ -121,7 +123,7 @@ def work_node(work):
     #<dcterms:publisher>Open Book Publishers</dcterms:publisher>
     if len(work.publishers()):
         for publisher in work.publishers():
-            node.append(text_node("{http://purl.org/dc/terms/}issued", publisher.name.name))
+            node.append(text_node("{http://purl.org/dc/terms/}publisher", publisher.name.name))
             
     # language
     #<dcterms:language>en</dcterms:language>
@@ -189,20 +191,37 @@ def get_facet_facet(facet_path):
     return Facet_Facet
 
 class creative_commons(Facet):
-    title = "Unglue.it Catalog:  Creative Commons Books"
-    feed_path = "creative_commons"
-    works = models.Work.objects.filter(editions__ebooks__isnull=False, 
+    def __init__(self):
+        self.title = "Unglue.it Catalog:  Creative Commons Books"
+        self.feed_path = "creative_commons"
+        self.works = models.Work.objects.filter(editions__ebooks__isnull=False, 
                         editions__ebooks__rights__in=cc.LICENSE_LIST).distinct()
-    description= "These Creative Commons licensed ebooks are free to read - the people who created them want you to read and share them."
+        self.description= "These Creative Commons licensed ebooks are free to read - the people who created them want you to read and share them."
+        self.facet_object = facets.get_facet_object(self.feed_path)
     
 class active_campaigns(Facet):
     """
     return opds feed for works associated with active campaigns
     """
-    title = "Unglue.it Catalog:  Books under Active Campaign"
-    feed_path = "active_campaigns"
-    works = models.Work.objects.filter(campaigns__status='ACTIVE', is_free = True)
-    description= "With your help we're raising money to make these books free to the world."
+    def __init__(self):
+        self.title = "Unglue.it Catalog:  Books under Active Campaign"
+        self.feed_path = "active_campaigns"
+        self.works = models.Work.objects.filter(campaigns__status='ACTIVE', is_free = True)
+        self.description= "With your help we're raising money to make these books free to the world."
+        self.facet_object = facets.get_facet_object(self.feed_path)
+
+def opds_feed_for_work(work_id):
+    class single_work_facet:
+        def __init__(self, work_id):
+            try:
+                works=models.Work.objects.filter(id=work_id)
+            except models.Work.DoesNotExist:
+                works=models.Work.objects.none()
+            self.works=works
+            self.title='Unglue.it work #%s' % work_id
+            self.feed_path=''
+            self.facet_object= facets.BaseFacet(None)
+    return opds_feed_for_works( single_work_facet(work_id) )
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     works = the_facet.works
@@ -276,7 +295,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     if page > 0:
         append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous 10")
     for work in works:
-        node = work_node(work)
+        node = work_node(work, facet=the_facet.facet_object)
         feed.append(node)
     
     return etree.tostring(feed, pretty_print=True)

@@ -24,7 +24,7 @@
 {% endif %}
 
 {% if admin %}
-<p>Title and ISBN 13 are required; the rest is optional, though a cover image link is strongly recommended.</p>
+<p>Title and ISBN 13 are required; the rest is optional, though a cover image is strongly recommended.</p>
 <form  enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
 	{{ form.work }}
@@ -35,15 +35,13 @@
 		
 		<p>
 		<b>Authors</b>:
-		{% if edition.pk and edition.authors or edition.new_author_names %}
+		{% if edition.pk and edition.relators or edition.new_authors %}
 		<ul>
-			{% if edition.pk and edition.authors %}
-				{% for author in edition.authors.all %}
-					<li>{{ author.name }}<input type="submit" name="delete_author_{{ author.id }}" value="x"  class="deletebutton" title="delete author"></li>
-				{% endfor %}
-			{% endif %}
-			{% for author in edition.new_author_names %}
-				<li>{{ author }}<input type="hidden" name="new_author" value="{{ author }}" /></li>
+            {% for relator in form.relators %}
+                <li>{{ relator.relator.name }} {{ relator.select }} <input type="submit" name="delete_author_{{ relator.relator.author.id }}" value="x"  class="deletebutton" title="delete author"></li>
+            {% endfor %}
+			{% for author in edition.new_authors %}
+				<li>{{ author.0 }}<input type="hidden" name="new_author" value="{{ author.0 }}" /> ({{ author.1 }})<input type="hidden" name="new_author_relation" value="{{ author.1 }}" /></li>
 			{% endfor %}
 		</ul>
         {% else %}
@@ -51,7 +49,7 @@
 		{% endif %}
 		</p>
 		
-		<p><b>Add an Author</b> (<I>Firstname Lastname</I>): {{ form.add_author.errors }}{{ form.add_author }}
+		<p><b>Add a Creator</b> (<I>Firstname Lastname</I>): {{ form.add_author.errors }}{{ form.add_author }}{{ form.add_author_relation.errors }}{{ form.add_author_relation }}
 		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
 
 		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
@@ -108,7 +106,7 @@
 		OR...<br />
 		
 		{{ form.coverfile.errors }}{{ form.coverfile }}{{ form.coverfile.help_text }}
-		(<i>upload a cover image file, ideally 120px wide. </i>)<br />
+		(<i>upload a cover image file (we'll automatically size if for you). </i>)<br />
 		</p>
 	</div>    
 	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">

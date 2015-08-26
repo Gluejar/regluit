@@ -488,7 +488,7 @@ Please fix the following before launching your campaign:
             <li>Have you <a href="{% url 'work_preview' campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
         </ul>
         
-        <p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please email unglue.it support (<a href="mailto:support@gluejar.com">support@gluejar.com</a>).</p>
+        <p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.</p>
     
         <p>If you're happy with your campaign, here's your moment of truth!</p>
     

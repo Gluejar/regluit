@@ -36,6 +36,7 @@ regluit imports
 from regluit import payment
 from regluit.core import models
 from regluit.marc.models import MARCRecord
+from regluit.api.models import AllowedRepo
 from regluit.core.lookups import (
     PublisherNameLookup,
     WorkLookup,
@@ -160,6 +161,10 @@ class PublisherNameAdmin(ModelAdmin):
     list_display = ('name', 'publisher')
     ordering = ('name',)
     search_fields = ['name']
+
+class RelationAdmin(ModelAdmin):
+    list_display = ('code', 'name')
+    search_fields = ['name']
     
 class EbookAdmin(ModelAdmin):
     search_fields = ('edition__title','^url')  # search by provider using leading url
@@ -229,6 +234,9 @@ class MARCRecordAdmin(ModelAdmin):
     date_hierarchy = 'created'
     form = MARCRecordAdminForm
 
+class AllowedRepoAdmin(ModelAdmin):
+    list_display = ('org', 'repo_name')
+
 admin_site = RegluitAdmin("Admin")
 
 admin_site.register(User, UserAdmin)
@@ -254,6 +262,8 @@ admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Press, PressAdmin)
 admin_site.register(models.Gift, GiftAdmin)
 admin_site.register(MARCRecord, MARCRecordAdmin)
+admin_site.register(AllowedRepo, AllowedRepoAdmin)
+admin_site.register(models.Relation, RelationAdmin)
 
 # payments
 

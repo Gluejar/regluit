@@ -87,7 +87,7 @@
                                 </div>
                             {% else %}
                                 <div id="book-detail-img">
-                                    <img itemprop="image" src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                                    <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 </div>
                             {% endif %}
                             <div class="book-detail-info">
@@ -96,9 +96,9 @@
                                 <div>
                                         <div class="pubinfo">
                                             <h3 class="book-author">
-                                            <span  itemprop="author">{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
-                                                and <span  itemprop="author">{{ work.authors.1.name }}</span>
-                                            {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span  itemprop="author">{{ author.name }}</span>{% endif %}{% endfor %}
+                                            <span  itemprop="author">{{ work.relators.0.name }}</span>{% ifequal work.authors.count 2 %}
+                                                and <span  itemprop="author">{{ work.relators.1.name }}</span>
+                                            {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author">{{ author.name }}</span>{% endif %}{% endfor %}
                                             {% endif %}
                                             </h3>
                                             <h3 class="book-year"> 

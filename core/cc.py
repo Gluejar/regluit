@@ -2,6 +2,8 @@
 # mostly constants related to Creative Commons
 # let's be DRY with these parameters
 
+## need to add versioned CC  entries
+
 INFO_CC = (
     ('CC BY-NC-ND', 'by-nc-nd', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)', 'http://creativecommons.org/licenses/by-nc-nd/3.0/', 'Creative Commons Attribution-NonCommercial-NoDerivs'),     
     ('CC BY-NC-SA', 'by-nc-sa', 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)', 'http://creativecommons.org/licenses/by-nc-sa/3.0/', 'Creative Commons Attribution-NonCommercial-ShareAlike'),
@@ -35,9 +37,15 @@ LICENSE_LIST =  [item[0] for item in INFO_CC]
 LICENSE_LIST_ALL =  [item[0] for item in INFO_ALL]
 FACET_LIST = [item[1] for item in INFO_ALL] 
 
+RIGHTS_ALIAS = {
+    "Public domain in the USA.":"PD-US",
+    }
+
+
 class CCLicense():
     @staticmethod
     def url(license):
+        license = RIGHTS_ALIAS.get(license, license)
         if license in LICENSE_LIST_ALL:
             return INFO_ALL[LICENSE_LIST_ALL.index(license)][3]
         else:

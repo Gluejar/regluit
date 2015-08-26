@@ -311,7 +311,7 @@ function highlightTarget(targetdiv) {
                 		        </div>
                 		    </div>
                 		    
-                            <br /><br /><hr />We'd also love to hear your <a href="/feedback">feedback</a>.
+                            <br /><br /><hr />We'd also love to hear your <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">feedback</a>.
                         </div>
                         {% else %}
                         <div class="empty-wishlist">

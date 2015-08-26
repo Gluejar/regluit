@@ -49,7 +49,7 @@ function put_un_in_cookie2(){
                                 {% if work.googlebooks_id %}
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" />
                                 {% else %}
-                                    <img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                                    <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 {% endif %}
                             </a>
                             <div class="quicktour" style=" padding-top: 10px;padding-left: 5px;">
@@ -64,9 +64,9 @@ function put_un_in_cookie2(){
                                 <div>
                                     <div class="pubinfo">
                                         <div class="book-author">
-                                        <span>{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
-                                            and <span>{{ work.authors.1.name }}</span>
-                                        {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
+                                        <span>{{ work.relators.0.name }}</span>{% ifequal work.relators.count 2 %}
+                                            and <span>{{ work.relators.1.name }}</span>
+                                        {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
                                         {% endif %}
                                         </div>
                                         <div class="book-year"> 
@@ -82,7 +82,21 @@ function put_un_in_cookie2(){
                         </div>
                     {% endwith %}
                 </div>
+                {% if faves %}
+                    <div class="spacer"></div>
+                    <h3 class="featured_books">Your Recent Faves</h3>
+                    <div>
+                        {% for work in faves %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url 'supporter' request.user %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                    </div>
+                    
+        	    {% endif %}
         	    {% if top_pledge %}
+                    <div class="spacer"></div>
                     <h3 class="featured_books">Pledge to Make These eBooks Free</h3>
                     <div>
                         {% for campaign in top_pledge %}
@@ -94,6 +108,16 @@ function put_un_in_cookie2(){
                         <a class="more_featured_books" href="{% url 'campaign_list' 'pledge' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
                 {% endif %}
+                <div class="spacer"></div>
+        	    <h3 class="featured_books">Read These Free Licensed eBooks</h3>
+        	    <div>
+                    {% for work in cc_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url 'cc_list' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                </div>
                 <div class="spacer"></div>
         	    {% if top_b2u %}
                     <h3 class="featured_books">Buy and Read These eBooks to Make Them Free</h3>
@@ -129,16 +153,6 @@ function put_un_in_cookie2(){
                         {% endwith %}
                     {% endfor %}
                     <a class="more_featured_books" href="{% url 'campaign_list' 'unglued' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                </div>
-                <div class="spacer"></div>
-        	    <h3 class="featured_books">Read These Free Creative Commons eBooks</h3>
-        	    <div>
-                    {% for work in cc_books %}
-                        {% with work.googlebooks_id as googlebooks_id %}
-                            {% include "book_panel.html" %}
-                        {% endwith %}
-                    {% endfor %}
-                    <a class="more_featured_books" href="{% url 'cc_list' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
         	        	

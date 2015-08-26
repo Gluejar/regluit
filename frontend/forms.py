@@ -72,9 +72,15 @@ from regluit.pyepub import EPUB
 
 logger = logging.getLogger(__name__)
 nulls = [False, 'delete', '']
-
+CREATOR_RELATIONS = (
+    ('aut', 'Author'),
+    ('edt', 'Editor'),
+    ('trl', 'Translator'),
+    ('ill', 'Illustrator'),
+)
 class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500, required=False)
+    add_author_relation = forms.ChoiceField(choices=CREATOR_RELATIONS, initial=('aut', 'Author'))
     add_subject = forms.CharField(max_length=200, required=False)
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,
@@ -146,6 +152,14 @@ class EditionForm(forms.ModelForm):
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 10}))
     coverfile = forms.ImageField(required=False)
+    
+    def __init__(self,  *args, **kwargs):
+        super(EditionForm, self).__init__(*args, **kwargs)
+        self.relators = []
+        if self.instance:
+            for relator in self.instance.relators.all():
+                select = forms.Select(choices=CREATOR_RELATIONS).render('change_relator_%s' % relator.id , relator.relation.code )
+                self.relators.append({'relator':relator,'select':select})
     
     def clean(self):
         has_isbn = self.cleaned_data.get("isbn", False) not in nulls

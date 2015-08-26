@@ -16,6 +16,7 @@ from datetime import timedelta, datetime
 from decimal import Decimal
 from notification import models as notification
 from postmonkey import PostMonkey, MailChimpException
+from sorl.thumbnail import get_thumbnail
 from tempfile import SpooledTemporaryFile
 
 '''
@@ -265,12 +266,24 @@ class Acq(models.Model):
     # when the acq is a loan, this points at the library's acq it's derived from 
     lib_acq = models.ForeignKey("self", related_name="loans", null=True)
     
+    class mock_ebook(object):
+            def __init__(self, acq):
+                self.url = acq.get_mobi_url()
+                self.format = 'mobi'
+                self.filesize = 0
+            def save(self):
+                # TODO how to handle filesize?
+                return True
+
+    def ebook(self):
+        return self.mock_ebook(self)
+        
     def __unicode__(self):
         if self.lib_acq:
             return "%s, %s: %s for %s" % (self.work, self.get_license_display(), self.lib_acq.user, self.user)
         else:
             return "%s, %s for %s" % (self.work, self.get_license_display(), self.user,)
-        
+       
     @property
     def expired(self):
         if self.expires is None:
@@ -1151,13 +1164,13 @@ class Work(models.Model):
             return self.googlebooks_id
     
     def cover_image_small(self):
-        if self.preferred_edition and self.preferred_edition.cover_image_small():
+        if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_small()
         return "/static/images/generic_cover_larger.png"
 
     def cover_image_thumbnail(self):
         try:
-            if self.preferred_edition and self.preferred_edition.cover_image_thumbnail():
+            if self.preferred_edition and self.preferred_edition.has_cover_image():
                 return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             pass
@@ -1171,21 +1184,40 @@ class Work(models.Model):
             if edition.authors.all().count()>0:
                 return edition.authors.all()
         return Author.objects.none()
+
+    def relators(self):
+        # assumes that they come out in the same order they go in!
+        if self.preferred_edition and self.preferred_edition.relators.all().count()>0:
+            return  self.preferred_edition.relators.all()
+        for edition in self.editions.all():
+            if edition.relators.all().count()>0:
+                return edition.relators.all()
+        return Relator.objects.none()
         
     def author(self):
         # assumes that they come out in the same order they go in!
-        if self.authors().count()>0:
-            return self.authors()[0].name
+        if self.relators().count()>0:
+            return self.relators()[0].name
         return ''
         
     def authors_short(self):
         # assumes that they come out in the same order they go in!
-        if self.authors().count()==1:
-            return self.authors()[0].name
-        elif self.authors().count()==2:
-            return "%s and %s" % (self.authors()[0].name, self.authors()[1].name)
-        elif self.authors().count()>2:
-            return "%s et al." % self.authors()[0].name
+        if self.relators().count()==1:
+            return self.relators()[0].name 
+        elif self.relators().count()==2:
+            if self.relators()[0].relation == self.relators()[1].relation:
+                if self.relators()[0].relation.code == 'aut':
+                    return "%s and %s" % (self.relators()[0].author.name, self.relators()[1].author.name)
+                else:
+                    return "%s and %s, %ss" % (self.relators()[0].author.name, self.relators()[1].author.name, self.relators()[0].relation.name)
+            else:
+                return "%s (%s) and %s (%s)" % (self.relators()[0].author.name, self.relators()[0].relation.name, self.relators()[1].author.name, self.relators()[1].relation.name)
+        elif self.relators().count()>2:
+            auths = self.relators().order_by("relation__code")
+            if auths[0].relation.code == 'aut':
+                return "%s et al." % auths[0].author.name
+            else:
+                return "%s et al. (%ss)" % (auths[0].author.name , auths[0].relation.name )
         return ''
     
     def kindle_safe_title(self):
@@ -1230,8 +1262,13 @@ class Work(models.Model):
             self.save()
             return self.selected_edition 
         except IndexError:
-            #should only happen if there are no editions for the work
-            return None
+            #should only happen if there are no editions for the work, 
+            #which can happen when works are being merged
+            try:
+                return WasWork.objects.get(was=self.id).work.preferred_edition
+            except WasWork.DoesNotExist:
+                #should not happen
+                return None
         
     def last_campaign_status(self):
         campaign = self.last_campaign()
@@ -1612,12 +1649,39 @@ class Author(models.Model):
                 reversed_name+=" "
                 reversed_name+=name
             return reversed_name
+
+class Relation(models.Model):
+    code = models.CharField(max_length=3, blank=False, db_index=True, unique=True)
+    name = models.CharField(max_length=30, blank=True,)
+    
+class Relator(models.Model):
+    relation =  models.ForeignKey('Relation', default=1) #first relation should have code='aut'
+    author  = models.ForeignKey('Author')
+    edition = models.ForeignKey('Edition', related_name='relators')
+    class Meta:
+        db_table = 'core_author_editions'
+        
+    @property
+    def name(self):
+        if self.relation.code == 'aut':
+            return self.author.name
+        else:
+            return "%s (%s)" % (self.author.name, self.relation.name)
+            
+    def set (self, relation_code):
+        if self.relation.code != relation_code:
+            try:
+                self.relation = Relation.objects.get(code = relation_code)
+                self.save()
+            except Relation.DoesNotExist:
+                logger.warning("relation not found: code = %s" % relation_code)
         
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200, unique=True)
     works = models.ManyToManyField("Work", related_name="subjects")
     is_visible = models.BooleanField(default = True)
+    authority = models.CharField(max_length=10, blank=False, default="")
 
     class Meta:
         ordering = ['name']
@@ -1653,20 +1717,33 @@ class Edition(models.Model):
             return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
     def cover_image_small(self):
-        if self.cover_image:        
-            return self.cover_image
+        #80 pixel high image
+        if self.cover_image: 
+            im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)       
+            return im.url
         elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
             
     def cover_image_thumbnail(self):
+        #128 pixel wide image
         if self.cover_image:        
-            return self.cover_image
+            im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95) 
+            return im.url      
         elif self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
+    
+    def has_cover_image(self):
+        if self.cover_image:        
+            return self.cover_image      
+        elif self.googlebooks_id:
+            return True
+        else:
+            return False
+    
     @property
     def publisher(self):
         if self.publisher_name:
@@ -1718,13 +1795,22 @@ class Edition(models.Model):
         except Identifier.DoesNotExist:
             return None
     
-    def add_author(self, author_name):
+    def add_author(self, author_name, relation='aut'):
         if author_name:
+            (author, created) = Author.objects.get_or_create(name=author_name)
+            (relation,created) = Relation.objects.get_or_create(code=relation)
+            (new_relator,created) = Relator.objects.get_or_create(author=author, edition=self)
+            if new_relator.relation != relation:
+                new_relator.relation = relation
+                new_relator.save()
+
+    def remove_author(self, author):
+        if author:
             try:
-                author= Author.objects.get(name=author_name)
-            except Author.DoesNotExist:
-                author= Author.objects.create(name=author_name)
-            author.editions.add(self)
+                relator = Relator.objects.get(author=author, edition=self)
+                relator.delete()
+            except Relator.DoesNotExist:
+                pass
 
     def set_publisher(self,publisher_name):
         if publisher_name and publisher_name != '':
@@ -1850,13 +1936,14 @@ send_to_kindle_limit=7492232
 class Ebook(models.Model):
     FORMAT_CHOICES = settings.FORMATS
     RIGHTS_CHOICES = cc.CHOICES
-    url = models.URLField(max_length=1024)
+    url = models.URLField(max_length=1024) #change to unique?
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     format = models.CharField(max_length=25, choices = FORMAT_CHOICES)
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     filesize = models.PositiveIntegerField(null=True)
+    version = None #placeholder
     
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
