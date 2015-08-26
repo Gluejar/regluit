@@ -68,9 +68,8 @@ FREEBASE_PASSWORD = ''
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
 
-# BASE_URL is a hard-coding of the domain name for site and used for PayPal IPN
 # Next step to try https
-BASE_URL = 'http://127.0.0.1'
+#BASE_URL = 'http://127.0.0.1'
 BASE_URL_SECURE = 'https://127.0.0.1:443'
 IPN_SECURE_URL = False
 
