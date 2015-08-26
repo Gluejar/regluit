@@ -73,7 +73,7 @@ AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 #AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 
-BASE_URL = 'http://0.0.0.0'
+#BASE_URL = 'http://0.0.0.0'
 BASE_URL_SECURE = 'https://0.0.0.0' 
 IPN_SECURE_URL = True
 

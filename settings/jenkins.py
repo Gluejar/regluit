@@ -55,7 +55,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'RWPnUkNieUToUtBFaXZjibsU'
 # registered to rdhye@gluejar.com on 2013.12.10
 GOOGLE_BOOKS_API_KEY = 'AIzaSyC-nBaK90PIsovMRbswPYEKgA6cJfYSDmY'
 
-BASE_URL = 'http://0.0.0.0/'
+#BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
 IPN_SECURE_URL = False
 

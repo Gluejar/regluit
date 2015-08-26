@@ -34,7 +34,7 @@ class BooXtream(object):
             apikey = settings.BOOXTREAM_API_KEY
         if not apiuser:
             apiuser = settings.BOOXTREAM_API_USER
-        self.endpoint = 'http://service.booxtream.com/'
+        self.endpoint = 'https://service.booxtream.com/'
         self.postrequest = partial(requests.post, timeout=timeout, auth=(apiuser,apikey))
         
 
