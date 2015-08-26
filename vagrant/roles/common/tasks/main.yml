@@ -18,6 +18,7 @@
         - redis-server
         - python-lxml
         - python-dev
+        - libjpeg-dev
         - libmysqlclient-dev
         - libxml2-dev
         - libxslt1-dev
