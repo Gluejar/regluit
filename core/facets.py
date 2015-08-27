@@ -112,7 +112,9 @@ class FormatFacetGroup(FacetGroup):
                 self.facet_name=facet_name
             def format_filter(query_set):
                 return query_set.filter(format=facet_name)
-            model_filters = {"Ebook": format_filter}
+            def edition_format_filter(query_set):
+                return query_set.filter(ebooks__format=facet_name)
+            model_filters = {"Ebook": format_filter, "Edition": edition_format_filter}
             def get_query_set(self):
                 return self._get_query_set().filter(editions__ebooks__format=self.facet_name)
             def template(self):
@@ -141,7 +143,9 @@ class LicenseFacetGroup(FacetGroup):
                 self.license = cc.ccinfo(facet_name)
             def license_filter(query_set):
                 return query_set.filter(rights=cc.ccinfo(facet_name))
-            model_filters = {"Ebook": license_filter}
+            def edition_license_filter(query_set):
+                return query_set.filter(ebooks__rights=cc.ccinfo(facet_name))
+            model_filters = {"Ebook": license_filter, "Edition": edition_license_filter}
             def get_query_set(self):
                 return self._get_query_set().filter(editions__ebooks__rights=self.license.license)
             def template(self):
@@ -224,7 +228,9 @@ class PublisherFacetGroup(FacetGroup):
                     self.publisher =  None
             def pub_filter(query_set):
                 return query_set.filter(edition__publisher_name__publisher__id=facet_name[4:])
-            model_filters = {"Ebook": pub_filter}
+            def edition_pub_filter(query_set):
+                return query_set.filter(publisher_name__publisher__id=facet_name[4:])
+            model_filters = {"Ebook": pub_filter, "Edition": edition_pub_filter }
             def get_query_set(self):
                 return self._get_query_set().filter(editions__publisher_name__publisher=self.publisher)
             def template(self):

@@ -20,8 +20,10 @@ def onix_feed(facet, page=None, order_by='newest'):
     feed.append(header(facet))
     works = islice(facet.works,  10 * page, 10 * page + 10) if page>0 else facet.works
     for work in works:
-        for edition in models.Edition.objects.filter(work=work,ebooks__isnull=False).distinct():
-            feed.append(product(edition))
+        editions = models.Edition.objects.filter(work=work,ebooks__isnull=False)
+        editions = facet.facet_object.filter_model("Edition",editions).distinct()
+        for edition in editions:
+            feed.append(product(edition, facet.facet_object))
     
     return etree.tostring(feed, pretty_print=True)
     
@@ -42,8 +44,7 @@ def header(facet=None):
     header_node.append(text_node("MessageNote", facet.title if facet else "Unglue.it Editions"))
     return header_node
 
-def product(edition):
-    print edition.id
+def product(edition, facet=None):
     work=edition.work
     product_node = etree.Element("Product")
     product_node.append(text_node("RecordReference", "it.unglue.work.%s.%s" % (work.id, edition.id)))
@@ -64,7 +65,9 @@ def product(edition):
     descriptive_node.append(text_node("ProductComposition", "00" )) # single item 
     descriptive_node.append(text_node("ProductForm", "ED" )) # download 
     ebook = None
-    for ebook in edition.ebooks.all():
+    ebooks=facet.filter_model("Ebook",edition.ebooks.all()) if facet else edition.ebooks.all()
+
+    for ebook in ebooks:
         if ebook.format=='epub':
             descriptive_node.append(text_node("ProductFormDetail", "E101" )) 
         elif ebook.format=='pdf':
@@ -161,7 +164,7 @@ def product(edition):
     supplier_node =  etree.SubElement(supply_detail_node,"Supplier")
     supplier_node.append(text_node("SupplierRole", '11')) #non-exclusive distributer
     supplier_node.append(text_node("SupplierName", 'Unglue.it')) #non-exclusive distributer
-    for ebook in edition.ebooks.all():
+    for ebook in ebooks:
         website_node =  etree.SubElement(supplier_node,"Website")
         website_node.append(text_node("WebsiteRole", '29')) #full content
         website_node.append(text_node("WebsiteDescription", '%s file download' % ebook.format, attrib={'textformat':'06'})) #full content
