@@ -7,7 +7,6 @@ class Bisac(object):
         for key in bisac.keys():
             if bisac[key]['notation'].endswith('000000'):
                 top_cat = key.split('/')[0].strip()
-                print top_cat
                 self.top_categories[top_cat] = bisac[key]['notation']
         self.inv_top_categories = {v: k for k, v in self.top_categories.items()}
     

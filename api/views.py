@@ -12,6 +12,7 @@ from django.http import (
     HttpResponse,
     HttpResponseNotFound,
     HttpResponseRedirect,
+    Http404,
 )
 
 import regluit.core.isbn
@@ -147,17 +148,22 @@ class OPDSAcquisitionView(View):
 class OnixView(View):
 
     def get(self, request, *args, **kwargs):
+        facet = kwargs.get('facet', None)
+        if facet:
+            max = request.GET.get('max', 100)
+            try:
+                max = int(max)
+            except:
+                max = None
+            facet_class = opds.get_facet_class(facet)()
+            return HttpResponse(onix.onix_feed(facet_class, max),
+                                content_type="text/xml")
         work = request.GET.get('work', None)
         if work:
+            try:
+                work=models.safe_get_work(work)
+            except models.Work.DoesNotExist:
+                raise Http404 
             return HttpResponse(onix.onix_feed_for_work(work),
                             content_type="text/xml")
-        facet = kwargs.get('facet')
-        page = request.GET.get('page', None)
-        order_by =  request.GET.get('order_by', 'newest')
-        try:
-            page = int(page)
-        except:
-            page = None
-        facet_class = opds.get_facet_class(facet)()
-        return HttpResponse(onix.onix_feed(facet_class, page, order_by),
-                            content_type="text/xml")
+        raise Http404

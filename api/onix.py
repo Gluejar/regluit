@@ -15,10 +15,10 @@ def text_node(tag, text, attrib={}):
     node.text = text
     return node
 
-def onix_feed(facet, page=None, order_by='newest'):
+def onix_feed(facet, max=None):
     feed = etree.fromstring(feed_xml)
     feed.append(header(facet))
-    works = islice(facet.works,  10 * page, 10 * page + 10) if page>0 else facet.works
+    works = facet.works[0:max] if max else facet.works
     for work in works:
         editions = models.Edition.objects.filter(work=work,ebooks__isnull=False)
         editions = facet.facet_object.filter_model("Edition",editions).distinct()
@@ -128,10 +128,10 @@ def product(edition, facet=None):
     desc = work.description + '<br /><br />Listed by <a href="https://unglue.it/work/%s/">Unglue.it</a>.' % work.id
     try :
         content = etree.XML("<div>" + desc + "</div>")
-        content_node =  etree.SubElement(desc_node, "Text",attrib={"textformat":"05"}) #xhtml
+        content_node =  etree.SubElement(desc_node, "Text", attrib={"textformat":"05"}) #xhtml
         content_node.append(content)
     except etree.XMLSyntaxError:
-        content_node = etree.SubElement(desc_node, attrib={"textformat":"02"}) #html
+        content_node = etree.SubElement(desc_node, "Text", attrib={"textformat":"02"}) #html
         content_node.text = etree.CDATA(desc)
     supp_node = etree.SubElement(coll_node, "SupportingResource")
     supp_node.append(text_node("ResourceContentType", '01')) #front cover
@@ -146,9 +146,10 @@ def product(edition, facet=None):
 
     # Publishing Detail Block
     pubdetail_node =  etree.SubElement(product_node, "PublishingDetail")
-    pub_node =  etree.SubElement(pubdetail_node, "Publisher")
-    pub_node.append(text_node("PublishingRole", '01')) #publisher
-    pub_node.append(text_node("PublisherName", edition.publisher_name.name))
+    if edition.publisher_name:
+        pub_node =  etree.SubElement(pubdetail_node, "Publisher")
+        pub_node.append(text_node("PublishingRole", '01')) #publisher
+        pub_node.append(text_node("PublisherName", edition.publisher_name.name))
     pubdetail_node.append(text_node("PublishingStatus", '00')) #unspecified
     if edition.publication_date:
         pubdate_node =  etree.SubElement(pubdetail_node, "PublishingDate")
