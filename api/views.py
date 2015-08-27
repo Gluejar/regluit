@@ -16,7 +16,7 @@ from django.http import (
 
 import regluit.core.isbn
 from regluit.core.bookloader import load_from_yaml
-from regluit.api import opds
+from regluit.api import opds, onix
 from regluit.api.models import repo_allowed
 
 from regluit.core import models
@@ -142,3 +142,22 @@ class OPDSAcquisitionView(View):
         facet_class = opds.get_facet_class(facet)()
         return HttpResponse(facet_class.feed(page,order_by),
                             content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+
+
+class OnixView(View):
+
+    def get(self, request, *args, **kwargs):
+        work = request.GET.get('work', None)
+        if work:
+            return HttpResponse(onix.onix_feed_for_work(work),
+                            content_type="text/xml")
+        facet = kwargs.get('facet')
+        page = request.GET.get('page', None)
+        order_by =  request.GET.get('order_by', 'newest')
+        try:
+            page = int(page)
+        except:
+            page = None
+        facet_class = opds.get_facet_class(facet)()
+        return HttpResponse(onix.onix_feed(facet_class, page, order_by),
+                            content_type="text/xml")
