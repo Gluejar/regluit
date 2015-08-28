@@ -113,12 +113,20 @@ class AuthorAdmin(ModelAdmin):
     ordering = ('name',)
     exclude = ('editions',)
 
+subject_authorities = (('','keywords'),('lcsh', 'LC subjects'), ('lcc', 'LC classifications'), ('bisacsh', 'BISAC heading'),  )
+class SubjectAdminForm(forms.ModelForm):
+    authority = forms.ChoiceField(choices=subject_authorities, required=False )
+    class Meta(object):
+        model = models.Subject
+        fields = 'name', 'authority', 'is_visible'
+    
+    
 class SubjectAdmin(ModelAdmin):
     search_fields = ('name',)
     date_hierarchy = 'created'
     ordering = ('name',)
-    exclude = ('works',)
-
+    form = SubjectAdminForm
+    
 class EditionAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
             WorkLookup,
