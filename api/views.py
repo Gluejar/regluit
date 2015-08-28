@@ -46,6 +46,9 @@ def negotiate_content(request,work_id):
     if request.META.get('HTTP_ACCEPT', None):
         if "opds-catalog" in request.META['HTTP_ACCEPT']:
             return HttpResponseRedirect(reverse('opds_acqusition',args=['all'])+'?work='+work_id)
+        elif "text/xml" in request.META['HTTP_ACCEPT']:
+            return HttpResponseRedirect(reverse('onix',args=['all'])+'?work='+work_id)
+    
     return HttpResponseRedirect(reverse('work', kwargs={'work_id': work_id}))
 
 def widget(request,isbn):
@@ -148,7 +151,15 @@ class OPDSAcquisitionView(View):
 class OnixView(View):
 
     def get(self, request, *args, **kwargs):
-        facet = kwargs.get('facet', None)
+        work = request.GET.get('work', None)
+        if work:
+            try:
+                work=models.safe_get_work(work)
+            except models.Work.DoesNotExist:
+                raise Http404 
+            return HttpResponse(onix.onix_feed_for_work(work),
+                            content_type="text/xml")
+        facet = kwargs.get('facet', 'all')
         if facet:
             max = request.GET.get('max', 100)
             try:
@@ -158,12 +169,3 @@ class OnixView(View):
             facet_class = opds.get_facet_class(facet)()
             return HttpResponse(onix.onix_feed(facet_class, max),
                                 content_type="text/xml")
-        work = request.GET.get('work', None)
-        if work:
-            try:
-                work=models.safe_get_work(work)
-            except models.Work.DoesNotExist:
-                raise Http404 
-            return HttpResponse(onix.onix_feed_for_work(work),
-                            content_type="text/xml")
-        raise Http404
