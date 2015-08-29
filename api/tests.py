@@ -126,7 +126,11 @@ class ApiTests(TestCase):
         r = self.client.get('/api/widget/%s/'%self.work_id)
         self.assertEqual(r.status_code, 200)
 
-class OPDSTests(TestCase):
+class FeedTests(TestCase):
+    def setUp(self):
+        edition = bookloader.add_by_isbn_from_google(isbn='0441007465')
+        ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
+        self.test_work_id = edition.work.id
 
     def test_opds(self):
         r = self.client.get('/api/opds/creative_commons/')
@@ -136,6 +140,18 @@ class OPDSTests(TestCase):
         r = self.client.get('/api/opds/by/pdf/?order_by=popular')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/api/opds/active_campaigns/?order_by=title')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/?work=%s' % self.test_work_id)
+        self.assertEqual(r.status_code, 200)
+
+    def test_nix(self):
+        r = self.client.get('/api/onix/by/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/onix/cc0/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/onix/epub/?max=10')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/onix/?work=%s' % self.test_work_id)
         self.assertEqual(r.status_code, 200)
 
 class AllowedRepoTests(TestCase):

@@ -1902,6 +1902,9 @@ def safe_get_work(work_id):
             work = WasWork.objects.get(was = work_id).work
         except WasWork.DoesNotExist:
             raise Work.DoesNotExist()
+    except ValueError:
+        #work_id is not a number
+        raise Work.DoesNotExist()
     return work
 
 FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
