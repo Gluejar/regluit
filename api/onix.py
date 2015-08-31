@@ -125,7 +125,7 @@ def product(edition, facet=None):
     desc_node =  etree.SubElement(coll_node, "TextContent")
     desc_node.append(text_node("TextType", '03')) # description
     desc_node.append(text_node("ContentAudience", '00')) #unrestricted
-    desc = work.description + '<br /><br />Listed by <a href="https://unglue.it/work/%s/">Unglue.it</a>.' % work.id
+    desc = (work.description if work.description else '') + '<br /><br />Listed by <a href="https://unglue.it/work/%s/">Unglue.it</a>.' % work.id
     try :
         content = etree.XML("<div>" + desc + "</div>")
         content_node =  etree.SubElement(desc_node, "Text", attrib={"textformat":"05"}) #xhtml
