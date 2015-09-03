@@ -48,9 +48,7 @@ def header(facet=None):
 def product(edition, facet=None):
     ebooks=facet.filter_model("Ebook",edition.ebooks.filter(active=True)) if facet else edition.ebooks.filter(active=True)
     # Just because an edition satisfies 2 facets with multiple ebooks doesn't mean that there is a single ebook satisfies both facets
-    for ebook in ebooks:
-        break
-    else:
+    if not ebooks.exists():
         return None
         
     work=edition.work
