@@ -74,7 +74,8 @@ def product(edition, facet=None):
             descriptive_node.append(text_node("ProductFormDetail", "E107" )) 
         elif ebook.format=='mobi':
             descriptive_node.append(text_node("ProductFormDetail", "E116" )) 
-    if ebook.rights:
+
+    if ebook and ebook.rights:
         license_node =  etree.SubElement(descriptive_node, "EpubLicense")
         license_node.append(text_node("EpubLicenseName", ebook.rights )) 
         lic_expr_node =  etree.SubElement(license_node, "EpubLicenseExpression")
