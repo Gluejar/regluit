@@ -23,8 +23,9 @@ def onix_feed(facet, max=None):
         editions = models.Edition.objects.filter(work=work,ebooks__isnull=False)
         editions = facet.facet_object.filter_model("Edition",editions).distinct()
         for edition in editions:
-            feed.append(product(edition, facet.facet_object))
-    
+            edition_prod = product(edition, facet.facet_object)
+            if edition_prod:
+                feed.append(edition_prod)    
     return etree.tostring(feed, pretty_print=True)
     
 def onix_feed_for_work(work):
@@ -45,6 +46,11 @@ def header(facet=None):
     return header_node
 
 def product(edition, facet=None):
+    ebooks=facet.filter_model("Ebook",edition.ebooks.filter(active=True)) if facet else edition.ebooks.filter(active=True)
+    # Just because an edition satisfies 2 facets with multiple ebooks doesn't mean that there is a single ebook satisfies both facets
+    if not ebooks.exists():
+        return None
+        
     work=edition.work
     product_node = etree.Element("Product")
     product_node.append(text_node("RecordReference", "it.unglue.work.%s.%s" % (work.id, edition.id)))
@@ -64,9 +70,8 @@ def product(edition, facet=None):
     descriptive_node =  etree.SubElement(product_node, "DescriptiveDetail")
     descriptive_node.append(text_node("ProductComposition", "00" )) # single item 
     descriptive_node.append(text_node("ProductForm", "ED" )) # download 
-    ebook = None
-    ebooks=facet.filter_model("Ebook",edition.ebooks.all()) if facet else edition.ebooks.all()
 
+    ebook = None
     for ebook in ebooks:
         if ebook.format=='epub':
             descriptive_node.append(text_node("ProductFormDetail", "E101" )) 
