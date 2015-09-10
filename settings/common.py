@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'regluit.frontend',
     'regluit.api',
+    'regluit.bisac',
     'regluit.core',
     'regluit.marc',
     'regluit.payment',
@@ -147,7 +148,8 @@ INSTALLED_APPS = (
     'email_change',
     'ckeditor',
     'storages', 
-    'sorl.thumbnail',   
+    'sorl.thumbnail',
+    'mptt',   
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
