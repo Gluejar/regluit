@@ -10,6 +10,9 @@ class BisacHeading(MPTTModel):
 
     class MPTTMeta:
         order_insertion_by = ['notation']
+    
+    def __unicode__(self):
+        return self.full_label
         
 def populate_bisac_headings():
     for key in bisac.keys():
