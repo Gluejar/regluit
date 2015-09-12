@@ -790,6 +790,16 @@ class LookupFailure(Exception):
 
 IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'), ]
 
+def unreverse(name):
+    if not ',' in name:
+        return name
+    (last, rest) = name.split(',', 1)
+    if not ',' in rest:
+        return '%s %s' % (rest.strip(),last.strip())
+    (first, rest) = rest.split(',', 1)
+    return '%s %s, %s' % (first.strip(),last.strip(),rest.strip())
+    
+
 def load_from_yaml(yaml_url):
     metadata = Pandata(yaml_url)
     #find an work to associate
@@ -828,7 +838,7 @@ def load_from_yaml(yaml_url):
             rel_code=inverse_marc_rels.get(key,'aut')
             creators = creators if isinstance(creators,list) else [creators]
             for creator in creators:
-                edition.add_author(creator.get('agent_name',''),relation=rel_code)
+                edition.add_author(unreverse(creator.get('agent_name','')),relation=rel_code)
     for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
         if isinstance(yaml_subject, tuple):
             (authority, heading)  = yaml_subject
