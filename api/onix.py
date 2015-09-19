@@ -98,6 +98,7 @@ def product(edition, facet=None):
         contrib_node.append(text_node("SequenceNumber", unicode(contrib_i )))
         contrib_node.append(text_node("ContributorRole", relator_contrib.get(contrib.relation.code,"") ))
         contrib_node.append(text_node("PersonName", contrib.author.name))
+        contrib_node.append(text_node("PersonNameInverted", contrib.author.last_name_first))
     (lang, locale) = (edition.work.language, None)
     if '_' in lang:
         (lang, locale) = lang.split('_')
