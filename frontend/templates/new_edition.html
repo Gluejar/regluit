@@ -196,7 +196,9 @@ ul.fancytree-container {
 
 <div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
 <div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
+{% if edition.id %}
 <div><a href="{% url 'manage_ebooks' edition.id  %}">Add ebooks for this edition</a></div>
+{% endif %}
 {% if request.user.is_staff %}
 <div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
 {% endif %}
