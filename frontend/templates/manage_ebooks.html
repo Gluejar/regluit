@@ -28,11 +28,11 @@
 {% include 'edition_upload.html' %}
 
 
+{% if request.user.is_staff %}
 <h2>More Edition Management</h2>
 
 <div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
 <div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
-{% if request.user.is_staff %}
 <div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
 <div><a href="{% url 'new_edition' edition.work.id edition.id %}">Edit the edition</a></div>
 {% endif %}

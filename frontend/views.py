@@ -635,6 +635,14 @@ def new_edition(request, work_id, edition_id, by=None):
 
 @login_required
 def manage_ebooks(request, edition_id, by=None):
+    if edition_id:
+        try:
+            edition = models.Edition.objects.get(id = edition_id)
+        except models.Edition.DoesNotExist:
+            raise Http404
+        work = edition.work
+    else:
+        raise Http404
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
     # if the work and edition are set, we save the edition and set the work    
@@ -648,11 +656,6 @@ def manage_ebooks(request, edition_id, by=None):
             admin = True
     elif work==None and request.user.rights_holder.count():
         admin = True
-    if edition_id:
-        try:
-            edition = models.Edition.objects.get(id = edition_id)
-        except models.Edition.DoesNotExist:
-            raise Http404
     if request.method == 'POST' :
         edition.new_authors=zip(request.POST.getlist('new_author'),request.POST.getlist('new_author_relation'))
         edition.new_subjects=request.POST.getlist('new_subject')
