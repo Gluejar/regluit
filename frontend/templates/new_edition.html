@@ -58,10 +58,14 @@ ul.fancytree-container {
             var li = $j(this).parent();
             
             // perform action
+            {% if edition.work %}
             jQuery.post('{% url 'kw_edit' edition.work.id %}', {'remove_kw': kw, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data) {
                 li.html('kw removed');
+            });
+            {% else %}
+            li.html('kw removed');
+            {% endif %}
         });
-    });
     // this is the id of the submit button
 
     $j('#add_subject_submit').click(function(event) { 
