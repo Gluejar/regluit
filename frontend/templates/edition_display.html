@@ -33,12 +33,13 @@
             {% endif %}
             {% if not managing %}
                 {% if user.is_staff %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition/Add ebook link</a><br />
+                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
                 {% else %}{% if user in work.last_campaign.managers.all %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition/Add ebook link</a><br />
-                {% else %}{% if user.is_authenticated %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Add ebook link</a><br />
-                {% endif %}{% endif %}{% endif %}
+                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
+                {% endif %}{% endif %}
+                {% if user.is_authenticated %}
+                    <a href="{% url 'manage_ebooks' edition.id %}">Add ebook link</a><br />
+                {% endif %}
                 {% if edition.googlebooks_id %}
                     See <a href="https://encrypted.google.com/books?id={{ edition.googlebooks_id }}">this edition on Google Books</a><br />
                 {% endif %} 

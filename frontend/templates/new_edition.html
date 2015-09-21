@@ -169,7 +169,7 @@ ul.fancytree-container {
             </ul>
             
             <b>Add a Subject</b>: {{ form.add_subject.errors }}{{ form.add_subject }}
-            <a class="fakeinput" id="add_subject_submit" >Add Subject</a></p>
+            <a class="fakeinput" id="add_subject_submit"  style="font-size: smaller;" >Add Subject</a></p>
         <p id="tree" name="is_bisac"><b>Add BISAC Subject</b>:
         
         </p>
@@ -188,7 +188,7 @@ ul.fancytree-container {
 		(<i>upload a cover image file (we'll automatically size if for you). </i>)<br />
 		</p>
 	</div>    
-	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
+	<input type="submit" name="create_new_edition" style="font-size: larger;" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>
 {% if edition.work %}
 
@@ -196,6 +196,7 @@ ul.fancytree-container {
 
 <div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
 <div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
+<div><a href="{% url 'manage_ebooks' edition.id  %}">Add ebooks for this edition</a></div>
 {% if request.user.is_staff %}
 <div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
 {% endif %}
@@ -209,7 +210,6 @@ ul.fancytree-container {
     Sorry, there's no work specified.
     {% endif %}
 {% endif %}
-{% include 'edition_upload.html' %}
 
 {% endblock %}
 

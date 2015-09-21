@@ -570,14 +570,6 @@ def new_edition(request, work_id, edition_id, by=None):
                 author=models.Author.objects.create(name=new_author_name)
             edition.new_authors.append((new_author_name,new_author_relation))
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif edition.id and request.POST.has_key('ebook_%d-edition' % edition.id):
-            edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
-            if edition.ebook_form.is_valid():
-                edition.ebook_form.save()
-                alert = 'Thanks for adding an ebook to unglue.it!'
-            else: 
-                alert = 'your submitted ebook had errors'
-            form = EditionForm(instance=edition, initial=initial)
         elif not form  and admin:
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
@@ -634,15 +626,57 @@ def new_edition(request, work_id, edition_id, by=None):
                     edition.save()
                 return HttpResponseRedirect(work_url)
     else:
-        if edition.pk:
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
         form = EditionForm(instance=edition, initial=initial)
+    return render(request, 'new_edition.html', {
+            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
+                 
+        })
+
+
+@login_required
+def manage_ebooks(request, edition_id, by=None):
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")
+    # if the work and edition are set, we save the edition and set the work    
+    
+    alert = ''  
+    admin = False
+    if request.user.is_staff :
+        admin = True
+    elif work and work.last_campaign():
+        if request.user in work.last_campaign().managers.all():
+            admin = True
+    elif work==None and request.user.rights_holder.count():
+        admin = True
+    if edition_id:
+        try:
+            edition = models.Edition.objects.get(id = edition_id)
+        except models.Edition.DoesNotExist:
+            raise Http404
+    if request.method == 'POST' :
+        edition.new_authors=zip(request.POST.getlist('new_author'),request.POST.getlist('new_author_relation'))
+        edition.new_subjects=request.POST.getlist('new_subject')
+        if edition.id and admin:
+            for author in edition.authors.all():
+                if request.POST.has_key('delete_author_%s' % author.id):
+                    edition.remove_author(author)
+                    form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    break
+        if  request.POST.has_key('ebook_%d-edition' % edition.id):
+            edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
+            if edition.ebook_form.is_valid():
+                edition.ebook_form.save()
+                alert = 'Thanks for adding an ebook to unglue.it!'
+            else: 
+                alert = 'your submitted ebook had errors'
+    else:
+        edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     try:
         show_ebook_form = edition.work.last_campaign().status not in ['ACTIVE','INITIALIZED']
     except:
         show_ebook_form = True
-    return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
+    return render(request, 'manage_ebooks.html', {
+            'edition': edition, 'admin':admin, 'alert':alert,
                 'show_ebook_form':show_ebook_form, 
         })
 
