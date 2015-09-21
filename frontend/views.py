@@ -570,16 +570,6 @@ def new_edition(request, work_id, edition_id, by=None):
                 author=models.Author.objects.create(name=new_author_name)
             edition.new_authors.append((new_author_name,new_author_relation))
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif request.POST.has_key('add_subject_submit') and admin:
-            new_subject = request.POST['add_subject'].strip()
-            try:
-                subject= models.Subject.objects.get(name=new_subject)
-            except models.Subject.DoesNotExist:
-                subject=models.Subject.objects.create(name=new_subject)
-            edition.new_subjects.append(subject)
-            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
-
         elif edition.id and request.POST.has_key('ebook_%d-edition' % edition.id):
             edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
             if edition.ebook_form.is_valid():

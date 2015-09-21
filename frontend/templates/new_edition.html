@@ -51,7 +51,31 @@ ul.fancytree-container {
           return true;
         });
 
-	});
+	$j().ready(function(){
+        var contentblock = $j('#content-block');
+        contentblock.on("click", "span.deletebutton", function () {
+            var kw = $j(this).attr('data');
+            var li = $j(this).parent();
+            
+            // perform action
+            jQuery.post('{% url 'kw_edit' edition.work.id %}', {'remove_kw': kw, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data) {
+                li.html('kw removed');
+        });
+    });
+    // this is the id of the submit button
+
+    $j('#add_subject_submit').click(function(event) { 
+           data= $j('#id_add_subject_0').attr('value')
+           if (data == 'xxbadform'){
+                alert("bad keyword");
+           } else {
+                $j('#kw_list').append('<li>' + data + '<input type="hidden" name="new_subject" value="'+data +'" /><span class="deletebutton" data="' + data +'">x</span></li>')
+           }; // data will be the added kw.
+         });
+
+    });
+});
+
   </script>
 
 {{ form.media.js }}
@@ -72,7 +96,7 @@ ul.fancytree-container {
 
 {% if admin %}
 <p>Title and ISBN 13 are required; the rest is optional, though a cover image is strongly recommended.</p>
-<form  enctype="multipart/form-data" method="POST" action="#">
+<form id="editform" enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
 	{{ form.work }}
 	{{ form.non_field_errors }}
@@ -124,28 +148,26 @@ ul.fancytree-container {
 		    {% endif %}
         </i>)</p>
 		<p><b>Publication Date</b> (<I>four-digit year</I>): {{ form.publication_date.errors }}{{ form.publication_date }}</p>
-
-		{% comment %}
-		this has been removed since there's no point in exposing subject functionality when we're not doing anything with it -- will just confuse people.
-		
             <p><b>Subjects</b>:
-            <ul>
+            <ul id="kw_list">
                 {% if edition.work.pk and edition.work.subjects %}
                     {% for subject in edition.work.subjects.all %}
-                        <li>{{ subject.name }}</li>
+                        <li>{{ subject.name }}
+                        {% if subject.authority %}
+                        ({{subject.authority}})
+                        {% endif %}
+                        <span class="deletebutton" data="{{ subject.name }}">x</span></li>
                     {% endfor %}
                 {% endif %}
                 {% for new_subject in edition.new_subjects %}
                     <li>{{ new_subject }}<input type="hidden" name="new_subject" value="{{ new_subject }}" /></li>
                 {% endfor %}
             </ul>
+            
             <b>Add a Subject</b>: {{ form.add_subject.errors }}{{ form.add_subject }}
-            <input type="submit" name="add_subject_submit" value="Add Subject" id="submit_subject"></p>
-		{% endcomment %}
+            <a class="fakeinput" id="add_subject_submit" >Add Subject</a></p>
         <p id="tree" name="is_bisac"><b>Add BISAC Subject</b>:
-        {% for bisacsh in edition.work.bisac_headings %}
-            <br />{{ bisacsh.name }}
-        {% endfor %}<br /><br /><b>add headings</b>:
+        
         </p>
 		
 		<p><b>Cover Image</b>: <br />
