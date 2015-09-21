@@ -493,6 +493,13 @@ def edition_uploads(request, edition_id):
         })
     return render(request, 'edition_uploads.html', context )
 
+def add_subject(subject_name,work, authority=None):
+    try:
+        subject= models.Subject.objects.get(name=subject_name)
+    except models.Subject.DoesNotExist:
+        subject=models.Subject.objects.create(name=subject_name, authority=authority)
+    subject.works.add(work)
+
 @login_required
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
@@ -617,12 +624,13 @@ def new_edition(request, work_id, edition_id, by=None):
                         relator.set(new_relation)
                 for (author_name, author_relation) in edition.new_authors:
                     edition.add_author(author_name,author_relation)
+                if form.cleaned_data.has_key('bisac'):
+                    bisacsh=form.cleaned_data['bisac']
+                    while bisacsh:
+                        add_subject(bisacsh.full_label, work, authority="bisacsh")
+                        bisacsh = bisacsh.parent
                 for subject_name in edition.new_subjects:
-                    try:
-                        subject= models.Subject.objects.get(name=subject_name)
-                    except models.Subject.DoesNotExist:
-                        subject=models.Subject.objects.create(name=subject_name)
-                    subject.works.add(work)
+                    add_subject(subject_name, work)
                 work_url = reverse('work', kwargs={'work_id': edition.work.id})
                 cover_file=form.cleaned_data.get("coverfile",None)
                 if cover_file:

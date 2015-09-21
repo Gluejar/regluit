@@ -69,6 +69,7 @@ from regluit.utils.localdatetime import now
 from regluit.utils.fields import EpubFileField, ISBNField
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
+from regluit.bisac.models import BisacHeading
 
 logger = logging.getLogger(__name__)
 nulls = [False, 'delete', '']
@@ -78,10 +79,16 @@ CREATOR_RELATIONS = (
     ('trl', 'Translator'),
     ('ill', 'Illustrator'),
 )
+
+bisac_headings = BisacHeading.objects.all()
+
+
 class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500, required=False)
     add_author_relation = forms.ChoiceField(choices=CREATOR_RELATIONS, initial=('aut', 'Author'))
     add_subject = forms.CharField(max_length=200, required=False)
+    bisac = forms.ModelChoiceField( bisac_headings, required=False )
+    
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,
             label='Publisher Name',
