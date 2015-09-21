@@ -162,7 +162,7 @@ class EditionForm(forms.ModelForm):
         }
     )
     language = forms.ChoiceField(choices=LANGUAGES)
-    description = forms.CharField( required=False, widget= forms.Textarea(attrs={'cols': 80, 'rows': 10}))
+    description = forms.CharField( required=False, widget=CKEditorWidget())
     coverfile = forms.ImageField(required=False)
     
     def __init__(self,  *args, **kwargs):
