@@ -95,7 +95,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
       
-      aws.instance_type="m1.small"
+      #aws.instance_type="m1.small"
+      aws.instance_type="t1.micro"
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
