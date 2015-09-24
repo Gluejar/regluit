@@ -39,13 +39,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
       
-      aws.instance_type="t1.micro"
+      #aws.ami = "ami-d8132bb0"
+      #aws.instance_type="t1.micro"
+      # put into just security group
+      #aws.security_groups = ["just"]
+ 
+      
+      # Ubuntu 12.04.5 LTS / HVM EBS-SSD
+      aws.ami = "ami-5fe18d3a"
+      aws.instance_type="t2.micro"
+      # needs a VPC
+      aws.subnet_id = "subnet-b2dbf7eb"
+      aws.security_groups = ["sg-cfd7c9a8"]
+      aws.associate_public_ip = 'true'
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
-      aws.ami = "ami-d8132bb0"
-      # put into just security group
-      aws.security_groups = ["just"]
+
+
       
       aws.tags = {
       'Name' => 'please_vagrant'
