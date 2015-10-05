@@ -296,11 +296,11 @@ class Migration(SchemaMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'})
         },
         'core.relator': {
-            'Meta': {'object_name': 'Relator', 'db_table': "'core_subject_works'"},
+            'Meta': {'object_name': 'Relator', 'db_table': "'core_author_editions'"},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Author']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'relation': ('django.db.models.fields.related.ForeignKey', [], {'default': '1', 'to': "orm['core.Relation']"}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'author'", 'to': "orm['core.Work']"})
+            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'author'", 'to': "orm['core.Edition']"})
         },
         'core.rightsholder': {
             'Meta': {'object_name': 'RightsHolder'},
