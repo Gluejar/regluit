@@ -82,7 +82,7 @@ $j().ready(function() {
         jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
         	var parent = span.parent();
             parent.fadeOut();
-            var newDiv = $j('<div class="add-wishlist-workpage"><span class="'+work_id+'">Add to Wishlist</span></div>').hide();
+            var newDiv = $j('<div class="add-wishlist-workpage"><span class="'+work_id+'">Add to Faves</span></div>').hide();
             parent.replaceWith(newDiv);
             newDiv.fadeIn('slow');
         });
