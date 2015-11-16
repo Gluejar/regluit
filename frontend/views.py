@@ -493,6 +493,13 @@ def edition_uploads(request, edition_id):
         })
     return render(request, 'edition_uploads.html', context )
 
+def add_subject(subject_name,work, authority=None):
+    try:
+        subject= models.Subject.objects.get(name=subject_name)
+    except models.Subject.DoesNotExist:
+        subject=models.Subject.objects.create(name=subject_name, authority=authority)
+    subject.works.add(work)
+
 @login_required
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
@@ -563,24 +570,6 @@ def new_edition(request, work_id, edition_id, by=None):
                 author=models.Author.objects.create(name=new_author_name)
             edition.new_authors.append((new_author_name,new_author_relation))
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif request.POST.has_key('add_subject_submit') and admin:
-            new_subject = request.POST['add_subject'].strip()
-            try:
-                subject= models.Subject.objects.get(name=new_subject)
-            except models.Subject.DoesNotExist:
-                subject=models.Subject.objects.create(name=new_subject)
-            edition.new_subjects.append(subject)
-            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
-
-        elif edition.id and request.POST.has_key('ebook_%d-edition' % edition.id):
-            edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
-            if edition.ebook_form.is_valid():
-                edition.ebook_form.save()
-                alert = 'Thanks for adding an ebook to unglue.it!'
-            else: 
-                alert = 'your submitted ebook had errors'
-            form = EditionForm(instance=edition, initial=initial)
         elif not form  and admin:
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
@@ -617,12 +606,13 @@ def new_edition(request, work_id, edition_id, by=None):
                         relator.set(new_relation)
                 for (author_name, author_relation) in edition.new_authors:
                     edition.add_author(author_name,author_relation)
+                if form.cleaned_data.has_key('bisac'):
+                    bisacsh=form.cleaned_data['bisac']
+                    while bisacsh:
+                        add_subject(bisacsh.full_label, work, authority="bisacsh")
+                        bisacsh = bisacsh.parent
                 for subject_name in edition.new_subjects:
-                    try:
-                        subject= models.Subject.objects.get(name=subject_name)
-                    except models.Subject.DoesNotExist:
-                        subject=models.Subject.objects.create(name=subject_name)
-                    subject.works.add(work)
+                    add_subject(subject_name, work)
                 work_url = reverse('work', kwargs={'work_id': edition.work.id})
                 cover_file=form.cleaned_data.get("coverfile",None)
                 if cover_file:
@@ -636,15 +626,60 @@ def new_edition(request, work_id, edition_id, by=None):
                     edition.save()
                 return HttpResponseRedirect(work_url)
     else:
-        if edition.pk:
-            edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
         form = EditionForm(instance=edition, initial=initial)
+    return render(request, 'new_edition.html', {
+            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
+                 
+        })
+
+
+@login_required
+def manage_ebooks(request, edition_id, by=None):
+    if edition_id:
+        try:
+            edition = models.Edition.objects.get(id = edition_id)
+        except models.Edition.DoesNotExist:
+            raise Http404
+        work = edition.work
+    else:
+        raise Http404
+    if not request.user.is_authenticated() :
+        return render(request, "admins_only.html")
+    # if the work and edition are set, we save the edition and set the work    
+    
+    alert = ''  
+    admin = False
+    if request.user.is_staff :
+        admin = True
+    elif work and work.last_campaign():
+        if request.user in work.last_campaign().managers.all():
+            admin = True
+    elif work==None and request.user.rights_holder.count():
+        admin = True
+    if request.method == 'POST' :
+        edition.new_authors=zip(request.POST.getlist('new_author'),request.POST.getlist('new_author_relation'))
+        edition.new_subjects=request.POST.getlist('new_subject')
+        if edition.id and admin:
+            for author in edition.authors.all():
+                if request.POST.has_key('delete_author_%s' % author.id):
+                    edition.remove_author(author)
+                    form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    break
+        if  request.POST.has_key('ebook_%d-edition' % edition.id):
+            edition.ebook_form= EbookForm( data = request.POST, prefix = 'ebook_%d'%edition.id)
+            if edition.ebook_form.is_valid():
+                edition.ebook_form.save()
+                alert = 'Thanks for adding an ebook to unglue.it!'
+            else: 
+                alert = 'your submitted ebook had errors'
+    else:
+        edition.ebook_form = EbookForm( instance= models.Ebook(user = request.user, edition = edition, provider = 'x' ), prefix = 'ebook_%d'%edition.id)
     try:
         show_ebook_form = edition.work.last_campaign().status not in ['ACTIVE','INITIALIZED']
     except:
         show_ebook_form = True
-    return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
+    return render(request, 'manage_ebooks.html', {
+            'edition': edition, 'admin':admin, 'alert':alert,
                 'show_ebook_form':show_ebook_form, 
         })
 

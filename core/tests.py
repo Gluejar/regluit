@@ -84,7 +84,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual( noebook.first_ebook(), None)
         huck_id = bookloader.load_from_yaml(YAML_HUCKFILE)
         huck = models.Work.objects.get(id=huck_id)
-        self.assertEqual( huck.first_ebook().rights, "CC BY-NC")
+        self.assertTrue( huck.ebooks().count()>1)
         
     def test_add_by_yaml(self):  
         space_id = bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')

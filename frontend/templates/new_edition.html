@@ -3,9 +3,84 @@
 
 {% block extra_extra_head %}
 {{ block.super }}
-<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/ui-lightness/jquery-ui.css" type="text/css" media="screen">
+  <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
+  <link href="/static/css/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+  <style type="text/css">
+ul.fancytree-container {
+	width: 100%;
+	height: 10em;
+	overflow: auto;
+	position: relative;
+	margin-top: 0.5em;
+}
+</style>
 {{ form.media.css }}
 <script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
+  <script src="/static/js/jquery.fancytree-all.min.js" type="text/javascript"></script>
+  <script type="text/javascript">
+	$j(function(){
+		// Initialize Fancytree
+		$j("#tree").fancytree({
+			extensions: ["glyph"],
+			checkbox: true,
+			selectMode: 1,
+			glyph: {
+				map: {
+					doc: "fa fa-file-o",
+					docOpen: "fa fa-file-o",
+					checkbox: "fa fa-square-o",
+					checkboxSelected: "fa fa-check-square-o",
+					checkboxUnknown: "fa fa-square",
+					dragHelper: "fa arrow-right",
+					dropMarker: "fa long-arrow-right",
+					error: "fa fa-warning",
+					expanderClosed: "fa fa-caret-right",
+					expanderLazy: "fa fa-angle-right",
+					expanderOpen: "fa fa-caret-down",
+					folder: "fa fa-folder-o",
+					folderOpen: "fa fa-folder-open-o",
+					loading: "fa fa-spinner fa-pulse"
+				}
+			},
+			source: { url: "/bisac/tree", cache: true }
+		});
+		$j("#editform").submit(function() {
+          // Render hidden <input> elements for active and selected nodes
+          $j("#tree").fancytree("getTree").generateFormElements(selected="bisac");
+          //alert("POST data:\n" + $j.param($j(this).serializeArray()));
+          return true;
+        });
+
+	$j().ready(function(){
+        var contentblock = $j('#content-block');
+        contentblock.on("click", "span.deletebutton", function () {
+            var kw = $j(this).attr('data');
+            var li = $j(this).parent();
+            
+            // perform action
+            {% if edition.work %}
+            jQuery.post('{% url 'kw_edit' edition.work.id %}', {'remove_kw': kw, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data) {
+                li.html('kw removed');
+            });
+            {% else %}
+            li.html('kw removed');
+            {% endif %}
+        });
+    // this is the id of the submit button
+
+    $j('#add_subject_submit').click(function(event) { 
+           data= $j('#id_add_subject_0').attr('value')
+           if (data == 'xxbadform'){
+                alert("bad keyword");
+           } else {
+                $j('#kw_list').append('<li>' + data + '<input type="hidden" name="new_subject" value="'+data +'" /><span class="deletebutton" data="' + data +'">x</span></li>')
+           }; // data will be the added kw.
+         });
+
+    });
+});
+
+  </script>
 
 {{ form.media.js }}
 {% endblock %}
@@ -25,7 +100,7 @@
 
 {% if admin %}
 <p>Title and ISBN 13 are required; the rest is optional, though a cover image is strongly recommended.</p>
-<form  enctype="multipart/form-data" method="POST" action="#">
+<form id="editform" enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
 	{{ form.work }}
 	{{ form.non_field_errors }}
@@ -77,24 +152,28 @@
 		    {% endif %}
         </i>)</p>
 		<p><b>Publication Date</b> (<I>four-digit year</I>): {{ form.publication_date.errors }}{{ form.publication_date }}</p>
-
-		{% comment %}
-		this has been removed since there's no point in exposing subject functionality when we're not doing anything with it -- will just confuse people.
-		
             <p><b>Subjects</b>:
-            <ul>
+            <ul id="kw_list">
                 {% if edition.work.pk and edition.work.subjects %}
                     {% for subject in edition.work.subjects.all %}
-                        <li>{{ subject.name }}</li>
+                        <li>{{ subject.name }}
+                        {% if subject.authority %}
+                        ({{subject.authority}})
+                        {% endif %}
+                        <span class="deletebutton" data="{{ subject.name }}">x</span></li>
                     {% endfor %}
                 {% endif %}
                 {% for new_subject in edition.new_subjects %}
                     <li>{{ new_subject }}<input type="hidden" name="new_subject" value="{{ new_subject }}" /></li>
                 {% endfor %}
             </ul>
+            
             <b>Add a Subject</b>: {{ form.add_subject.errors }}{{ form.add_subject }}
-            <input type="submit" name="add_subject_submit" value="Add Subject" id="submit_subject"></p>
-		{% endcomment %}
+            <a class="fakeinput" id="add_subject_submit"  style="font-size: smaller;" >Add Subject</a></p>
+        <p id="tree" name="is_bisac"><b>Add BISAC Subject</b>:
+        
+        </p>
+		
 		<p><b>Cover Image</b>: <br />
 		{% if edition.cover_image %}
 		<img src="{{edition.cover_image}}" /><br />
@@ -109,7 +188,7 @@
 		(<i>upload a cover image file (we'll automatically size if for you). </i>)<br />
 		</p>
 	</div>    
-	<input type="submit" name="create_new_edition" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
+	<input type="submit" name="create_new_edition" style="font-size: larger;" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
 </form>
 {% if edition.work %}
 
@@ -117,6 +196,9 @@
 
 <div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
 <div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
+{% if edition.id %}
+<div><a href="{% url 'manage_ebooks' edition.id  %}">Add ebooks for this edition</a></div>
+{% endif %}
 {% if request.user.is_staff %}
 <div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
 {% endif %}
@@ -130,7 +212,6 @@
     Sorry, there's no work specified.
     {% endif %}
 {% endif %}
-{% include 'edition_upload.html' %}
 
 {% endblock %}
 

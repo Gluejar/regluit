@@ -47,6 +47,7 @@ def header(facet=None):
 
 def product(edition, facet=None):
     ebooks=facet.filter_model("Ebook",edition.ebooks.filter(active=True)) if facet else edition.ebooks.filter(active=True)
+    ebooks=ebooks.order_by('-created')
     # Just because an edition satisfies 2 facets with multiple ebooks doesn't mean that there is a single ebook satisfies both facets
     if not ebooks.exists():
         return None
@@ -72,13 +73,18 @@ def product(edition, facet=None):
     descriptive_node.append(text_node("ProductForm", "ED" )) # download 
 
     ebook = None
+    latest_ebooks = []
+    ebook_formats = []
     for ebook in ebooks:
-        if ebook.format=='epub':
-            descriptive_node.append(text_node("ProductFormDetail", "E101" )) 
-        elif ebook.format=='pdf':
-            descriptive_node.append(text_node("ProductFormDetail", "E107" )) 
-        elif ebook.format=='mobi':
-            descriptive_node.append(text_node("ProductFormDetail", "E116" )) 
+        if ebook.format not in ebook_formats:
+            ebook_formats.append(ebook.format)
+            latest_ebooks.append(ebook)
+            if ebook.format=='epub':
+                descriptive_node.append(text_node("ProductFormDetail", "E101" )) 
+            elif ebook.format=='pdf':
+                descriptive_node.append(text_node("ProductFormDetail", "E107" )) 
+            elif ebook.format=='mobi':
+                descriptive_node.append(text_node("ProductFormDetail", "E116" )) 
     if ebook.rights:
         license_node =  etree.SubElement(descriptive_node, "EpubLicense")
         license_node.append(text_node("EpubLicenseName", ebook.rights )) 
@@ -171,7 +177,7 @@ def product(edition, facet=None):
     supplier_node =  etree.SubElement(supply_detail_node,"Supplier")
     supplier_node.append(text_node("SupplierRole", '11')) #non-exclusive distributer
     supplier_node.append(text_node("SupplierName", 'Unglue.it')) #non-exclusive distributer
-    for ebook in ebooks:
+    for ebook in latest_ebooks:
         website_node =  etree.SubElement(supplier_node,"Website")
         website_node.append(text_node("WebsiteRole", '29')) #full content
         website_node.append(text_node("WebsiteDescription", '%s file download' % ebook.format, attrib={'textformat':'06'})) #full content

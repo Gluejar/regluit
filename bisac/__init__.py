@@ -183,9 +183,9 @@ bisac= {
     "notation": "ARC006000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy": {
+  "Gardening / Regional / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy", 
+    "pref_label": "Gardening / Regional / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy)", 
     "notation": "GAR019080", 
     "alt_label": []
   }, 
@@ -213,9 +213,9 @@ bisac= {
     "notation": "BIO016000", 
     "alt_label": []
   }, 
-  "Religion / Christianity / Church Of Jesus Christ Of Latter-day Saints (mormon": {
+  "Religion / Christianity / Church Of Jesus Christ Of Latter-day Saints (mormon)": {
     "related": [], 
-    "pref_label": "Religion / Christianity / Church Of Jesus Christ Of Latter-day Saints (mormon", 
+    "pref_label": "Religion / Christianity / Church Of Jesus Christ Of Latter-day Saints (mormon)", 
     "notation": "REL046000", 
     "alt_label": [
       "Religion / Christianity / Mormon"
@@ -263,9 +263,9 @@ bisac= {
     "notation": "NAT012000", 
     "alt_label": []
   }, 
-  "History / Military / Persian Gulf War (1991": {
+  "History / Military / Persian Gulf War (1991)": {
     "related": [], 
-    "pref_label": "History / Military / Persian Gulf War (1991", 
+    "pref_label": "History / Military / Persian Gulf War (1991)", 
     "notation": "HIS027040", 
     "alt_label": []
   }, 
@@ -460,15 +460,15 @@ bisac= {
     "notation": "PHI001000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / Southwest (az, Nm, Ok, Tx": {
+  "Gardening / Regional / Southwest (az, Nm, Ok, Tx)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / Southwest (az, Nm, Ok, Tx", 
+    "pref_label": "Gardening / Regional / Southwest (az, Nm, Ok, Tx)", 
     "notation": "GAR019070", 
     "alt_label": []
   }, 
-  "Study Aids / Mcat (medical College Admission Test": {
+  "Study Aids / Mcat (medical College Admission Test)": {
     "related": [], 
-    "pref_label": "Study Aids / Mcat (medical College Admission Test", 
+    "pref_label": "Study Aids / Mcat (medical College Admission Test)", 
     "notation": "STU032000", 
     "alt_label": []
   }, 
@@ -526,9 +526,9 @@ bisac= {
     "notation": "PHO015000", 
     "alt_label": []
   }, 
-  "Social Science / Holidays (non-religious": {
+  "Social Science / Holidays (non-religious)": {
     "related": [], 
-    "pref_label": "Social Science / Holidays (non-religious", 
+    "pref_label": "Social Science / Holidays (non-religious)", 
     "notation": "SOC014000", 
     "alt_label": []
   }, 
@@ -976,9 +976,9 @@ bisac= {
     "notation": "TRA006030", 
     "alt_label": []
   }, 
-  "Travel / United States / West / Pacific (ak, Ca, Hi, Nv, Or, Wa": {
+  "Travel / United States / West / Pacific (ak, Ca, Hi, Nv, Or, Wa)": {
     "related": [], 
-    "pref_label": "Travel / United States / West / Pacific (ak, Ca, Hi, Nv, Or, Wa", 
+    "pref_label": "Travel / United States / West / Pacific (ak, Ca, Hi, Nv, Or, Wa)", 
     "notation": "TRV025130", 
     "alt_label": []
   }, 
@@ -1720,9 +1720,9 @@ bisac= {
     "notation": "REL032010", 
     "alt_label": []
   }, 
-  "History / Americas (north, Central, South, West Indies": {
+  "History / Americas (north, Central, South, West Indies)": {
     "related": [], 
-    "pref_label": "History / Americas (north, Central, South, West Indies", 
+    "pref_label": "History / Americas (north, Central, South, West Indies)", 
     "notation": "HIS038000", 
     "alt_label": []
   }, 
@@ -1910,9 +1910,9 @@ bisac= {
     "notation": "TEC031000", 
     "alt_label": []
   }, 
-  "History / Military / Afghan War (2001-": {
+  "History / Military / Afghan War (2001-)": {
     "related": [], 
-    "pref_label": "History / Military / Afghan War (2001-", 
+    "pref_label": "History / Military / Afghan War (2001-)", 
     "notation": "HIS027190", 
     "alt_label": []
   }, 
@@ -1990,9 +1990,9 @@ bisac= {
     "notation": "BIB004070", 
     "alt_label": []
   }, 
-  "Juvenile Nonfiction / Biography & Autobiography / Presidents And First Families (u.s.": {
+  "Juvenile Nonfiction / Biography & Autobiography / Presidents And First Families (u.s.)": {
     "related": [], 
-    "pref_label": "Juvenile Nonfiction / Biography & Autobiography / Presidents And First Families (u.s.", 
+    "pref_label": "Juvenile Nonfiction / Biography & Autobiography / Presidents And First Families (u.s.)", 
     "notation": "JNF007130", 
     "alt_label": []
   }, 
@@ -2092,9 +2092,9 @@ bisac= {
     "notation": "SEL001000", 
     "alt_label": []
   }, 
-  "Travel / United States / South / East South Central (al, Ky, Ms, Tn": {
+  "Travel / United States / South / East South Central (al, Ky, Ms, Tn)": {
     "related": [], 
-    "pref_label": "Travel / United States / South / East South Central (al, Ky, Ms, Tn", 
+    "pref_label": "Travel / United States / South / East South Central (al, Ky, Ms, Tn)", 
     "notation": "TRV025080", 
     "alt_label": []
   }, 
@@ -2452,9 +2452,9 @@ bisac= {
     "notation": "MUS023040", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / Middle Atlantic (dc, De, Md, Nj, Ny, Pa": {
+  "History / United States / State & Local / Middle Atlantic (dc, De, Md, Nj, Ny, Pa)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / Middle Atlantic (dc, De, Md, Nj, Ny, Pa", 
+    "pref_label": "History / United States / State & Local / Middle Atlantic (dc, De, Md, Nj, Ny, Pa)", 
     "notation": "HIS036080", 
     "alt_label": []
   }, 
@@ -2703,9 +2703,9 @@ bisac= {
     "notation": "CRA045000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv": {
+  "Gardening / Regional / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv", 
+    "pref_label": "Gardening / Regional / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv)", 
     "notation": "GAR019060", 
     "alt_label": []
   }, 
@@ -3293,9 +3293,9 @@ bisac= {
     "notation": "JUV030110", 
     "alt_label": []
   }, 
-  "Travel / Canada / Quebec (qc": {
+  "Travel / Canada / Quebec (qc)": {
     "related": [], 
-    "pref_label": "Travel / Canada / Quebec (qc", 
+    "pref_label": "Travel / Canada / Quebec (qc)", 
     "notation": "TRV006060", 
     "alt_label": []
   }, 
@@ -3657,9 +3657,9 @@ bisac= {
     "notation": "MAT036000", 
     "alt_label": []
   }, 
-  "Juvenile Fiction / Historical / Canada / Pre-confederation (to 1867": {
+  "Juvenile Fiction / Historical / Canada / Pre-confederation (to 1867)": {
     "related": [], 
-    "pref_label": "Juvenile Fiction / Historical / Canada / Pre-confederation (to 1867", 
+    "pref_label": "Juvenile Fiction / Historical / Canada / Pre-confederation (to 1867)", 
     "notation": "JUV016170", 
     "alt_label": []
   }, 
@@ -3687,9 +3687,9 @@ bisac= {
     "notation": "JUV032120", 
     "alt_label": []
   }, 
-  "History / Canada / Post-confederation (1867-": {
+  "History / Canada / Post-confederation (1867-)": {
     "related": [], 
-    "pref_label": "History / Canada / Post-confederation (1867-", 
+    "pref_label": "History / Canada / Post-confederation (1867-)", 
     "notation": "HIS006020", 
     "alt_label": []
   }, 
@@ -4198,9 +4198,9 @@ bisac= {
     "notation": "JNF052010", 
     "alt_label": []
   }, 
-  "History / Canada / Pre-confederation (to 1867": {
+  "History / Canada / Pre-confederation (to 1867)": {
     "related": [], 
-    "pref_label": "History / Canada / Pre-confederation (to 1867", 
+    "pref_label": "History / Canada / Pre-confederation (to 1867)", 
     "notation": "HIS006010", 
     "alt_label": []
   }, 
@@ -5029,9 +5029,9 @@ bisac= {
     "notation": "COM066000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / Pacific Northwest (or, Wa": {
+  "Gardening / Regional / Pacific Northwest (or, Wa)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / Pacific Northwest (or, Wa", 
+    "pref_label": "Gardening / Regional / Pacific Northwest (or, Wa)", 
     "notation": "GAR019050", 
     "alt_label": []
   }, 
@@ -5189,9 +5189,9 @@ bisac= {
     "notation": "JNF053160", 
     "alt_label": []
   }, 
-  "History / United States / Civil War Period (1850-1877": {
+  "History / United States / Civil War Period (1850-1877)": {
     "related": [], 
-    "pref_label": "History / United States / Civil War Period (1850-1877", 
+    "pref_label": "History / United States / Civil War Period (1850-1877)", 
     "notation": "HIS036050", 
     "alt_label": [
       "History / Military / United States / Civil War"
@@ -5320,9 +5320,9 @@ bisac= {
     "notation": "TRV014000", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv": {
+  "History / United States / State & Local / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv", 
+    "pref_label": "History / United States / State & Local / South (al, Ar, Fl, Ga, Ky, La, Ms, Nc, Sc, Tn, Va, Wv)", 
     "notation": "HIS036120", 
     "alt_label": []
   }, 
@@ -5350,9 +5350,9 @@ bisac= {
     "notation": "JNF026100", 
     "alt_label": []
   }, 
-  "Health & Fitness / Diseases / Nervous System (incl. Brain": {
+  "Health & Fitness / Diseases / Nervous System (incl. Brain)": {
     "related": [], 
-    "pref_label": "Health & Fitness / Diseases / Nervous System (incl. Brain", 
+    "pref_label": "Health & Fitness / Diseases / Nervous System (incl. Brain)", 
     "notation": "HEA039110", 
     "alt_label": []
   }, 
@@ -5470,9 +5470,9 @@ bisac= {
     "notation": "BUS008000", 
     "alt_label": []
   }, 
-  "Travel / United States / South / West South Central (ar, La, Ok, Tx": {
+  "Travel / United States / South / West South Central (ar, La, Ok, Tx)": {
     "related": [], 
-    "pref_label": "Travel / United States / South / West South Central (ar, La, Ok, Tx", 
+    "pref_label": "Travel / United States / South / West South Central (ar, La, Ok, Tx)", 
     "notation": "TRV025100", 
     "alt_label": []
   }, 
@@ -5846,9 +5846,9 @@ bisac= {
     "notation": "BUS022000", 
     "alt_label": []
   }, 
-  "Study Aids / Gmat (graduate Management Admission Test": {
+  "Study Aids / Gmat (graduate Management Admission Test)": {
     "related": [], 
-    "pref_label": "Study Aids / Gmat (graduate Management Admission Test", 
+    "pref_label": "Study Aids / Gmat (graduate Management Admission Test)", 
     "notation": "STU013000", 
     "alt_label": []
   }, 
@@ -6022,9 +6022,9 @@ bisac= {
     "notation": "TRA004000", 
     "alt_label": []
   }, 
-  "Study Aids / Toefl (test Of English As A Foreign Language": {
+  "Study Aids / Toefl (test Of English As A Foreign Language)": {
     "related": [], 
-    "pref_label": "Study Aids / Toefl (test Of English As A Foreign Language", 
+    "pref_label": "Study Aids / Toefl (test Of English As A Foreign Language)", 
     "notation": "STU028000", 
     "alt_label": []
   }, 
@@ -6114,9 +6114,9 @@ bisac= {
     "notation": "SOC026000", 
     "alt_label": []
   }, 
-  "Foreign Language Study / Slavic Languages (other": {
+  "Foreign Language Study / Slavic Languages (other)": {
     "related": [], 
-    "pref_label": "Foreign Language Study / Slavic Languages (other", 
+    "pref_label": "Foreign Language Study / Slavic Languages (other)", 
     "notation": "FOR024000", 
     "alt_label": []
   }, 
@@ -6711,9 +6711,9 @@ bisac= {
     "notation": "PSY026000", 
     "alt_label": []
   }, 
-  "Travel / Canada / Territories & Nunavut (nt, Nu, Yt": {
+  "Travel / Canada / Territories & Nunavut (nt, Nu, Yt)": {
     "related": [], 
-    "pref_label": "Travel / Canada / Territories & Nunavut (nt, Nu, Yt", 
+    "pref_label": "Travel / Canada / Territories & Nunavut (nt, Nu, Yt)", 
     "notation": "TRV006040", 
     "alt_label": []
   }, 
@@ -6943,9 +6943,9 @@ bisac= {
     "notation": "COM021000", 
     "alt_label": []
   }, 
-  "History / United States / Colonial Period (1600-1775": {
+  "History / United States / Colonial Period (1600-1775)": {
     "related": [], 
-    "pref_label": "History / United States / Colonial Period (1600-1775", 
+    "pref_label": "History / United States / Colonial Period (1600-1775)", 
     "notation": "HIS036020", 
     "alt_label": []
   }, 
@@ -7593,9 +7593,9 @@ bisac= {
     "notation": "OCC019000", 
     "alt_label": []
   }, 
-  "Psychology / Psychopathology / Attention-deficit Disorder (add-adhd": {
+  "Psychology / Psychopathology / Attention-deficit Disorder (add-adhd)": {
     "related": [], 
-    "pref_label": "Psychology / Psychopathology / Attention-deficit Disorder (add-adhd", 
+    "pref_label": "Psychology / Psychopathology / Attention-deficit Disorder (add-adhd)", 
     "notation": "PSY022010", 
     "alt_label": []
   }, 
@@ -7823,9 +7823,9 @@ bisac= {
     "notation": "POE010000", 
     "alt_label": []
   }, 
-  "Travel / United States / Northeast / Middle Atlantic (nj, Ny, Pa": {
+  "Travel / United States / Northeast / Middle Atlantic (nj, Ny, Pa)": {
     "related": [], 
-    "pref_label": "Travel / United States / Northeast / Middle Atlantic (nj, Ny, Pa", 
+    "pref_label": "Travel / United States / Northeast / Middle Atlantic (nj, Ny, Pa)", 
     "notation": "TRV025050", 
     "alt_label": []
   }, 
@@ -7853,9 +7853,9 @@ bisac= {
     "notation": "GAM016000", 
     "alt_label": []
   }, 
-  "Travel / Canada / Atlantic Provinces (nb, Nf, Ns, Pe": {
+  "Travel / Canada / Atlantic Provinces (nb, Nf, Ns, Pe)": {
     "related": [], 
-    "pref_label": "Travel / Canada / Atlantic Provinces (nb, Nf, Ns, Pe", 
+    "pref_label": "Travel / Canada / Atlantic Provinces (nb, Nf, Ns, Pe)", 
     "notation": "TRV006010", 
     "alt_label": []
   }, 
@@ -8070,15 +8070,15 @@ bisac= {
     "notation": "JNF063000", 
     "alt_label": []
   }, 
-  "Juvenile Nonfiction / History / United States / Civil War Period (1850-1877": {
+  "Juvenile Nonfiction / History / United States / Civil War Period (1850-1877)": {
     "related": [], 
-    "pref_label": "Juvenile Nonfiction / History / United States / Civil War Period (1850-1877", 
+    "pref_label": "Juvenile Nonfiction / History / United States / Civil War Period (1850-1877)", 
     "notation": "JNF025270", 
     "alt_label": []
   }, 
-  "Travel / United States / Northeast / New England (ct, Ma, Me, Nh, Ri, Vt": {
+  "Travel / United States / Northeast / New England (ct, Ma, Me, Nh, Ri, Vt)": {
     "related": [], 
-    "pref_label": "Travel / United States / Northeast / New England (ct, Ma, Me, Nh, Ri, Vt", 
+    "pref_label": "Travel / United States / Northeast / New England (ct, Ma, Me, Nh, Ri, Vt)", 
     "notation": "TRV025060", 
     "alt_label": []
   }, 
@@ -8288,9 +8288,9 @@ bisac= {
     "notation": "JUV039120", 
     "alt_label": []
   }, 
-  "Foreign Language Study / Greek (modern": {
+  "Foreign Language Study / Greek (modern)": {
     "related": [], 
-    "pref_label": "Foreign Language Study / Greek (modern", 
+    "pref_label": "Foreign Language Study / Greek (modern)", 
     "notation": "FOR010000", 
     "alt_label": []
   }, 
@@ -8528,9 +8528,9 @@ bisac= {
     "notation": "MAT012000", 
     "alt_label": []
   }, 
-  "Travel / United States / West / Mountain (az, Co, Id, Mt, Nm, Ut, Wy": {
+  "Travel / United States / West / Mountain (az, Co, Id, Mt, Nm, Ut, Wy)": {
     "related": [], 
-    "pref_label": "Travel / United States / West / Mountain (az, Co, Id, Mt, Nm, Ut, Wy", 
+    "pref_label": "Travel / United States / West / Mountain (az, Co, Id, Mt, Nm, Ut, Wy)", 
     "notation": "TRV025120", 
     "alt_label": []
   }, 
@@ -8698,9 +8698,9 @@ bisac= {
     "notation": "ART009000", 
     "alt_label": []
   }, 
-  "Psychology / Psychopathology / Post-traumatic Stress Disorder (ptsd": {
+  "Psychology / Psychopathology / Post-traumatic Stress Disorder (ptsd)": {
     "related": [], 
-    "pref_label": "Psychology / Psychopathology / Post-traumatic Stress Disorder (ptsd", 
+    "pref_label": "Psychology / Psychopathology / Post-traumatic Stress Disorder (ptsd)", 
     "notation": "PSY022040", 
     "alt_label": []
   }, 
@@ -9056,9 +9056,9 @@ bisac= {
     "notation": "REL067070", 
     "alt_label": []
   }, 
-  "Study Aids / Mat (miller Analogies Test": {
+  "Study Aids / Mat (miller Analogies Test)": {
     "related": [], 
-    "pref_label": "Study Aids / Mat (miller Analogies Test", 
+    "pref_label": "Study Aids / Mat (miller Analogies Test)", 
     "notation": "STU018000", 
     "alt_label": []
   }, 
@@ -9195,9 +9195,9 @@ bisac= {
     "notation": "JUV016160", 
     "alt_label": []
   }, 
-  "Study Aids / Psat & Nmsqt (national Merit Scholarship Qualifying Test": {
+  "Study Aids / Psat & Nmsqt (national Merit Scholarship Qualifying Test)": {
     "related": [], 
-    "pref_label": "Study Aids / Psat & Nmsqt (national Merit Scholarship Qualifying Test", 
+    "pref_label": "Study Aids / Psat & Nmsqt (national Merit Scholarship Qualifying Test)", 
     "notation": "STU033000", 
     "alt_label": []
   }, 
@@ -9263,9 +9263,9 @@ bisac= {
     "notation": "SPO058000", 
     "alt_label": []
   }, 
-  "Self-help / Neuro-linguistic Programming (nlp": {
+  "Self-help / Neuro-linguistic Programming (nlp)": {
     "related": [], 
-    "pref_label": "Self-help / Neuro-linguistic Programming (nlp", 
+    "pref_label": "Self-help / Neuro-linguistic Programming (nlp)", 
     "notation": "SEL037000", 
     "alt_label": []
   }, 
@@ -9652,9 +9652,9 @@ bisac= {
     "notation": "JUV032000", 
     "alt_label": []
   }, 
-  "Foreign Language Study / Scandinavian Languages (other": {
+  "Foreign Language Study / Scandinavian Languages (other)": {
     "related": [], 
-    "pref_label": "Foreign Language Study / Scandinavian Languages (other", 
+    "pref_label": "Foreign Language Study / Scandinavian Languages (other)", 
     "notation": "FOR022000", 
     "alt_label": []
   }, 
@@ -10046,9 +10046,9 @@ bisac= {
     "notation": "TEC065000", 
     "alt_label": []
   }, 
-  "History / Military / Iraq War (2003-": {
+  "History / Military / Iraq War (2003-)": {
     "related": [], 
-    "pref_label": "History / Military / Iraq War (2003-", 
+    "pref_label": "History / Military / Iraq War (2003-)", 
     "notation": "HIS027170", 
     "alt_label": []
   }, 
@@ -10180,9 +10180,9 @@ bisac= {
     "notation": "SPO028000", 
     "alt_label": []
   }, 
-  "Body, Mind & Spirit / Healing / Energy (qigong, Reiki, Polarity": {
+  "Body, Mind & Spirit / Healing / Energy (qigong, Reiki, Polarity)": {
     "related": [], 
-    "pref_label": "Body, Mind & Spirit / Healing / Energy (qigong, Reiki, Polarity", 
+    "pref_label": "Body, Mind & Spirit / Healing / Energy (qigong, Reiki, Polarity)", 
     "notation": "OCC011010", 
     "alt_label": []
   }, 
@@ -10526,15 +10526,15 @@ bisac= {
     "notation": "DRA019000", 
     "alt_label": []
   }, 
-  "Travel / United States / Midwest / West North Central (ia, Ks, Mn, Mo, Nd, Ne, Sd": {
+  "Travel / United States / Midwest / West North Central (ia, Ks, Mn, Mo, Nd, Ne, Sd)": {
     "related": [], 
-    "pref_label": "Travel / United States / Midwest / West North Central (ia, Ks, Mn, Mo, Nd, Ne, Sd", 
+    "pref_label": "Travel / United States / Midwest / West North Central (ia, Ks, Mn, Mo, Nd, Ne, Sd)", 
     "notation": "TRV025030", 
     "alt_label": []
   }, 
-  "Computers / Networking / Local Area Networks (lans": {
+  "Computers / Networking / Local Area Networks (lans)": {
     "related": [], 
-    "pref_label": "Computers / Networking / Local Area Networks (lans", 
+    "pref_label": "Computers / Networking / Local Area Networks (lans)", 
     "notation": "COM043020", 
     "alt_label": []
   }, 
@@ -10592,9 +10592,9 @@ bisac= {
     "notation": "TEC009140", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy": {
+  "History / United States / State & Local / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy", 
+    "pref_label": "History / United States / State & Local / West (ak, Ca, Co, Hi, Id, Mt, Nv, Ut, Wy)", 
     "notation": "HIS036140", 
     "alt_label": []
   }, 
@@ -10676,12 +10676,12 @@ bisac= {
     "notation": "JNF006050", 
     "alt_label": []
   }, 
-  "Fiction / Anthologies (multiple Authors": {
+  "Fiction / Anthologies (multiple Authors)": {
     "related": [], 
-    "pref_label": "Fiction / Anthologies (multiple Authors", 
+    "pref_label": "Fiction / Anthologies (multiple Authors)", 
     "notation": "FIC003000", 
     "alt_label": [
-      "Fiction / Short Stories (multiple Authors"
+      "Fiction / Short Stories (multiple Authors)"
     ]
   }, 
   "Juvenile Nonfiction / Religion / General": {
@@ -11249,9 +11249,9 @@ bisac= {
     "notation": "POL051000", 
     "alt_label": []
   }, 
-  "Juvenile Fiction / Historical / United States / Civil War Period (1850-1877": {
+  "Juvenile Fiction / Historical / United States / Civil War Period (1850-1877)": {
     "related": [], 
-    "pref_label": "Juvenile Fiction / Historical / United States / Civil War Period (1850-1877", 
+    "pref_label": "Juvenile Fiction / Historical / United States / Civil War Period (1850-1877)", 
     "notation": "JUV016200", 
     "alt_label": []
   }, 
@@ -11625,9 +11625,9 @@ bisac= {
     "notation": "ART025000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / Middle Atlantic (dc, De, Md, Nj, Ny, Pa": {
+  "Gardening / Regional / Middle Atlantic (dc, De, Md, Nj, Ny, Pa)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / Middle Atlantic (dc, De, Md, Nj, Ny, Pa", 
+    "pref_label": "Gardening / Regional / Middle Atlantic (dc, De, Md, Nj, Ny, Pa)", 
     "notation": "GAR019020", 
     "alt_label": []
   }, 
@@ -11744,9 +11744,9 @@ bisac= {
     "notation": "NAT026000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi": {
+  "Gardening / Regional / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi", 
+    "pref_label": "Gardening / Regional / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi)", 
     "notation": "GAR019030", 
     "alt_label": []
   }, 
@@ -12066,9 +12066,9 @@ bisac= {
     "notation": "JUV039110", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / New England (ct, Ma, Me, Nh, Ri, Vt": {
+  "History / United States / State & Local / New England (ct, Ma, Me, Nh, Ri, Vt)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / New England (ct, Ma, Me, Nh, Ri, Vt", 
+    "pref_label": "History / United States / State & Local / New England (ct, Ma, Me, Nh, Ri, Vt)", 
     "notation": "HIS036100", 
     "alt_label": []
   }, 
@@ -12104,9 +12104,9 @@ bisac= {
       "Law / Study & Teaching"
     ]
   }, 
-  "Foreign Language Study / Romance Languages (other": {
+  "Foreign Language Study / Romance Languages (other)": {
     "related": [], 
-    "pref_label": "Foreign Language Study / Romance Languages (other", 
+    "pref_label": "Foreign Language Study / Romance Languages (other)", 
     "notation": "FOR041000", 
     "alt_label": []
   }, 
@@ -12562,9 +12562,9 @@ bisac= {
     "notation": "BIB001020", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / Southwest (az, Nm, Ok, Tx": {
+  "History / United States / State & Local / Southwest (az, Nm, Ok, Tx)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / Southwest (az, Nm, Ok, Tx", 
+    "pref_label": "History / United States / State & Local / Southwest (az, Nm, Ok, Tx)", 
     "notation": "HIS036130", 
     "alt_label": []
   }, 
@@ -12654,9 +12654,9 @@ bisac= {
     "notation": "HEA020000", 
     "alt_label": []
   }, 
-  "Study Aids / Ged (general Educational Development Tests": {
+  "Study Aids / Ged (general Educational Development Tests)": {
     "related": [], 
-    "pref_label": "Study Aids / Ged (general Educational Development Tests", 
+    "pref_label": "Study Aids / Ged (general Educational Development Tests)", 
     "notation": "STU012000", 
     "alt_label": []
   }, 
@@ -12834,9 +12834,9 @@ bisac= {
     "notation": "CRA006000", 
     "alt_label": []
   }, 
-  "Body, Mind & Spirit / Parapsychology / Esp (clairvoyance, Precognition, Telepathy": {
+  "Body, Mind & Spirit / Parapsychology / Esp (clairvoyance, Precognition, Telepathy)": {
     "related": [], 
-    "pref_label": "Body, Mind & Spirit / Parapsychology / Esp (clairvoyance, Precognition, Telepathy", 
+    "pref_label": "Body, Mind & Spirit / Parapsychology / Esp (clairvoyance, Precognition, Telepathy)", 
     "notation": "OCC007000", 
     "alt_label": []
   }, 
@@ -12884,9 +12884,9 @@ bisac= {
       "Law / Immigration"
     ]
   }, 
-  "Travel / United States / South / South Atlantic (dc, De, Fl, Ga, Md, Nc, Sc, Va, Wv": {
+  "Travel / United States / South / South Atlantic (dc, De, Fl, Ga, Md, Nc, Sc, Va, Wv)": {
     "related": [], 
-    "pref_label": "Travel / United States / South / South Atlantic (dc, De, Fl, Ga, Md, Nc, Sc, Va, Wv", 
+    "pref_label": "Travel / United States / South / South Atlantic (dc, De, Fl, Ga, Md, Nc, Sc, Va, Wv)", 
     "notation": "TRV025090", 
     "alt_label": []
   }, 
@@ -12959,7 +12959,7 @@ bisac= {
     "alt_label": [
       "Medical / Complementary Medicine", 
       "Medical / Iridology", 
-      "Medical / Mind-body Medicine (psychoneuroimmunology"
+      "Medical / Mind-body Medicine (psychoneuroimmunology)"
     ]
   }, 
   "Political Science / Censorship": {
@@ -13028,9 +13028,9 @@ bisac= {
     "notation": "JUV017010", 
     "alt_label": []
   }, 
-  "Art / History / Contemporary (1945-": {
+  "Art / History / Contemporary (1945-)": {
     "related": [], 
-    "pref_label": "Art / History / Contemporary (1945-", 
+    "pref_label": "Art / History / Contemporary (1945-)", 
     "notation": "ART015110", 
     "alt_label": []
   }, 
@@ -13967,9 +13967,9 @@ bisac= {
     "notation": "BIB010050", 
     "alt_label": []
   }, 
-  "Travel / Europe / Benelux Countries (belgium, Netherlands, Luxembourg": {
+  "Travel / Europe / Benelux Countries (belgium, Netherlands, Luxembourg)": {
     "related": [], 
-    "pref_label": "Travel / Europe / Benelux Countries (belgium, Netherlands, Luxembourg", 
+    "pref_label": "Travel / Europe / Benelux Countries (belgium, Netherlands, Luxembourg)", 
     "notation": "TRV009020", 
     "alt_label": []
   }, 
@@ -14415,9 +14415,9 @@ bisac= {
     "notation": "JNF049130", 
     "alt_label": []
   }, 
-  "Study Aids / Nte (national Teacher Examinations": {
+  "Study Aids / Nte (national Teacher Examinations)": {
     "related": [], 
-    "pref_label": "Study Aids / Nte (national Teacher Examinations", 
+    "pref_label": "Study Aids / Nte (national Teacher Examinations)", 
     "notation": "STU019000", 
     "alt_label": []
   }, 
@@ -14444,9 +14444,9 @@ bisac= {
     "notation": "ANT015000", 
     "alt_label": []
   }, 
-  "Study Aids / Lsat (law School Admission Test": {
+  "Study Aids / Lsat (law School Admission Test)": {
     "related": [], 
-    "pref_label": "Study Aids / Lsat (law School Admission Test", 
+    "pref_label": "Study Aids / Lsat (law School Admission Test)", 
     "notation": "STU017000", 
     "alt_label": []
   }, 
@@ -14630,9 +14630,9 @@ bisac= {
     "notation": "FIC044000", 
     "alt_label": []
   }, 
-  "Travel / Canada / Western Provinces (ab, Bc": {
+  "Travel / Canada / Western Provinces (ab, Bc)": {
     "related": [], 
-    "pref_label": "Travel / Canada / Western Provinces (ab, Bc", 
+    "pref_label": "Travel / Canada / Western Provinces (ab, Bc)", 
     "notation": "TRV006050", 
     "alt_label": []
   }, 
@@ -14937,9 +14937,9 @@ bisac= {
       "Computers / Internet / Server Maintenance"
     ]
   }, 
-  "History / United States / Revolutionary Period (1775-1800": {
+  "History / United States / Revolutionary Period (1775-1800)": {
     "related": [], 
-    "pref_label": "History / United States / Revolutionary Period (1775-1800", 
+    "pref_label": "History / United States / Revolutionary Period (1775-1800)", 
     "notation": "HIS036030", 
     "alt_label": []
   }, 
@@ -15047,9 +15047,9 @@ bisac= {
     "notation": "TRV026050", 
     "alt_label": []
   }, 
-  "Fiction / Short Stories (single Author": {
+  "Fiction / Short Stories (single Author)": {
     "related": [], 
-    "pref_label": "Fiction / Short Stories (single Author", 
+    "pref_label": "Fiction / Short Stories (single Author)", 
     "notation": "FIC029000", 
     "alt_label": []
   }, 
@@ -15535,9 +15535,9 @@ bisac= {
     "notation": "GAM004030", 
     "alt_label": []
   }, 
-  "Juvenile Fiction / Historical / Canada / Post-confederation (1867-": {
+  "Juvenile Fiction / Historical / Canada / Post-confederation (1867-)": {
     "related": [], 
-    "pref_label": "Juvenile Fiction / Historical / Canada / Post-confederation (1867-", 
+    "pref_label": "Juvenile Fiction / Historical / Canada / Post-confederation (1867-)", 
     "notation": "JUV016180", 
     "alt_label": []
   }, 
@@ -15583,9 +15583,9 @@ bisac= {
     "notation": "ART029000", 
     "alt_label": []
   }, 
-  "Study Aids / Clep (college-level Examination Program": {
+  "Study Aids / Clep (college-level Examination Program)": {
     "related": [], 
-    "pref_label": "Study Aids / Clep (college-level Examination Program", 
+    "pref_label": "Study Aids / Clep (college-level Examination Program)", 
     "notation": "STU008000", 
     "alt_label": []
   }, 
@@ -15701,9 +15701,9 @@ bisac= {
     "notation": "CKB042000", 
     "alt_label": []
   }, 
-  "Political Science / Ngos (non-governmental Organizations": {
+  "Political Science / Ngos (non-governmental Organizations)": {
     "related": [], 
-    "pref_label": "Political Science / Ngos (non-governmental Organizations", 
+    "pref_label": "Political Science / Ngos (non-governmental Organizations)", 
     "notation": "POL041000", 
     "alt_label": []
   }, 
@@ -15898,9 +15898,9 @@ bisac= {
     "notation": "PSY039000", 
     "alt_label": []
   }, 
-  "Gardening / Regional / New England (ct, Ma, Me, Nh, Ri, Vt": {
+  "Gardening / Regional / New England (ct, Ma, Me, Nh, Ri, Vt)": {
     "related": [], 
-    "pref_label": "Gardening / Regional / New England (ct, Ma, Me, Nh, Ri, Vt", 
+    "pref_label": "Gardening / Regional / New England (ct, Ma, Me, Nh, Ri, Vt)", 
     "notation": "GAR019040", 
     "alt_label": []
   }, 
@@ -16080,9 +16080,9 @@ bisac= {
     "notation": "JNF038110", 
     "alt_label": []
   }, 
-  "Social Science / Black Studies (global": {
+  "Social Science / Black Studies (global)": {
     "related": [], 
-    "pref_label": "Social Science / Black Studies (global", 
+    "pref_label": "Social Science / Black Studies (global)", 
     "notation": "SOC056000", 
     "alt_label": []
   }, 
@@ -16640,9 +16640,9 @@ bisac= {
     "notation": "CGN004180", 
     "alt_label": []
   }, 
-  "Art / History / Modern (late 19th Century To 1945": {
+  "Art / History / Modern (late 19th Century To 1945)": {
     "related": [], 
-    "pref_label": "Art / History / Modern (late 19th Century To 1945", 
+    "pref_label": "Art / History / Modern (late 19th Century To 1945)", 
     "notation": "ART015100", 
     "alt_label": []
   }, 
@@ -16682,9 +16682,9 @@ bisac= {
     "notation": "FOR030000", 
     "alt_label": []
   }, 
-  "Poetry / Anthologies (multiple Authors": {
+  "Poetry / Anthologies (multiple Authors)": {
     "related": [], 
-    "pref_label": "Poetry / Anthologies (multiple Authors", 
+    "pref_label": "Poetry / Anthologies (multiple Authors)", 
     "notation": "POE001000", 
     "alt_label": []
   }, 
@@ -17618,9 +17618,9 @@ bisac= {
     "notation": "HEA042000", 
     "alt_label": []
   }, 
-  "Business & Economics / Accounting / Standards (gaap, Ifrs, Etc.": {
+  "Business & Economics / Accounting / Standards (gaap, Ifrs, Etc.)": {
     "related": [], 
-    "pref_label": "Business & Economics / Accounting / Standards (gaap, Ifrs, Etc.", 
+    "pref_label": "Business & Economics / Accounting / Standards (gaap, Ifrs, Etc.)", 
     "notation": "BUS001050", 
     "alt_label": []
   }, 
@@ -18906,9 +18906,9 @@ bisac= {
     "notation": "LCO008000", 
     "alt_label": []
   }, 
-  "Architecture / History / Contemporary (1945-": {
+  "Architecture / History / Contemporary (1945-)": {
     "related": [], 
-    "pref_label": "Architecture / History / Contemporary (1945-", 
+    "pref_label": "Architecture / History / Contemporary (1945-)", 
     "notation": "ARC005080", 
     "alt_label": []
   }, 
@@ -18954,9 +18954,9 @@ bisac= {
     "notation": "HIS036000", 
     "alt_label": []
   }, 
-  "Family & Relationships / Attention Deficit Disorder (add-adhd": {
+  "Family & Relationships / Attention Deficit Disorder (add-adhd)": {
     "related": [], 
-    "pref_label": "Family & Relationships / Attention Deficit Disorder (add-adhd", 
+    "pref_label": "Family & Relationships / Attention Deficit Disorder (add-adhd)", 
     "notation": "FAM047000", 
     "alt_label": []
   }, 
@@ -19370,9 +19370,9 @@ bisac= {
     "notation": "MED020000", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi": {
+  "History / United States / State & Local / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi", 
+    "pref_label": "History / United States / State & Local / Midwest (ia, Il, In, Ks, Mi, Mn, Mo, Nd, Ne, Oh, Sd, Wi)", 
     "notation": "HIS036090", 
     "alt_label": []
   }, 
@@ -19436,9 +19436,9 @@ bisac= {
     "notation": "JNF019010", 
     "alt_label": []
   }, 
-  "Travel / Canada / Ontario (on": {
+  "Travel / Canada / Ontario (on)": {
     "related": [], 
-    "pref_label": "Travel / Canada / Ontario (on", 
+    "pref_label": "Travel / Canada / Ontario (on)", 
     "notation": "TRV006020", 
     "alt_label": []
   }, 
@@ -19622,9 +19622,9 @@ bisac= {
     "notation": "SOC042000", 
     "alt_label": []
   }, 
-  "Study Aids / Cpa (certified Public Accountant": {
+  "Study Aids / Cpa (certified Public Accountant)": {
     "related": [], 
-    "pref_label": "Study Aids / Cpa (certified Public Accountant", 
+    "pref_label": "Study Aids / Cpa (certified Public Accountant)", 
     "notation": "STU011000", 
     "alt_label": []
   }, 
@@ -19920,7 +19920,7 @@ bisac= {
     "pref_label": "Architecture / Design, Drafting, Drawing & Presentation", 
     "notation": "ARC004000", 
     "alt_label": [
-      "Architecture / Cad (computer Aided Design"
+      "Architecture / Cad (computer Aided Design)"
     ]
   }, 
   "Juvenile Fiction / People & Places / Canada / General": {
@@ -21368,9 +21368,9 @@ bisac= {
     "notation": "GAM005000", 
     "alt_label": []
   }, 
-  "Architecture / History / Modern (late 19th Century To 1945": {
+  "Architecture / History / Modern (late 19th Century To 1945)": {
     "related": [], 
-    "pref_label": "Architecture / History / Modern (late 19th Century To 1945", 
+    "pref_label": "Architecture / History / Modern (late 19th Century To 1945)", 
     "notation": "ARC005070", 
     "alt_label": []
   }, 
@@ -21848,9 +21848,9 @@ bisac= {
     "notation": "COM010000", 
     "alt_label": []
   }, 
-  "Technology & Engineering / Engineering (general": {
+  "Technology & Engineering / Engineering (general)": {
     "related": [], 
-    "pref_label": "Technology & Engineering / Engineering (general", 
+    "pref_label": "Technology & Engineering / Engineering (general)", 
     "notation": "TEC009000", 
     "alt_label": []
   }, 
@@ -22468,9 +22468,9 @@ bisac= {
     "notation": "PSY012000", 
     "alt_label": []
   }, 
-  "Drama / Anthologies (multiple Authors": {
+  "Drama / Anthologies (multiple Authors)": {
     "related": [], 
-    "pref_label": "Drama / Anthologies (multiple Authors", 
+    "pref_label": "Drama / Anthologies (multiple Authors)", 
     "notation": "DRA002000", 
     "alt_label": []
   }, 
@@ -22725,9 +22725,9 @@ bisac= {
     "notation": "JUV041040", 
     "alt_label": []
   }, 
-  "History / United States / State & Local / Pacific Northwest (or, Wa": {
+  "History / United States / State & Local / Pacific Northwest (or, Wa)": {
     "related": [], 
-    "pref_label": "History / United States / State & Local / Pacific Northwest (or, Wa", 
+    "pref_label": "History / United States / State & Local / Pacific Northwest (or, Wa)", 
     "notation": "HIS036110", 
     "alt_label": []
   }, 
@@ -22749,9 +22749,9 @@ bisac= {
     "notation": "JUV030120", 
     "alt_label": []
   }, 
-  "Travel / United States / Midwest / East North Central (il, In, Mi, Oh, Wi": {
+  "Travel / United States / Midwest / East North Central (il, In, Mi, Oh, Wi)": {
     "related": [], 
-    "pref_label": "Travel / United States / Midwest / East North Central (il, In, Mi, Oh, Wi", 
+    "pref_label": "Travel / United States / Midwest / East North Central (il, In, Mi, Oh, Wi)", 
     "notation": "TRV025020", 
     "alt_label": []
   }, 
@@ -22845,9 +22845,9 @@ bisac= {
     "notation": "LIT004290", 
     "alt_label": []
   }, 
-  "Travel / Canada / Prairie Provinces (mb, Sk": {
+  "Travel / Canada / Prairie Provinces (mb, Sk)": {
     "related": [], 
-    "pref_label": "Travel / Canada / Prairie Provinces (mb, Sk", 
+    "pref_label": "Travel / Canada / Prairie Provinces (mb, Sk)", 
     "notation": "TRV006030", 
     "alt_label": []
   }, 
