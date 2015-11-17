@@ -30,6 +30,10 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
+# set once instead of in all the templates
+JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
+JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+
 CKEDITOR_UPLOAD_PATH = ''
 CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_CONFIGS = {
@@ -37,12 +41,14 @@ CKEDITOR_CONFIGS = {
         'width': 700,
         'toolbar': [
             ['Cut','Copy','Paste', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source'],
-            ['Bold', 'Italic', '-', 'NumberedList','BulletedList', '-','Blockquote'],
+            ['Bold', 'Italic', 'RemoveFormat', '-', 'NumberedList','BulletedList', '-','Blockquote'],
             ['Find','Replace','-', 'Scayt'],
-            ['Link', 'Unlink', '-', 'Image', 'HorizontalRule']
+            ['Link', 'Unlink', '-', 'Image','HorizontalRule']
          ],
+         'disallowedContent': '*[style]{font*} script style *[on*]{*}',
     },
 }
+CKEDITOR_JQUERY_URL=JQUERY_HOME
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -311,10 +317,6 @@ MAX_CC_DATE = datetime.date( 2099,12,31)
 TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
 import djcelery
 djcelery.setup_loader()
-
-# set once instead of in all the templates
-JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
-JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
 
 # Mailchimp archive JavaScript URL
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
