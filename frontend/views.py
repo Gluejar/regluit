@@ -493,7 +493,7 @@ def edition_uploads(request, edition_id):
         })
     return render(request, 'edition_uploads.html', context )
 
-def add_subject(subject_name,work, authority=None):
+def add_subject(subject_name,work, authority=''):
     try:
         subject= models.Subject.objects.get(name=subject_name)
     except models.Subject.DoesNotExist:
