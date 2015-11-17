@@ -73,7 +73,7 @@ function put_un_in_cookie2(){
                                             {% if work.last_campaign.publisher %}
                                             <span><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                             {% endif %}
-                                            <span>{{ work.publication_date_year }}</span>
+                                            <span>{{ work.publication_date }}</span>
                                         </div>
                                         <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
                                     </div>

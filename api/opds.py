@@ -111,7 +111,7 @@ def work_node(work, facet=None):
     
     
     # <dcterms:issued>2012</dcterms:issued>
-    node.append(text_node("{http://purl.org/dc/terms/}issued", work.publication_date_year))
+    node.append(text_node("{http://purl.org/dc/terms/}issued", work.publication_date))
     
     # author
     # TO DO: include all authors?
