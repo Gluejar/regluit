@@ -88,17 +88,11 @@ ul.fancytree-container {
 {% block doccontent %}
 {% if admin %}
     {% if edition.pk %}
-    <h2>Edit Edition / Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work }}</a></h2>
+    <h2>Edit Edition for <a href="{% url 'work' edition.work.id %}">{{ edition.work.title }}</a></h2>
     {% else %}
     <h2>Create New Edition</h2>
     {% endif %}
-{% else %}
-    {% if edition.pk %}
-    <h2>Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work }}</a></h2>
-    {% endif %}
-{% endif %}
 
-{% if admin %}
 <p>Title and ISBN 13 are required; the rest is optional, though a cover image is strongly recommended.</p>
 <form id="editform" enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}

@@ -11,7 +11,7 @@
 
 {% block doccontent %}
 
-<h2>Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work }}</a></h2>
+<h2>Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work.title }}</a></h2>
             {% if edition.publisher %}
                 Publisher: <a href="{% url 'bypubname_list' edition.publisher_name.id %}">{{edition.publisher}}</a><br />
             {% endif %}
