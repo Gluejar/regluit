@@ -15,7 +15,7 @@
             {% endfor %}</ul>{% endif %}
           <br />{{ wishlists.today.count }} of them have 1 or more items on a wishlist. 
         </li>
-        <li>{{ users.yesterday.count }} registered yesterday.{% if users.today.count %}They are 
+        <li>{{ users.yesterday.count }} registered yesterday.{% if users.yesterday.count %}They are 
             <ul class="terms">{% for user in users.yesterday %}
                 <li><a href="{% url 'supporter' user.username %}"> {{user.username}}</a> {% if user.is_active %} ( {{ user.wishlist.works.count }} wishes) {% if user.library %}{{user.library}}{% endif %}{% endif %}</li>
             {% endfor %}</ul>{% endif %}
