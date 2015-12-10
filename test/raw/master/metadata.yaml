@@ -11,12 +11,17 @@ contributor:
     gutenberg_agent_id: '37155'
     url: http://www.gutenberg.org/2009/agents/37155
     wikipedia: http://en.wikipedia.org/wiki/E._W._Kemble
-covers:
-- attribution: Priscilla Parizeau, 2015
-  cover_type: original
-  image_path: cover.jpg
-  rights: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
-  rights_url: https://creativecommons.org/licenses/by-nc/4.0/
+edition_list:
+    -
+        _edition: rtc_isbn
+        publisher: Recovering the Classics
+        rights: CC BY-NC
+        covers:
+        - attribution: Priscilla Parizeau, 2015
+          cover_type: original
+          image_path: cover.jpg
+          rights: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+          rights_url: https://creativecommons.org/licenses/by-nc/4.0/
 creator:
   author:
     agent_name: Twain, Mark
@@ -38,8 +43,8 @@ identifiers:
   gutenberg: '76'
 language: en
 publication_date: 2015-08-01
-publisher: Recovering the Classics
-rights: CC BY-NC
+publisher: Project Gutenberg
+rights: PD-US
 rights_url: http://creativecommons.org/licenses/by-nc/4.0/
 subjects:
 - !lcsh Male friendship -- Fiction

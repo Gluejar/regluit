@@ -114,6 +114,7 @@ urlpatterns = patterns(
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", "work_openlibrary", name="work_openlibrary"),
     url(r"^new_edition/(?P<work_id>)(?P<edition_id>)$", "new_edition", name="new_edition"),
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", "new_edition", name="new_edition"),
+    url(r"^manage_ebooks/(?P<edition_id>\d*)$", "manage_ebooks", name="manage_ebooks"),
     url(r"^googlebooks/(?P<googlebooks_id>.+)/$", "googlebooks", name="googlebooks"),
     url(r"^download_ebook/(?P<ebook_id>\w+)/$", "download_ebook", name="download_ebook"),
     url(r"^download_ebook/acq/(?P<format>\w+)/(?P<nonce>\w+)/$", "download_acq", name="download_acq"),

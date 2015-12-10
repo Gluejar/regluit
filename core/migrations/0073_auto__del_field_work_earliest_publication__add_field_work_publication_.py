@@ -3,47 +3,28 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
-from regluit.marc.models import marc_rels
+
 
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding model 'Relation'
-        db.create_table('core_relation', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(unique=True, max_length=3, db_index=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=30, blank=True)),
-        ))
-        if not db.dry_run:
-            db.send_create_signal('core', ['Relation'])
-            aut = orm['core.Relation'].objects.create(code='aut', name=marc_rels['aut'])
-            assert aut.id == 1
-            for key in marc_rels.keys():
-                if key != 'aut':
-                    orm['core.Relation'].objects.create(code=key, name=marc_rels[key])
-        
-        
-        # Adding field 'relation'
-        db.add_column('core_author_editions', 'relation', 
-                    self.gf('django.db.models.fields.related.ForeignKey')(default=1, to=orm['core.Relation']),
-                    keep_default=False)
+        # Deleting field 'Work.earliest_publication'
+        db.delete_column('core_work', 'earliest_publication')
 
- 
-        # Adding field 'Subject.authority'
-        db.add_column('core_subject', 'authority',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=10),
+        # Adding field 'Work.publication_range'
+        db.add_column('core_work', 'publication_range',
+                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'relation'
-        db.delete_column('core_author_editions', 'relation_id')
+        # Adding field 'Work.earliest_publication'
+        db.add_column('core_work', 'earliest_publication',
+                      self.gf('django.db.models.fields.CharField')(max_length=50, null=True),
+                      keep_default=False)
 
-        # Deleting model 'Relation'
-        db.delete_table('core_relation')
-
-        # Deleting field 'Subject.authority'
-        db.delete_column('core_subject', 'authority')
+        # Deleting field 'Work.publication_range'
+        db.delete_column('core_work', 'publication_range')
 
 
     models = {
@@ -102,7 +83,7 @@ class Migration(SchemaMigration):
             'license': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'nonce': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True'}),
             'refreshed': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 7, 27, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'refreshes': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 10, 5, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['auth.User']"}),
             'watermarked': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['booxtream.Boox']", 'null': 'True'}),
             'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'acqs'", 'to': "orm['core.Work']"})
@@ -157,7 +138,7 @@ class Migration(SchemaMigration):
         'core.celerytask': {
             'Meta': {'object_name': 'CeleryTask'},
             'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 7, 27, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2015, 10, 5, 0, 0)', 'auto_now_add': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
             'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
             'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
@@ -298,9 +279,9 @@ class Migration(SchemaMigration):
         'core.relator': {
             'Meta': {'object_name': 'Relator', 'db_table': "'core_author_editions'"},
             'author': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Author']"}),
+            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relators'", 'to': "orm['core.Edition']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'relation': ('django.db.models.fields.related.ForeignKey', [], {'default': '1', 'to': "orm['core.Relation']"}),
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'author'", 'to': "orm['core.Edition']"})
+            'relation': ('django.db.models.fields.related.ForeignKey', [], {'default': '1', 'to': "orm['core.Relation']"})
         },
         'core.rightsholder': {
             'Meta': {'object_name': 'RightsHolder'},
@@ -367,13 +348,13 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "['title']", 'object_name': 'Work'},
             'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'db_index': 'True', 'blank': 'True'}),
             'description': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
-            'earliest_publication': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'featured': ('django.db.models.fields.DateTimeField', [], {'db_index': 'True', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_free': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'language': ('django.db.models.fields.CharField', [], {'default': "'en'", 'max_length': '5', 'db_index': 'True'}),
             'num_wishes': ('django.db.models.fields.IntegerField', [], {'default': '0', 'db_index': 'True'}),
             'openlibrary_lookup': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
+            'publication_range': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
             'selected_edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'selected_works'", 'null': 'True', 'to': "orm['core.Edition']"}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
         },

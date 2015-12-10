@@ -73,7 +73,7 @@ function put_un_in_cookie2(){
                                             {% if work.last_campaign.publisher %}
                                             <span><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                             {% endif %}
-                                            <span>{{ work.publication_date_year }}</span>
+                                            <span>{{ work.publication_date }}</span>
                                         </div>
                                         <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
                                     </div>
@@ -196,7 +196,7 @@ function put_un_in_cookie2(){
                 <div class="jsmodule">
                 	<h3 class="module-title">News</h3>
                     <div class="jsmod-content">
-                     Blog: <a href="http://blog.unglue.it/2015/02/27/unglue-it-joins-gitenberg/">Unglue.it joins GITenberg</a>
+                     Unglue.it is now a program of <a href="http://ebookfoundation.org/"> the Free Ebook Foundation</a>
                     </div>
                 </div>
                 <div class="jsmodule">

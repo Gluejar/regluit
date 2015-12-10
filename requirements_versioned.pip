@@ -21,8 +21,7 @@ celery==3.0.9
 # but having distribute in requirements starting to cause problems
 # distribute==0.6.28
 django-celery==3.0.9
-#django-ckeditor==3.6.2.1
-git+ssh://git@github.com/Gluejar/django-ckeditor.git@3.6.2.1.post20131230
+django-ckeditor==4.5.1
 #django-email-change==0.2.3
 git+git://github.com/novagile/django-email-change.git@0d7cb91b987a0505a9c4bde126d452233dea266d
 django-endless-pagination==2.0
@@ -30,6 +29,7 @@ django-extensions==0.9
 django-jsonfield==0.9.10
 django-kombu==0.9.4
 django-maintenancemode==0.10
+django-mptt==0.7.4
 django-nose-selenium==0.7.3
 #django-notification==0.2
 git+git://github.com/aladagemre/django-notification.git@2927346f4c513a217ac8ad076e494dd1adbf70e1
@@ -41,7 +41,7 @@ django-tastypie==0.9.11
 feedparser==5.1.2
 freebase==1.0.8
 #gitenberg.metadata==0.1.6
-git+ssh://git@github.com/gitenberg-dev/metadata.git@0.1.8
+git+ssh://git@github.com/gitenberg-dev/metadata.git@0.1.11
 html5lib==1.0b3
 httplib2==0.7.5
 isodate==0.5.1

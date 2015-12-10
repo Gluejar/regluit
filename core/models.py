@@ -1075,7 +1075,8 @@ class Work(models.Model):
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
     selected_edition =  models.ForeignKey("Edition", related_name = 'selected_works', null = True)
-    earliest_publication =  models.CharField(max_length=50, null=True)
+    # repurposed earliest_publication to actually be publication range
+    publication_range =  models.CharField(max_length=50, null = True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
 
@@ -1437,24 +1438,30 @@ class Work(models.Model):
 
     @property
     def publication_date(self):
-        if self.earliest_publication:
-            return  self.earliest_publication
+        if self.publication_range:
+            return  self.publication_range
         for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('publication_date'):
             if edition.publication_date:
-                self.earliest_publication = edition.publication_date
+                try:
+                    earliest_publication = edition.publication_date[:4]
+                except IndexError:
+                    continue
+                latest_publication = None
+                for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('-publication_date'):
+                    if edition.publication_date:
+                        try:
+                            latest_publication =  edition.publication_date[:4]
+                        except IndexError:
+                            continue
+                        break
+                if earliest_publication == latest_publication:
+                    publication_range = earliest_publication
+                else:
+                    publication_range = earliest_publication + "-" + latest_publication
+                self.publication_range = publication_range  
                 self.save()
-                return edition.publication_date
+                return publication_range
         return ''
-
-    @property
-    def publication_date_year(self):
-        try:
-            return self.publication_date[:4]
-        except IndexError:
-            return 'unknown'
-
-    def __unicode__(self):
-        return self.title
         
     @property
     def has_unglued_edition(self):
