@@ -15,6 +15,9 @@ class WorkLookup(ModelLookup):
     def get_item_label(self,item):
         return "%s (%s, %s)"%(item.title,item.id,item.language)
         
+    def get_item_value(self,item):
+        return "%s (%s, %s)"%(item.title,item.id,item.language)
+        
     def get_query(self, request, term):
         results = super(WorkLookup, self).get_query(request, term)
         return results
