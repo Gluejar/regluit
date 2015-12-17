@@ -36,7 +36,9 @@
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
                 {% else %}{% if user in work.last_campaign.managers.all %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% endif %}{% endif %}
+                {% else %}{% if user.rights_holder.count and not work.last_campaign %}
+                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
+                {% endif %}{% endif %}{% endif %}
                 {% if user.is_authenticated %}
                     <a href="{% url 'manage_ebooks' edition.id %}">Add ebook link</a><br />
                 {% endif %}
