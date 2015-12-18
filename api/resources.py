@@ -15,12 +15,6 @@ from regluit.core import models
 
 logger = logging.getLogger(__name__)
 
-class UserResource(ModelResource):
-    class Meta:
-        authentication = ApiKeyAuthentication()
-        queryset = User.objects.all()
-        resource_name = 'user'
-        fields = ['username', 'first_name', 'last_name']
 
 class EditionResource(ModelResource):
     work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
@@ -127,9 +121,6 @@ class SubjectResource(ModelResource):
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
 
-class WishlistResource(ModelResource):
-    user = fields.ToOneField(UserResource, 'user')
-    works = fields.ToManyField(WorkResource, 'works')
 
     class Meta:
         authentication = ApiKeyAuthentication()
