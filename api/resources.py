@@ -8,8 +8,8 @@ from tastypie.authentication import ApiKeyAuthentication, Authentication
 
 from django.conf.urls.defaults import url
 from django.contrib import auth
-from django.contrib.auth.models import User, AnonymousUser
-from django.db.models import Q
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from regluit.core import models
 
