@@ -1,1 +1,1 @@
-Campaign for {{ campaign.work }} now active at Unglue.it!
+Campaign for {{ campaign.work.title }} now active at Unglue.it!

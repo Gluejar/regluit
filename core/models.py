@@ -280,9 +280,9 @@ class Acq(models.Model):
         
     def __unicode__(self):
         if self.lib_acq:
-            return "%s, %s: %s for %s" % (self.work, self.get_license_display(), self.lib_acq.user, self.user)
+            return "%s, %s: %s for %s" % (self.work.title, self.get_license_display(), self.lib_acq.user, self.user)
         else:
-            return "%s, %s for %s" % (self.work, self.get_license_display(), self.user,)
+            return "%s, %s for %s" % (self.work.title, self.get_license_display(), self.user,)
        
     @property
     def expired(self):
@@ -1083,6 +1083,8 @@ class Work(models.Model):
 
     class Meta:
         ordering = ['title']
+    def __unicode__(self):
+        return self.title
 
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
