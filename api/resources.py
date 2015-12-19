@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from regluit.core import models
+import regluit.core.isbn
 
 logger = logging.getLogger(__name__)
 
@@ -121,8 +122,38 @@ class SubjectResource(ModelResource):
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
 
+class FreeResource(ModelResource):
+    def alter_list_data_to_serialize(self, request, data):
+        del data["meta"]["limit"]
+        del data["meta"]["offset"]
+        return data
+    
+    def dehydrate(self, bundle):
+        bundle.data["filetype"]=bundle.obj.format
+        bundle.data["rights"]=bundle.obj.rights
+        bundle.data["provider"]=bundle.obj.provider
+        bundle.data["href"]=reverse('download_ebook',kwargs={'ebook_id':bundle.obj.id})
+        return bundle
+        
+    def obj_get_list(self, request=None, **kwargs):
+        isbn =""
+        if hasattr(request, 'GET'):
+            isbn = request.GET.get("isbn","")
+        isbn = isbn.replace('-','')
+        if len(isbn)==10:
+            isbn=regluit.core.isbn.convert_10_to_13(isbn)
+
+        try:
+            work=models.Identifier.objects.get(type='isbn',value=isbn,).work
+            base_object_list = models.Ebook.objects.filter(edition__work=work)
+            return self.apply_authorization_limits(request, base_object_list)
+        except ValueError:
+            raise BadRequest("Invalid resource lookup data provided (mismatched type).")
+        except models.Identifier.DoesNotExist:
+            return self.apply_authorization_limits(request, models.Ebook.objects.none())
 
     class Meta:
         authentication = ApiKeyAuthentication()
-        queryset = models.Wishlist.objects.all()
-        resource_name = 'wishlist'
+        fields = [ 'provider', 'rights' ]
+        limit = 0
+        include_resource_uri = False

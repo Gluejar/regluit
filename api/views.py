@@ -156,3 +156,4 @@ class OnixView(View):
             facet_class = opds.get_facet_class(facet)()
             return HttpResponse(onix.onix_feed(facet_class, max),
                                 content_type="text/xml")
+
