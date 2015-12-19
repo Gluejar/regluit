@@ -26,7 +26,7 @@
     Works can be ordered by how often they've been favorited; append &amp;order_by=num_wishes (ascending) or &amp;order_by=-num_wishes (descending).
     </p>
     <h3>Free Ebooks by ISBN</h3>
-    <p>With an API key, you can check if there's a free ebook for any ISBN.</p>
+    <p>With an API key, you can check if there's a free ebook for any ISBN. ISBNs can be 10 or 13 digits, and can include dashes. This service returns all free-licensed ebooks for a work associated with an ISBN, and for each ebook includes information about file type, rights, and the provider hosting the file.</p>
     <p>For example, here's how to get a list of ebook files for "Homeland".</p>
     <p>{% if user.is_authenticated %}
     JSON: <a href="/api/v1/free/?isbn=9780765333698&amp;format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/free/?isbn=9780765333698&amp;format=json&amp;api_key={your_api_key}&amp;username={your_username}</a>
