@@ -25,14 +25,30 @@
     <p>
     Works can be ordered by how often they've been favorited; append &amp;order_by=num_wishes (ascending) or &amp;order_by=-num_wishes (descending).
     </p>
-    
+    <h3>Free Ebooks by ISBN</h3>
+    <p>With an API key, you can check if there's a free ebook for any ISBN. ISBNs can be 10 or 13 digits, and can include dashes. This service returns all free-licensed ebooks for a work associated with an ISBN, and for each ebook includes information about file type, rights, and the provider hosting the file.</p>
+    <p>For example, here's how to get a list of ebook files for "Homeland".</p>
+    <p>{% if user.is_authenticated %}
+    JSON: <a href="/api/v1/free/?isbn=9780765333698&amp;format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/free/?isbn=9780765333698&amp;format=json&amp;api_key={your_api_key}&amp;username={your_username}</a>
+    <br />XML: <a href="/api/v1/free/?isbn=9780765333698&amp;format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/free/?isbn=9780765333698&amp;format=xml&amp;api_key={your_api_key}&amp;username={your_username}</a>
+    {% else %}
+    <i>(<a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}">Log in</a> to see links)</i>
+    {% endif %}</p>
+    <h3>Identifier Resolution</h3>
+    <p>Here's how to get work/edition data for an isbn</p>
+    <p>{% if user.is_authenticated %}
+JSON: <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a><br />
+XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=xml&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a></p>    {% else %}
+    <i>(<a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}">Log in</a> to see links)</i>
+    {% endif %}</p>
     {% if user.is_authenticated %}
     <h3>Campaign info</h3>
-    <p>JSON to get data on all campaigns</p>
-    <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a>
+    <p>Here's how to get data on all campaigns. if the user is logged in to Unglue.it, they can tell if the campaign book is on their fave list</p>
+    <p>JSON: <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a><<br />XML: <a href="/api/v1/campaign/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a></p>
     <h3>Identifier Resolution</h3>
-    <p>JSON to get work/edition data for an isbn</p>
-    <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a>
+    <p>Here's how to get work/edition data for an isbn</p>
+    <p>JSON: <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a><br />
+    XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=xml&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a></p>
     <p> In addition to isbn, you can use 'goog' if you have a google books id, and 'oclc' for oclc numbers.</p>
     {% endif %}
     
