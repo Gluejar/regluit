@@ -273,7 +273,7 @@ class BookLoaderTests(TestCase):
         
         # RY switched to Atwood's Handmaid's Tale for hopefully longer term resilience for this test
         isbn1 = '9780395404256'
-        isbn2 = '9780547345666'
+        isbn2 = '9780771008795'
         e1 = bookloader.add_by_isbn(isbn1)
         e2 = bookloader.add_by_isbn(isbn2)
         self.assertTrue(e1)
