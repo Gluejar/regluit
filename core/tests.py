@@ -53,6 +53,7 @@ from regluit.core.models import (
     Premium,
     Subject,
     Publisher,
+    PublisherName,
     Offer,
     EbookFile,
     Acq,
@@ -118,6 +119,11 @@ class BookLoaderTests(TestCase):
         self.assertTrue(edition.work)
         self.assertEqual(edition.work.googlebooks_id, '0bBQAAAAYAAJ')
         self.assertEqual(edition.work.first_isbn_13(), '9780444899743')
+        
+        # test duplicate pubname error
+        PublisherName.objects.create(name='North Holland') # should be duplicate
+        ed2 = Edition.objects.create(work=edition.work)
+        ed2.set_publisher('North Holland')
         
         # publisher names
         old_pub_name = edition.publisher_name
