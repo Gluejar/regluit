@@ -1830,6 +1830,11 @@ class Edition(models.Model):
             except PublisherName.DoesNotExist:
                 pub_name = PublisherName.objects.create(name=publisher_name)
                 pub_name.save()
+            except PublisherName.MultipleObjectsReturned:
+                pub_name = PublisherName.objects.filter(name=publisher_name)[0]
+                if pub_name.publisher:
+                    pub_name = pub_name.publisher.name
+                
             self.publisher_name = pub_name
             self.save()
 
