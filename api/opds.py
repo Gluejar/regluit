@@ -89,10 +89,10 @@ def work_node(work, facet=None):
         link_node = etree.Element("link")
         
         # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-        
+        link_rel = "http://opds-spec.org/acquisition/open-access" if ebook.is_direct() else "http://opds-spec.org/acquisition"
         link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
                                  "type":FORMAT_TO_MIMETYPE.get(ebook.format, ""),
-                                 "rel":"http://opds-spec.org/acquisition",
+                                 "rel":link_rel,
                                  "{http://purl.org/dc/terms/}rights": str(ebook.rights)})
         node.append(link_node)
         
