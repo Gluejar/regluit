@@ -53,6 +53,7 @@ from regluit.core.models import (
     Premium,
     Subject,
     Publisher,
+    PublisherName,
     Offer,
     EbookFile,
     Acq,
@@ -76,6 +77,9 @@ class BookLoaderTests(TestCase):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
         self.client.login(username='core_test', password='core_test')
+        
+        #setup test for duplicate pubname
+        
     
     def test_add_by_local_yaml(self):  
     
@@ -97,25 +101,29 @@ class BookLoaderTests(TestCase):
         self.assertFalse(bookloader.valid_subject('A, valid, suj\xc3t, '))
         self.assertFalse(bookloader.valid_subject('A valid suj\xc3t \x01'))
 
-    @unittest.expectedFailure
     def test_add_by_isbn(self):
         # edition
-        edition = bookloader.add_by_isbn('0441007465')
-        self.assertEqual(edition.title, 'Neuromancer')
-        self.assertEqual(edition.publication_date, u'2000')
-        self.assertEqual(edition.publisher, u'Penguin')
-        self.assertEqual(edition.isbn_10, '0441007465')
-        self.assertEqual(edition.isbn_13, '9780441007462')
-        self.assertEqual(edition.googlebooks_id, 'IDFfMPW32hQC')
+        edition = bookloader.add_by_isbn('9780444899743')
+        self.assertEqual(edition.title, 'Computers, Communication and Usability')
+        self.assertEqual(edition.publication_date, u'1993')
+        self.assertEqual(edition.publisher, u'North Holland')
+        self.assertEqual(edition.isbn_10, '044489974X')
+        self.assertEqual(edition.isbn_13, '9780444899743')
+        self.assertEqual(edition.googlebooks_id, '0bBQAAAAYAAJ')
 
         # authors
-        self.assertEqual(edition.authors.all().count(), 1)
-        self.assertEqual(edition.authors.all()[0].name, 'William Gibson')
+        self.assertEqual(edition.authors.all().count(), 3)
+        self.assertEqual(edition.authors.all()[0].name, 'Paul Byerley')
 
         # work
         self.assertTrue(edition.work)
-        self.assertEqual(edition.work.googlebooks_id, 'IDFfMPW32hQC')
-        self.assertEqual(edition.work.first_isbn_13(), '9780441007462')
+        self.assertEqual(edition.work.googlebooks_id, '0bBQAAAAYAAJ')
+        self.assertEqual(edition.work.first_isbn_13(), '9780444899743')
+        
+        # test duplicate pubname error
+        PublisherName.objects.create(name='North Holland') # should be duplicate
+        ed2 = Edition.objects.create(work=edition.work)
+        ed2.set_publisher('North Holland')
         
         # publisher names
         old_pub_name = edition.publisher_name
@@ -126,8 +134,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.publishers().count(), 1)
         old_pub_name.publisher = pub
         old_pub_name.save()
-        edition.set_publisher(u'Penguin')
-        self.assertEqual(edition.publisher, u'test publisher name') # Penguin has been aliased
+        edition.set_publisher(u'North Holland')
+        self.assertEqual(edition.publisher, u'test publisher name') # North Holland has been aliased
         # locale in language
         # Obama Dreams from My Father, Chinese edition
         # http://www.worldcat.org/title/oubama-de-meng-xiang-zhi-lu-yi-fu-zhi-ming/oclc/272997721&referer=brief_results
