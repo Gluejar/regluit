@@ -10,6 +10,7 @@ import urllib
 import urllib2
 from urlparse import urlparse
 import unicodedata
+import math
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -1415,6 +1416,13 @@ class Work(models.Model):
     def update_num_wishes(self):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
+
+    def priority(self):
+        if self.last_campaign():
+            return 5
+        freedom = 1 if self.is_free else 0
+        wishing = int(math.log(self.num_wishes )) + 1 if self.num_wishes else 0
+        return min( freedom + wishing, 5 )
 
     def first_oclc(self):
         if self.preferred_edition == None:

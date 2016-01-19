@@ -653,6 +653,7 @@ class WishlistTest(TestCase):
         user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
         self.assertEqual(work.num_wishes, num_wishes)
+        self.assertTrue(work.priority()==1)
         
 class CeleryTaskTest(TestCase):
 
