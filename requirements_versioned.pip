@@ -68,7 +68,7 @@ redis==2.6.2
 reportlab==3.1.8
 requests==2.6.0
 requests-oauthlib==0.4.2
-selenium==2.46.0
+selenium==2.49.2
 six==1.9.0
 sorl-thumbnail==12.3
 ssh==1.7.14
