@@ -157,8 +157,8 @@ def work_node(work, facet=None):
                 subject.delete()
                 
     # rating            
-    rating_node = etree.Element("{http://schema.org}Rating")
-    rating_node.attrib.update({"{http://schema.org}ratingValue":"{:}".format(work.priority())})
+    rating_node = etree.Element("{http://schema.org/}Rating")
+    rating_node.attrib.update({"{http://schema.org/}ratingValue":"{:}".format(work.priority())})
     node.append(rating_node)
     return node
 
@@ -233,7 +233,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
       xmlns:opds="http://opds-spec.org/"
       xmlns="http://www.w3.org/2005/Atom"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:schema="http://schema.org"
+      xmlns:schema="http://schema.org/"
       xsi:noNamespaceSchemaLocation="http://www.kbcafe.com/rss/atom.xsd.xml"
       xsi:schemaLocation="http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd 
       http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd"/>"""
