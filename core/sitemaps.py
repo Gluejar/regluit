@@ -10,21 +10,7 @@ class WorkSitemap(Sitemap):
         return Work.objects.all()
         
     def priority(self,work):
-        if work.last_campaign():
-            return '1.0'
-        if work.num_wishes>1000:
-            return '0.8'
-        if work.num_wishes>100:
-            return '0.6'
-        if work.num_wishes>10:
-            return '0.4'
-        if work.num_wishes>1:
-            return '0.3'
-        if work.num_wishes==1:
-            return '0.2'
-        if work.num_wishes==0:
-            return '0.1'
-        return '0.1'
+        return '{:.1f}'.format(work.priority()/5.0)
 
 class PublisherSitemap(Sitemap):
     priority = 0.2
