@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			You have borrowed {{ acq.work }} from {{ acq.lib_acq.user.username }}.  During the borrowing period, you can download the ebook at <a href="{% url 'download' acq.work.id %}">the book's download page.</a>
+			You have borrowed {{ acq.work.title }} from {{ acq.lib_acq.user.username }}.  During the borrowing period, you can download the ebook at <a href="{% url 'download' acq.work.id %}">the book's download page.</a>
 {% endblock %}
 
 {% block comments_textual %}

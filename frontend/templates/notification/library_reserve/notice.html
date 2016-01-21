@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			{{ acq.work }} is reserved for you from {{ acq.lib_acq.user.username }} until {{ acq.expires }}.  Until then, you can borrow the ebook at <a href="{% url 'download' acq.work.id %}">the book's download page.</a>
+			{{ acq.work.title }} is reserved for you from {{ acq.lib_acq.user.username }} until {{ acq.expires }}.  Until then, you can borrow the ebook at <a href="{% url 'download' acq.work.id %}">the book's download page.</a>
 {% endblock %}
 
 {% block comments_textual %}

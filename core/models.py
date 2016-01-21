@@ -10,6 +10,7 @@ import urllib
 import urllib2
 from urlparse import urlparse
 import unicodedata
+import math
 
 from ckeditor.fields import RichTextField
 from datetime import timedelta, datetime
@@ -280,9 +281,9 @@ class Acq(models.Model):
         
     def __unicode__(self):
         if self.lib_acq:
-            return "%s, %s: %s for %s" % (self.work, self.get_license_display(), self.lib_acq.user, self.user)
+            return "%s, %s: %s for %s" % (self.work.title, self.get_license_display(), self.lib_acq.user, self.user)
         else:
-            return "%s, %s for %s" % (self.work, self.get_license_display(), self.user,)
+            return "%s, %s for %s" % (self.work.title, self.get_license_display(), self.user,)
        
     @property
     def expired(self):
@@ -1083,6 +1084,8 @@ class Work(models.Model):
 
     class Meta:
         ordering = ['title']
+    def __unicode__(self):
+        return self.title
 
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
@@ -1413,6 +1416,13 @@ class Work(models.Model):
     def update_num_wishes(self):
         self.num_wishes = Wishes.objects.filter(work=self).count()
         self.save()
+
+    def priority(self):
+        if self.last_campaign():
+            return 5
+        freedom = 1 if self.is_free else 0
+        wishing = int(math.log(self.num_wishes )) + 1 if self.num_wishes else 0
+        return min( freedom + wishing, 5 )
 
     def first_oclc(self):
         if self.preferred_edition == None:
@@ -1828,6 +1838,11 @@ class Edition(models.Model):
             except PublisherName.DoesNotExist:
                 pub_name = PublisherName.objects.create(name=publisher_name)
                 pub_name.save()
+            except PublisherName.MultipleObjectsReturned:
+                pub_name = PublisherName.objects.filter(name=publisher_name)[0]
+                if pub_name.publisher:
+                    pub_name = pub_name.publisher.name
+                
             self.publisher_name = pub_name
             self.save()
 

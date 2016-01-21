@@ -35,6 +35,13 @@ class ApiTests(TestCase):
         )
         self.user = User.objects.create_user('test', 'test@example.org', 'testpass')
         self.client = Client()
+        ebook = models.Ebook.objects.create(
+            url="http://example.com/ebook",
+            provider="github", 
+            rights='CC BY',
+            format='epub',
+            edition=edition,
+        )
 
     def test_user(self):
         self.assertEqual(User.objects.all().count(), 1)
@@ -119,6 +126,15 @@ class ApiTests(TestCase):
         j = json.loads(r.content)
         self.assertEqual(j['meta']['logged_in_username'], 'test')
         self.assertEqual(j['objects'][0]['in_wishlist'], True)
+
+        r = self.client.get('/api/v1/free/', data={
+            'format': 'json', 
+            'isbn': '0441007465', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        j = json.loads(r.content)
+        self.assertEqual(j['objects'][0]['filetype'], 'epub')
 
     def test_widget(self):
         r = self.client.get('/api/widget/0441007465/')

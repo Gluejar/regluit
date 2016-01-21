@@ -4,7 +4,6 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.db.models import Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.generic.base import View, TemplateView
@@ -22,18 +21,6 @@ from regluit.api.models import repo_allowed
 
 from regluit.core import models
 
-def isbn(request,isbn):
-    if len(isbn)==10:
-        isbn=regluit.core.isbn.convert_10_to_13(isbn)
-    try:
-        edition = models.Identifier.objects.get( Q(type = 'isbn', value = isbn)).edition
-        editions = [edition]
-    except models.Identifier.DoesNotExist:
-        editions = []
-    return render_to_response('isbn.html', 
-        {'isbn':isbn, 'editions':editions},
-        context_instance=RequestContext(request)
-    )
 
 def editions(request):
     editions = models.Edition.objects.all()
@@ -61,7 +48,7 @@ def widget(request,isbn):
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
     if len(isbn)==13:
         try:
-            identifier = models.Identifier.objects.get( Q( type = 'isbn', value = isbn ))
+            identifier = models.Identifier.objects.get(type = 'isbn', value = isbn )
             work = identifier.work
         except models.Identifier.DoesNotExist:
             return render_to_response('widget.html', 
@@ -169,3 +156,4 @@ class OnixView(View):
             facet_class = opds.get_facet_class(facet)()
             return HttpResponse(onix.onix_feed(facet_class, max),
                                 content_type="text/xml")
+

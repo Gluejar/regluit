@@ -523,7 +523,7 @@ def new_edition(request, work_id, edition_id, by=None):
     elif work and work.last_campaign():
         if request.user in work.last_campaign().managers.all():
             admin = True
-    elif work==None and request.user.rights_holder.count():
+    elif request.user.rights_holder.count() and (work == None or not work.last_campaign()): # allow rights holders to edit unless there is a campaign
         admin = True
     if edition_id:
         try:
