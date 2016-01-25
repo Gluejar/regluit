@@ -226,6 +226,8 @@ class PublisherFacetGroup(FacetGroup):
                     self.publisher =  pubmodel.objects.get(id=self.pub_id)
                 except pubmodel.DoesNotExist:
                     self.publisher =  None
+                except ValueError: # pub_id is not a number
+                    self.publisher =  None
             def pub_filter(query_set):
                 return query_set.filter(edition__publisher_name__publisher__id=facet_name[4:])
             def edition_pub_filter(query_set):
