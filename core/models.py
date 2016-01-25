@@ -1645,7 +1645,7 @@ class Work(models.Model):
                 
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=500)
+    name = models.CharField(max_length=255, unique=True)
     editions = models.ManyToManyField("Edition", related_name="authors")
 
     def __unicode__(self):
@@ -1838,10 +1838,6 @@ class Edition(models.Model):
             except PublisherName.DoesNotExist:
                 pub_name = PublisherName.objects.create(name=publisher_name)
                 pub_name.save()
-            except PublisherName.MultipleObjectsReturned:
-                pub_name = PublisherName.objects.filter(name=publisher_name)[0]
-                if pub_name.publisher:
-                    pub_name = pub_name.publisher.name
                 
             self.publisher_name = pub_name
             self.save()
@@ -1891,7 +1887,7 @@ class Publisher(models.Model):
         return self.name.name
 
 class PublisherName(models.Model):
-    name = models.CharField(max_length=255,  blank=False)
+    name = models.CharField(max_length=255,  blank=False, unique=True)
     
     publisher =  models.ForeignKey('Publisher', related_name='alternate_names', null=True)
 
