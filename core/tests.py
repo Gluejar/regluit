@@ -77,9 +77,6 @@ class BookLoaderTests(TestCase):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
         self.client.login(username='core_test', password='core_test')
-        
-        #setup test for duplicate pubname
-        
     
     def test_add_by_local_yaml(self):  
     
@@ -120,8 +117,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.googlebooks_id, '0bBQAAAAYAAJ')
         self.assertEqual(edition.work.first_isbn_13(), '9780444899743')
         
-        # test duplicate pubname error
-        PublisherName.objects.create(name='North Holland') # should be duplicate
+        # test duplicate pubname 
         ed2 = Edition.objects.create(work=edition.work)
         ed2.set_publisher('North Holland')
         
