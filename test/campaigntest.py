@@ -216,8 +216,11 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     # pull up one of the campaigns to pledge to
     # for now, take the first book and click on the link to get to the work page
+
     work_links = WebDriverWait(sel,10).until(lambda d: d.find_elements_by_css_selector("div.book-list div.title a"))
+    time.sleep(2)
     work_links[0].click()
+    time.sleep(2)
     
     support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     support_button.click()
