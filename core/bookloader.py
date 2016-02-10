@@ -867,7 +867,7 @@ def load_from_yaml(yaml_url):
         if metadata._version and not metadata._version.startswith('0.0.'):
             #there should be an ebook to link to!
             try:
-                ebook= models.Ebook.objects.create(
+                ebook= models.Ebook.objects.get_or_create(
                     url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition ),
                     provider='Github',
                     rights = metadata.rights if metadata.rights in cc.LICENSE_LIST_ALL else None,
