@@ -6,6 +6,7 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateView
 from django.http import (
     HttpResponse,
@@ -13,6 +14,8 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
 )
+
+
 
 import regluit.core.isbn
 from regluit.core.bookloader import load_from_yaml
@@ -76,6 +79,10 @@ def load_yaml(request):
         return HttpResponseRedirect(reverse('work', args=[work_id]))
     except:    
         return HttpResponse('unsuccessful')
+    
+@csrf_exempt    
+def travisci_webhook(request):
+    return HttpResponse('travisci webhook')
         
 class ApiHelpView(TemplateView):
     template_name = "api_help.html"
