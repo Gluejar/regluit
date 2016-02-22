@@ -1,5 +1,6 @@
 from tastypie.models import ApiKey
 
+import json
 import logging
 
 from django.contrib import auth
@@ -86,15 +87,17 @@ def load_yaml(request):
     
 @csrf_exempt    
 def travisci_webhook(request):
-    if request.method == "GET":
-        return HttpResponse('travisci webhook GET')
-    elif request.method == "POST":
-        # how to get headers, body
-        # return HttpResponse('travisci webhook POST')
+    """
+    Respond to travis-ci webhooks from Project GITenberg repositories.  If the webhook is successfully parsed,
+    the metdata.yaml for the repository is loaded using load_from_yaml.
+    
+    """
+
+    if request.method == "POST":
     
         #repo_header = request.META.get('HTTP_TRAVIS_REPO_SLUG', '')
         
-        data = request.POST
+        data = json.loads(request.POST.get('payload'))
         
         # [python - How can I get all the request headers in Django? - Stack Overflow](https://stackoverflow.com/questions/3889769/how-can-i-get-all-the-request-headers-in-django)
         import re
