@@ -92,7 +92,8 @@ def travisci_webhook(request):
         # how to get headers, body
         # return HttpResponse('travisci webhook POST')
     
-        repo_header = request.META.get('HTTP_TRAVIS_REPO_SLUG', '')
+        #repo_header = request.META.get('HTTP_TRAVIS_REPO_SLUG', '')
+        
         data = request.POST
         
         # [python - How can I get all the request headers in Django? - Stack Overflow](https://stackoverflow.com/questions/3889769/how-can-i-get-all-the-request-headers-in-django)
@@ -104,10 +105,12 @@ def travisci_webhook(request):
         # what's the URL to feed to load
         # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml 
         
-        if data.get('status_message') == 'Passed' and data.get('type') == 'push':
-            
-            repo_url = "https://github.com/{}/raw/master/metadata.yaml".format(repo_header)
-            logger.info("repo_url:{}".format(repo_url))
+        if data['status_message'] == 'Passed' and data['type'] == 'push':
+                       
+            logger.info("data.keys():{}".format(data.keys()))
+            logger.info("data['repository']: {}".format(data['repository']))
+            repo_url = "https://github.com/{}/{}/raw/master/metadata.yaml".format(data['repository']['owner_name'],
+                                                                                  data['repository']['name'])
             try:
                 work_id = load_from_yaml(repo_url)
                 logger.info("work_id: {}".format(work_id))
@@ -118,13 +121,16 @@ def travisci_webhook(request):
                 
         else:
             
-            return HttpResponse('travisci webhook POST repo_header:{} type:{} state:{} result:{} status_message:{} commit:{} '.format(repo_header,
-                                                                            data.get('type'),
-                                                                            data['state'],
-                                                                            data['result'],
-                                                                            data.get('status_message'),
-                                                                            data.get('commit')
-                            ))
+            return HttpResponse('travisci webhook POST owner_name:{} repo_name: {} type:{} state:{} result:{} status_message:{} commit:{} '.format(
+                    data['repository']['owner_name'],
+                    data['repository']['name'],
+                    data.get('repository', {}).get('name'),
+                    data.get('type'),
+                    data['state'],
+                    data['result'],
+                    data.get('status_message'),
+                    data.get('commit')
+            ))
         
     
         
