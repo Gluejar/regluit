@@ -14,6 +14,7 @@ from django.views.generic.base import View, TemplateView
 from django.http import (
     HttpResponse,
     HttpResponseNotFound,
+    HttpResponseBadRequest,
     HttpResponseRedirect,
     Http404,
 )
@@ -95,45 +96,31 @@ def travisci_webhook(request):
 
     if request.method == "POST":
     
-        #repo_header = request.META.get('HTTP_TRAVIS_REPO_SLUG', '')
-        
-        data = json.loads(request.POST.get('payload'))
-        
-        # [python - How can I get all the request headers in Django? - Stack Overflow](https://stackoverflow.com/questions/3889769/how-can-i-get-all-the-request-headers-in-django)
-        import re
-        regex = re.compile('^HTTP_')
-        all_headers = dict((regex.sub('', header), value) for (header, value) 
-              in request.META.items() if header.startswith('HTTP_'))
+        try:
+            
+            data = json.loads(request.POST.get('payload'))
 
-        # what's the URL to feed to load
-        # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml 
-        
-        if data['status_message'] == 'Passed' and data['type'] == 'push':
-                       
-            logger.info("data.keys():{}".format(data.keys()))
-            logger.info("data['repository']: {}".format(data['repository']))
-            repo_url = "https://github.com/{}/{}/raw/master/metadata.yaml".format(data['repository']['owner_name'],
-                                                                                  data['repository']['name'])
-            try:
+            # example of URL to feed to yaml loader:
+            # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+            
+            if data['status_message'] == 'Passed' and data['type'] == 'push':
+                                       
+                # another way to get owner_name / name would be request.META.get('HTTP_TRAVIS_REPO_SLUG', '')
+                repo_url = "https://github.com/{}/{}/raw/master/metadata.yaml".format(data['repository']['owner_name'],
+                                                                                      data['repository']['name'])
+                
                 work_id = load_from_yaml(repo_url)
-                logger.info("work_id: {}".format(work_id))
-                return HttpResponse('successful: {}'.format(work_id))
-            except Exception as e:
-                logger.info("exception: {}".format(unicode(e)))
-                return HttpResponse('unsuccessful: {}'.format(unicode(e)))
+                return HttpResponse('Successful. work_id: {}'.format(work_id))
+        
+        except Exception as e:
+                return HttpResponseBadRequest('Unsuccessful. Exception: {}'.format(unicode(e)))
                 
         else:
             
-            return HttpResponse('travisci webhook POST owner_name:{} repo_name: {} type:{} state:{} result:{} status_message:{} commit:{} '.format(
-                    data['repository']['owner_name'],
-                    data['repository']['name'],
-                    data.get('repository', {}).get('name'),
-                    data.get('type'),
-                    data['state'],
-                    data['result'],
-                    data.get('status_message'),
-                    data.get('commit')
-            ))
+            return HttpResponse('No action')
+            
+    else:
+        return HttpResponse('No action')
         
     
         
