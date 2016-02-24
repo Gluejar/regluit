@@ -27,5 +27,6 @@ urlpatterns = patterns('',
     url(r"^onix/$", OnixView.as_view(), name="onix_all"),
     url(r'^id/work/(?P<work_id>\w+)/$', 'regluit.api.views.negotiate_content', name="work_identifier"),
     url(r'^loader/yaml$','regluit.api.views.load_yaml', name="load_yaml"),
+    url(r'^travisci/webhook$','regluit.api.views.travisci_webhook', name="travisci_webhook"),
     (r'^', include(v1_api.urls)),
 )
