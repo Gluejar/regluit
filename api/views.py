@@ -91,6 +91,7 @@ def travisci_webhook(request):
     """
     Respond to travis-ci webhooks from Project GITenberg repositories.  If the webhook is successfully parsed,
     the metdata.yaml for the repository is loaded using load_from_yaml.
+    https://docs.travis-ci.com/user/notifications/#Webhook-notification
     
     """
 
