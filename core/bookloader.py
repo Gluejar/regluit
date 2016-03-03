@@ -864,6 +864,7 @@ def load_from_yaml(yaml_url):
                 break
         edition.save()
         # if there is a version, assume there is an ebook. if not, not.
+        # TO DO: as we generate mobi and pdfs in addition to epub, we need to generalize this logic
         if metadata._version and not metadata._version.startswith('0.0.'):
             #there should be an ebook to link to!
             (ebook, created)= models.Ebook.objects.get_or_create(
