@@ -804,7 +804,7 @@ def unreverse(name):
     return '%s %s, %s' % (first.strip(),last.strip(),rest.strip())
     
 
-def load_from_yaml(yaml_url, mock_ebook=False):
+def load_from_yaml(yaml_url, test_mode=False):
     """
     if mock_ebook is True, don't construct list of ebooks from a release -- rather use an epub
     """
@@ -885,7 +885,7 @@ def load_from_yaml(yaml_url, mock_ebook=False):
 
         if metadata._version and not metadata._version.startswith('0.0.'):
             # use GitHub API to compute the ebooks in release until we're in test mode
-            if mock_ebook:
+            if test_mode:
                 # not using ebook_name in this code
                 ebooks_in_release = [('epub', None)]
             else:

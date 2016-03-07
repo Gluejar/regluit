@@ -83,7 +83,7 @@ class BookLoaderTests(TestCase):
         noebook_id = bookloader.load_from_yaml(YAML_VERSIONFILE)
         noebook = models.Work.objects.get(id=noebook_id)
         self.assertEqual( noebook.first_ebook(), None)
-        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE, mock_ebook=True)
+        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE, test_mode=True)
         huck = models.Work.objects.get(id=huck_id)
         self.assertTrue( huck.ebooks().count()>1)
         
