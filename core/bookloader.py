@@ -937,13 +937,8 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
     higher rate limit in the GitHub API
     """
 
-    # epub, mobi, pdf, html, text
     # map mimetype to file extension
-    EBOOK_FORMATS = {'application/epub+zip':'epub',
-                 'application/x-mobipocket-ebook': 'mobi',
-                 'application/pdf': 'pdf',
-                 'text/plain': 'text',
-                 'text/html':'html'}
+    EBOOK_FORMATS = dict([(v,k) for (k,v) in settings.CONTENT_TYPES.items()])
 
     if token is not None:
         gh = login(token=token)
