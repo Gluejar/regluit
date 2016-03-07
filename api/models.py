@@ -3,14 +3,22 @@ from django.db import models
 
 
 #https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
-
+#or https://raw.githubusercontent.com/GITenberg/Free-Russia_51117/master/metadata.yaml
 def repo_allowed(repo_url):
-    if not repo_url.startswith('https://github.com/'):
-        return (False, "repo url must start with 'https://github.com/'")
-    try:
-        (org,repo_name,raw,branch,filename) = repo_url[19:].split('/')
-    except ValueError:
-        return (False, "repo url must be well formed, metadata at top repo level")
+    if repo_url.startswith('https://github.com/'):
+        try:
+            (org,repo_name,raw,branch,filename) = repo_url[19:].split('/')
+        except ValueError:
+            return (False, "repo url must be well formed, metadata at top repo level")
+    elif repo_url.startswith('https://raw.githubusercontent.com/'):
+        try:
+            (org,repo_name,branch,filename) = repo_url[34:].split('/')
+            raw = 'raw'
+        except ValueError:
+            return (False, "repo url must be well formed, metadata at top repo level")
+    
+    else:
+        return (False, "repo url must start with 'https://github.com/' or 'https://raw.githubusercontent.com/'")
     if not raw == 'raw':
         return (False, "repo url must point at 'raw' file")
     if not filename == 'metadata.yaml':

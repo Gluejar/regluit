@@ -451,6 +451,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
 #DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost
 
+# for reading GITenberg releases
+# generated from rdhyee account
+GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
+
 SOUTH_MIGRATION_MODULES = {
     'default': 'social.apps.django_app.default.south_migrations'
 }

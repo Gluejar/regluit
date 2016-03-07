@@ -6,9 +6,10 @@ import logging
 import requests
 
 from datetime import timedelta
-from itertools import izip, islice
+from itertools import (izip, islice)
 from xml.etree import ElementTree
-from urlparse import urljoin
+from urlparse import (urljoin, urlparse)
+
 
 """
 django imports
@@ -17,6 +18,9 @@ from django.conf import settings
 from django.contrib.comments.models import Comment
 from django.db import IntegrityError
 from django.db.models import Q
+
+from github3 import (login, GitHub)
+from github3.repos.release import Release
 
 from gitenberg.metadata.pandata import Pandata
 from ..marc.models import inverse_marc_rels
@@ -800,7 +804,10 @@ def unreverse(name):
     return '%s %s, %s' % (first.strip(),last.strip(),rest.strip())
     
 
-def load_from_yaml(yaml_url):
+def load_from_yaml(yaml_url, test_mode=False):
+    """
+    if mock_ebook is True, don't construct list of ebooks from a release -- rather use an epub
+    """
     all_metadata = Pandata(yaml_url)
     for metadata in all_metadata.get_edition_list():
         #find an work to associate
@@ -863,24 +870,85 @@ def load_from_yaml(yaml_url):
                 edition.cover_image=urljoin(yaml_url,cover['image_path'])
                 break
         edition.save()
-        # if there is a version, assume there is an ebook. if not, not.
+        # create Ebook for any ebook in the corresponding GitHub release
+        # assuming yaml_url of form (from GitHub, though not necessarily GITenberg)
+        # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+
+        url_path = urlparse(yaml_url).path.split("/")
+        (repo_owner, repo_name) = (url_path[1], url_path[2])
+        repo_tag = metadata._version
+        # allow for there not to be a token in the settings
+        try:
+            token = settings.GITHUB_PUBLIC_TOKEN
+        except:
+            token = None 
+
         if metadata._version and not metadata._version.startswith('0.0.'):
-            #there should be an ebook to link to!
-            (ebook, created)= models.Ebook.objects.get_or_create(
-                url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition ),
-                provider='Github',
-                rights = metadata.rights if metadata.rights in cc.LICENSE_LIST_ALL else None,
-                format = 'epub',
-                edition = edition,
-                # version = metadata._version
-                )
+            # use GitHub API to compute the ebooks in release until we're in test mode
+            if test_mode:
+                # not using ebook_name in this code
+                ebooks_in_release = [('epub', None)]
+            else:
+                ebooks_in_release =  ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
+
+            for (ebook_format, ebook_name) in ebooks_in_release:
+                (ebook, created)= models.Ebook.objects.get_or_create(
+                    url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition,
+                                                   format_= ebook_format),
+                    provider='Github',
+                    rights = metadata.rights if metadata.rights in cc.LICENSE_LIST_ALL else None,
+                    format = ebook_format,
+                    edition = edition,
+                    # version = metadata._version
+                    )
+
     return work.id
         
-def git_download_from_yaml_url(yaml_url, version, edition_name='book'):        
+def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='epub'):
     # go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
     # to https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/releases/download/v0.0.3/Adventures-of-Huckleberry-Finn.epub
     if yaml_url.endswith('raw/master/metadata.yaml'):
         repo_url = yaml_url[0:-24]
         #print (repo_url,version,edition_name)
-        ebook_url = repo_url + 'releases/download/' + version + '/' + edition_name + '.epub'
+        ebook_url = repo_url + 'releases/download/' + version + '/' + edition_name + '.' + format_
         return ebook_url
+
+
+def release_from_tag(repo, tag_name):
+    """Get a release by tag name.
+    release_from_tag() returns a release with specified tag
+    while release() returns a release with specified release id
+    :param str tag_name: (required) name of tag
+    :returns: :class:`Release <github3.repos.release.Release>`
+    """
+    # release_from_tag adapted from 
+    # https://github.com/sigmavirus24/github3.py/blob/38de787e465bffc63da73d23dc51f50d86dc903d/github3/repos/repo.py#L1781-L1793
+
+    url = repo._build_url('releases', 'tags', tag_name,
+                          base_url=repo._api)
+    json = repo._json(repo._get(url), 200)
+    return Release(json, repo) if json else None
+
+
+def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
+    """
+    returns a list of (book_type, book_name) for a given GitHub release (specified by
+    owner, name, tag).  token is a GitHub authorization token -- useful for accessing
+    higher rate limit in the GitHub API
+    """
+
+    # map mimetype to file extension
+    EBOOK_FORMATS = dict([(v,k) for (k,v) in settings.CONTENT_TYPES.items()])
+
+    if token is not None:
+        gh = login(token=token)
+    else:
+        # anonymous access
+        gh = GitHub()
+
+    repo = gh.repository(repo_owner, repo_name)
+    release = release_from_tag(repo, tag)
+
+    return [(EBOOK_FORMATS.get(asset.content_type), asset.name)
+            for asset in release.iter_assets()
+            if EBOOK_FORMATS.get(asset.content_type) is not None]

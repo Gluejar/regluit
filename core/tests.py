@@ -83,7 +83,7 @@ class BookLoaderTests(TestCase):
         noebook_id = bookloader.load_from_yaml(YAML_VERSIONFILE)
         noebook = models.Work.objects.get(id=noebook_id)
         self.assertEqual( noebook.first_ebook(), None)
-        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE)
+        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE, test_mode=True)
         huck = models.Work.objects.get(id=huck_id)
         self.assertTrue( huck.ebooks().count()>1)
         
@@ -1041,4 +1041,15 @@ class LibTests(TestCase):
         tasks.refresh_acqs()
         self.assertEqual(reserve_acq.holds.count(),0)
         
-        
+class GitHubTests(TestCase):
+    def test_ebooks_in_github_release(self):
+        (repo_owner, repo_name, repo_tag) = ('GITenberg', 'Adventures-of-Huckleberry-Finn_76', '0.0.50')
+        ebooks = bookloader.ebooks_in_github_release(repo_owner, repo_name,
+                                                tag=repo_tag, token=settings.GITHUB_PUBLIC_TOKEN)
+        expected_set = set([
+            ('epub', u'Adventures-of-Huckleberry-Finn.epub'),
+            ('mobi', u'Adventures-of-Huckleberry-Finn.mobi'),
+            ('pdf', u'Adventures-of-Huckleberry-Finn.pdf')
+            ])
+
+        self.assertEqual(set(ebooks), expected_set)
