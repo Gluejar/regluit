@@ -142,6 +142,7 @@ INSTALLED_APPS = (
     'regluit.marc',
     'regluit.payment',
     'regluit.utils',
+    'regluit.survey',
     'registration',
     'social.apps.django_app.default',
     'tastypie',

@@ -46,6 +46,8 @@ from regluit.core.lookups import (
 from regluit.libraryauth.models import Library, Block, CardPattern, EmailPattern
 from regluit.libraryauth.admin import LibraryAdmin, BlockAdmin, CardPatternAdmin, EmailPatternAdmin
 
+from regluit.survey.admin import LandingAdmin, Landing
+
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
 
@@ -296,3 +298,5 @@ admin_site.register(NoticeType, NoticeTypeAdmin)
 admin_site.register(NoticeSetting, NoticeSettingAdmin)
 admin_site.register(Notice, NoticeAdmin)
 admin_site.register(ObservedItem)
+
+admin_site.register(Landing, LandingAdmin)
