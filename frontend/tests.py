@@ -4,6 +4,7 @@ external library imports
 import json
 import re
 import time
+import mimetypes
 
 from datetime import timedelta
 from decimal import Decimal as D
@@ -63,7 +64,9 @@ class PageTests(TestCase):
         self.client = Client()
         self.client.login(username='test', password='test')
         w= Work.objects.create(title="test work",language='en')
-        
+
+    def test_setttings(self):
+        self.assertEqual(mimetypes.guess_type('/whatever/my_file.epub')[0], 'application/epub+zip')   
 
     def test_view_by_self(self):
         # logged in
