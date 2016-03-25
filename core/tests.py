@@ -134,9 +134,9 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.publisher, u'test publisher name') # North Holland has been aliased
         # locale in language
         # Obama Dreams from My Father, Chinese edition
-        # http://www.worldcat.org/title/oubama-de-meng-xiang-zhi-lu-yi-fu-zhi-ming/oclc/272997721&referer=brief_results
-        edition = bookloader.add_by_isbn('9789571349268')
-        self.assertEqual(edition.work.language, 'zh-TW')
+        # http://www.worldcat.org/title/aobama-hui-yi-lu-wo-fu-qin-de-meng-xiang/oclc/302206587?referer=tag_list_view
+        edition = bookloader.add_by_isbn('9787544706919')
+        self.assertEqual(edition.work.language, 'zh-CN')
 
     @unittest.expectedFailure
     def test_update_edition(self):  
