@@ -1,4 +1,5 @@
 import hashlib
+import uuid
 from datetime import datetime
 from django.conf import settings
 from django.contrib.contenttypes.generic import GenericForeignKey
@@ -15,7 +16,7 @@ class Landing(models.Model):
     label = models.CharField(max_length=64, blank=True)
 
     def _hash(self):
-        return hashlib.md5('{}:{}:{}'.format(settings.SECRET_KEY, self.id, datetime.now() )).hexdigest() 
+        return uuid.uuid4().hex 
     
     def __str__(self):
         return self.label
