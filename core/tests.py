@@ -77,16 +77,13 @@ class BookLoaderTests(TestCase):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
         self.client.login(username='core_test', password='core_test')
-        
-        #setup test for duplicate pubname
-        
     
     def test_add_by_local_yaml(self):  
     
         noebook_id = bookloader.load_from_yaml(YAML_VERSIONFILE)
         noebook = models.Work.objects.get(id=noebook_id)
         self.assertEqual( noebook.first_ebook(), None)
-        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE)
+        huck_id = bookloader.load_from_yaml(YAML_HUCKFILE, test_mode=True)
         huck = models.Work.objects.get(id=huck_id)
         self.assertTrue( huck.ebooks().count()>1)
         
@@ -120,8 +117,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.googlebooks_id, '0bBQAAAAYAAJ')
         self.assertEqual(edition.work.first_isbn_13(), '9780444899743')
         
-        # test duplicate pubname error
-        PublisherName.objects.create(name='North Holland') # should be duplicate
+        # test duplicate pubname 
         ed2 = Edition.objects.create(work=edition.work)
         ed2.set_publisher('North Holland')
         
@@ -138,9 +134,9 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.publisher, u'test publisher name') # North Holland has been aliased
         # locale in language
         # Obama Dreams from My Father, Chinese edition
-        # http://www.worldcat.org/title/oubama-de-meng-xiang-zhi-lu-yi-fu-zhi-ming/oclc/272997721&referer=brief_results
-        edition = bookloader.add_by_isbn('9789571349268')
-        self.assertEqual(edition.work.language, 'zh-TW')
+        # http://www.worldcat.org/title/aobama-hui-yi-lu-wo-fu-qin-de-meng-xiang/oclc/302206587?referer=tag_list_view
+        edition = bookloader.add_by_isbn('9787544706919')
+        self.assertEqual(edition.work.language, 'zh-CN')
 
     @unittest.expectedFailure
     def test_update_edition(self):  
@@ -1045,4 +1041,15 @@ class LibTests(TestCase):
         tasks.refresh_acqs()
         self.assertEqual(reserve_acq.holds.count(),0)
         
-        
+class GitHubTests(TestCase):
+    def test_ebooks_in_github_release(self):
+        (repo_owner, repo_name, repo_tag) = ('GITenberg', 'Adventures-of-Huckleberry-Finn_76', '0.0.50')
+        ebooks = bookloader.ebooks_in_github_release(repo_owner, repo_name,
+                                                tag=repo_tag, token=settings.GITHUB_PUBLIC_TOKEN)
+        expected_set = set([
+            ('epub', u'Adventures-of-Huckleberry-Finn.epub'),
+            ('mobi', u'Adventures-of-Huckleberry-Finn.mobi'),
+            ('pdf', u'Adventures-of-Huckleberry-Finn.pdf')
+            ])
+
+        self.assertEqual(set(ebooks), expected_set)

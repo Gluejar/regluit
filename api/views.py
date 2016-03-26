@@ -1,18 +1,25 @@
 from tastypie.models import ApiKey
 
+import json
+import logging
+
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateView
 from django.http import (
     HttpResponse,
     HttpResponseNotFound,
+    HttpResponseBadRequest,
     HttpResponseRedirect,
     Http404,
 )
+
+
 
 import regluit.core.isbn
 from regluit.core.bookloader import load_from_yaml
@@ -20,6 +27,8 @@ from regluit.api import opds, onix
 from regluit.api.models import repo_allowed
 
 from regluit.core import models
+
+logger = logging.getLogger(__name__)
 
 
 def editions(request):
@@ -76,6 +85,45 @@ def load_yaml(request):
         return HttpResponseRedirect(reverse('work', args=[work_id]))
     except:    
         return HttpResponse('unsuccessful')
+    
+@csrf_exempt    
+def travisci_webhook(request):
+    """
+    Respond to travis-ci webhooks from Project GITenberg repositories.  If the webhook is successfully parsed,
+    the metdata.yaml for the repository is loaded using load_from_yaml.
+    https://docs.travis-ci.com/user/notifications/#Webhook-notification
+    
+    """
+
+    if request.method == "POST":
+    
+        try:
+            
+            data = json.loads(request.POST.get('payload'))
+
+            # example of URL to feed to yaml loader:
+            # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+            
+            if data['status_message'] == 'Passed' and data['type'] == 'push':
+                                       
+                # another way to get owner_name / name would be request.META.get('HTTP_TRAVIS_REPO_SLUG', '')
+                repo_url = "https://github.com/{}/{}/raw/master/metadata.yaml".format(data['repository']['owner_name'],
+                                                                                      data['repository']['name'])
+                
+                work_id = load_from_yaml(repo_url)
+                return HttpResponse('Successful. work_id: {}'.format(work_id))
+        
+        except Exception as e:
+                return HttpResponseBadRequest('Unsuccessful. Exception: {}'.format(unicode(e)))
+                
+        else:
+            
+            return HttpResponse('No action')
+            
+    else:
+        return HttpResponse('No action')
+        
+    
         
 class ApiHelpView(TemplateView):
     template_name = "api_help.html"

@@ -188,3 +188,45 @@ class AllowedRepoTests(TestCase):
         self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/master/metadata.yaml')[0])
         self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
 
+class WebHookTests(TestCase):
+    def test_travisci_webhook(self):
+        """
+        test of api.views.travisci_webhook
+        """
+
+        payload = json.dumps({
+          "repository":{  
+              "id":4651401,
+              "name":"Adventures-of-Huckleberry-Finn_76",
+              "owner_name":"GITenberg",
+              "url":"http://GITenberg.github.com/"
+           },
+          "status_message": "Passed",
+          "type": "push"
+        })
+        
+        invalid_payload = json.dumps({
+          "repository":{  
+              "id":4651401,
+              "name":"",
+              "url":"http://GITenberg.github.com/"
+           },
+          "status_message": "Passed",
+          "type": "push"
+        })
+
+        url = "/api/travisci/webhook"
+
+        # 200 if a simple get
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        
+        # 200 when we actually load a valid repo (should we use 201?)
+        r = self.client.post(url, data={'payload':payload}, headers={}, allow_redirects=True)
+        self.assertEqual(r.status_code, 200)
+        
+        # 400 error if we get exception when trying to load a book
+        r = self.client.post(url, data={'payload':invalid_payload}, headers={}, allow_redirects=True)
+        self.assertEqual(r.status_code, 400)
+        
+        
