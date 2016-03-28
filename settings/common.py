@@ -458,3 +458,7 @@ GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
 SOUTH_MIGRATION_MODULES = {
     'default': 'social.apps.django_app.default.south_migrations'
 }
+
+MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
+MOBIGEN_USER_ID = "admin"
+MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"

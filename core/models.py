@@ -4,6 +4,7 @@ external library imports
 import binascii
 import logging
 import hashlib
+import uuid
 import re
 import random
 import urllib
@@ -41,6 +42,7 @@ import regluit.core.isbn
 import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
+from regluit.core import mobi
 from regluit.marc.models import MARCRecord as NewMARC
 from regluit.core.signals import (
     successful_campaign,
@@ -947,7 +949,6 @@ class Campaign(models.Model):
                     logger.error("error appending pdf ask  %s" % (e))
             elif ebf.format=='epub' and 'epub' not in done_formats:
                 try:
-                    new_file = SpooledTemporaryFile()
                     old_file = SpooledTemporaryFile()
                     ebf.file.open()
                     old_file.write(ebf.file.read())
@@ -962,8 +963,18 @@ class Campaign(models.Model):
                             eb.deactivate()
                         old_ebf.delete()
                     done_formats.append('epub')
+
+                    # now make the mobi file
+                    new_mobi_ebf = EbookFile.objects.create(edition=ebf.edition, format='mobi', asking=True)
+                    new_mobi_ebf.file.save(path_for_file(ebf,None),ContentFile(mobi.convert_to_mobi(new_ebf.file.url)))
+                    new_mobi_ebf.save()
+                    for old_ebf in self.work.ebookfiles().filter(asking = True, format='mobi').exclude(pk=new_mobi_ebf.pk):
+                        obsolete = Ebook.objects.filter(url=old_ebf.file.url)
+                        for eb in obsolete:
+                            eb.deactivate()
+                        old_ebf.delete()
                 except Exception as e:
-                    logger.error("error making epub ask  %s" % (e))
+                    logger.error("error making epub ask or mobi  %s" % (e))
         self.work.make_ebooks_from_ebfs(add_ask=True)
                     
             
@@ -1331,12 +1342,13 @@ class Work(models.Model):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
 
     def make_ebooks_from_ebfs(self, add_ask=True):
+        # either the ebf has been uploaded or a created (perhaps an ask was added or mobi generated)
         if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
             return
         ebfs=EbookFile.objects.filter(edition__work=self).exclude(file='').order_by('-created')
         done_formats= []
         for ebf in ebfs:
-            previous_ebooks=Ebook.objects.filter(url= ebf.file.url,)
+            previous_ebooks=Ebook.objects.filter(url= ebf.file.url,) 
             try:
                 previous_ebook = previous_ebooks[0]
                 for eb in previous_ebooks[1:]:  #housekeeping
@@ -1928,10 +1940,7 @@ def safe_get_work(work_id):
 FORMAT_CHOICES = (('pdf','PDF'),( 'epub','EPUB'), ('html','HTML'), ('text','TEXT'), ('mobi','MOBI'))
 
 def path_for_file(instance, filename):
-    version = EbookFile.objects.filter(edition = instance.edition, format = instance.format).count()
-    hash = hashlib.md5('%s.%s.%d'%(settings.SOCIAL_AUTH_TWITTER_SECRET, instance.edition.pk, version)).hexdigest()
-    fn = "ebf/%s.%s"%(hash,instance.format)
-    return fn
+    return "ebf/{}.{}".format(uuid.uuid4().get_hex(), instance.format)
     
 class EbookFile(models.Model):
     file = models.FileField(upload_to=path_for_file)

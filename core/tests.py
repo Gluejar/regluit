@@ -965,7 +965,7 @@ class EbookFileTests(TestCase):
         c.save()
         url= acq.get_watermarked().download_link_epub
         
-    def test_ebookfile_pdf(self):
+    def test_ebookfile_thanks(self):
         w = Work.objects.create(title="Work 2")
         e = Edition.objects.create(title=w.title,work=w)
         u = User.objects.create_user('test2', 'test@example.org', 'testpass')
@@ -999,6 +999,29 @@ class EbookFileTests(TestCase):
         asking_pdf = c.work.ebookfiles().filter(asking = True)[0].file.url
         assert test_pdf(asking_pdf)
         
+        #Now do the same with epub
+        temp = NamedTemporaryFile(delete=False)
+        test_file_content = requests.get(settings.BOOXTREAM_TEST_EPUB_URL).content
+        
+        temp.write(test_file_content)
+        temp.close()
+        try:
+            # now we can try putting the test pdf file into Django storage
+            temp_file = open(temp.name)
+                
+            dj_file = DjangoFile(temp_file)
+            ebf = EbookFile( format='epub', edition=e, file=dj_file)
+            ebf.save()
+                
+            temp_file.close()
+        finally:
+            # make sure we get rid of temp file
+            os.remove(temp.name)
+        #test the ask-appender
+        c.add_ask_to_ebfs()
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='epub').count >0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count >0)
+        
 
 class MobigenTests(TestCase):
     def test_convert_to_mobi(self):
@@ -1007,8 +1030,8 @@ class MobigenTests(TestCase):
         """
         from regluit.core.mobigen import convert_to_mobi
 
-        output = convert_to_mobi("https://archive.org/download/mobydickorthewha02701gut/pg2701.epub")
-        self.assertTrue(len(output)==2207877)
+        output = convert_to_mobi("https://github.com/GITenberg/Moby-Dick--Or-The-Whale_2701/releases/download/0.2.0/Moby-Dick-Or-The-Whale.epub")
+        self.assertTrue(len(output)>2207877)
 
 from .signals import handle_transaction_charged
 @override_settings(LOCAL_TEST=True)
