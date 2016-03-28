@@ -134,8 +134,9 @@ Please fix the following before launching your campaign:
     {{ form.edition.errors }}
     {% for edition in campaign.work.editions.all %}
         <div class="edition_form" id="edition_{{edition.id}}">
-        <p> Edition {{ edition.id }}:  <input type="radio" {% ifequal edition.id campaign.edition.id %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /><label for="id_edition_{{forloop.counter}}"> Prefer this edition </label>
+        <p> Edition {{ edition.id }}:  <input type="radio" {% ifequal edition.id form.edition.value %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /><label for="id_edition_{{forloop.counter}}"> Prefer this edition </label>
         <ul style="text-indent:1em">
+        <li style="text-indent:2.5em">There are {{ edition.downloads.all.count }} downloadable ebook for this edition</li>
         <li style="text-indent:2.5em"><a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> this edition</li>
         {% ifnotequal campaign.type 1 %}
         {% if campaign.rh.can_sell %}
@@ -458,7 +459,7 @@ Please fix the following before launching your campaign:
 {% endifequal %}
 {% ifequal campaign.type 3 %}
     <h3> Suggested Contributions </h3>
-    {% if not campaign.work.ebookfiles.0 %}
+    {% if not campaign.work.ebooks.0 %}
     <p> <b>ebook files for this work <a class="tabs1">need to be loaded</a>!</b></p>
     {% endif %}
     <p> Enter a suggested per/copy contribution for each user type. You may change these numbers after the campaign has begun. Don't suggest contributions between $0.00 and $1.00, because these won't be processed. If you enter $0 for BOTH, then no contribution form will be displayed.</p>
