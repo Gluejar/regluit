@@ -47,25 +47,31 @@ def negotiate_content(request,work_id):
     
     return HttpResponseRedirect(reverse('work', kwargs={'work_id': work_id}))
 
-def widget(request,isbn):
+def widget(request, isbn):
     """
     supply info for book panel. parameter is named isbn for historical reasons. can be isbn or work_id
     """
    
-        
-    if len(isbn)==10:
-        isbn = regluit.core.isbn.convert_10_to_13(isbn)
-    if len(isbn)==13:
+    if isbn == 'featured':
         try:
-            identifier = models.Identifier.objects.get(type = 'isbn', value = isbn )
-            work = identifier.work
-        except models.Identifier.DoesNotExist:
-            return render_to_response('widget.html', 
-                 { 'work':None,}, 
-                 context_instance=RequestContext(request)
-                )
-    else:
-        work= models.safe_get_work(isbn)
+            work = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
+        except:
+            #shouldn't occur except in tests
+            work = models.Work.objects.all()[0]
+    else :    
+        if len(isbn)==10:
+            isbn = regluit.core.isbn.convert_10_to_13(isbn)
+        if len(isbn)==13:
+            try:
+                identifier = models.Identifier.objects.get(type = 'isbn', value = isbn )
+                work = identifier.work
+            except models.Identifier.DoesNotExist:
+                return render_to_response('widget.html', 
+                     { 'work':None,}, 
+                     context_instance=RequestContext(request)
+                    )
+        else:
+            work= models.safe_get_work(isbn)
     return render_to_response('widget.html', 
          {'work':work, }, 
          context_instance=RequestContext(request)

@@ -13,6 +13,17 @@
     {% else %}
        <p> Please <a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}"><span>sign in</span></a> first.</p>
     {% endif %}
+    <h3>Ebook Widgets</h3>
+    <p>You don't need an API key to embed Ebook (HTML) widgets. </p>
+    <div>Here's a widget that displays Unglue.it's featured ebook - it changes most every day!  <a href="{% url 'widget' 'featured' %}">{{base_url}}{% url 'widget' 'featured' %}</a>. Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/featured/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea>
+       <iframe src="{{base_url}}{% url 'widget' 'featured' %}" width="152" height="325" frameborder="0"></iframe></div>
+    {% if campaign %}
+       <div>Here's a sample widget for the book <span style="font-style: italic">{{campaign.name}}</span> with ISBN {{campaign_isbn}}: <a href="{% url 'widget' campaign_isbn %}">{{base_url}}{% url 'widget' campaign_isbn %}</a>. Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/{{campaign_isbn}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea>
+       <iframe src="{{base_url}}{% url 'widget' campaign_isbn %}" width="152" height="325" frameborder="0"></iframe>
+       
+       
+       </div>
+    {% endif %}
     
     <h3>Basic API info</h3>
     
@@ -52,13 +63,6 @@ XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;usernam
     <p> In addition to isbn, you can use 'goog' if you have a google books id, and 'oclc' for oclc numbers.</p>
     {% endif %}
     
-    <h3>Campaign Widgets</h3>
-    <p>You don't need a key to embed campaign (HTML) widgets. </p>
-    {% if campaign %}
-       Here's a sample widget for the book <span style="font-style: italic">{{campaign.name}}</span> with ISBN {{campaign_isbn}}: <a href="{% url 'widget' campaign_isbn %}">{{base_url}}{% url 'widget' campaign_isbn %}</a>
-    {% else %}
-       <p>Since there are currently no campaigns, there are no corresponding widgets.</p>
-    {% endif %}
 
     <h3>OPDS Catalog Feeds</h3>
     <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <code><a href="{% url 'opds' %}">{{base_url}}{% url 'opds' %}</a></code></p>
