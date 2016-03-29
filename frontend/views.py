@@ -688,7 +688,7 @@ def campaign_results(request, campaign):
             'campaign': campaign, 
         })
     
-
+    
 def manage_campaign(request, id, action='manage'):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager=False
@@ -772,6 +772,11 @@ def manage_campaign(request, id, action='manage'):
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             activetab = '#2'
     else:
+        if action == 'makemobi':
+            tasks.make_mobi.delay(campaign)
+            return HttpResponseRedirect(reverse('mademobi', args=[campaign.id]))
+        elif action =='mademobi':    
+            alerts.append('A MOBI file is being generated')
         form = getManageCampaignForm(instance=campaign, initial={'work_description':campaign.work.description})
         new_premium_form = CustomPremiumForm(data={'campaign': campaign})
         
@@ -784,7 +789,8 @@ def manage_campaign(request, id, action='manage'):
         'premium_form' : new_premium_form,
         'work': campaign.work,
         'activetab': activetab,
-        'offers':offers
+        'offers':offers,
+        'action':action,
     })
         
 def googlebooks(request, googlebooks_id):

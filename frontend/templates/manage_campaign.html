@@ -160,7 +160,7 @@ Please fix the following before launching your campaign:
     {% endif %}
     {% if campaign.work.epubfiles.0 %}
         {% for ebf in campaign.work.epubfiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}<br />{% if ebf.active %}{% ifequal action 'mademobi' %}<span class="yikes">A MOBI file is being generated. </span> (Takes a minute or two.) {% else %}You can <a href="{% url 'makemobi' campaign.id %}">generate a MOBI file.</a> {% endifequal %}{% endif %}</p>
         {% endfor %}
         {% if campaign.work.test_acqs.0 %}
             <ul> 

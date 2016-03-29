@@ -920,6 +920,16 @@ class Campaign(models.Model):
     def latest_ending(cls):
         return (timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now())
     
+    def make_mobi(self):
+        for ebf in self.work.ebookfiles().filter(format='epub').order_by('-created'):
+            if ebf.active:
+                new_mobi_ebf = EbookFile.objects.create(edition=ebf.edition, format='mobi', asking=ebf.asking)
+                new_mobi_ebf.file.save(path_for_file('ebf',None),ContentFile(mobi.convert_to_mobi(ebf.file.url)))
+                new_mobi_ebf.save()
+                self.work.make_ebooks_from_ebfs()
+                return True
+        return False
+        
     def add_ask_to_ebfs(self, position=0):
         if not self.use_add_ask or  self.type != THANKS :
             return
@@ -1378,7 +1388,7 @@ class Work(models.Model):
             elif previous_ebook:
                 previous_ebook.deactivate()
         return 
-    
+        
     def remove_old_ebooks(self):
         old=Ebook.objects.filter(edition__work=self, active=True).order_by('-created')
         done_formats= []
