@@ -1,4 +1,5 @@
 import datetime
+import mimetypes
 from os.path import dirname, realpath, join
 
 import regluit
@@ -424,6 +425,8 @@ FORMATS = (
     ('text','TEXT'),
     ('mobi','MOBI'),
 )
+
+# used by MARC. maybe should use python's mimetypes
 CONTENT_TYPES = {
     'pdf': 'application/pdf',
     'epub': 'application/epub+zip',
@@ -431,6 +434,8 @@ CONTENT_TYPES = {
     'text': 'text/plain',
     'mobi': 'application/x-mobipocket-ebook'
 }
+
+mimetypes.init(["{}/deploy/mime.types".format(PROJECT_DIR)])
 
 # if you add more of these, make sure core/marc.py can deal
 MARC_CHOICES = (
