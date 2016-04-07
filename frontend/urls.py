@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView
-from django.views.generic.simple import direct_to_template
+#from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
 
 from regluit.core.feeds import SupporterWishlistFeed
@@ -138,9 +138,9 @@ urlpatterns = patterns(
     url(r"^subjects/map/$", login_required(MapSubjectView.as_view()), name="map_subject"),
     url(r"^librarything/$", LibraryThingView.as_view(), name="librarything"),
     url(r"^librarything/load/$","librarything_load", name="librarything_load"),
-    url('^404testing/$', direct_to_template, {'template': '404.html'}),
-    url('^500testing/$', direct_to_template, {'template': '500.html'}),
-    url('^robots.txt$', direct_to_template, {'template': 'robots.txt', 'mimetype': 'text/plain'}),
+    url('^404testing/$', TemplateView.as_view(template_name='404.html') ),
+    url('^500testing/$', TemplateView.as_view(template_name='500.html')),
+    url('^robots.txt$', TemplateView.as_view(template_name='robots.txt',content_type='text/plain')),
     url(r"^emailshare/(?P<action>\w*)/?$", "emailshare", name="emailshare"),
     url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", "ask_rh", name="ask_rh"),
     url(r"^feedback/$", "feedback", name="feedback"),
@@ -166,7 +166,7 @@ urlpatterns = patterns(
     url(r"^accounts/edit/kindle_config/$", "kindle_config",  name="kindle_config"),
     url(r"^accounts/edit/kindle_config/(?P<work_id>\d+)/$", "kindle_config",  name="kindle_config_download"),
     url(r"^send_to_kindle/(?P<work_id>\d+)/(?P<javascript>\d)/$", "send_to_kindle",  name="send_to_kindle"),
-    url(r"^marc/$", direct_to_template, {'template': 'marc.html'}, name="marc"),
+    url(r"^marc/$", TemplateView.as_view(template_name='marc.html'), name="marc"),
     url(r"^accounts/edit/marc_config/$", login_required(LibModeView.as_view()),  name="marc_config"),
     
 )

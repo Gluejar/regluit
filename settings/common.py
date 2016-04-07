@@ -83,7 +83,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'a+bo0@3$n18e(newe7og6hmq$r#bkib73z(+s*n25%6q3+22jo'
+SECRET_KEY = u'a+bo0@3$n18e(newe7og6hmq$r#bkib73z(+s*n25%6q3+22jo'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -179,9 +179,15 @@ LOGGING = {
             'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
         },
     },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'file': {
@@ -462,7 +468,8 @@ DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
 GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
 
 SOUTH_MIGRATION_MODULES = {
-    'default': 'social.apps.django_app.default.south_migrations'
+    'default': 'social.apps.django_app.default.south_migrations',
+    'tastypie': 'tastypie.south_migrations',
 }
 
 MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
