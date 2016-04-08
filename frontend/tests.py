@@ -453,6 +453,7 @@ class UnifiedCampaignTests(TestCase):
         
         # print out notices and eventually write tests here to check expected
                 
+        #from notification.models import Notice
         #print [(n.id, n.notice_type.label, n.recipient, n.added) for n in Notice.objects.all()]
 
 #[(6L, u'pledge_charged', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 15)),

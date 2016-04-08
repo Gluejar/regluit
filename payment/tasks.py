@@ -42,6 +42,10 @@ def update_account_status(all_accounts=True, send_notice_on_change_only=True):
         except Exception, e:
             errors.append(e)
 
+    # fire off notices
+    
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()   
 
     return errors
  

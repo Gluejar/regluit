@@ -26,6 +26,7 @@ from notification.models import (
     NoticeSetting,
     Notice,
     ObservedItem,
+    NoticeQueueBatch
 )
 from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
 
@@ -292,6 +293,7 @@ admin_site.register(PeriodicTask, PeriodicTaskAdmin)
 # add the django-notification admin panel
 # https://github.com/jtauber/django-notification/blob/master/notification/admin.py
 
+admin_site.register(NoticeQueueBatch, NoticeQueueBatchAdmin)
 admin_site.register(NoticeType, NoticeTypeAdmin)
 admin_site.register(NoticeSetting, NoticeSettingAdmin)
 admin_site.register(Notice, NoticeAdmin)
