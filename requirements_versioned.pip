@@ -24,7 +24,7 @@ certifi==2015.04.28
 django-celery==3.0.9
 django-ckeditor==4.5.1
 #django-email-change==0.2.3
-git+git://github.com/novagile/django-email-change.git@0d7cb91b987a0505a9c4bde126d452233dea266d
+git+git://github.com/eshellman/django-email-change.git@ad50f72eb8f794e24bea92f85683c4b351562c50
 django-endless-pagination==2.0
 django-extensions==0.9
 django-jsonfield==0.9.10

@@ -347,12 +347,6 @@ UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
     "args": ()
 }
 
-EMIT_NOTIFICATIONS_JOB = {
-    "task": "regluit.core.tasks.emit_notifications",
-    "schedule": datetime.timedelta(seconds=60),
-    "args": ()    
-}
-
 EBOOK_NOTIFICATIONS_JOB = {
     "task": "regluit.core.tasks.report_new_ebooks",
     "schedule": crontab(hour=0, minute=30),
