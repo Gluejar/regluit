@@ -6,7 +6,7 @@ from tastypie.resources import ModelResource, Resource, Bundle
 from tastypie.utils import trailing_slash
 from tastypie.authentication import ApiKeyAuthentication, Authentication
 
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
