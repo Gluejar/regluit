@@ -146,11 +146,11 @@ class FreeResource(ModelResource):
         try:
             work=models.Identifier.objects.get(type='isbn',value=isbn,).work
             base_object_list = models.Ebook.objects.filter(edition__work=work)
-            return self.apply_authorization_limits(request, base_object_list)
+            return base_object_list
         except ValueError:
             raise BadRequest("Invalid resource lookup data provided (mismatched type).")
         except models.Identifier.DoesNotExist:
-            return self.apply_authorization_limits(request, models.Ebook.objects.none())
+            return  models.Ebook.objects.none()
 
     class Meta:
         authentication = ApiKeyAuthentication()

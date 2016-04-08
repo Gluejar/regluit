@@ -254,7 +254,7 @@ class Receiver(models.Model):
     status = models.CharField(max_length=64)
     local_status = models.CharField(max_length=64, null=True)
     reason = models.CharField(max_length=64)
-    primary = models.BooleanField()
+    primary = models.BooleanField(default=True)
     txn_id = models.CharField(max_length=64)
     transaction = models.ForeignKey(Transaction)
     

@@ -1748,7 +1748,6 @@ class Edition(models.Model):
     publication_date = models.CharField(max_length=50, null=True, blank=True, db_index=True,)
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
-    unglued = models.BooleanField(blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
