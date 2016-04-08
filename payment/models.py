@@ -454,7 +454,7 @@ class Account(models.Model):
                 
                 # fire off an account_expiring notice -- might not want to do this immediately
                 
-                notification.queue([self.user], "account_expiring", {
+                notification.send([self.user], "account_expiring", {
                     'user': self.user,
                     'site':Site.objects.get_current()
                 }, True)
@@ -463,7 +463,7 @@ class Account(models.Model):
                 logger.info( "EXPIRING.  send to instance.user: %s  site: %s", self.user,
                             Site.objects.get_current())
                 
-                notification.queue([self.user], "account_expired", {
+                notification.send([self.user], "account_expired", {
                     'user': self.user,
                     'site':Site.objects.get_current()
                 }, True)

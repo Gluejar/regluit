@@ -38,8 +38,6 @@ def handle_credit_balance(sender, amount=0, **kwargs):
             'amount':amount,
             'minus_amount':-amount
         }, True)
-    from regluit.core.tasks import emit_notifications
-    emit_notifications.delay()
     
 # successful_campaign -> send notices    
 credit_balance_added.connect(handle_credit_balance)

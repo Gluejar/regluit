@@ -32,8 +32,7 @@ django-kombu==0.9.4
 django-maintenancemode==0.10
 django-mptt==0.7.4
 django-nose-selenium==0.7.3
-#django-notification==0.2
-git+git://github.com/aladagemre/django-notification.git@2927346f4c513a217ac8ad076e494dd1adbf70e1
+git+git://github.com/transifex/django-notification.git@9c357489bc018180c149f1fd07509326ff15113c
 django-registration==1.0
 django-selectable==0.7.0
 django-smtp-ssl==1.0

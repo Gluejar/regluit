@@ -666,7 +666,7 @@ class Campaign(models.Model):
         self.save()
         action = CampaignAction( campaign = self, type='activated', comment = self.get_type_display()) 
         ungluers = self.work.wished_by()        
-        notification.queue(ungluers, "wishlist_active", {'campaign':self}, True)
+        notification.send(ungluers, "wishlist_active", {'campaign':self}, True)
         return self
 
 

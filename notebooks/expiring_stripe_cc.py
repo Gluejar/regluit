@@ -144,7 +144,6 @@ Account.objects.filter(status='EXPIRED')
 
 # <codecell>
 
-from notification.engine import send_all
 from notification import models as notification
 
 from django.contrib.sites.models import Site
@@ -161,14 +160,14 @@ print me, settings.EMAIL_HOST
 
 # <codecell>
 
-notification.send_now([me], "account_expiring", {
+notification.send([me], "account_expiring", {
                     'user': me, 
                     'site':Site.objects.get_current()
                 }, True)
 
 # <codecell>
 
-notification.send_now([me], "account_expired", {
+notification.send([me], "account_expired", {
                     'user': me, 
                     'site':Site.objects.get_current()
                 }, True)

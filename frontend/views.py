@@ -77,7 +77,7 @@ from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
-from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
+from regluit.core.tasks import send_mail_task, watermark_acq
 from regluit.core.parameters import *
 from regluit.core.facets import get_facet_object, get_order_by
 

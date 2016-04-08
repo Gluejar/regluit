@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 from django.core.urlresolvers import reverse
 #from django.views.generic.simple import direct_to_template
 from django.views.generic.base import TemplateView

@@ -13,7 +13,6 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from notification.engine import send_all
 from notification import models as notification
 
 """
@@ -99,10 +98,6 @@ def update_active_campaign_status():
     """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
     return [c.update_status(send_notice=True, ignore_deadline_for_success=True, process_transactions=True) for c in Campaign.objects.filter(status='Active') ]
 
-@task
-def emit_notifications():
-    logger.info('notifications emitting' )
-    return send_all()
     
 @task
 def report_new_ebooks(created=None):   #created= creation date
@@ -112,7 +107,7 @@ def report_new_ebooks(created=None):   #created= creation date
         period = (date_today()-timedelta(days=1), date_today())
     works = models.Work.objects.filter(editions__ebooks__created__range = period).distinct()
     for work in works:
-        notification.send_now(work.wished_by(), "wishlist_unglued_book_released", {'work':work}, True)
+        notification.send(work.wished_by(), "wishlist_unglued_book_released", {'work':work}, True)
         
 @task
 def notify_ending_soon():
@@ -202,5 +197,5 @@ def notify_unclaimed_gifts():
         """
         unclaimed_duration = (now() - gift.acq.created ).days
         if unclaimed_duration > 0 and unclaimed_duration % 7 == 0 : # first notice in 7 days
-            notification.send_now([gift.acq.user], "purchase_gift_waiting", {'gift':gift}, True)
-            notification.send_now([gift.giver], "purchase_notgot_gift", {'gift':gift}, True)
+            notification.send([gift.acq.user], "purchase_gift_waiting", {'gift':gift}, True)
+            notification.send([gift.giver], "purchase_notgot_gift", {'gift':gift}, True)
