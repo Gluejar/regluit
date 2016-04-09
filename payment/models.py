@@ -108,7 +108,7 @@ class Transaction(models.Model):
     extra = JSONField(null=True, default={})
     
     # whether the user wants to be not listed publicly
-    anonymous = models.BooleanField(null=False)
+    anonymous = models.BooleanField(default=False)
 
     @property
     def tier(self):
