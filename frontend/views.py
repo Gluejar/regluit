@@ -1687,7 +1687,7 @@ class FundCompleteView(TemplateView):
                 self.transaction.user.wishlist.add_work(work, 'pledging', notify=True)
 
         #put info into session for download page to pick up.
-            self.request.session['amount']= self.transaction.amount
+            self.request.session['amount']= int(self.transaction.amount * 100)
             if self.transaction.receipt:
                 self.request.session['receipt']= self.transaction.receipt
                 
@@ -2993,7 +2993,7 @@ class DownloadView(PurchaseView):
             'action': "Contribution",
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
-            'amount': self.request.session.pop('amount') if self.request.session.has_key('amount') else None,
+            'amount': Decimal(self.request.session.pop('amount')/100) if self.request.session.has_key('amount') else None,
             'testmode': self.request.REQUEST.has_key('testmode'),
             'source': self.request.REQUEST.get('source', ''),
 
