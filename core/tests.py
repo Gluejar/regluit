@@ -480,7 +480,7 @@ class SearchTests(TestCase):
 
 
 class CampaignTests(TestCase):
-
+    fixtures = ['initial_data.json']
     def test_b2u(self):
         w = Work()
         w.save()
@@ -810,6 +810,7 @@ class WorkTests(TestCase):
 
         
 class DownloadPageTest(TestCase):
+    fixtures = ['initial_data.json']
     def test_download_page(self):
         w = models.Work()
         w.save()
@@ -897,7 +898,7 @@ class MailingListTests(TestCase):
 
 @override_settings(LOCAL_TEST=True)
 class EbookFileTests(TestCase):
-        
+    fixtures = ['initial_data.json']
     def test_badepub_errors(self):
         textfile = NamedTemporaryFile(delete=False)
         textfile.write("bad text file")
@@ -1036,7 +1037,7 @@ class MobigenTests(TestCase):
 from .signals import handle_transaction_charged
 @override_settings(LOCAL_TEST=True)
 class LibTests(TestCase):
-
+    fixtures = ['initial_data.json']
     class transaction:
         pass
         

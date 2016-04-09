@@ -275,6 +275,7 @@ class ExtraTest(TestCase):
     
        
 class TransactionTest(TestCase):
+    fixtures=['initial_data.json']
     def setUp(self):
         """
         """
