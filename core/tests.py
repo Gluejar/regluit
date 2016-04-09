@@ -22,6 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.files import File as DjangoFile
 from django.db import IntegrityError
+from django.db import transaction
 from django.http import Http404
 from django.test import TestCase
 from django.test.client import Client
@@ -506,15 +507,16 @@ class CampaignTests(TestCase):
 
     def test_required_fields(self):
         # a campaign must have a target, deadline and a work
-
-        c = Campaign()
-        self.assertRaises(IntegrityError, c.save)
-
-        c = Campaign(target=D('1000.00'))
-        self.assertRaises(IntegrityError, c.save)
-
-        c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1))
-        self.assertRaises(IntegrityError, c.save)
+        # see http://stackoverflow.com/questions/21458387/transactionmanagementerror-you-cant-execute-queries-until-the-end-of-the-atom
+        with transaction.atomic():
+            c = Campaign()
+            self.assertRaises(IntegrityError, c.save)
+        with transaction.atomic():
+            c = Campaign(target=D('1000.00'))
+            self.assertRaises(IntegrityError, c.save)
+        with transaction.atomic():
+            c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1))
+            self.assertRaises(IntegrityError, c.save)
 
         w = Work()
         w.save()
