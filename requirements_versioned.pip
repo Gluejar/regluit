@@ -38,7 +38,7 @@ django-registration==1.0
 django-selectable==0.7.0
 django-smtp-ssl==1.0
 django-storages==1.1.6
-django-tastypie==0.12.1
+django-tastypie==0.12.2
 feedparser==5.1.2
 freebase==1.0.8
 #gitenberg.metadata==0.1.6
@@ -49,6 +49,7 @@ httplib2==0.7.5
 isodate==0.5.1
 kombu==2.4.5
 lxml==2.3.5
+defusedxml==0.4.1
 mechanize==0.2.5
 mimeparse==0.1.3
 nose==1.1.2

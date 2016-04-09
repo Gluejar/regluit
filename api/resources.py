@@ -5,6 +5,7 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource, Resource, Bundle
 from tastypie.utils import trailing_slash
 from tastypie.authentication import ApiKeyAuthentication, Authentication
+from tastypie.exceptions import BadRequest
 
 from django.conf.urls import url
 from django.contrib import auth
@@ -135,14 +136,14 @@ class FreeResource(ModelResource):
         bundle.data["href"]=reverse('download_ebook',kwargs={'ebook_id':bundle.obj.id})
         return bundle
         
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, bundle, **kwargs):
+        request = bundle.request
         isbn =""
         if hasattr(request, 'GET'):
             isbn = request.GET.get("isbn","")
         isbn = isbn.replace('-','')
         if len(isbn)==10:
             isbn=regluit.core.isbn.convert_10_to_13(isbn)
-
         try:
             work=models.Identifier.objects.get(type='isbn',value=isbn,).work
             base_object_list = models.Ebook.objects.filter(edition__work=work)
