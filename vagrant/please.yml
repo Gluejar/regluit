@@ -98,7 +98,7 @@
       
     - name: clone the regluit git repo into /opt/regluit
       sudo: no
-      git: repo=ssh://git@github.com/Gluejar/regluit.git dest=/opt/regluit accept_hostkey=True force=yes version=dj16
+      git: repo=ssh://git@github.com/Gluejar/regluit.git dest=/opt/regluit accept_hostkey=True force=yes version=dj16ry
     
     
     # installing mysql
