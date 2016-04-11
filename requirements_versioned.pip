@@ -47,7 +47,7 @@ github3.py==0.9.5
 html5lib==1.0b3
 httplib2==0.7.5
 isodate==0.5.1
-kombu==2.4.5
+kombu==3.0.35
 lxml==2.3.5
 defusedxml==0.4.1
 mechanize==0.2.5
