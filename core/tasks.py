@@ -136,6 +136,10 @@ def process_ebfs(campaign):
         else:
             campaign.work.make_ebooks_from_ebfs(add_ask=False)
         campaign.work.remove_old_ebooks()
+
+@task
+def make_mobi(campaign):
+    return campaign.make_mobi()
     
 @task
 def refresh_acqs():

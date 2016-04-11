@@ -593,6 +593,8 @@ def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs )
                     elif self.instance.license in ['GDFL' , 'LAL']:
                         raise forms.ValidationError(_('Once you start a campaign with GDFL or LAL, you can\'t use any other license.'))
             return new_license
+    if initial and not initial.get('edition', None) and not instance.edition:
+        initial['edition']= instance.work.editions.all()[0]
     return ManageCampaignForm(instance = instance, data=data, initial=initial)
 
 class CampaignPurchaseForm(forms.Form):

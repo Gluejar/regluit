@@ -1,4 +1,5 @@
 import datetime
+import mimetypes
 from os.path import dirname, realpath, join
 
 import regluit
@@ -142,6 +143,7 @@ INSTALLED_APPS = (
     'regluit.marc',
     'regluit.payment',
     'regluit.utils',
+    'regluit.survey',
     'registration',
     'social.apps.django_app.default',
     'tastypie',
@@ -423,6 +425,8 @@ FORMATS = (
     ('text','TEXT'),
     ('mobi','MOBI'),
 )
+
+# used by MARC. maybe should use python's mimetypes
 CONTENT_TYPES = {
     'pdf': 'application/pdf',
     'epub': 'application/epub+zip',
@@ -430,6 +434,8 @@ CONTENT_TYPES = {
     'text': 'text/plain',
     'mobi': 'application/x-mobipocket-ebook'
 }
+
+mimetypes.init(["{}/deploy/mime.types".format(PROJECT_DIR)])
 
 # if you add more of these, make sure core/marc.py can deal
 MARC_CHOICES = (
@@ -458,3 +464,7 @@ GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
 SOUTH_MIGRATION_MODULES = {
     'default': 'social.apps.django_app.default.south_migrations'
 }
+
+MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
+MOBIGEN_USER_ID = "admin"
+MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
