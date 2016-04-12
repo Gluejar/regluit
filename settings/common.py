@@ -9,6 +9,7 @@ PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
 LANGUAGE_CODE = 'en-us'
 LOCAL_TEST = False
+ALLOWED_HOSTS = ['.unglue.it', '.unglueit.com',]
 
 WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
 
