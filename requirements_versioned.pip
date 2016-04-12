@@ -11,24 +11,24 @@ South==0.8.4
 SPARQLWrapper==1.6.4
 WebOb==1.2.3
 WebTest==1.4.0
-amqplib==1.0.2
+amqp==1.4.9
 anyjson==0.3.3
-billiard==2.7.3.12
+billiard==3.3.0.23
 boto==2.8.0
 #git+ssh://git@github.com/Gluejar/boto.git@2.3.0
-celery==3.0.9
+celery==3.1.23
 certifi==2015.04.28
 # pip installing pillow seems to delete distribute
 # but having distribute in requirements starting to cause problems
 # distribute==0.6.28
-django-celery==3.0.9
+django-celery==3.1.17
 django-ckeditor==4.5.1
 #django-email-change==0.2.3
 git+git://github.com/eshellman/django-email-change.git@582112797466b9fb427ba3c4da3b14b426a28132
 django-endless-pagination==2.0
 django-extensions==0.9
 django-jsonfield==0.9.10
-django-kombu==0.9.4
+#django-kombu==0.9.4
 django-maintenancemode==0.10
 django-mptt==0.7.4
 django-nose-selenium==0.7.3
@@ -47,7 +47,7 @@ github3.py==0.9.5
 html5lib==1.0b3
 httplib2==0.7.5
 isodate==0.5.1
-kombu==2.4.5
+kombu==3.0.35
 lxml==2.3.5
 defusedxml==0.4.1
 mechanize==0.2.5
