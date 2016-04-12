@@ -461,9 +461,11 @@ DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
 # generated from rdhyee account
 GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
 
+# https://github.com/celery/django-celery/blob/master/docs/introduction.rst#for-django-17-and-newer
 SOUTH_MIGRATION_MODULES = {
     'default': 'social.apps.django_app.default.south_migrations',
     'tastypie': 'tastypie.south_migrations',
+    'djcelery': 'djcelery.south_migrations',
 }
 
 MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
