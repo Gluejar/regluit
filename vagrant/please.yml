@@ -139,16 +139,27 @@
 
     #run('pip install -r requirements_versioned.pip')
 
-    - name: pip install requests (to see whether in right place)
+    - name: upgrade pip
       pip: >
            executable=/opt/regluit/ENV/bin/pip
            name={{item}}
            virtualenv=/opt/regluit/ENV
            virtualenv_command=virtualenv
+           extra_args="--upgrade"
       with_items:
-        - requests
-        - census
+        - pip
       sudo: no
+
+    # - name: pip install requests (to see whether in right place)
+    #   pip: >
+    #        executable=/opt/regluit/ENV/bin/pip
+    #        name={{item}}
+    #        virtualenv=/opt/regluit/ENV
+    #        virtualenv_command=virtualenv
+    #   with_items:
+    #     - requests
+    #     - census
+    #   sudo: no
            
     
     - name: pip requirments
