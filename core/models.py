@@ -1,4 +1,4 @@
-'''
+104'''
 external library imports
 '''
 import binascii
@@ -1011,7 +1011,7 @@ class Campaign(models.Model):
                 url= settings.BASE_URL_SECURE + reverse('download_campaign',args=[self.work.id,format]),
                 )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
-                edition=self.work.preferred_edition
+                edition=self.work.preferred_edition,
                 format=format, 
                 rights=self.license, 
                 provider="Unglue.it",
