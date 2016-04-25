@@ -3064,8 +3064,10 @@ def download_purchased(request, work_id):
 
 def download_campaign(request, work_id, format):
     work = safe_get_work(work_id)
-    campaign = work.last_campaign()
-    if campaign is None or (campaign.status != 'SUCCESSFUL'):
+    campaign = None
+    for campaign in work.campaigns.filter(status='SUCCESSFUL'):
+        continue
+    if not campaign:
         raise Http404
     if campaign.type is BUY2UNGLUE:
         ebfs= models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
