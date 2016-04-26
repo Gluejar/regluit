@@ -3073,10 +3073,13 @@ def download_campaign(request, work_id, format):
 
     ebfs= models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
     logger.info(ebfs.count())
+    # return the link to the most recently created EbookFile (if any) with specified format for the campaign 
     for ebf in ebfs:
         logger.info(ebf.file.url)
         return HttpResponseRedirect(ebf.file.url)
 
+    # if ebfs.count() is 0
+    raise Http404
 
 def download_acq(request, nonce, format):
     acq = get_object_or_404(models.Acq,nonce=nonce)
