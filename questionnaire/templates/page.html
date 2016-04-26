@@ -1,0 +1,12 @@
+{% extends "base-questionnaire.html" %}
+
+{% block title %}
+    {{ block.super }} - {{ page.title }}
+{% endblock %}
+
+{% block questionnaire %}
+    {{ page.body }}
+    {% if user.is_authenticated %}
+        <a href="/admin/page/page/{{ page.slug }}/">(edit)</a>
+    {% endif %}
+{% endblock %}
