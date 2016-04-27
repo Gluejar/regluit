@@ -117,14 +117,19 @@ If you're an author, publisher, or other rights holder, you can participate more
 				{% csrf_token %}
 				{{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}
 				{% if claim.rights_holder.can_sell %}
+					{% ifequal claim.can_open_new 1 %}
 					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
 					<ol>
 					<li> <i>Pledge-To-Unglue</i>: These campaigns have a fixed end date. When your pledges reach the target you set, the campaign succeeds and the ebook is released in an open-access <i>unglued</i> edition.</li>
 					<li> <i>Buy-To-Unglue</i>: These campaigns start with a date on which the ebook will become open access. Each sale advances this "ungluing date" an increment based on you funding target.</li>
 					<li> <i>Thanks-For-Ungluing</i>: These campaigns are for books that <i>already</i> have a Creative Commons license.</li>
 					</ol>
+					{% else %}
+					Your previous campaign succeeded, but you can open a new <i>Thanks-For-Ungluing</i> campaign. <input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="3" />
+					{{ claim.campaign_form.type.errors }}
+					{% endifequal %}
 				{% else %}
-					<input type="hidden" id="type" name="type" value="1" />
+					<input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="1" />
 				{% endif %}
 				<p>Add another Campaign Manager(s) by their Unglue.it username: </p>
 				<div style="width:220px; padding-left:20px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}
