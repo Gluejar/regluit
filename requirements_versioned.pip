@@ -40,6 +40,7 @@ django-smtp-ssl==1.0
 django-storages==1.1.6
 django-tastypie==0.9.11
 django-transmeta==0.7.3
+git+https://github.com/eldest-daughter/ed-questionnaire.git@d41aaf8f376cdae025cdefdb8b4c9156b1de7db8
 feedparser==5.1.2
 freebase==1.0.8
 #gitenberg.metadata==0.1.6
