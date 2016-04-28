@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from dependency_checker import check_actual_answers_against_expression, explode_answer_into_list
+from .dependency_checker import check_actual_answers_against_expression, explode_answer_into_list
 from .models import Question
 
 

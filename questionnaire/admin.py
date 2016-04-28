@@ -1,7 +1,7 @@
 from django.utils.translation import ugettext as _
 from django.contrib import admin
 from django.core.urlresolvers import reverse
-from models import (Choice, Questionnaire, Question, QuestionSet, Subject, 
+from .models import (Choice, Questionnaire, Question, QuestionSet, Subject, 
         RunInfo, RunInfoHistory, Answer, DBStylesheet, Landing)
 
 adminsite = admin.site

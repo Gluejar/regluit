@@ -3,9 +3,9 @@
 # exist in the drop down list of the management interface.
 #
 
+from django.utils.translation import ugettext as _
 from .. import add_type, question_proc, answer_proc, AnswerException
 from .. import Processors, QuestionProcessors
-from django.utils.translation import ugettext as _
 
 @question_proc('custom')
 def question_custom(request, question):

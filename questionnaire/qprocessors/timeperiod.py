@@ -1,5 +1,5 @@
-from .. import add_type, question_proc, answer_proc, AnswerException
 from django.utils.translation import ugettext as _, ugettext_lazy
+from .. import add_type, question_proc, answer_proc, AnswerException
 
 perioddict = {
     "second" : ugettext_lazy("second(s)"),
