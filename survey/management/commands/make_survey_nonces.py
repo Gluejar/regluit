@@ -1,6 +1,6 @@
 import string
 from django.core.management.base import BaseCommand
-from ...models import Landing
+from regluit.questionnaire.models import Landing
 
 
 class Command(BaseCommand):
