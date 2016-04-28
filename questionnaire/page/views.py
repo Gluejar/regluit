@@ -4,7 +4,7 @@ from django.conf import settings
 from django.template import RequestContext
 from django import http
 from django.utils import translation
-from models import Page
+from .models import Page
 
 def page(request, page_to_render):
     try:

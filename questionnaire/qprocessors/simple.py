@@ -1,8 +1,8 @@
+import ast
+from json import dumps
+from django.utils.translation import ugettext as _
 from .. import add_type, question_proc, answer_proc, AnswerException
 from ..utils import get_runid_from_request
-from django.utils.translation import ugettext as _
-from json import dumps
-import ast
 
 
 #true if either 'required' or if 'requiredif' is satisfied

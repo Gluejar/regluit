@@ -3,18 +3,19 @@
 Functions to send email reminders to users.
 """
 
+import random, time, smtplib, rfc822
+from datetime import datetime
+from email.Header import Header
+from email.Utils import formataddr, parseaddr
 from django.core.mail import get_connection, EmailMessage
 from django.contrib.auth.decorators import login_required
 from django.template import Context, loader
 from django.utils import translation
 from django.conf import settings
 from django.http import Http404, HttpResponse
-from models import Subject, QuestionSet, RunInfo, Questionnaire
-from datetime import datetime
 from django.shortcuts import render_to_response, get_object_or_404
-import random, time, smtplib, rfc822
-from email.Header import Header
-from email.Utils import formataddr, parseaddr
+from .models import Subject, QuestionSet, RunInfo, Questionnaire
+
 try: from hashlib import md5
 except: from md5 import md5
 

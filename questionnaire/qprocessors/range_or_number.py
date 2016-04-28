@@ -1,9 +1,9 @@
-from .. import add_type, question_proc, answer_proc, AnswerException
+import ast
+from json import dumps
 from django.conf import settings
 from django.utils.translation import ugettext as _
-from json import dumps
-import ast
 from ..utils import get_runid_from_request
+from .. import add_type, question_proc, answer_proc, AnswerException
 
 @question_proc('range', 'number')
 def question_range_or_number(request, question):

@@ -2,7 +2,7 @@
 
 import questionnaire
 from django.conf.urls.defaults import *
-from views import *
+from .views import *
 
 urlpatterns = patterns('',
     url(r'^q/(?P<runcode>[^/]+)/(?P<qs>\d+)/$',
