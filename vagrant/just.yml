@@ -25,10 +25,11 @@
         overwrite: yes         
         aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
         aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
-        
+     
+    # TEMPORARILY TURN OFF    
     # sudo add repo to get latest version of python 2.7
-    - name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
-      apt_repository: repo='ppa:fkrull/deadsnakes-python2.7' state=present update_cache=true
+    #- name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
+    #  apt_repository: repo='ppa:fkrull/deadsnakes-python2.7' state=present update_cache=true
 
     - name: do apt-get update --fix-missing
       command: apt-get update --fix-missing
@@ -39,6 +40,7 @@
         - python2.7
         - git-core
         - apache2
+        - cronolog
         - libapache2-mod-wsgi
         - mysql-client
         - python-virtualenv
@@ -96,8 +98,7 @@
       
     - name: clone the regluit git repo into /opt/regluit
       sudo: no
-      git: repo=ssh://git@github.com/Gluejar/regluit.git dest=/opt/regluit accept_hostkey=True force=yes version=master
-    
+      git: repo=ssh://git@github.com/Gluejar/regluit.git dest=/opt/regluit accept_hostkey=True force=yes version=sysadmin
     
     ## installing mysql
     ## https://github.com/bennojoy/mysql --> probably the right way
@@ -239,6 +240,11 @@
         owner={{user}} 
         group={{user}} 
         mode=0600
+      notify:
+        - restart apache2
+
+    - name: remove /etc/logrotate.d/apache2
+      file: path=/etc/logrotate.d/apache2 state=absent
       notify:
         - restart apache2
 
