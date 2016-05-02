@@ -154,9 +154,11 @@ class Claim(models.Model):
             return False
         #can't already be a campaign
         for campaign in self.campaigns:
-            if campaign.status in ['ACTIVE','INITIALIZED', 'SUCCESSFUL']:
-                return False
-        return True
+            if campaign.status in ['ACTIVE','INITIALIZED']:
+                return 0 # cannot open a new campaign
+            if campaign.status in ['SUCCESSFUL']:
+                return 2  # can open a THANKS campaign
+        return 1 # can open any type of campaign
 
     def  __unicode__(self):
         return self.work.title

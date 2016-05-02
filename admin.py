@@ -46,7 +46,6 @@ from regluit.core.lookups import (
 from regluit.libraryauth.models import Library, Block, CardPattern, EmailPattern
 from regluit.libraryauth.admin import LibraryAdmin, BlockAdmin, CardPatternAdmin, EmailPatternAdmin
 
-from regluit.survey.admin import LandingAdmin, Landing
 
 class RegluitAdmin(AdminSite):
     login_template = 'registration/login.html'
@@ -299,4 +298,21 @@ admin_site.register(NoticeSetting, NoticeSettingAdmin)
 admin_site.register(Notice, NoticeAdmin)
 admin_site.register(ObservedItem)
 
+
+from regluit.questionnaire.admin import (
+    Questionnaire, QuestionnaireAdmin, Question, QuestionAdmin,
+    QuestionSet, QuestionSetAdmin, RunInfo, RunInfoAdmin, RunInfoHistory, RunInfoHistoryAdmin,
+    Answer, AnswerAdmin, LandingAdmin, Landing,
+    )
+from regluit.questionnaire.admin import Subject as QSubject
+from regluit.questionnaire.admin import SubjectAdmin as QSubjectAdmin
+
 admin_site.register(Landing, LandingAdmin)
+
+admin_site.register(Questionnaire, QuestionnaireAdmin)
+admin_site.register(Question, QuestionAdmin)
+admin_site.register(QuestionSet, QuestionSetAdmin)
+admin_site.register(QSubject, QSubjectAdmin)
+admin_site.register(RunInfo, RunInfoAdmin) 
+admin_site.register(RunInfoHistory, RunInfoHistoryAdmin) 
+admin_site.register(Answer, AnswerAdmin)

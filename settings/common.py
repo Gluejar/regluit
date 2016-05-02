@@ -8,6 +8,9 @@ from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
 LANGUAGE_CODE = 'en-us'
+LANGUAGES = (
+    ('en', 'English'),
+)
 LOCAL_TEST = False
 
 WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
@@ -72,6 +75,8 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    join(PROJECT_DIR,'questionnaire/static/'),
+
 )
 
 # List of finder classes that know how to find static files in
@@ -79,7 +84,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -112,6 +117,8 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
     'regluit.core.auth.SocialAuthExceptionMiddlewareWithoutMessages',
+    'django.middleware.locale.LocaleMiddleware',
+    'regluit.questionnaire.request_cache.RequestCacheMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
@@ -122,6 +129,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     join(PROJECT_DIR, "frontend", "templates"),
     join(PROJECT_DIR, "frontend", "templates", "registration"),
+    join(PROJECT_DIR, "questionnaire", "templates"),
 )
 
 INSTALLED_APPS = (
@@ -143,7 +151,6 @@ INSTALLED_APPS = (
     'regluit.marc',
     'regluit.payment',
     'regluit.utils',
-    'regluit.survey',
     'registration',
     'social.apps.django_app.default',
     'tastypie',
@@ -163,7 +170,11 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'regluit.booxtream',
     'regluit.pyepub',
-    'regluit.libraryauth',                    
+    'regluit.libraryauth', 
+    'transmeta',
+    'regluit.questionnaire',
+    'regluit.questionnaire.page',  
+    'regluit.survey',                 
 )
 
 # A sample logging configuration. The only tangible logging
@@ -471,3 +482,6 @@ SOUTH_MIGRATION_MODULES = {
 MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
 MOBIGEN_USER_ID = "admin"
 MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
+
+QUESTIONNAIRE_USE_SESSION = True
+QUESTIONNAIRE_DEBUG = True

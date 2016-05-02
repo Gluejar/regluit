@@ -25,6 +25,7 @@ django-celery==3.1.17
 django-ckeditor==4.5.1
 #django-email-change==0.2.3
 git+git://github.com/eshellman/django-email-change.git@582112797466b9fb427ba3c4da3b14b426a28132
+django-compat==1.0.10
 django-endless-pagination==2.0
 django-extensions==1.6.1
 django-jsonfield==0.9.10
@@ -39,6 +40,7 @@ django-selectable==0.7.0
 django-smtp-ssl==1.0
 django-storages==1.1.6
 django-tastypie==0.12.2
+django-transmeta==0.7.3
 feedparser==5.1.2
 freebase==1.0.8
 #gitenberg.metadata==0.1.6

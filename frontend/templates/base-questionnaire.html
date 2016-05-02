@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}{{ block.super }}Questionnaire{% endblock title %}
+{% block search_box %}{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/questionnaire.css"></script>
+    <style type="text/css">
+    {% block styleextra %}
+    {% endblock %}
+    </style>
+{% endblock %}    
+{% block extra_head %}
+    {% block headextra %}
+    {% endblock %}
+{% endblock %}
+
+{% block language %}
+    {% for lang in LANGUAGES %}
+        {% if not forloop.first %} | {% endif %}
+        <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+    {% endfor %}
+{% endblock language %}
+
+{% block content %}
+<div id="main-container">
+	<div class="js-main">
+
+                        {% block questionnaire %}{% endblock questionnaire %}
+	</div>
+</div>    
+
+{% endblock %}

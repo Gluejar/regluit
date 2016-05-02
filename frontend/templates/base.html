@@ -61,6 +61,7 @@
             <div class="js-logo">
                 <a href="{{ landingurl }}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
+            {% block search_box %}
             {% if not suppress_search_box %}
             <div class="js-search">
             <div class="js-search-inner">
@@ -73,6 +74,7 @@
             </div>
             </div>
             {% endif %}
+            {% endblock %}
             {% if user.is_authenticated %}
                 <div class="js-topmenu" id="authenticated">
                     <ul class="menu">
@@ -121,13 +123,6 @@
     </div>
 
 {% block news %}
-{% if not suppress_search_box %}
-{% comment %}
-<div class="launch_top">
-        Happy <a href="https://twitter.com/ebookday">#ebookday</a>! We're celebrating with a list of <a href="{% url 'cc_list'%}">Creative Commons eBooks</a>
-</div>
-{% endcomment %}
-{% endif %}
 {% endblock %}
 
     {% block topsection %}{% endblock %}
