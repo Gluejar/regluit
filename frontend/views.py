@@ -3064,17 +3064,22 @@ def download_purchased(request, work_id):
 
 def download_campaign(request, work_id, format):
     work = safe_get_work(work_id)
-    campaign = work.last_campaign()
-    if campaign is None or (campaign.status != 'SUCCESSFUL'):
-        raise Http404
-    if campaign.type is BUY2UNGLUE:
-        ebfs= models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
-        logger.info(ebfs.count())
-        for ebf in ebfs:
-            logger.info(ebf.file.url)
-            return HttpResponseRedirect(ebf.file.url)
-    raise Http404
 
+    # Raise 404 unless there is a SUCCESSFUL BUY2UNGLUE campaign associated with work 
+    try:
+        campaign = work.campaigns.get(status='SUCCESSFUL', type=BUY2UNGLUE)
+    except Campaign.DoesNotExist as e:
+        raise Http404
+
+    ebfs= models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
+    logger.info(ebfs.count())
+    # return the link to the most recently created EbookFile (if any) with specified format for the campaign 
+    for ebf in ebfs:
+        logger.info(ebf.file.url)
+        return HttpResponseRedirect(ebf.file.url)
+
+    # if ebfs.count() is 0
+    raise Http404
 
 def download_acq(request, nonce, format):
     acq = get_object_or_404(models.Acq,nonce=nonce)

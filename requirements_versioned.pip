@@ -24,6 +24,7 @@ django-celery==3.0.9
 django-ckeditor==4.5.1
 #django-email-change==0.2.3
 git+git://github.com/novagile/django-email-change.git@0d7cb91b987a0505a9c4bde126d452233dea266d
+django-compat==1.0.10
 django-endless-pagination==2.0
 django-extensions==0.9
 django-jsonfield==0.9.10
@@ -38,6 +39,7 @@ django-selectable==0.7.0
 django-smtp-ssl==1.0
 django-storages==1.1.6
 django-tastypie==0.9.11
+django-transmeta==0.7.3
 feedparser==5.1.2
 freebase==1.0.8
 #gitenberg.metadata==0.1.6

@@ -6,7 +6,9 @@ from django.db import models
 
 
 class Migration(SchemaMigration):
-
+    needed_by = (
+            ("questionnaire", "0005_move_nonces"),
+        )
     def forwards(self, orm):
         # Adding model 'Landing'
         db.create_table('survey_landing', (
