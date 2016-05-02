@@ -255,6 +255,8 @@
 
     - name: remove /etc/logrotate.d/apache2
       file: path=/etc/logrotate.d/apache2 state=absent
+      notify:
+        - restart apache2
 
     - name: a2dissite default
       command: a2dissite default

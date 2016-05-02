@@ -9,7 +9,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.define "please" do |node|
     
     # Every Vagrant virtual environment requires a box to build off of.
-    node.vm.box = "precise64"
+    node.vm.box = "ubuntu/precise64"
   
     # node.vm.network "forwarded_port", guest: 80, host: 8080
     node.vm.network "private_network", ip: "192.168.33.10"
@@ -108,7 +108,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "localvm" do |node|
  
-    node.vm.box = "precise64"
+    node.vm.box = "ubuntu/precise64"
     #node.vm.network "private_network", type: "dhcp"
     node.vm.network "private_network", ip: "192.168.33.10" #https://192.168.33.10.xip.io
     
