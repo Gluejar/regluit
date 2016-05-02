@@ -43,7 +43,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
-      aws.ami = "ami-d8132bb0"
+      # 2015.05.05
+      # aws.ami = "ami-d8132bb0"
+      # 2016.03.01
+      aws.ami = "ami-03dcdd69"
       # put into just security group
       aws.security_groups = ["just"]
       

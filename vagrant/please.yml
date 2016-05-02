@@ -40,6 +40,7 @@
         - python2.7
         - git-core
         - apache2
+        - cronolog
         - libapache2-mod-wsgi
         - mysql-client
         - python-virtualenv
@@ -251,6 +252,9 @@
         mode=0600
       notify:
         - restart apache2
+
+    - name: remove /etc/logrotate.d/apache2
+      file: path=/etc/logrotate.d/apache2 state=absent
 
     - name: a2dissite default
       command: a2dissite default
