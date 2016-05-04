@@ -6,6 +6,8 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
+  config.vm.define "jenkins"
+
   config.vm.define "please" do |node|
     
     # Every Vagrant virtual environment requires a box to build off of.
@@ -66,11 +68,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.vm.box = "ubuntu/trusty64"
     node.vm.network "private_network", type: "dhcp"
     #node.vm.network "private_network", ip: "192.168.33.10"
+
     
     node.ssh.forward_agent = true
     
     node.vm.provision 'ansible' do |ansible|
       ansible.playbook = 'just.yml'
+
+      # ansible_ssh_port=22 ansible_ssh_host=jenkins.unglueit.com ansible_ssh_user=ubuntu
+      # ansible_ssh_host=jenkins.unglueit.com ansible_user=ubuntu ansible_ssh_port=22
+      ansible.host_vars = {
+        "jenkins" => {"ansible_ssh_port" => 22,
+            "ansible_ssh_host" => "jenkins.unglueit.com",
+            "ansible_ssh_user" => "ubuntu"}
+      }
+
     end
  
     node.vm.provider "virtualbox" do |v|
