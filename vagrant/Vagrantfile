@@ -20,6 +20,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
     node.vm.provision 'ansible' do |ansible|
       ansible.playbook = 'please.yml'
+      ansible.verbose = "v"
+      # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
+      ansible.raw_arguments  = [
+          "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
+          "--limit=please,127.0.0.1",
+      ]
     end
 
   

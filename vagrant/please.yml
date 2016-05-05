@@ -1,7 +1,44 @@
-- name: unglueit setup
+- name: route53 setup
+  hosts: 127.0.0.1
+  vars:
+    aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+    please_ssh_host: "{{ hostvars['please']['ansible_ssh_host'] }}"
+
+  tasks:
+
+    - name: print please ansible_ssh_host
+      debug: msg="please.ansible_ssh_host {{please_ssh_host}}"
+
+
+    - name: get DNS record for please.unglue.it
+      route53:
+        command: get
+        zone: unglue.it
+        record: please.unglue.it
+        type: A
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+
+    - name: set DNS record for please.unglue.it
+      route53:
+        command: create
+        zone: unglue.it
+        record: please.unglue.it
+        type: A
+        ttl: 60
+        value: "{{please_ssh_host}}"
+        overwrite: yes
+        aws_access_key: "{{aws_access_key}}"
+        aws_secret_key: "{{aws_secret_key}}"
+
+
+- name: please setup
   hosts: please 
   vars:
     user: "{{ ansible_ssh_user }}"
+    aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+    aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
   sudo: yes
 
   pre_tasks:
@@ -13,19 +50,6 @@
       when: ansible_date_time.epoch|float - apt_cache_stat.stat.mtime > 60*60*12
 
   tasks:
-    
-    - name: set DNS record for please.unglue.it
-      route53:
-        command: create
-        zone: unglue.it
-        record: please.unglue.it
-        type: A
-        ttl: 60
-        value: "{{ansible_ssh_host}}"
-        overwrite: yes         
-        aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
-        aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
- 
         
     # sudo add repo to get latest version of python 2.7
     - name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
@@ -109,7 +133,13 @@
     
     - name: mysql setup
       raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password {{mysql_root_pw}}'
+      args:
+        executable: /bin/bash
+
     - raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password_again password {{mysql_root_pw}}'
+      args:
+        executable: /bin/bash
+
     - raw: apt-get -y install mysql-server
     
     - name: Create regluit database
