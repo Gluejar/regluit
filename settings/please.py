@@ -1,6 +1,6 @@
 from regluit.settings.common import *
 
-ALLOWED_HOSTS = ['please.unglue.it']
+ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
