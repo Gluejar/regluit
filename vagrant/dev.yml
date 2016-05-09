@@ -5,8 +5,6 @@
     aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
     target: '{{vname}}'
     dev_ssh_host: "{{ hostvars[target]['ansible_ssh_host'] }}"
-    migrate: "{{do_migrate | default('true')}}"
-
   tasks:
 
     - name: print dev_ssh_host
@@ -43,6 +41,7 @@
     aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
     aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
     target: '{{vname}}'
+    migrate: "{{do_migrate | default('true')}}"
   sudo: yes
 
   pre_tasks:
