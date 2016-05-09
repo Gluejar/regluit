@@ -87,11 +87,18 @@ class BookLoaderTests(TestCase):
         huck = models.Work.objects.get(id=huck_id)
         self.assertTrue( huck.ebooks().count()>1)
         
+        
     def test_add_by_yaml(self):  
         space_id = bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')
         huck_id = bookloader.load_from_yaml('https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml')
         space = models.Work.objects.get(id=space_id)
         huck = models.Work.objects.get(id=huck_id)
+
+        #test ebook archiving
+        num_ebf= EbookFile.objects.all().count()
+        for ebook in huck.ebooks().all():
+            f = ebook.get_archive()
+        self.assertTrue(EbookFile.objects.all().count()>num_ebf)
         
     def test_valid_subject(self):
         self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
@@ -455,7 +462,10 @@ class BookLoaderTests(TestCase):
         ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
         self.assertEqual(ebook.url, epub_url)
         
-
+    def tearDown(self):
+        for ebf in EbookFile.objects.all():
+            ebf.file.delete()
+            
 class SearchTests(TestCase):
 
     def test_basic_search(self):

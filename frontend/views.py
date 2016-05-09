@@ -3323,21 +3323,13 @@ def send_to_kindle(request, work_id, javascript='0'):
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
     try:
-        filehandle = urllib.urlopen(ebook.url)
+        filehandle = ebook.get_archive()
     except IOError:
         # problems connection to the ebook source
         logger.error("couldn't connect error: %s", ebook.url)
         return local_response(request, javascript,  context, 5)
     if not ebook.filesize:
-        try:
-            ebook.filesize = int(filehandle.info().getheaders("Content-Length")[0])
-            if ebook.save:
-                ebook.filesize =  ebook.filesize if ebook.filesize < 2147483647 else 2147483647  # largest safe positive integer
-                ebook.save()
-        except IndexError:
-            # response has no Content-Length header probably a bad link
-            logger.error('Bad link error: %s', ebook.url)
-            return local_response(request, javascript,  context, 4)
+        return local_response(request, javascript,  context, 4)
     if ebook.filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)

@@ -1001,8 +1001,8 @@ class Campaign(models.Model):
         self.work.make_ebooks_from_ebfs(add_ask=True)
         
     def make_unglued_ebf(self, format, watermarked):
-        ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         r=urllib2.urlopen(watermarked.download_link(format))
+        ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
         ebf.file.close()
         ebf.save()
@@ -2005,7 +2005,38 @@ class Ebook(models.Model):
             return True
         else:
             return False
-            
+    
+    def get_archive(self): # returns an archived file
+        if self.edition.ebook_files.filter(format=self.format).count()==0:
+            if self.provider is not 'Unglue.it':
+                try:
+                    r=urllib2.urlopen(self.url)
+                    try:
+                        self.filesize = int(r.info().getheaders("Content-Length")[0])
+                        if self.save:
+                            self.filesize =  self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
+                            self.save()
+                        ebf=EbookFile.objects.create(edition=self.edition, format=self.format)
+                        ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
+                        ebf.file.close()
+                        ebf.save()
+                        return ebf.file.open()
+                    except IndexError:
+                        # response has no Content-Length header probably a bad link
+                        logging.error( 'Bad link error: {}'.format(ebook.url) )
+                except IOError:
+                    logger.error(u'could not open {}'.format(self.url) )
+            else:
+                # this shouldn't happen, except in testing perhaps
+                logger.error(u'couldn\'t find ebookfile for {}'.format(self.url) )
+                # try the url instead
+                f = urllib.urlopen(self.url)
+                return f
+        else:
+            f= self.edition.ebook_files.filter(format=self.format).order_by('-created')[0].file
+            f.open()
+            return f
+        
     def set_provider(self):
         self.provider=Ebook.infer_provider(self.url)
         return self.provider
