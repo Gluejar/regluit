@@ -5,6 +5,7 @@
     aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
     target: '{{vname}}'
     dev_ssh_host: "{{ hostvars[target]['ansible_ssh_host'] }}"
+    migrate: "{{do_migrate | default('true')}}"
 
   tasks:
 
@@ -119,7 +120,7 @@
       args:
         github_auth_key: "{{github_auth_key}}"
         repo_name: Gluejar/regluit
-        key_name: "{{hostname}} {{ ansible_date_time.date }}"
+        key_name: "{{hostname}} {{ ansible_date_time.iso8601 }}"
         key_path: /home/{{user}}/.ssh/id_rsa.pub
  
     - name: postfix install
@@ -218,6 +219,8 @@
     #run('django-admin.py syncdb --migrate --noinput --settings regluit.settings.please')
 
     #Run syncdb on the application
+    # TO DO: syncdb might be deprecated
+    # http://stackoverflow.com/a/29683785
 
     - name: django syncdb
       django_manage: >
@@ -225,6 +228,7 @@
           app_path=/opt/regluit/
           settings="regluit.settings.{{class}}"
           virtualenv=/opt/regluit/ENV
+      when: migrate
       notify:
         - restart apache2
 
@@ -234,6 +238,7 @@
           app_path=/opt/regluit/
           settings="regluit.settings.{{class}}"
           virtualenv=/opt/regluit/ENV
+      when: migrate
       notify:
         - restart apache2
       
@@ -422,6 +427,16 @@
         key="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDYSiXESHXEdugNLGxFABXpVSawDCU/BK05Ef2qUa7oxxhU7fXNqWaSTqowevVruF7kfzMQ7epIxN5XFFjbXf/tsSn1995H9BEhmHLXLuEB5VaPU2HTLqu0DscyPtRbk/WjqPj3jWXs2yHgKcJIXwd5EfSwJuCe1Ut6pMe9E/NUq9QztnydRTt0sGywXpkIpKeBkiQl4SWlPTHcoU6PDbEuMVii8GzRAQlpEQTJwzWJTToR1SZ7o1uusDSxIDfJSvAa5IiuII8CdKbqa/JSx1+4LqlT0yf+2yb67MR5q6+XFM4TeCf5z+4SW+IT/wd2tpbd0DjAdXJlAgBULwhd1L7r"
         state=present
       when: class in ['just']
+
+    - name: set up script file to load environment for interactive use
+      command: cp "/opt/regluit/deploy/setup-{{class}}.sh" /home/{{user}}/setup.sh
+
+    - name: set up script to dump database
+      command: cp "/opt/regluit/deploy/dump_db_{{class}}.sh" /home/{{user}}/dump.sh
+      when: class in ['prod']
+
+    - name: put an empty file in main dir to help identify this instance
+      command: touch "/home/{{user}}/{{class}}_{{ ansible_date_time.iso8601 }}"
 
 
   handlers:
