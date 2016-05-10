@@ -1,7 +1,6 @@
-- name: Hello Ansible
-  hosts: all
+- name: test
+  hosts: 127.0.0.1
   sudo: no
 
-  tasks:
-    - name: Hello server
-      shell: date > now.txt
+  roles:
+    - hello_world

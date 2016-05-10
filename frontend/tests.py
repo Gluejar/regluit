@@ -211,7 +211,8 @@ class PledgingUiTests(TestCase):
         pass
 
 class UnifiedCampaignTests(TestCase):
-    fixtures=['basic_campaign_test.json']
+    fixtures=['initial_data.json','basic_campaign_test.json']
+    
     def test_setup(self):
         # testing basics:  are there 3 users?
 

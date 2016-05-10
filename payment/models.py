@@ -108,7 +108,7 @@ class Transaction(models.Model):
     extra = JSONField(null=True, default={})
     
     # whether the user wants to be not listed publicly
-    anonymous = models.BooleanField(null=False)
+    anonymous = models.BooleanField(default=False)
 
     @property
     def tier(self):
@@ -254,7 +254,7 @@ class Receiver(models.Model):
     status = models.CharField(max_length=64)
     local_status = models.CharField(max_length=64, null=True)
     reason = models.CharField(max_length=64)
-    primary = models.BooleanField()
+    primary = models.BooleanField(default=True)
     txn_id = models.CharField(max_length=64)
     transaction = models.ForeignKey(Transaction)
     
