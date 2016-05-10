@@ -1,5 +1,6 @@
 from regluit.settings.common import *
 
+ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
@@ -26,7 +27,7 @@ DATABASES = {
 
 
 TIME_ZONE = 'America/New_York'
-SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
+SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
@@ -103,7 +104,6 @@ IS_PREVIEW = False
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
-CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 
 
 # local settings for maintenance mode

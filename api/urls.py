@@ -1,6 +1,6 @@
 from tastypie.api import Api
 
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 from django.views.generic.base import TemplateView
 
 from regluit.api import resources

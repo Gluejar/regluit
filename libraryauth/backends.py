@@ -47,7 +47,7 @@ class ip:
     class admin_form(forms.ModelForm):
         class Meta:
             model = Block
-            exclude = "library"
+            exclude = ("library",)
 
 class cardnum:   
     def authenticate(self,request, library):
@@ -70,7 +70,7 @@ class cardnum:
     class admin_form(forms.ModelForm):
         class Meta:
             model = CardPattern
-            exclude = "library"
+            exclude = ("library",)
     
     class form(forms.ModelForm):
         credential = forms.RegexField(
@@ -119,4 +119,4 @@ class email:
     class admin_form(forms.ModelForm):
         class Meta:
             model = EmailPattern
-            exclude = "library"
+            exclude = ("library",)

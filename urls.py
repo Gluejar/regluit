@@ -1,6 +1,4 @@
-import notification.urls
-
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 
 from frontend.views import social_auth_reset_password
 from regluit.admin import admin_site
@@ -22,7 +20,7 @@ urlpatterns = patterns('',
     url(r'^selectable/', include('selectable.urls')),
     url(r'^admin/', include(admin_site.urls)), 
     url(r'^comments/', include('django.contrib.comments.urls')),
-    url(r'^notification/', include(notification.urls)),
+    url(r"^notification/", include('notification.urls')),
     url(r'^ckeditor/', include('ckeditor.urls')),
     # questionnaire urls
     url(r'^survey/', include('regluit.questionnaire.urls')),

@@ -6,8 +6,6 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.define "jenkins"
-
   config.vm.define "please" do |node|
     
     # Every Vagrant virtual environment requires a box to build off of.
@@ -53,6 +51,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # alestic 2015.05.05
       
       aws.instance_type="t1.micro"
+      #aws.instance_type="m3.medium"
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
@@ -93,7 +92,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e vname=just",
           "-e class=just",
           "-e hostname=just.unglue.it",
-          "-e setdns=true",
+          "-e setdns=false",
           "-e branch=master"
       ]
 
@@ -150,7 +149,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e vname=just2",
           "-e class=just",
           "-e hostname=just2.unglue.it",
-          "-e setdns=true",
+          "-e setdns=false",
           "-e branch=master"
       ]
 
@@ -261,8 +260,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
       ansible.raw_arguments  = [
           "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
-          "--limit=prod,127.0.0.1",
-          "-e vname=prod",
+          "--limit=prod2,127.0.0.1",
+          "-e vname=prod2",
           "-e class=prod",
           "-e hostname=unglue.it",
           "-e setdns=false",
@@ -294,7 +293,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.security_groups = ["web-production"]
       
       aws.tags = {
-      'Name' => 'prod_vagrant'
+      'Name' => 'prod2_vagrant'
       }
    
       override.vm.box = "dummy"

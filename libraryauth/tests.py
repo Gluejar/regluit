@@ -4,6 +4,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 class TestLibraryAuth(TestCase):
+    fixtures=['initial_data.json']
     def setUp(self):
         pass
 
