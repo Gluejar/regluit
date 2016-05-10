@@ -28,7 +28,7 @@ django-ckeditor==4.5.1
 git+git://github.com/eshellman/django-email-change.git@582112797466b9fb427ba3c4da3b14b426a28132
 django-compat==1.0.10
 django-endless-pagination==2.0
-django-extensions==0.9
+django-extensions==1.6.1
 django-jsonfield==0.9.10
 #django-kombu==0.9.4
 django-maintenancemode==0.10
@@ -58,7 +58,7 @@ mimeparse==0.1.3
 nose==1.1.2
 oauth2==1.5.211
 oauthlib==0.7.2
-paramiko==1.7.7.2
+paramiko==1.14.1
 postmonkey==1.0b
 pyasn1==0.1.4
 pycrypto==2.6
@@ -71,18 +71,18 @@ python-social-auth==0.2.6
 pytz==2012d
 rdflib==4.2.0
 rdflib-jsonld==0.3
-redis==2.6.2
+redis==2.10.3
 reportlab==3.1.8
 requests==2.7.0
 requests-oauthlib==0.4.2
-selenium==2.50.0
+selenium==2.53.1
 six==1.9.0
 sorl-thumbnail==12.3
 ssh==1.7.14
-stevedore==0.4
+stevedore==1.12.0
 stripe==1.9.1
 virtualenv==1.4.9
 # virtualenv-clone==0.2.4 not sure why I have this in my env
-virtualenvwrapper==3.6
+#virtualenvwrapper==3.6
 wsgiref==0.1.2
 xhtml2pdf==0.0.6

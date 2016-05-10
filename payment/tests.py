@@ -157,7 +157,8 @@ def payAmazonSandbox(sel):
         #print "len(payment_confirm)", len(payment_confirm)
         #time.sleep(1)
         #payment_confirm[-1].click()
-        
+
+@unittest.skip("skipping PledgeTest (selenium)")
 class PledgeTest(TestCase):
     
     def setUp(self):
@@ -188,7 +189,8 @@ class PledgeTest(TestCase):
 
     def tearDown(self):
         self.selenium.quit()
-        
+
+@unittest.skip("skipping AuthorizeTest (selenium)")
 class AuthorizeTest(TestCase):
     
     def setUp(self):
@@ -262,6 +264,7 @@ class CreditTest(TestCase):
         self.assertEqual(self.user1.credit.balance, 0)
         self.assertEqual(self.user2.credit.balance, 50)
 
+@unittest.skip("skipping ExtraTest")
 class ExtraTest(TestCase):
     
     def testPledgeExtra(self):

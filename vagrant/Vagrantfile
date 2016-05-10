@@ -6,8 +6,6 @@ VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.define "jenkins"
-
   config.vm.define "please" do |node|
     
     # Every Vagrant virtual environment requires a box to build off of.
@@ -53,6 +51,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # alestic 2015.05.05
       
       aws.instance_type="t1.micro"
+      #aws.instance_type="m3.medium"
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
