@@ -92,7 +92,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e vname=just",
           "-e class=just",
           "-e hostname=just.unglue.it",
-          "-e setdns=true",
+          "-e setdns=false",
           "-e branch=master"
       ]
 
@@ -149,7 +149,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e vname=just2",
           "-e class=just",
           "-e hostname=just2.unglue.it",
-          "-e setdns=true",
+          "-e setdns=false",
           "-e branch=master"
       ]
 
