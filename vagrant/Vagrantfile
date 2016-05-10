@@ -188,6 +188,121 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   end
 
+  config.vm.define "prod" do |node|
+ 
+    node.vm.box = "ubuntu/trusty64"
+    node.vm.network "private_network", type: "dhcp"
+    #node.vm.network "private_network", ip: "192.168.33.10"
+
+    
+    node.ssh.forward_agent = true
+    
+    node.vm.provision 'ansible' do |ansible|
+      ansible.playbook = 'dev.yml'
+      ansible.verbose = "vv"
+      # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
+      ansible.raw_arguments  = [
+          "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
+          "--limit=prod,127.0.0.1",
+          "-e vname=prod",
+          "-e class=prod",
+          "-e hostname=unglue.it",
+          "-e setdns=false",
+          "-e do_migrate=true",
+          "-e branch=production"
+      ]
+
+    end
+ 
+    node.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+    end
+ 
+    node.vm.provider :aws do |aws, override|
+      aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
+      aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
+
+      aws.keypair_name = "ry-laptop"
+  
+      # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
+      # alestic 2015.05.05
+      
+      aws.instance_type="c1.medium"
+      
+      aws.region = "us-east-1"
+      aws.availability_zone = "us-east-1c"
+      aws.ami = "ami-d8132bb0"
+      aws.security_groups = ["web-production"]
+      
+      aws.tags = {
+      'Name' => 'prod_vagrant'
+      }
+   
+      override.vm.box = "dummy"
+      override.ssh.username = "ubuntu"
+      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+    end
+
+  end
+
+  config.vm.define "prod2" do |node|
+ 
+    node.vm.box = "ubuntu/trusty64"
+    node.vm.network "private_network", type: "dhcp"
+    #node.vm.network "private_network", ip: "192.168.33.10"
+
+    
+    node.ssh.forward_agent = true
+    
+    node.vm.provision 'ansible' do |ansible|
+      ansible.playbook = 'dev.yml'
+      ansible.verbose = "vv"
+      # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
+      ansible.raw_arguments  = [
+          "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
+          "--limit=prod,127.0.0.1",
+          "-e vname=prod",
+          "-e class=prod",
+          "-e hostname=unglue.it",
+          "-e setdns=false",
+          "-e do_migrate=true",
+          "-e branch=production"
+      ]
+
+    end
+ 
+    node.vm.provider "virtualbox" do |v|
+        v.memory = 1024
+        v.cpus = 2
+    end
+ 
+    node.vm.provider :aws do |aws, override|
+      aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
+      aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
+
+      aws.keypair_name = "ry-laptop"
+  
+      # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
+      # alestic 2015.05.05
+      
+      aws.instance_type="c1.medium"
+      
+      aws.region = "us-east-1"
+      aws.availability_zone = "us-east-1c"
+      aws.ami = "ami-d8132bb0"
+      aws.security_groups = ["web-production"]
+      
+      aws.tags = {
+      'Name' => 'prod_vagrant'
+      }
+   
+      override.vm.box = "dummy"
+      override.ssh.username = "ubuntu"
+      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+    end
+
+  end
 
 
   config.vm.define "localvm" do |node|
