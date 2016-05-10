@@ -260,8 +260,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
       ansible.raw_arguments  = [
           "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
-          "--limit=prod,127.0.0.1",
-          "-e vname=prod",
+          "--limit=prod2,127.0.0.1",
+          "-e vname=prod2",
           "-e class=prod",
           "-e hostname=unglue.it",
           "-e setdns=false",
@@ -293,7 +293,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.security_groups = ["web-production"]
       
       aws.tags = {
-      'Name' => 'prod_vagrant'
+      'Name' => 'prod2_vagrant'
       }
    
       override.vm.box = "dummy"
