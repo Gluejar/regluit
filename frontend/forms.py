@@ -184,7 +184,7 @@ class EditionForm(forms.ModelForm):
     
     class Meta:
         model = Edition
-        exclude = 'created', 'work'
+        exclude = ('created', 'work')
         widgets = { 
                 'title': forms.TextInput(attrs={'size': 40}),
                 'add_author': forms.TextInput(attrs={'size': 30}),
@@ -269,7 +269,7 @@ def UserClaimForm ( user_instance, *args, **kwargs ):
         
         class Meta:
             model = Claim
-            exclude = 'status'
+            exclude = ('status',)
             widgets = { 
                     'user': forms.HiddenInput, 
                     'work': forms.HiddenInput, 

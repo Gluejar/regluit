@@ -351,10 +351,8 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
 def successful_campaign_signal():
     """fire off a success_campaign signal and send notifications"""
     import regluit
-    from notification.engine import send_all
     c = regluit.core.models.Campaign.objects.get(id=3)
     regluit.core.signals.successful_campaign.send(sender=None, campaign=c)
-    send_all()
     
 
 def berkeley_search():

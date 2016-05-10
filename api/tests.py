@@ -21,6 +21,7 @@ from regluit.utils.localdatetime import now
 from regluit.api import models as apimodels
 
 class ApiTests(TestCase):
+    fixtures = ['initial_data.json']
     work_id=None
     
     def setUp(self):
@@ -135,6 +136,13 @@ class ApiTests(TestCase):
         })
         j = json.loads(r.content)
         self.assertEqual(j['objects'][0]['filetype'], 'epub')
+        r = self.client.get('/api/v1/free/', data={
+            'format': 'xml', 
+            'isbn': '0441007465', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        self.assertTrue(r.content.find('<rights>CC BY</rights>')>0)
 
     def test_widget(self):
         r = self.client.get('/api/widget/0441007465/')
