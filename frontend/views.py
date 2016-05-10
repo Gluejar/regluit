@@ -2993,7 +2993,7 @@ class DownloadView(PurchaseView):
             'action': "Contribution",
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
-            'amount': Decimal(self.request.session.pop('amount')/100) if self.request.session.has_key('amount') else None,
+            'amount': D(self.request.session.pop('amount')/100) if self.request.session.has_key('amount') else None,
             'testmode': self.request.REQUEST.has_key('testmode'),
             'source': self.request.REQUEST.get('source', ''),
 
