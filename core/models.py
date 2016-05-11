@@ -996,6 +996,7 @@ class Campaign(models.Model):
                 obsolete = Ebook.objects.filter(url=old_ebf.file.url)
                 for eb in obsolete:
                     eb.deactivate()
+                old_ebf.file.delete()
                 old_ebf.delete()
         self.work.make_ebooks_from_ebfs(add_ask=True)
         
@@ -1403,6 +1404,7 @@ class Work(models.Model):
                 done_formats.append(eb.format)
         null_files=EbookFile.objects.filter(edition__work=self, file='')
         for ebf in null_files:
+            ebf.file.delete()
             ebf.delete()
         
     @property
