@@ -1,5 +1,5 @@
 {% extends 'notification/notice_template.html' %}
-{% load url from future %}
+
 
 {% block comments_book %}
 			<a href="{% url 'work' acq.work.id %}"><img src="{{ acq.work.cover_image_small }}" alt="cover image for {{ acq.work.title }}" /></a>

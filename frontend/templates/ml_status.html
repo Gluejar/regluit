@@ -1,4 +1,4 @@
-{% load url from future %}{% if request.user.profile.on_ml %}
+{% if request.user.profile.on_ml %}
 You are subscribed to the Unglue.it Newsletter. It comes roughly twice a month. <br />
 <form id="ml_unsubscribe" action="{% url 'ml_unsubscribe' %}" method="POST">
 {% csrf_token %}

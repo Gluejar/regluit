@@ -1,4 +1,4 @@
-{% load url from future %}{% if work.last_campaign.type == 3 %}
+{% if work.last_campaign.type == 3 %}
     <a href="{% url 'work' workid %}?tab=3" class="nobold"><span class="rounded"><span class="grey"><span class="">Thanked by&nbsp;</span>{{ work.last_campaign.supporters_count }}</span></span></a>
 {% else %}
     {% if work.num_wishes %}

@@ -1,4 +1,4 @@
-{% load url from future %}<!-- login_form.html -->
+<!-- login_form.html -->
 <form method="post" action="{% url 'superlogin' %}" class="login">{% csrf_token %}
     {{ form.username.label_tag }}    
     {{ form.username }}

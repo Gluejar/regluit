@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}
+{% load humanize %}
 {% if request.user.profile.account %}
     <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
         <h3>{{ action|capfirst  }} by Credit Card</h3>

@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}We tried to process your transaction for "{{ transaction.campaign.work.title }}".
+{% load humanize %}We tried to process your transaction for "{{ transaction.campaign.work.title }}".
 
 However, our attempt to charge your credit card in the amount of ${{ transaction.amount|floatformat:2|intcomma }} failed{% if transaction.error %} ({{transaction.error}}){% endif %}.  
 {% ifequal transaction.campaign.type 1 %}Don't worry -- typically this means the card on file for you is expired, and once you update your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at

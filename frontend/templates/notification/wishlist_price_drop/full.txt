@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}Good news!  The rights holder, {{ campaign.rightsholder }}, has lowered the target price to ${{ campaign.target|intcomma }} for {{ campaign.work.title }}.  Now we only need to raise ${{ campaign.left|intcomma }} by {{ campaign.deadline }} in order to give this book to the world.  
+{% load humanize %}Good news!  The rights holder, {{ campaign.rightsholder }}, has lowered the target price to ${{ campaign.target|intcomma }} for {{ campaign.work.title }}.  Now we only need to raise ${{ campaign.left|intcomma }} by {{ campaign.deadline }} in order to give this book to the world.  
 
 {% if pledged %}
 	Your pledge of {{ amount|intcomma }} is now going even farther toward helping {{ campaign.work.title }} to reach its goal.  Still, we can only unglue this book if the campaign succeeds.  You can help by sharing the campaign (https://{{ current_site.domain }}{% url 'work' work_id=campaign.work.id %}) with your friends through your favorite media: tweet, Facebook, Tumblr, blog, G+, Pinterest, email, carrier pigeon, or good old-fashioned conversation.
