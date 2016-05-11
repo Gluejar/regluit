@@ -75,6 +75,7 @@ from regluit.core import (
 import regluit.core.cc as cc
 from regluit.core.bookloader import merge_works, detach_edition
 from regluit.core.goodreads import GoodreadsClient
+from regluit.core.isbn import ISBN
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, emit_notifications, watermark_acq
@@ -2179,7 +2180,11 @@ def search(request):
     gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False )
     if q != '' and page==1 and not gbo=='y':
-        work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
+        isbnq = ISBN(q)
+        if isbnq.valid:
+            work_query = Q(identifiers__value=str(isbnq), identifiers__type="isbn")
+        else:
+            work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
         campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
         for work in campaign_works:
             results = models.Work.objects.none()
