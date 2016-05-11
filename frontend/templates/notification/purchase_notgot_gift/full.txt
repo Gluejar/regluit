@@ -1,4 +1,4 @@
-{% load url from future %}After more than 7 days, the gift you sent to {{ gift.to }} has not yet been redeemed.
+After more than 7 days, the gift you sent to {{ gift.to }} has not yet been redeemed.
 
 There are several possible reasons for this. 
 -  The email address ({{ gift.acq.user.email }}) may have been incorrect.

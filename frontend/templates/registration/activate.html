@@ -1,5 +1,5 @@
 {% extends 'registration/registration_base.html' %}
-{% load url from future %}
+
 {% block title %}{% if account %}Activation complete{% else %}Activation problem{% endif %}{% endblock %}
 {% block doccontent %}
 {% if not user.is_authenticated %}

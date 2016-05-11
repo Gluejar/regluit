@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}
+{% load humanize %}
 {% ifequal transaction.campaign.type 1 %}
 Amount pledged: ${{ transaction.amount|floatformat:2|intcomma }}
 Premium: {{ transaction.premium.description }}

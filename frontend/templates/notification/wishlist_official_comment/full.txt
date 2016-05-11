@@ -1,4 +1,4 @@
-{% load url from future %}{% if comment.user.is_staff %}
+{% if comment.user.is_staff %}
 Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.content_object.title }} (a book on your Unglue.it book list):
 {% else %}
 {{ comment.user.username }}, the author or publisher of {{ comment.content_object.title }} (a book on your Unglue.it book list), has made a comment:

@@ -1,4 +1,4 @@
-{% load url from future %}{{ comment.user.username }} has commented on a book you also commented on, {{ comment.content_object.title }}, as follows.
+{{ comment.user.username }} has commented on a book you also commented on, {{ comment.content_object.title }}, as follows.
           
 {{ comment.comment }}
 

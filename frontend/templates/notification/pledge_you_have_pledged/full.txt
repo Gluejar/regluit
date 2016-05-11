@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}
+{% load humanize %}
 Thank you, {{ transaction.user.username }}!  You have pledged to unglue {{ transaction.campaign.work.title }}.  If this campaign successfully raises ${{ transaction.campaign.target|intcomma }} by {{ transaction.campaign.deadline|date:"M d Y" }}, this book will be released in an unglued ebook edition for all to enjoy.
 
 Pledge summary

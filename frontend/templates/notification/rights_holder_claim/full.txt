@@ -1,4 +1,4 @@
-{% load url from future %}{% ifequal claim.status 'active' %}
+{% ifequal claim.status 'active' %}
 {{ claim.rights_holder }}'s claim to {{ claim.work.title }} on Unglue.it has been registered.
 
 You are now free to start a campaign to sell or unglue your work.  If you're logged in, you will see the option to open a campaign at https://{{ current_site.domain }}/rightsholders .  (You can also find this page by clicking on "Rights Holder Tools" at the bottom of any Unglue.it page.)

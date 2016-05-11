@@ -1,4 +1,4 @@
-{% load url from future %}
+
 {% load humanize %}
 {% load purchased %}
 {% load lib_acqs %}
@@ -154,9 +154,9 @@
                         {% if status == 'INITIALIZED' %}
                             <p>Campaign coming soon!</p>
                         {% else %}{% if status == 'SUSPENDED' %}
-                            <p>This campaign has been suspended.</p><br /><p>See the <a href="{{faqurl}}">FAQ</a> for details.</p>
+                            <p>This campaign has been suspended.</p><br /><p>See the <a href="{% url 'faq' %}">FAQ</a> for details.</p>
                         {% else %}{% if status == 'WITHDRAWN' %}
-                            <p>This campaign has been withdrawn.</p><br /><p>See the <a href="{{faqurl}}">FAQ</a> for details.</p>
+                            <p>This campaign has been withdrawn.</p><br /><p>See the <a href="{% url 'faq' %}">FAQ</a> for details.</p>
                         {% else %}{% if status == 'UNSUCCESSFUL' %}
                             <p>{{ deadline }}</p>
                             <p>Watch for a new campaign.</p>
