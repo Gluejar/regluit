@@ -1,10 +1,3 @@
-{% load url from future %}{% comment %}
-django-notification and {% with %} play poorly together. Don't use {% with %} 
-in child templates.  Also don't do {% url 'something' as something %}; it doesn't work and I'm not clear why.
-
-Exception: you can include notification/sharing_block.html into a notice.html to have
-tweet, FB, email sharing show up.  Include a {% url 'work' your.local.work.id as work_url %} immediately prior.
-{% endcomment %}
 <div class="comments clearfix">
 	<div class="comments_info clearfix">
 		<div class="comments_book">
