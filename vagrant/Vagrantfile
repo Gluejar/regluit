@@ -29,7 +29,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=sysadmin"
+          "-e branch=master"
       ]
     end
 
@@ -50,8 +50,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
       
-      aws.instance_type="t1.micro"
-      #aws.instance_type="m3.medium"
+      #aws.instance_type="t1.micro"
+      aws.instance_type="m3.medium"
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
