@@ -5,19 +5,24 @@ from south.v2 import DataMigration
 from django.db import models
 
 class Migration(DataMigration):
+    ''' migrated from a module that has since been blown away
     depends_on = (
         ("survey", "0001_initial"),
     )
     needed_by = (
         ("survey", "0002_auto__del_landing"),
     )
-
+    '''
+    
     def forwards(self, orm):
+        '''
         oldLanding=orm['survey.Landing'] 
         Landing=orm['questionnaire.Landing'] 
         for landing in oldLanding.objects.all():
-            Landing.objects.create(nonce=landing.nonce, label=landing.label, content_type=landing.content_type, object_id=landing.object_id)
-
+                Landing.objects.create(nonce=landing.nonce, label=landing.label, content_type=landing.content_type, object_id=landing.object_id)
+        '''
+        pass
+        
     def backwards(self, orm):
         pass
 
@@ -145,5 +150,6 @@ class Migration(DataMigration):
         }
     }
 
-    complete_apps = ['survey', 'questionnaire']
-    symmetrical = True
+    #complete_apps = ['survey', 'questionnaire']
+    complete_apps = ['questionnaire']
+    #symmetrical = True
