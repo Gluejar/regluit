@@ -27,6 +27,7 @@ marc_rels = {
     "cnd": "conductor",
     "com": "compiler",
     "ctb": "contributor",
+    "dsr": "designer",
     "dub": "dubious_author",
     "edt": "editor",
     "egr": "engineer",
