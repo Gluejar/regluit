@@ -441,6 +441,7 @@
 
     - name: chmod +x dump.sh
       file: path=/home/{{user}}/dump.sh state=file owner={{user}} group={{user}} mode=0745
+      when: class in ['prod']
 
     - name: put an empty file in main dir to help identify this instance
       command: touch "/home/{{user}}/{{class}}_{{ ansible_date_time.iso8601 }}"
