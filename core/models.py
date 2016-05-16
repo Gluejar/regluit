@@ -1197,6 +1197,11 @@ class Work(models.Model):
         else: 
             return self.googlebooks_id
     
+    def cover_image_large(self):
+        if self.preferred_edition and self.preferred_edition.has_cover_image():
+            return self.preferred_edition.cover_image_large()
+        return "/static/images/generic_cover_larger.png"
+
     def cover_image_small(self):
         if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_small()
@@ -1773,6 +1778,24 @@ class Edition(models.Model):
         else:
             return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
+    def cover_image_large(self):
+        #550 pixel high image
+        if self.cover_image: 
+            im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)    
+            return im.url
+        elif self.googlebooks_id:
+            url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=0" % self.googlebooks_id
+            im = get_thumbnail(url, 'x550', crop='noop', quality=95) 
+            if not im.exists() or im.storage.size(im.name)==16392: # check for "image not available" image
+                url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
+                im = get_thumbnail(url, 'x550', crop='noop', quality=95) 
+            if im.exists():
+                return im.url
+            else:
+                return ''
+        else:
+            return ''
+            
     def cover_image_small(self):
         #80 pixel high image
         if self.cover_image: 
@@ -2028,7 +2051,8 @@ class Ebook(models.Model):
                         ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
                         ebf.file.close()
                         ebf.save()
-                        return ebf.file.open()
+                        ebf.file.open()
+                        return ebf.file
                     except IndexError:
                         # response has no Content-Length header probably a bad link
                         logging.error( 'Bad link error: {}'.format(ebook.url) )
