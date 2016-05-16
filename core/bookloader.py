@@ -888,7 +888,7 @@ def load_from_yaml(yaml_url, test_mode=False):
             # use GitHub API to compute the ebooks in release until we're in test mode
             if test_mode:
                 # not using ebook_name in this code
-                ebooks_in_release = [('epub', None)]
+                ebooks_in_release = [('epub', 'book.epub')]
             else:
                 ebooks_in_release =  ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
 
