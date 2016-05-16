@@ -490,11 +490,12 @@ class CampaignTests(TestCase):
     def test_b2u(self):
         w = Work()
         w.save()
+        this_year = datetime.now().year
         c = Campaign(
             target=D('12000.00'), 
-            deadline=datetime(2013, 1, 1), 
+            deadline=datetime(this_year, 1, 1), 
             work=w, type=2, 
-            cc_date_initial=datetime(2113, 1, 1),
+            cc_date_initial=datetime(this_year + 100, 1, 1),
             )
         self.assertTrue(c.set_dollar_per_day()<0.34)
         self.assertTrue(c.dollar_per_day>0.31)
