@@ -1360,6 +1360,14 @@ class Work(models.Model):
     def pdffiles(self):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
 
+    def formats(self):
+        fmts=[]
+        for fmt in ['pdf', 'epub', 'mobi', 'html']:
+            for ebook in self.ebooks().filter(format=fmt):
+                fmts.append(fmt)
+                break
+        return fmts
+    
     def make_ebooks_from_ebfs(self, add_ask=True):
         # either the ebf has been uploaded or a created (perhaps an ask was added or mobi generated)
         if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
