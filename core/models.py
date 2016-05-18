@@ -1292,7 +1292,7 @@ class Work(models.Model):
                 self.save()
                 return self.last_campaign().edition
         try:
-            self.selected_edition = self.editions.all()[0]
+            self.selected_edition = self.editions.all().order_by('-cover_image', '-created')[0] # prefer editions with covers
             self.save()
             return self.selected_edition 
         except IndexError:
@@ -1745,7 +1745,7 @@ class Subject(models.Model):
         
     def free_works(self):
         return self.works.filter( is_free = True )
-
+    
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
