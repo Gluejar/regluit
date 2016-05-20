@@ -11,15 +11,25 @@ from .models import Target
 
 logger = logging.getLogger(__name__)
 
-def push_books(target, start=datetime(1900,1,1), end=datetime(2100,1,1),max=0):
+def push_books(target, start=datetime(1900,1,1), new=False, max=0):
     """given a list of books this task will push the books, metadata and covers to the target
     """
-    facet_class = get_target_facet(target, start=start, end=end,max=max)
+    facet_class = get_target_facet(target, start=start, new=new)
+    pushed_books = []
     for book in facet_class.works:
-        target.push(book)
-        logger.info(u'{} pushed to {}'.format(book, target))
+        pushed = target.push(book, new=new)
+        if pushed:
+            pushed_books.append(book)
+            logger.info(u'{} pushed to {}'.format(book, target))
+        else:
+            logger.info(u'{} was not pushed to {}'.format(book, target))
+        if max and len(pushed_books) >= max:
+            break
+    facet_class.works = pushed_books
+    if len(pushed_books)>0:
+        push_onix(target, facet_class)
 
-def get_target_facet(target, start=datetime(1900,1,1), end=datetime(2100,1,1),max=0):
+def get_target_facet(target, start=datetime(1900,1,1), new=False):
     formats = [ format.name for format in target.formats.all() ]
     
     def format_filter(query_set):
@@ -31,17 +41,12 @@ def get_target_facet(target, start=datetime(1900,1,1), end=datetime(2100,1,1),ma
     class TargetFacet(BaseFacet):
         def __init__(self):
             self.facet_object = self
-            works = Work.objects.filter(
-                    editions__ebooks__created__lt = end, 
+            self.works = Work.objects.filter(
                     editions__ebooks__created__gt = start, 
                     identifiers__type="isbn", 
                     editions__ebooks__format__in = formats,
                     editions__ebooks__provider__in = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library'),
                     ).distinct().order_by('-featured')
-            if  max > 0 :
-                self.works = works[0:max]
-            else:
-                self.works = works
                 
         model_filters = {"Ebook": format_filter, "Edition": edition_format_filter}    
         outer_facet = None
@@ -50,6 +55,9 @@ def get_target_facet(target, start=datetime(1900,1,1), end=datetime(2100,1,1),ma
         
     return TargetFacet()
 
-def push_onix(target, start=datetime(1900,1,1), end=datetime(2100,1,1),max=0):
-    facet_class = get_target_facet(target, start=start, end=end,max=max)
+def push_onix(target, facet_class):
     target.push_file('unglueit_onix_{:%Y%m%d}.xml'.format(datetime.now()),StringIO(onix_feed(facet_class)))
+    
+def push_all(start=datetime(1900,1,1), new=False, max=0):
+    for target in Target.objects.all():
+        push_books(target, start=start, new=new, max=max)
