@@ -61,11 +61,13 @@ def product(edition, facet=None):
     ident_node.append(text_node("ProductIDType", "01" )) #proprietary
     ident_node.append(text_node("IDTypeName", "unglue.it edition id" )) #proprietary
     ident_node.append(text_node("IDValue", unicode(edition.id) )) 
-
-    if edition.isbn_13:
+    
+    # wrong isbn better than no isbn
+    isbn = edition.isbn_13 if edition.isbn_13 else edition.work.first_isbn_13()
+    if isbn:
         ident_node =  etree.SubElement(product_node, "ProductIdentifier")
         ident_node.append(text_node("ProductIDType", "03" )) #proprietary
-        ident_node.append(text_node("IDValue", edition.isbn_13 )) 
+        ident_node.append(text_node("IDValue", isbn )) 
 
     # Descriptive Detail Block
     descriptive_node =  etree.SubElement(product_node, "DescriptiveDetail")
@@ -163,10 +165,13 @@ def product(edition, facet=None):
         pub_node.append(text_node("PublishingRole", '01')) #publisher
         pub_node.append(text_node("PublisherName", edition.publisher_name.name))
     pubdetail_node.append(text_node("PublishingStatus", '00')) #unspecified
-    if edition.publication_date:
+    
+    #consumers really want a pub date
+    publication_date = edition.publication_date if edition.publication_date else edition.work.earliest_publication_date
+    if publication_date:
         pubdate_node =  etree.SubElement(pubdetail_node, "PublishingDate")
         pubdate_node.append(text_node("PublishingDateRole", '01')) #nominal pub date
-        pubdate_node.append(text_node("Date", edition.publication_date.replace('-',''))) 
+        pubdate_node.append(text_node("Date", publication_date.replace('-',''))) 
         
     # Product Supply Block
     supply_node =  etree.SubElement(product_node,"ProductSupply")

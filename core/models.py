@@ -1490,7 +1490,13 @@ class Work(models.Model):
             return self.identifiers.filter(type='isbn')[0].value
         except IndexError:
             return ''
-
+    
+    @property
+    def earliest_publication_date(self):
+        for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('publication_date'):
+            if edition.publication_date and len(edition.publication_date)>=4:
+                return edition.publication_date
+        
     @property
     def publication_date(self):
         if self.publication_range:
@@ -1781,8 +1787,9 @@ class Edition(models.Model):
     def cover_image_large(self):
         #550 pixel high image
         if self.cover_image: 
-            im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)    
-            return im.url
+            im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)  
+            if im.exists():  
+                return im.url
         elif self.googlebooks_id:
             url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=0" % self.googlebooks_id
             im = get_thumbnail(url, 'x550', crop='noop', quality=95) 
@@ -1800,8 +1807,9 @@ class Edition(models.Model):
         #80 pixel high image
         if self.cover_image: 
             im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)       
-            return im.url
-        elif self.googlebooks_id:
+            if im.exists():
+                return im.url
+        if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
@@ -1810,8 +1818,9 @@ class Edition(models.Model):
         #128 pixel wide image
         if self.cover_image:        
             im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95) 
-            return im.url      
-        elif self.googlebooks_id:
+            if im.exists():
+                return im.url      
+        if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
@@ -2065,9 +2074,16 @@ class Ebook(models.Model):
                 f = urllib.urlopen(self.url)
                 return f
         else:
-            f= self.edition.ebook_files.filter(format=self.format).order_by('-created')[0].file
-            f.open()
-            return f
+            ebf = self.edition.ebook_files.filter(format=self.format).order_by('-created')[0]
+            try:
+                ebf.file.open()
+            except ValueError:
+                logger.error(u'couldn\'t open EbookFile {}'.format(ebf.id) )
+                return None
+            except IOError:
+                logger.error(u'EbookFile {} does not exist'.format(ebf.id) )
+                return None
+            return ebf.file
         
     def set_provider(self):
         self.provider=Ebook.infer_provider(self.url)
