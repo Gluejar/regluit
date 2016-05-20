@@ -1,4 +1,4 @@
-{% load url from future %}{% ifequal user recipient %}{{ user.username }},
+{% ifequal user recipient %}{{ user.username }},
 
 Your request to join {{ library }} has been accepted. Welcome!
 

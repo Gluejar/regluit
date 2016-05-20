@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}Did you want one of the limited-edition premiums for the campaign to unglue {{ campaign.work.title }}?  This is your last chance -- there's only one left!
+{% load humanize %}Did you want one of the limited-edition premiums for the campaign to unglue {{ campaign.work.title }}?  This is your last chance -- there's only one left!
 
 Premium: {{ premium.description }}
 Minimum pledge: {{ premium.amount|intcomma }}

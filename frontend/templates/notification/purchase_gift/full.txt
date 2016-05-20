@@ -1,4 +1,4 @@
-{% load url from future %}{% load humanize %}From "{{ gift.giver }}":
+{% load humanize %}From "{{ gift.giver }}":
 
 {{ gift.message }}
 

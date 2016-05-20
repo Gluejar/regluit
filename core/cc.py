@@ -16,6 +16,7 @@ INFO_CC = (
 INFO_FREE = INFO_CC + (
     ('GFDL', 'gdfl', 'GNU Free Documentation License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html', 'GNU Free Documentation License'),
     ('LAL', 'lal', 'Licence Art Libre', 'http://artlibre.org/licence/lal/', 'Licence Art Libre'),
+    ('OSI', 'opensource', 'OSI Approved License', 'https://opensource.org/licenses', 'OSI Approved License'),
 )
 INFO_PD = (
     ('PD-US', 'pd-us', 'Public Domain, US', 'http://creativecommons.org/about/pdm', 'Public Domain, US'),
@@ -73,6 +74,8 @@ class CCLicense():
             return '/static/images/gfdl.png'
         elif license == 'LAL':
             return '/static/images/lal.png'
+        elif license == 'OSI':
+            return '/static/images/opensource.png'
         else:
             return ''
 
@@ -97,6 +100,8 @@ def description(license):
             return 'The purpose of this License is to make a manual, textbook, or other functional and useful document "free" in the sense of freedom: to assure everyone the effective freedom to copy and redistribute it, with or without modifying it, either commercially or noncommercially. Secondarily, this License preserves for the author and publisher a way to get credit for their work, while not being considered responsible for modifications made by others.'
         elif license == 'LAL':
             return 'Avec la Licence Art Libre, l\'autorisation est donnée de copier, de diffuser et de transformer librement les œuvres dans le respect des droits de l\'auteur.'
+        elif license == 'OSI':
+            return 'Open source licenses are licenses that comply with the Open Source Definition — in brief, they allow software to be freely used, modified, and shared. To be approved by the Open Source Initiative (also known as the OSI), a license must go through the Open Source Initiative\'s license review process.'
         else:
             return ''
 

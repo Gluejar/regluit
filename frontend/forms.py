@@ -78,6 +78,8 @@ CREATOR_RELATIONS = (
     ('edt', 'Editor'),
     ('trl', 'Translator'),
     ('ill', 'Illustrator'),
+    ('dsr', 'Designer'),
+    ('aui', 'Author of Introduction'),
 )
 
 bisac_headings = BisacHeading.objects.all()

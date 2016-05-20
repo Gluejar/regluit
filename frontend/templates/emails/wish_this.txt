@@ -1,4 +1,4 @@
-{% load url from future %}{% if work.is_free %}"{{ work.title }}" is a free ebook on Unglue.it: 
+{% if work.is_free %}"{{ work.title }}" is a free ebook on Unglue.it: 
 https://{{site}}{% url 'work' work.id %} 
 
 You can download it and read it on your favorite device.

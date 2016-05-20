@@ -74,11 +74,11 @@ class Subject(models.Model):
     def pending(self):
         return RunInfo.objects.filter(subject=self).order_by('runid')
 
-'''    class Meta:
+    class Meta:
         index_together = [
             ["givenname", "surname"],
             ]
-'''        
+                   
 class GlobalStyles(models.Model):
     content = models.TextField()
 
@@ -208,11 +208,10 @@ class QuestionSet(models.Model):
 
     class Meta:
         translate = ('text',)
-        '''index_together = [
+        index_together = [
             ["questionnaire", "sortid"],
             ["sortid",]
             ]
-'''
 
 class RunInfo(models.Model):
     "Store the active/waiting questionnaire runs here"
@@ -302,10 +301,9 @@ class RunInfo(models.Model):
 
     class Meta:
         verbose_name_plural = 'Run Info'
-        '''index_together = [
+        index_together = [
             ["random"],
             ]
-'''
 
 class RunInfoHistory(models.Model):
     subject = models.ForeignKey(Subject)
@@ -460,10 +458,9 @@ class Question(models.Model):
 
     class Meta:
         translate = ('text', 'extra', 'footer')
-        '''index_together = [
+        index_together = [
             ["number", "questionset"],
             ]
-'''
 
 class Choice(models.Model):
     __metaclass__ = TransMeta
@@ -479,10 +476,9 @@ class Choice(models.Model):
 
     class Meta:
         translate = ('text',)
-        '''index_together = [
+        index_together = [
             ['value'],
             ]
-        '''
 
 class Answer(models.Model):
     subject = models.ForeignKey(Subject, help_text = u'The user who supplied this answer')
@@ -539,9 +535,8 @@ class Answer(models.Model):
         runinfo.add_tags(tags_to_add)
         runinfo.save()
 
-    '''class Meta:
+    class Meta:
         index_together = [
             ['subject', 'runid'],
             ['subject', 'runid', 'id'],
             ]
-'''

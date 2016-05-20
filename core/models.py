@@ -2141,10 +2141,16 @@ class Ebook(models.Model):
 
 def set_free_flag(sender, instance, created,  **kwargs):
     if created:
-        if not instance.edition.work.is_free:
+        if not instance.edition.work.is_free and instance.active:
             instance.edition.work.is_free = True
             instance.edition.work.save()
-
+    elif not instance.active and instance.edition.work.is_free==True and instance.edition.work.ebooks().count()==0:
+        instance.edition.work.is_free = False
+        instance.edition.work.save()
+    elif instance.active and instance.edition.work.is_free==False and instance.edition.work.ebooks().count()>0:
+        instance.edition.work.is_free = True
+        instance.edition.work.save()
+            
 post_save.connect(set_free_flag,sender=Ebook)
 
 def reset_free_flag(sender, instance, **kwargs):

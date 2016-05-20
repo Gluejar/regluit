@@ -1,4 +1,4 @@
-{% load url from future %}<br />
+<br />
 {% if authenticator.allowed %}
 <a href="{% url 'join_library' authenticator.library.id %}?next={% url 'join_library' authenticator.library.id %}" class="fakeinput">Make this my Library</a>
 {% else %}

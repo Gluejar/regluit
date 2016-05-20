@@ -1,17 +1,4 @@
-{% load url from future %}<!DOCTYPE html>
-{# raw url references raise test errors in tests for django registration; this is a workaround #}
-{% url 'privacy' as privacyurl %}
-{% url 'terms' as termsurl %}
-{% url 'manage_account' as editurl %}
-{% url 'rightsholders' as rhtoolsurl %}
-{% url 'faq' as faqurl %}
-{% url 'about' as abouturl %}
-{% url 'press' as pressurl %}
-{% url 'rh_admin' as adminurl %}
-{% url 'landing' as landingurl %}
-{% url 'new_edition' '' '' as editionurl %}
-{% url 'libraries' as librariesurl %}
-{% url 'about_specific' 'main' as aboutmainurl %}
+<!DOCTYPE html>
 {% load truncatechars %}
 
 <html>
@@ -59,7 +46,7 @@
     <div id="js-header">
         <div class="js-main">
             <div class="js-logo">
-                <a href="{{ landingurl }}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
+                <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
             {% block search_box %}
             {% if not suppress_search_box %}
@@ -102,7 +89,7 @@
                             <li><a class="notbutton" href="{% url 'supporter' user %}#edit" id="profile_edit"><span>Profile Settings</span></a></li>
                             <li><a class="notbutton" href="{% url 'manage_account' %}"><span>Account &amp; Pledges</span></a></li>
                             {% if user.rights_holder.all %}
-                            <li><a class="notbutton" href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
+                            <li><a class="notbutton" href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
                             {% endif %}
                             <li><a class="notbutton" href="{% url 'auth_logout' %}"><span>Sign Out</span></a></li>
                         </ul>
@@ -134,10 +121,10 @@
     <div class="column">
         <span>About Unglue.it</span>
         <ul>
-            <li><a href="{{ aboutmainurl }}" class="hijax">Concept</a></li>
-            <li><a href="{{ abouturl }}">Team</a></li>
+            <li><a href="{% url 'about_specific' 'main' %}" class="hijax">Concept</a></li>
+            <li><a href="{% url 'about' %}">Team</a></li>
             <li><a href="https://blog.unglue.it">Blog</a></li>
-            <li><a href="{{ pressurl }}">Press</a></li>
+            <li><a href="{% url 'press' %}">Press</a></li>
             <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
         </ul>
     </div>
@@ -145,28 +132,28 @@
         <span>Your account</span>
         <ul>
             {% if user.is_authenticated %}
-                <li><a href="{{ editurl }}">Account Settings</a></li>
+                <li><a href="{% url 'manage_account' %}">Account Settings</a></li>
             {% endif %}
-            <li><a href="{{ rhtoolsurl }}">Rights Holder Tools</a></li>
-            <li><a href="{{ privacyurl }}">Privacy</a></li>
-            <li><a href="{{ termsurl }}">Terms of Use</a></li>
+            <li><a href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
+            <li><a href="{% url 'privacy' %}">Privacy</a></li>
+            <li><a href="{% url 'terms' %}">Terms of Use</a></li>
             {% for library in user.libraries.all %}
                 <li><a href="{% url 'library_admin' library.id %}">{{ library }} Administration</a></li>
             {% endfor %}
             {% if user.is_staff %}
-                <li><a href="{{ adminurl }}">Unglue.it Administration</a></li>
-                <li><a href="{{ editionurl }}">Create New Editions</a></li>
+                <li><a href="{% url 'rh_admin' %}">Unglue.it Administration</a></li>
+                <li><a href="{% url 'new_edition' '' '' %}">Create New Editions</a></li>
             {% endif %}
         </ul>
     </div>
     <div class="column">
         <span>Help</span>
         <ul>
-            <li><a href="{{ faqurl }}">General FAQ</a></li>
+            <li><a href="{% url 'faq' %}">General FAQ</a></li>
             <li><a href="{% url 'faq_location' 'rightsholders' %}">Author/Publisher FAQ</a></li>
             <li><a href="{% url 'api_help' %}">API</a></li>
             <li><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Support</a>
-            <li><a href="{{ librariesurl }}">Unglue.it &hearts; Libraries</a>
+            <li><a href="{% url 'libraries' %}">Unglue.it &hearts; Libraries</a>
         </ul>
     </div>
     <div class="column">

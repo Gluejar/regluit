@@ -176,7 +176,6 @@ INSTALLED_APPS = (
     'transmeta',
     'regluit.questionnaire',
     'regluit.questionnaire.page',  
-    'regluit.survey',  
 )
 
 # A sample logging configuration. The only tangible logging

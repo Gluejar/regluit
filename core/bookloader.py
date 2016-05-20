@@ -3,6 +3,7 @@ external library imports
 """
 import json
 import logging
+import re
 import requests
 
 from datetime import timedelta
@@ -887,13 +888,14 @@ def load_from_yaml(yaml_url, test_mode=False):
             # use GitHub API to compute the ebooks in release until we're in test mode
             if test_mode:
                 # not using ebook_name in this code
-                ebooks_in_release = [('epub', None)]
+                ebooks_in_release = [('epub', 'book.epub')]
             else:
                 ebooks_in_release =  ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
 
             for (ebook_format, ebook_name) in ebooks_in_release:
+                (book_name_prefix, _ ) =  re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
                 (ebook, created)= models.Ebook.objects.get_or_create(
-                    url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=metadata._edition,
+                    url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=book_name_prefix,
                                                    format_= ebook_format),
                     provider='Github',
                     rights = metadata.rights if metadata.rights in cc.LICENSE_LIST_ALL else None,
