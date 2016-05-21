@@ -17,6 +17,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     #node.vm.network "private_network", type: "dhcp"
   
     #node.vm.synced_folder "data", "vagrant_data"
+    node.vm.synced_folder ".", "/vagrant", disabled: false 
   
     node.vm.provision 'ansible' do |ansible|
       ansible.playbook = 'dev.yml'
