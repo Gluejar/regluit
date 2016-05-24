@@ -3,6 +3,7 @@ import re
 import requests
 import logging
 import sys
+import unicodedata
 
 from regluit.core.models import Work, Edition, Author, PublisherName, Identifier, Subject
 from regluit.core.isbn import ISBN
@@ -17,15 +18,32 @@ def UnicodeDictReader(utf8_data, **kwargs):
     for row in csv_reader:
         yield {key: unicode(value, 'utf-8') for key, value in row.iteritems()}
 
+def utf8_general_ci_norm(s):
+    """
+    Normalize a la MySQL utf8_general_ci collation
+    (As of 2016.05.24, we're using the utf8_general_ci collation for author names)
+    
+    http://stackoverflow.com/questions/1036454/what-are-the-diffrences-between-utf8-general-ci-and-utf8-unicode-ci/1036459#1036459
+
+    * converts to Unicode normalization form D for canonical decomposition
+    * removes any combining characters
+    * converts to upper case
+
+    """
+
+    s1 = unicodedata.normalize('NFD', s)
+    return ''.join(c for c in s1 if not unicodedata.combining(c)).upper()
+
 def get_authors(book):
     authors=[]
     for i in range(1,3):
         fname=u'Author{}First'.format(i)
         lname=u'Author{}Last'.format(i)
         role=u'Author{}Role'.format(i)
-        authname = u'{} {}'.format(book[fname].encode('utf-8'),book[lname])
+        #authname = u'{} {}'.format(book[fname].encode('utf-8'),book[lname])
+        authname = u'{} {}'.format(book[fname],book[lname])
         if authname != u' ':
-            role = book[role] if book[role]!= u' ' else 'A01'
+            role = book[role] if book[role].strip() else 'A01'
             authors.append((authname,role))
         else:
             break
@@ -142,9 +160,6 @@ def load_from_books(books):
                 edition.save()
                 Identifier.set(type='isbn', value=isbn, edition=edition, work=work)
 
-            # if isbn == '9780472116713':
-            #     print ('for 9780472116713, edition_id is {}'.format(edition.id))
-
             edition.authors.clear()
             for (author, role) in authors:
                 edition.add_author(author, inv_relator_contrib.get(role, 'aut'))
@@ -170,7 +185,8 @@ def load_from_books(books):
         results.append((book, work, edition))
 
         try:
-            _out ("{} {} {}\n".format(i, title, loading_ok))
+            if not loading_ok:
+                _out ("{} {} {}\n".format(i, title, loading_ok))
         except Exception as e:
             _out("{} {}\n".format(i, title, str(e) ))
 
@@ -194,13 +210,6 @@ def loaded_book_ok(book, work, edition):
     except Exception as e:
         _out(str(e))
         return False
-        
-    # isbns 
-    # looking at work_isbns too narrow
-    # work_isbns = set([isbn.value for isbn in Identifier.objects.filter(type='isbn', work=work)])
-    # if not (set(isbns) <= work_isbns):
-    #     print ("isbn problem: work.id {}, work_isbns: {} isbns: {}".format(work.id, work_isbns, isbns))
-    #     return False
 
     # isbns
     for isbn in isbns:
@@ -217,7 +226,9 @@ def loaded_book_ok(book, work, edition):
             # authors
             # print set([ed.name for ed in edition_for_isbn.authors.all()])
 
-            if set([author[0] for author in authors]) != set([ed.name for ed in edition_for_isbn.authors.all()]):
+            if (set([utf8_general_ci_norm(author[0]) for author in authors]) != 
+                   set([utf8_general_ci_norm(ed.name) for ed in edition_for_isbn.authors.all()])):
+                print "problem with authors"
                 return False
 
             try:
@@ -236,7 +247,11 @@ def loaded_book_ok(book, work, edition):
 
     for bisacsh in subjects:
         while bisacsh:
-            if bisach not in work.subjects.all():
+            try:
+                subject = Subject.objects.get(name=bisacsh.full_label)
+            except:
+                return False
+            if subject not in work.subjects.all():
                 return False
             bisacsh = bisacsh.parent
 
