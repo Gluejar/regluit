@@ -21,7 +21,7 @@ from .models import *
 from .parsers import *
 from .parsers import BoolNot, BoolAnd, BoolOr, Checker
 from .emails import _send_email, send_emails
-from .utils import numal_sort, split_numal, get_sortid_from_request
+from .utils import numal_sort, split_numal
 from .request_cache import request_cache
 from .dependency_checker import dep_check
 from compat import commit_on_success, commit, rollback
@@ -300,7 +300,7 @@ def redirect_to_prev_questionnaire(request, runcode=None, qs=None):
     """
     Takes the questionnaire set in the session and redirects to the
     previous questionnaire if any. Used for linking to previous pages
-    both when using sessions or not. (Has not been tested with sessions.)
+    both when using sessions or not. 
     """
     if use_session:
         runcode = request.session.get('runcode', None)
@@ -712,7 +712,6 @@ def show_questionnaire(request, runinfo, errors={}):
                     qvalues[s[1] + '_' + s[2]] = v
                 else:
                     qvalues[s[1]] = v
-
 
     if use_session:
         prev_url = reverse('redirect_to_prev_questionnaire')

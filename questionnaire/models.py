@@ -443,12 +443,6 @@ class Question(models.Model):
     def is_comment(self):
         return self.type == 'comment'
 
-#     def __cmp__(a, b):
-#         anum, astr = split_numal(a.number)
-#         bnum, bstr = split_numal(b.number)
-#         cmpnum = cmp(anum, bnum)
-#         return cmpnum or cmp(astr, bstr)
-
     def get_value_for_run_question(self, runid):
         runanswer = Answer.objects.filter(runid=runid,question=self)
         if len(runanswer) > 0:
