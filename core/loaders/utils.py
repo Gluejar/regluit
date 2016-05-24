@@ -33,6 +33,7 @@ def get_authors(book):
     if len(authlist)>3:
         for authname in authlist[3:]:
             authors.append((authname, 'A01'))
+
     return authors
 
 def get_subjects(book):
@@ -107,6 +108,8 @@ def load_from_books(books):
 
     # Goal: get or create an Edition and Work for each given book
 
+    results = []
+
     for (i, book) in enumerate(books):
 
         # try first to get an Edition already in DB with by one of the ISBNs in book
@@ -139,8 +142,8 @@ def load_from_books(books):
                 edition.save()
                 Identifier.set(type='isbn', value=isbn, edition=edition, work=work)
 
-            if isbn == '9780472116713':
-                print ('for 9780472116713, edition_id is {}'.format(edition.id))
+            # if isbn == '9780472116713':
+            #     print ('for 9780472116713, edition_id is {}'.format(edition.id))
 
             edition.authors.clear()
             for (author, role) in authors:
@@ -163,15 +166,22 @@ def load_from_books(books):
 
         logging.info(u'loaded work {}'.format(work.title))
         loading_ok = loaded_book_ok(book, work, edition)
+
+        results.append((book, work, edition))
+
         try:
-            _out("{} {} {}\n".format(i, title, loading_ok))
+            _out ("{} {} {}\n".format(i, title, loading_ok))
         except Exception as e:
             _out("{} {}\n".format(i, title, str(e) ))
-    
 
+    return results
+
+    
 def loaded_book_ok(book, work, edition):
 
     isbns = get_isbns(book)[0]
+    authors = get_authors(book)
+    subjects = get_subjects(book)
 
     if (work is None) or (edition is None):
         return False
@@ -195,7 +205,40 @@ def loaded_book_ok(book, work, edition):
     # isbns
     for isbn in isbns:
         if Identifier.objects.filter(type='isbn', value=isbn).count() <> 1:
-            print ("isbn problem: work.id {}, isbn: {}".format(work.id, isbn))
+            # print ("isbn problem: work.id {}, isbn: {}".format(work.id, isbn))
             return False
+        else:
+            try:
+                edition_for_isbn = Identifier.objects.get(type='isbn', value=isbn).edition
+            except Exception as e:
+                print (e)
+                return False
+
+            # authors
+            # print set([ed.name for ed in edition_for_isbn.authors.all()])
+
+            if set([author[0] for author in authors]) != set([ed.name for ed in edition_for_isbn.authors.all()]):
+                return False
+
+            try:
+                edition_for_isbn.publication_date = book['CopyrightYear']
+                edition_for_isbn.cover_image = get_cover(book)
+                edition_for_isbn.set_publisher(book['Publisher'])
+            except:
+                return False
+
+    # work description
+    description = book['DescriptionBrief']
+    if not ((work.description == description) or (len(description) <len (work.description))):
+        return False
+
+    # bisac
+
+    for bisacsh in subjects:
+        while bisacsh:
+            if bisach not in work.subjects.all():
+                return False
+            bisacsh = bisacsh.parent
+
 
     return True
