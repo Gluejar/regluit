@@ -40,7 +40,6 @@ def get_authors(book):
         fname=u'Author{}First'.format(i)
         lname=u'Author{}Last'.format(i)
         role=u'Author{}Role'.format(i)
-        #authname = u'{} {}'.format(book[fname].encode('utf-8'),book[lname])
         authname = u'{} {}'.format(book[fname],book[lname])
         if authname != u' ':
             role = book[role] if book[role].strip() else 'A01'
@@ -106,12 +105,6 @@ def get_isbns(book):
         if not edition:
             edition = Edition.get_by_isbn(isbn)
     return (isbns, edition )
-
-
-def _out(*args, **kwargs):
-
-    sys.stdout.write(*args, **kwargs)
-    sys.stdout.flush()
 
 def load_from_books(books):
     ''' books is an iterator of book dicts.
@@ -185,10 +178,9 @@ def load_from_books(books):
         results.append((book, work, edition))
 
         try:
-            if not loading_ok:
-                _out ("{} {} {}\n".format(i, title, loading_ok))
+            logger.info ("{} {} {}\n".format(i, title, loading_ok))
         except Exception as e:
-            _out("{} {}\n".format(i, title, str(e) ))
+            logger.info ("{} {}\n".format(i, title, str(e) ))
 
     return results
 
@@ -205,10 +197,10 @@ def loaded_book_ok(book, work, edition):
     try:
         url_id = Identifier.objects.get(type='http', value=book['URL'])
         if url_id is None:
-            print ("url_id problem: work.id {}, url: {}".format(work.id, book['URL']))
+            logger.info ("url_id problem: work.id {}, url: {}".format(work.id, book['URL']))
             return False
     except Exception as e:
-        _out(str(e))
+        logger.info (str(e))
         return False
 
     # isbns
