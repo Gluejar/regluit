@@ -23117,5 +23117,11 @@ bisac= {
     "pref_label": "Comics & Graphic Novels / Manga / Horror", 
     "notation": "CGN004150", 
     "alt_label": []
+  }, 
+  "Political Science / Terrorism": {
+    "related": [], 
+    "pref_label": "Political Science / Terrorism", 
+    "notation": "POL037000", 
+    "alt_label": []
   }
 }

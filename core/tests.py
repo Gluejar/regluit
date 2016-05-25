@@ -62,6 +62,7 @@ from regluit.core.models import (
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import TESTING, LIBRARY, RESERVE
+from regluit.core.loaders.utils import (load_from_books, loaded_book_ok)
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -815,7 +816,6 @@ class WorkTests(TestCase):
         w1.save()
         self.assertEqual(e2, w1.preferred_edition)
         self.assertEqual(e2, w2.preferred_edition)
-
         
 class DownloadPageTest(TestCase):
     fixtures = ['initial_data.json']
@@ -1085,3 +1085,50 @@ class GitHubTests(TestCase):
             ])
 
         self.assertEqual(set(ebooks), expected_set)
+
+class OnixLoaderTests(TestCase):
+    def test_load(self):
+        TEST_BOOKS = [{'': u'',
+             'Author1First': u'Joseph',
+             'Author1Last': u'Necvatal',
+             'Author1Role': u'',
+             'Author2First': u'',
+             'Author2Last': u'',
+             'Author2Role': u'',
+             'Author3First': u'',
+             'Author3Last': u'',
+             'Author3Role': u'',
+             'AuthorBio': u'',
+             'AuthorsList': u'Joseph Nechvatal',
+             'BISACCode1': u'',
+             'BISACCode2': u'',
+             'BISACCode3': u'',
+             'Book-level DOI': u'10.3998/ohp.9618970.0001.001',
+             'ClothISBN': u'N/A',
+             'CopyrightYear': u'2011',
+             'DescriptionBrief': u'',
+             'DescriptionLong': u'',
+             'Excerpt': u'',
+             'FullTitle': u'Immersion into Noise',
+             'License': u'CC BY-SA',
+             'List Price in USD (paper ISBN)': u'23.99',
+             'ListPriceCurrencyType': u'',
+             'PaperISBN': u'9781607852414',
+             'Publisher': u'Open Humanities Press',
+             'SubjectListMARC': u'',
+             'Subtitle': u'',
+             'TableOfContents': u'',
+             'Title': u'Immersion into Noise',
+             'URL': u'http://dx.doi.org/10.3998/ohp.9618970.0001.001',
+             'eISBN': u'N/A',
+             'eListPrice': u'N/A',
+             'ePublicationDate': u'',
+             'eTerritoryRights': u''}
+        ]
+
+        results = load_from_books(TEST_BOOKS)
+        for (book, work, edition) in results:
+            assert (loaded_book_ok(book, work, edition))
+
+
+        
