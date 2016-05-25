@@ -1,6 +1,11 @@
 {% extends "base.html" %}
+{% load landings %}
 {% block title %}{{ block.super }}Questionnaire{% endblock title %}
-{% block search_box %}{% endblock %}
+{% block search_box %}
+<a href="{% render_with_landing "{{landing_object.last_campaign.publisher.url}}"|safe %}"><img style="float:left;margin:10px" src="{% render_with_landing "{{landing_object.last_campaign.publisher.logo_url}}"|safe %}" /></a>
+{% endblock %}
+{% block signin %}
+{% endblock %}
 {% block extra_css %}
     <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" type="text/css"/>
     <link rel="stylesheet" href="/static/questionnaire.css"></script>
