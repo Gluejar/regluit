@@ -41,6 +41,7 @@ from regluit.core.models import (
     RightsHolder,
     Claim,
     Campaign,
+    Identifier,
     Offer,
     Premium,
     Ebook,
@@ -70,6 +71,7 @@ from regluit.utils.fields import EpubFileField, ISBNField
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 from regluit.bisac.models import BisacHeading
+from regluit.questionnaire.models import Questionnaire
 
 logger = logging.getLogger(__name__)
 nulls = [False, 'delete', '']
@@ -83,6 +85,30 @@ CREATOR_RELATIONS = (
 )
 
 bisac_headings = BisacHeading.objects.all()
+
+class SurveyForm(forms.Form):
+    label = forms.CharField(max_length=64, required=True)
+    survey = forms.ModelChoiceField(Questionnaire.objects.all(), widget=RadioSelect(), empty_label=None, required = True,)
+    isbn = ISBNField(
+        label=_("ISBN"), 
+        max_length=17, 
+        required = False,
+        help_text = _("13 digits, no dash."),
+        error_messages = {
+            'invalid': _("This must be a valid ISBN-13."),
+        }
+    )
+    
+    def clean_isbn(self):
+        isbn = self.cleaned_data['isbn']
+        if not isbn:
+            return ''
+        try:
+            self.work = Identifier.objects.get(type='isbn', value=isbn).work
+            return isbn
+        except Identifier.DoesNotExist:
+            self.work = None
+            raise forms.ValidationError( 'That ISBN is not in our database')
 
 
 class EditionForm(forms.ModelForm):
