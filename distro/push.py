@@ -56,7 +56,7 @@ def get_target_facet(target, start=datetime(1900,1,1), new=False):
     return TargetFacet()
 
 def push_onix(target, facet_class):
-    target.push_file('unglueit_onix_{:%Y%m%d}.xml'.format(datetime.now()),StringIO(onix_feed(facet_class)))
+    target.push_file('unglueit_onix_{:%Y%m%d%H%M%S}.xml'.format(datetime.now()),StringIO(onix_feed(facet_class)))
     
 def push_all(start=datetime(1900,1,1), new=False, max=0):
     for target in Target.objects.all():
