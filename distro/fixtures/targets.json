@@ -1,0 +1,33 @@
+[
+  {
+    "fields": {
+        "name": "24 Symbols",
+        "host":"ftp.24symbols.net",
+        "user":"ebookfoundation",
+        "pw":"GU0GMNbcjmqILZ9ssdrG",
+        "protocol":"secure"
+        },
+    "model": "distro.target", 
+    "pk": 1
+  }, 
+  {
+    "fields": {
+        "name": "Bitlit",
+        "host":"publishers.bitlit.ca",
+        "user":"unglueit",
+        "pw":"9pkgaCZc"
+        },
+    "model": "distro.target", 
+    "pk": 2
+  }, 
+  {
+    "fields": {
+        "name": "Odilo",
+        "host":"ftp.odilo.us",
+        "user":"FreeEbookFundation",
+        "pw":"Xlh62lCmhd7l"
+        },
+    "model": "distro.target", 
+    "pk": 3
+  }
+]

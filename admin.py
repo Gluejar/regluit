@@ -316,3 +316,8 @@ admin_site.register(QSubject, QSubjectAdmin)
 admin_site.register(RunInfo, RunInfoAdmin) 
 admin_site.register(RunInfoHistory, RunInfoHistoryAdmin) 
 admin_site.register(Answer, AnswerAdmin)
+
+from regluit.distro.admin import Target
+from regluit.distro.admin import TargetAdmin 
+
+admin_site.register(Target, TargetAdmin)

@@ -1001,8 +1001,8 @@ class Campaign(models.Model):
         self.work.make_ebooks_from_ebfs(add_ask=True)
         
     def make_unglued_ebf(self, format, watermarked):
-        ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         r=urllib2.urlopen(watermarked.download_link(format))
+        ebf=EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
         ebf.file.close()
         ebf.save()
@@ -1197,6 +1197,11 @@ class Work(models.Model):
         else: 
             return self.googlebooks_id
     
+    def cover_image_large(self):
+        if self.preferred_edition and self.preferred_edition.has_cover_image():
+            return self.preferred_edition.cover_image_large()
+        return "/static/images/generic_cover_larger.png"
+
     def cover_image_small(self):
         if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_small()
@@ -1360,6 +1365,14 @@ class Work(models.Model):
     def pdffiles(self):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
 
+    def formats(self):
+        fmts=[]
+        for fmt in ['pdf', 'epub', 'mobi', 'html']:
+            for ebook in self.ebooks().filter(format=fmt):
+                fmts.append(fmt)
+                break
+        return fmts
+    
     def make_ebooks_from_ebfs(self, add_ask=True):
         # either the ebf has been uploaded or a created (perhaps an ask was added or mobi generated)
         if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
@@ -1477,7 +1490,13 @@ class Work(models.Model):
             return self.identifiers.filter(type='isbn')[0].value
         except IndexError:
             return ''
-
+    
+    @property
+    def earliest_publication_date(self):
+        for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('publication_date'):
+            if edition.publication_date and len(edition.publication_date)>=4:
+                return edition.publication_date
+        
     @property
     def publication_date(self):
         if self.publication_range:
@@ -1765,12 +1784,32 @@ class Edition(models.Model):
         else:
             return "%s (GLUE %s) %s" % (self.title, self.id, self.publisher)
 
+    def cover_image_large(self):
+        #550 pixel high image
+        if self.cover_image: 
+            im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)  
+            if im.exists():  
+                return im.url
+        elif self.googlebooks_id:
+            url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=0" % self.googlebooks_id
+            im = get_thumbnail(url, 'x550', crop='noop', quality=95) 
+            if not im.exists() or im.storage.size(im.name)==16392: # check for "image not available" image
+                url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
+                im = get_thumbnail(url, 'x550', crop='noop', quality=95) 
+            if im.exists():
+                return im.url
+            else:
+                return ''
+        else:
+            return ''
+            
     def cover_image_small(self):
         #80 pixel high image
         if self.cover_image: 
             im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)       
-            return im.url
-        elif self.googlebooks_id:
+            if im.exists():
+                return im.url
+        if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
         else:
             return ''
@@ -1779,8 +1818,9 @@ class Edition(models.Model):
         #128 pixel wide image
         if self.cover_image:        
             im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95) 
-            return im.url      
-        elif self.googlebooks_id:
+            if im.exists():
+                return im.url      
+        if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
             return ''
@@ -2005,7 +2045,46 @@ class Ebook(models.Model):
             return True
         else:
             return False
-            
+    
+    def get_archive(self): # returns an archived file
+        if self.edition.ebook_files.filter(format=self.format).count()==0:
+            if self.provider is not 'Unglue.it':
+                try:
+                    r=urllib2.urlopen(self.url)
+                    try:
+                        self.filesize = int(r.info().getheaders("Content-Length")[0])
+                        if self.save:
+                            self.filesize =  self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
+                            self.save()
+                        ebf=EbookFile.objects.create(edition=self.edition, format=self.format)
+                        ebf.file.save(path_for_file(ebf,None),ContentFile(r.read()))
+                        ebf.file.close()
+                        ebf.save()
+                        ebf.file.open()
+                        return ebf.file
+                    except IndexError:
+                        # response has no Content-Length header probably a bad link
+                        logging.error( 'Bad link error: {}'.format(ebook.url) )
+                except IOError:
+                    logger.error(u'could not open {}'.format(self.url) )
+            else:
+                # this shouldn't happen, except in testing perhaps
+                logger.error(u'couldn\'t find ebookfile for {}'.format(self.url) )
+                # try the url instead
+                f = urllib.urlopen(self.url)
+                return f
+        else:
+            ebf = self.edition.ebook_files.filter(format=self.format).order_by('-created')[0]
+            try:
+                ebf.file.open()
+            except ValueError:
+                logger.error(u'couldn\'t open EbookFile {}'.format(ebf.id) )
+                return None
+            except IOError:
+                logger.error(u'EbookFile {} does not exist'.format(ebf.id) )
+                return None
+            return ebf.file
+        
     def set_provider(self):
         self.provider=Ebook.infer_provider(self.url)
         return self.provider
