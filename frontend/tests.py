@@ -76,6 +76,8 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get("/search/?q=sverige&page=2")
         self.assertEqual(r.status_code, 200)
+        r = self.client.get("/notification/settings/")
+        self.assertEqual(r.status_code, 200)
 
     def test_view_by_other(self):
         # someone else's supporter page

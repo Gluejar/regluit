@@ -122,6 +122,7 @@ from regluit.frontend.forms import (
     RegiftForm,
     SubjectSelectForm,
     MapSubjectForm,
+    SurveyForm,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -148,6 +149,7 @@ from regluit.pyepub import InvalidEpub
 from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
+from regluit.questionnaire.models import Landing
 
 logger = logging.getLogger(__name__)
 
@@ -1825,7 +1827,48 @@ def claim(request):
         context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
         return render(request, "claim.html", context)
             
+def new_survey(request, work_id):
+    if not request.user.is_authenticated() :
+        return HttpResponseRedirect(reverse('surveys'))
+    my_works = models.Work.objects.filter(
+        Q(claim__user = request.user) | Q(claim__rights_holder__owner = request.user)
+        )
+    if work_id:
+        work =safe_get_work(work_id)
+        for my_work in my_works:
+            if my_work==work:
+                form=SurveyForm()
+                break
+        else:
+            return HttpResponseRedirect(reverse('surveys'))
+    else:
+        work = None
+        form = SurveyForm()
+    if  request.method == 'POST': 
+        form = SurveyForm( data=request.POST)
+        if form.is_valid():
+            if not work and form.work:
+                for my_work in my_works:
+                    print '{} {}'.format(my_work.id,form.work.id)
+                    if my_work==form.work:
+                        work = form.work
+                        break
+                else:
+                    print 'not mine'
+                    return HttpResponseRedirect(reverse('surveys'))
+            print "create landing"
+            landing = Landing.objects.create(label=form.cleaned_data['label'], questionnaire=form.cleaned_data['survey'], content_object=work)
+            return HttpResponseRedirect(reverse('surveys'))
+    return render(request, "manage_survey.html", {"work":work, "form":form})
 
+def surveys(request):
+    if not request.user.is_authenticated() :
+        return render(request, "surveys.html")
+    works = models.Work.objects.filter(
+        Q(claim__user = request.user) | Q(claim__rights_holder__owner = request.user)
+        )
+    return render(request, "surveys.html", {"works":works})
+    
 def rh_tools(request):
     if not request.user.is_authenticated() :
         return render(request, "rh_tools.html")
@@ -3328,21 +3371,13 @@ def send_to_kindle(request, work_id, javascript='0'):
     This won't perfectly measure size of email, but should be safe, and is much faster than doing the check after download.
     """
     try:
-        filehandle = urllib.urlopen(ebook.url)
+        filehandle = ebook.get_archive()
     except IOError:
         # problems connection to the ebook source
         logger.error("couldn't connect error: %s", ebook.url)
         return local_response(request, javascript,  context, 5)
     if not ebook.filesize:
-        try:
-            ebook.filesize = int(filehandle.info().getheaders("Content-Length")[0])
-            if ebook.save:
-                ebook.filesize =  ebook.filesize if ebook.filesize < 2147483647 else 2147483647  # largest safe positive integer
-                ebook.save()
-        except IndexError:
-            # response has no Content-Length header probably a bad link
-            logger.error('Bad link error: %s', ebook.url)
-            return local_response(request, javascript,  context, 4)
+        return local_response(request, javascript,  context, 4)
     if ebook.filesize > models.send_to_kindle_limit:
         logger.info('ebook %s is too large to be emailed' % work.id)
         return local_response(request, javascript,  context, 0)

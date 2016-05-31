@@ -200,14 +200,12 @@ $j(document).ready(function() {
             	{{ user.email }}<br />
             </p>
             <p>
-                ({% blocktrans %}You can change this under <a href="{% url 'manage_account' %}">Account</a>.{% endblocktrans %})
+                (You can change this under <a href="{% url 'manage_account' %}">Account</a>.)
             </p>
         {% else %}
             <div class="errorlist">
-                {% blocktrans %}
                 You do not have a verified email address to which notices can be sent.
                 You can add one by going to <a href="{% url 'manage_account' %}">Account</a>.
-                {% endblocktrans %}
             </div>
         {% endif %}
 

@@ -10,6 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
+from django.core.urlresolvers import reverse
 
 from . import QuestionChoices
 from .utils import split_numal
@@ -123,6 +124,9 @@ class Landing(models.Model):
     
     def __str__(self):
         return self.label
+        
+    def url(self):
+        return  settings.BASE_URL_SECURE + reverse('landing', args=[self.nonce])
 
 def config_landing(sender, instance, created,  **kwargs):
     if created:
@@ -442,12 +446,6 @@ class Question(models.Model):
     @property
     def is_comment(self):
         return self.type == 'comment'
-
-#     def __cmp__(a, b):
-#         anum, astr = split_numal(a.number)
-#         bnum, bstr = split_numal(b.number)
-#         cmpnum = cmp(anum, bnum)
-#         return cmpnum or cmp(astr, bstr)
 
     def get_value_for_run_question(self, runid):
         runanswer = Answer.objects.filter(runid=runid,question=self)

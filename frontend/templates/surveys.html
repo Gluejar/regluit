@@ -1,0 +1,36 @@
+{% extends 'basedocumentation.html' %}
+
+{% block title %}Work-linked Surveys {% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+
+<h1>unglue.it Survey Tools </h1>
+{% if request.user.is_anonymous %}
+
+<span class="errorlist">You must be logged in to use survey tools</span>
+{% endif %}
+<h2 id="open_campaigns">Works You Can Use for Surveys</h2>
+<dl>
+{% for work in works %}
+
+<dt><a href="{% url 'work' work.id %}">{{ work }}</a></dt>
+<dd>
+<dl>
+{% for landing in work.landings.all %}
+<dt>Configured survey: {{ landing }} </dt>
+<dd>Link: {{ landing.url }}</dd>
+{% endfor %}
+</dl>
+<a href="{% url 'new_survey' work.id %}">Set up a new survey</a> for this work.
+
+</dd>
+{% empty %}
+<dt>No works available</dt>
+<dd>To run a survey for a book, you need to be an unglue.it rights holder and claim the book</dd>
+{% endfor %}
+</dl>
+<a href="{% url 'new_survey' '' %}">Set up a survey</a> using isbn.
+{% endblock %}

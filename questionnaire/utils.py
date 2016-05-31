@@ -1,4 +1,9 @@
 #!/usr/bin/python
+from django.conf import settings
+try:
+    use_session = settings.QUESTIONNAIRE_USE_SESSION
+except AttributeError:
+    use_session = False
 
 def split_numal(val):
     """Split, for example, '1a' into (1, 'a')
@@ -42,18 +47,10 @@ def numal0_sort(a, b):
     return numal_sort(a[0], b[0])
 
 def get_runid_from_request(request):
-    request_string = str(request)
-    string_chunks = request_string.split('/')
-    return string_chunks[2]
-
-def get_sortid_from_request(request):
-    request_string = str(request)
-    string_chunks = request_string.split('/')
-    if len(string_chunks) > 3:
-        return string_chunks[3]
-
-    #not enough string chunks to get a sortid
-    return None
+    if use_session:
+        return request.session.get('runcode', None)
+    else:
+        return request.runinfo.runid
 
 if __name__ == "__main__":
     import doctest

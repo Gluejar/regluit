@@ -1,0 +1,23 @@
+[
+  {
+    "fields": {
+      "name": "pdf" 
+    }, 
+    "model": "distro.format", 
+    "pk": 1
+  }, 
+  {
+    "fields": {
+      "name": "epub"
+    }, 
+    "model": "distro.format", 
+    "pk": 2
+  }, 
+  {
+    "fields": {
+      "name": "mobi"
+    }, 
+    "model": "distro.format", 
+    "pk": 3
+  }
+]

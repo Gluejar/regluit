@@ -169,6 +169,7 @@ INSTALLED_APPS = (
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
+    'regluit.distro',               
     'regluit.booxtream',
     'regluit.pyepub',
     'regluit.libraryauth', 
@@ -483,5 +484,5 @@ MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
 MOBIGEN_USER_ID = "admin"
 MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
 
-QUESTIONNAIRE_USE_SESSION = True
+QUESTIONNAIRE_USE_SESSION = False
 QUESTIONNAIRE_DEBUG = True

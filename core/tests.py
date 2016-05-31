@@ -62,6 +62,7 @@ from regluit.core.models import (
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import TESTING, LIBRARY, RESERVE
+from regluit.core.loaders.utils import (load_from_books, loaded_book_ok)
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -88,11 +89,18 @@ class BookLoaderTests(TestCase):
         huck = models.Work.objects.get(id=huck_id)
         self.assertTrue( huck.ebooks().count()>1)
         
+        
     def test_add_by_yaml(self):  
         space_id = bookloader.load_from_yaml('https://github.com/gitenberg-dev/metadata/raw/master/samples/pandata.yaml')
         huck_id = bookloader.load_from_yaml('https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml')
         space = models.Work.objects.get(id=space_id)
         huck = models.Work.objects.get(id=huck_id)
+
+        #test ebook archiving
+        num_ebf= EbookFile.objects.all().count()
+        for ebook in huck.ebooks().all():
+            f = ebook.get_archive()
+        self.assertTrue(EbookFile.objects.all().count()>num_ebf)
         
     def test_valid_subject(self):
         self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
@@ -456,7 +464,10 @@ class BookLoaderTests(TestCase):
         ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
         self.assertEqual(ebook.url, epub_url)
         
-
+    def tearDown(self):
+        for ebf in EbookFile.objects.all():
+            ebf.file.delete()
+            
 class SearchTests(TestCase):
 
     def test_basic_search(self):
@@ -490,11 +501,12 @@ class CampaignTests(TestCase):
     def test_b2u(self):
         w = Work()
         w.save()
+        this_year = datetime.now().year
         c = Campaign(
             target=D('12000.00'), 
-            deadline=datetime(2013, 1, 1), 
+            deadline=datetime(this_year, 1, 1), 
             work=w, type=2, 
-            cc_date_initial=datetime(2113, 1, 1),
+            cc_date_initial=datetime(this_year + 100, 1, 1),
             )
         self.assertTrue(c.set_dollar_per_day()<0.34)
         self.assertTrue(c.dollar_per_day>0.31)
@@ -814,7 +826,6 @@ class WorkTests(TestCase):
         w1.save()
         self.assertEqual(e2, w1.preferred_edition)
         self.assertEqual(e2, w2.preferred_edition)
-
         
 class DownloadPageTest(TestCase):
     fixtures = ['initial_data.json']
@@ -1084,3 +1095,50 @@ class GitHubTests(TestCase):
             ])
 
         self.assertEqual(set(ebooks), expected_set)
+
+class OnixLoaderTests(TestCase):
+    def test_load(self):
+        TEST_BOOKS = [{'': u'',
+             'Author1First': u'Joseph',
+             'Author1Last': u'Necvatal',
+             'Author1Role': u'',
+             'Author2First': u'',
+             'Author2Last': u'',
+             'Author2Role': u'',
+             'Author3First': u'',
+             'Author3Last': u'',
+             'Author3Role': u'',
+             'AuthorBio': u'',
+             'AuthorsList': u'Joseph Nechvatal',
+             'BISACCode1': u'',
+             'BISACCode2': u'',
+             'BISACCode3': u'',
+             'Book-level DOI': u'10.3998/ohp.9618970.0001.001',
+             'ClothISBN': u'N/A',
+             'CopyrightYear': u'2011',
+             'DescriptionBrief': u'',
+             'DescriptionLong': u'',
+             'Excerpt': u'',
+             'FullTitle': u'Immersion into Noise',
+             'License': u'CC BY-SA',
+             'List Price in USD (paper ISBN)': u'23.99',
+             'ListPriceCurrencyType': u'',
+             'PaperISBN': u'9781607852414',
+             'Publisher': u'Open Humanities Press',
+             'SubjectListMARC': u'',
+             'Subtitle': u'',
+             'TableOfContents': u'',
+             'Title': u'Immersion into Noise',
+             'URL': u'http://dx.doi.org/10.3998/ohp.9618970.0001.001',
+             'eISBN': u'N/A',
+             'eListPrice': u'N/A',
+             'ePublicationDate': u'',
+             'eTerritoryRights': u''}
+        ]
+
+        results = load_from_books(TEST_BOOKS)
+        for (book, work, edition) in results:
+            assert (loaded_book_ok(book, work, edition))
+
+
+        

@@ -6,7 +6,7 @@
 {% load lib_acqs %}
 {% block title %}&#151; 
     {% if work.is_free %}
-        {{ work.title }} is a Free eBook. {% if work.first_pdf %}[PDF]{% endif %}{% if work.first_epub %}[EPUB, MOBI]{% endif %}
+        {{ work.title }} is a Free eBook. {% for fmt in  work.formats %}[{{ fmt }}]{% endfor %}
     {% else %}
         Help us make  {{ work.title }} a Free eBook!
     {% endif %}{% ifequal action 'editions' %} – All Editions{% endifequal %}
