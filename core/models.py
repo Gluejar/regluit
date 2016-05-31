@@ -28,13 +28,13 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.contrib.contenttypes.generic import GenericRelation
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q, get_model
 from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
-
 '''
 regluit imports
 '''
@@ -74,7 +74,7 @@ from regluit.core.parameters import (
     RESERVE,
     THANKED,
 )
-    
+from regluit.questionnaire.models import Landing  
 
 from regluit.booxtream import BooXtream 
 watermarker = BooXtream()
@@ -1110,7 +1110,7 @@ class Work(models.Model):
     publication_range =  models.CharField(max_length=50, null = True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
-
+    landings = GenericRelation(Landing)
 
     class Meta:
         ordering = ['title']

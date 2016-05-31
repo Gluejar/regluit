@@ -1,0 +1,22 @@
+{% extends 'basedocumentation.html' %}
+
+{% block title %}Work-linked Survey Management {% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+
+<h1>unglue.it Survey Tools </h1>
+
+<h2>Configure a new landing page</h2>
+<form action="#" method="POST" >
+{% csrf_token %}
+<p>Label for new survey: {{ form.label}}{{ form.label.errors }}</p>
+<p>Survey to use:{{ form.survey }}{{ form.survey.errors }}</p>
+{% if not work %}
+<p>{{ form.isbn.label }}:{{ form.isbn }}{{ form.isbn.errors }}</p>
+{% endif %}
+<input type="submit" value="submit" />
+</form>
+{% endblock %}

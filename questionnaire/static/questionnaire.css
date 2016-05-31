@@ -1,6 +1,15 @@
-/* question numbers are always bold, the whole question if it is required */
-.required, .qnumber {
+/* question numbers are  bold */
+.qnumber {
     font-weight: bold;
+}
+
+.required::after {
+    content: " * ";
+    color: red;
+}
+.required:hover::after {
+    content: " * required";
+    color: red;
 }
 
 .questionset-title {
