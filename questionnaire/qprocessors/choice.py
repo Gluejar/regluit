@@ -6,7 +6,7 @@ from .. import add_type, question_proc, answer_proc, AnswerException
 from ..utils import get_runid_from_request
 
 
-@question_proc('choice', 'choice-freeform', 'dropdown')
+@question_proc('choice', 'choice-freeform', 'dropdown', 'choice-optional', 'choice-freeform-optional')
 def question_choice(request, question):
     choices = []
     jstriggers = []
@@ -27,22 +27,25 @@ def question_choice(request, question):
     for choice in question.choices():
         choices.append( ( choice.value == val, choice, ) )
 
-    if question.type == 'choice-freeform':
+    if question.type in ( 'choice-freeform','choice-freeform-optional'):
         jstriggers.append('%s_comment' % question.number)
+    template = question.type[:-9] if question.type.endswith('-optional') else question.type
+    
 
     return {
         'choices'   : choices,
         'sel_entry' : val == '_entry_',
         'qvalue'    : val or '',
-        'required'  : True,
+        "template"  : "questionnaire/{}.html".format(template),
+        'required'  : not question.type in ( 'choice-optional', 'choice-freeform-optional'),
         'comment'   : request.POST.get(key2, ""),
         'jstriggers': jstriggers,
     }
 
-@answer_proc('choice', 'choice-freeform', 'dropdown')
+@answer_proc('choice', 'choice-freeform', 'dropdown', 'choice-optional', 'choice-freeform-optional')
 def process_choice(question, answer):
     opt = answer['ANSWER'] or ''
-    if not opt:
+    if not opt and not question.type.endswith( '-optional'):
         raise AnswerException(_(u'You must select an option'))
     if opt == '_entry_' and question.type == 'choice-freeform':
         opt = answer.get('comment','')
@@ -51,11 +54,13 @@ def process_choice(question, answer):
         return dumps([[opt]])
     else:
         valid = [c.value for c in question.choices()]
-        if opt not in valid:
+        if opt and opt not in valid:
             raise AnswerException(_(u'Invalid option!'))
     return dumps([opt])
 add_type('choice', 'Choice [radio]')
 add_type('choice-freeform', 'Choice with a freeform option [radio]')
+add_type('choice-optional', 'Optional choice [radio]')
+add_type('choice-freeform-optional', 'Optional choice with a freeform option [radio]')
 add_type('dropdown', 'Dropdown choice [select]')
 
 @question_proc('choice-multiple', 'choice-multiple-freeform', 'choice-multiple-values')
