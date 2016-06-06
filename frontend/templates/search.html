@@ -106,7 +106,7 @@ $j(document).ready(function() {
         loader: '<img src="/static/images/loading.gif" alt="loading..." />',
         callback: function(p) {
             page += 1;
-            var url = "?q={{ q }}&gbo={{ gbo }}&page=" + page;
+            var url = "?q={{ q }}&gbo={{ gbo }}&ty={{ ty }}&page=" + page;
             $j.get(url, function(html) {
                 var view = $j(".listview").length > 0 ? "list" : "panel";
                 var results = $j(html).find(".book");
