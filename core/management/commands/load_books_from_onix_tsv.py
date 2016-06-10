@@ -8,6 +8,6 @@ class Command(BaseCommand):
     args = "<filename>"
 
     def handle(self, filename, **options):
-        sheetreader= UnicodeDictReader(open(filename,'rU'), dialect=csv.excel)
+        sheetreader= UnicodeDictReader(open(filename,'rU'), dialect=csv.excel_tab)
         load_from_books(sheetreader)        
         print "finished loading"
