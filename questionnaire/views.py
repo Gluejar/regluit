@@ -812,9 +812,9 @@ def _table_headers(questions):
     ql.sort(lambda x, y: numal_sort(x.number, y.number))
     columns = []
     for q in ql:
-        if q.type == 'choice-yesnocomment':
+        if q.type.startswith('choice-yesnocomment'):
             columns.extend([q.number, q.number + "-freeform"])
-        elif q.type == 'choice-freeform':
+        elif q.type.startswith('choice-freeform'):
             columns.extend([q.number, q.number + "-freeform"])
         elif q.type.startswith('choice-multiple'):
             cl = [c.value for c in q.choice_set.all()]
