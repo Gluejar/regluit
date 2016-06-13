@@ -1063,7 +1063,9 @@ def generate_run(request, questionnaire_id, subject_id=None, context={}):
         request.session['runcode'] = key
 
     questionnaire_start.send(sender=None, runinfo=run, questionnaire=qu)
-    return HttpResponseRedirect(reverse('questionnaire', kwargs=kwargs))
+    response = HttpResponseRedirect(reverse('questionnaire', kwargs=kwargs))
+    response.set_cookie('next', context.get('next',''))
+    return response
 
 def generate_error(request):
     return 400/0
@@ -1077,6 +1079,8 @@ class SurveyView(TemplateView):
         nonce = self.kwargs['nonce']
         landing = get_object_or_404(Landing, nonce=nonce)
         context["landing"] = landing
+        context["next"] = self.request.GET.get('next', '')
+        
 
         return context    
 
