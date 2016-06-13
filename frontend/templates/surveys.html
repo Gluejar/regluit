@@ -21,7 +21,8 @@
 <dl>
 {% for landing in work.landings.all %}
 <dt>Configured survey: {{ landing }} </dt>
-<dd>Link: {{ landing.url }}</dd>
+<dd>Link: {{ landing.url }}<br />
+Completed {{ landing.runinfohistory_set.all.count }} times</dd>
 {% endfor %}
 </dl>
 <a href="{% url 'new_survey' work.id %}">Set up a new survey</a> for this work.
