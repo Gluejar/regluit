@@ -139,7 +139,7 @@
 
 
             <div style="text-align: center;" class="well questionset-submit">
-                <input class="btn large primary" name="submit" type="submit" value="{% trans "Continue" %}">
+                <input class="btn large primary" name="submit" type="submit" value="{% if questionset.next %}{% trans 'Continue' %}{% else %}{% trans 'Finish' %}{% endif %}" />
 
             </div>
 
