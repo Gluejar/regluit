@@ -391,7 +391,16 @@ Unglue.it signs agreements assuring the copyright status of every work we unglue
 
 <dt>How can I claim a work for which I am the rights holder?</dt>
 
-<dd>On every book page there is a More... tab.  If you have a signed Platform Services Agreement on file, one of the options on the More... tab will be "Claim This Work".  If you represent more than one rights holder, choose the correct one for this work and click "Claim".<br /><br />If you expect to see a "Claim" button and do not, either we do not have a PSA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
+<dd>On every book page there is a More... tab.  If you have a signed Platform Services Agreement on file, one of the options on the More... tab will be "Claim This Work".  If you represent more than one rights holder, choose the correct one for this work and click "Claim".
+<br /><br />If the book is not already in Unglue.it or in Google Books, you'll need to enter the metatadata for the book by hand or work with us to load the data from a spreadsheet or Onix file.
+
+	<ul class="bullets">
+	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
+	    <li>Your ebooks must have ISBNs or OCLC numbers assigned.</li>
+	    <li>Your metadata should have title, authors, language, description.</li>
+	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	</ul>
+<br /><br />If you expect to see a "Claim" button and do not, either we do not have a PSA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
 
 <dt>Why should I claim my works?</dt>
 
