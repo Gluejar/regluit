@@ -7,7 +7,7 @@ import unicodedata
 
 from regluit.core.models import Work, Edition, Author, PublisherName, Identifier, Subject
 from regluit.core.isbn import ISBN
-from regluit.core.bookloader import add_by_isbn_from_google
+from regluit.core.bookloader import add_by_isbn_from_google, merge_works
 from regluit.api.crosswalks import inv_relator_contrib
 from regluit.bisac.models import BisacHeading
 
@@ -36,33 +36,49 @@ def utf8_general_ci_norm(s):
 
 def get_authors(book):
     authors=[]
-    for i in range(1,3):
-        fname=u'Author{}First'.format(i)
-        lname=u'Author{}Last'.format(i)
-        role=u'Author{}Role'.format(i)
-        authname = u'{} {}'.format(book[fname],book[lname])
-        if authname != u' ':
-            role = book[role] if book[role].strip() else 'A01'
-            authors.append((authname,role))
-        else:
-            break
-    authlist = book["AuthorsList"].replace(' and ', ', ').split(', ')
-    if len(authlist)>3:
-        for authname in authlist[3:]:
-            authors.append((authname, 'A01'))
-
+    if book.get('AuthorsList',''):
+        #UMich
+        for i in range(1,3):
+            fname=u'Author{}First'.format(i)
+            lname=u'Author{}Last'.format(i)
+            role=u'Author{}Role'.format(i)
+            authname = u'{} {}'.format(book[fname],book[lname])
+            if authname != u' ':
+                role = book[role] if book[role].strip() else 'A01'
+                authors.append((authname,role))
+            else:
+                break
+        authlist = book["AuthorsList"].replace(' and ', ', ').split(', ')
+        if len(authlist)>3:
+            for authname in authlist[3:]:
+                authors.append((authname, 'A01'))
+    else:
+        #OBP
+        for i in range(1,6):
+            fname= book.get(u'Contributor {} first name'.format(i), '')
+            lname= book.get(u'Contributor {} surname'.format(i), '')
+            role= book.get(u'ONIX Role Code (List 17){}'.format(i), '')
+            authname = u'{} {}'.format(fname,lname)
+            if authname != u' ':
+                role = role if role.strip() else 'A01'
+                authors.append((authname,role))
+            else:
+                break
     return authors
 
 def get_subjects(book):
     subjects=[]
-    for i in range(1,3):
-        key=u'BISACCode{}'.format(i)
-        if book[key] != '':
+    for i in range(1,5):
+        key = u'BISACCode{}'.format(i)  #UMich dialect
+        key2 = u'BISAC subject code {}'.format(i) #OBP dialect
+        code = book.get(key,'')
+        code = code if code else book.get(key2,'')
+        if code != '':
             try:
-                bisac=BisacHeading.objects.get(notation=book[key])
+                bisac=BisacHeading.objects.get(notation=code)
                 subjects.append(bisac)
             except BisacHeading.DoesNotExist:
-                logger.warning( "Please add BISAC {}".format(book[key]))
+                logger.warning( "Please add BISAC {}".format(code))
     return subjects
 
 def add_subject(subject_name, work, authority=''):
@@ -72,7 +88,21 @@ def add_subject(subject_name, work, authority=''):
         subject=Subject.objects.create(name=subject_name, authority=authority)
     subject.works.add(work)
 
+def get_title(book):
+    title = book.get('FullTitle','') #UMICH
+    if title:
+        return title
+    title = book.get('Title','') #OBP
+    sub = book.get('Subtitle','')
+    if sub:
+        return u'{}: {}'.format(title,sub)
+    else:
+        return title
+        
 def get_cover(book):
+    cover_url =  book.get('Cover URL','') #OBP
+    if cover_url:
+        return cover_url
     url = book['URL']
     if "10.3998" in url:
         # code for umich books; can generalize, of course!
@@ -94,8 +124,9 @@ def get_cover(book):
 def get_isbns(book):
     isbns = []
     edition = None
-    for code in ['eISBN','PaperISBN','ClothISBN']:
-        if book[code] not in ('','N/A'):
+    #'ISBN 1' is OBP, others are UMICH
+    for code in ['eISBN', 'ISBN 3','PaperISBN', 'ISBN 2', 'ClothISBN', 'ISBN 1', 'ISBN 4', 'ISBN 5']:
+        if book.get(code, '') not in ('','N/A'):
             values = book[code].split(',')
             for value in values:
                 isbn = ISBN(value).to_string()
@@ -106,15 +137,53 @@ def get_isbns(book):
             edition = Edition.get_by_isbn(isbn)
     return (isbns, edition )
 
+def get_pubdate(book):
+    value = book.get('CopyrightYear','') #UMICH
+    if value:
+        return value
+    value = book.get('publication year','') #OBP
+    sub = book.get('publication month','')
+    sub2 = book.get('publication day','')
+    if sub2:
+        return u'{}-{}-{}'.format(value,sub,sub2)
+    elif sub:
+        return u'{}-{}'.format(value,sub,sub2)
+    else:
+        return value
+        
+def get_publisher(book):
+    value = book.get('Publisher','')
+    if value:
+        return value
+    if book.get('DOI prefix','')=='10.11647':
+        return "Open Book Publishers"
+        
+def get_url(book):
+    url = book.get('URL','')
+    url = url if url else u'https://dx.doi.org/{}/{}'.format( book.get('DOI prefix',''),book.get('DOI suffix',''))
+    return url
+
+def get_description(book):
+    value = book.get('DescriptionBrief','')
+    value = value if value else book.get('Plain Text Blurb','')
+    return value
+
+def get_language(book):
+    value = book.get('ISO Language Code','')
+    return value
+
+        
 def load_from_books(books):
     ''' books is an iterator of book dicts.
         each book must have attributes
+        (umich dialect)
         eISBN, ClothISBN, PaperISBN, Publisher, FullTitle, Title, Subtitle, AuthorsList, 
         Author1Last, Author1First, Author1Role, Author2Last, Author2First, Author2Role, Author3Last, 
         Author3First, Author3Role, AuthorBio, TableOfContents, Excerpt, DescriptionLong, 
         DescriptionBrief, BISACCode1, BISACCode2, BISACCode3, CopyrightYear, ePublicationDate, 
         eListPrice, ListPriceCurrencyType, List Price in USD (paper ISBN), eTerritoryRights, 
         SubjectListMARC, , Book-level DOI, URL,	License
+        
         '''
 
     # Goal: get or create an Edition and Work for each given book
@@ -125,12 +194,14 @@ def load_from_books(books):
 
         # try first to get an Edition already in DB with by one of the ISBNs in book
         (isbns, edition) = get_isbns(book)
-        title=book['FullTitle']
+        if len(isbns)==0:
+            continue
+        title=get_title(book)
         authors = get_authors(book)
 
         # if matching by ISBN doesn't work, then create a Work and Edition 
         # with a title and the first ISBN
-        if not edition and len(isbns):
+        if not edition:
             work = Work(title=title)
             work.save()
             edition= Edition(title=title, work=work) 
@@ -140,14 +211,18 @@ def load_from_books(books):
         work=edition.work
 
         # at this point, work and edition exist
-
-        if book.get('URL'):
-            Identifier.set(type='http', value=book['URL'], edition=edition, work=work)
+        url = get_url(book)
+        if url:
+            Identifier.set(type='http', value=url, edition=edition, work=work)
 
         # make sure each isbn is represented by an Edition
         # also associate authors, publication date, cover, publisher
         for isbn in isbns:
-            edition = add_by_isbn_from_google(isbn)
+            edition = add_by_isbn_from_google(isbn, work=work)
+            if edition and edition.work != work:
+                merge_works(work, edition.work)
+                work = work if work.pk is not None else edition.work
+                edition.work=work # because integrity errors if not
             if not edition:
                 edition= Edition(title=title, work=work)
                 edition.save()
@@ -156,16 +231,23 @@ def load_from_books(books):
             edition.authors.clear()
             for (author, role) in authors:
                 edition.add_author(author, inv_relator_contrib.get(role, 'aut'))
-            edition.publication_date = book['CopyrightYear']
+            edition.publication_date = get_pubdate(book)
             edition.cover_image = get_cover(book)
-            edition.set_publisher(book['Publisher'])
             edition.save()
+            edition.set_publisher(get_publisher(book))
 
         # possibly replace work.description 
-        description = book['DescriptionBrief']
+        description = get_description(book)
         if len(description)>len (work.description):
             work.description = description
-
+            work.save()
+        
+        # set language
+        lang= get_language(book)
+        if lang:
+            work.language = lang
+            work.save()
+        
         # add a bisac subject (and ancestors) to work
         for bisacsh in get_subjects(book):
             while bisacsh:
@@ -178,9 +260,9 @@ def load_from_books(books):
         results.append((book, work, edition))
 
         try:
-            logger.info ("{} {} {}\n".format(i, title, loading_ok))
+            logger.info (u"{} {} {}\n".format(i, title, loading_ok))
         except Exception as e:
-            logger.info ("{} {}\n".format(i, title, str(e) ))
+            logger.info (u"{} {}\n".format(i, title, str(e) ))
 
     return results
 
@@ -195,9 +277,9 @@ def loaded_book_ok(book, work, edition):
         return False
 
     try:
-        url_id = Identifier.objects.get(type='http', value=book['URL'])
+        url_id = Identifier.objects.get(type='http', value=get_url(book))
         if url_id is None:
-            logger.info ("url_id problem: work.id {}, url: {}".format(work.id, book['URL']))
+            logger.info ("url_id problem: work.id {}, url: {}".format(work.id, get_url(book)))
             return False
     except Exception as e:
         logger.info (str(e))
@@ -224,14 +306,14 @@ def loaded_book_ok(book, work, edition):
                 return False
 
             try:
-                edition_for_isbn.publication_date = book['CopyrightYear']
+                edition_for_isbn.publication_date = get_pubdate(book)
                 edition_for_isbn.cover_image = get_cover(book)
-                edition_for_isbn.set_publisher(book['Publisher'])
+                edition_for_isbn.set_publisher(get_publisher(book))
             except:
                 return False
 
     # work description
-    description = book['DescriptionBrief']
+    description = get_description(book)
     if not ((work.description == description) or (len(description) <len (work.description))):
         return False
 
