@@ -21,7 +21,8 @@
 <dl>
 {% for landing in work.landings.all %}
 <dt>Configured survey: {{ landing }} </dt>
-<dd>Link: {{ landing.url }}</dd>
+<dd>Link: {{ landing.url }}<br />
+Completed {{ landing.runinfohistory_set.all.count }} times</dd>
 {% endfor %}
 </dl>
 <a href="{% url 'new_survey' work.id %}">Set up a new survey</a> for this work.
@@ -32,5 +33,10 @@
 <dd>To run a survey for a book, you need to be an unglue.it rights holder and claim the book</dd>
 {% endfor %}
 </dl>
+<p>
 <a href="{% url 'new_survey' '' %}">Set up a survey</a> using isbn.
+</p>
+<p>
+Add "?next=https://example.com/any_url" to the end of a survey url to add a redirect on completion of the survey.
+</p>
 {% endblock %}
