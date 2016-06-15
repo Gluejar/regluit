@@ -2069,7 +2069,7 @@ class Ebook(models.Model):
                         return ebf.file
                     except IndexError:
                         # response has no Content-Length header probably a bad link
-                        logging.error( 'Bad link error: {}'.format(ebook.url) )
+                        logging.error( 'Bad link error: {}'.format(self.url) )
                 except IOError:
                     logger.error(u'could not open {}'.format(self.url) )
             else:
