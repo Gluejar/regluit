@@ -412,8 +412,6 @@ class BookLoaderTests(TestCase):
             self.assertEqual(int(updated_ebook.download_count), 1)
             self.assertEqual(int(edition.work.download_count), 1)
 
-    # temporarily to work around http://jenkins.unglueit.com/job/regluit/3679/
-    @unittest.expectedFailure
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
         # http://books.google.com/books?id=D-WjL_HRbNQC&printsec=frontcover#v=onepage&q&f=false
