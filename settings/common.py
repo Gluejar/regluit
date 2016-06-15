@@ -486,3 +486,7 @@ MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
 
 QUESTIONNAIRE_USE_SESSION = False
 QUESTIONNAIRE_DEBUG = True
+
+# Selenium related -- set if Se tests run
+FIREFOX_PATH = ''
+CHROMEDRIVER_PATH = ''
