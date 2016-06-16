@@ -3,7 +3,7 @@
 {% block title %}{{ block.super }}Questionnaire{% endblock title %}
 {% block search_box %}
 {% render_with_landing '' %}
-<a href="{{landing_object.publishers.0.url}}"><img style="float:left;margin:10px" src="{{landing_object.publishers.0.logo_url}}" /></a>
+<a href="{{landing_object.publishers.0.url}}"><img style="float:left;margin:10px" src="{{landing_object.publishers.0.logo_url}}" alt="{{landing_object.publishers.0.name}}" /></a>
 {% endblock %}
 {% block signin %}
 {% endblock %}
