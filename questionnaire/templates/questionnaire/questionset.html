@@ -3,16 +3,31 @@
 {% load static %}
 {% load dynamicStyleTags %}
 {% load landings %}
+
+{% block title %}
+        Survey: {{ questionset.heading }}
+{% endblock %}
+
 {% block headextra %}
     <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'questionset.js' %}"></script>
-     <link rel="stylesheet" href="{% static 'progressbar.css' %}"/>
+     <link rel="stylesheet" href="{% static 'progressbar.css' %}" />
     {% if questionsetstylesheet|getAssociatedStylesheets  %}
     <style type="text/css">
       {{ questionsetstylesheet|getAssociatedStylesheets|safe }}
     </style>
     {% endif %}
-
+    {% if progress %}
+        {% if questionset.questionnaire.name|add:"Progress"|getAssociatedStylesheets  %}
+        <style type="text/css">
+        {{ questionset.questionnaire.name|add:"Progress"|getAssociatedStylesheets|safe }}
+        </style>
+        {% else %}
+        <style type="text/css">
+        {{ "CommonProgressStyles"|getAssociatedStylesheets|safe }}
+        </style>
+        {% endif %}
+    {% endif %}
     {% for x in jsinclude %}
         <script type="text/javascript" src="{{ x }}"></script>
     {% endfor %}
@@ -38,15 +53,6 @@
 {% block questionnaire %}
 
     {% if progress %}
-    {% if questionset.questionnaire.name|add:"Progress"|getAssociatedStylesheets  %}
-    <style type="text/css">
-    {{ questionset.questionnaire.name|add:"Progress"|getAssociatedStylesheets|safe }}
-    </style>
-    {% else %}
-    <style type="text/css">
-    {{ "CommonProgressStyles"|getAssociatedStylesheets|safe }}
-    </style>
-    {% endif %}
     <div id="progress_bar" class="ui-progress-bar ui-container">
       <div class="ui-progress" style="width: {{progress}}%;">
         <span class="ui-label"><b class="value">{{progress}}%</b></span>

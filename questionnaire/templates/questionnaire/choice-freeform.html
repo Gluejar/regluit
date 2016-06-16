@@ -1,7 +1,7 @@
 {% load i18n %}
 <div class="clearfix">
     <div class="input">
-        <ul class="inputs-list">
+        <ul class="inputs-list list-unstyled">
         {% for sel, choice in qdict.choices %}
             <li>
                 <label>
@@ -17,7 +17,7 @@
         {% if question.extra %}
             <span class="extra-block">{{ question.extra }}</span>
         {% endif %}
-       <input id="{{ question.number }}_comment" checks="dep_check('{{ question.number }},_entry_')" type="input" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}">
+       <input id="{{ question.number }}_comment" checks="dep_check('{{ question.number }},_entry_')" type="text" name="question_{{ question.number }}_comment" value="{{ qdict.comment }}">
     </div>
 </div>
 
