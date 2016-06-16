@@ -3,6 +3,11 @@
 {% load static %}
 {% load dynamicStyleTags %}
 {% load landings %}
+
+{% block title %}
+        Survey: {{ questionset.heading }}
+{% endblock %}
+
 {% block headextra %}
     <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'questionset.js' %}"></script>
