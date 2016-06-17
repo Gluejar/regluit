@@ -113,6 +113,7 @@
                     {% endif %}
                     {% include qdict.template %}
                 {% else %}
+                    <label for="question_{{ question.number }}">
                     <div class="question-text {% if qdict.required %}required{% endif %}">
                         <span class="qnumber">{{ question.display_number|safe }}.</span>
                         {% if question.parse_html %}
@@ -121,6 +122,7 @@
                         {{ question.text }}
                         {% endif %}
                     </div>
+                    </label>
                     <div class="answer">
                         {% if error %}
                             <div class="alert-message block-message error input"><strong>{{ error }}</strong></div>

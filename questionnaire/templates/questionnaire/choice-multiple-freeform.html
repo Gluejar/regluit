@@ -5,7 +5,7 @@
         <ul class="inputs-list list-unstyled">
         {% for choice, key, checked, prev_value in qdict.choices %}
             <li>
-<!--                <label> -->
+                <label>
                     <span class="{{ qdict.type }}-text">
                     <input onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" type="checkbox" id="{{ key }}" name="{{ key }}" value="{{ choice.value }}" {{ checked }}>
                     {{ choice.text }}
@@ -18,7 +18,7 @@
                     &#37;   <!-- percentage sign: all choice-multiple-values currently represent percentages and must add up to 100% -->
                     </span>
                     {% endif %}
-<!--                </label> -->
+               </label>
             </li>
         {% endfor %}
         {% if qdict.type == 'choice-multiple-values' %}
