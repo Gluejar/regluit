@@ -125,9 +125,10 @@ LOGGING = {
             'handlers': ['null'],
             'propagate': False,
         },
-        'regluit': {
+        '': {
             'handlers': ['file'],
             'level': 'WARNING',
+            'propagate': False,
         },
     }
 }
