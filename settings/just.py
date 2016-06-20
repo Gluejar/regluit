@@ -101,6 +101,14 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.NullHandler',
         },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join(PROJECT_DIR, 'logs', 'unglue.it.log'),
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter': 'brief',
+        },
     },
     'loggers': {
         'django.request': {
@@ -111,6 +119,10 @@ LOGGING = {
         'django.security.DisallowedHost': {
             'handlers': ['null'],
             'propagate': False,
+        },
+        'regluit': {
+            'handlers': ['file'],
+            'level': 'WARNING',
         },
     }
 }
