@@ -114,12 +114,14 @@
                     {% include qdict.template %}
                 {% else %}
                     <div class="question-text {% if qdict.required %}required{% endif %}">
+                    <label for="{{ question.number }}">
                         <span class="qnumber">{{ question.display_number|safe }}.</span>
                         {% if question.parse_html %}
                         {{ question.text|safe }}
                         {% else %}
                         {{ question.text }}
                         {% endif %}
+                    </label>
                     </div>
                     <div class="answer">
                         {% if error %}
