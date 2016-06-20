@@ -2218,9 +2218,13 @@ class ManageAccount(FormView):
 
 def search(request):
     q = request.GET.get('q', '')
-    ty = request.GET.get('q', 'g')  # ge= 'general, au= 'author'
+    ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     request.session['q']=q
-    page = int(request.GET.get('page', 1))
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        # garbage in page
+        page = 1
     gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False )
     if q != '' and page==1 and not gbo=='y':
