@@ -2218,7 +2218,7 @@ class ManageAccount(FormView):
 
 def search(request):
     q = request.GET.get('q', '')
-    ty = request.GET.get('q', 'g')  # ge= 'general, au= 'author'
+    ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     request.session['q']=q
     page = int(request.GET.get('page', 1))
     gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
