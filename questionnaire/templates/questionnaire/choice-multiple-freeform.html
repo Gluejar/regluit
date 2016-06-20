@@ -29,7 +29,11 @@
 
         {% if question.extra %}
             <li>
-                <span class="extra-block">{{ question.extra }}</span>
+                <label for="{{ question.number }}extra"><span class="extra-block">{{ question.extra }}</span></label>
+            </li>
+        {% else %}
+            <li>
+                <label for="{{ question.number }}extra">{% trans "Other..." %}</label>
             </li>
         {% endif %}
         {% if qdict.extras %}
@@ -38,7 +42,7 @@
                 {% if not forloop.last or not forloop.first %}
                     <b>{{ forloop.counter }}.</b> 
                 {% endif %}
-                <input type="text" name="{{ key }}" size="50" value="{{ value }}">    
+                <input type="text" id="{{ question.number }}extra{% if not forloop.first %}{{ forloop.counter }}{% endif %}" name="{{ key }}" size="50" value="{{ value }}">    
             </li>
             {% endfor %}
         {% endif %}
