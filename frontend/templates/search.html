@@ -106,7 +106,7 @@ $j(document).ready(function() {
         loader: '<img src="/static/images/loading.gif" alt="loading..." />',
         callback: function(p) {
             page += 1;
-            var url = "?q={{ q }}&gbo={{ gbo }}&page=" + page;
+            var url = "?q={{ q|urlencode }}&gbo={{ gbo }}&ty={{ ty }}&page=" + page;
             $j.get(url, function(html) {
                 var view = $j(".listview").length > 0 ? "list" : "panel";
                 var results = $j(html).find(".book");
@@ -133,17 +133,17 @@ $j(document).ready(function() {
             <div id="content-block">
               {% if campaign_works %}
                 <div class="content-block-heading">
-                    <h2 class="content-heading">These books are Free, or want to be!</span></h2>
+                    <h2 class="content-heading">These books are Free, or want to be!</h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
                                 <a href="#" id="toggle-list">
-                                <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" alt="use list view" />
+                                <img src="/static/images/booklist/view-list.png" title="view list" height="21" width="24" alt="use list view" />
                                 </a>
                             </li>
                             <li class="view-list">
                                 <a href="#" id="toggle-panel">
-                                <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" alt="use panel view" />
+                                <img src="/static/images/booklist/view-icon.png" title="view icon" height="22" width="22" alt="use panel view" />
                                 </a>
                             </li>
                         </ul>
@@ -167,7 +167,7 @@ $j(document).ready(function() {
                 {% else %}
                 <div class="content-block-heading">
                     
-                    <h2 class="content-heading"><a href="https://www.google.com/search?q={{q }}&amp;tbm=bks">Google Books</a> search results</span></h2>
+                    <h2 class="content-heading"><a href="https://www.google.com/search?q={{q|urlencode }}&amp;tbm=bks">Google Books</a> search results</h2>
                     
                       {% if not campaign_works %}
                         <ul class="book-list-view">

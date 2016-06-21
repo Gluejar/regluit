@@ -2218,14 +2218,21 @@ class ManageAccount(FormView):
 
 def search(request):
     q = request.GET.get('q', '')
+    ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     request.session['q']=q
-    page = int(request.GET.get('page', 1))
+    try:
+        page = int(request.GET.get('page', 1))
+    except ValueError:
+        # garbage in page
+        page = 1
     gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False )
     if q != '' and page==1 and not gbo=='y':
         isbnq = ISBN(q)
         if isbnq.valid:
             work_query = Q(identifiers__value=str(isbnq), identifiers__type="isbn")
+        elif ty=='au':
+            work_query =  Q(editions__authors__name=q) 
         else:
             work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
         campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
@@ -2252,6 +2259,7 @@ def search(request):
     context = {
         "q": q,
         "gbo": gbo,
+        "ty": ty,
         "results": works,
         "campaign_works": campaign_works
     }

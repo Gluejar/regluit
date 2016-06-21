@@ -96,9 +96,9 @@
                                 <div>
                                         <div class="pubinfo">
                                             <h3 class="book-author">
-                                            <span  itemprop="author">{{ work.relators.0.name }}</span>{% ifequal work.authors.count 2 %}
-                                                and <span  itemprop="author">{{ work.relators.1.name }}</span>
-                                            {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author">{{ author.name }}</span>{% endif %}{% endfor %}
+                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />{{ work.relators.0.name }}</a></span>{% ifequal work.authors.count 2 %}
+                                                and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" />{{ work.relators.1.name }}</a></span>
+                                            {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
                                             {% endif %}
                                             </h3>
                                             <h3 class="book-year"> 

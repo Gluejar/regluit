@@ -1123,8 +1123,12 @@ class Work(models.Model):
 
     @property
     def googlebooks_id(self):
-        preferred_id=self.preferred_edition.googlebooks_id
-        # note that there's always a preferred edition
+        try:
+            preferred_id=self.preferred_edition.googlebooks_id
+            # note that there should always be a preferred edition
+        except AttributeError:
+            # this work has no edition.
+            return ''
         if preferred_id:
             return preferred_id
         try:
@@ -1307,6 +1311,7 @@ class Work(models.Model):
                 return WasWork.objects.get(was=self.id).work.preferred_edition
             except WasWork.DoesNotExist:
                 #should not happen
+                logger.warning('work {} has no edition'.format(self.id))
                 return None
         
     def last_campaign_status(self):
@@ -2064,7 +2069,7 @@ class Ebook(models.Model):
                         return ebf.file
                     except IndexError:
                         # response has no Content-Length header probably a bad link
-                        logging.error( 'Bad link error: {}'.format(ebook.url) )
+                        logging.error( 'Bad link error: {}'.format(self.url) )
                 except IOError:
                     logger.error(u'could not open {}'.format(self.url) )
             else:

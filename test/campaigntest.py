@@ -11,6 +11,7 @@ from urlparse import (urlparse, urlunparse)
 from selenium import selenium, webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 """
 django imports
@@ -42,6 +43,21 @@ def set_test_logging():
     sel.setLevel(logging.INFO)
     
     
+def selenium_driver(browser='firefox'):
+
+    if browser == 'firefox':
+        firefox_capabilities = DesiredCapabilities.FIREFOX
+        firefox_capabilities['marionette'] = True
+        firefox_capabilities['binary'] = settings.FIREFOX_PATH
+        driver = webdriver.Firefox(capabilities=firefox_capabilities)
+    elif browser == 'htmlunit':
+        # HTMLUNIT with JS -- not successful
+        driver = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    else:
+        driver = webdriver.Chrome(executable_path=settings.CHROMEDRIVER_PATH)
+
+    return driver
+
 
 class GoogleWebDriverTest(unittest.TestCase):
 
@@ -51,7 +67,7 @@ class GoogleWebDriverTest(unittest.TestCase):
         # This is an empty array where we will store any verification errors
         # we find in our tests
 
-        self.selenium = webdriver.Firefox()
+        self.selenium = selenium_driver(browser='firefox')
         set_test_logging()
         
     def test_google_rc(self):
@@ -174,16 +190,8 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     # this assumes that we don't have donation functionality on
     assert settings.NONPROFIT.is_on == False
-    
-    if browser == 'firefox':
-        sel = webdriver.Firefox()
-    elif browser == 'chrome':
-        sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
-    elif browser == 'htmlunit':
-        # HTMLUNIT with JS -- not successful
-        sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
-    else:
-        sel = webdriver.Firefox()
+
+    sel = selenium_driver(browser=browser)
 
     time.sleep(5)
     
@@ -356,7 +364,7 @@ def successful_campaign_signal():
     
 
 def berkeley_search():
-    sel = webdriver.Firefox()
+    sel = selenium_driver(browser='firefox')
     sel.get("http://berkeley.edu")
     search = WebDriverWait(sel,5).until(lambda d: d.find_element_by_css_selector('input[id="search_text"]'))
     search.send_keys("quantum computing")

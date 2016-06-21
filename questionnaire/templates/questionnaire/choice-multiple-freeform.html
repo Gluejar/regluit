@@ -2,10 +2,10 @@
 
 <div class="clearfix">
     <div class="input">
-        <ul class="inputs-list">
+        <ul class="inputs-list list-unstyled">
         {% for choice, key, checked, prev_value in qdict.choices %}
             <li>
-<!--                <label> -->
+                <label>
                     <span class="{{ qdict.type }}-text">
                     <input onClick="valchanged('{{ question.number }}_{{ choice.value }}', this.checked);" type="checkbox" id="{{ key }}" name="{{ key }}" value="{{ choice.value }}" {{ checked }}>
                     {{ choice.text }}
@@ -18,7 +18,7 @@
                     &#37;   <!-- percentage sign: all choice-multiple-values currently represent percentages and must add up to 100% -->
                     </span>
                     {% endif %}
-<!--                </label> -->
+               </label>
             </li>
         {% endfor %}
         {% if qdict.type == 'choice-multiple-values' %}
@@ -29,7 +29,11 @@
 
         {% if question.extra %}
             <li>
-                <span class="extra-block">{{ question.extra }}</span>
+                <label for="{{ question.number }}extra"><span class="extra-block">{{ question.extra }}</span></label>
+            </li>
+        {% else %}
+            <li>
+                <label for="{{ question.number }}extra">{% trans "Other..." %}</label>
             </li>
         {% endif %}
         {% if qdict.extras %}
@@ -38,7 +42,7 @@
                 {% if not forloop.last or not forloop.first %}
                     <b>{{ forloop.counter }}.</b> 
                 {% endif %}
-                <input type="text" name="{{ key }}" size="50" value="{{ value }}">    
+                <input type="text" id="{{ question.number }}extra{% if not forloop.first %}{{ forloop.counter }}{% endif %}" name="{{ key }}" size="50" value="{{ value }}">    
             </li>
             {% endfor %}
         {% endif %}

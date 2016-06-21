@@ -812,9 +812,9 @@ def _table_headers(questions):
     ql.sort(lambda x, y: numal_sort(x.number, y.number))
     columns = []
     for q in ql:
-        if q.type == 'choice-yesnocomment':
+        if q.type.startswith('choice-yesnocomment'):
             columns.extend([q.number, q.number + "-freeform"])
-        elif q.type == 'choice-freeform':
+        elif q.type.startswith('choice-freeform'):
             columns.extend([q.number, q.number + "-freeform"])
         elif q.type.startswith('choice-multiple'):
             cl = [c.value for c in q.choice_set.all()]
@@ -1063,7 +1063,9 @@ def generate_run(request, questionnaire_id, subject_id=None, context={}):
         request.session['runcode'] = key
 
     questionnaire_start.send(sender=None, runinfo=run, questionnaire=qu)
-    return HttpResponseRedirect(reverse('questionnaire', kwargs=kwargs))
+    response = HttpResponseRedirect(reverse('questionnaire', kwargs=kwargs))
+    response.set_cookie('next', context.get('next',''))
+    return response
 
 def generate_error(request):
     return 400/0
@@ -1077,6 +1079,8 @@ class SurveyView(TemplateView):
         nonce = self.kwargs['nonce']
         landing = get_object_or_404(Landing, nonce=nonce)
         context["landing"] = landing
+        context["next"] = self.request.GET.get('next', '')
+        
 
         return context    
 
