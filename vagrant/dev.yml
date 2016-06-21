@@ -227,6 +227,7 @@
           app_path=/opt/regluit/
           settings="regluit.settings.{{class}}"
           virtualenv=/opt/regluit/ENV
+      sudo: no
       when: migrate
       notify:
         - restart apache2
@@ -237,6 +238,7 @@
           app_path=/opt/regluit/
           settings="regluit.settings.{{class}}"
           virtualenv=/opt/regluit/ENV
+      sudo: no
       when: migrate
       notify:
         - restart apache2
@@ -249,6 +251,7 @@
           app_path=/opt/regluit/
           settings="regluit.settings.{{class}}"
           virtualenv=/opt/regluit/ENV
+      sudo: no
       notify:
         - restart apache2
           
@@ -429,13 +432,20 @@
 
     - name: set up script file to load environment for interactive use
       command: cp "/opt/regluit/deploy/setup-{{class}}.sh" /home/{{user}}/setup.sh
+      sudo: no
 
     - name: set up script to dump database
       command: cp "/opt/regluit/deploy/dump_db_{{class}}.sh" /home/{{user}}/dump.sh
       when: class in ['prod']
+      sudo: no
+
+    - name: chmod +x dump.sh
+      file: path=/home/{{user}}/dump.sh state=file owner={{user}} group={{user}} mode=0745
+      when: class in ['prod']
 
     - name: put an empty file in main dir to help identify this instance
       command: touch "/home/{{user}}/{{class}}_{{ ansible_date_time.iso8601 }}"
+      sudo: no
 
     - name: apply upgrade
       command: sudo unattended-upgrade
