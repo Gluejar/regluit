@@ -204,9 +204,11 @@
 
     - name: establish regluit.pth
       lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/regluit/"
+      sudo: no
       
     - name: establish opt.pth
       lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/"
+      sudo: no
  
     #sudo('mkdir /var/www/static')
     #sudo('chown ubuntu:ubuntu /var/www/static')
@@ -312,6 +314,7 @@
       lineinfile: create=yes dest=/opt/regluit/settings/local.py line="SECRET_KEY=u'{{django_secret_key}}'"
       notify:
         - restart apache2
+      sudo: no
 
     #
     #sudo ("/etc/init.d/apache2 restart")
