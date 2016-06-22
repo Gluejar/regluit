@@ -380,6 +380,7 @@
     # celery multi
     - name: celery multi
       command: /opt/regluit/ENV/bin/celery multi restart w1 --logfile=\"/var/log/celery/%n.log\" --pidfile=\"/var/log/celery/%n.pid\"
+      sudo: no
     
     #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
     #    sudo ("chmod 755 /etc/init.d/celerybeat")
