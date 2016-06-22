@@ -428,6 +428,7 @@
     # set up crontab
     - name: crontab 
       command: crontab "/opt/regluit/deploy/crontab_{{class}}.txt"
+      sudo: no
       
     - name: add ssh keys from /opt/regluit/deploy/public_keys/
       authorized_key: user={{user}} key={{ lookup('file', item) }} state=present
