@@ -387,21 +387,21 @@
 
     - name: copy deploy/celerybeat
       command: cp /opt/regluit/deploy/celerybeat /etc/init.d/celerybeat
-      sudo: no
+      sudo: yes
     
     - name: set mode on /etc/init.d/celerybeat
       file: path=/etc/init.d/celerybeat mode=0775
-      sudo: no
+      sudo: yes
     
     #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
     
     - name: copy deploy/celerybeat,conf
       command: cp "/opt/regluit/deploy/celerybeat_{{class}}.conf" /etc/default/celerybeat
-      sudo: no
+      sudo: yes
     
     - name: set mode on /etc/default/celerybeat
       file: path=/etc/default/celerybeat mode=0775
-      sudo: no
+      sudo: yes
     
     #    sudo ("mkdir /var/log/celerybeat")
     #    sudo ("chown celery:celery /var/log/celerybeat")
