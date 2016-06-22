@@ -341,17 +341,21 @@
          group=celery
          generate_ssh_key=no
 
-    #    sudo ("cp deploy/celeryd /etc/init.d/celeryd")
-    #    sudo ("chmod 755 /etc/init.d/celeryd")         
+    #sudo ("cp deploy/celeryd /etc/init.d/celeryd")
+    #sudo ("chmod 755 /etc/init.d/celeryd")    
+
+    # put {{user}} into celery group
+    - name: add {{user}} to celery group
+      user: name={{user}} groups=celery append=yes
     
+    # still need?
     - name: copy deploy/celeryd
       command: cp /opt/regluit/deploy/celeryd /etc/init.d/celeryd
     
+    # still need?
     - name: set mode on /etc/init.d/celeryd
       file: path=/etc/init.d/celeryd mode=0755
-    
-    #    sudo ("cp deploy/celeryd.conf /etc/default/celeryd")
-    
+       
     - name: copy deploy/celeryd.conf
       command: cp "/opt/regluit/deploy/celeryd_{{class}}.conf" /etc/default/celeryd
     
@@ -360,18 +364,22 @@
     
     #    sudo ("mkdir /var/log/celery")
     - name: make /var/log/celery
-      file: path=/var/log/celery state=directory owner=celery group=celery mode=0755
+      file: path=/var/log/celery state=directory owner=celery group=celery mode=0775
       
     #    sudo ("mkdir /var/run/celery")
     #    sudo ("chown celery:celery /var/log/celery /var/run/celery")
     
     - name: make /var/run/celery
-      file: path=/var/run/celery state=directory owner=celery group=celery mode=0755
+      file: path=/var/run/celery state=directory owner=celery group=celery mode=0775
     
     #    sudo ("/etc/init.d/celeryd start")
-    
-    - name: start celeryd
-      command: /etc/init.d/celeryd start
+    # old way with root
+    # - name: start celeryd
+    #   command: /etc/init.d/celeryd start
+
+    # celery multi
+    - name: celery multi
+      command: /opt/regluit/ENV/bin/celery multi restart w1 --logfile=\"/var/log/celery/%n.log\" --pidfile=\"/var/log/celery/%n.pid\"
     
     #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
     #    sudo ("chmod 755 /etc/init.d/celerybeat")
@@ -379,27 +387,32 @@
 
     - name: copy deploy/celerybeat
       command: cp /opt/regluit/deploy/celerybeat /etc/init.d/celerybeat
+      sudo: no
     
     - name: set mode on /etc/init.d/celerybeat
-      file: path=/etc/init.d/celerybeat mode=0755
+      file: path=/etc/init.d/celerybeat mode=0775
+      sudo: no
     
     #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
     
     - name: copy deploy/celerybeat,conf
       command: cp "/opt/regluit/deploy/celerybeat_{{class}}.conf" /etc/default/celerybeat
+      sudo: no
     
     - name: set mode on /etc/default/celerybeat
-      file: path=/etc/default/celerybeat mode=0755
+      file: path=/etc/default/celerybeat mode=0775
+      sudo: no
     
     #    sudo ("mkdir /var/log/celerybeat")
     #    sudo ("chown celery:celery /var/log/celerybeat")
 
     - name: make /var/log/celerybeat
-      file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0755
+      file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0775
     
     #    sudo ("/etc/init.d/celerybeat start")
     - name: start celerybeat
       command: /etc/init.d/celerybeat start
+      sudo: no
       
     # run data loading script
     - name: run data loading script
