@@ -356,7 +356,7 @@
     # set up celeryd
 
     - name: set up /etc/init.d/celeryd (from deploy/celeryd)
-      command: cp /opt/regluit/deploy/celeryd
+      command: cp /opt/regluit/deploy/celeryd /etc/init.d/celeryd
     
     # still need?
     - name: set mode on /etc/init.d/celeryd
