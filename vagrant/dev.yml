@@ -327,10 +327,10 @@
     - name: enable ufw
       ufw: state=enabled
       
-    #with cd("/opt/regluit"):
-    #
-    #    sudo ("yes | adduser --no-create-home celery --disabled-password --disabled-login")
-    
+
+    # create celery user and group
+    # also put {{user}} into celery group
+
     - name: make celery group
       group: name=celery
       
@@ -341,80 +341,82 @@
          group=celery
          generate_ssh_key=no
 
-    #sudo ("cp deploy/celeryd /etc/init.d/celeryd")
-    #sudo ("chmod 755 /etc/init.d/celeryd")    
-
-    # put {{user}} into celery group
     - name: add {{user}} to celery group
       user: name={{user}} groups=celery append=yes
-    
-    # still need?
-    - name: copy deploy/celeryd
-      command: cp /opt/regluit/deploy/celeryd /etc/init.d/celeryd
+
+    # create directories for celery
+    # /var/log/celery and /var/run/celery
+
+    - name: create /var/log/celery
+      file: path=/var/log/celery state=directory owner=celery group=celery mode=0775
+
+    - name: create /var/run/celery
+      file: path=/var/run/celery state=directory owner=celery group=celery mode=0775
+
+    # set up celeryd
+
+    - name: set up /etc/init.d/celeryd (from deploy/celeryd)
+      command: cp /opt/regluit/deploy/celeryd
     
     # still need?
     - name: set mode on /etc/init.d/celeryd
       file: path=/etc/init.d/celeryd mode=0755
-       
+
     - name: copy deploy/celeryd.conf
       command: cp "/opt/regluit/deploy/celeryd_{{class}}.conf" /etc/default/celeryd
     
     - name: set mode on /etc/default/celeryd
-      file: path=/etc/default/celeryd mode=0644    
+      file: path=/etc/default/celeryd mode=0644
+
+    - name: just before launching celeryd
+      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
     
-    #    sudo ("mkdir /var/log/celery")
-    - name: make /var/log/celery
-      file: path=/var/log/celery state=directory owner=celery group=celery mode=0775
-      
-    #    sudo ("mkdir /var/run/celery")
-    #    sudo ("chown celery:celery /var/log/celery /var/run/celery")
-    
-    - name: make /var/run/celery
-      file: path=/var/run/celery state=directory owner=celery group=celery mode=0775
-    
+    # start up celeryd
+
     #    sudo ("/etc/init.d/celeryd start")
     # old way with root
     # - name: start celeryd
     #   command: /etc/init.d/celeryd start
 
-    # celery multi
-    - name: celery multi
+    - name: start celery queue with celery multi
       command: /opt/regluit/ENV/bin/celery multi restart w1 --logfile=\"/var/log/celery/%n.log\" --pidfile=\"/var/log/celery/%n.pid\"
       sudo: no
+
+    - name: just after attempt to launch celeryd
+      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
     
     #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
     #    sudo ("chmod 755 /etc/init.d/celerybeat")
     # https://stackoverflow.com/questions/24162996/how-to-move-rename-a-file-using-an-ansible-task-on-a-remote-system
 
+
+    # set up celerybeat
+
     - name: copy deploy/celerybeat
       command: cp /opt/regluit/deploy/celerybeat /etc/init.d/celerybeat
-      sudo: yes
     
     - name: set mode on /etc/init.d/celerybeat
       file: path=/etc/init.d/celerybeat mode=0775
-      sudo: yes
     
-    #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
-    
-    - name: copy deploy/celerybeat,conf
+    - name: copy deploy/celerybeat,conf to /etc/default/celerybeat
       command: cp "/opt/regluit/deploy/celerybeat_{{class}}.conf" /etc/default/celerybeat
-      sudo: yes
-    
+
     - name: set mode on /etc/default/celerybeat
       file: path=/etc/default/celerybeat mode=0775
-      sudo: yes
     
-    #    sudo ("mkdir /var/log/celerybeat")
-    #    sudo ("chown celery:celery /var/log/celerybeat")
-
-    - name: make /var/log/celerybeat
+    - name: create /var/log/celerybeat
       file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0775
     
-    #    sudo ("/etc/init.d/celerybeat start")
+    - name: just before launching celerybeat
+      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+
     - name: start celerybeat
       command: /etc/init.d/celerybeat start
       sudo: no
       
+    - name: just after attempt to launch celerybeat
+      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+
     # run data loading script
     - name: run data loading script
       script: "load_data_{{class}}.sh"
