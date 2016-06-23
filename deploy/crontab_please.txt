@@ -21,4 +21,4 @@
 # 
 # m h  dom mon dow   command
 * * * * * cd /opt/regluit; . /opt/regluit/ENV/bin/activate; /opt/regluit/ENV/bin/django-admin.py emit_notices --settings=regluit.settings.please > /opt/regluit/deploy/emit_notices.log 2>&1 ; touch /opt/regluit/deploy/last-cron
-@reboot sudo mkdir /var/run/celery; sudo chown celery:celery /var/log/celery /var/run/celery; /opt/regluit/ENV/bin/celery multi restart w1 --logfile="/var/log/celery/\%n.log" --pidfile="/var/log/celery/\%n.pid"; /etc/init.d/celerybeat restart;
+@reboot sudo mkdir /var/run/celery; sudo chown celery:celery /var/log/celery /var/run/celery; /opt/regluit/ENV/bin/django-admin.py celeryd_multi restart w1; /etc/init.d/celerybeat restart;

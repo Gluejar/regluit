@@ -382,7 +382,7 @@
     #   command: /etc/init.d/celeryd start
 
     - name: start celery queue with celery multi
-      command: /opt/regluit/ENV/bin/celery multi restart w1 --logfile=\"/var/log/celery/%%n.log\" --pidfile=\"/var/log/celery/%%n.pid\"
+      command: /opt/regluit/ENV/bin/django-admin.py celeryd_multi restart w1
       sudo: no
 
     # - name: just after attempt to launch celeryd
