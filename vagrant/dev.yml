@@ -371,8 +371,8 @@
     - name: set mode on /etc/default/celeryd
       file: path=/etc/default/celeryd mode=0644
 
-    - name: just before launching celeryd
-      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+    # - name: just before launching celeryd
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
     
     # start up celeryd
 
@@ -385,8 +385,8 @@
       command: /opt/regluit/ENV/bin/celery multi restart w1 --logfile=\"/var/log/celery/%%n.log\" --pidfile=\"/var/log/celery/%%n.pid\"
       sudo: no
 
-    - name: just after attempt to launch celeryd
-      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+    # - name: just after attempt to launch celeryd
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
     
     #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
     #    sudo ("chmod 755 /etc/init.d/celerybeat")
@@ -410,15 +410,15 @@
     - name: create /var/log/celerybeat
       file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0775
     
-    - name: just before launching celerybeat
-      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+    # - name: just before launching celerybeat
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
 
     - name: start celerybeat
       command: /etc/init.d/celerybeat start
       sudo: no
       
-    - name: just after attempt to launch celerybeat
-      pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+    # - name: just after attempt to launch celerybeat
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
 
     # run data loading script
     - name: run data loading script
