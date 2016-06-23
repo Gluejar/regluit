@@ -381,8 +381,16 @@
     # - name: start celeryd
     #   command: /etc/init.d/celeryd start
 
-    - name: start celery queue with celery multi
-      command: /opt/regluit/ENV/bin/django-admin.py celeryd_multi restart w1
+    # - name: start celery queue with celery multi
+    #   command: /opt/regluit/ENV/bin/django-admin.py celeryd_multi restart w1
+    #   sudo: no
+
+    - name: celeryd_multi
+      django_manage: >
+          command="celeryd_multi restart w1"
+          app_path=/opt/regluit/
+          settings="regluit.settings.{{class}}"
+          virtualenv=/opt/regluit/ENV
       sudo: no
 
     # - name: just after attempt to launch celeryd
