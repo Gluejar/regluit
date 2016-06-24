@@ -30,7 +30,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=log_warnings"      ]
+          "-e branch=master"
+      ]
     end
 
   
