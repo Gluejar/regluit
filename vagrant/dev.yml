@@ -221,7 +221,7 @@
 
    #  provide a directory for django log file
     - name: make /var/log/regluit
-      file: path=/var/log/regluit state=directory owner=root group={{user}} mode=0775
+      file: path=/var/log/regluit state=directory owner={{user}} group={{user}} mode=0775
 
     #Run syncdb on the application
     # TO DO: syncdb might be deprecated
