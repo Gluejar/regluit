@@ -90,6 +90,25 @@
       
     - name: make {{user}} user 
       user: name={{user}} shell=/bin/bash group={{user}} generate_ssh_key=yes
+
+    # create celery user and group
+    # also put {{user}} into celery group
+
+    - name: make celery group
+      group: name=celery
+
+    - name: create celery user
+      user: >
+         name=celery
+         createhome=no
+         group=celery
+         generate_ssh_key=no
+
+    - name: add {{user}} to celery, www-data groups
+      user: name={{user}} groups=celery,www-data append=yes
+
+    - name: add www-data to {{user}} group
+      user: name=www-data groups={{user}} append=yes
       
     - name: install some python modules to use
       #pip: name={{item}} virtualenv=/home/{{user}}/venv
@@ -221,7 +240,7 @@
 
    #  provide a directory for django log file
     - name: make /var/log/regluit
-      file: path=/var/log/regluit state=directory owner=www-data group=www-data mode=0775
+      file: path=/var/log/regluit state=directory owner={{user}} group={{user}} mode=0775
 
     #Run syncdb on the application
     # TO DO: syncdb might be deprecated
@@ -333,23 +352,6 @@
 
     - name: enable ufw
       ufw: state=enabled
-      
-
-    # create celery user and group
-    # also put {{user}} into celery group
-
-    - name: make celery group
-      group: name=celery
-      
-    - name: create celery user
-      user: >
-         name=celery
-         createhome=no
-         group=celery
-         generate_ssh_key=no
-
-    - name: add {{user}} to celery, www-data groups
-      user: name={{user}} groups=celery,www-data append=yes
 
     # create directories for celery
     # /var/log/celery and /var/run/celery
