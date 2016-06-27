@@ -83,6 +83,7 @@
         - python-setuptools
         - python-dev
         - postfix
+        - mailutils
       tags: install
       
     - name: make {{user}} group
@@ -90,6 +91,25 @@
       
     - name: make {{user}} user 
       user: name={{user}} shell=/bin/bash group={{user}} generate_ssh_key=yes
+
+    # create celery user and group
+    # also put {{user}} into celery group
+
+    - name: make celery group
+      group: name=celery
+
+    - name: create celery user
+      user: >
+         name=celery
+         createhome=no
+         group=celery
+         generate_ssh_key=no
+
+    - name: add {{user}} to celery, www-data groups
+      user: name={{user}} groups=celery,www-data append=yes
+
+    # - name: add www-data to {{user}} group
+    #   user: name=www-data groups={{user}} append=yes
       
     - name: install some python modules to use
       #pip: name={{item}} virtualenv=/home/{{user}}/venv
@@ -204,9 +224,11 @@
 
     - name: establish regluit.pth
       lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/regluit/"
+      sudo: no
       
     - name: establish opt.pth
       lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/"
+      sudo: no
  
     #sudo('mkdir /var/www/static')
     #sudo('chown ubuntu:ubuntu /var/www/static')
@@ -216,6 +238,10 @@
       
     #
     #run('django-admin.py syncdb --migrate --noinput --settings regluit.settings.please')
+
+   #  provide a directory for django log file
+    - name: make /var/log/regluit
+      file: path=/var/log/regluit state=directory owner={{user}} group=www-data mode=2775
 
     #Run syncdb on the application
     # TO DO: syncdb might be deprecated
@@ -312,6 +338,7 @@
       lineinfile: create=yes dest=/opt/regluit/settings/local.py line="SECRET_KEY=u'{{django_secret_key}}'"
       notify:
         - restart apache2
+      sudo: no
 
     #
     #sudo ("/etc/init.d/apache2 restart")
@@ -326,81 +353,88 @@
 
     - name: enable ufw
       ufw: state=enabled
-      
-    #with cd("/opt/regluit"):
-    #
-    #    sudo ("yes | adduser --no-create-home celery --disabled-password --disabled-login")
-    
-    - name: make celery group
-      group: name=celery
-      
-    - name: create celery user
-      user: >
-         name=celery
-         createhome=no
-         group=celery
-         generate_ssh_key=no
 
-    #    sudo ("cp deploy/celeryd /etc/init.d/celeryd")
-    #    sudo ("chmod 755 /etc/init.d/celeryd")         
-    
-    - name: copy deploy/celeryd
+    # create directories for celery
+    # /var/log/celery and /var/run/celery
+
+    - name: create /var/log/celery
+      file: path=/var/log/celery state=directory owner=celery group=celery mode=0775
+
+    - name: create /var/run/celery
+      file: path=/var/run/celery state=directory owner=celery group=celery mode=0775
+
+    # set up celeryd
+
+    - name: set up /etc/init.d/celeryd (from deploy/celeryd)
       command: cp /opt/regluit/deploy/celeryd /etc/init.d/celeryd
     
+    # still need?
     - name: set mode on /etc/init.d/celeryd
       file: path=/etc/init.d/celeryd mode=0755
-    
-    #    sudo ("cp deploy/celeryd.conf /etc/default/celeryd")
-    
+
     - name: copy deploy/celeryd.conf
       command: cp "/opt/regluit/deploy/celeryd_{{class}}.conf" /etc/default/celeryd
     
     - name: set mode on /etc/default/celeryd
-      file: path=/etc/default/celeryd mode=0644    
+      file: path=/etc/default/celeryd mode=0644
+
+    # - name: just before launching celeryd
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
     
-    #    sudo ("mkdir /var/log/celery")
-    - name: make /var/log/celery
-      file: path=/var/log/celery state=directory owner=celery group=celery mode=0755
-      
-    #    sudo ("mkdir /var/run/celery")
-    #    sudo ("chown celery:celery /var/log/celery /var/run/celery")
-    
-    - name: make /var/run/celery
-      file: path=/var/run/celery state=directory owner=celery group=celery mode=0755
-    
+    # start up celeryd
+
     #    sudo ("/etc/init.d/celeryd start")
-    
-    - name: start celeryd
-      command: /etc/init.d/celeryd start
+    # old way with root
+    # - name: start celeryd
+    #   command: /etc/init.d/celeryd start
+
+    # - name: start celery queue with celery multi
+    #   command: /opt/regluit/ENV/bin/django-admin.py celeryd_multi restart w1
+    #   sudo: no
+
+    - name: celeryd_multi
+      django_manage: >
+          command="celeryd_multi restart w1"
+          app_path=/opt/regluit/
+          settings="regluit.settings.{{class}}"
+          virtualenv=/opt/regluit/ENV
+      sudo: no
+
+    # - name: just after attempt to launch celeryd
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
     
     #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
     #    sudo ("chmod 755 /etc/init.d/celerybeat")
     # https://stackoverflow.com/questions/24162996/how-to-move-rename-a-file-using-an-ansible-task-on-a-remote-system
 
+
+    # set up celerybeat
+
     - name: copy deploy/celerybeat
       command: cp /opt/regluit/deploy/celerybeat /etc/init.d/celerybeat
     
     - name: set mode on /etc/init.d/celerybeat
-      file: path=/etc/init.d/celerybeat mode=0755
+      file: path=/etc/init.d/celerybeat mode=0775
     
-    #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
-    
-    - name: copy deploy/celerybeat,conf
+    - name: copy deploy/celerybeat,conf to /etc/default/celerybeat
       command: cp "/opt/regluit/deploy/celerybeat_{{class}}.conf" /etc/default/celerybeat
-    
-    - name: set mode on /etc/default/celerybeat
-      file: path=/etc/default/celerybeat mode=0755
-    
-    #    sudo ("mkdir /var/log/celerybeat")
-    #    sudo ("chown celery:celery /var/log/celerybeat")
 
-    - name: make /var/log/celerybeat
-      file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0755
+    - name: set mode on /etc/default/celerybeat
+      file: path=/etc/default/celerybeat mode=0775
     
-    #    sudo ("/etc/init.d/celerybeat start")
+    - name: create /var/log/celerybeat
+      file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0775
+    
+    # - name: just before launching celerybeat
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+
     - name: start celerybeat
       command: /etc/init.d/celerybeat start
+      sudo: no
       
+    # - name: just after attempt to launch celerybeat
+    #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
+
     # run data loading script
     - name: run data loading script
       script: "load_data_{{class}}.sh"
@@ -409,6 +443,7 @@
     # set up crontab
     - name: crontab 
       command: crontab "/opt/regluit/deploy/crontab_{{class}}.txt"
+      sudo: no
       
     - name: add ssh keys from /opt/regluit/deploy/public_keys/
       authorized_key: user={{user}} key={{ lookup('file', item) }} state=present

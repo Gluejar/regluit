@@ -92,6 +92,11 @@ BROKER_VHOST = "0"
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    'formatters': {
+        'brief': {
+            'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
@@ -100,6 +105,14 @@ LOGGING = {
         'null': {
             'level': 'DEBUG',
             'class': 'logging.NullHandler',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join('/var/log/regluit', 'unglue.it.log'),
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter': 'brief',
         },
     },
     'loggers': {
@@ -110,6 +123,11 @@ LOGGING = {
         },
         'django.security.DisallowedHost': {
             'handlers': ['null'],
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['file'],
+            'level': 'WARNING',
             'propagate': False,
         },
     }
