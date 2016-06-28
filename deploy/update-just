@@ -14,7 +14,7 @@ django-admin.py syncdb --migrate --settings regluit.settings.just
 django-admin.py collectstatic --noinput --settings regluit.settings.just
 
 sudo /etc/init.d/apache2 restart
-sudo /etc/init.d/celeryd restart
-sudo /etc/init.d/celerybeat restart
+django-admin.py celeryd_multi restart w1 --settings=regluit.settings.just;
+/etc/init.d/celerybeat restart
 crontab deploy/crontab_just.txt
 touch /opt/regluit/deploy/last-update

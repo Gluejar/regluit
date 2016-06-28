@@ -13,7 +13,7 @@ source ENV/bin/activate
 django-admin.py syncdb --migrate --settings regluit.settings.please
 django-admin.py collectstatic --noinput --settings regluit.settings.please
 sudo /etc/init.d/apache2 restart
-sudo /etc/init.d/celeryd restart
-sudo /etc/init.d/celerybeat restart
+django-admin.py celeryd_multi restart w1 --settings=regluit.settings.please;
+/etc/init.d/celerybeat restart
 crontab deploy/crontab_please.txt
 touch /opt/regluit/deploy/last-update
