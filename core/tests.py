@@ -109,26 +109,26 @@ class BookLoaderTests(TestCase):
 
     def test_add_by_isbn(self):
         # edition
-        edition = bookloader.add_by_isbn('9780444899743')
-        self.assertEqual(edition.title, 'Computers, Communication and Usability')
-        self.assertEqual(edition.publication_date, u'1993')
-        self.assertEqual(edition.publisher, u'North Holland')
-        self.assertEqual(edition.isbn_10, '044489974X')
-        self.assertEqual(edition.isbn_13, '9780444899743')
-        self.assertEqual(edition.googlebooks_id, '0bBQAAAAYAAJ')
+        edition = bookloader.add_by_isbn('9781594200090')
+        self.assertEqual(edition.title, u'Alexander Hamilton')
+        self.assertEqual(edition.publication_date, u'2004')
+        self.assertEqual(edition.publisher, u'Perseus Books Group')
+        self.assertEqual(edition.isbn_10, '1594200092')
+        self.assertEqual(edition.isbn_13, '9781594200090')
+        self.assertEqual(edition.googlebooks_id, 'y1_R-rjdcb0C')
 
         # authors
-        self.assertEqual(edition.authors.all().count(), 3)
-        self.assertEqual(edition.authors.all()[0].name, 'Paul Byerley')
+        self.assertEqual(edition.authors.all().count(), 1)
+        self.assertEqual(edition.authors.all()[0].name, u'Ron Chernow')
 
         # work
         self.assertTrue(edition.work)
-        self.assertEqual(edition.work.googlebooks_id, '0bBQAAAAYAAJ')
-        self.assertEqual(edition.work.first_isbn_13(), '9780444899743')
+        self.assertEqual(edition.work.googlebooks_id, 'y1_R-rjdcb0C')
+        self.assertEqual(edition.work.first_isbn_13(), '9781594200090')
         
         # test duplicate pubname 
         ed2 = Edition.objects.create(work=edition.work)
-        ed2.set_publisher('North Holland')
+        ed2.set_publisher(u'Perseus Books Group')
         
         # publisher names
         old_pub_name = edition.publisher_name
@@ -139,8 +139,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.publishers().count(), 1)
         old_pub_name.publisher = pub
         old_pub_name.save()
-        edition.set_publisher(u'North Holland')
-        self.assertEqual(edition.publisher, u'test publisher name') # North Holland has been aliased
+        edition.set_publisher(u'Perseus Books Group')
+        self.assertEqual(edition.publisher, u'test publisher name') # Perseus has been aliased
 
     @unittest.expectedFailure
     def test_language_locale(self):
@@ -291,7 +291,7 @@ class BookLoaderTests(TestCase):
         
         # RY switched to Atwood's Handmaid's Tale for hopefully longer term resilience for this test
         isbn1 = '9780395404256'
-        isbn2 = '9780771008795'
+        isbn2 = '9780547345666'
         e1 = bookloader.add_by_isbn(isbn1)
         e2 = bookloader.add_by_isbn(isbn2)
         self.assertTrue(e1)
