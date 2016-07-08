@@ -785,13 +785,6 @@ class CCForm(UserCCMixin, BaseCCForm):
 
 class AccountCCForm( BaseCCMixin, UserCCMixin, forms.Form):
     pass
-
-class DonateForm(forms.Form):
-    preapproval_amount = forms.DecimalField( widget=forms.HiddenInput() )
-    username = forms.CharField(max_length=30, required=True, widget=forms.HiddenInput() )
-    work_id = forms.IntegerField(required=False,  widget=forms.HiddenInput() )
-    title = forms.CharField(max_length=200, required=False, widget=forms.HiddenInput() )
-    
     
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(

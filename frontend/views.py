@@ -94,7 +94,6 @@ from regluit.frontend.forms import (
     LibraryThingForm,
     OpenCampaignForm,
     getManageCampaignForm,
-    DonateForm,
     CampaignAdminForm,
     EmailShareForm,
     FeedbackForm,
@@ -1167,8 +1166,7 @@ class GiftView(TemplateView):
         return self.render_to_response(context)
         
     def get_context_data(self, *args, **kwargs):
-        context = {'user' : self.request.user,'nonprofit': settings.NONPROFIT}
-        context['donate_form'] = DonateForm(initial={'username':self.request.user.username})
+        context = {'user' : self.request.user}
         return context
         
 class PledgeView(FormView):
@@ -1250,7 +1248,6 @@ class PledgeView(FormView):
         """set up the pledge page"""
         
         context = super(PledgeView, self).get_context_data(**kwargs)
-        context['nonprofit'] = settings.NONPROFIT
               
         context.update({
                 'work':self.work,
@@ -1426,14 +1423,8 @@ class FundView(FormView):
         context['preapproval_amount']=self.transaction.max_amount
         context['needed'] = self.transaction.needed_amount
         context['transaction']=self.transaction
-        context['nonprofit'] = settings.NONPROFIT
         context['STRIPE_PK'] = stripelib.STRIPE_PK
         context['action'] = self.action
-        if settings.NONPROFIT.is_on:
-            # note that get_form_kwargs() will already have been called once
-            donate_args=self.get_form_kwargs()
-            donate_args['data']['preapproval_amount']=self.transaction.needed_amount
-            context['donate_form'] = DonateForm(**donate_args)
         return context
         
     def form_valid(self, form):
@@ -1480,42 +1471,12 @@ class FundView(FormView):
         else:
             return render(self.request, "pledge_card_error.html", {'transaction': self.transaction }) 
         
-class NonprofitCampaign(FormView):
-    template_name="nonprofit.html"
-    form_class = CCForm
-    
-    def get_context_data(self, **kwargs):
-        context = super(NonprofitCampaign, self).get_context_data(**kwargs)
-        context['nonprofit'] = settings.NONPROFIT
-        context['get'] = self.request.GET
-        return context
-
-    def get_form_kwargs(self):
-        if self.request.method == 'POST':
-            return {'data':self.request.POST}
-        else:
-            return {'initial':self.request.GET }
-
-        
-
-    def form_valid(self, form):
-        username=form.cleaned_data['username']
-        forward={'username':username}
-        forward['work_id']= form.cleaned_data['work_id']
-        amount=form.cleaned_data['preapproval_amount']
-        forward['cents']=int(100*(amount-int(amount)))
-        forward['amount']= int(amount)
-        forward['sent']= Sent.objects.create(user=username,amount=form.cleaned_data['preapproval_amount']).pk
-        token=signing.dumps(forward)
-        return HttpResponseRedirect(settings.BASE_URL_SECURE + reverse('gift_credit',kwargs={'token':token}))
-
 class GiftCredit(TemplateView):
     template_name="gift_credit.html"
 
     def get_context_data(self, **kwargs):
         context = super(GiftCredit, self).get_context_data(**kwargs)
         context['faqmenu']="gift"
-        context['nonprofit'] = settings.NONPROFIT
         try:
             envelope=signing.loads(kwargs['token'])
             context['envelope']=envelope

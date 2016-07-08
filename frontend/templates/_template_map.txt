@@ -100,9 +100,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
         bypub_list.html
     
     
-nonprofit_base.html    extra_extra_head
-    nonprofit.html    extra_extra_head
-
 book_panel_addbutton.html
 cardform.html
 cardscripts.html  
