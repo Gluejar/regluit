@@ -89,11 +89,19 @@ def work_node(work, facet=None):
         link_node = etree.Element("link")
         
         # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-        link_rel = "http://opds-spec.org/acquisition/open-access" if ebook.is_direct() else "http://opds-spec.org/acquisition"
+        link_rel = "http://opds-spec.org/acquisition/open-access" 
         link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
-                                 "type":FORMAT_TO_MIMETYPE.get(ebook.format, ""),
-                                 "rel":link_rel,
-                                 "{http://purl.org/dc/terms/}rights": str(ebook.rights)})
+                                     "rel":link_rel,
+                                     "{http://purl.org/dc/terms/}rights": str(ebook.rights)})
+        if ebook.is_direct(): 
+            link_node.attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
+        else:
+            """ indirect acquisition, i.e. google books """
+            link_node.attrib["type"] = "text/html"
+            indirect = etree.Element("{http://opds-spec.org/}indirectAcquisition",)
+            indirect.attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
+            link_node.append(indirect)
+            
         node.append(link_node)
         
     # get the cover -- assume jpg?

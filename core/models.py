@@ -2131,7 +2131,7 @@ class Ebook(models.Model):
         return settings.BASE_URL_SECURE + reverse('download_ebook',args=[self.id])
 
     def is_direct(self):
-        return self.provider!='Google Books'
+        return self.provider not in ('Google Books', 'Project Gutenberg')
     
     def __unicode__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
