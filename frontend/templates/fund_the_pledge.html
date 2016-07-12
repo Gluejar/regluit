@@ -15,42 +15,6 @@
 <div class="jsmodule rounded clearfix central">
     <div class="jsmod-content">
     
-    {% if nonprofit.is_on %}
-
-        <div class="fund_options clearfix">
-            <div id="donate_area">
-                <form method="GET" action="{{ nonprofit.link }}">
-                    {{ donate_form.non_field_errors }}
-                    {{ donate_form }}
-                    <input name="donate_submit" type="submit" value="Donate" id="donate_submit" class="loader-gif" />
-                </form>
-            </div>
-            <div id="pledge_area">    	
-                <a class="fakeinput" id="pledge_option">{{ action|capfirst  }}</a>
-            </div>
-        </div>
-        
-        <div class="fund_options clearfix">
-            <div id="donate_explanation">
-                <ul>
-                    <li>Donate to our partner nonprofit, {{ nonprofit.name }}</li>
-                    <li>Pay immediately</li>
-                    <li>If the campaign succeeds, your gift will support it</li>
-                    <li>If not, your gift will support {{ nonprofit.name }}</li>
-                    <li><a href="#">Learn more</a></li>
-                </ul>
-            </div>
-            <div id="pledge_explanation">
-                <ul>
-                    <li>Pledge toward this campaign</li>
-                    <li>Pay later, only if this campaign succeeds</li>
-                    <li>Your pledge will be used only to support this campaign.</li>
-                    <li><a href="#">Learn more</a></li>
-                </ul>
-            </div>
-        </div>
-    
-    {% endif %}
     
     {% include 'cardform.html' %}
 

@@ -188,9 +188,6 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     setup_selenium()
     
-    # this assumes that we don't have donation functionality on
-    assert settings.NONPROFIT.is_on == False
-
     sel = selenium_driver(browser=browser)
 
     time.sleep(5)

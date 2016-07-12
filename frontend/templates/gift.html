@@ -39,23 +39,6 @@ You may transfer up to {{ user.credit.available }} gift credits to another Unglu
 </form>
 </div>
 <div class="clearfix">
-<h2>About Gift Credits</h2>
-{% if nonprofit.is_on %}
-    <p>Unglue.it uses donation credits to cooperate with a non-profit charity, {{ nonprofit.name }} in the ungluing of books. When you make a donation to {{ nonprofit.name }}, you can get credits for your donation. Then you can direct how {{ nonprofit.name }} uses your donation in support of ungluing campaigns. You can also transfer your credits to other ungluers. To make a donation, and receive credits, click the button!
-    </p>
-    	<div id="donate_charity">
-
-    	<form method="GET" action="{{nonprofit.link}}">
-			{{ donate_form.non_field_errors }}
-			{{donate_form}}
-			<input name="donate_submit" type="submit" value="Go Donate!" id="donate_submit" />
-    	</form>
-	
-	    </div>
-</div>    
-{% else %}
-    <p>Gift credits are not turned on yet.</p>
-{% endif %}
 {% endblock %}
 
 
