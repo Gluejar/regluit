@@ -1337,7 +1337,9 @@ class PurchaseView(PledgeView):
             'offer_id': self.offer_id,
             }
         if self.request.method  == 'POST':
-            self.data.update(self.request.POST.dict())
+            data = self.request.POST.dict()
+            data.update(self.data)
+            self.data = data
             self.data['give'] = self.give
             if not self.request.POST.has_key('anonymous'):
                 del self.data['anonymous']
