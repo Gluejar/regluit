@@ -36,12 +36,13 @@ GRANTS = tuple([(item[0],item[3]) for item in INFO_ALL])
 
 LICENSE_LIST =  [item[0] for item in INFO_CC]
 LICENSE_LIST_ALL =  [item[0] for item in INFO_ALL]
+LICENSE_NAMES_ALL = [item[2] for item in INFO_ALL]
+LICENSE_URLS_ALL = [item[3] for item in INFO_ALL]
 FACET_LIST = [item[1] for item in INFO_ALL] 
 
 RIGHTS_ALIAS = {
     "Public domain in the USA.":"PD-US",
     }
-
 
 class CCLicense():
     @staticmethod
@@ -146,3 +147,18 @@ def license_value(facet):
         return LICENSE_LIST_ALL[FACET_LIST.index(facet)]
     else:
         return ''
+
+def match_license(license_string):
+    if license_string in LICENSE_LIST_ALL:
+        return license_string
+    try:
+        l = LICENSE_NAMES_ALL.index(license_string)
+        return INFO_ALL[l][0]
+    except ValueError:
+        pass
+    try:
+        l = LICENSE_URLS_ALL.index(license_string)
+        return INFO_ALL[l][0]
+    except ValueError:
+        pass
+    return RIGHTS_ALIAS.get(license_string, None)
