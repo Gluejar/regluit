@@ -898,7 +898,7 @@ def load_from_yaml(yaml_url, test_mode=False):
                     url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=book_name_prefix,
                                                    format_= ebook_format),
                     provider='Github',
-                    rights = metadata.rights if metadata.rights in cc.LICENSE_LIST_ALL else None,
+                    rights = cc.match_license(metadata.rights),
                     format = ebook_format,
                     edition = edition,
                     # version = metadata._version

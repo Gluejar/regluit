@@ -502,6 +502,18 @@ def add_subject(subject_name,work, authority=''):
         subject=models.Subject.objects.create(name=subject_name, authority=authority)
     subject.works.add(work)
 
+def user_can_edit_work(user,work):
+    if user.is_staff :
+        return True
+    elif work and work.last_campaign():
+        return user in work.last_campaign().managers.all()
+    elif user.rights_holder.count() and (work == None or not work.last_campaign()): # allow rights holders to edit unless there is a campaign
+        return True
+    else:
+        return False
+    
+
+
 @login_required
 def new_edition(request, work_id, edition_id, by=None):
     if not request.user.is_authenticated() :
@@ -519,14 +531,7 @@ def new_edition(request, work_id, edition_id, by=None):
         work=None
     
     alert = ''  
-    admin = False
-    if request.user.is_staff :
-        admin = True
-    elif work and work.last_campaign():
-        if request.user in work.last_campaign().managers.all():
-            admin = True
-    elif request.user.rights_holder.count() and (work == None or not work.last_campaign()): # allow rights holders to edit unless there is a campaign
-        admin = True
+    admin = user_can_edit_work(request.user, work)
     if edition_id:
         try:
             edition = models.Edition.objects.get(id = edition_id)
@@ -2282,7 +2287,7 @@ def kw_edit(request, work_id):
     work = safe_get_work(work_id)
     remove_kw = request.POST.get('remove_kw', None)
     add_form = request.POST.get('kw_add', False) # signal to process form
-    if request.user.is_staff or request.user in work.last_campaign().managers.all():
+    if user_can_edit_work(request.user, work):
         if remove_kw:
             try:
                 subject = models.Subject.objects.get(name=remove_kw)
