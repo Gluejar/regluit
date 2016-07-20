@@ -36,7 +36,8 @@ django-mptt==0.7.4
 django-nose-selenium==0.7.3
 #django-notification==0.2
 git+git://github.com/eshellman/django-notification.git@8bb7afbbb07e8cad74bc1cf17e0ac6fc117c0497
-django-registration==1.0
+#django-registration==1.0
+git+git://github.com/eshellman/django-registration.git@42969216d38a83424f16f46dd49ea6b38062862c
 django-selectable==0.9.0
 django-smtp-ssl==1.0
 django-storages==1.1.6
