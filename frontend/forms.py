@@ -323,6 +323,7 @@ class RightsHolderForm(forms.ModelForm):
         )
     class Meta:
         model = RightsHolder
+        exclude = ()
 
     def clean_rights_holder_name(self):
         rights_holder_name = self.data["rights_holder_name"]
@@ -853,6 +854,7 @@ class MsgForm(forms.Form):
 class PressForm(forms.ModelForm):
     class Meta:
         model = Press
+        exclude = ()
 
         widgets = { 
                 'date': SelectDateWidget(years=range(2010,2025)),

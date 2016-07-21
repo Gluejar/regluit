@@ -100,6 +100,7 @@ class cardnum:
         class Meta:
             model = LibraryUser
             widgets = { 'library': forms.HiddenInput, 'user': forms.HiddenInput }
+            exclude = ()
 class email:  
     def authenticate(self,request, library):
         if request.user.is_anonymous():

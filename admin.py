@@ -67,6 +67,7 @@ class ClaimAdminForm(forms.ModelForm):
         )
     class Meta(object):
         model = models.Claim
+        exclude = ()
 
 class ClaimAdmin(ModelAdmin):
     list_display = ('work', 'rights_holder', 'status')
@@ -81,6 +82,7 @@ class RightsHolderAdminForm(forms.ModelForm):
         )
     class Meta(object):
         model = models.RightsHolder
+        exclude = ()
 
 class RightsHolderAdmin(ModelAdmin):
     date_hierarchy = 'created'
@@ -143,6 +145,7 @@ class EditionAdminForm(forms.ModelForm):
         )
     class Meta(object):
         model = models.Edition
+        exclude = ()
         
 class EditionAdmin(ModelAdmin):
     list_display = ('title', 'publisher_name', 'created')
@@ -160,6 +163,7 @@ class PublisherAdminForm(forms.ModelForm):
 
     class Meta(object):
         model = models.Publisher
+        exclude = ()
         
 class PublisherAdmin(ModelAdmin):
     list_display = ('name', 'url', 'logo_url', 'description')
@@ -237,6 +241,7 @@ class MARCRecordAdminForm(forms.ModelForm):
         )
     class Meta(object):
         model = MARCRecord
+        exclude = ()
 
 class MARCRecordAdmin(ModelAdmin):
     list_display = ('edition', 'user')
