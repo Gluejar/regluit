@@ -159,7 +159,6 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
-    'regluit.payment.templatetags',
     'notification',
     'email_change',
     'ckeditor',
