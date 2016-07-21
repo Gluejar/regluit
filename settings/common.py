@@ -143,7 +143,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django_comments',
     'django.contrib.humanize',
-    'south',
     'django_extensions',
     'regluit.frontend',
     'regluit.api',
@@ -310,8 +309,6 @@ LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
-SOUTH_TESTS_MIGRATE = True
-
 AUTH_PROFILE_MODULE = "core.UserProfile"
 
 # The amount of the transaction that Gluejar takes 
@@ -467,13 +464,6 @@ DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
 # for reading GITenberg releases
 # generated from rdhyee account
 GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
-
-# https://github.com/celery/django-celery/blob/master/docs/introduction.rst#for-django-17-and-newer
-SOUTH_MIGRATION_MODULES = {
-    'default': 'social.apps.django_app.default.south_migrations',
-    'tastypie': 'tastypie.south_migrations',
-    'djcelery': 'djcelery.south_migrations',
-}
 
 MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
 MOBIGEN_USER_ID = "admin"

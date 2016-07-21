@@ -7,7 +7,6 @@ PyPDF2==1.23
 PyGithub==1.15.0
 PyYAML==3.11
 git+git://github.com/urschrei/pyzotero.git@v0.9.51
-South==0.8.4
 SPARQLWrapper==1.6.4
 WebOb==1.2.3
 WebTest==1.4.0

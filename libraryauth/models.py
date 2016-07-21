@@ -205,6 +205,10 @@ class IPAddressModelField(models.IPAddressField):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
         return super(models.IPAddressField, self).formfield(**defaults)
+        
+    def deconstruct(self):
+        name, path, args, kwargs = super(models.IPAddressField, self).deconstruct()
+        return name, path, args, kwargs
 
 class Block(models.Model):
     library = models.ForeignKey(Library, related_name='ip_auths')
@@ -229,10 +233,6 @@ class Block(models.Model):
     class Meta:
         ordering = ['lower',]
 
-
-from south.modelsinspector import add_introspection_rules
-escaped_package= __name__.replace('.', '\.')
-add_introspection_rules([], ['^' + escaped_package + '\.IPAddressModelField'])
 
 # from http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
 def luhn_checksum(card_number):

@@ -105,7 +105,7 @@ class Key(models.Model):
         return "Key with name {0}".format(self.name)
     
 class CeleryTask(models.Model):
-    created = models.DateTimeField(auto_now_add=True, default=now())
+    created = models.DateTimeField(auto_now_add=True)
     task_id = models.CharField(max_length=255)
     user =  models.ForeignKey(User, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
@@ -259,8 +259,7 @@ class Acq(models.Model):
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     expires = models.DateTimeField(null=True)
-    refreshes = models.DateTimeField(auto_now_add=True, default=now())
-    refreshes.editable=True
+    refreshes = models.DateTimeField(auto_now_add=True)
     refreshed = models.BooleanField(default=True)
     work = models.ForeignKey("Work", related_name='acqs', null=False)
     user = models.ForeignKey(User, related_name='acqs')
