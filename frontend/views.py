@@ -29,7 +29,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import login,password_reset, redirect_to_login
-from django.contrib.comments import Comment
+from django_comments.models import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist, ValidationError

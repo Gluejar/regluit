@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     url(r'^bisac/', include('regluit.bisac.urls')),
     url(r'^selectable/', include('selectable.urls')),
     url(r'^admin/', include(admin_site.urls)), 
-    url(r'^comments/', include('django.contrib.comments.urls')),
+    url(r'^comments/', include('django_comments.urls')),
     url(r"^notification/", include('notification.urls')),
     url(r'^ckeditor/', include('ckeditor.urls')),
     # questionnaire urls

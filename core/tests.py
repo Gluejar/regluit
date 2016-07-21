@@ -17,7 +17,7 @@ django imports
 """
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sites.models import Site
 from django.core.files import File as DjangoFile

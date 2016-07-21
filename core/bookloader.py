@@ -16,7 +16,7 @@ from urlparse import (urljoin, urlparse)
 django imports
 """
 from django.conf import settings
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from django.db import IntegrityError
 from django.db.models import Q
 
