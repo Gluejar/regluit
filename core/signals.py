@@ -61,7 +61,7 @@ post_save.connect(create_api_key, sender=User)
 
 # create notification types (using django-notification) -- tie to syncdb
 
-def create_notice_types(app, created_models, verbosity, **kwargs):
+def create_notice_types( **kwargs):
     notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("A comment has been received on a book that you've commented on."))
     notification.create_notice_type("wishlist_comment", _("Book List Comment"), _("A comment has been received on one of your books."), default = 1)
     notification.create_notice_type("wishlist_official_comment", _("Book List Comment"), _("The author or publisher, or and Unglue.it staffer, has commented on one of your faves."))
@@ -101,7 +101,7 @@ signals.post_syncdb.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
 
-from django.contrib.comments.signals import comment_was_posted
+from django_comments.signals import comment_was_posted
 
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
