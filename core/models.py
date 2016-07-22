@@ -107,7 +107,7 @@ class Key(models.Model):
 class CeleryTask(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     task_id = models.CharField(max_length=255)
-    user =  models.ForeignKey(User, related_name="tasks", null=True) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
     function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
@@ -142,7 +142,7 @@ class Claim(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
-    user =  models.ForeignKey(User, related_name="claim", null=False ) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="claim", null=False ) 
     status = models.CharField(max_length=7, choices=STATUSES, default='active')
     
     @property
@@ -189,7 +189,7 @@ class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=False)
-    owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    owner =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="rights_holder", null=False )
     can_sell = models.BooleanField(default=False)
     def __unicode__(self):
         return self.rights_holder_name
@@ -262,7 +262,7 @@ class Acq(models.Model):
     refreshes = models.DateTimeField(auto_now_add=True)
     refreshed = models.BooleanField(default=True)
     work = models.ForeignKey("Work", related_name='acqs', null=False)
-    user = models.ForeignKey(User, related_name='acqs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
     watermarked = models.ForeignKey("booxtream.Boox",  null=True)
@@ -388,7 +388,7 @@ post_save.connect(config_acq,sender=Acq)
 class Hold(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     work = models.ForeignKey("Work", related_name='holds', null=False)
-    user = models.ForeignKey(User, related_name='holds', null=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='holds', null=False)
     library = models.ForeignKey(Library, related_name='holds', null=False)
 
     def __unicode__(self):
@@ -412,7 +412,7 @@ class Campaign(models.Model):
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
-    managers = models.ManyToManyField(User, related_name="campaigns", null=False)
+    managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED", db_index=True,)
     type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
@@ -1701,7 +1701,7 @@ class Work(models.Model):
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255, unique=True)
-    editions = models.ManyToManyField("Edition", related_name="authors")
+    editions = models.ManyToManyField("Edition", related_name="authors", through="Relator")
 
     def __unicode__(self):
         return self.name
@@ -1983,7 +1983,7 @@ class WasWork(models.Model):
     work = models.ForeignKey('Work')
     was = models.IntegerField(unique = True)
     moved = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
 def safe_get_work(work_id):
     """
@@ -2042,7 +2042,7 @@ class Ebook(models.Model):
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
     def kindle_sendable(self):
         if not self.filesize or self.filesize < send_to_kindle_limit:
@@ -2168,7 +2168,7 @@ pre_delete.connect(reset_free_flag,sender=Ebook)
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(User, related_name='wishlist')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
     def __unicode__(self):
@@ -2232,7 +2232,7 @@ ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = (0, 1, 2, 3, 4)
 
 class Libpref(models.Model):
-    user = models.OneToOneField(User, related_name='libpref')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='libpref')
     marc_link_target = models.CharField(
         max_length=6,
         default = 'UNGLUE', 
@@ -2243,7 +2243,7 @@ class Libpref(models.Model):
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(User, related_name='profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
     pic_url = models.URLField(blank=True) 
     home_url = models.URLField(blank=True)

@@ -4,7 +4,6 @@ from datetime import datetime
 from StringIO import StringIO
 
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 
 from . import load
@@ -93,7 +92,7 @@ class MARCRecord(models.Model):
     # note capitalization of related_name
     edition = models.ForeignKey(EDITION_MODEL, related_name="MARCRecords", null=True)
     
-    user =  models.ForeignKey(User, related_name="MARCRecords", null=True ) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="MARCRecords", null=True ) 
     created =  models.DateTimeField(auto_now_add=True)  
 
 

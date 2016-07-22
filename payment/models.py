@@ -101,7 +101,7 @@ class Transaction(models.Model):
     date_expired = models.DateTimeField(null=True)
     
     # associated User, Campaign, and Premium for this Transaction
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     campaign = models.ForeignKey('core.Campaign', null=True)
     premium = models.ForeignKey('core.Premium', null=True)
     offer = models.ForeignKey('core.Offer', null=True)
@@ -263,7 +263,7 @@ class Receiver(models.Model):
 
 class CreditLog(models.Model):
     # a write only record of Gift Credit Transactions
-    user = models.ForeignKey(User, null=True) 
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True) 
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=16)
@@ -271,7 +271,7 @@ class CreditLog(models.Model):
     sent=models.IntegerField(null=True)
     
 class Credit(models.Model):
-    user = models.OneToOneField(User, related_name='credit')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='credit')
     balance = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     pledged = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     last_activity = models.DateTimeField(auto_now=True)
@@ -385,7 +385,7 @@ class Account(models.Model):
     date_deactivated = models.DateTimeField(null=True)
     
     # associated User if any
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
     
     # status variable
     status = models.CharField(max_length=11, choices=STATUS_CHOICES, null=False, default='ACTIVE')

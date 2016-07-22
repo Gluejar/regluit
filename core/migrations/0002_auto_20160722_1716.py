@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='author',
             name='editions',
-            field=models.ManyToManyField(related_name='authors', to='core.Edition'),
+            field=models.ManyToManyField(related_name='authors', through='core.Relator', to='core.Edition'),
         ),
         migrations.AddField(
             model_name='acq',

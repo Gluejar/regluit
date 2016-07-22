@@ -24,7 +24,7 @@ certifi==2015.04.28
 django-celery==3.1.17
 django-ckeditor==4.5.1
 #django-email-change==0.2.3
-git+git://github.com/eshellman/django-email-change.git@06b97124cf971dc71b9d3c4b5c4fba3c53e31e9a
+git+git://github.com/eshellman/django-email-change.git@e5076a9a2c9a9b61b58cea7e461c8368af07b2ad
 django-compat==1.0.10
 django-contrib-comments==1.7.1
 django-endless-pagination==2.0
