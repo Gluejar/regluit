@@ -8,7 +8,7 @@ from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView, CreateView, UpdateView, SingleObjectMixin
-from registration.backends.default.views import RegistrationView
+from registration.backends.model_activation.views import RegistrationView
 from . import backends
 from .models import Library
 from .forms import AuthForm, LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail
@@ -240,11 +240,11 @@ robot_qs = {
             
 class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormNoDisposableEmail
-    def form_valid(self, request, form):
-        q =  request.session.get('q', False)
+    def form_valid(self, form):
+        q =  self.request.session.get('q', False)
         if q and q in robot_qs:
             return self.render_to_response({'form':form})
-        return super(CustomRegistrationView,self).form_valid(request, form)
+        return super(CustomRegistrationView,self).form_valid(form)
         
     
     
