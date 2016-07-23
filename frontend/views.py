@@ -2070,11 +2070,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
 
-        try:
-            profile_obj=request.user.get_profile()
-        except ObjectDoesNotExist:
-            profile_obj= models.UserProfile()
-            profile_obj.user=request.user
+        profile_obj=request.user.profile
 
         if  request.method == 'POST': 
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)

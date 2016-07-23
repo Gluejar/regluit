@@ -309,8 +309,6 @@ LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
-AUTH_PROFILE_MODULE = "core.UserProfile"
-
 # The amount of the transaction that Gluejar takes 
 GLUEJAR_COMMISSION = 0.06
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
