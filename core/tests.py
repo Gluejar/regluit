@@ -75,6 +75,7 @@ YAML_VERSIONFILE = os.path.join(os.path.dirname(__file__), '../test/versiontest.
 YAML_HUCKFILE = os.path.join(os.path.dirname(__file__), '../test/raw/master/metadata.yaml')
 
 class BookLoaderTests(TestCase):
+    fixtures = ['initial_data.json']
     def setUp(self):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
@@ -663,7 +664,7 @@ class CampaignTests(TestCase):
         self.assertEqual(c1.launchable, True)
 
 class WishlistTest(TestCase):
-
+    fixtures = ['initial_data.json']
     def test_add_remove(self):
         # add a work to a user's wishlist
         user = User.objects.create_user('test', 'test@example.org', 'testpass')
@@ -1097,6 +1098,7 @@ class GitHubTests(TestCase):
         self.assertEqual(set(ebooks), expected_set)
 
 class OnixLoaderTests(TestCase):
+    fixtures = ['initial_data.json']
     def test_load(self):
         TEST_BOOKS = [{'': u'',
              'Author1First': u'Joseph',

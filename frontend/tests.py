@@ -13,6 +13,7 @@ from decimal import Decimal as D
 django imports
 """
 from django.conf import settings
+from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -31,7 +32,7 @@ from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, c
 from regluit.utils.localdatetime import now
 
 class WishlistTests(TestCase):
-
+    fixtures = ['initial_data.json']
     def setUp(self):
         self.user = User.objects.create_user('test', 'test@example.org', 'test')
         self.client = Client()
@@ -216,6 +217,7 @@ class CampaignUiTests(TestCase):
         pass
     
 class PledgingUiTests(TestCase):
+    fixtures = ['initial_data.json']
     def setUp(self):
         self.USERNAME = 'testname'
         self.PASSWORD = 'testpw'
@@ -226,7 +228,11 @@ class PledgingUiTests(TestCase):
         # login and heck whether user logged in
         self.assertTrue(self.client.login(username=self.USERNAME, password=self.PASSWORD))
         # http://stackoverflow.com/a/6013115
-        self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)        
+        #self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)  
+        
+        user = auth.get_user(self.client)
+        assert user.is_authenticated()
+      
         
         # load a Work by putting it on the User's wishlist
         r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
