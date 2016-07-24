@@ -714,13 +714,11 @@ def manage_campaign(request, id, action='manage'):
 
     if request.method == 'POST' :
         if request.POST.has_key('add_premium') :
-            postcopy=request.POST.copy()
-            postcopy['type']='CU'
-            new_premium_form = CustomPremiumForm(data=postcopy)
+            new_premium_form = CustomPremiumForm(data=request.POST)
             if new_premium_form.is_valid():
                 new_premium_form.save()
                 alerts.append(_('New premium has been added'))
-                new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+                new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
             else:
                 alerts.append(_('New premium has not been added'))              
             form = getManageCampaignForm(instance=campaign)
@@ -764,7 +762,7 @@ def manage_campaign(request, id, action='manage'):
                         selected_premium.save()
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
             form = getManageCampaignForm(instance=campaign)
-            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+            new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
         elif request.POST.has_key('change_offer'):
             for offer in offers :
                 if request.POST.has_key('offer_%d-work' % offer.id) :
@@ -786,7 +784,7 @@ def manage_campaign(request, id, action='manage'):
         elif action =='mademobi':    
             alerts.append('A MOBI file is being generated')
         form = getManageCampaignForm(instance=campaign, initial={'work_description':campaign.work.description})
-        new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
         
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 

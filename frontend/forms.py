@@ -495,6 +495,9 @@ class CustomPremiumForm(forms.ModelForm):
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
                 'limit': forms.TextInput(attrs={'value':'0'}),
             }
+    def clean_type(self):
+        return 'CU'
+        
 class OfferForm(forms.ModelForm):
 
     class Meta:
