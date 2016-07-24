@@ -12,10 +12,11 @@ django imports
 """
 import django.dispatch
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.db.models import get_model, signals
+from django.db.models import signals
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import Signal
@@ -41,8 +42,8 @@ def create_user_objects(sender, created, instance, **kwargs):
     # don't create Wishlist or UserProfile if we are loading fixtures http://stackoverflow.com/a/3500009/7782
     if not kwargs.get('raw', False):
         try:
-            Wishlist = get_model('core', 'Wishlist')
-            UserProfile = get_model('core', 'UserProfile')
+            Wishlist = apps.get_model('core', 'Wishlist')
+            UserProfile = apps.get_model('core', 'UserProfile')
             if created:
                 Wishlist.objects.create(user=instance)
                 profile = UserProfile.objects.create(user=instance)
@@ -164,7 +165,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         notification.send([transaction.user], "pledge_charged", context, True)
     elif transaction.campaign.type is BUY2UNGLUE:
         # provision the book
-        Acq = get_model('core', 'Acq')
+        Acq = apps.get_model('core', 'Acq')
         if transaction.offer.license == LIBRARY:
             library = Library.objects.get(id=transaction.extra['library_id'])
             new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
@@ -178,7 +179,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         else:
             if transaction.extra.get('give_to', False):
                 # it's a gift!
-                Gift = get_model('core', 'Gift')
+                Gift = apps.get_model('core', 'Gift')
                 giftee = Gift.giftee(transaction.extra['give_to'], str(transaction.id))
                 new_acq = Acq.objects.create(user=giftee, work=transaction.campaign.work, license= transaction.offer.license)
                 gift = Gift.objects.create(acq=new_acq, message=transaction.extra.get('give_message',''), giver=transaction.user , to = transaction.extra['give_to'])
@@ -194,7 +195,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             transaction.campaign.update_status(send_notice=True)
     elif transaction.campaign.type is THANKS:
         if transaction.user:
-            Acq = get_model('core', 'Acq')
+            Acq = apps.get_model('core', 'Acq')
             new_acq = Acq.objects.create(user=transaction.user, work=transaction.campaign.work, license=THANKED)
             notification.send([transaction.user], "purchase_complete", context, True)
         elif transaction.receipt:

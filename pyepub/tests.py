@@ -106,7 +106,7 @@ class EpubTests(unittest.TestCase):
         epub.close()
         epub=EPUB(f,mode='r')
         self.assertEqual(len(epub.opf),4)
-        self.assertEqual(len(epub.opf[0]),5) #metadata items
+        self.assertEqual(len(epub.opf[0]),6) #metadata items
         self.assertEqual(len(epub.opf[1]),2) #manifest items
         self.assertEqual(len(epub.opf[2]),1) #spine items
         self.assertEqual(len(epub.opf[3]),0) #guide items

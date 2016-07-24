@@ -3,6 +3,7 @@ import logging
 from datetime import datetime
 from StringIO import StringIO
 
+from django.apps import apps
 from django.conf import settings
 from django.db import models
 
@@ -205,7 +206,7 @@ class MARCRecord(models.Model):
 def import_records(marcfile):
 
     class RecordLoader(pymarc.XmlHandler):
-        Edition = models.get_model(*EDITION_MODEL.split('.'))
+        Edition = apps.get_model(*EDITION_MODEL.split('.'))
         num_loaded=0
         def process_record(self, record):
             try:

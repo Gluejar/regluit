@@ -25,6 +25,7 @@ from tempfile import SpooledTemporaryFile
 '''
 django imports
 '''
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -32,7 +33,7 @@ from django.contrib.contenttypes.generic import GenericRelation
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db import models
-from django.db.models import F, Q, get_model
+from django.db.models import F, Q
 from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
 '''
@@ -206,11 +207,11 @@ class Premium(models.Model):
 
     @property
     def premium_count(self):
-        t_model=get_model('payment','Transaction')
+        t_model=apps.get_model('payment','Transaction')
         return t_model.objects.filter(premium=self).count()
     @property
     def premium_remaining(self):
-        t_model=get_model('payment','Transaction')
+        t_model=apps.get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
     def  __unicode__(self):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)

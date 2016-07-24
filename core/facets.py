@@ -1,4 +1,4 @@
-from django.db.models import get_model
+from django.apps import apps
 from regluit.core import cc
 
   
@@ -8,7 +8,7 @@ class BaseFacet(object):
     
     def __init__(self, outer_facet):
         self.outer_facet = outer_facet if outer_facet else None
-        self.model = get_model('core', 'Work')
+        self.model = apps.get_model('core', 'Work')
     
     def _get_query_set(self):
         if self.outer_facet:
@@ -221,7 +221,7 @@ class PublisherFacetGroup(FacetGroup):
                 self.facet_name=facet_name
                 # facet_names of the form 'pub.PUB_ID' and PUB_ID is therefore the 5th character on
                 self.pub_id=self.facet_name[4:]
-                pubmodel = get_model('core', 'Publisher')
+                pubmodel = apps.get_model('core', 'Publisher')
                 try:
                     self.publisher =  pubmodel.objects.get(id=self.pub_id)
                 except pubmodel.DoesNotExist:

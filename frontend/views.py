@@ -23,6 +23,7 @@ from tastypie.models import ApiKey
 django imports
 '''
 from django import forms
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -38,7 +39,7 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
-from django.db.models import Q, Count, Sum, get_model
+from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory, inlineformset_factory
 from django.http import (
@@ -2379,7 +2380,7 @@ class InfoPageView(TemplateView):
         transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
         transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
         transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
-        marc = get_model('marc','MARCRecord').objects
+        marc = apps.get_model('marc','MARCRecord').objects
         marc.today = marc.filter(created__range = (date_today(), now()))
         marc.days7 = marc.filter(created__range = (date_today()-timedelta(days=7), now()))
         marc.year = marc.filter(created__year = date_today().year)

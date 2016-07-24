@@ -3,7 +3,7 @@ django imports
 """
 from django.test import TestCase
 from django.test.client import Client
-from django.db.models import get_model
+from django.apps import apps
 
 """
 regluit imports
@@ -102,9 +102,9 @@ class MarcTests(TestCase):
     work_id=None
     
     def test_records(self):
-        w = get_model('core','Work').objects.create(title="Work 1")
-        e = get_model('core','Edition').objects.create(title=w.title,work=w) 
-        eb = get_model('core','Ebook').objects.create(url = "http://example.org",edition = e,format = 'epub', rights='CC BY')
+        w = apps.get_model('core','Work').objects.create(title="Work 1")
+        e = apps.get_model('core','Edition').objects.create(title=w.title,work=w) 
+        eb = apps.get_model('core','Ebook').objects.create(url = "http://example.org",edition = e,format = 'epub', rights='CC BY')
 
         mr = models.MARCRecord.objects.create(guts=a_marc_record, edition=e )
 
@@ -119,8 +119,8 @@ class MarcTests(TestCase):
         e.set_publisher('test pub')
         e.publication_date = '2000'
         e.add_author('joe writer')
-        id = get_model('core','Identifier').objects.create(work=w,edition=e, type='isbn', value='0030839939') 
-        id = get_model('core','Identifier').objects.create(work=w,edition=e, type='oclc', value='0074009772') 
+        id = apps.get_model('core','Identifier').objects.create(work=w,edition=e, type='isbn', value='0030839939') 
+        id = apps.get_model('core','Identifier').objects.create(work=w,edition=e, type='oclc', value='0074009772') 
         
         load.stub(e)
         

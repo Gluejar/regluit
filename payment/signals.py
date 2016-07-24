@@ -11,9 +11,9 @@ pledge_created = Signal(providing_args=["transaction"]) # should really be calle
 pledge_modified = Signal(providing_args=["transaction", "up_or_down"])
 credit_balance_added = Signal(providing_args=["amount"])
 
+from django.apps import apps
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
-from django.db.models import get_model
 from django.contrib.auth.models import User
 
 # create Credit to associate with User
@@ -22,7 +22,7 @@ def create_user_objects(sender, created, instance, **kwargs):
     # don't create Credit if we are loading fixtures http://stackoverflow.com/a/3500009/7782
     if not kwargs.get('raw', False):
         try:
-            Credit = get_model('payment', 'Credit')
+            Credit = apps.get_model('payment', 'Credit')
             if created:
                 Credit.objects.create(user=instance)
         except DatabaseError:
