@@ -1332,7 +1332,11 @@ class Work(models.Model):
             if(campaign.status == 'SUCCESSFUL'):
                 status = 6
             elif(campaign.status == 'ACTIVE'):
-                target = float(campaign.target)
+                if campaign.target is not None:
+                    target = float(campaign.target)
+                else:
+                    #shouldn't happen, but did once because of a failed pdf conversion
+                    return 0
                 if target <= 0:
                     status = 6
                 else:
