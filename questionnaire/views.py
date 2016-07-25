@@ -781,7 +781,7 @@ def set_language(request, runinfo=None, next=None):
     Can also be used by a url handler, w/o runinfo & next.
     """
     if not next:
-        next = request.REQUEST.get('next', None)
+        next = request.GET.get('next', request.POST.get('next', None))
     if not next:
         next = request.META.get('HTTP_REFERER', None)
         if not next:

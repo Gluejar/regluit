@@ -25,7 +25,7 @@ def langpage(request, lang, page_to_trans):
     return page(request, page_to_trans)
 
 def set_language(request):
-    next = request.REQUEST.get('next', None)
+    next = request.POST.get('next', request.GET.get('next', None))
     if not next:
         next = request.META.get('HTTP_REFERER', None)
         if not next:

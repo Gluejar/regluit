@@ -1184,10 +1184,10 @@ class PledgeView(FormView):
     data = {}
     
     def get_preapproval_amount(self):
-        preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
+        preapproval_amount = self.request.GET.get('preapproval_amount', self.request.POST.get('preapproval_amount', None))
         if preapproval_amount:
             return preapproval_amount
-        premium_id = self.request.REQUEST.get('premium_id', None)
+        premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', None))
         if premium_id != None:
             try:
                 preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
@@ -1217,7 +1217,7 @@ class PledgeView(FormView):
             return {}
 
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
-        premium_id = self.request.REQUEST.get('premium_id', 150)
+        premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', 150))
         if transactions.count() == 0:
             ack_name=self.request.user.profile.ack_name
             ack_dedication=''
@@ -1352,7 +1352,7 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
-        self.offer_id = self.request.REQUEST.get('offer_id', None)
+        self.offer_id = self.request.GET.get('offer_id', self.request.POST.get('offer_id', None))
         self.give = self.offer_id.startswith('give') if self.offer_id else False
         if self.give:
             self.offer_id = self.offer_id[4:]
@@ -1625,7 +1625,7 @@ class FundCompleteView(TemplateView):
         self.transaction = None
         
         # pull out the transaction id and try to get the corresponding Transaction
-        transaction_id = self.request.REQUEST.get("tid")
+        transaction_id = self.request.POST.get("tid",self.request.GET.get("tid", None))
         
         if not transaction_id:
             return context
@@ -1731,7 +1731,7 @@ class PledgeCancelView(FormView):
     
         logger.info("arrived at pledge_cancel form_valid")
         # pull campaign_id from form, not from URI as we do from GET
-        campaign_id = self.request.REQUEST.get('campaign_id')
+        campaign_id = self.request.POST.get('campaign_id',self.request.GET.get('campaign_id'))
         
         # this following logic should be extraneous.
         if self.request.user.is_authenticated():
@@ -2173,7 +2173,7 @@ class ManageAccount(FormView):
                 p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
             except baseprocessor.ProcessorError as e:
                 return render(self.request, "pledge_card_error.html", {'exception':e})
-        next = self.request.REQUEST.get('next', None)
+        next = self.request.GET.get('next', self.request.POST.get('next', None))
         if next :
             return HttpResponseRedirect(next)
         else:
@@ -2880,11 +2880,11 @@ class DownloadView(PurchaseView):
         if not self.campaign or self.campaign.type != THANKS:
             return  False
         elif self.user_license and self.user_license.thanked:
-            return self.request.REQUEST.has_key('offer_id')
+            return self.request.GET.has_key('offer_id') or self.request.POST.has_key('offer_id')
         elif self.lib_thanked:
             return False
         elif self.campaign.status != 'ACTIVE':
-            return self.request.REQUEST.has_key('testmode')
+            return self.request.GET.has_key('testmode') or self.request.POST.has_key('testmode')
         else: 
             return True
         
@@ -3013,8 +3013,8 @@ class DownloadView(PurchaseView):
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
             'amount': D(self.request.session.pop('amount')/100) if self.request.session.has_key('amount') else None,
-            'testmode': self.request.REQUEST.has_key('testmode'),
-            'source': self.request.REQUEST.get('source', ''),
+            'testmode': self.request.GET.has_key('testmode') or self.request.POST.has_key('testmode'),
+            'source': self.request.GET.get('source', self.request.POST.get('source', '')),
 
         })
         return context
