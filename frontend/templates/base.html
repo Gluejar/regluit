@@ -100,9 +100,9 @@
                     <ul class="menu">
                         <li><a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign In</span></a></li>
                        {% if not suppress_search_box %}
-                            {% ifnotequal request.get_full_path "/accounts/register/" %}
+                            {% if request.get_full_path != "/accounts/register/" %}
                                 <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
-                            {% endifnotequal %}
+                            {% endif %}
                         {% endif %}
                     </ul>
                 </div>

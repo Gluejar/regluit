@@ -9,7 +9,7 @@
         {{ work.title }} is a Free eBook. {% for fmt in  work.formats %}[{{ fmt }}]{% endfor %}
     {% else %}
         Help us make  {{ work.title }} a Free eBook!
-    {% endif %}{% ifequal action 'editions' %} – All Editions{% endifequal %}
+    {% endif %}{% if action == 'editions' %} – All Editions{% endif %}
 {% endblock %}
 
 {% block extra_css %}
@@ -51,17 +51,13 @@
     {% if request.user in work.last_campaign.managers.all %}
         <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a manager for this campaign, you can <a href="{% url 'manage_campaign' id=work.last_campaign.id %}">edit this campaign</a>.</div>
     {% endif %}
-{% else %}
-    {% if not work.user_with_rights %}
-        {% if request.user.rights_holder.all %}
-            <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  Check out the <a href="{% url 'rightsholders' %}">rights holder tools page</a>.</div>            
-        {% endif %}
-    {% else %}
-        {% if request.user == work.user_with_rights %}
-            {% ifnotequal work.last_campaign.status 'SUCCESSFUL' %}
-                <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a rights holder for this work, you can <a href="{% url 'rightsholders' %}">launch a campaign</a>.</div>
-            {% endifnotequal %}
-        {% endif %}
+{% elif not work.user_with_rights %}
+    {% if request.user.rights_holder.all %}
+        <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're an authorized Unglue.it rights holder, if you own the worldwide electronic rights to this work, you may claim it through the More... tab. Need help?  Check out the <a href="{% url 'rightsholders' %}">rights holder tools page</a>.</div>            
+    {% endif %}
+{% elif request.user == work.user_with_rights %}
+    {% if work.last_campaign.status != 'SUCCESSFUL' %}
+        <div class="launch_top pale">Hi, {{ request.user.username }}. Since you're a rights holder for this work, you can <a href="{% url 'rightsholders' %}">launch a campaign</a>.</div>
     {% endif %}
 {% endif %}
 {% endblock %}
@@ -96,9 +92,9 @@
                                 <div>
                                         <div class="pubinfo">
                                             <h3 class="book-author">
-                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />{{ work.relators.0.name }}</a></span>{% ifequal work.authors.count 2 %}
+                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
                                                 and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" />{{ work.relators.1.name }}</a></span>
-                                            {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
+                                            {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
                                             {% endif %}
                                             </h3>
                                             <h3 class="book-year"> 
@@ -110,53 +106,53 @@
                                         </div>
                                     </div>
                                 </div>
-                                {% ifequal status 'ACTIVE' %}
-                                    {% ifnotequal work.last_campaign.type 3 %}
+                                {% if status == 'ACTIVE' %}
+                                    {% if work.last_campaign.type != 3 %}
                                         <div class="thermometer" title="{{ work.percent_of_goal }}% of goal">
                                             <div class="cover" style="width: {{ cover_width }}%;">
                                             </div>
                                             <span>{{ work.percent_of_goal }}% of goal</span>
                                         </div>
-                                    {% endifnotequal %}
+                                    {% endif %}
                                     <div class="pledged-info noborder">
                                         <div class="campaign-status-info">
-                                            {% ifequal work.last_campaign.type 1 %}
+                                            {% if work.last_campaign.type == 1 %}
                                             <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> pledged
-                                            {% endifequal %}
-                                            {% ifequal work.last_campaign.type 2 %}
+                                            {% endif %}
+                                            {% if work.last_campaign.type == 2 %}
                                             current ungluing date: 
-                                            {% endifequal %}
-                                            {% ifequal work.last_campaign.type 3 %}
+                                            {% endif %}
+                                            {% if work.last_campaign.type == 3 %}
                                             <span>${{ work.last_campaign.current_total|floatformat:0|intcomma }}</span> of thanks from
-                                            {% endifequal %}
+                                            {% endif %}
                                         </div>
                                         <div class="campaign-status-info  explainer">
-                                            {% ifequal work.last_campaign.type 1 %}
+                                            {% if work.last_campaign.type == 1 %}
                                             <span>${{ work.last_campaign.target|floatformat:0|intcomma }}</span> goal
-                                            {% endifequal %}
-                                            {% ifequal work.last_campaign.type 2 %}
+                                            {% endif %}
+                                            {% if work.last_campaign.type == 2 %}
                                             <span class="current_cc_date ">{{ work.last_campaign.cc_date|date:"M j, Y" }}</span>
                                             <span class="explanation">After {{ work.last_campaign.cc_date|date:"M j, Y" }} this book will be available for free to anyone, anywhere. Every purchase before then brings that date closer.</span>
-                                            {% endifequal %}
-                                            {% ifnotequal work.last_campaign.type 3 %}
+                                            {% endif %}
+                                            {% if work.last_campaign.type != 3 %}
                                         </div>
                                         <div class="campaign-status-info">
-                                            {% endifnotequal %}
+                                            {% endif %}
                                             {% if work.last_campaign.supporters_count == 1 %}
                                                 <span>1</span> ungluer
                                             {% else %}
                                                 <span>{{ work.last_campaign.supporters_count }}</span> ungluers
                                             {% endif %}                                    
-                                            {% ifequal work.last_campaign.type 3 %}
+                                            {% if work.last_campaign.type == 3 %}
                                                 <br />
                                                 {% if work.last_campaign.anon_count == 1 %}
                                                     <span>1</span> other
                                                 {% else %}
                                                     <span>{{ work.last_campaign.anon_count }}</span> others
                                                 {% endif %}                                    
-                                            {% endifequal %}
+                                            {% endif %}
                                         </div>
-                                        {% ifequal work.last_campaign.type 2 %}
+                                        {% if work.last_campaign.type == 2 %}
                                             <div class="campaign-status-info">
                                                 {% if work.lib_acqs.count == 1 %}
                                                     <span>1</span> copy in a library
@@ -164,20 +160,20 @@
                                                     <span>{{ work.lib_acqs.count }}</span> in libraries
                                                 {% endif %}                                    
                                             </div>
-                                        {% endifequal %}
-                                        {% ifnotequal work.last_campaign.type 3 %}
+                                        {% endif %}
+                                        {% if work.last_campaign.type != 3 %}
                                             <div class="campaign-status-info explainer">
-                                                {% ifequal work.last_campaign.type 1 %}
+                                                {% if work.last_campaign.type == 1 %}
                                                 <span>{{ work.last_campaign.countdown }}</span> to go
                                                 {% else %}
                                                 <span>${{ work.last_campaign.left|floatformat:0|intcomma  }}</span> to go
                                                 <span class="explanation">${{ work.last_campaign.left|floatformat:0|intcomma  }} is the amount it would take to make this ebook free to the world tomorrow.</span>
-                                               {% endifequal %}
+                                               {% endif %}
                                             </div>
-                                        {% endifnotequal %}
+                                        {% endif %}
                                     </div>
                                 {% else %}
-                                    {% ifequal status 'SUCCESSFUL' %}
+                                    {% if status == 'SUCCESSFUL' %}
                                         <div class="thermometer successful">
                                             This campaign succeeded on {{ work.last_campaign.success_date|date:"M j, Y" }}.
                                         </div>
@@ -199,7 +195,7 @@
                                                 <span>Unglued!</span>
                                             </div>
                                         </div>
-                                    {% endifequal %}
+                                    {% endif %}
                                 
                                     <div class="pledged-info">
                                         {% if wishers == 1 %}
@@ -208,7 +204,7 @@
                                             {{ wishers }} Ungluers have
                                         {% endif %} Faved this Work
                                     </div>
-                                {% endifequal %}
+                                {% endif %}
                                 <div class="find-book">
                                     <label>Learn more at...</label>
                                     <div class="find-link">
@@ -228,11 +224,11 @@
                                         <div class="create-account">
                                             <span title="{% url 'work' work_id %}">Login to Fave</span>
                                         </div>
-                                    {% else %}{% if request.user.id in work.last_campaign.supporters %}
+                                    {% elif request.user.id in work.last_campaign.supporters %}
                                         <div class="add-wishlist">
                                             <span class="on-wishlist">Faved!</span>
                                         </div>
-                                    {% else %}{% if work in request.user.wishlist.works.all %}
+                                    {% elif work in request.user.wishlist.works.all %}
                                         <div class="remove-wishlist-workpage">
                                             <span id="w{{ work_id }}">Remove from My Faves</span>
                                         </div>
@@ -240,12 +236,12 @@
                                         <div class="add-wishlist">
                                             <span class="work_id" id="w{{ work_id }}">Add to My Faves</span>
                                         </div>
-                                    {% endif %}{% endif %}{% endif %}
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                         {% get_comment_count for work as comment_count %}
-                        {% ifequal action 'editions' %}
+                        {% if action == 'editions' %}
                         <div class="content-block-heading" id="tabs">
                             <ul class="tabs">
                                 <li class="tabs1"><a href="{% url 'work' work.id %}?tab=1">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
@@ -263,7 +259,7 @@
                                 <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">More...</a></li>
                             </ul>
                         </div>
-                        {% endifequal %}
+                        {% endif %}
                         <div id="content-block-content">
                             <div id="tabs-1" class="tabs {% if activetab == '1' %}active{% endif %}">
                                 <div class="tabs-content">
@@ -274,12 +270,10 @@
                                         {% else %}
                                             {{ work.description|safe }}
                                         {% endif %}
-                                    {% else %}
-                                        {% if  work.description %}
-                                            {{ work.description|safe }}
-                                        {% else %} 
-                                            {{ work.last_campaign.description|safe }}
-                                        {% endif %}
+                                    {% elif  work.description %}
+                                        {{ work.description|safe }}
+                                    {% else %} 
+                                        {{ work.last_campaign.description|safe }}
                                     {% endif %}
                                     </div>
                                 </div>
@@ -342,9 +336,9 @@
                             </div>
                             <div id="tabs-4" class="tabs {% if activetab == '4' %}active{% endif %}">
                                 <div class="tabs-content">
-                                    {% ifequal action 'display' %}
+                                    {% if action == 'display' %}
                                         {% if status == 'ACTIVE' %}
-                                            {% ifequal work.last_campaign.type 1 %}
+                                            {% if work.last_campaign.type == 1 %}
                                                 <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
                                                 <p>The rights holder, {% for claim in work.claim.all %}
                                                     {% if claim.status == 'active' %}
@@ -353,8 +347,8 @@
                                                 {% endfor %}
                                                 , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
                                                 You can help!</p>
-                                            {% endifequal %}
-                                            {% ifequal work.last_campaign.type 2 %}
+                                            {% endif %}
+                                            {% if work.last_campaign.type == 2 %}
                                                 <h3 class="tabcontent-title">A Buy-to-Unglue Campaign is running to unglue <i>{{work.title}}</i>!</h3>
                                                 <p>The rights holder, {% for claim in work.claim.all %}
                                                     {% if claim.status == 'active' %}
@@ -363,8 +357,8 @@
                                                 {% endfor %}
                                                 , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) on {{ work.last_campaign.cc_date }}. For every copy that ungluers purchase, that date gets sooner. ${{ work.last_campaign.left|floatformat:0|intcomma }} of sales will unglue the book <i>TODAY</i>.
                                                 You can help!</p>
-                                            {% endifequal %}
-                                            {% ifequal work.last_campaign.type 3 %}
+                                            {% endif %}
+                                            {% if work.last_campaign.type == 3 %}
                                                 <h3 class="tabcontent-title">A Thanks-for-Ungluing Campaign is running to reward the creators of <i>{{work.title}}</i>!</h3>
                                                 <p>The rights holder, {% for claim in work.claim.all %}
                                                     {% if claim.status == 'active' %}
@@ -373,7 +367,7 @@
                                                 {% endfor %}
                                                 , has released <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) .
                                                 You can help us say "Thank You!" so that other creators will do the same.</p>
-                                            {% endifequal %}
+                                            {% endif %}
                                             <h4>Campaign details: the fine print</h4>
                                             {{ work.last_campaign.details|safe }}
                                         {% endif %}
@@ -459,7 +453,7 @@
                                             {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
                                             </form>
                                         {% endif %}
-                                    {% endifequal %}
+                                    {% endif %}
                                     <h4>Editions</h4>
                                     {% if alert %}
                                         <div class="yikes"><br />{{ alert }}</div>
@@ -468,7 +462,7 @@
                                         <div><a href="{% url 'new_edition' work_id edition.id %}">Create a new edition for this work</a><br /><br /></div>
                                     {% endif %}
                                     
-                                    {% ifequal action 'editions' %}
+                                    {% if action == 'editions' %}
                                         {% include 'split.html' %}
                                     {% else %}
                                         {% with work.preferred_edition as edition %} 
@@ -476,13 +470,13 @@
                                         {% endwith %}
                                         {% if not campaign %}
                                             {% for edition in editions %}
-                                                {% ifnotequal edition work.preferred_edition %}
+                                                {% if edition != work.preferred_edition %}
                                                     {% include 'edition_display.html' %}
-                                                {% endifnotequal %}
+                                                {% endif %}
                                             {% endfor %}
                                         {% endif %}
                                         <div><a href="{% url 'work_editions' work_id  %}">All editions for this work.</a></div>
-                                    {% endifequal %}
+                                    {% endif %}
                                     
                                 </div>
                             </div>
@@ -499,33 +493,29 @@
                         {% else %}
                             <div class="btn_support"><form action="{% url 'pledge' work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
                         {% endif %}
-                      {% else %}{% if work.last_campaign.type == 3 %}
+                      {% elif work.last_campaign.type == 3 %}
                         <div class="btn_support">
                             <a href="{% url 'download' work_id %}{% if action == 'preview' %}?testmode=1{% endif %}" class="hijax"><span>Download</span></a>
                         </div>
                         <div style="text-align: center;">... and thank the creators!</div>
-                      {% else %}
-                        {% if license_is_active %}
+                      {% elif license_is_active %}
                             <div class="btn_support">
                                 <a href="{% url 'download_purchased' work_id %}" class="hijax"><span>Download</span></a>
                             </div>
-                        {% else %}{% if borrowable %}
+                      {% elif borrowable %}
                             <div class="btn_support"><form action="{% url 'borrow' work_id %}" method="get"><input type="submit" value="Borrow" /></form></div>
-                        {% else %}
+                      {% else %}
                             <div class="btn_support"><form action="{% url 'purchase' work_id %}" method="get"><input type="submit" value="{% if next_acq %}{% if on_hold %}On Hold{% else %}Reserve{% endif %}{% else %}Purchase{% endif %}" /></form></div>
-                        {% endif %}{% endif %}
-                      {% endif %}{% endif %}
-                    {% else %}
-                        {% if work.is_free %}
+                      {% endif %}
+                    {% elif work.is_free %}
                             <div class="btn_support">
                                 <a href="{% url 'download' work_id %}" class="hijax"><span>Download</span></a>
                             </div>
-                        {% endif %}
                     {% endif %}
                 </div>
                 <br />
                 <div class="js-rightcol-pad rounded">
-                    {% ifequal status 'ACTIVE' %}{% if work.last_campaign.email %}
+                    {% if status == 'ACTIVE' and work.last_campaign.email %}
                     <div class="jsmodule">
                         <h3 class="jsmod-title"><span>Ask Questions</span></h3>
                         <div class="jsmod-content">
@@ -534,7 +524,7 @@
                             </ul>
                         </div>
                     </div>
-                    {% endif %}{% endifequal %}
+                    {% endif %}
                     <div class="jsmodule">
                         <h3 class="jsmod-title"><span>Share</span></h3>
                         <div class="jsmod-content">
@@ -543,11 +533,11 @@
                                 {% if work.is_free %}
                                     <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20DRM%2Dfree%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
                                 {% else %}
-                                    {% ifequal status 'SUCCESSFUL' %}
+                                    {% if status == 'SUCCESSFUL' %}
                                         <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20looking%20forward%20to the%20free%2C%20non%2DDRM%20ebook%20of%20{{ work.title|urlencode }}%2E%20You%20can%20too%21 "><li class="twitter"><span>Twitter</span></li></a>
                                     {% else %}
                                         <a href="https://twitter.com/intent/tweet?url={{request.build_absolute_uri|urlencode:"" }}&amp;text=I%27m%20ungluing%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Join%20me%21"><li class="twitter"><span>Twitter</span></li></a>
-                                    {% endifequal %}
+                                    {% endif %}
                                 {% endif %}
                                 {% if request.user.is_authenticated %}<a href="{% url 'emailshare' '' %}?next={{request.build_absolute_uri|urlencode:""}}"><li class="email"><span>Email</span></li></a>{% endif %}
                                 <a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
@@ -565,22 +555,22 @@
                                         {% if pledged %}
                                             {% for premium in premiums %}
                                                 {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-                                                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                                    <li class="{% if forloop.first %}first{% elif forloop.last %}last{% endif %}">
                                                     <a href="{% url 'pledge_modify' work_id %}?premium_id={{premium.id}}">
                                                     <span class="menu-item-price">{% if premium.amount %}${{ premium.amount|floatformat:0|intcomma }}{% else %}Any amount{% endif %}</span>{% if pledged.0.premium == premium %}<div class="you_pledged">Yours!</div>{% endif %}
                                                     <span class="menu-item-desc">{{ premium.description }}</span>
-                                                    {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+                                                    {% if premium.limit != 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endif %}
                                                     </a></li>
                                                 {% endif %}
                                             {% endfor %}
                                         {% else %}
                                             {% for premium in premiums %}
                                                 {% if premium.limit == 0  or  premium.limit > premium.premium_count  %}
-                                                    <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                                    <li class="{% if forloop.first %}first{% elif forloop.last %}last{% endif %}">
                                                     <a href="{% url 'pledge' work_id %}?premium_id={{premium.id}}">
                                                     <span class="menu-item-price">${{ premium.amount|floatformat:0|intcomma }}</span>
                                                     <span class="menu-item-desc">{{ premium.description }}</span>
-                                                    {% ifnotequal premium.limit 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endifnotequal %}
+                                                    {% if premium.limit != 0 %}<br /> Only  {{ premium.premium_remaining }} remaining! {% endif %}
                                                     </a></li>
                                                 {% endif %}
                                             {% endfor %}
@@ -588,7 +578,7 @@
                                     </ul>
                                 </div>
                         {% endif %}
-                        {% ifequal work.last_campaign.type 1 %}
+                        {% if work.last_campaign.type == 1 %}
                             <a href="{% url 'pledge' work_id %}"><h3 class="jsmod-title"><span>Acknowledgements</span></h3></a>
                             <div class="jsmod-content">
                                 In addition to any premiums you're eligible for, you'll automatically be acknowledged in the unglued ebook as follows:
@@ -648,14 +638,14 @@
                                     {% endif %}
                                 </ul>
                             </div>
-                        {% endifequal %}
-                        {% ifequal work.last_campaign.type 2 %}
+                        {% endif %}
+                        {% if work.last_campaign.type == 2 %}
                             {% if lib_licenses.available %}
                                 <h3 class="jsmod-title"><span>Borrow</span></h3>
                                 <div class="jsmod-content">
                                     <ul class="support menu">
                                     {% for lib_license in lib_licenses.all %}
-                                        <li class="{% if forloop.first %}first{% else %}{% if forloop.last %}last{% endif %}{% endif %}">
+                                        <li class="{% if forloop.first %}first{% elif forloop.last %}last{% endif %}">
                                             <a href="???">Borrow!</a>
                                         </li>
                                     {% endfor %}
@@ -713,8 +703,8 @@
                                     </ul>
                                 </div>
                             {% endif %}
-                        {% endifequal %}
-                        {% ifequal work.last_campaign.type 3 %}
+                        {% endif %}
+                        {% if work.last_campaign.type == 3 %}
                             <h3 class="jsmod-title"><span>Thank the Creators</span></h3>
                             <div class="jsmod-content">
                                 <ul class="support menu">
@@ -746,7 +736,7 @@
                                     {% endif %}
                                 </ul>
                             </div>
-                        {% endifequal %}
+                        {% endif %}
                         </div>
                     {% endif %}
                 </div>
