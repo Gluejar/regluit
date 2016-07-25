@@ -99,6 +99,7 @@ a_marc_record = '''<?xml version="1.0" encoding="UTF-8"?><record xmlns="http://w
 </record>'''
 
 class MarcTests(TestCase):
+    fixtures = ['initial_data.json']
     work_id=None
     
     def test_records(self):

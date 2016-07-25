@@ -173,7 +173,7 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
-
+    fixtures = ['initial_data.json']
     def test_googlebooks_id(self):
         r = self.client.get("/googlebooks/wtPxGztYx-UC/")
         self.assertEqual(r.status_code, 302)
