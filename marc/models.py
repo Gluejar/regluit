@@ -10,7 +10,8 @@ from django.db import models
 from . import load
 
 # weak coupling
-EDITION_MODEL = "core.Edition"
+EDITION_MODEL = getattr(settings, "EDITION_MODEL", "core.Edition")
+
 logger = logging.getLogger(__name__)
 
 marc_rels = {

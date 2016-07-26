@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url, include
 
 from frontend.views import social_auth_reset_password
-from regluit.admin import admin_site
+from regluit.admin import site
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
 
 sitemaps = {
@@ -18,7 +18,7 @@ urlpatterns = patterns('',
     url(r'', include('regluit.marc.urls')),
     url(r'^bisac/', include('regluit.bisac.urls')),
     url(r'^selectable/', include('selectable.urls')),
-    url(r'^admin/', include(admin_site.urls)), 
+    url(r'^admin/', include(site.urls)), 
     url(r'^comments/', include('django_comments.urls')),
     url(r"^notification/", include('notification.urls')),
     url(r'^ckeditor/', include('ckeditor.urls')),
