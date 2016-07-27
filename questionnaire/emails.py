@@ -9,7 +9,7 @@ from email.Header import Header
 from email.Utils import formataddr, parseaddr
 from django.core.mail import get_connection, EmailMessage
 from django.contrib.auth.decorators import login_required
-from django.template import Context, loader
+from django.template import loader
 from django.utils import translation
 from django.conf import settings
 from django.http import Http404, HttpResponse
@@ -73,7 +73,7 @@ def _send_email(runinfo):
     subject = runinfo.subject
     translation.activate(subject.language)
     tmpl = loader.get_template(settings.QUESTIONNAIRE_EMAIL_TEMPLATE)
-    c = Context()
+    c = {}
     c['surname'] = subject.surname
     c['givenname'] = subject.givenname
     c['gender'] = subject.gender

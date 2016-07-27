@@ -1,5 +1,5 @@
 import django.template 
-from django.template import Template, Context
+from django.template import Template
 register = django.template.Library()
 
 @register.simple_tag(takes_context=True)
