@@ -91,24 +91,34 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = u'a+bo0@3$n18e(newe7og6hmq$r#bkib73z(+s*n25%6q3+22jo'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [join(PROJECT_DIR, "frontend", "templates"),
+                 join(PROJECT_DIR, "frontend", "templates", "registration"),
+                 join(PROJECT_DIR, "frontend", "questionnaire"),
+                 ],
+        'OPTIONS':{
+            'context_processors':[
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+                'regluit.context_processors.is_preview',
+                'regluit.context_processors.count_unseen',
+                ],
+            'loaders':[
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                ],
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.request',
-    'regluit.context_processors.is_preview',
-    'regluit.context_processors.count_unseen',
-)
+        }
+    },
+]
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -123,15 +133,6 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'regluit.urls'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    join(PROJECT_DIR, "frontend", "templates"),
-    join(PROJECT_DIR, "frontend", "templates", "registration"),
-    join(PROJECT_DIR, "questionnaire", "templates"),
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',

@@ -2,7 +2,7 @@ from regluit.settings.common import *
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUGG
 
 SITE_ID = 5
 
